@@ -1,0 +1,22 @@
+import 'package:flutter/material.dart';
+
+class AppColors {
+  static const primary = Color(0xFF274646);
+  static const bgColor = Color(0xFFF0F0F0);
+  static const secondaryColor = Color(0xFF006C53);
+  static const littleGreen = Color(0xFFCFE9DC);
+  static const lightText = Color.fromARGB(255, 177, 182, 187);
+  static const containerColor = Color(0xFFECE4E4);
+  static const green = Color(0xFF779680);
+  static const error = Colors.red;
+  static const myRedBrown = Color(0xFFFF4500);
+
+  static const lightBackground = Color(0xFFFAFAFA);
+  static const darkBackground = Color(0xFF0D0C0C);
+  static const lightGray = Color.fromARGB(255, 228, 227, 227);
+  static const gray = Color(0xFFB1B1B1);
+  static const darkGray = Color(0xFF5F5B5B);
+  static const white = Colors.white;
+  static const black = Colors.black;
+  static const transparent = Colors.transparent;
+}
