@@ -52,6 +52,8 @@ dependencies:
   pinput: ^5.0.0
   yandex_mapkit: ^4.1.0
   equatable: ^2.0.7 
+  google_maps_flutter: ^2.10.0
+  
 
 dev_dependencies:
   flutter_test:
@@ -79,7 +81,7 @@ flutter:
   assets:
     - assets/fonts/
     - assets/images/
-    - assets/vectors/
+   
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

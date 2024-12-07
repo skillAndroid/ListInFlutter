@@ -5,6 +5,7 @@ import 'package:hugeicons/hugeicons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:list_in/features/auth/presentation/widgets/auth_text_field.dart';
+import 'package:list_in/google_map.dart';
 import 'package:smooth_corner/smooth_corner.dart';
 
 class RegisterUserDataPage extends StatefulWidget {
@@ -24,7 +25,7 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
   final _ageController = TextEditingController();
 
   int _currentPage = 0;
-  final int _totalPages = 4; // Total number of pages
+  final int _totalPages = 5; // Total number of pages
   int _selectedOption = 0;
 
   final List<Map<String, String>> options = [
@@ -351,6 +352,33 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                   },
                                 ),
                               ),
+                              _buildPage(
+                                title: 'Select Your Location',
+                                subtitle:
+                                    'Tap to select your location on the map.',
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    showModalBottomSheet(
+                                      context: context,
+                                      enableDrag: false,
+                                      isScrollControlled: true,
+                                      builder: (BuildContext context) => const FractionallySizedBox(
+                                          heightFactor: 1.0, // Полный экран
+                                          child: Scaffold(
+                                            body:
+                                                MapSample(), // Ваша карта или кастомный виджет с картой
+                                          ),
+                                        ),
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 20),
+                                    backgroundColor: AppColors.littleGreen,
+                                  ),
+                                  child: const Text('Open Map'),
+                                ),
+                              )
                             ],
                           ),
                         ),
@@ -364,7 +392,7 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                               child: ElevatedButton(
                                 onPressed: state is AuthLoading
                                     ? null
-                                    : _currentPage < 3
+                                    : _currentPage < 4
                                         ? _nextPage
                                         : () {
                                             if (_formKey.currentState!
@@ -407,7 +435,7 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                         ),
                                       )
                                     : Text(
-                                        _currentPage < 3
+                                        _currentPage < 4
                                             ? 'Continue'
                                             : 'Submit',
                                         style:

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/config/theme/app_theme.dart';
 import 'package:list_in/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:list_in/features/auth/presentation/pages/login_page.dart';
 import 'package:list_in/features/auth/presentation/pages/welcome_page.dart';
 import 'package:list_in/list.dart';
 import 'injection_container.dart' as di;
@@ -387,7 +388,6 @@ final List<AdvertisedProduct> sampleVideos = [
     id: "21",
   ),
 ];
-
 final List<Product> sampleProducts = [
   Product(
     name: "iPhone 4 Pro Max",
@@ -867,14 +867,18 @@ final List<Product> sampleProducts = [
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await di.init();
-
-  runApp(const MaterialApp(
-    home: MyApp(),
-    // home: ProductListScreen(
-    //   advertisedProducts: sampleVideos,
-    //   regularProducts: sampleProducts,
-    // ),
-  ));
+  runApp(
+    MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => di.sl<AuthBloc>(),
+        ),
+      ],
+      child: const MaterialApp(
+        home: MyApp(),
+      ),
+    )
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -884,23 +888,16 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final ThemeData theme = AppTheme.lightTheme;
     AppTheme.setStatusBarAndNavBarColor(theme);
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (_) => di.sl<AuthBloc>(),
-        ),
-      ],
-      child: MaterialApp(
-        title: 'Your App',
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
-        debugShowCheckedModeBanner: false,
-        home: const WelcomePage(),
-        routes: {
-          '/home': (context) =>
-              const Scaffold(body: Center(child: Text('Home Page'))),
-        },
-      ),
+    return MaterialApp(
+      title: 'Your App',
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      debugShowCheckedModeBanner: false,
+      home: const WelcomePage(),
+      routes: {
+        '/home': (context) =>
+            const Scaffold(body: Center(child: Text('Home Page'))),
+      },
     );
   }
 }
