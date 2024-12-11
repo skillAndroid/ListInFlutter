@@ -56,6 +56,7 @@ class AuthRepositoryImpl implements AuthRepository {
         final result = await authRemoteDataSource.registerUserData(user);
         return result.fold(
           (error) {
+            // ignore: avoid_print
             print('Remote login error: $error');
             return Left(ServerFailure());
           },
@@ -69,6 +70,7 @@ class AuthRepositoryImpl implements AuthRepository {
           },
         );
       } catch (e) {
+        // ignore: avoid_print
         print('Repository login error: $e');
         return Left(ServerFailure());
       }
@@ -84,6 +86,7 @@ class AuthRepositoryImpl implements AuthRepository {
         final result = await authRemoteDataSource.signup(signup);
         return result.fold(
           (error) {
+            // ignore: avoid_print
             print('Remote signup error: $error');
             return Left(ServerFailure());
           },
@@ -92,12 +95,14 @@ class AuthRepositoryImpl implements AuthRepository {
               await authLocalDataSource.cacheRetrivedEmail(retrivedEmail);
               return Right(retrivedEmail);
             } else {
+              // ignore: avoid_print
               print('Email empty retrived!!!!!!!');
               return Left(ServerFailure());
             }
           },
         );
       } catch (e) {
+        // ignore: avoid_print
         print('Repository signup error: $e');
         return Left(ServerFailure());
       }

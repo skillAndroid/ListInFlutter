@@ -5,7 +5,7 @@ import 'package:hugeicons/hugeicons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:list_in/features/auth/presentation/widgets/auth_text_field.dart';
-import 'package:list_in/google_map.dart';
+import 'package:list_in/features/map/presentation/map/google_map.dart';
 import 'package:smooth_corner/smooth_corner.dart';
 
 class RegisterUserDataPage extends StatefulWidget {
@@ -371,11 +371,11 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                         ),
                                     );
                                   },
-                                  style: ElevatedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 20),
-                                    backgroundColor: AppColors.littleGreen,
-                                  ),
+                                  // style: ElevatedButton.styleFrom(
+                                  //   padding: const EdgeInsets.symmetric(
+                                  //       vertical: 20),
+                                  //   backgroundColor: AppColors.littleGreen,
+                                  // ),
                                   child: const Text('Open Map'),
                                 ),
                               )

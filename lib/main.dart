@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/config/theme/app_theme.dart';
 import 'package:list_in/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:list_in/features/auth/presentation/pages/login_page.dart';
-import 'package:list_in/features/auth/presentation/pages/welcome_page.dart';
+import 'package:list_in/features/map/presentation/bloc/MapBloc.dart';
+import 'package:list_in/features/map/presentation/map/google_map.dart';
 import 'package:list_in/list.dart';
 import 'injection_container.dart' as di;
 
@@ -867,18 +867,19 @@ final List<Product> sampleProducts = [
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await di.init();
-  runApp(
-    MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (_) => di.sl<AuthBloc>(),
-        ),
-      ],
-      child: const MaterialApp(
-        home: MyApp(),
+  runApp(MultiBlocProvider(
+    providers: [
+      BlocProvider(
+        create: (_) => di.sl<AuthBloc>(),
       ),
-    )
-  );
+      BlocProvider<MapBloc>(
+        create: (_) => di.sl<MapBloc>(), // Provide the MapBloc here
+      ),
+    ],
+    child: const MaterialApp(
+      home: MyApp(),
+    ),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -893,7 +894,7 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       debugShowCheckedModeBanner: false,
-      home: const WelcomePage(),
+      home: const MapSample(), //WelcomePage(),
       routes: {
         '/home': (context) =>
             const Scaffold(body: Center(child: Text('Home Page'))),

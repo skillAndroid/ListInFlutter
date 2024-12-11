@@ -15,10 +15,11 @@ class VideoPlayerWidget extends StatefulWidget {
     required this.isPlaying,
     required this.onPlay,
     required this.onPause,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
+  // ignore: library_private_types_in_public_api
   _VideoPlayerWidgetState createState() => _VideoPlayerWidgetState();
 }
 
@@ -33,6 +34,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   }
 
   void _initializeVideo() {
+    // ignore: deprecated_member_use
     _controller = VideoPlayerController.network(widget.videoUrl)
       ..initialize().then((_) {
         setState(() {

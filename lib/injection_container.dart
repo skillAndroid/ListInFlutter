@@ -14,6 +14,12 @@ import 'package:list_in/features/auth/domain/usecases/register_user_data.dart';
 import 'package:list_in/features/auth/domain/usecases/signup_usecase.dart';
 import 'package:list_in/features/auth/domain/usecases/verify_email_signup.dart';
 import 'package:list_in/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:list_in/features/map/data/repositories/location_repository_impl.dart';
+import 'package:list_in/features/map/data/sources/location_remote_datasource.dart';
+import 'package:list_in/features/map/domain/repositories/location_repository.dart';
+import 'package:list_in/features/map/domain/usecases/get_location_usecase.dart';
+import 'package:list_in/features/map/domain/usecases/search_locations_usecase.dart';
+import 'package:list_in/features/map/presentation/bloc/MapBloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final sl = GetIt.instance;
@@ -69,4 +75,19 @@ Future<void> init() async {
     dio.options.receiveTimeout = const Duration(seconds: 3);
     return dio;
   });
+
+  sl.registerFactory(() => MapBloc(
+        getLocationUseCase: sl(),
+        searchLocationsUseCase: sl(),
+      ));
+
+  sl.registerLazySingleton(() => GetLocationUseCase(sl()));
+  sl.registerLazySingleton(() => SearchLocationsUseCase(sl()));
+  sl.registerLazySingleton<LocationRepository>(() => LocationRepositoryImpl(
+        remoteDataSource: sl(),
+        networkInfo: sl(),
+      ));
+
+  sl.registerLazySingleton<LocationRemoteDatasource>(
+      () => LocationRemoteDataSourceImpl(dio: sl()));
 }
