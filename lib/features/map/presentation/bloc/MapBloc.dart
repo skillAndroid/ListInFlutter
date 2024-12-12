@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -7,11 +9,17 @@ import 'package:list_in/features/map/domain/entities/location_entity.dart';
 import 'package:list_in/features/map/domain/usecases/get_location_usecase.dart';
 import 'package:list_in/features/map/domain/usecases/search_locations_usecase.dart';
 import 'package:list_in/features/map/presentation/bloc/MapState.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 
 class MapBloc extends Cubit<MapState> {
   final GetLocationUseCase getLocationUseCase;
   final SearchLocationsUseCase searchLocationsUseCase;
+
+  final _searchQueryController = BehaviorSubject<String>();
+  final _cameraIdleController = BehaviorSubject<Point>();
+  late final StreamSubscription _searchSubscription;
+  late final StreamSubscription _cameraIdleSubscription;
 
   MapBloc({
     required this.getLocationUseCase,
@@ -23,20 +31,31 @@ class MapBloc extends Cubit<MapState> {
               longitude: -122.4194,
             ),
           ),
-        );
+        ) {
+    _searchSubscription = _searchQueryController
+        .debounceTime(
+            const Duration(milliseconds: 500)) // Устанавливаем 500 мс дебаунса
+        .listen((query) => _performSearch(query));
+    _cameraIdleSubscription = _cameraIdleController
+        .debounceTime(
+            const Duration(milliseconds: 800)) // Устанавливаем 500 мс дебаунса
+        .listen((currentCenter) => _handleCameraIdle(currentCenter));
+  }
 
   void onCameraMove() {
     emit(MapMovingState());
   }
 
-  Future<void> onCameraIdle(Point currentCenter) async {
-    emit(MapLoadingState());
+  void onCameraIdle(Point currentCenter) {
+    _cameraIdleController.add(currentCenter); // Добавляем событие в поток
+  }
 
+  void _handleCameraIdle(Point currentCenter) async {
+    emit(MapLoadingState());
     final coordinates = CoordinatesEntity(
       latitude: currentCenter.latitude,
       longitude: currentCenter.longitude,
     );
-
     try {
       final locationName = await getLocationUseCase(params: coordinates);
       emit(MapIdleState(currentCenter, locationName: locationName));
@@ -47,7 +66,11 @@ class MapBloc extends Cubit<MapState> {
     }
   }
 
-  Future<void> searchLocations(String query) async {
+  void searchLocations(String query) {
+    _searchQueryController.add(query); // Добавляем запрос в поток
+  }
+
+  Future<void> _performSearch(String query) async {
     emit(MapLoadingState());
 
     try {
@@ -95,5 +118,14 @@ class MapBloc extends Cubit<MapState> {
     } else {
       return UnexpectedFailure(); // Например, тип для неизвестных ошибок
     }
+  }
+
+  @override
+  Future<void> close() {
+    _searchSubscription.cancel(); // Отписываемся от потока
+    _searchQueryController.close(); // Закрываем контроллер
+    _cameraIdleSubscription.cancel();
+    _cameraIdleController.close(); // Закрываем контроллер
+    return super.close();
   }
 }

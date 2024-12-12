@@ -51,7 +51,6 @@ class _MapSampleState extends State<MapSample> {
             height: bottomSheetHeight,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Column(
-              mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
                   width: 50,
@@ -62,6 +61,7 @@ class _MapSampleState extends State<MapSample> {
                   ),
                   margin: const EdgeInsets.only(bottom: 16),
                 ),
+                // Поле для поиска
                 TextField(
                   controller: searchController,
                   decoration: InputDecoration(
@@ -72,28 +72,31 @@ class _MapSampleState extends State<MapSample> {
                     ),
                   ),
                   onChanged: (query) {
+                    // Передаём текст поиска напрямую в Bloc
                     if (query.length >= 3) {
                       context.read<MapBloc>().searchLocations(query);
                     }
                   },
                 ),
                 const SizedBox(height: 16),
+                // Список результатов
                 BlocBuilder<MapBloc, MapState>(
                   builder: (context, state) {
                     if (state is MapLoadingState) {
                       return const Center(child: CircularProgressIndicator());
                     }
-
-                    if (state is MapSearchResultsState) {
+                    if (state is MapSearchResultsState &&
+                        state.locations.isNotEmpty) {
                       return Expanded(
-                        child: ListView.builder(
+                        child: ListView.separated(
                           itemCount: state.locations.length,
+                          separatorBuilder: (context, index) => const Divider(),
                           itemBuilder: (context, index) {
                             final location = state.locations[index];
                             return ListTile(
                               title: Text(location.name),
-                              subtitle: Text(location.name),
                               onTap: () {
+                                // Очистка поиска и обработка выбора
                                 searchController.clear();
                                 _moveToCurrentLocation(
                                   AppLatLong(
@@ -106,7 +109,6 @@ class _MapSampleState extends State<MapSample> {
                                     .read<MapBloc>()
                                     .navigateToLocation(location);
                                 Navigator.pop(context);
-                                _mapController;
                               },
                             );
                           },
@@ -121,15 +123,6 @@ class _MapSampleState extends State<MapSample> {
             ),
           );
         },
-      ),
-      containerWidget: (content) => ClipRRect(
-        borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(18),
-        ),
-        child: Container(
-          decoration: const BoxDecoration(color: Colors.transparent),
-          child: content,
-        ),
       ),
     );
   }
@@ -199,71 +192,74 @@ class _MapSampleState extends State<MapSample> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<MapBloc, MapState>(
-      builder: (context, state) {
-        if (state is MapIdleState) {
-          _currentCenter = state.center;
-          _currentLocationName = state.locationName ?? "Select Location";
-        }
-
-        return Scaffold(
-          backgroundColor: AppColors.littleGreen2,
-          body: Stack(
+    return Scaffold(
+      backgroundColor: AppColors.littleGreen2,
+      body: Stack(
+        children: [
+          Column(
             children: [
-              Column(
-                children: [
-                  Expanded(
-                    child: Stack(
-                      children: [
-                        YandexMap(
-                          onMapCreated:
-                              (YandexMapController yandexMapController) {
-                            mapControllerCompleter
-                                .complete(yandexMapController);
-                            _mapController = yandexMapController;
-                          },
-                          onCameraPositionChanged: (
-                            CameraPosition cameraPosition,
-                            CameraUpdateReason reason,
-                            bool finished,
-                          ) {
-                            // _handleCameraPositionChanged(
-                            //     cameraPosition, finished);
-                          },
-                        ),
-                        Center(
-                          child: AnimatedLocationMarker(
-                            isMoving: state is MapMovingState,
-                            locationNameRetrieved: state is! MapLoadingState,
-                          ),
-                        ),
-                        Positioned(
-                          bottom: 2,
-                          child: FloatingActionButton(
-                            onPressed: () {
-                              _fetchCurrentLocation();
-                            },
-                            child: const Icon(Icons.data_saver_on),
-                          ),
-                        )
-                      ],
+              Expanded(
+                child: Stack(
+                  children: [
+                    YandexMap(
+                      onMapCreated: (YandexMapController yandexMapController) {
+                        mapControllerCompleter.complete(yandexMapController);
+                        _mapController = yandexMapController;
+                      },
+                      onCameraPositionChanged: (
+                        CameraPosition cameraPosition,
+                        CameraUpdateReason reason,
+                        bool finished,
+                      ) {
+                        _handleCameraPositionChanged(
+                          cameraPosition,
+                          finished,
+                        );
+                      },
                     ),
-                  ),
-                  _buildLocationDetailsCard(_currentLocationName),
-                ],
+                    const Center(
+                      child: AnimatedLocationMarker(),
+                    ),
+                    Positioned(
+                      bottom: 12,
+                      right: 16,
+                      child: FloatingActionButton(
+                        shape: SmoothRectangleBorder(
+                            smoothness: 1,
+                            borderRadius: BorderRadius.circular(32)),
+                        elevation: 8,
+                        backgroundColor: AppColors.white,
+                        onPressed: () {
+                          _fetchCurrentLocation();
+                        },
+                        child: const Icon(
+                          Icons.my_location,
+                          color: AppColors.black,
+                        ),
+                      ),
+                    )
+                  ],
+                ),
               ),
-              _buildTopGradient(),
-              _buildSearchButtonContainer(),
+              _buildLocationDetailsCard(),
             ],
           ),
-        );
-      },
+          _buildTopGradient(),
+          _buildSearchButtonContainer(),
+        ],
+      ),
     );
   }
 
-  Widget _buildLocationDetailsCard(String locationName) {
+  Widget _buildLocationDetailsCard() {
     return BlocBuilder<MapBloc, MapState>(builder: (context, state) {
-      final isLoading = state is MapLoadingState;
+      bool isLoading = false;
+      if (state is MapIdleState) {
+        _currentCenter = state.center;
+        _currentLocationName = state.locationName ?? "Select Location";
+      } else if (state is MapLoadingState) {
+        isLoading = true;
+      }
       return SizedBox(
         height: 175,
         width: double.infinity,
@@ -315,7 +311,7 @@ class _MapSampleState extends State<MapSample> {
                               duration: const Duration(milliseconds: 300),
                               child: Text(
                                 textAlign: TextAlign.start,
-                                isLoading ? "Loading..." : locationName,
+                                isLoading ? "Loading..." : _currentLocationName,
                                 overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
                                   fontSize: 15,
@@ -335,51 +331,20 @@ class _MapSampleState extends State<MapSample> {
                   height: 56,
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: state is! MapLoadingState
-                        ? () async {
-                            final currentPosition =
-                                await _mapController.getCameraPosition();
-                            _currentCenter = currentPosition.target;
-
-                            // Inform the Bloc that the camera is idle
-                            context
-                                .read<MapBloc>()
-                                .onCameraIdle(_currentCenter);
-                          }
-                        : null, // Disable button when loading
+                    onPressed: () {},
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.secondaryColor,
                     ).copyWith(
                       elevation: WidgetStateProperty.all(0),
                     ),
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 300),
-                      transitionBuilder:
-                          (Widget child, Animation<double> animation) {
-                        return FadeTransition(
-                          opacity: animation,
-                          child: child,
-                        );
-                      },
-                      child: state is MapLoadingState
-                          ? const SizedBox(
-                              key: ValueKey('loading'),
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 3,
-                                color: Colors.white,
-                              ),
-                            )
-                          : const Text(
-                              key: ValueKey('text'),
-                              "Ready",
-                              style: TextStyle(
-                                fontFamily: "Poppins",
-                                fontWeight: FontWeight.w500,
-                                color: AppColors.white,
-                              ),
-                            ),
+                    child: const Text(
+                      key: ValueKey('text'),
+                      "Ready",
+                      style: TextStyle(
+                        fontFamily: "Poppins",
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.white,
+                      ),
                     ),
                   ),
                 ),
@@ -445,7 +410,7 @@ class _MapSampleState extends State<MapSample> {
       CameraPosition cameraPosition, bool isFinished) {
     if (isFinished) {
       _onCameraIdle();
-    } else if (!_isCameraMoving) {
+    } else {
       _onCameraMoveStarted();
     }
   }
