@@ -1,5 +1,6 @@
 import 'package:list_in/features/map/domain/entities/location_entity.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
+
 abstract class MapState {}
 
 class MapIdleState extends MapState {
@@ -21,3 +22,5 @@ class MapSearchResultsState extends MapState {
   final List<LocationEntity> locations;
   MapSearchResultsState(this.locations);
 }
+
+class MapLocationConfirmedState extends MapState {}

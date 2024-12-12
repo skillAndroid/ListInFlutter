@@ -5,7 +5,9 @@ import 'package:hugeicons/hugeicons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:list_in/features/auth/presentation/widgets/auth_text_field.dart';
-import 'package:list_in/features/map/presentation/map/google_map.dart';
+import 'package:list_in/features/map/domain/entities/coordinates_entity.dart';
+import 'package:list_in/features/map/domain/entities/location_entity.dart';
+import 'package:list_in/features/map/presentation/map/map.dart';
 import 'package:smooth_corner/smooth_corner.dart';
 
 class RegisterUserDataPage extends StatefulWidget {
@@ -23,9 +25,11 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
   final _phoneNumberController = TextEditingController();
   final _passwordController = TextEditingController();
   final _ageController = TextEditingController();
+  LocationEntity location = const LocationEntity(
+      name: '', coordinates: CoordinatesEntity(latitude: 0, longitude: 0));
 
   int _currentPage = 0;
-  final int _totalPages = 5; // Total number of pages
+  final int _totalPages = 5;
   int _selectedOption = 0;
 
   final List<Map<String, String>> options = [
@@ -362,20 +366,37 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                       context: context,
                                       enableDrag: false,
                                       isScrollControlled: true,
-                                      builder: (BuildContext context) => const FractionallySizedBox(
-                                          heightFactor: 1.0, // Полный экран
-                                          child: Scaffold(
-                                            body:
-                                                MapSample(), // Ваша карта или кастомный виджет с картой
-                                          ),
+                                      builder: (BuildContext context) =>
+                                          const FractionallySizedBox(
+                                        heightFactor: 1.0,
+                                        child: Scaffold(
+                                          body: MapSample(),
                                         ),
-                                    );
+                                      ),
+                                    ).then((result) {
+                                      if (result != null) {
+                                        print(
+                                            "${result.name} ?? ${result.coordinates.latitude} // ${result.coordinates.longitude}\n");
+                                        setState(() {
+                                          location = result;
+                                          print(
+                                              "${result.name} ?? ${result.coordinates.latitude} // ${result.coordinates.longitude}");
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                                content: Text(
+                                                    "${result.name} ?? ${result.coordinates.latitude} // ${result.coordinates.longitude}")),
+                                          );
+                                        });
+                                      } else {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                              content: Text("Empty")),
+                                        );
+                                      }
+                                    });
                                   },
-                                  // style: ElevatedButton.styleFrom(
-                                  //   padding: const EdgeInsets.symmetric(
-                                  //       vertical: 20),
-                                  //   backgroundColor: AppColors.littleGreen,
-                                  // ),
                                   child: const Text('Open Map'),
                                 ),
                               )
@@ -430,7 +451,7 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                         height: 20,
                                         width: 20,
                                         child: CircularProgressIndicator(
-                                          strokeWidth: 3,
+                                          strokeWidth: 2,
                                           color: Colors.white,
                                         ),
                                       )
@@ -493,4 +514,3 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
     );
   }
 }
-//

@@ -46,6 +46,10 @@ class MapBloc extends Cubit<MapState> {
     emit(MapMovingState());
   }
 
+  void onLocationConfirmed() {
+    emit(MapLocationConfirmedState());
+  }
+
   void onCameraIdle(Point currentCenter) {
     _cameraIdleController.add(currentCenter); // Добавляем событие в поток
   }

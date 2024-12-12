@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/config/theme/app_theme.dart';
 import 'package:list_in/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:list_in/features/auth/presentation/pages/welcome_page.dart';
 import 'package:list_in/features/map/presentation/bloc/MapBloc.dart';
-import 'package:list_in/features/map/presentation/map/google_map.dart';
 import 'package:list_in/list.dart';
 import 'injection_container.dart' as di;
 
@@ -894,7 +894,7 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       debugShowCheckedModeBanner: false,
-      home: const MapSample(), //WelcomePage(),
+      home: const WelcomePage(),
       routes: {
         '/home': (context) =>
             const Scaffold(body: Center(child: Text('Home Page'))),
