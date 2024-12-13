@@ -1,6 +1,7 @@
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/auth/presentation/bloc/auth_bloc.dart';
@@ -212,114 +213,132 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                 title: 'What are you looking for?',
                                 subtitle: 'Please select your preference.',
                                 child: Column(
-                                  children:
-                                      List.generate(options.length, (index) {
-                                    return ElevatedButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          _selectedOption = index;
-                                        });
-                                      },
-                                      style: ButtonStyle(
-                                        padding: WidgetStateProperty.all(
-                                          EdgeInsets.zero,
-                                        ),
-                                        elevation: WidgetStateProperty.all(
-                                          0,
-                                        ), // Disable elevation (shadow)
-                                      ),
-                                      child: Card(
-                                        color: _selectedOption == index
-                                            ? AppColors.myRedBrown.withOpacity(
-                                                0.25) // Change color if selected
-                                            : AppColors.containerColor,
-                                        elevation: 0,
-                                        // margin: const EdgeInsets.symmetric(
-                                        //     vertical: 8, horizontal: 0),
-                                        shape: SmoothRectangleBorder(
-                                          smoothness: 0.8,
-                                          borderRadius:
-                                              BorderRadius.circular(16),
-                                        ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(16),
-                                          child: Row(
-                                            children: [
-                                              // Animated circle with increased size and width
-                                              AnimatedContainer(
-                                                duration: const Duration(
-                                                    milliseconds: 300),
-                                                width: _selectedOption == index
-                                                    ? 21
-                                                    : 20, // Wider circle when selected
-                                                height: _selectedOption == index
-                                                    ? 21
-                                                    : 20, // Larger circle when selected
-                                                decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  border: Border.all(
-                                                    color: _selectedOption ==
-                                                            index
-                                                        ? AppColors
-                                                            .black // Border color when selected
-                                                        : AppColors
-                                                            .gray, // Border color when unselected
-                                                    width: _selectedOption ==
-                                                            index
-                                                        ? 5
-                                                        : 2, // Thicker border when selected
-                                                  ),
-                                                ),
+                                  children: List.generate(
+                                    options.length,
+                                    (index) {
+                                      return Column(
+                                        children: [
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                _selectedOption = index;
+                                              });
+                                            },
+                                            style: ButtonStyle(
+                                              padding: WidgetStateProperty.all(
+                                                EdgeInsets.zero,
                                               ),
-                                              const SizedBox(
-                                                  width:
-                                                      16), // Space between circle and text
-                                              Expanded(
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
+                                              elevation:
+                                                  WidgetStateProperty.all(
+                                                0,
+                                              ), // Disable elevation (shadow)
+                                            ),
+                                            child: Card(
+                                              color: _selectedOption == index
+                                                  ? AppColors.myRedBrown
+                                                      .withOpacity(
+                                                          0.25) // Change color if selected
+                                                  : AppColors.containerColor,
+                                              elevation: 0,
+                                              // margin: const EdgeInsets.symmetric(
+                                              //     vertical: 8, horizontal: 0),
+                                              shape: SmoothRectangleBorder(
+                                                smoothness: 0.8,
+                                                borderRadius:
+                                                    BorderRadius.circular(16),
+                                              ),
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(16),
+                                                child: Row(
                                                   children: [
-                                                    Text(
-                                                      options[index]['title']!,
-                                                      style: TextStyle(
-                                                        fontSize: 19,
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                        color:
-                                                            _selectedOption ==
-                                                                    index
-                                                                ? AppColors
-                                                                    .black
-                                                                : AppColors
-                                                                    .black,
+                                                    // Animated circle with increased size and width
+                                                    AnimatedContainer(
+                                                      duration: const Duration(
+                                                          milliseconds: 300),
+                                                      width: _selectedOption ==
+                                                              index
+                                                          ? 21
+                                                          : 20, // Wider circle when selected
+                                                      height: _selectedOption ==
+                                                              index
+                                                          ? 21
+                                                          : 20, // Larger circle when selected
+                                                      decoration: BoxDecoration(
+                                                        shape: BoxShape.circle,
+                                                        border: Border.all(
+                                                          color: _selectedOption ==
+                                                                  index
+                                                              ? AppColors
+                                                                  .black // Border color when selected
+                                                              : AppColors
+                                                                  .gray, // Border color when unselected
+                                                          width: _selectedOption ==
+                                                                  index
+                                                              ? 5
+                                                              : 2, // Thicker border when selected
+                                                        ),
                                                       ),
                                                     ),
-                                                    const SizedBox(height: 8),
-                                                    Text(
-                                                      options[index]
-                                                          ['description']!,
-                                                      style: TextStyle(
-                                                        fontSize: 15,
-                                                        fontWeight:
-                                                            FontWeight.w400,
-                                                        color:
-                                                            _selectedOption ==
-                                                                    index
-                                                                ? AppColors
-                                                                    .black
-                                                                : AppColors
-                                                                    .black,
+                                                    const SizedBox(
+                                                        width:
+                                                            16), // Space between circle and text
+                                                    Expanded(
+                                                      child: Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(
+                                                            options[index]
+                                                                ['title']!,
+                                                            style: TextStyle(
+                                                              fontSize: 19,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w600,
+                                                              color: _selectedOption ==
+                                                                      index
+                                                                  ? AppColors
+                                                                      .black
+                                                                  : AppColors
+                                                                      .black,
+                                                            ),
+                                                          ),
+                                                          const SizedBox(
+                                                              height: 8),
+                                                          Text(
+                                                            options[index][
+                                                                'description']!,
+                                                            style: TextStyle(
+                                                              fontSize: 15,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w400,
+                                                              color: _selectedOption ==
+                                                                      index
+                                                                  ? AppColors
+                                                                      .black
+                                                                  : AppColors
+                                                                      .black,
+                                                            ),
+                                                          ),
+                                                        ],
                                                       ),
                                                     ),
                                                   ],
                                                 ),
                                               ),
-                                            ],
+                                            ),
                                           ),
-                                        ),
-                                      ),
-                                    );
-                                  }),
+                                          if (index < options.length - 1)
+                                            const SizedBox(
+                                                height:
+                                                    8), // Adjust the height as needed
+                                        ],
+                                      );
+                                    },
+                                  ),
                                 ),
                               ),
                               _buildPage(
@@ -360,44 +379,64 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                 title: 'Select Your Location',
                                 subtitle:
                                     'Tap to select your location on the map.',
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    showModalBottomSheet(
-                                      context: context,
-                                      enableDrag: false,
-                                      isScrollControlled: true,
-                                      builder: (BuildContext context) =>
-                                          const FractionallySizedBox(
-                                        heightFactor: 1.0,
-                                        child: Scaffold(
-                                          body: MapSample(),
+                                child: Column(
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        showModalBottomSheet(
+                                          context: context,
+                                          enableDrag: false,
+                                          isScrollControlled: true,
+                                          builder: (BuildContext context) =>
+                                              const FractionallySizedBox(
+                                            heightFactor: 1.0,
+                                            child: Scaffold(
+                                              body: MapSample(),
+                                            ),
+                                          ),
+                                        ).then((result) {
+                                          if (result != null) {
+                                            print(
+                                                "${result.name} ?? ${result.coordinates.latitude} // ${result.coordinates.longitude}\n");
+                                            setState(() {
+                                              location = result;
+                                              print(
+                                                  "${result.name} ?? ${result.coordinates.latitude} // ${result.coordinates.longitude}");
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                    content: Text(
+                                                        "${result.name} ?? ${result.coordinates.latitude} // ${result.coordinates.longitude}")),
+                                              );
+                                            });
+                                          } else {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              const SnackBar(
+                                                  content: Text(
+                                                      "No Location selected")),
+                                            );
+                                          }
+                                        });
+                                      },
+                                      child: const Text('Open Map'),
+                                    ),
+                                    if (location.name != "")
+                                      SizedBox(
+                                        width: double.infinity,
+                                        height: 300,
+                                        child: GoogleMap(
+                                          liteModeEnabled: true,
+                                          initialCameraPosition: CameraPosition(
+                                            target: LatLng(
+                                              location.coordinates.latitude,
+                                              location.coordinates.longitude,
+                                            ),
+                                            zoom: 20,
+                                          ),
                                         ),
                                       ),
-                                    ).then((result) {
-                                      if (result != null) {
-                                        print(
-                                            "${result.name} ?? ${result.coordinates.latitude} // ${result.coordinates.longitude}\n");
-                                        setState(() {
-                                          location = result;
-                                          print(
-                                              "${result.name} ?? ${result.coordinates.latitude} // ${result.coordinates.longitude}");
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                                content: Text(
-                                                    "${result.name} ?? ${result.coordinates.latitude} // ${result.coordinates.longitude}")),
-                                          );
-                                        });
-                                      } else {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          const SnackBar(
-                                              content: Text("Empty")),
-                                        );
-                                      }
-                                    });
-                                  },
-                                  child: const Text('Open Map'),
+                                  ],
                                 ),
                               )
                             ],

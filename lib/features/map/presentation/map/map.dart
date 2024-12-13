@@ -29,9 +29,8 @@ class _MapSampleState extends State<MapSample> {
   GoogleMapController? _mapController;
   final CameraPosition _initialCameraPosition = const CameraPosition(
     target: LatLng(55.755826, 37.617300), // Default to Moscow
-    zoom: 16,
+    zoom: 20,
   );
-  LatLng? _currentPosition;
 
   void _onMapCreated(GoogleMapController controller) {
     _mapController = controller;
@@ -141,8 +140,8 @@ class _MapSampleState extends State<MapSample> {
                       initialCameraPosition: _initialCameraPosition,
                       onMapCreated: _onMapCreated,
                       myLocationEnabled: true,
-                      myLocationButtonEnabled: true,
-                      zoomControlsEnabled: false, // Disables + and - buttons
+                      fortyFiveDegreeImageryEnabled: true,
+                      zoomControlsEnabled: false,
                       onCameraMove: (position) {
                         context.read<MapBloc>().onCameraMove();
                       },
@@ -373,7 +372,7 @@ class _MapSampleState extends State<MapSample> {
         .getCurrentLocation()
         .catchError((_) => const MoscowLocation());
 
-    _moveToLocation(LatLng(location.lat, location.long), 15);
+    _moveToLocation(LatLng(location.lat, location.long), 20);
   }
 
   void _showCustomBottomSheet(String locationName) {
@@ -492,8 +491,7 @@ class _MapSampleState extends State<MapSample> {
                                   vertical: 12,
                                   horizontal: 4,
                                 ),
-                                child: Expanded(
-                                    child: Row(
+                                child: Row(
                                   children: [
                                     const Icon(
                                       Icons.location_on,
@@ -515,7 +513,7 @@ class _MapSampleState extends State<MapSample> {
                                       ),
                                     )
                                   ],
-                                )),
+                                ),
                               ),
                               onTap: () {
                                 searchController.clear();
@@ -524,7 +522,7 @@ class _MapSampleState extends State<MapSample> {
                                     location.coordinates.latitude,
                                     location.coordinates.longitude,
                                   ),
-                                  16,
+                                  20,
                                 );
                                 context
                                     .read<MapBloc>()
