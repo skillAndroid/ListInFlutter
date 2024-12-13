@@ -11,6 +11,8 @@ import 'package:list_in/features/map/domain/entities/location_entity.dart';
 import 'package:list_in/features/map/presentation/map/map.dart';
 import 'package:smooth_corner/smooth_corner.dart';
 
+enum LocationSharingMode { precise, region }
+
 class RegisterUserDataPage extends StatefulWidget {
   const RegisterUserDataPage({super.key});
 
@@ -21,17 +23,18 @@ class RegisterUserDataPage extends StatefulWidget {
 class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
   final _formKey = GlobalKey<FormState>();
   final PageController _pageController = PageController();
-  final _firstNameController = TextEditingController();
-  final _lastNameController = TextEditingController();
+  final _nikeNameController = TextEditingController();
+
   final _phoneNumberController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _ageController = TextEditingController();
+
   LocationEntity location = const LocationEntity(
       name: '', coordinates: CoordinatesEntity(latitude: 0, longitude: 0));
 
   int _currentPage = 0;
   final int _totalPages = 5;
   int _selectedOption = 0;
+  LocationSharingMode _locationSharingPreference = LocationSharingMode.region;
 
   final List<Map<String, String>> options = [
     {
@@ -48,11 +51,9 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
 
   @override
   void dispose() {
-    _firstNameController.dispose();
-    _lastNameController.dispose();
+    _nikeNameController.dispose();
     _phoneNumberController.dispose();
     _passwordController.dispose();
-    _ageController.dispose();
     _pageController.dispose();
     super.dispose();
   }
@@ -199,7 +200,7 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                 subtitle:
                                     'Please enter your name, company name, or a nickname.',
                                 child: AuthTextField(
-                                  controller: _firstNameController,
+                                  controller: _nikeNameController,
                                   labelText: 'John Doe, Nike, or YourNickname',
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
@@ -381,64 +382,282 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                     'Tap to select your location on the map.',
                                 child: Column(
                                   children: [
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        showModalBottomSheet(
-                                          context: context,
-                                          enableDrag: false,
-                                          isScrollControlled: true,
-                                          builder: (BuildContext context) =>
-                                              const FractionallySizedBox(
-                                            heightFactor: 1.0,
-                                            child: Scaffold(
-                                              body: MapSample(),
+                                    Card(
+                                      elevation: 0,
+                                      margin: EdgeInsets.zero,
+                                      color: AppColors.bgColor,
+                                      shape: SmoothRectangleBorder(
+                                        smoothness: 1,
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(16.0),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                SizedBox(
+                                                  height: 50,
+                                                  width: 150,
+                                                  child: Expanded(
+                                                    child: ElevatedButton.icon(
+                                                      onPressed: () {
+                                                        setState(() {
+                                                          _locationSharingPreference =
+                                                              LocationSharingMode
+                                                                  .precise;
+                                                        });
+                                                      },
+                                                      icon: const Icon(
+                                                        Icons.location_on,
+                                                      ),
+                                                      label: const Text(
+                                                        style: TextStyle(
+                                                            fontSize: 15,
+                                                            fontFamily:
+                                                                "Poppins"),
+                                                        'Exact Location',
+                                                      ),
+                                                      style: ElevatedButton
+                                                          .styleFrom(
+                                                        elevation: 0,
+                                                        shadowColor: AppColors
+                                                            .transparent,
+                                                        backgroundColor:
+                                                            _locationSharingPreference ==
+                                                                    LocationSharingMode
+                                                                        .precise
+                                                                ? AppColors
+                                                                    .black
+                                                                : Colors.grey
+                                                                    .shade300,
+                                                        foregroundColor:
+                                                            _locationSharingPreference ==
+                                                                    LocationSharingMode
+                                                                        .precise
+                                                                ? Colors.white
+                                                                : Colors.black,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 12),
+                                                SizedBox(
+                                                  height: 50,
+                                                  width: 150,
+                                                  child: Expanded(
+                                                    child: ElevatedButton.icon(
+                                                      onPressed: () {
+                                                        setState(() {
+                                                          _locationSharingPreference =
+                                                              LocationSharingMode
+                                                                  .region;
+                                                        });
+                                                      },
+                                                      icon: const Icon(
+                                                          Icons.location_city),
+                                                      label: const Text(
+                                                          style: TextStyle(
+                                                              fontSize: 15,
+                                                              fontFamily:
+                                                                  "Poppins"),
+                                                          'Region Only'),
+                                                      style: ElevatedButton
+                                                          .styleFrom(
+                                                        shadowColor: AppColors
+                                                            .transparent,
+                                                        elevation: 0,
+                                                        backgroundColor:
+                                                            _locationSharingPreference ==
+                                                                    LocationSharingMode
+                                                                        .region
+                                                                ? AppColors
+                                                                    .black
+                                                                : Colors.grey
+                                                                    .shade300,
+                                                        foregroundColor:
+                                                            _locationSharingPreference ==
+                                                                    LocationSharingMode
+                                                                        .region
+                                                                ? Colors.white
+                                                                : Colors.black,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
                                             ),
-                                          ),
-                                        ).then((result) {
-                                          if (result != null) {
-                                            print(
-                                                "${result.name} ?? ${result.coordinates.latitude} // ${result.coordinates.longitude}\n");
-                                            setState(() {
-                                              location = result;
-                                              print(
-                                                  "${result.name} ?? ${result.coordinates.latitude} // ${result.coordinates.longitude}");
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(
-                                                SnackBar(
-                                                    content: Text(
-                                                        "${result.name} ?? ${result.coordinates.latitude} // ${result.coordinates.longitude}")),
-                                              );
-                                            });
-                                          } else {
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(
-                                              const SnackBar(
-                                                  content: Text(
-                                                      "No Location selected")),
-                                            );
-                                          }
-                                        });
-                                      },
-                                      child: const Text('Open Map'),
-                                    ),
-                                    if (location.name != "")
-                                      SizedBox(
-                                        width: double.infinity,
-                                        height: 300,
-                                        child: GoogleMap(
-                                          liteModeEnabled: true,
-                                          initialCameraPosition: CameraPosition(
-                                            target: LatLng(
-                                              location.coordinates.latitude,
-                                              location.coordinates.longitude,
+                                            const SizedBox(height: 16),
+                                            Text(
+                                              _locationSharingPreference ==
+                                                      LocationSharingMode
+                                                          .precise
+                                                  ? '• Shares exact coordinates\n• Most accurate for precise services'
+                                                  : '• Shares general area\n• Protects specific location details',
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey[700],
+                                              ),
                                             ),
-                                            zoom: 20,
-                                          ),
+                                          ],
                                         ),
                                       ),
+                                    ),
+                                    const SizedBox(
+                                      height: 12,
+                                    ),
+
+                                    Container(
+                                      width: double.infinity,
+                                      margin: const EdgeInsets.symmetric(
+                                          horizontal: 0, vertical: 8),
+                                      child: OutlinedButton(
+                                        style: OutlinedButton.styleFrom(
+                                          side: const BorderSide(
+                                              color: AppColors.transparent,
+                                              width: 0),
+                                          foregroundColor: AppColors.black,
+                                          backgroundColor:
+                                              AppColors.bgColor,
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 16),
+                                          shape: SmoothRectangleBorder(
+                                            smoothness: 1,
+                                            borderRadius:
+                                                BorderRadius.circular(16),
+                                          ),
+                                        ),
+                                        onPressed: () {
+                                          showModalBottomSheet(
+                                            context: context,
+                                            enableDrag: false,
+                                            isScrollControlled: true,
+                                            builder: (BuildContext context) =>
+                                                const FractionallySizedBox(
+                                              heightFactor: 1.0,
+                                              child: Scaffold(
+                                                body: MapSample(),
+                                              ),
+                                            ),
+                                          ).then((result) {
+                                            if (result != null) {
+                                              setState(() {
+                                                location = result;
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  SnackBar(
+                                                    content: Text(
+                                                        "${result.name} ?? ${result.coordinates.latitude} // ${result.coordinates.longitude}"),
+                                                  ),
+                                                );
+                                              });
+                                            } else {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                const SnackBar(
+                                                    content: Text(
+                                                        "No Location selected")),
+                                              );
+                                            }
+                                          });
+                                        },
+                                        child: const Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.map_outlined,
+                                              size: 24,
+                                            ),
+                                            SizedBox(width: 10),
+                                            Text(
+                                              'Open Map',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      height: 12,
+                                    ),
+                                    if (location.name != "")
+                                      Column(
+                                        children: [
+                                          SmoothClipRRect(
+                                            smoothness: 1,
+                                            borderRadius:
+                                                BorderRadius.circular(16),
+                                            child: SizedBox(
+                                              width: double.infinity,
+                                              height: 200,
+                                              child: GoogleMap(
+                                                key: ValueKey(
+                                                    location.coordinates),
+                                                liteModeEnabled: true,
+                                                initialCameraPosition:
+                                                    CameraPosition(
+                                                  target: LatLng(
+                                                    location
+                                                        .coordinates.latitude,
+                                                    location
+                                                        .coordinates.longitude,
+                                                  ),
+                                                  zoom: 11,
+                                                ),
+                                                markers: {
+                                                  Marker(
+                                                    alpha: 1,
+                                                    rotation: 0.5,
+                                                    markerId: const MarkerId(
+                                                      'selected_location',
+                                                    ),
+                                                    icon: BitmapDescriptor
+                                                        .defaultMarkerWithHue(
+                                                      BitmapDescriptor
+                                                          .hueOrange,
+                                                    ), // Preset colors
+                                                    position: LatLng(
+                                                      location
+                                                          .coordinates.latitude,
+                                                      location.coordinates
+                                                          .longitude,
+                                                    ),
+                                                    infoWindow: InfoWindow(
+                                                        title: location.name),
+                                                  ),
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            height: 4,
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(
+                                              8.0,
+                                            ),
+                                            child: Text(
+                                              location.name,
+                                              style: const TextStyle(
+                                                  fontSize: 14.5,
+                                                  fontWeight: FontWeight.w500),
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                    //
                                   ],
                                 ),
                               )
+                              //
                             ],
                           ),
                         ),
@@ -457,27 +676,49 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                         : () {
                                             if (_formKey.currentState!
                                                 .validate()) {
-                                              var age = int.tryParse(
-                                                      _ageController.text) ??
-                                                  0;
-                                              context.read<AuthBloc>().add(
-                                                    RegisterUserDataSubmitted(
-                                                      firstname:
-                                                          _firstNameController
-                                                              .text,
-                                                      lastname:
-                                                          _lastNameController
-                                                              .text,
-                                                      age: age,
-                                                      phoneNumber:
-                                                          _phoneNumberController
-                                                              .text,
-                                                      password:
-                                                          _passwordController
-                                                              .text,
-                                                      roles: 'USER',
-                                                    ),
-                                                  );
+                                              // Check if location.name is empty or "Select Location"
+                                              if (location.name.isEmpty ||
+                                                  location.name ==
+                                                      "Select Location") {
+                                                // Show a Scaffold or Alert to the user to select a location
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                        'Please select a valid location.'),
+                                                  ),
+                                                );
+                                                // Optionally, you could navigate to the location selection page
+                                                // Navigator.pushNamed(context, '/locationSelection');
+                                              } else {
+                                                // Proceed with the registration if location is valid
+                                                context.read<AuthBloc>().add(
+                                                      RegisterUserDataSubmitted(
+                                                        nikeName:
+                                                            _nikeNameController
+                                                                .text,
+                                                        phoneNumber:
+                                                            _phoneNumberController
+                                                                .text,
+                                                        password:
+                                                            _passwordController
+                                                                .text,
+                                                        roles: 'USER',
+                                                        isGrantedForPreciseLocation:
+                                                            _locationSharingPreference ==
+                                                                LocationSharingMode
+                                                                    .precise,
+                                                        locationName:
+                                                            location.name,
+                                                        lotitude: location
+                                                            .coordinates
+                                                            .latitude,
+                                                        longitude: location
+                                                            .coordinates
+                                                            .longitude,
+                                                      ),
+                                                    );
+                                              }
                                             }
                                           },
                                 style: ElevatedButton.styleFrom(
@@ -505,7 +746,7 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                             ),
                           ),
                         ],
-                      ),
+                      )
                     ],
                   ),
                 ),

@@ -139,8 +139,7 @@ class _MapSampleState extends State<MapSample> {
                       mapType: MapType.normal,
                       initialCameraPosition: _initialCameraPosition,
                       onMapCreated: _onMapCreated,
-                      myLocationEnabled: true,
-                      fortyFiveDegreeImageryEnabled: true,
+                      myLocationEnabled: false,
                       zoomControlsEnabled: false,
                       onCameraMove: (position) {
                         context.read<MapBloc>().onCameraMove();
@@ -524,9 +523,6 @@ class _MapSampleState extends State<MapSample> {
                                   ),
                                   20,
                                 );
-                                context
-                                    .read<MapBloc>()
-                                    .navigateToLocation(location);
                                 setState(() {
                                   _currentLocationName = location.name;
                                   _selectedLocationCoordinates =

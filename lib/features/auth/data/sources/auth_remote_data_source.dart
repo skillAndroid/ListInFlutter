@@ -86,13 +86,15 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<Either<String, AuthTokenModel>> registerUserData(User user) async {
     try {
       final responce = await dio.post('/api/v1/auth/register', data: {
-        'firstname': user.firstname,
-        'lastname': user.lastname,
-        'age': user.age,
+        'nikeName': user.nikeName,
         'phoneNumber': user.phoneNumber,
         'email': user.email,
         'password': user.password,
-        'roles': user.roles
+        'roles': user.roles,
+        'locationName': user.locationName,
+        'isGrantedForPreciseLocation': user.isGrantedForPreciseLocation,
+        'lotitude': user.lotitude,
+        'longitude': user.longitude
       });
 
       if (responce.statusCode == 200 || responce.statusCode == 201) {

@@ -65,12 +65,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     final result = await registerUserDataUseCase(
       params: User(
-        firstname: event.firstname,
-        lastname: event.lastname,
-        age: event.age,
+        nikeName: event.nikeName,
         phoneNumber: event.phoneNumber,
         email: storedEmailResult.email!,
         password: event.password,
+        locationName: event.locationName,
+        isGrantedForPreciseLocation: event.isGrantedForPreciseLocation,
+        lotitude: event.lotitude,
+        longitude: event.longitude,
       ),
     );
 
