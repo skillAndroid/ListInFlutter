@@ -1,10 +1,10 @@
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:list_in/features/map/domain/entities/location_entity.dart';
-import 'package:yandex_mapkit/yandex_mapkit.dart';
 
 abstract class MapState {}
 
 class MapIdleState extends MapState {
-  final Point center;
+  final LatLng center;
   final String? locationName;
   MapIdleState(this.center, {this.locationName});
 }

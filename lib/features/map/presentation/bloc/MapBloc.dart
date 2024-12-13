@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import 'package:list_in/core/error/failure.dart';
 import 'package:list_in/features/map/domain/entities/coordinates_entity.dart';
@@ -10,14 +11,14 @@ import 'package:list_in/features/map/domain/usecases/get_location_usecase.dart';
 import 'package:list_in/features/map/domain/usecases/search_locations_usecase.dart';
 import 'package:list_in/features/map/presentation/bloc/MapState.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:yandex_mapkit/yandex_mapkit.dart';
+
 
 class MapBloc extends Cubit<MapState> {
   final GetLocationUseCase getLocationUseCase;
   final SearchLocationsUseCase searchLocationsUseCase;
 
   final _searchQueryController = BehaviorSubject<String>();
-  final _cameraIdleController = BehaviorSubject<Point>();
+  final _cameraIdleController = BehaviorSubject<LatLng>();
   late final StreamSubscription _searchSubscription;
   late final StreamSubscription _cameraIdleSubscription;
 
@@ -26,9 +27,9 @@ class MapBloc extends Cubit<MapState> {
     required this.searchLocationsUseCase,
   }) : super(
           MapIdleState(
-            const Point(
-              latitude: 37.7749,
-              longitude: -122.4194,
+            const LatLng(
+              80.7749,
+              -122.4194,
             ),
           ),
         ) {
@@ -50,11 +51,11 @@ class MapBloc extends Cubit<MapState> {
     emit(MapLocationConfirmedState());
   }
 
-  void onCameraIdle(Point currentCenter) {
+  void onCameraIdle(LatLng currentCenter) {
     _cameraIdleController.add(currentCenter); // Добавляем событие в поток
   }
 
-  void _handleCameraIdle(Point currentCenter) async {
+  void _handleCameraIdle(LatLng currentCenter) async {
     emit(MapLoadingState());
     final coordinates = CoordinatesEntity(
       latitude: currentCenter.latitude,
@@ -90,9 +91,9 @@ class MapBloc extends Cubit<MapState> {
   void navigateToLocation(LocationEntity location) {
     emit(
       MapIdleState(
-        Point(
-          latitude: location.coordinates.latitude,
-          longitude: location.coordinates.longitude,
+        LatLng(
+          location.coordinates.latitude,
+          location.coordinates.longitude,
         ),
         locationName: location.name,
       ),

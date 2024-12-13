@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
@@ -16,7 +16,6 @@ import 'package:list_in/features/map/presentation/widgets/show_custom_sheet.dart
 import 'package:list_in/features/map/service/AppLocation.dart';
 import 'package:list_in/features/map/service/models.dart';
 import 'package:smooth_corner/smooth_corner.dart';
-import 'package:yandex_mapkit/yandex_mapkit.dart';
 
 class MapSample extends StatefulWidget {
   const MapSample({super.key});
@@ -26,19 +25,40 @@ class MapSample extends StatefulWidget {
 }
 
 class _MapSampleState extends State<MapSample> {
-  final mapControllerCompleter = Completer<YandexMapController>();
-  // Correct types for Yandex Map
+  final Completer<GoogleMapController> _controllerCompleter = Completer();
+  GoogleMapController? _mapController;
+  final CameraPosition _initialCameraPosition = const CameraPosition(
+    target: LatLng(55.755826, 37.617300), // Default to Moscow
+    zoom: 16,
+  );
+  LatLng? _currentPosition;
 
-  late String _currentLocationName;
-  late CoordinatesEntity _selectedLocationCoordinates;
+  void _onMapCreated(GoogleMapController controller) {
+    _mapController = controller;
+    _controllerCompleter.complete(controller);
+  }
+
+  void _moveToLocation(LatLng location, double zoom) {
+    _mapController?.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(
+          target: location,
+          zoom: zoom,
+        ),
+      ),
+    );
+  }
+
+  String _currentLocationName = "Select Location";
+  CoordinatesEntity _selectedLocationCoordinates =
+      const CoordinatesEntity(latitude: 55.755826, longitude: 37.617300);
+
   late LocationEntity _currentSelectedLocation;
 
   @override
   void initState() {
     super.initState();
     _initPermission().ignore();
-
-    _currentLocationName = "Select Location";
   }
 
   Widget _buildTopGradient() {
@@ -116,26 +136,27 @@ class _MapSampleState extends State<MapSample> {
               Expanded(
                 child: Stack(
                   children: [
-                    YandexMap(
-                      onMapCreated: (YandexMapController yandexMapController) {
-                        mapControllerCompleter.complete(yandexMapController);
+                    GoogleMap(
+                      mapType: MapType.normal,
+                      initialCameraPosition: _initialCameraPosition,
+                      onMapCreated: _onMapCreated,
+                      myLocationEnabled: true,
+                      myLocationButtonEnabled: true,
+                      zoomControlsEnabled: false, // Disables + and - buttons
+                      onCameraMove: (position) {
+                        context.read<MapBloc>().onCameraMove();
                       },
-                      logoAlignment: const MapAlignment(
-                        horizontal: HorizontalAlignment.center, // or right
-                        vertical: VerticalAlignment.top, // or bottom
-                      ),
-                      onCameraPositionChanged: (
-                        CameraPosition cameraPosition,
-                        CameraUpdateReason reason,
-                        bool finished,
-                      ) {
-                        if (finished) {
-                          context
-                              .read<MapBloc>()
-                              .onCameraIdle(cameraPosition.target);
-                        } else {
-                          context.read<MapBloc>().onCameraMove();
-                        }
+                      onCameraIdle: () async {
+                        final LatLng position = await _mapController!.getLatLng(
+                          ScreenCoordinate(
+                            x: MediaQuery.of(context).size.width ~/
+                                2, // Центр по ширине
+                            y: MediaQuery.of(context).size.height ~/
+                                2, // Центр по высоте
+                          ),
+                        );
+
+                        context.read<MapBloc>().onCameraIdle(position);
                       },
                     ),
                     const Center(
@@ -193,129 +214,134 @@ class _MapSampleState extends State<MapSample> {
   }
 
   Widget _buildLocationDetailsCard() {
-    return BlocConsumer<MapBloc, MapState>(listener: (context, state) {
-      if (state is MapErrorState) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(state.message)),
-        );
-      }
-    }, builder: (context, state) {
-      bool isLoading = false;
-      if (state is MapIdleState) {
-        _currentLocationName = state.locationName ?? "Select Location";
-        _selectedLocationCoordinates = CoordinatesEntity(
-            latitude: state.center.latitude, longitude: state.center.longitude);
-      } else if (state is MapLoadingState) {
-        isLoading = true;
-      } else if (state is MapErrorState) {}
-      return SizedBox(
-        height: 183,
-        width: double.infinity,
-        child: Card(
-          margin: EdgeInsets.zero,
-          color: AppColors.white,
-          shape: SmoothRectangleBorder(
-            smoothness: 0.8,
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(16),
-              topRight: Radius.circular(16),
+    return BlocConsumer<MapBloc, MapState>(
+      listener: (context, state) {
+        if (state is MapErrorState) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.message)),
+          );
+        }
+      },
+      builder: (context, state) {
+        bool isLoading = false;
+        if (state is MapIdleState) {
+          _currentLocationName = state.locationName ?? "Select Location";
+          _selectedLocationCoordinates = CoordinatesEntity(
+            latitude: state.center.latitude,
+            longitude: state.center.longitude,
+          );
+        } else if (state is MapLoadingState) {
+          isLoading = true;
+        } else if (state is MapErrorState) {}
+        return SizedBox(
+          height: 183,
+          width: double.infinity,
+          child: Card(
+            margin: EdgeInsets.zero,
+            color: AppColors.white,
+            shape: SmoothRectangleBorder(
+              smoothness: 0.8,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(16),
+                topRight: Radius.circular(16),
+              ),
             ),
-          ),
-          elevation: 8,
-          shadowColor: AppColors.black,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Selected Location',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
+            elevation: 8,
+            shadowColor: AppColors.black,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Selected Location',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-                const Divider(
-                  color: AppColors.bgColor,
-                  thickness: 1,
-                ),
-                InkWell(
-                  onTap: () {},
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 8),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment:
-                            MainAxisAlignment.start, // Add this line
-                        children: [
-                          const HugeIcon(
-                            icon: HugeIcons.strokeRoundedLocation01,
-                            color: AppColors.secondaryColor,
-                          ),
-                          const SizedBox(width: 8),
-                          Flexible(
-                            child: AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 300),
-                              child: Text(
-                                textAlign: TextAlign.start,
-                                isLoading ? "Loading..." : _currentLocationName,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w500,
+                  const Divider(
+                    color: AppColors.bgColor,
+                    thickness: 1,
+                  ),
+                  InkWell(
+                    onTap: () {},
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 8),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment:
+                              MainAxisAlignment.start, // Add this line
+                          children: [
+                            const HugeIcon(
+                              icon: HugeIcons.strokeRoundedLocation01,
+                              color: AppColors.secondaryColor,
+                            ),
+                            const SizedBox(width: 8),
+                            Flexible(
+                              child: AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 300),
+                                child: Text(
+                                  textAlign: TextAlign.start,
+                                  isLoading
+                                      ? "Loading..."
+                                      : _currentLocationName,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                    ],
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 14),
-                SizedBox(
-                  height: 56,
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if (_currentLocationName != "name") {
-                        setState(() {
-                          _currentSelectedLocation = LocationEntity(
+                  const SizedBox(height: 14),
+                  SizedBox(
+                    height: 56,
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (_currentLocationName != "Select Location") {
+                          final selectedLocation = LocationEntity(
                             name: _currentLocationName,
-                            coordinates: CoordinatesEntity(
-                              latitude: _selectedLocationCoordinates.latitude,
-                              longitude: _selectedLocationCoordinates.longitude,
-                            ),
+                            coordinates: _selectedLocationCoordinates,
                           );
-                        });
-                        Navigator.pop(context, _currentSelectedLocation);
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.secondaryColor,
-                    ).copyWith(
-                      elevation: WidgetStateProperty.all(0),
-                    ),
-                    child: const Text(
-                      key: ValueKey('text'),
-                      "Ready",
-                      style: TextStyle(
-                        fontFamily: "Poppins",
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.white,
+                          setState(() {
+                            _currentSelectedLocation = selectedLocation;
+                          });
+                          Navigator.pop(context, _currentSelectedLocation);
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.secondaryColor,
+                      ).copyWith(
+                        elevation: WidgetStateProperty.all(0),
+                      ),
+                      child: const Text(
+                        key: ValueKey('text'),
+                        "Ready",
+                        style: TextStyle(
+                          fontFamily: "Poppins",
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.white,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 8)
-              ],
+                  const SizedBox(height: 8)
+                ],
+              ),
             ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 
   Widget _buildSearchButtonContainer() {
@@ -347,25 +373,7 @@ class _MapSampleState extends State<MapSample> {
         .getCurrentLocation()
         .catchError((_) => const MoscowLocation());
 
-    _moveToCurrentLocation(location, 12);
-  }
-
-  Future<void> _moveToCurrentLocation(
-    AppLatLong appLatLong,
-    double zoom,
-  ) async {
-    (await mapControllerCompleter.future).moveCamera(
-      animation: const MapAnimation(type: MapAnimationType.linear, duration: 1),
-      CameraUpdate.newCameraPosition(
-        CameraPosition(
-          target: Point(
-            latitude: appLatLong.lat,
-            longitude: appLatLong.long,
-          ),
-          zoom: zoom,
-        ),
-      ),
-    );
+    _moveToLocation(LatLng(location.lat, location.long), 15);
   }
 
   void _showCustomBottomSheet(String locationName) {
@@ -476,7 +484,6 @@ class _MapSampleState extends State<MapSample> {
                       return Expanded(
                         child: ListView.builder(
                           itemCount: state.locations.length,
-                          // separatorBuilder: (context, index) => const Divider(),
                           itemBuilder: (context, index) {
                             final location = state.locations[index];
                             return InkWell(
@@ -512,17 +519,21 @@ class _MapSampleState extends State<MapSample> {
                               ),
                               onTap: () {
                                 searchController.clear();
-                                _moveToCurrentLocation(
-                                  AppLatLong(
-                                    lat: location.coordinates.latitude,
-                                    long: location.coordinates.longitude,
+                                _moveToLocation(
+                                  LatLng(
+                                    location.coordinates.latitude,
+                                    location.coordinates.longitude,
                                   ),
                                   16,
                                 );
-
                                 context
                                     .read<MapBloc>()
                                     .navigateToLocation(location);
+                                setState(() {
+                                  _currentLocationName = location.name;
+                                  _selectedLocationCoordinates =
+                                      location.coordinates;
+                                });
                                 Navigator.pop(context);
                               },
                             );
@@ -543,3 +554,4 @@ class _MapSampleState extends State<MapSample> {
   }
 //
 }
+//
