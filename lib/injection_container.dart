@@ -1,4 +1,3 @@
-// lib/injection_container.dart
 import 'package:get_it/get_it.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:dio/dio.dart';
@@ -68,25 +67,31 @@ Future<void> init() async {
   //! External
   sl.registerLazySingleton(() => sharedPreferences);
   sl.registerLazySingleton(() => InternetConnectionChecker());
-  sl.registerLazySingleton(() {
-    final dio = Dio();
-    dio.options.baseUrl = 'https://cec3-185-213-230-55.ngrok-free.app';
-    dio.options.connectTimeout = const Duration(seconds: 5);
-    dio.options.receiveTimeout = const Duration(seconds: 3);
-    return dio;
-  });
+  sl.registerLazySingleton(
+    () {
+      final dio = Dio();
+      dio.options.baseUrl = 'https://fead-62-209-146-62.ngrok-free.app';
+      dio.options.connectTimeout = const Duration(seconds: 5);
+      dio.options.receiveTimeout = const Duration(seconds: 3);
+      return dio;
+    },
+  );
 
-  sl.registerFactory(() => MapBloc(
-        getLocationUseCase: sl(),
-        searchLocationsUseCase: sl(),
-      ));
+  sl.registerFactory(
+    () => MapBloc(
+      getLocationUseCase: sl(),
+      searchLocationsUseCase: sl(),
+    ),
+  );
 
   sl.registerLazySingleton(() => GetLocationUseCase(sl()));
   sl.registerLazySingleton(() => SearchLocationsUseCase(sl()));
-  sl.registerLazySingleton<LocationRepository>(() => LocationRepositoryImpl(
-        remoteDataSource: sl(),
-        networkInfo: sl(),
-      ));
+  sl.registerLazySingleton<LocationRepository>(
+    () => LocationRepositoryImpl(
+      remoteDataSource: sl(),
+      networkInfo: sl(),
+    ),
+  );
 
   sl.registerLazySingleton<LocationRemoteDatasource>(
       () => LocationRemoteDataSourceImpl(dio: sl()));

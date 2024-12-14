@@ -5,10 +5,10 @@ class User {
   final String password;
   final String roles;
   final String locationName;
-  final double lotitude;
+  final double latitude;
   final double longitude;
   final bool isGrantedForPreciseLocation;
-
+  
   User({
     required this.nikeName,
     required this.phoneNumber,
@@ -17,7 +17,7 @@ class User {
     required this.locationName,
     required this.isGrantedForPreciseLocation,
     required this.longitude,
-    required this.lotitude,
-    this.roles = "USER",
+    required this.latitude,
+    this.roles = "INDIVIDUAL_SELLER",
   });
 }

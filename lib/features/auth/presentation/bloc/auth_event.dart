@@ -16,7 +16,7 @@ class RegisterUserDataSubmitted extends AuthEvent {
   final String password;
   final String roles;
   final String locationName;
-  final double lotitude;
+  final double latitude;
   final double longitude;
   final bool isGrantedForPreciseLocation;
   RegisterUserDataSubmitted({
@@ -28,7 +28,7 @@ class RegisterUserDataSubmitted extends AuthEvent {
     required this.locationName,
     required this.isGrantedForPreciseLocation,
     required this.longitude,
-    required this.lotitude,
+    required this.latitude,
   });
 }
 

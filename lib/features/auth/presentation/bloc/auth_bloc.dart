@@ -71,7 +71,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         password: event.password,
         locationName: event.locationName,
         isGrantedForPreciseLocation: event.isGrantedForPreciseLocation,
-        lotitude: event.lotitude,
+        latitude: event.latitude,
         longitude: event.longitude,
       ),
     );

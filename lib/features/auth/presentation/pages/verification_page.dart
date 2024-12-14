@@ -33,15 +33,6 @@ class _VerificationPageState extends State<VerificationPage> {
             _formKey.currentState?.validate();
             ScaffoldMessenger.of(context)
                 .showSnackBar(SnackBar(content: Text(state.message)));
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => BlocProvider.value(
-                  value: BlocProvider.of<AuthBloc>(context),
-                  child: const RegisterUserDataPage(),
-                ),
-              ),
-            );
           } else if (state is VerificationSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Email Verified!')),

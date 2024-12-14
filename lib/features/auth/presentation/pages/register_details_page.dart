@@ -521,8 +521,7 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                               color: AppColors.transparent,
                                               width: 0),
                                           foregroundColor: AppColors.black,
-                                          backgroundColor:
-                                              AppColors.bgColor,
+                                          backgroundColor: AppColors.bgColor,
                                           padding: const EdgeInsets.symmetric(
                                               vertical: 16),
                                           shape: SmoothRectangleBorder(
@@ -703,14 +702,14 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                                         password:
                                                             _passwordController
                                                                 .text,
-                                                        roles: 'USER',
+                                                        roles: 'INDIVIDUAL_SELLER',
                                                         isGrantedForPreciseLocation:
                                                             _locationSharingPreference ==
                                                                 LocationSharingMode
                                                                     .precise,
                                                         locationName:
                                                             location.name,
-                                                        lotitude: location
+                                                        latitude: location
                                                             .coordinates
                                                             .latitude,
                                                         longitude: location

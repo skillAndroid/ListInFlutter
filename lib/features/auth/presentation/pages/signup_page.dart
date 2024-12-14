@@ -117,8 +117,7 @@ class _SignupPageState extends State<SignupPage> {
                         style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w400,
-                            color: AppColors.lightText
-                            ),
+                            color: AppColors.lightText),
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -143,20 +142,13 @@ class _SignupPageState extends State<SignupPage> {
                       onPressed: state is AuthLoading
                           ? null
                           : () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (BuildContext context) =>
-                                      const VerificationPage(),
-                                ),
-                              );
-                              // if (_formKey.currentState!.validate()) {
-                              //   context.read<AuthBloc>().add(
-                              //         SignupSubmitted(
-                              //           email: _emailController.text,
-                              //         ),
-                              //       );
-                              // }
+                              if (_formKey.currentState!.validate()) {
+                                context.read<AuthBloc>().add(
+                                      SignupSubmitted(
+                                        email: _emailController.text,
+                                      ),
+                                    );
+                              }
                             },
                       child: state is AuthLoading
                           ? const SizedBox(
