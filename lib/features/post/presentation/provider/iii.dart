@@ -10,7 +10,7 @@ class CatalogProvider extends ChangeNotifier {
   final Map<String, List<Attribute>> _childCategoryDynamicAttributes = {};
 
   List<Attribute> _currentAttributes = [];
-  List<Attribute> _dynamicAttributes = [];
+  List<Attribute> dynamicAttributes = [];
   final Map<String, dynamic> _selectedValues = {};
 
   final List<Catalog> _catalogHistory = [];
@@ -21,11 +21,11 @@ class CatalogProvider extends ChangeNotifier {
   ChildCategory? get selectedChildCategory => _selectedChildCategory;
 
   List<Attribute> get currentAttributes {
-    if (_dynamicAttributes.isEmpty) return _currentAttributes;
+    if (dynamicAttributes.isEmpty) return _currentAttributes;
     final List<Attribute> orderedAttributes = [];
     for (var attr in _currentAttributes) {
       orderedAttributes.add(attr);
-      final relatedDynamicAttrs = _dynamicAttributes
+      final relatedDynamicAttrs = dynamicAttributes
           .where((dynamicAttr) =>
               dynamicAttr.attributeKey.startsWith(attr.attributeKey))
           .toList();
@@ -54,7 +54,7 @@ class CatalogProvider extends ChangeNotifier {
     _selectedCatalog = catalog;
     _selectedChildCategory = null;
     _currentAttributes = [];
-    _dynamicAttributes = [];
+    dynamicAttributes = [];
     _selectedValues.clear();
     notifyListeners();
   }
@@ -83,21 +83,21 @@ class CatalogProvider extends ChangeNotifier {
         _selectedValues.clear();
         _selectedValues.addAll(_childCategorySelections[childCategory.id]!);
 
-        _dynamicAttributes =
+        dynamicAttributes =
             _childCategoryDynamicAttributes[childCategory.id] ?? [];
       } else {
         _selectedValues.clear();
-        _dynamicAttributes.clear();
+        dynamicAttributes.clear();
       }
 
       if (previousChildCategoryId != null &&
           previousChildCategoryId != childCategory.id) {
         final preservedDynamicAttributes =
-            _dynamicAttributes.where((dynamicAttr) {
+            dynamicAttributes.where((dynamicAttr) {
           return _currentAttributes.any(
               (attr) => dynamicAttr.attributeKey.startsWith(attr.attributeKey));
         }).toList();
-        _dynamicAttributes = preservedDynamicAttributes;
+        dynamicAttributes = preservedDynamicAttributes;
       }
     }
     notifyListeners();
@@ -116,7 +116,7 @@ class CatalogProvider extends ChangeNotifier {
         _selectedChildCategory = null;
         resetUIState();
         _selectedValues.clear();
-        _dynamicAttributes.clear();
+        dynamicAttributes.clear();
         _currentAttributes.clear();
       }
     } else if (_selectedCatalog != null) {
@@ -135,7 +135,7 @@ class CatalogProvider extends ChangeNotifier {
       _childCategorySelections[_selectedChildCategory!.id] =
           Map<String, dynamic>.from(_selectedValues);
       _childCategoryDynamicAttributes[_selectedChildCategory!.id] =
-          List<Attribute>.from(_dynamicAttributes);
+          List<Attribute>.from(dynamicAttributes);
     }
   }
 
@@ -145,8 +145,8 @@ class CatalogProvider extends ChangeNotifier {
       _selectedValues
           .addAll(_childCategorySelections[_selectedChildCategory!.id] ?? {});
 
-      _dynamicAttributes.clear();
-      _dynamicAttributes.addAll(
+      dynamicAttributes.clear();
+      dynamicAttributes.addAll(
           _childCategoryDynamicAttributes[_selectedChildCategory!.id] ?? []);
 
       _currentAttributes = _selectedChildCategory!.attributes;
@@ -179,7 +179,7 @@ class CatalogProvider extends ChangeNotifier {
 
   void _handleDynamicAttributeCreation(
       Attribute attribute, AttributeValue value) {
-    _dynamicAttributes.removeWhere((attr) =>
+    dynamicAttributes.removeWhere((attr) =>
         attr.attributeKey.startsWith('${attribute.attributeKey} Model'));
 
     if (attribute.subWidgetsType != 'null' &&
@@ -202,7 +202,7 @@ class CatalogProvider extends ChangeNotifier {
         }).toList(),
       );
 
-      _dynamicAttributes.insert(0, newAttribute);
+      dynamicAttributes.insert(0, newAttribute);
     }
   }
 
@@ -234,7 +234,7 @@ class CatalogProvider extends ChangeNotifier {
 
   void cleanupDynamicAttributes() {
     // Remove completely empty dynamic attributes
-    _dynamicAttributes
+    dynamicAttributes
         .removeWhere((attr) => attr.values.isEmpty || attr.widgetType.isEmpty);
   }
 
@@ -247,7 +247,7 @@ class CatalogProvider extends ChangeNotifier {
 
       final existingDynamicAttributes = <Attribute>[];
 
-      _dynamicAttributes.removeWhere((attr) {
+      dynamicAttributes.removeWhere((attr) {
         if (attr.attributeKey.startsWith('${attribute.attributeKey} Model')) {
           if (selectedValues.any((selectedValue) =>
               attr.attributeKey.contains(selectedValue.value) &&
@@ -260,12 +260,13 @@ class CatalogProvider extends ChangeNotifier {
         return false;
       });
 
+
       final dynamicAttributesToAdd = <Attribute>[];
 
       for (var value in selectedValues) {
-        if (attribute.subWidgetsType == 'null' || value.list.isEmpty) {
-          continue;
-        }
+        // if (attribute.subWidgetsType == 'null' || value.list.isEmpty) {
+        //   continue;
+        // }
 
         final validSubModels = value.list
             .where((subModel) =>
@@ -305,10 +306,20 @@ class CatalogProvider extends ChangeNotifier {
             );
           }).toList(),
         );
-
         if (existingAttr.values.isNotEmpty) {
           newAttribute.values = existingAttr.values;
-          
+
+          // Preserve the visibility state of the existing attribute
+          if (_attributeOptionsVisibility.containsKey(existingAttr)) {
+            _attributeOptionsVisibility[newAttribute] =
+                _attributeOptionsVisibility[existingAttr]!;
+          }
+
+          // Preserve the selected attribute value if it exists
+          if (_selectedAttributeValues.containsKey(existingAttr)) {
+            _selectedAttributeValues[newAttribute] =
+                _selectedAttributeValues[existingAttr]!;
+          }
         }
 
         if (newAttribute.values.isNotEmpty) {
@@ -316,15 +327,15 @@ class CatalogProvider extends ChangeNotifier {
         }
       }
 
-      _dynamicAttributes.removeWhere((attr) =>
+      dynamicAttributes.removeWhere((attr) =>
           attr.attributeKey.startsWith('${attribute.attributeKey} Model'));
 
-      _dynamicAttributes.insertAll(0, dynamicAttributesToAdd);
+      dynamicAttributes.insertAll(0, dynamicAttributesToAdd);
     }
 
     notifyListeners();
   }
-
+//
   AttributeValue? getSelectedValue(Attribute attribute) {
     final selectedValue = _selectedValues[attribute.attributeKey];
     if (attribute.widgetType == 'oneSelectable' ||
@@ -358,7 +369,7 @@ class CatalogProvider extends ChangeNotifier {
     _selectedCatalog = null;
     _selectedChildCategory = null;
     _currentAttributes = [];
-    _dynamicAttributes = [];
+    dynamicAttributes = [];
     _selectedValues.clear();
     _catalogHistory.clear();
     _childCategoryHistory.clear();
@@ -384,7 +395,7 @@ class CatalogProvider extends ChangeNotifier {
 
     // Reset selected values
     _selectedValues.clear();
-    _dynamicAttributes.clear();
+    dynamicAttributes.clear();
 
     notifyListeners();
   }
@@ -411,4 +422,6 @@ class CatalogProvider extends ChangeNotifier {
   AttributeValue? getSelectedAttributeValue(Attribute attribute) {
     return _selectedAttributeValues[attribute];
   }
+
+  
 }
