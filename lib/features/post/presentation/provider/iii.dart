@@ -335,7 +335,7 @@ class CatalogProvider extends ChangeNotifier {
 
     notifyListeners();
   }
-//
+
   AttributeValue? getSelectedValue(Attribute attribute) {
     final selectedValue = _selectedValues[attribute.attributeKey];
     if (attribute.widgetType == 'oneSelectable' ||
@@ -400,28 +400,20 @@ class CatalogProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Map to track the visibility of attribute options
   final Map<Attribute, bool> _attributeOptionsVisibility = {};
 
-  // Map to track selected attribute values
   final Map<Attribute, AttributeValue> _selectedAttributeValues = {};
 
-  // Toggle visibility of attribute options
   void toggleAttributeOptionsVisibility(Attribute attribute) {
     _attributeOptionsVisibility[attribute] =
         !(_attributeOptionsVisibility[attribute] ?? false);
     notifyListeners();
   }
 
-  // Check if attribute options are visible
   bool isAttributeOptionsVisible(Attribute attribute) {
     return _attributeOptionsVisibility[attribute] ?? false;
   }
-
-  // Get the selected value for a specific attribute
   AttributeValue? getSelectedAttributeValue(Attribute attribute) {
     return _selectedAttributeValues[attribute];
   }
-
-  
 }
