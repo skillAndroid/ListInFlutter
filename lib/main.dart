@@ -902,7 +902,7 @@ class MyApp2 extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const CatalogScreen(),
+      home: const CatalogPagerScreen(),
     );
   }
 }

@@ -3,16 +3,15 @@ import 'package:list_in/features/post/presentation/pages/model.dart';
 import 'package:list_in/features/post/presentation/provider/iii.dart';
 import 'package:provider/provider.dart';
 
-class CatalogScreen extends StatefulWidget {
-  const CatalogScreen({super.key});
+class CatalogPagerScreen extends StatefulWidget {
+  const CatalogPagerScreen({Key? key}) : super(key: key);
 
   @override
-  // ignore: library_private_types_in_public_api
-  _CatalogScreenState createState() => _CatalogScreenState();
+  _CatalogPagerScreenState createState() => _CatalogPagerScreenState();
 }
 
-class _CatalogScreenState extends State<CatalogScreen> {
-  final Map<String, bool> _expandedAttributes = {};
+class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
+  final PageController _pageController = PageController();
 
   @override
   Widget build(BuildContext context) {
@@ -21,39 +20,55 @@ class _CatalogScreenState extends State<CatalogScreen> {
         title: const Text('Catalog Selection'),
         leading: Consumer<CatalogProvider>(
           builder: (context, provider, child) {
-            // Determine if back navigation is possible
-            if (provider.selectedChildCategory != null ||
-                provider.selectedCatalog != null) {
-              return BackButton(
-                onPressed: () {
-                  provider.goBack();
-                },
-              );
-            }
-            return Container();
+            return _buildBackButton(provider);
           },
         ),
       ),
       body: Consumer<CatalogProvider>(
         builder: (context, provider, child) {
-          // First Page: Catalog Selection
-          if (provider.selectedCatalog == null) {
-            return _buildCatalogList(context, provider);
-          }
+          return PageView(
+            controller: _pageController,
+            physics: const NeverScrollableScrollPhysics(),
+            children: [
+              // First Page: Catalog Selection
+              _buildCatalogPage(context, provider),
 
-          // Second Page: Child Category Selection
-          if (provider.selectedChildCategory == null) {
-            return _buildChildCategoryList(context, provider);
-          }
+              // Second Page: Child Category Selection
+              _buildChildCategoryPage(context, provider),
 
-          // Third Page: Attributes Selection
-          return _buildAttributesList(context, provider);
+              // Third Page: Attributes Selection
+              _buildAttributesPage(context, provider),
+            ],
+          );
         },
       ),
     );
   }
 
-  Widget _buildCatalogList(BuildContext context, CatalogProvider provider) {
+  Widget _buildBackButton(CatalogProvider provider) {
+    if (provider.selectedChildCategory != null ||
+        provider.selectedCatalog != null) {
+      return BackButton(
+        onPressed: () {
+          if (_pageController.page == 2) {
+            _pageController.previousPage(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
+          } else if (_pageController.page == 1) {
+            _pageController.previousPage(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
+            provider.goBack();
+          }
+        },
+      );
+    }
+    return Container();
+  }
+
+  Widget _buildCatalogPage(BuildContext context, CatalogProvider provider) {
     return ListView.builder(
       itemCount: provider.catalogModel?.catalogs.length ?? 0,
       itemBuilder: (context, index) {
@@ -61,13 +76,19 @@ class _CatalogScreenState extends State<CatalogScreen> {
         return ListTile(
           title: Text(catalog.name),
           subtitle: Text(catalog.description),
-          onTap: () => provider.selectCatalog(catalog),
+          onTap: () {
+            provider.selectCatalog(catalog);
+            _pageController.nextPage(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
+          },
         );
       },
     );
   }
 
-  Widget _buildChildCategoryList(
+  Widget _buildChildCategoryPage(
       BuildContext context, CatalogProvider provider) {
     return ListView.builder(
       itemCount: provider.selectedCatalog?.childCategories.length ?? 0,
@@ -76,98 +97,101 @@ class _CatalogScreenState extends State<CatalogScreen> {
         return ListTile(
           title: Text(childCategory.name),
           subtitle: Text(childCategory.description),
-          onTap: () => provider.selectChildCategory(childCategory),
+          onTap: () {
+            provider.selectChildCategory(childCategory);
+            _pageController.nextPage(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
+          },
         );
       },
     );
   }
 
-  Widget _buildAttributesList(BuildContext context, CatalogProvider provider) {
+  Widget _buildAttributesPage(BuildContext context, CatalogProvider provider) {
     return ListView.builder(
       itemCount: provider.currentAttributes.length,
       itemBuilder: (context, index) {
         final attribute = provider.currentAttributes[index];
-        return _buildAttributeExpansionTile(context, provider, attribute);
+        return _buildAttributeWidget(context, provider, attribute);
       },
     );
   }
 
-  Widget _buildAttributeExpansionTile(
+  Widget _buildAttributeWidget(
       BuildContext context, CatalogProvider provider, Attribute attribute) {
-    // Determine if this attribute is expanded
-    bool isExpanded = _expandedAttributes[attribute.attributeKey] ?? false;
+    switch (attribute.widgetType) {
+      case 'oneSelectable':
+        return _buildOneSelectorWidget(context, provider, attribute);
+      case 'colorSelectable':
+        return _buildColorSelectorWidget(context, provider, attribute);
+      case 'multiSelectable':
+        return _buildMultiSelectorWidget(context, provider, attribute);
+      default:
+        return ListTile(
+          title: Text('Unsupported attribute type: ${attribute.widgetType}'),
+        );
+    }
+  }
 
+  Widget _buildOneSelectorWidget(
+      BuildContext context, CatalogProvider provider, Attribute attribute) {
     return ExpansionTile(
-      key: Key(attribute.attributeKey),
       title: Text(attribute.attributeKey),
-      subtitle: _buildSelectedValuesSubtitle(provider, attribute),
-      initiallyExpanded: isExpanded,
-      onExpansionChanged: (expanded) {
-        setState(() {
-          _expandedAttributes[attribute.attributeKey] = expanded;
-        });
-      },
+      children: attribute.values.map((value) {
+        return ListTile(
+          title: Text(value.value),
+          trailing: provider.isValueSelected(attribute, value)
+              ? const Icon(Icons.check_circle, color: Colors.blue)
+              : null,
+          onTap: () {
+            provider.selectAttributeValue(attribute, value);
+          },
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildColorSelectorWidget(
+      BuildContext context, CatalogProvider provider, Attribute attribute) {
+    return ExpansionTile(
+      title: Text(attribute.attributeKey),
+      children: attribute.values.map((value) {
+        return ListTile(
+          title: Text(value.value),
+          trailing: provider.isValueSelected(attribute, value)
+              ? const Icon(Icons.check_circle, color: Colors.blue)
+              : null,
+          onTap: () {
+            provider.selectAttributeValue(attribute, value);
+          },
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildMultiSelectorWidget(
+      BuildContext context, CatalogProvider provider, Attribute attribute) {
+    return ExpansionTile(
+      title: Text(attribute.attributeKey),
       children: [
-        ..._buildAttributeValueTiles(context, provider, attribute),
-        if (attribute.widgetType == 'multiSelectable')
-          _buildConfirmButton(context, provider, attribute)
+        ...attribute.values.map((value) {
+          return CheckboxListTile(
+            title: Text(value.value),
+            value: provider.isValueSelected(attribute, value),
+            onChanged: (bool? selected) {
+              provider.selectAttributeValue(attribute, value);
+            },
+          );
+        }).toList(),
+        ElevatedButton(
+          onPressed: () {
+            provider.confirmMultiSelection(attribute);
+          },
+          child: const Text('Confirm Selection'),
+        ),
       ],
     );
   }
-
-  Widget? _buildSelectedValuesSubtitle(
-      CatalogProvider provider, Attribute attribute) {
-    final selectedValue = provider.selectedValues[attribute.attributeKey];
-    if (selectedValue == null) return null;
-
-    if (attribute.widgetType == 'oneSelectable' ||
-        attribute.widgetType == 'colorSelectable') {
-      return Text((selectedValue as AttributeValue).value);
-    } else if (attribute.widgetType == 'multiSelectable') {
-      final selectedList = selectedValue as List<AttributeValue>;
-      return Text(selectedList.map((v) => v.value).join(', '));
-    }
-    return null;
-  }
-
-  List<Widget> _buildAttributeValueTiles(
-      BuildContext context, CatalogProvider provider, Attribute attribute) {
-    return attribute.values.map((value) {
-      return ListTile(
-        title: Text(value.value),
-        trailing: _buildTrailingIcon(provider, attribute, value),
-        onTap: () {
-          provider.selectAttributeValue(attribute, value);
-
-          // For oneSelectable, collapse the expansion tile
-          if (attribute.widgetType == 'oneSelectable'  || attribute.widgetType == 'colorSelectable') {
-            setState(() {
-              _expandedAttributes[attribute.attributeKey] = false;
-            });
-          }
-        },
-      );
-    }).toList();
-  }
-
-  Widget _buildTrailingIcon(
-      CatalogProvider provider, Attribute attribute, AttributeValue value) {
-    return provider.isValueSelected(attribute, value)
-        ? const Icon(Icons.check_box, color: Colors.blue)
-        : const Icon(Icons.check_box_outline_blank);
-  }
-
-  Widget _buildConfirmButton(
-      BuildContext context, CatalogProvider provider, Attribute attribute) {
-    return ElevatedButton(
-      onPressed: () {
-        provider.confirmMultiSelection(attribute);
-        setState(() {
-          _expandedAttributes[attribute.attributeKey] = false;
-        });
-      },
-      child: const Text('Confirm Selection'),
-    );
-  }
 }
-//
