@@ -3,7 +3,7 @@ import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/auth/presentation/pages/login_page.dart';
 import 'package:list_in/features/auth/presentation/pages/signup_page.dart';
-import 'package:smooth_corner/smooth_corner.dart';
+import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key});

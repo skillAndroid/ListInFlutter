@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:list_in/config/theme/app_theme.dart';
+import 'package:list_in/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:list_in/features/map/presentation/bloc/MapBloc.dart';
 import 'package:list_in/features/post/data/sources/post_remoute_data_source.dart';
 import 'package:list_in/features/post/presentation/pages/catalog_screen.dart';
 import 'package:list_in/features/post/presentation/provider/iii.dart';
@@ -868,41 +872,60 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await di.init();
   runApp(
-    // MultiBlocProvider(
-    //   providers: [
-    //     BlocProvider(
-    //       create: (_) => di.sl<AuthBloc>(),
-    //     ),
-    //     BlocProvider<MapBloc>(
-    //       create: (_) => di.sl<MapBloc>(), // Provide the MapBloc here
-    //     ),
-    //   ],
-    //   child: const MaterialApp(
-    //     home: MyApp(),
-    //   ),
-    // ),
-    ChangeNotifierProvider(
-      create: (context) => CatalogProvider(),
-      child: MyApp2(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => CatalogProvider(),
+        ),
+      ],
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (_) => di.sl<AuthBloc>(),
+          ),
+          BlocProvider<MapBloc>(
+            create: (_) => di.sl<MapBloc>(), // Provide the MapBloc here
+          ),
+        ],
+        child: const MaterialApp(
+          home: MyApp(),
+        ),
+      ),
     ),
   );
 }
 
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
-
-class MyApp2 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // Load JSON data
+    final ThemeData theme = AppTheme.lightTheme;
+    AppTheme.setStatusBarAndNavBarColor(theme);
     Provider.of<CatalogProvider>(context, listen: false)
         .loadCatalog(jsonString);
-
     return MaterialApp(
-      title: 'Catalog Selection App',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const CatalogPagerScreen(),
+      title: 'Your App',
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.lightTheme,
+      debugShowCheckedModeBanner: false,
+      home: const Catalog(), // WelcomePage(),
+      routes: {
+        '/home': (context) =>
+            const Scaffold(body: Center(child: Text('Home Page'))),
+      },
     );
   }
 }
+
+class Catalog extends StatelessWidget {
+  const Catalog({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    Provider.of<CatalogProvider>(context, listen: false)
+        .loadCatalog(jsonString);
+    return const CatalogPagerScreen();
+  }
+}
+//

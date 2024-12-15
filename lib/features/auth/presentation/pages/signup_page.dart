@@ -8,7 +8,7 @@ import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/auth/presentation/pages/login_page.dart';
 import 'package:list_in/features/auth/presentation/pages/verification_page.dart';
 import 'package:list_in/features/auth/presentation/widgets/auth_text_field.dart';
-import 'package:smooth_corner/smooth_corner.dart';
+import 'package:smooth_corner_updated/smooth_corner.dart';
 import '../bloc/auth_bloc.dart';
 
 class SignupPage extends StatefulWidget {

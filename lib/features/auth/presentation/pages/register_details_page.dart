@@ -9,7 +9,7 @@ import 'package:list_in/features/auth/presentation/widgets/auth_text_field.dart'
 import 'package:list_in/features/map/domain/entities/coordinates_entity.dart';
 import 'package:list_in/features/map/domain/entities/location_entity.dart';
 import 'package:list_in/features/map/presentation/map/map.dart';
-import 'package:smooth_corner/smooth_corner.dart';
+import 'package:smooth_corner_updated/smooth_corner.dart';
 
 enum LocationSharingMode { precise, region }
 

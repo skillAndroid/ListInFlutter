@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
-import 'package:smooth_corner/smooth_corner.dart';
+import 'package:smooth_corner_updated/smooth_corner.dart';
+
 
 class SearchTextField extends StatelessWidget {
   final TextEditingController controller;

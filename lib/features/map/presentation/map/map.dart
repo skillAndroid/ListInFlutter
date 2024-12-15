@@ -15,7 +15,7 @@ import 'package:list_in/features/map/presentation/widgets/search_text_field.dart
 import 'package:list_in/features/map/presentation/widgets/show_custom_sheet.dart';
 import 'package:list_in/features/map/service/AppLocation.dart';
 import 'package:list_in/features/map/service/models.dart';
-import 'package:smooth_corner/smooth_corner.dart';
+import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class MapSample extends StatefulWidget {
   const MapSample({super.key});

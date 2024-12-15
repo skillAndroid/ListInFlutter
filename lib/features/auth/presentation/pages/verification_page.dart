@@ -7,7 +7,7 @@ import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:list_in/features/auth/presentation/pages/register_details_page.dart';
 import 'package:pinput/pinput.dart';
-import 'package:smooth_corner/smooth_corner.dart';
+import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class VerificationPage extends StatefulWidget {
   const VerificationPage({super.key});
@@ -282,4 +282,4 @@ class _VerificationPageState extends State<VerificationPage> {
 
 //
 }
-// 
+//

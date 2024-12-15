@@ -62,10 +62,18 @@ class CatalogProvider extends ChangeNotifier {
   void selectChildCategory(ChildCategory childCategory) {
     final previousChildCategoryId = _selectedChildCategory?.id;
 
+    if (previousChildCategoryId != null &&
+        previousChildCategoryId != childCategory.id) {
+      resetSelectionForChildCategory(childCategory);
+    }
+
     if (_selectedChildCategory != null &&
         !_childCategoryHistory.contains(_selectedChildCategory)) {
       _childCategoryHistory.add(_selectedChildCategory!);
     }
+
+    _selectedChildCategory = childCategory;
+    _currentAttributes = childCategory.attributes;
 
     if (_selectedChildCategory?.id != childCategory.id) {
       _selectedChildCategory = childCategory;
@@ -100,11 +108,13 @@ class CatalogProvider extends ChangeNotifier {
       _saveCurrentSelections();
 
       if (_childCategoryHistory.isNotEmpty) {
-        _selectedChildCategory = _childCategoryHistory.removeLast();
-
+        final previousChildCategory = _childCategoryHistory.removeLast();
+        resetSelectionForChildCategory(previousChildCategory);
+        _selectedChildCategory = previousChildCategory;
         _restorePreviousSelections();
       } else {
         _selectedChildCategory = null;
+        resetUIState();
         _selectedValues.clear();
         _dynamicAttributes.clear();
         _currentAttributes.clear();
@@ -115,6 +125,7 @@ class CatalogProvider extends ChangeNotifier {
       } else {
         _selectedCatalog = null;
       }
+      resetUIState();
     }
     notifyListeners();
   }
@@ -162,6 +173,7 @@ class CatalogProvider extends ChangeNotifier {
         list.add(value);
       }
     }
+    _selectedAttributeValues[attribute] = value;
     notifyListeners();
   }
 
@@ -206,11 +218,32 @@ class CatalogProvider extends ChangeNotifier {
     return false;
   }
 
+  void preserveAttributeState(Attribute oldAttribute, Attribute newAttribute) {
+    // Preserve visibility state
+    if (_attributeOptionsVisibility.containsKey(oldAttribute)) {
+      _attributeOptionsVisibility[newAttribute] =
+          _attributeOptionsVisibility[oldAttribute]!;
+    }
+
+    // Preserve selected value
+    if (_selectedAttributeValues.containsKey(oldAttribute)) {
+      _selectedAttributeValues[newAttribute] =
+          _selectedAttributeValues[oldAttribute]!;
+    }
+  }
+
+  void cleanupDynamicAttributes() {
+    // Remove completely empty dynamic attributes
+    _dynamicAttributes
+        .removeWhere((attr) => attr.values.isEmpty || attr.widgetType.isEmpty);
+  }
+
   void confirmMultiSelection(Attribute attribute) {
     if (attribute.widgetType == 'multiSelectable') {
       final selectedValues =
           _selectedValues[attribute.attributeKey] as List<AttributeValue>? ??
               [];
+      if (selectedValues.isEmpty) return;
 
       final existingDynamicAttributes = <Attribute>[];
 
@@ -275,6 +308,7 @@ class CatalogProvider extends ChangeNotifier {
 
         if (existingAttr.values.isNotEmpty) {
           newAttribute.values = existingAttr.values;
+          
         }
 
         if (newAttribute.values.isNotEmpty) {
@@ -291,6 +325,18 @@ class CatalogProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  AttributeValue? getSelectedValue(Attribute attribute) {
+    final selectedValue = _selectedValues[attribute.attributeKey];
+    if (attribute.widgetType == 'oneSelectable' ||
+        attribute.widgetType == 'colorSelectable') {
+      return selectedValue as AttributeValue?;
+    } else if (attribute.widgetType == 'multiSelectable') {
+      final selectedList = selectedValue as List<AttributeValue>?;
+      return selectedList!.isNotEmpty ? selectedList.first : null;
+    }
+    return null;
+  }
+
   void resetCatalogSelection() {
     _selectedCatalog = null;
     _selectedChildCategory = null;
@@ -303,6 +349,8 @@ class CatalogProvider extends ChangeNotifier {
     if (_selectedCatalog != null) {
       _childCategorySelections.remove(_selectedChildCategory?.id);
       _childCategoryDynamicAttributes.remove(_selectedChildCategory?.id);
+      _selectedAttributeValues.clear();
+      _attributeOptionsVisibility.clear();
     }
   }
 
@@ -316,6 +364,51 @@ class CatalogProvider extends ChangeNotifier {
     _childCategoryHistory.clear();
     _childCategorySelections.clear();
     _childCategoryDynamicAttributes.clear();
+
     notifyListeners();
+  }
+
+  void resetUIState() {
+    _attributeOptionsVisibility.clear();
+    notifyListeners();
+  }
+
+  void resetSelectionForChildCategory(ChildCategory newChildCategory) {
+    // More comprehensive reset when switching child categories
+    _attributeOptionsVisibility.clear();
+    _selectedAttributeValues.clear();
+
+    // Clear previous selections specific to this child category
+    _childCategorySelections.remove(newChildCategory.id);
+    _childCategoryDynamicAttributes.remove(newChildCategory.id);
+
+    // Reset selected values
+    _selectedValues.clear();
+    _dynamicAttributes.clear();
+
+    notifyListeners();
+  }
+
+  // Map to track the visibility of attribute options
+  final Map<Attribute, bool> _attributeOptionsVisibility = {};
+
+  // Map to track selected attribute values
+  final Map<Attribute, AttributeValue> _selectedAttributeValues = {};
+
+  // Toggle visibility of attribute options
+  void toggleAttributeOptionsVisibility(Attribute attribute) {
+    _attributeOptionsVisibility[attribute] =
+        !(_attributeOptionsVisibility[attribute] ?? false);
+    notifyListeners();
+  }
+
+  // Check if attribute options are visible
+  bool isAttributeOptionsVisible(Attribute attribute) {
+    return _attributeOptionsVisibility[attribute] ?? false;
+  }
+
+  // Get the selected value for a specific attribute
+  AttributeValue? getSelectedAttributeValue(Attribute attribute) {
+    return _selectedAttributeValues[attribute];
   }
 }

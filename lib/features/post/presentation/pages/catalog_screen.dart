@@ -4,9 +4,10 @@ import 'package:list_in/features/post/presentation/provider/iii.dart';
 import 'package:provider/provider.dart';
 
 class CatalogPagerScreen extends StatefulWidget {
-  const CatalogPagerScreen({Key? key}) : super(key: key);
+  const CatalogPagerScreen({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _CatalogPagerScreenState createState() => _CatalogPagerScreenState();
 }
 
@@ -26,19 +27,22 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
       ),
       body: Consumer<CatalogProvider>(
         builder: (context, provider, child) {
-          return PageView(
-            controller: _pageController,
-            physics: const NeverScrollableScrollPhysics(),
-            children: [
-              // First Page: Catalog Selection
-              _buildCatalogPage(context, provider),
-
-              // Second Page: Child Category Selection
-              _buildChildCategoryPage(context, provider),
-
-              // Third Page: Attributes Selection
-              _buildAttributesPage(context, provider),
-            ],
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: PageView(
+              controller: _pageController,
+              physics: const NeverScrollableScrollPhysics(),
+              children: [
+                // First Page: Catalog Selection
+                _buildCatalogPage(context, provider),
+            
+                // Second Page: Child Category Selection
+                _buildChildCategoryPage(context, provider),
+            
+                // Third Page: Attributes Selection
+                _buildAttributesPage(context, provider),
+              ],
+            ),
           );
         },
       ),
@@ -50,6 +54,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
         provider.selectedCatalog != null) {
       return BackButton(
         onPressed: () {
+          provider.resetUIState();
           if (_pageController.page == 2) {
             _pageController.previousPage(
               duration: const Duration(milliseconds: 300),
@@ -135,23 +140,67 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
     }
   }
 
-  Widget _buildOneSelectorWidget(
-      BuildContext context, CatalogProvider provider, Attribute attribute) {
-    return ExpansionTile(
-      title: Text(attribute.attributeKey),
-      children: attribute.values.map((value) {
-        return ListTile(
-          title: Text(value.value),
-          trailing: provider.isValueSelected(attribute, value)
-              ? const Icon(Icons.check_circle, color: Colors.blue)
-              : null,
-          onTap: () {
-            provider.selectAttributeValue(attribute, value);
-          },
-        );
-      }).toList(),
-    );
-  }
+ Widget _buildOneSelectorWidget(
+    BuildContext context, CatalogProvider provider, Attribute attribute) {
+  // Use the provider to track the selected value for this specific attribute
+  final selectedValue = provider.getSelectedAttributeValue(attribute);
+
+  return Column(
+    children: [
+      Text(attribute.helperText),
+      Consumer<CatalogProvider>(
+        builder: (context, provider, child) {
+          return Column(
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  // Toggle the visibility of options for this specific attribute
+                  provider.toggleAttributeOptionsVisibility(attribute);
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Show the selected value or attribute key
+                    Text(
+                      selectedValue?.value ?? attribute.attributeKey, 
+                      style: TextStyle(
+                        color: selectedValue != null 
+                          ? Colors.black 
+                          : Colors.grey
+                      ),
+                    ),
+                    const Icon(Icons.arrow_drop_down),
+                  ],
+                ),
+              ),
+              
+              // Only show options if this attribute's options are set to visible
+              if (provider.isAttributeOptionsVisible(attribute))
+                Card(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: attribute.values.length,
+                    itemBuilder: (context, index) {
+                      var value = attribute.values[index];
+                      return ListTile(
+                        title: Text(value.value),
+                        onTap: () {
+                          // Select the value through the provider
+                          provider.selectAttributeValue(attribute, value);
+                          // Hide the options
+                          provider.toggleAttributeOptionsVisibility(attribute);
+                        },
+                      );
+                    },
+                  ),
+                ),
+            ],
+          );
+        },
+      ),
+    ],
+  );
+}
 
   Widget _buildColorSelectorWidget(
       BuildContext context, CatalogProvider provider, Attribute attribute) {
