@@ -60,6 +60,8 @@ class AppTheme {
         backgroundColor: AppColors.containerColor,
         foregroundColor: AppColors.black,
         elevation: 0,
+        shadowColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
         textStyle: const TextStyle(
           fontSize: 17,
           fontWeight: FontWeight.w600,
@@ -69,6 +71,10 @@ class AppTheme {
           smoothness: 1,
           borderRadius: BorderRadius.circular(18),
         ),
+      ).copyWith(
+        elevation: WidgetStateProperty.resolveWith((states) {
+          return 0;
+        }),
       ),
     ),
     textButtonTheme: TextButtonThemeData(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/post/presentation/pages/model.dart';
 import 'package:list_in/features/post/presentation/provider/iii.dart';
@@ -15,99 +16,118 @@ class CatalogPagerScreen extends StatefulWidget {
 
 class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
   final PageController _pageController = PageController();
-
+  int _currentPage = 0;
+  double _progressValue =
+      0.0; // This tracks the progress for the LinearProgressIndicator
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.bgColor,
-      appBar: AppBar(
-        leading: Consumer<CatalogProvider>(
-          builder: (context, provider, child) {
-            return _buildBackButton(provider);
-          },
-        ),
-      ),
-      body: Consumer<CatalogProvider>(
-        builder: (context, provider, child) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: PageView(
-              controller: _pageController,
-              physics: const NeverScrollableScrollPhysics(),
-              children: [
-                _buildCatalogPage(context, provider),
-                _buildChildCategoryPage(context, provider),
-                _buildAttributesPage(context, provider),
-              ],
-            ),
-          );
-        },
-      ),
-    );
+  void initState() {
+    super.initState();
+    _updateProgress(_currentPage);
   }
 
-  void _endTask(BuildContext context) {
-    // Access the provider
-    final provider = Provider.of<CatalogProvider>(context, listen: false);
-
-    // Collect the data
-    final selectedCatalog = provider.selectedCatalog?.name ?? 'None';
-    final selectedChildCategory =
-        provider.selectedChildCategory?.name ?? 'None';
-    final selectedAttributes = provider.currentAttributes.map((attribute) {
-      final value = provider.getSelectedAttributeValue(attribute);
-      if (attribute.widgetType == 'multiSelectable') {
-        // Multi-select attributes
-        final selectedValues = provider.selectedValues[attribute.attributeKey];
-        return '${attribute.attributeKey}: ${selectedValues?.map((v) => v.value).join(", ") ?? "None"}';
-      }
-      return '${attribute.attributeKey}: ${value?.value ?? "None"}';
-    }).join("\n");
-
-    // Show the collected data
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Selected Data'),
-          content: Text(
-            'Catalog: $selectedCatalog\n'
-            'Child Category: $selectedChildCategory\n'
-            'Attributes:\n$selectedAttributes',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
+  void _updateProgress(int pageIndex) {
+    setState(() {
+      _progressValue = (pageIndex + 1) / 3; // Update progress immediately
+    });
   }
 
   Widget _buildBackButton(CatalogProvider provider) {
     if (provider.selectedChildCategory != null ||
         provider.selectedCatalog != null) {
       return BackButton(
-        onPressed: () {
-          provider.resetUIState();
-          if (_pageController.page == 2) {
-            _pageController.previousPage(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-            );
-          } else if (_pageController.page == 1) {
-            _pageController.previousPage(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-            );
-            provider.goBack();
-          }
-        },
+        onPressed: () => _handleBackNavigation(provider),
       );
     }
     return Container();
+  }
+
+  Future<bool> _onWillPop() async {
+    final provider = Provider.of<CatalogProvider>(context, listen: false);
+
+    if (_currentPage > 0) {
+      _handleBackNavigation(provider);
+      return false;
+    }
+
+    await SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+    return false;
+  }
+
+  void _handleBackNavigation(CatalogProvider provider) {
+    provider.resetUIState();
+
+    if (_currentPage == 2) {
+      _pageController.previousPage(
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+      );
+    } else if (_currentPage == 1) {
+      _pageController.previousPage(
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+      );
+      provider.goBack();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // ignore: deprecated_member_use
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        backgroundColor: AppColors.bgColor,
+        appBar: AppBar(
+          title: const Text('Your Title'), // Optional AppBar title
+          toolbarHeight: 56.0, // Height of the AppBar
+          automaticallyImplyLeading:
+              false, // Removes default back button if not needed
+          flexibleSpace: TweenAnimationBuilder<double>(
+            duration: const Duration(milliseconds: 400),
+            curve: Curves.easeInOut,
+            tween: Tween<double>(
+              begin: _progressValue,
+              end: _progressValue,
+            ),
+            builder: (context, value, _) => LinearProgressIndicator(
+              value: value,
+              backgroundColor: AppColors.bgColor,
+              valueColor: const AlwaysStoppedAnimation<Color>(
+                // ignore: deprecated_member_use
+                AppColors.containerColor,
+              ),
+              minHeight: double.infinity,
+            ),
+          ),
+
+          leading: Consumer<CatalogProvider>(
+            builder: (context, provider, child) {
+              return _buildBackButton(provider); // Your back button logic
+            },
+          ),
+        ),
+        body: Consumer<CatalogProvider>(
+          builder: (context, provider, child) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: PageView(
+                controller: _pageController,
+                onPageChanged: (index) {
+                  _currentPage = index;
+                  _updateProgress(index);
+                },
+                physics: const NeverScrollableScrollPhysics(),
+                children: [
+                  _buildCatalogPage(context, provider),
+                  _buildChildCategoryPage(context, provider),
+                  _buildAttributesPage(context, provider),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+    );
   }
 
   Widget _buildCatalogPage(BuildContext context, CatalogProvider provider) {
@@ -121,7 +141,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
           onTap: () {
             provider.selectCatalog(catalog);
             _pageController.nextPage(
-              duration: const Duration(milliseconds: 300),
+              duration: const Duration(milliseconds: 400),
               curve: Curves.easeInOut,
             );
           },
@@ -142,7 +162,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
           onTap: () {
             provider.selectChildCategory(childCategory);
             _pageController.nextPage(
-              duration: const Duration(milliseconds: 300),
+              duration: const Duration(milliseconds: 400),
               curve: Curves.easeInOut,
             );
           },
@@ -152,12 +172,42 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
   }
 
   Widget _buildAttributesPage(BuildContext context, CatalogProvider provider) {
-    return ListView.builder(
-      itemCount: provider.currentAttributes.length,
-      itemBuilder: (context, index) {
-        final attribute = provider.currentAttributes[index];
-        return _buildAttributeWidget(context, provider, attribute);
-      },
+    return Stack(
+      children: [
+        // Main scrollable content
+        Padding(
+          padding: const EdgeInsets.only(bottom: 70.0, top: 12),
+          child: ListView.builder(
+            // Adjust this value as needed
+            itemCount: provider.currentAttributes.length,
+            itemBuilder: (context, index) {
+              final attribute = provider.currentAttributes[index];
+              return _buildAttributeWidget(context, provider, attribute);
+            },
+          ),
+        ),
+
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12.0),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  shape: SmoothRectangleBorder(
+                      smoothness: 1, borderRadius: BorderRadius.circular(10)),
+                  backgroundColor: AppColors.black,
+                  foregroundColor: AppColors.white),
+              onPressed: () {},
+              child: const Padding(
+                padding: EdgeInsets.all(18.0),
+                child: Text('Next'),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -184,12 +234,15 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          attribute.helperText,
-          style: const TextStyle(
-            color: AppColors.gray,
-            fontSize: 13,
-            fontWeight: FontWeight.w300,
+        Padding(
+          padding: const EdgeInsets.only(left: 4),
+          child: Text(
+            attribute.helperText,
+            style: const TextStyle(
+              color: AppColors.gray,
+              fontSize: 15,
+              fontWeight: FontWeight.w400,
+            ),
           ),
         ),
         const SizedBox(
@@ -206,9 +259,10 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
                   style: ButtonStyle(
                     textStyle: WidgetStateProperty.all(
                       const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          fontFamily: 'Poppins'),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'Poppins',
+                      ),
                     ),
                     padding: WidgetStateProperty.all(
                         EdgeInsets.zero), // Removes padding
@@ -226,7 +280,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,
-                      vertical: 12,
+                      vertical: 14.0,
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -241,6 +295,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
                         ),
                         const Icon(
                           Icons.arrow_drop_down,
+                          size: 24,
                           color: AppColors.black,
                         ),
                       ],
@@ -250,7 +305,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
 
                 // Smooth animation for expanding/collapsing the Card
                 AnimatedSize(
-                  duration: const Duration(milliseconds: 300),
+                  duration: const Duration(milliseconds: 400),
                   curve: Curves.easeInOut,
                   child: provider.isAttributeOptionsVisible(attribute)
                       ? Card(
@@ -263,10 +318,10 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
                           elevation: 0,
                           clipBehavior: Clip.antiAlias,
                           child: ConstrainedBox(
-                            constraints: const BoxConstraints(maxHeight: 300),
+                            constraints: const BoxConstraints(maxHeight: 250),
                             child: ListView.builder(
                                 shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
+                                physics: const AlwaysScrollableScrollPhysics(),
                                 itemCount: attribute.values.length,
                                 itemBuilder: (context, index) {
                                   var value = attribute.values[index];
@@ -281,7 +336,9 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
                                     },
                                     child: Padding(
                                       padding: const EdgeInsets.symmetric(
-                                          vertical: 8.0, horizontal: 12.0),
+                                        vertical: 8.0,
+                                        horizontal: 12.0,
+                                      ),
                                       child: Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
@@ -289,7 +346,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
                                           Text(
                                             value.value,
                                             style: const TextStyle(
-                                              fontSize: 12,
+                                              fontSize: 13,
                                               fontFamily: "Poppins",
                                               fontWeight: FontWeight.w500,
                                               color: Colors.black,
@@ -309,7 +366,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
           },
         ),
         const SizedBox(
-          height: 8,
+          height: 12,
         ),
       ],
     );
@@ -329,12 +386,15 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          attribute.helperText,
-          style: const TextStyle(
-            color: AppColors.gray,
-            fontSize: 13,
-            fontWeight: FontWeight.w300,
+        Padding(
+          padding: const EdgeInsets.only(left: 4),
+          child: Text(
+            attribute.helperText,
+            style: const TextStyle(
+              color: AppColors.gray,
+              fontSize: 15,
+              fontWeight: FontWeight.w400,
+            ),
           ),
         ),
         const SizedBox(
@@ -351,7 +411,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
                   style: ButtonStyle(
                     textStyle: WidgetStateProperty.all(
                       const TextStyle(
-                          fontSize: 14,
+                          fontSize: 15,
                           fontWeight: FontWeight.w500,
                           fontFamily: 'Poppins'),
                     ),
@@ -371,7 +431,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,
-                      vertical: 12,
+                      vertical: 14,
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -403,6 +463,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
                         ),
                         const Icon(
                           Icons.arrow_drop_down,
+                          size: 24,
                           color: AppColors.black,
                         ),
                       ],
@@ -412,7 +473,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
 
                 // Smooth animation for expanding/collapsing the Card
                 AnimatedSize(
-                  duration: const Duration(milliseconds: 300),
+                  duration: const Duration(milliseconds: 400),
                   curve: Curves.easeInOut,
                   child: provider.isAttributeOptionsVisible(attribute)
                       ? Card(
@@ -425,10 +486,10 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
                           elevation: 0,
                           clipBehavior: Clip.antiAlias,
                           child: ConstrainedBox(
-                            constraints: const BoxConstraints(maxHeight: 300),
+                            constraints: const BoxConstraints(maxHeight: 250),
                             child: ListView.builder(
                                 shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
+                                physics: const AlwaysScrollableScrollPhysics(),
                                 itemCount: attribute.values.length,
                                 itemBuilder: (context, index) {
                                   var value = attribute.values[index];
@@ -451,7 +512,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
                                           Text(
                                             value.value,
                                             style: const TextStyle(
-                                              fontSize: 12,
+                                              fontSize: 13,
                                               fontFamily: "Poppins",
                                               fontWeight: FontWeight.w500,
                                               color: Colors.black,
@@ -460,10 +521,10 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
                                           SmoothClipRRect(
                                             smoothness: 1,
                                             borderRadius:
-                                                BorderRadius.circular(2),
+                                                BorderRadius.circular(3),
                                             child: Container(
-                                              width: 12,
-                                              height: 12,
+                                              width: 14,
+                                              height: 14,
                                               color: colorMap[value.value] ??
                                                   Colors.transparent,
                                             ),
@@ -482,7 +543,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
           },
         ),
         const SizedBox(
-          height: 8,
+          height: 12,
         ),
       ],
     );
@@ -501,12 +562,15 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          attribute.helperText,
-          style: const TextStyle(
-            color: AppColors.gray,
-            fontSize: 13,
-            fontWeight: FontWeight.w300,
+        Padding(
+          padding: const EdgeInsets.only(left: 4),
+          child: Text(
+            attribute.helperText,
+            style: const TextStyle(
+              color: AppColors.gray,
+              fontSize: 15,
+              fontWeight: FontWeight.w400,
+            ),
           ),
         ),
         const SizedBox(height: 4),
@@ -515,16 +579,16 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
             padding: const EdgeInsets.only(bottom: 4.0),
             child: Wrap(
               alignment: WrapAlignment.start,
-              spacing: 8,
-              runSpacing: 8,
+              spacing: 4,
+              runSpacing: 4,
               children: selectedValues.map((value) {
                 return SmoothClipRRect(
                   smoothness: 1,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(4),
                   child: Container(
                     color: AppColors.containerColor,
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -532,9 +596,9 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
                         Text(
                           value.value,
                           style: const TextStyle(
-                            fontSize: 11,
+                            fontSize: 12.5,
                             color: AppColors.primary,
-                            fontWeight: FontWeight.w300,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ],
@@ -545,7 +609,6 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
             ),
           ),
 
-        // Main selection button (unchanged)
         ElevatedButton(
           onPressed: () {
             provider.toggleAttributeOptionsVisibility(attribute);
@@ -553,15 +616,13 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
           style: ButtonStyle(
             textStyle: WidgetStateProperty.all(
               const TextStyle(
-                  fontSize: 14,
+                  fontSize: 15,
                   fontWeight: FontWeight.w500,
                   fontFamily: 'Poppins'),
             ),
-            padding:
-                WidgetStateProperty.all(EdgeInsets.zero), // Removes padding
-            elevation: WidgetStateProperty.all(0), // Removes all elevation
-            foregroundColor:
-                WidgetStateProperty.all(Colors.black), // Text/Icon color
+            padding: WidgetStateProperty.all(EdgeInsets.zero),
+            elevation: WidgetStateProperty.all(0),
+            foregroundColor: WidgetStateProperty.all(Colors.black),
             shape: WidgetStateProperty.all(
               SmoothRectangleBorder(
                 smoothness: 1,
@@ -572,7 +633,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
           child: Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: 16,
-              vertical: 12,
+              vertical: 14,
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -591,6 +652,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
                 ),
                 const Icon(
                   Icons.arrow_drop_down,
+                  size: 24,
                   color: AppColors.black,
                 ),
               ],
@@ -601,8 +663,8 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
         // AnimatedSize with ConstrainedBox
         AnimatedSize(
           duration: const Duration(milliseconds: 300),
-          curve: Curves.ease, // Match the color selector's curve
-          alignment: Alignment.topCenter, // Important for animation origin
+          curve: Curves.ease,
+          alignment: Alignment.topCenter,
           child: provider.isAttributeOptionsVisible(attribute)
               ? Card(
                   shape: SmoothRectangleBorder(
@@ -613,87 +675,92 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
                   color: AppColors.containerColor,
                   elevation: 0,
                   clipBehavior: Clip.antiAlias,
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxHeight: 300),
-                    child: SingleChildScrollView(
-                      physics: const ClampingScrollPhysics(),
-                      child: Column(
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      return Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: attribute.values.length,
-                            itemBuilder: (context, index) {
-                              var value = attribute.values[index];
-                              bool isSelected =
-                                  provider.isValueSelected(attribute, value);
+                          // Scrollable list of values with max height
+                          ConstrainedBox(
+                            constraints: const BoxConstraints(maxHeight: 250),
+                            child: ListView.builder(
+                              shrinkWrap: true,
+                              primary: false,
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              itemCount: attribute.values.length,
+                              itemBuilder: (context, index) {
+                                var value = attribute.values[index];
+                                bool isSelected =
+                                    provider.isValueSelected(attribute, value);
 
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 4,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      value.value,
-                                      style: const TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    GestureDetector(
-                                      onTap: () {
-                                        provider.selectAttributeValue(
-                                            attribute, value);
-                                      },
-                                      child: AnimatedSwitcher(
-                                        duration:
-                                            const Duration(milliseconds: 300),
-                                        transitionBuilder: (child, animation) {
-                                          return ScaleTransition(
-                                            scale: animation,
-                                            child: child,
-                                          );
-                                        },
-                                        child: SmoothClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(6),
-                                          child: SizedBox(
-                                            key: ValueKey<bool>(isSelected),
-                                            width: 18,
-                                            height: 18,
-                                            child: Container(
-                                              color: isSelected
-                                                  ? AppColors.black
-                                                  : AppColors.gray
-                                                      // ignore: deprecated_member_use
-                                                      .withOpacity(0.5),
-                                              child: isSelected
-                                                  ? const Icon(
-                                                      Icons.check,
-                                                      size: 13,
-                                                      color: Colors.white,
-                                                    )
-                                                  : const SizedBox.shrink(),
+                                return InkWell(
+                                  onTap: () {
+                                    provider.selectAttributeValue(
+                                        attribute, value);
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 4, horizontal: 16),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          value.value,
+                                          style: const TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        AnimatedSwitcher(
+                                          duration: const Duration(
+                                              milliseconds: 400),
+                                          transitionBuilder:
+                                              (child, animation) {
+                                            return ScaleTransition(
+                                              scale: animation,
+                                              child: child,
+                                            );
+                                          },
+                                          child: SmoothClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(6),
+                                            child: SizedBox(
+                                              key: ValueKey<bool>(isSelected),
+                                              width: 24,
+                                              height: 24,
+                                              child: Container(
+                                                color: isSelected
+                                                    ? AppColors.black
+                                                    : AppColors.gray
+                                                        .withOpacity(0.5),
+                                                child: isSelected
+                                                    ? const Icon(
+                                                        Icons.check,
+                                                        size: 16,
+                                                        color: Colors.white,
+                                                      )
+                                                    : const SizedBox.shrink(),
+                                              ),
                                             ),
                                           ),
                                         ),
-                                      ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                              );
-                            },
+                                  ),
+                                );
+                              },
+                            ),
                           ),
-                          SizedBox(
-                            width: double.infinity,
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
+
+                          // Confirm button (now outside of the scrollable area)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16.0, vertical: 8),
+                            child: SizedBox(
+                              width: double.infinity,
                               child: ElevatedButton(
                                 style: ButtonStyle(
                                   textStyle: WidgetStateProperty.all(
@@ -726,14 +793,14 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
                             ),
                           ),
                         ],
-                      ),
-                    ),
+                      );
+                    },
                   ),
                 )
               : const SizedBox.shrink(),
         ),
         const SizedBox(
-          height: 8,
+          height: 12,
         ),
       ],
     );
