@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/post/presentation/pages/model.dart';
 import 'package:list_in/features/post/presentation/provider/iii.dart';
 import 'package:provider/provider.dart';
+import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class CatalogPagerScreen extends StatefulWidget {
   const CatalogPagerScreen({super.key});
@@ -17,8 +19,8 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.bgColor,
       appBar: AppBar(
-        title: const Text('Catalog Selection'),
         leading: Consumer<CatalogProvider>(
           builder: (context, provider, child) {
             return _buildBackButton(provider);
@@ -40,10 +42,6 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
             ),
           );
         },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _endTask(context),
-        child: const Icon(Icons.check),
       ),
     );
   }
@@ -181,66 +179,143 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
 
   Widget _buildOneSelectorWidget(
       BuildContext context, CatalogProvider provider, Attribute attribute) {
-    // Use the provider to track the selected value for this specific attribute
     final selectedValue = provider.getSelectedAttributeValue(attribute);
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(attribute.helperText),
+        Text(
+          attribute.helperText,
+          style: const TextStyle(
+            color: AppColors.gray,
+            fontSize: 13,
+            fontWeight: FontWeight.w300,
+          ),
+        ),
+        const SizedBox(
+          height: 4,
+        ),
         Consumer<CatalogProvider>(
           builder: (context, provider, child) {
             return Column(
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    // Toggle the visibility of options for this specific attribute
                     provider.toggleAttributeOptionsVisibility(attribute);
                   },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Show the selected value or attribute key
-                      Text(
-                        selectedValue?.value ?? attribute.attributeKey,
-                        style: TextStyle(
-                            color: selectedValue != null
-                                ? Colors.black
-                                : Colors.grey),
+                  style: ButtonStyle(
+                    textStyle: WidgetStateProperty.all(
+                      const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: 'Poppins'),
+                    ),
+                    padding: WidgetStateProperty.all(
+                        EdgeInsets.zero), // Removes padding
+                    elevation:
+                        WidgetStateProperty.all(0), // Removes all elevation
+                    foregroundColor: WidgetStateProperty.all(
+                        Colors.black), // Text/Icon color
+                    shape: WidgetStateProperty.all(
+                      SmoothRectangleBorder(
+                        smoothness: 1,
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      const Icon(Icons.arrow_drop_down),
-                    ],
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          selectedValue?.value ?? attribute.attributeKey,
+                          style: TextStyle(
+                            color: selectedValue != null
+                                ? AppColors.black
+                                : AppColors.darkGray,
+                          ),
+                        ),
+                        const Icon(
+                          Icons.arrow_drop_down,
+                          color: AppColors.black,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
 
-                // Only show options if this attribute's options are set to visible
-                if (provider.isAttributeOptionsVisible(attribute))
-                  Card(
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: attribute.values.length,
-                      itemBuilder: (context, index) {
-                        var value = attribute.values[index];
-                        return ListTile(
-                          title: Text(value.value),
-                          onTap: () {
-                            // Select the value through the provider
-                            provider.selectAttributeValue(attribute, value);
-                            // Hide the options
-                            provider
-                                .toggleAttributeOptionsVisibility(attribute);
-                          },
-                        );
-                      },
-                    ),
-                  ),
+                // Smooth animation for expanding/collapsing the Card
+                AnimatedSize(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                  child: provider.isAttributeOptionsVisible(attribute)
+                      ? Card(
+                          shape: SmoothRectangleBorder(
+                            smoothness: 1,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          margin: const EdgeInsets.symmetric(vertical: 4),
+                          color: AppColors.containerColor,
+                          elevation: 0,
+                          clipBehavior: Clip.antiAlias,
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxHeight: 300),
+                            child: ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: attribute.values.length,
+                                itemBuilder: (context, index) {
+                                  var value = attribute.values[index];
+                                  return InkWell(
+                                    onTap: () {
+                                      // Select the value through the provider
+                                      provider.selectAttributeValue(
+                                          attribute, value);
+                                      // Hide the options
+                                      provider.toggleAttributeOptionsVisibility(
+                                          attribute);
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8.0, horizontal: 12.0),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            value.value,
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              fontFamily: "Poppins",
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                }),
+                          ),
+                        )
+                      : const SizedBox.shrink(),
+                ),
               ],
             );
           },
+        ),
+        const SizedBox(
+          height: 8,
         ),
       ],
     );
   }
 
+//
   Widget _buildColorSelectorWidget(
       BuildContext context, CatalogProvider provider, Attribute attribute) {
     // A map to link color names to actual colors
@@ -252,75 +327,162 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
     final selectedValue = provider.getSelectedAttributeValue(attribute);
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(attribute.helperText),
+        Text(
+          attribute.helperText,
+          style: const TextStyle(
+            color: AppColors.gray,
+            fontSize: 13,
+            fontWeight: FontWeight.w300,
+          ),
+        ),
+        const SizedBox(
+          height: 4,
+        ),
         Consumer<CatalogProvider>(
           builder: (context, provider, child) {
             return Column(
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    // Toggle the visibility of options for this specific attribute
                     provider.toggleAttributeOptionsVisibility(attribute);
                   },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Show the selected value or attribute key
-                      Text(
-                        selectedValue?.value ?? attribute.attributeKey,
-                        style: TextStyle(
-                          color: selectedValue != null
-                              ? Colors.black
-                              : Colors.grey,
+                  style: ButtonStyle(
+                    textStyle: WidgetStateProperty.all(
+                      const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: 'Poppins'),
+                    ),
+                    padding: WidgetStateProperty.all(
+                        EdgeInsets.zero), // Removes padding
+                    elevation:
+                        WidgetStateProperty.all(0), // Removes all elevation
+                    foregroundColor: WidgetStateProperty.all(
+                        Colors.black), // Text/Icon color
+                    shape: WidgetStateProperty.all(
+                      SmoothRectangleBorder(
+                        smoothness: 1,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              selectedValue?.value ?? attribute.attributeKey,
+                              style: TextStyle(
+                                color: selectedValue != null
+                                    ? AppColors.black
+                                    : AppColors.darkGray,
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 8,
+                            ),
+                            SmoothClipRRect(
+                              smoothness: 1,
+                              borderRadius: BorderRadius.circular(4),
+                              child: Container(
+                                width: 16,
+                                height: 16,
+                                color: colorMap[selectedValue?.value] ??
+                                    Colors.transparent,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      Container(
-                        width: 24,
-                        height: 24,
-                        color: colorMap[selectedValue?.value] ??
-                            Colors.transparent,
-                      ),
-                      const Icon(Icons.arrow_drop_down),
-                    ],
+                        const Icon(
+                          Icons.arrow_drop_down,
+                          color: AppColors.black,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
 
-                // Only show options if this attribute's options are set to visible
-                if (provider.isAttributeOptionsVisible(attribute))
-                  Card(
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: attribute.values.length,
-                      itemBuilder: (context, index) {
-                        var value = attribute.values[index];
-                        return ListTile(
-                          title: Row(
-                            children: [
-                              Container(
-                                width: 16,
-                                height: 16,
-                                margin: const EdgeInsets.only(right: 8.0),
-                                color:
-                                    colorMap[value.value] ?? Colors.transparent,
-                              ),
-                              Text(value.value),
-                            ],
+                // Smooth animation for expanding/collapsing the Card
+                AnimatedSize(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                  child: provider.isAttributeOptionsVisible(attribute)
+                      ? Card(
+                          shape: SmoothRectangleBorder(
+                            smoothness: 1,
+                            borderRadius: BorderRadius.circular(10),
                           ),
-                          onTap: () {
-                            // Select the value through the provider
-                            provider.selectAttributeValue(attribute, value);
-                            // Hide the options
-                            provider
-                                .toggleAttributeOptionsVisibility(attribute);
-                          },
-                        );
-                      },
-                    ),
-                  ),
+                          margin: const EdgeInsets.symmetric(vertical: 4),
+                          color: AppColors.containerColor,
+                          elevation: 0,
+                          clipBehavior: Clip.antiAlias,
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxHeight: 300),
+                            child: ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: attribute.values.length,
+                                itemBuilder: (context, index) {
+                                  var value = attribute.values[index];
+                                  return InkWell(
+                                    onTap: () {
+                                      // Select the value through the provider
+                                      provider.selectAttributeValue(
+                                          attribute, value);
+                                      // Hide the options
+                                      provider.toggleAttributeOptionsVisibility(
+                                          attribute);
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8.0, horizontal: 16.0),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            value.value,
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              fontFamily: "Poppins",
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          SmoothClipRRect(
+                                            smoothness: 1,
+                                            borderRadius:
+                                                BorderRadius.circular(2),
+                                            child: Container(
+                                              width: 12,
+                                              height: 12,
+                                              color: colorMap[value.value] ??
+                                                  Colors.transparent,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                }),
+                          ),
+                        )
+                      : const SizedBox.shrink(),
+                ),
               ],
             );
           },
+        ),
+        const SizedBox(
+          height: 8,
         ),
       ],
     );
@@ -339,113 +501,239 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Display helper text
-        Text(attribute.helperText),
-
-        Consumer<CatalogProvider>(
-          builder: (context, provider, child) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Only show selected values if there are confirmed selections
-                if (selectedValues.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Wrap(
-                      alignment:
-                          WrapAlignment.start, // Align to the start of the row
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: selectedValues.map((value) {
-                        return Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(
-                              color: Colors.green,
-                              width: 2,
-                            ),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(value.value),
-                            ],
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-
-                // Main selection button
-                ElevatedButton(
-                  onPressed: () {
-                    // Toggle the visibility of options for this specific attribute
-                    provider.toggleAttributeOptionsVisibility(attribute);
-                  },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Show confirmed selections or attribute key
-                      Expanded(
-                        child: Text(
-                          selectedValues.isNotEmpty
-                              ? selectedValues.map((v) => v.value).join(', ')
-                              : attribute.attributeKey,
-                          style: TextStyle(
-                            color: selectedValues.isNotEmpty
-                                ? Colors.black
-                                : Colors.grey,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          maxLines: 1,
-                        ),
-                      ),
-                      const Icon(Icons.arrow_drop_down),
-                    ],
-                  ),
-                ),
-
-                // Options card - only show when attribute options are visible
-                if (provider.isAttributeOptionsVisible(attribute))
-                  Card(
-                    child: Column(
+        Text(
+          attribute.helperText,
+          style: const TextStyle(
+            color: AppColors.gray,
+            fontSize: 13,
+            fontWeight: FontWeight.w300,
+          ),
+        ),
+        const SizedBox(height: 4),
+        if (selectedValues.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 4.0),
+            child: Wrap(
+              alignment: WrapAlignment.start,
+              spacing: 8,
+              runSpacing: 8,
+              children: selectedValues.map((value) {
+                return SmoothClipRRect(
+                  smoothness: 1,
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    color: AppColors.containerColor,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: attribute.values.length,
-                          itemBuilder: (context, index) {
-                            var value = attribute.values[index];
-                            return CheckboxListTile(
-                              title: Text(value.value),
-                              value: provider.isValueSelected(attribute, value),
-                              onChanged: (bool? selected) {
-                                provider.selectAttributeValue(attribute, value);
-                              },
-                            );
-                          },
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: ElevatedButton(
-                            onPressed: () {
-                              provider.confirmMultiSelection(attribute);
-                              // Hide options after confirmation
-                              provider
-                                  .toggleAttributeOptionsVisibility(attribute);
-                            },
-                            child: const Text('Confirm Selection'),
+                        Text(
+                          value.value,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w300,
                           ),
                         ),
                       ],
                     ),
                   ),
-              ],
-            );
+                );
+              }).toList(),
+            ),
+          ),
+
+        // Main selection button (unchanged)
+        ElevatedButton(
+          onPressed: () {
+            provider.toggleAttributeOptionsVisibility(attribute);
           },
+          style: ButtonStyle(
+            textStyle: WidgetStateProperty.all(
+              const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  fontFamily: 'Poppins'),
+            ),
+            padding:
+                WidgetStateProperty.all(EdgeInsets.zero), // Removes padding
+            elevation: WidgetStateProperty.all(0), // Removes all elevation
+            foregroundColor:
+                WidgetStateProperty.all(Colors.black), // Text/Icon color
+            shape: WidgetStateProperty.all(
+              SmoothRectangleBorder(
+                smoothness: 1,
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 12,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    'Selected (${selectedValues.length})',
+                    style: TextStyle(
+                      color: selectedValues.isNotEmpty
+                          ? AppColors.black
+                          : AppColors.darkGray,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    maxLines: 1,
+                  ),
+                ),
+                const Icon(
+                  Icons.arrow_drop_down,
+                  color: AppColors.black,
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        // AnimatedSize with ConstrainedBox
+        AnimatedSize(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.ease, // Match the color selector's curve
+          alignment: Alignment.topCenter, // Important for animation origin
+          child: provider.isAttributeOptionsVisible(attribute)
+              ? Card(
+                  shape: SmoothRectangleBorder(
+                    smoothness: 1,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  margin: const EdgeInsets.symmetric(vertical: 4),
+                  color: AppColors.containerColor,
+                  elevation: 0,
+                  clipBehavior: Clip.antiAlias,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxHeight: 300),
+                    child: SingleChildScrollView(
+                      physics: const ClampingScrollPhysics(),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: attribute.values.length,
+                            itemBuilder: (context, index) {
+                              var value = attribute.values[index];
+                              bool isSelected =
+                                  provider.isValueSelected(attribute, value);
+
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 4,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      value.value,
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () {
+                                        provider.selectAttributeValue(
+                                            attribute, value);
+                                      },
+                                      child: AnimatedSwitcher(
+                                        duration:
+                                            const Duration(milliseconds: 300),
+                                        transitionBuilder: (child, animation) {
+                                          return ScaleTransition(
+                                            scale: animation,
+                                            child: child,
+                                          );
+                                        },
+                                        child: SmoothClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(6),
+                                          child: SizedBox(
+                                            key: ValueKey<bool>(isSelected),
+                                            width: 18,
+                                            height: 18,
+                                            child: Container(
+                                              color: isSelected
+                                                  ? AppColors.black
+                                                  : AppColors.gray
+                                                      // ignore: deprecated_member_use
+                                                      .withOpacity(0.5),
+                                              child: isSelected
+                                                  ? const Icon(
+                                                      Icons.check,
+                                                      size: 13,
+                                                      color: Colors.white,
+                                                    )
+                                                  : const SizedBox.shrink(),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                          SizedBox(
+                            width: double.infinity,
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: ElevatedButton(
+                                style: ButtonStyle(
+                                  textStyle: WidgetStateProperty.all(
+                                    const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w400,
+                                        fontFamily: 'Poppins'),
+                                  ),
+                                  elevation: WidgetStateProperty.all(0),
+                                  backgroundColor:
+                                      WidgetStateProperty.all(AppColors.black),
+                                  foregroundColor:
+                                      WidgetStateProperty.all(Colors.white),
+                                  shape: WidgetStateProperty.all(
+                                    SmoothRectangleBorder(
+                                      smoothness: 1,
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                ),
+                                onPressed: () {
+                                  provider.confirmMultiSelection(attribute);
+                                  provider.toggleAttributeOptionsVisibility(
+                                      attribute);
+                                },
+                                child: const Text(
+                                  'Confirm',
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                )
+              : const SizedBox.shrink(),
+        ),
+        const SizedBox(
+          height: 8,
         ),
       ],
     );

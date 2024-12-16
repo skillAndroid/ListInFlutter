@@ -909,7 +909,7 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.lightTheme,
       debugShowCheckedModeBanner: false,
-      home: const Catalog(), // WelcomePage(),
+      home: const Catalog(),
       routes: {
         '/home': (context) =>
             const Scaffold(body: Center(child: Text('Home Page'))),

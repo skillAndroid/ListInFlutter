@@ -12,6 +12,7 @@ class CatalogModel {
     );
   }
 }
+
 class Catalog {
   String id;
   String name;
@@ -34,6 +35,7 @@ class Catalog {
     );
   }
 }
+
 class ChildCategory {
   String id;
   String name;
@@ -83,7 +85,7 @@ class Attribute {
       helperText: json['helperText'],
       subHelperText: json['subHelperText'] ?? 'null',
       widgetType: json['widgetType'],
-      subWidgetsType: json['subWidgetsType'] ?? 'null',
+      subWidgetsType: json['subWidgetType'] ?? 'null',
       dataType: json['dataType'],
       values: (json['values'] as List)
           .map((valueJson) => AttributeValue.fromJson(valueJson))

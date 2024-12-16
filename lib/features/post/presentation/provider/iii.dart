@@ -180,7 +180,7 @@ class CatalogProvider extends ChangeNotifier {
   void _handleDynamicAttributeCreation(
       Attribute attribute, AttributeValue value) {
     dynamicAttributes.removeWhere((attr) =>
-        attr.attributeKey.startsWith('${attribute.attributeKey} Model'));
+        attr.attributeKey.startsWith('$attribute.attributeKey'));
 
     if (attribute.subWidgetsType != 'null' &&
         value.list.isNotEmpty &&
@@ -245,91 +245,39 @@ class CatalogProvider extends ChangeNotifier {
               [];
       if (selectedValues.isEmpty) return;
 
-      final existingDynamicAttributes = <Attribute>[];
-
-      dynamicAttributes.removeWhere((attr) {
-        if (attr.attributeKey.startsWith('${attribute.attributeKey} Model')) {
-          if (selectedValues.any((selectedValue) =>
-              attr.attributeKey.contains(selectedValue.value) &&
-              attr.values.isNotEmpty)) {
-            existingDynamicAttributes.add(attr);
-            return false;
-          }
-          return true;
-        }
-        return false;
-      });
-
-
-      final dynamicAttributesToAdd = <Attribute>[];
-
-      for (var value in selectedValues) {
-        // if (attribute.subWidgetsType == 'null' || value.list.isEmpty) {
-        //   continue;
-        // }
-
-        final validSubModels = value.list
-            .where((subModel) =>
-                subModel.name != null && subModel.name!.isNotEmpty)
-            .toList();
-
-        if (validSubModels.isEmpty) {
-          continue;
-        }
-
-        final existingAttr = existingDynamicAttributes.firstWhere(
-          (attr) => attr.attributeKey.contains(value.value),
-          orElse: () => Attribute(
-            attributeKey: '',
-            helperText: '',
-            subHelperText: 'null',
-            widgetType: '',
-            subWidgetsType: 'null',
-            dataType: '',
-            values: [],
-          ),
-        );
-
-        final newAttribute = Attribute(
-          attributeKey: '${attribute.attributeKey} Model - ${value.value}',
-          helperText: attribute.subHelperText,
-          subHelperText: 'null',
-          widgetType: attribute.subWidgetsType,
-          subWidgetsType: 'null',
-          dataType: 'string',
-          values: validSubModels.map((subModel) {
-            return AttributeValue(
-              attributeValueId: subModel.modelId ?? '',
-              attributeKeyId: '',
-              value: subModel.name ?? '',
-              list: [],
-            );
-          }).toList(),
-        );
-        if (existingAttr.values.isNotEmpty) {
-          newAttribute.values = existingAttr.values;
-
-          // Preserve the visibility state of the existing attribute
-          if (_attributeOptionsVisibility.containsKey(existingAttr)) {
-            _attributeOptionsVisibility[newAttribute] =
-                _attributeOptionsVisibility[existingAttr]!;
-          }
-
-          // Preserve the selected attribute value if it exists
-          if (_selectedAttributeValues.containsKey(existingAttr)) {
-            _selectedAttributeValues[newAttribute] =
-                _selectedAttributeValues[existingAttr]!;
-          }
-        }
-
-        if (newAttribute.values.isNotEmpty) {
-          dynamicAttributesToAdd.add(newAttribute);
-        }
-      }
-
+      // Clear previous dynamic attributes related to this multi-selection attribute
       dynamicAttributes.removeWhere((attr) =>
           attr.attributeKey.startsWith('${attribute.attributeKey} Model'));
 
+      // Only create dynamic attributes for selected values that have sub-models
+      final dynamicAttributesToAdd = selectedValues
+          .where((value) =>
+              attribute.subWidgetsType != 'null' &&
+              value.list.isNotEmpty &&
+              value.list.any((subModel) =>
+                  subModel.name != null && subModel.name!.isNotEmpty))
+          .map((value) => Attribute(
+                attributeKey:
+                    '${attribute.attributeKey} Model - ${value.value}',
+                helperText: attribute.subHelperText,
+                subHelperText: 'null',
+                widgetType: attribute.subWidgetsType,
+                subWidgetsType: 'null',
+                dataType: 'string',
+                values: value.list
+                    .where((subModel) =>
+                        subModel.name != null && subModel.name!.isNotEmpty)
+                    .map((subModel) => AttributeValue(
+                          attributeValueId: subModel.modelId ?? '',
+                          attributeKeyId: '',
+                          value: subModel.name ?? '',
+                          list: [],
+                        ))
+                    .toList(),
+              ))
+          .toList();
+
+      // Add new dynamic attributes
       dynamicAttributes.insertAll(0, dynamicAttributesToAdd);
     }
 
@@ -413,6 +361,7 @@ class CatalogProvider extends ChangeNotifier {
   bool isAttributeOptionsVisible(Attribute attribute) {
     return _attributeOptionsVisibility[attribute] ?? false;
   }
+
   AttributeValue? getSelectedAttributeValue(Attribute attribute) {
     return _selectedAttributeValues[attribute];
   }

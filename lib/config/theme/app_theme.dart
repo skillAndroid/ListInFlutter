@@ -57,9 +57,9 @@ class AppTheme {
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.bgColor,
+        backgroundColor: AppColors.containerColor,
         foregroundColor: AppColors.black,
-        elevation: 0, // This sets the text color
+        elevation: 0,
         textStyle: const TextStyle(
           fontSize: 17,
           fontWeight: FontWeight.w600,
@@ -105,16 +105,21 @@ class AppTheme {
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: AppColors.white, // This sets the text color
-            textStyle: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: AppColors.white,
-            ),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30)))),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.primary,
+        foregroundColor: AppColors.white, // This sets the text color
+        textStyle: const TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          color: AppColors.white,
+        ),
+        elevation: 0,
+        shape: SmoothRectangleBorder(
+          smoothness: 1,
+          borderRadius: BorderRadius.circular(30),
+        ),
+      ),
+    ),
   );
 
   static void setStatusBarAndNavBarColor(ThemeData theme) {
