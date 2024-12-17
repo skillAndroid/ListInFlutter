@@ -35,6 +35,21 @@ class CatalogProvider extends ChangeNotifier {
   }
 
   Map<String, dynamic> get selectedValues => _selectedValues;
+  final Map<Attribute, bool> _attributeOptionsVisibility = {};
+  final Map<Attribute, AttributeValue> _selectedAttributeValues = {};
+  void toggleAttributeOptionsVisibility(Attribute attribute) {
+    _attributeOptionsVisibility[attribute] =
+        !(_attributeOptionsVisibility[attribute] ?? false);
+    notifyListeners();
+  }
+
+  bool isAttributeOptionsVisible(Attribute attribute) {
+    return _attributeOptionsVisibility[attribute] ?? false;
+  }
+
+  AttributeValue? getSelectedAttributeValue(Attribute attribute) {
+    return _selectedAttributeValues[attribute];
+  }
 
   void loadCatalog(String jsonString) {
     _catalogModel = CatalogModel.fromJson(jsonString);
@@ -61,35 +76,28 @@ class CatalogProvider extends ChangeNotifier {
 
   void selectChildCategory(ChildCategory childCategory) {
     final previousChildCategoryId = _selectedChildCategory?.id;
-
     if (previousChildCategoryId != null &&
         previousChildCategoryId != childCategory.id) {
       resetSelectionForChildCategory(childCategory);
     }
-
     if (_selectedChildCategory != null &&
         !_childCategoryHistory.contains(_selectedChildCategory)) {
       _childCategoryHistory.add(_selectedChildCategory!);
     }
-
     _selectedChildCategory = childCategory;
     _currentAttributes = childCategory.attributes;
-
     if (_selectedChildCategory?.id != childCategory.id) {
       _selectedChildCategory = childCategory;
       _currentAttributes = childCategory.attributes;
-
       if (_childCategorySelections.containsKey(childCategory.id)) {
         _selectedValues.clear();
         _selectedValues.addAll(_childCategorySelections[childCategory.id]!);
-
         dynamicAttributes =
             _childCategoryDynamicAttributes[childCategory.id] ?? [];
       } else {
         _selectedValues.clear();
         dynamicAttributes.clear();
       }
-
       if (previousChildCategoryId != null &&
           previousChildCategoryId != childCategory.id) {
         final preservedDynamicAttributes =
@@ -106,18 +114,17 @@ class CatalogProvider extends ChangeNotifier {
   void goBack() {
     if (_selectedChildCategory != null) {
       _saveCurrentSelections();
-
       if (_childCategoryHistory.isNotEmpty) {
         final previousChildCategory = _childCategoryHistory.removeLast();
-        resetSelectionForChildCategory(previousChildCategory);
         _selectedChildCategory = previousChildCategory;
         _restorePreviousSelections();
+        _currentAttributes = previousChildCategory.attributes;
       } else {
         _selectedChildCategory = null;
         resetUIState();
         _selectedValues.clear();
-        dynamicAttributes.clear();
-        _currentAttributes.clear();
+        // dynamicAttributes.clear();
+        // _currentAttributes.clear();
       }
     } else if (_selectedCatalog != null) {
       if (_catalogHistory.isNotEmpty) {
@@ -144,11 +151,9 @@ class CatalogProvider extends ChangeNotifier {
       _selectedValues.clear();
       _selectedValues
           .addAll(_childCategorySelections[_selectedChildCategory!.id] ?? {});
-
       dynamicAttributes.clear();
       dynamicAttributes.addAll(
           _childCategoryDynamicAttributes[_selectedChildCategory!.id] ?? []);
-
       _currentAttributes = _selectedChildCategory!.attributes;
     }
   }
@@ -158,7 +163,6 @@ class CatalogProvider extends ChangeNotifier {
         attribute.widgetType == 'colorSelectable') {
       final currentValue = _selectedValues[attribute.attributeKey];
       if (currentValue == value) return;
-
       _selectedValues[attribute.attributeKey] = value;
       _handleDynamicAttributeCreation(attribute, value);
     } else if (attribute.widgetType == 'multiSelectable') {
@@ -166,7 +170,6 @@ class CatalogProvider extends ChangeNotifier {
           attribute.attributeKey, () => <AttributeValue>[]);
       final list =
           _selectedValues[attribute.attributeKey] as List<AttributeValue>;
-
       if (list.contains(value)) {
         list.remove(value);
       } else {
@@ -179,14 +182,14 @@ class CatalogProvider extends ChangeNotifier {
 
   void _handleDynamicAttributeCreation(
       Attribute attribute, AttributeValue value) {
-    dynamicAttributes.removeWhere((attr) =>
-        attr.attributeKey.startsWith('$attribute.attributeKey'));
+    dynamicAttributes.removeWhere(
+        (attr) => attr.attributeKey.startsWith('$attribute.attributeKey'));
 
     if (attribute.subWidgetsType != 'null' &&
         value.list.isNotEmpty &&
         value.list[0].name != null) {
       final newAttribute = Attribute(
-        attributeKey: '${attribute.attributeKey} Model',
+        attributeKey: attribute.attributeKey,
         helperText: attribute.subHelperText,
         subHelperText: 'null',
         widgetType: attribute.subWidgetsType,
@@ -219,23 +222,14 @@ class CatalogProvider extends ChangeNotifier {
   }
 
   void preserveAttributeState(Attribute oldAttribute, Attribute newAttribute) {
-    // Preserve visibility state
     if (_attributeOptionsVisibility.containsKey(oldAttribute)) {
       _attributeOptionsVisibility[newAttribute] =
           _attributeOptionsVisibility[oldAttribute]!;
     }
-
-    // Preserve selected value
     if (_selectedAttributeValues.containsKey(oldAttribute)) {
       _selectedAttributeValues[newAttribute] =
           _selectedAttributeValues[oldAttribute]!;
     }
-  }
-
-  void cleanupDynamicAttributes() {
-    // Remove completely empty dynamic attributes
-    dynamicAttributes
-        .removeWhere((attr) => attr.values.isEmpty || attr.widgetType.isEmpty);
   }
 
   void confirmMultiSelection(Attribute attribute) {
@@ -323,7 +317,6 @@ class CatalogProvider extends ChangeNotifier {
     _childCategoryHistory.clear();
     _childCategorySelections.clear();
     _childCategoryDynamicAttributes.clear();
-
     notifyListeners();
   }
 
@@ -333,36 +326,12 @@ class CatalogProvider extends ChangeNotifier {
   }
 
   void resetSelectionForChildCategory(ChildCategory newChildCategory) {
-    // More comprehensive reset when switching child categories
     _attributeOptionsVisibility.clear();
     _selectedAttributeValues.clear();
-
-    // Clear previous selections specific to this child category
     _childCategorySelections.remove(newChildCategory.id);
     _childCategoryDynamicAttributes.remove(newChildCategory.id);
-
-    // Reset selected values
     _selectedValues.clear();
     dynamicAttributes.clear();
-
     notifyListeners();
-  }
-
-  final Map<Attribute, bool> _attributeOptionsVisibility = {};
-
-  final Map<Attribute, AttributeValue> _selectedAttributeValues = {};
-
-  void toggleAttributeOptionsVisibility(Attribute attribute) {
-    _attributeOptionsVisibility[attribute] =
-        !(_attributeOptionsVisibility[attribute] ?? false);
-    notifyListeners();
-  }
-
-  bool isAttributeOptionsVisible(Attribute attribute) {
-    return _attributeOptionsVisibility[attribute] ?? false;
-  }
-
-  AttributeValue? getSelectedAttributeValue(Attribute attribute) {
-    return _selectedAttributeValues[attribute];
   }
 }

@@ -1,47 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:list_in/config/assets/app_icons.dart';
+import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/post/presentation/pages/model.dart';
 import 'package:list_in/features/post/presentation/provider/iii.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
-class CatalogPagerScreen extends StatefulWidget {
-  const CatalogPagerScreen({super.key});
+// Separate widget for back button
+class CatalogBackButton extends StatelessWidget {
+  final VoidCallback onTap;
+  final bool isVisible;
+
+  const CatalogBackButton(
+      {super.key, required this.onTap, this.isVisible = true});
 
   @override
-  // ignore: library_private_types_in_public_api
-  _CatalogPagerScreenState createState() => _CatalogPagerScreenState();
-}
+  Widget build(BuildContext context) {
+    if (!isVisible) return const SizedBox.shrink();
 
-class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
-  final PageController _pageController = PageController();
-  int _currentPage = 0;
-  double _progressValue =
-      0.0; // This tracks the progress for the LinearProgressIndicator
-  @override
-  void initState() {
-    super.initState();
-    _updateProgress(_currentPage);
-  }
-
-  void _updateProgress(int pageIndex) {
-    setState(() {
-      _progressValue = (pageIndex + 1) / 3; // Update progress immediately
-    });
-  }
-
-  Widget _buildBackButton(CatalogProvider provider) {
-    if (provider.selectedChildCategory != null ||
-        provider.selectedCatalog != null) {
-      return InkWell(
-        onTap: () {
-          _handleBackNavigation(provider);
-        },
-        child: SizedBox(
-          width: 36,
-          height: 36,
+    return SmoothClipRRect(
+       smoothness: 1,
+    borderRadius: BorderRadius.circular(10),
+      child: SizedBox(
+        width: 36,
+        height: 36,
+        child: InkWell(
+          onTap: onTap,
           child: Card(
             elevation: 0,
             color: AppColors.bgColor,
@@ -59,9 +45,43 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
             ),
           ),
         ),
-      );
-    }
-    return Container();
+      ),
+    );
+  }
+}
+
+// Optimized CatalogPagerScreen
+class CatalogPagerScreen extends StatefulWidget {
+  const CatalogPagerScreen({super.key});
+
+  @override
+  // ignore: library_private_types_in_public_api
+  _CatalogPagerScreenState createState() => _CatalogPagerScreenState();
+}
+
+class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
+  late final PageController _pageController;
+  late int _currentPage;
+  late double _progressValue;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+    _currentPage = 0;
+    _progressValue = 0.0;
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _updateProgress(int pageIndex) {
+    setState(() {
+      _progressValue = (pageIndex + 1) / 3;
+    });
   }
 
   Future<bool> _onWillPop() async {
@@ -79,17 +99,15 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
   void _handleBackNavigation(CatalogProvider provider) {
     provider.resetUIState();
 
-    if (_currentPage == 2) {
+    if (_currentPage == 2 || _currentPage == 1) {
       _pageController.previousPage(
         duration: const Duration(milliseconds: 400),
         curve: Curves.easeInOut,
       );
-    } else if (_currentPage == 1) {
-      _pageController.previousPage(
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.easeInOut,
-      );
-      provider.goBack();
+
+      if (_currentPage == 1) {
+        provider.goBack();
+      }
     }
   }
 
@@ -100,127 +118,273 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
       onWillPop: _onWillPop,
       child: Scaffold(
         backgroundColor: AppColors.bgColor,
-        appBar: AppBar(
-          centerTitle: true,
-          title: const Text(
-            'Create Post',
-            style: TextStyle(
-                fontWeight: FontWeight.w700,
-                fontFamily: "Poppins",
-                fontSize: 21,
-                color: AppColors.black),
-          ), // Optional AppBar title
-          toolbarHeight: 56.0, // Height of the AppBar
-          automaticallyImplyLeading:
-              false, // Removes default back button if not needed
-          flexibleSpace: TweenAnimationBuilder<double>(
-            duration: const Duration(milliseconds: 400),
-            curve: Curves.easeInOut,
-            tween: Tween<double>(
-              begin: _progressValue,
-              end: _progressValue,
-            ),
-            builder: (context, value, _) => LinearProgressIndicator(
-              value: value,
-              backgroundColor: AppColors.bgColor,
-              valueColor: const AlwaysStoppedAnimation<Color>(
-                // ignore: deprecated_member_use
-                AppColors.containerColor,
-              ),
-              minHeight: double.infinity,
-            ),
-          ),
-          leadingWidth: 56,
-          leading: Consumer<CatalogProvider>(
-            builder: (context, provider, child) {
-              return Visibility(
-                visible: _currentPage >=
-                    0, // Or any condition to show the back button
-                child: Transform.translate(
-                  offset: const Offset(10, 0),
-                  child: Padding(
-                    padding: const EdgeInsets.all(4.0),
-                    child: _buildBackButton(provider),
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-        body: Consumer<CatalogProvider>(
-          builder: (context, provider, child) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: PageView(
-                controller: _pageController,
-                onPageChanged: (index) {
-                  _currentPage = index;
-                  _updateProgress(index);
-                },
-                physics: const NeverScrollableScrollPhysics(),
-                children: [
-                  _buildCatalogPage(context, provider),
-                  _buildChildCategoryPage(context, provider),
-                  _buildAttributesPage(context, provider),
-                ],
-              ),
-            );
-          },
-        ),
+        appBar: _buildAppBar(context),
+        body: _buildPageViewBody(context),
       ),
     );
   }
 
-//
-  Widget _buildCatalogPage(BuildContext context, CatalogProvider provider) {
-    return ListView.builder(
-      itemCount: provider.catalogModel?.catalogs.length ?? 0,
-      itemBuilder: (context, index) {
-        final catalog = provider.catalogModel!.catalogs[index];
-        return ListTile(
-          title: Text(catalog.name),
-          subtitle: Text(catalog.description),
-          onTap: () {
-            provider.selectCatalog(catalog);
-            _pageController.nextPage(
-              duration: const Duration(milliseconds: 400),
-              curve: Curves.easeInOut,
-            );
-          },
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
+    return AppBar(
+      centerTitle: true,
+      title: const Text(
+        'Create Post',
+        style: TextStyle(
+            fontWeight: FontWeight.w700,
+            fontFamily: "Poppins",
+            fontSize: 21,
+            color: AppColors.black),
+      ),
+      toolbarHeight: 56.0,
+      automaticallyImplyLeading: false,
+      flexibleSpace: _buildProgressIndicator(),
+      leadingWidth: 56,
+      leading: Consumer<CatalogProvider>(
+        builder: (context, provider, child) {
+          return Visibility(
+            visible: _currentPage >= 0,
+            child: Transform.translate(
+              offset: const Offset(10, 0),
+              child: Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: CatalogBackButton(
+                  onTap: () => _handleBackNavigation(provider),
+                  isVisible: provider.selectedChildCategory != null ||
+                      provider.selectedCatalog != null,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildProgressIndicator() {
+    return TweenAnimationBuilder<double>(
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOut,
+      tween: Tween<double>(begin: _progressValue, end: _progressValue),
+      builder: (context, value, _) => LinearProgressIndicator(
+        value: value,
+        backgroundColor: AppColors.bgColor,
+        valueColor:
+            const AlwaysStoppedAnimation<Color>(AppColors.containerColor),
+        minHeight: double.infinity,
+      ),
+    );
+  }
+
+  Widget _buildPageViewBody(BuildContext context) {
+    return Consumer<CatalogProvider>(
+      builder: (context, provider, child) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: PageView(
+            controller: _pageController,
+            onPageChanged: (index) {
+              setState(() {
+                _currentPage = index;
+                _updateProgress(index);
+              });
+            },
+            physics: const NeverScrollableScrollPhysics(),
+            children: [
+              CatalogListPage(
+                onCatalogSelected: (catalog) {
+                  provider.selectCatalog(catalog);
+                  _pageController.nextPage(
+                    duration: const Duration(milliseconds: 400),
+                    curve: Curves.easeInOut,
+                  );
+                },
+              ),
+              ChildCategoryListPage(
+                onChildCategorySelected: (childCategory) {
+                  provider.selectChildCategory(childCategory);
+                  _pageController.nextPage(
+                    duration: const Duration(milliseconds: 400),
+                    curve: Curves.easeInOut,
+                  );
+                },
+              ),
+              AttributesPage(
+                onNextPressed: () {
+                  // Implement next action
+                },
+              ),
+            ],
+          ),
         );
       },
     );
   }
+}
 
-  Widget _buildChildCategoryPage(
-      BuildContext context, CatalogProvider provider) {
-    return ListView.builder(
-      itemCount: provider.selectedCatalog?.childCategories.length ?? 0,
-      itemBuilder: (context, index) {
-        final childCategory = provider.selectedCatalog!.childCategories[index];
-        return ListTile(
-          title: Text(childCategory.name),
-          subtitle: Text(childCategory.description),
-          onTap: () {
-            provider.selectChildCategory(childCategory);
-            _pageController.nextPage(
-              duration: const Duration(milliseconds: 400),
-              curve: Curves.easeInOut,
-            );
-          },
-        );
-      },
+class CatalogListPage extends StatelessWidget {
+  final Function(Catalog) onCatalogSelected;
+
+  const CatalogListPage({super.key, required this.onCatalogSelected});
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = Provider.of<CatalogProvider>(context);
+    final catalogs = provider.catalogModel?.catalogs ?? [];
+
+    return ListView(
+      children: [
+        for (var catalog in catalogs)
+          Column(
+            children: [
+              const SizedBox(
+                height: 6,
+              ),
+              ElevatedButton(
+                onPressed: () => onCatalogSelected(catalog),
+                style: ElevatedButton.styleFrom(
+                  shape: SmoothRectangleBorder(
+                    smoothness: 1,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                ),
+                child: Row(
+                  children: [
+                    const SizedBox(width: 4),
+                    SizedBox(
+                      width: 56,
+                      height: 56,
+                      child: Card(
+                        shape: SmoothRectangleBorder(
+                          smoothness: 1,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        elevation: 2,
+                        child: SmoothClipRRect(
+                          smoothness: 1,
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.asset(
+                            AppImages.appLogo,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(catalog.name),
+                        const SizedBox(height: 6),
+                        Text(catalog.description),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+      ],
     );
   }
+}
 
-  Widget _buildAttributesPage(BuildContext context, CatalogProvider provider) {
+class ChildCategoryListPage extends StatelessWidget {
+  final Function(ChildCategory) onChildCategorySelected;
+
+  const ChildCategoryListPage({
+    super.key,
+    required this.onChildCategorySelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = Provider.of<CatalogProvider>(context);
+    final childCategories = provider.selectedCatalog?.childCategories ?? [];
+
+    return ListView(
+      children: [
+        for (var childCategory in childCategories)
+          Column(
+            children: [
+              const SizedBox(
+                height: 6,
+              ),
+              ElevatedButton(
+                onPressed: () => onChildCategorySelected(childCategory),
+                style: ElevatedButton.styleFrom(
+                  shape: SmoothRectangleBorder(
+                    smoothness: 1,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                ),
+                child: Row(
+                  children: [
+                    const SizedBox(width: 4),
+                    SizedBox(
+                      width: 56,
+                      height: 56,
+                      child: Card(
+                        shape: SmoothRectangleBorder(
+                          smoothness: 1,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        elevation: 2,
+                        child: SmoothClipRRect(
+                          smoothness: 1,
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.asset(
+                            AppImages.appLogo,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          childCategory.name,
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                        const SizedBox(
+                          height: 6,
+                        ),
+                        Text(
+                          childCategory.description,
+                          style:
+                              const TextStyle(color: Colors.grey, fontSize: 14),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+      ],
+    );
+  }
+}
+
+// Separate widget for Attributes Page
+class AttributesPage extends StatelessWidget {
+  final VoidCallback onNextPressed;
+
+  const AttributesPage({super.key, required this.onNextPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = Provider.of<CatalogProvider>(context);
     return Stack(
       children: [
-        // Main scrollable content
         Padding(
           padding: const EdgeInsets.only(bottom: 70.0, top: 12),
           child: ListView.builder(
-            // Adjust this value as needed
             itemCount: provider.currentAttributes.length,
             itemBuilder: (context, index) {
               final attribute = provider.currentAttributes[index];
@@ -228,7 +392,6 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
             },
           ),
         ),
-
         Positioned(
           left: 0,
           right: 0,
@@ -241,7 +404,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
                       smoothness: 1, borderRadius: BorderRadius.circular(10)),
                   backgroundColor: AppColors.black,
                   foregroundColor: AppColors.white),
-              onPressed: () {},
+              onPressed: onNextPressed,
               child: const Padding(
                 padding: EdgeInsets.all(18.0),
                 child: Text('Next'),
@@ -414,13 +577,15 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
     );
   }
 
-//
   Widget _buildColorSelectorWidget(
       BuildContext context, CatalogProvider provider, Attribute attribute) {
-    // A map to link color names to actual colors
     final Map<String, Color> colorMap = {
       'Black': Colors.black,
+      'Gray': Colors.grey,
       'Silver': Colors.grey,
+      'Blue': Colors.blue,
+      'Gold': Colors.yellow,
+      'White': Colors.white
     };
 
     final selectedValue = provider.getSelectedAttributeValue(attribute);
@@ -777,6 +942,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
                                                 color: isSelected
                                                     ? AppColors.black
                                                     : AppColors.gray
+                                                        // ignore: deprecated_member_use
                                                         .withOpacity(0.5),
                                                 child: isSelected
                                                     ? const Icon(
@@ -796,8 +962,6 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
                               },
                             ),
                           ),
-
-                          // Confirm button (now outside of the scrollable area)
                           Padding(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 16.0, vertical: 8),
@@ -830,10 +994,9 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
                                 },
                                 child: const Text(
                                   'Confirm',
-                                   style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600
-                                   ),
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600),
                                 ),
                               ),
                             ),
@@ -852,3 +1015,4 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
     );
   }
 }
+//
