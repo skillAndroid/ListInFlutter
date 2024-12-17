@@ -15,6 +15,7 @@ class AppColors {
   static const lightBackground = Color(0xFFFAFAFA);
   static const darkBackground = Color(0xFF0D0C0C);
   static const lightGray = Color.fromARGB(255, 228, 227, 227);
+  static const lighterGray = Color.fromARGB(255, 233, 233, 233);
   static const gray = Color(0xFFB1B1B1);
   static const darkGray = Color(0xFF5F5B5B);
   static const white = Colors.white;
