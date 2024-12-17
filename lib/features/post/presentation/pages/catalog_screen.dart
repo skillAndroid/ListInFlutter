@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/post/presentation/pages/model.dart';
 import 'package:list_in/features/post/presentation/provider/iii.dart';
@@ -34,8 +35,30 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
   Widget _buildBackButton(CatalogProvider provider) {
     if (provider.selectedChildCategory != null ||
         provider.selectedCatalog != null) {
-      return BackButton(
-        onPressed: () => _handleBackNavigation(provider),
+      return InkWell(
+        onTap: () {
+          _handleBackNavigation(provider);
+        },
+        child: SizedBox(
+          width: 36,
+          height: 36,
+          child: Card(
+            elevation: 0,
+            color: AppColors.bgColor,
+            shape: SmoothRectangleBorder(
+              smoothness: 1,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: Image.asset(
+                AppIcons.arrowBackNoShadow,
+                width: 24,
+                height: 24,
+              ),
+            ),
+          ),
+        ),
       );
     }
     return Container();
@@ -78,7 +101,15 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
       child: Scaffold(
         backgroundColor: AppColors.bgColor,
         appBar: AppBar(
-          title: const Text('Your Title'), // Optional AppBar title
+          centerTitle: true,
+          title: const Text(
+            'Create Post',
+            style: TextStyle(
+                fontWeight: FontWeight.w700,
+                fontFamily: "Poppins",
+                fontSize: 21,
+                color: AppColors.black),
+          ), // Optional AppBar title
           toolbarHeight: 56.0, // Height of the AppBar
           automaticallyImplyLeading:
               false, // Removes default back button if not needed
@@ -99,10 +130,20 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
               minHeight: double.infinity,
             ),
           ),
-
+          leadingWidth: 56,
           leading: Consumer<CatalogProvider>(
             builder: (context, provider, child) {
-              return _buildBackButton(provider); // Your back button logic
+              return Visibility(
+                visible: _currentPage >=
+                    0, // Or any condition to show the back button
+                child: Transform.translate(
+                  offset: const Offset(10, 0),
+                  child: Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: _buildBackButton(provider),
+                  ),
+                ),
+              );
             },
           ),
         ),
@@ -130,6 +171,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
     );
   }
 
+//
   Widget _buildCatalogPage(BuildContext context, CatalogProvider provider) {
     return ListView.builder(
       itemCount: provider.catalogModel?.catalogs.length ?? 0,
@@ -241,7 +283,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
             style: const TextStyle(
               color: AppColors.gray,
               fontSize: 15,
-              fontWeight: FontWeight.w400,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ),
@@ -366,7 +408,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
           },
         ),
         const SizedBox(
-          height: 12,
+          height: 14,
         ),
       ],
     );
@@ -393,7 +435,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
             style: const TextStyle(
               color: AppColors.gray,
               fontSize: 15,
-              fontWeight: FontWeight.w400,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ),
@@ -543,7 +585,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
           },
         ),
         const SizedBox(
-          height: 12,
+          height: 14,
         ),
       ],
     );
@@ -569,7 +611,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
             style: const TextStyle(
               color: AppColors.gray,
               fontSize: 15,
-              fontWeight: FontWeight.w400,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ),
@@ -715,8 +757,8 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
                                           ),
                                         ),
                                         AnimatedSwitcher(
-                                          duration: const Duration(
-                                              milliseconds: 400),
+                                          duration:
+                                              const Duration(milliseconds: 400),
                                           transitionBuilder:
                                               (child, animation) {
                                             return ScaleTransition(
@@ -788,6 +830,10 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
                                 },
                                 child: const Text(
                                   'Confirm',
+                                   style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600
+                                   ),
                                 ),
                               ),
                             ),
@@ -800,7 +846,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
               : const SizedBox.shrink(),
         ),
         const SizedBox(
-          height: 12,
+          height: 14,
         ),
       ],
     );
