@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:list_in/features/post/presentation/pages/model.dart';
+import 'package:list_in/features/post/data/models/model.dart';
 
 class CatalogProvider extends ChangeNotifier {
   CatalogModel? _catalogModel;
@@ -333,5 +333,45 @@ class CatalogProvider extends ChangeNotifier {
     _selectedValues.clear();
     dynamicAttributes.clear();
     notifyListeners();
+  }
+
+  // Post 2nd part : Seller informations, images & videos, nessary details
+
+  // Private field
+  String _postTitle = "";
+  String _postDescription = "";
+  double _price = 0.0;
+
+  // Getter to access postTitle
+  String get postTitle => _postTitle;
+  String get postDescription => _postDescription;
+  double get price => _price;
+
+  void changePostTitle(String title) {
+    if (title.isNotEmpty && title != _postTitle) {
+      _postTitle = title;
+      notifyListeners();
+    }
+  }
+
+  void changePostDescription(String description) {
+    if (description.isNotEmpty && description != _postDescription) {
+      _postDescription = description;
+      notifyListeners();
+    }
+  }
+
+  void changePrice(double newPrice) {
+    if (newPrice >= 0 && newPrice != _price) {
+      _price = newPrice;
+      notifyListeners();
+    }
+  }
+
+  String getFormattedPrice() {
+    return _price.toStringAsFixed(0).replaceAllMapped(
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match m) => '${m[1]} ',
+        );
   }
 }

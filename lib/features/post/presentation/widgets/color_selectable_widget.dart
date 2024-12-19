@@ -1,8 +1,8 @@
 // ignore: file_names
 import 'package:flutter/material.dart';
 import 'package:list_in/config/theme/app_colors.dart';
-import 'package:list_in/features/post/presentation/pages/model.dart';
-import 'package:list_in/features/post/presentation/provider/iii.dart';
+import 'package:list_in/features/post/data/models/model.dart';
+import 'package:list_in/features/post/presentation/provider/post_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 

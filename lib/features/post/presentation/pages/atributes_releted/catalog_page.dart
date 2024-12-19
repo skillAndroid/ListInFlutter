@@ -1,34 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:list_in/config/assets/app_images.dart';
-import 'package:list_in/features/post/presentation/pages/model.dart';
+import 'package:list_in/features/post/data/models/model.dart';
+import 'package:list_in/features/post/presentation/provider/post_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
-import '../provider/iii.dart';
+class CatalogListPage extends StatelessWidget {
+  final Function(Catalog) onCatalogSelected;
 
-class ChildCategoryListPage extends StatelessWidget {
-  final Function(ChildCategory) onChildCategorySelected;
-
-  const ChildCategoryListPage({
-    super.key,
-    required this.onChildCategorySelected,
-  });
+  const CatalogListPage({super.key, required this.onCatalogSelected});
 
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<CatalogProvider>(context);
-    final childCategories = provider.selectedCatalog?.childCategories ?? [];
+    final catalogs = provider.catalogModel?.catalogs ?? [];
 
     return ListView(
       children: [
-        for (var childCategory in childCategories)
+        for (var catalog in catalogs)
           Column(
             children: [
               const SizedBox(
                 height: 6,
               ),
               ElevatedButton(
-                onPressed: () => onChildCategorySelected(childCategory),
+                onPressed: () => onCatalogSelected(catalog),
                 style: ElevatedButton.styleFrom(
                   shape: SmoothRectangleBorder(
                     smoothness: 1,
@@ -61,21 +57,10 @@ class ChildCategoryListPage extends StatelessWidget {
                     const SizedBox(width: 8),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          childCategory.name,
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16),
-                        ),
-                        const SizedBox(
-                          height: 6,
-                        ),
-                        Text(
-                          childCategory.description,
-                          style:
-                              const TextStyle(color: Colors.grey, fontSize: 14),
-                        ),
+                        Text(catalog.name),
+                        const SizedBox(height: 6),
+                        Text(catalog.description),
                       ],
                     ),
                   ],

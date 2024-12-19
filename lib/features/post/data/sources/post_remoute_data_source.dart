@@ -10240,9 +10240,9 @@ const jsonString = '''{
                     {
                         "attributeKey": "Laptop Processor Brands",
                         "helperText": "Select  Processor Brands",
-                        "subHelperText": "null",
+                        "subHelperText": "Select Processor",
                         "widgetType": "oneSelectable",
-                        "subWidgetType": "null",
+                        "subWidgetType": "oneSelectable",
                         "dataType": "string",
                         "values": [
                             {
@@ -10251,9 +10251,159 @@ const jsonString = '''{
                                 "value": "Intel",
                                 "list": [
                                     {
-                                        "modelId": null,
-                                        "name": null,
-                                        "attributeId": null
+                                        "modelId": "515464e0-811a-4637-a48c-703911f74fdd",
+                                        "name": "Core i3,10th",
+                                        "attributeId": "99a4b8b2-da1e-4f2f-b04a-c11b1c4587a9"
+                                    },
+                                    {
+                                        "modelId": "f346f9b8-9087-4382-8a2f-17f96616b5c9",
+                                        "name": "Core i3,11th",
+                                        "attributeId": "99a4b8b2-da1e-4f2f-b04a-c11b1c4587a9"
+                                    },
+                                    {
+                                        "modelId": "dd8d288c-660f-4712-a0b0-c5f45d2adb7e",
+                                        "name": "Core i3,12th",
+                                        "attributeId": "99a4b8b2-da1e-4f2f-b04a-c11b1c4587a9"
+                                    },
+                                    {
+                                        "modelId": "fcac98c9-b994-463d-a5e0-d3c61d7372ee",
+                                        "name": "Core i3,13th",
+                                        "attributeId": "99a4b8b2-da1e-4f2f-b04a-c11b1c4587a9"
+                                    },
+                                    {
+                                        "modelId": "24bc0bfd-5d0f-4dbb-87cb-ea2334896309",
+                                        "name": "Core i5,10th",
+                                        "attributeId": "99a4b8b2-da1e-4f2f-b04a-c11b1c4587a9"
+                                    },
+                                    {
+                                        "modelId": "d3c61a03-184a-466d-97b2-442664acdda0",
+                                        "name": "Core i5,11th",
+                                        "attributeId": "99a4b8b2-da1e-4f2f-b04a-c11b1c4587a9"
+                                    },
+                                    {
+                                        "modelId": "c6f89af4-b178-4102-ac27-cbb816132323",
+                                        "name": "Core i5,12th",
+                                        "attributeId": "99a4b8b2-da1e-4f2f-b04a-c11b1c4587a9"
+                                    },
+                                    {
+                                        "modelId": "cda0c74a-abc9-4cff-b4b1-db577d1b4705",
+                                        "name": "Core i5,13th",
+                                        "attributeId": "99a4b8b2-da1e-4f2f-b04a-c11b1c4587a9"
+                                    },
+                                    {
+                                        "modelId": "a1ed27c1-999b-4a4e-a9de-1d95fd067d3b",
+                                        "name": "Core i7,10th",
+                                        "attributeId": "99a4b8b2-da1e-4f2f-b04a-c11b1c4587a9"
+                                    },
+                                    {
+                                        "modelId": "bfdd9ad5-8103-423b-a0cb-8af850a3b06c",
+                                        "name": "Core i7,11th",
+                                        "attributeId": "99a4b8b2-da1e-4f2f-b04a-c11b1c4587a9"
+                                    },
+                                    {
+                                        "modelId": "46bc49db-c7c0-4257-8d05-fd6b77a36909",
+                                        "name": "Core i7,12th",
+                                        "attributeId": "99a4b8b2-da1e-4f2f-b04a-c11b1c4587a9"
+                                    },
+                                    {
+                                        "modelId": "db6a78d3-0f2f-4700-b934-2f45cae21a5d",
+                                        "name": "Core i7,13th",
+                                        "attributeId": "99a4b8b2-da1e-4f2f-b04a-c11b1c4587a9"
+                                    },
+                                    {
+                                        "modelId": "2f00e003-d446-4d0d-99e3-b3254fcbc082",
+                                        "name": "Core i9,10th",
+                                        "attributeId": "99a4b8b2-da1e-4f2f-b04a-c11b1c4587a9"
+                                    },
+                                    {
+                                        "modelId": "ae31c7f9-d89e-4716-893b-892f78ba01fe",
+                                        "name": "Core i9,11th",
+                                        "attributeId": "99a4b8b2-da1e-4f2f-b04a-c11b1c4587a9"
+                                    },
+                                    {
+                                        "modelId": "e0e651ca-7da1-4c9d-a6ca-204ec03d2abc",
+                                        "name": "Core i9,12th",
+                                        "attributeId": "99a4b8b2-da1e-4f2f-b04a-c11b1c4587a9"
+                                    },
+                                    {
+                                        "modelId": "b8bae9ea-6b11-4035-89c0-92a5003e805f",
+                                        "name": "Core i9,13th",
+                                        "attributeId": "99a4b8b2-da1e-4f2f-b04a-c11b1c4587a9"
+                                    },
+                                    {
+                                        "modelId": "74fe47ed-5923-44e9-8ad0-00f205c409f3",
+                                        "name": "Xeon Scalable,2nd Generation",
+                                        "attributeId": "99a4b8b2-da1e-4f2f-b04a-c11b1c4587a9"
+                                    },
+                                    {
+                                        "modelId": "2e3278dc-fb94-4b7b-b257-8d01e7040ce4",
+                                        "name": "Xeon Scalable,3rd Generation",
+                                        "attributeId": "99a4b8b2-da1e-4f2f-b04a-c11b1c4587a9"
+                                    },
+                                    {
+                                        "modelId": "50c03a65-b784-418e-977a-b476d6304a0e",
+                                        "name": "Xeon Scalable,4th Generation",
+                                        "attributeId": "99a4b8b2-da1e-4f2f-b04a-c11b1c4587a9"
+                                    },
+                                    {
+                                        "modelId": "d7a2d01f-7f8a-4f85-8e37-8aa32221771e",
+                                        "name": "Xeon E5,v4",
+                                        "attributeId": "99a4b8b2-da1e-4f2f-b04a-c11b1c4587a9"
+                                    },
+                                    {
+                                        "modelId": "881a7815-2cdc-4cbe-b4ff-a27aa21dbd9c",
+                                        "name": "Xeon E5,v5",
+                                        "attributeId": "99a4b8b2-da1e-4f2f-b04a-c11b1c4587a9"
+                                    },
+                                    {
+                                        "modelId": "e3086a9f-1211-40f4-b2c8-8b8b0be542a8",
+                                        "name": "Xeon E7,v4",
+                                        "attributeId": "99a4b8b2-da1e-4f2f-b04a-c11b1c4587a9"
+                                    },
+                                    {
+                                        "modelId": "1049fa41-6bc8-42bf-a656-69cfb32c1463",
+                                        "name": "Xeon E7,v5",
+                                        "attributeId": "99a4b8b2-da1e-4f2f-b04a-c11b1c4587a9"
+                                    },
+                                    {
+                                        "modelId": "21f66c7a-c05a-464b-8a7c-4f764abe658f",
+                                        "name": "Atom,Cherry Trail",
+                                        "attributeId": "99a4b8b2-da1e-4f2f-b04a-c11b1c4587a9"
+                                    },
+                                    {
+                                        "modelId": "9be2af10-e69b-4986-bb7d-23181a283df5",
+                                        "name": "Atom,Bay Trail",
+                                        "attributeId": "99a4b8b2-da1e-4f2f-b04a-c11b1c4587a9"
+                                    },
+                                    {
+                                        "modelId": "b3e801bb-484b-4543-b20d-5dca95662100",
+                                        "name": "Atom,Silvermont",
+                                        "attributeId": "99a4b8b2-da1e-4f2f-b04a-c11b1c4587a9"
+                                    },
+                                    {
+                                        "modelId": "84239104-0574-49f1-9264-38f298b50ddf",
+                                        "name": "Pentium Gold,6000 Series",
+                                        "attributeId": "99a4b8b2-da1e-4f2f-b04a-c11b1c4587a9"
+                                    },
+                                    {
+                                        "modelId": "6c1b905d-acb2-4184-aacf-d20d63fb8915",
+                                        "name": "Pentium Silver,Silver Series",
+                                        "attributeId": "99a4b8b2-da1e-4f2f-b04a-c11b1c4587a9"
+                                    },
+                                    {
+                                        "modelId": "27d4d51b-b1fe-4ed9-9067-3cfc9b6a7c80",
+                                        "name": "Celeron,4000 Series",
+                                        "attributeId": "99a4b8b2-da1e-4f2f-b04a-c11b1c4587a9"
+                                    },
+                                    {
+                                        "modelId": "3d703b0b-1a8d-4a3f-9580-f4131b7c31e1",
+                                        "name": "Celeron,N4000 Series",
+                                        "attributeId": "99a4b8b2-da1e-4f2f-b04a-c11b1c4587a9"
+                                    },
+                                    {
+                                        "modelId": "04448431-a56c-48e3-952c-3cb896c77d31",
+                                        "name": "Celeron,J4000 Series",
+                                        "attributeId": "99a4b8b2-da1e-4f2f-b04a-c11b1c4587a9"
                                     }
                                 ]
                             },
@@ -10263,21 +10413,224 @@ const jsonString = '''{
                                 "value": "AMD",
                                 "list": [
                                     {
-                                        "modelId": null,
-                                        "name": null,
-                                        "attributeId": null
-                                    }
-                                ]
-                            },
-                            {
-                                "attributeValueId": "c0e5594c-9b67-4d07-a1a6-3ae62b251507",
-                                "attributeKeyId": "b2635cd6-4100-4eea-9e7f-9d010166d7f2",
-                                "value": "Apple",
-                                "list": [
+                                        "modelId": "ea7d0b87-e6bf-425f-97c8-9f178cbd4c37",
+                                        "name": "Ryzen 3,1000",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
                                     {
-                                        "modelId": null,
-                                        "name": null,
-                                        "attributeId": null
+                                        "modelId": "f1368d33-7525-47d1-8777-75e9713037a2",
+                                        "name": "Ryzen 3,2000",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "20d9c2de-0c34-4977-8e67-51a36a8b64ab",
+                                        "name": "Ryzen 3,3000",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "0fecfbd5-9130-490f-85a4-d7532090d942",
+                                        "name": "Ryzen 3,4000",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "2b745fb9-969b-4285-bed2-6ac37861d7e2",
+                                        "name": "Ryzen 3,5000",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "d6bbada8-c75b-44e5-a7cc-9438369dfdca",
+                                        "name": "Ryzen 3,6000",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "37c8b6e2-c8f8-4803-817e-90b2a0308f09",
+                                        "name": "Ryzen 3,7000",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "7b04b2da-b2a1-419a-8dd7-6f3b6b9c613e",
+                                        "name": "Ryzen 5,1000",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "e30316c3-db9a-4ea8-870e-1988a82eae4c",
+                                        "name": "Ryzen 5,2000",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "ae392b73-c0e1-413f-b917-520d42007a38",
+                                        "name": "Ryzen 5,3000",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "6668cb29-bd8b-4290-89d6-8907d7b8e4e1",
+                                        "name": "Ryzen 5,4000",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "41e36a63-c306-4cec-a5d8-b60ac3b57d61",
+                                        "name": "Ryzen 5,5000",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "19b8cb7c-16b1-4851-8a32-4908eaae0a9d",
+                                        "name": "Ryzen 5,6000",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "ef0c507c-0c01-4e08-9818-6c3622eefea2",
+                                        "name": "Ryzen 5,7000",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "b62784b3-3ade-4763-a433-9e6995af0137",
+                                        "name": "Ryzen 7,1000",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "6357a5b4-d2c6-4137-b9de-67ed34e2c0e0",
+                                        "name": "Ryzen 7,2000",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "214bf25d-a064-4388-883e-f9b09864eda7",
+                                        "name": "Ryzen 7,3000",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "54d65515-9b2d-49c3-8fe2-775aec645185",
+                                        "name": "Ryzen 7,4000",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "639a02f8-6000-4544-94c3-66265e0d65ab",
+                                        "name": "Ryzen 7,5000",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "a322cd65-f258-4a26-99d3-414d531d3915",
+                                        "name": "Ryzen 7,6000",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "280a8845-d736-4913-9d6a-82911cee79f0",
+                                        "name": "Ryzen 7,7000",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "a44b8784-5695-44ec-8a9e-c3fe88f0f621",
+                                        "name": "Ryzen 9,1000",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "fc942251-cc80-494c-98b6-e6f688bab7e3",
+                                        "name": "Ryzen 9,2000",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "383b0354-2bf6-4a86-9100-b019e9979e64",
+                                        "name": "Ryzen 9,3000",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "bdde043f-976b-477b-8ea1-f1bd366ac313",
+                                        "name": "Ryzen 9,4000",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "6b217bf0-74a8-4033-be53-278f27083ee4",
+                                        "name": "Ryzen 9,5000",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "82b57e12-5ae3-494d-881c-d2976585725a",
+                                        "name": "Ryzen 9,6000",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "015eb2aa-74ec-4ca1-b892-aae2bf3c4664",
+                                        "name": "Ryzen 9,7000",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "35d2f7f5-392f-424f-8b38-83f6ae520e69",
+                                        "name": "EPYC,7001",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "2c3d8d54-b7e5-46e7-a2be-a478a2be7c56",
+                                        "name": "EPYC,7002",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "e731a61b-1c56-4cc7-b683-cbc34ec69b24",
+                                        "name": "EPYC,7003",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "5bb36bea-6a4e-41c6-8fc9-04e473be24f3",
+                                        "name": "EPYC,9004",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "3d567948-3df7-4822-9365-8aea0989ba7b",
+                                        "name": "Athlon,200",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "2a8875df-e8ee-4741-b166-8331bc568d7a",
+                                        "name": "Athlon,300",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "01661d25-94c2-46b1-b779-637f9779dc58",
+                                        "name": "Athlon,3000",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "fdd25ab8-67e7-4aa0-8731-fd32ca02bbb2",
+                                        "name": "Athlon,200GE",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "9d7489f0-399e-4a8d-9518-6b441ad7501c",
+                                        "name": "Threadripper,1000",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "105cf310-146c-45b1-8fd6-abda24919f47",
+                                        "name": "Threadripper,2000",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "51e554a0-8df9-424e-a930-3007289a0d2b",
+                                        "name": "Threadripper,3000",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "b3f82b42-eedd-4dc4-859a-c66334826a50",
+                                        "name": "A-Series,A4",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "0eee95fa-35d3-42ac-bdf6-4b50703cf77a",
+                                        "name": "A-Series,A6",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "71a44f94-2cc9-47ff-8409-ea0211e42a9f",
+                                        "name": "A-Series,A8",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "b96dfcbc-59f8-4505-a1ad-1930dd6a93f8",
+                                        "name": "A-Series,A10",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
+                                    },
+                                    {
+                                        "modelId": "42b3c0dc-a17d-4526-a9d6-8567e74874bf",
+                                        "name": "A-Series,A12",
+                                        "attributeId": "81b222b6-9912-46fe-9c88-71b31dca70a0"
                                     }
                                 ]
                             },
@@ -10287,9 +10640,84 @@ const jsonString = '''{
                                 "value": "Qualcomm",
                                 "list": [
                                     {
-                                        "modelId": null,
-                                        "name": null,
-                                        "attributeId": null
+                                        "modelId": "376b188c-99e9-4aa7-8d46-acef43c80287",
+                                        "name": "Snapdragon 8,800",
+                                        "attributeId": "4e163a83-3d93-4fa7-95da-54beeda3ee22"
+                                    },
+                                    {
+                                        "modelId": "3881a858-8374-4b18-afc9-0686a828ef84",
+                                        "name": "Snapdragon 8,Gen 1",
+                                        "attributeId": "4e163a83-3d93-4fa7-95da-54beeda3ee22"
+                                    },
+                                    {
+                                        "modelId": "924cd46f-8817-4fa8-801e-ceb1651a45af",
+                                        "name": "Snapdragon 8,Gen 2",
+                                        "attributeId": "4e163a83-3d93-4fa7-95da-54beeda3ee22"
+                                    },
+                                    {
+                                        "modelId": "8dd67a7b-aec9-4da4-b739-de1cdf80bd2c",
+                                        "name": "Snapdragon 8,Gen 3",
+                                        "attributeId": "4e163a83-3d93-4fa7-95da-54beeda3ee22"
+                                    },
+                                    {
+                                        "modelId": "074722f4-3638-40a0-8916-94872a9a63f4",
+                                        "name": "Snapdragon 7,700",
+                                        "attributeId": "4e163a83-3d93-4fa7-95da-54beeda3ee22"
+                                    },
+                                    {
+                                        "modelId": "60c14b9a-340e-45ca-be91-f93284064c30",
+                                        "name": "Snapdragon 7,Gen 1",
+                                        "attributeId": "4e163a83-3d93-4fa7-95da-54beeda3ee22"
+                                    },
+                                    {
+                                        "modelId": "6c8a47c9-70d1-4359-be46-87ee553db245",
+                                        "name": "Snapdragon 7,Gen 2",
+                                        "attributeId": "4e163a83-3d93-4fa7-95da-54beeda3ee22"
+                                    },
+                                    {
+                                        "modelId": "15ca2623-1f25-4c6b-a933-7c9f1eceecb9",
+                                        "name": "Snapdragon 7,Gen 3",
+                                        "attributeId": "4e163a83-3d93-4fa7-95da-54beeda3ee22"
+                                    },
+                                    {
+                                        "modelId": "5f99c215-8b78-4391-a0f0-1161e0e222f1",
+                                        "name": "Snapdragon 6,600",
+                                        "attributeId": "4e163a83-3d93-4fa7-95da-54beeda3ee22"
+                                    },
+                                    {
+                                        "modelId": "49fa74d7-33ae-48cb-90a3-cf033972ab12",
+                                        "name": "Snapdragon 6,Gen 1",
+                                        "attributeId": "4e163a83-3d93-4fa7-95da-54beeda3ee22"
+                                    },
+                                    {
+                                        "modelId": "889b29de-1db7-4ac5-a576-0862f026b866",
+                                        "name": "Snapdragon 6,Gen 2",
+                                        "attributeId": "4e163a83-3d93-4fa7-95da-54beeda3ee22"
+                                    },
+                                    {
+                                        "modelId": "88ed46c6-9dc6-4d16-b6a6-43503b3a6c3d",
+                                        "name": "Snapdragon 4,400",
+                                        "attributeId": "4e163a83-3d93-4fa7-95da-54beeda3ee22"
+                                    },
+                                    {
+                                        "modelId": "abefc363-11ab-4ea1-9bc4-8710db092fec",
+                                        "name": "Snapdragon 4,Gen 1",
+                                        "attributeId": "4e163a83-3d93-4fa7-95da-54beeda3ee22"
+                                    },
+                                    {
+                                        "modelId": "4c5b79c4-5963-479d-af85-c13ca656bea1",
+                                        "name": "Snapdragon 4,Gen 2",
+                                        "attributeId": "4e163a83-3d93-4fa7-95da-54beeda3ee22"
+                                    },
+                                    {
+                                        "modelId": "ce34fe10-fd7d-4bc1-a426-b2fd2aa9d797",
+                                        "name": "Snapdragon 2,200",
+                                        "attributeId": "4e163a83-3d93-4fa7-95da-54beeda3ee22"
+                                    },
+                                    {
+                                        "modelId": "a0d2975b-3f68-471b-b4f7-844c2ddd8d87",
+                                        "name": "Snapdragon 2,Gen 1",
+                                        "attributeId": "4e163a83-3d93-4fa7-95da-54beeda3ee22"
                                     }
                                 ]
                             },
@@ -10299,9 +10727,199 @@ const jsonString = '''{
                                 "value": "MediaTek",
                                 "list": [
                                     {
-                                        "modelId": null,
-                                        "name": null,
-                                        "attributeId": null
+                                        "modelId": "28ab01e8-4681-4aca-9e54-ae1cf8c0eaaf",
+                                        "name": "Helio A,Helio A20",
+                                        "attributeId": "a42e8e7b-888c-4556-90cb-a54cc7899649"
+                                    },
+                                    {
+                                        "modelId": "77f5107c-8640-4b7c-ada7-81716d43c676",
+                                        "name": "Helio A,Helio A22",
+                                        "attributeId": "a42e8e7b-888c-4556-90cb-a54cc7899649"
+                                    },
+                                    {
+                                        "modelId": "606dc5c1-d890-40a4-8876-629bc965686d",
+                                        "name": "Helio G,Helio G25",
+                                        "attributeId": "a42e8e7b-888c-4556-90cb-a54cc7899649"
+                                    },
+                                    {
+                                        "modelId": "4ae50b4e-1d46-4044-b863-85d812dfca1a",
+                                        "name": "Helio G,Helio G35",
+                                        "attributeId": "a42e8e7b-888c-4556-90cb-a54cc7899649"
+                                    },
+                                    {
+                                        "modelId": "a62bd000-8e73-46bc-a820-9dc1a1c74645",
+                                        "name": "Helio G,Helio G37",
+                                        "attributeId": "a42e8e7b-888c-4556-90cb-a54cc7899649"
+                                    },
+                                    {
+                                        "modelId": "c914dcef-fe8c-498a-96a4-dcccf8ac60d1",
+                                        "name": "Helio G,Helio G70",
+                                        "attributeId": "a42e8e7b-888c-4556-90cb-a54cc7899649"
+                                    },
+                                    {
+                                        "modelId": "ab4cc25c-ca47-4de9-8dae-8fde800edc7a",
+                                        "name": "Helio G,Helio G80",
+                                        "attributeId": "a42e8e7b-888c-4556-90cb-a54cc7899649"
+                                    },
+                                    {
+                                        "modelId": "d07f2d51-aa93-4dbf-8575-5af62af24e89",
+                                        "name": "Helio G,Helio G85",
+                                        "attributeId": "a42e8e7b-888c-4556-90cb-a54cc7899649"
+                                    },
+                                    {
+                                        "modelId": "8f928023-24d7-4191-b2a2-1e3bc77a2e4d",
+                                        "name": "Helio G,Helio G88",
+                                        "attributeId": "a42e8e7b-888c-4556-90cb-a54cc7899649"
+                                    },
+                                    {
+                                        "modelId": "c89071d4-f05f-4add-8987-4b7597120608",
+                                        "name": "Helio G,Helio G90",
+                                        "attributeId": "a42e8e7b-888c-4556-90cb-a54cc7899649"
+                                    },
+                                    {
+                                        "modelId": "3df71245-aaf4-40a0-83f9-4fb779dfe398",
+                                        "name": "Helio G,Helio G90T",
+                                        "attributeId": "a42e8e7b-888c-4556-90cb-a54cc7899649"
+                                    },
+                                    {
+                                        "modelId": "c719bc3d-b8fb-4efa-a4e0-2be234599e90",
+                                        "name": "Helio P,Helio P22",
+                                        "attributeId": "a42e8e7b-888c-4556-90cb-a54cc7899649"
+                                    },
+                                    {
+                                        "modelId": "1fc51660-c108-4a30-a11a-55b556e07d8e",
+                                        "name": "Helio P,Helio P35",
+                                        "attributeId": "a42e8e7b-888c-4556-90cb-a54cc7899649"
+                                    },
+                                    {
+                                        "modelId": "af4ae539-b090-4d47-825e-859390b74be5",
+                                        "name": "Helio P,Helio P60",
+                                        "attributeId": "a42e8e7b-888c-4556-90cb-a54cc7899649"
+                                    },
+                                    {
+                                        "modelId": "7113e19b-d0a0-4d09-b656-b66497c7bc2d",
+                                        "name": "Helio P,Helio P65",
+                                        "attributeId": "a42e8e7b-888c-4556-90cb-a54cc7899649"
+                                    },
+                                    {
+                                        "modelId": "9e9ae869-9c62-44d1-a747-dd080ac837f3",
+                                        "name": "Helio P,Helio P70",
+                                        "attributeId": "a42e8e7b-888c-4556-90cb-a54cc7899649"
+                                    },
+                                    {
+                                        "modelId": "9fe446af-f3f6-443a-a287-975fb55e4a7c",
+                                        "name": "Helio P,Helio P90",
+                                        "attributeId": "a42e8e7b-888c-4556-90cb-a54cc7899649"
+                                    },
+                                    {
+                                        "modelId": "b8be0c03-a44d-49b1-8670-0692d3b452a9",
+                                        "name": "Dimensity 600,Dimensity 6020",
+                                        "attributeId": "a42e8e7b-888c-4556-90cb-a54cc7899649"
+                                    },
+                                    {
+                                        "modelId": "52f1b795-caf2-46d0-bae9-2f0256bb34fd",
+                                        "name": "Dimensity 600,Dimensity 6080",
+                                        "attributeId": "a42e8e7b-888c-4556-90cb-a54cc7899649"
+                                    },
+                                    {
+                                        "modelId": "b50ae643-e3ec-4209-862a-44067f7b319b",
+                                        "name": "Dimensity 700,Dimensity 700",
+                                        "attributeId": "a42e8e7b-888c-4556-90cb-a54cc7899649"
+                                    },
+                                    {
+                                        "modelId": "9c5e1c69-be94-48de-ae47-8daf462aabb5",
+                                        "name": "Dimensity 700,Dimensity 7050",
+                                        "attributeId": "a42e8e7b-888c-4556-90cb-a54cc7899649"
+                                    },
+                                    {
+                                        "modelId": "e5de0933-9f74-4fee-9b68-a762bdece7dd",
+                                        "name": "Dimensity 800,Dimensity 800",
+                                        "attributeId": "a42e8e7b-888c-4556-90cb-a54cc7899649"
+                                    },
+                                    {
+                                        "modelId": "eb703850-0ff1-41ac-b96e-35fb964c0c6a",
+                                        "name": "Dimensity 800,Dimensity 810",
+                                        "attributeId": "a42e8e7b-888c-4556-90cb-a54cc7899649"
+                                    },
+                                    {
+                                        "modelId": "7da73b83-2ac0-4b60-81e5-61afa952267a",
+                                        "name": "Dimensity 800,Dimensity 8020",
+                                        "attributeId": "a42e8e7b-888c-4556-90cb-a54cc7899649"
+                                    },
+                                    {
+                                        "modelId": "9549dc08-3d37-4b3b-9154-2f61143cc52a",
+                                        "name": "Dimensity 900,Dimensity 900",
+                                        "attributeId": "a42e8e7b-888c-4556-90cb-a54cc7899649"
+                                    },
+                                    {
+                                        "modelId": "1017f790-2941-498b-8a4d-dbac43df7b95",
+                                        "name": "Dimensity 900,Dimensity 920",
+                                        "attributeId": "a42e8e7b-888c-4556-90cb-a54cc7899649"
+                                    },
+                                    {
+                                        "modelId": "a669cae6-3d14-4632-801f-f51334877ec9",
+                                        "name": "Dimensity 1000,Dimensity 1000",
+                                        "attributeId": "a42e8e7b-888c-4556-90cb-a54cc7899649"
+                                    },
+                                    {
+                                        "modelId": "2419e30c-8d0e-4223-9ce2-83c34f010480",
+                                        "name": "Dimensity 1000,Dimensity 1000+",
+                                        "attributeId": "a42e8e7b-888c-4556-90cb-a54cc7899649"
+                                    },
+                                    {
+                                        "modelId": "35c9bcfb-eddf-4951-8128-e8c42676463d",
+                                        "name": "Dimensity 1000,Dimensity 1100",
+                                        "attributeId": "a42e8e7b-888c-4556-90cb-a54cc7899649"
+                                    },
+                                    {
+                                        "modelId": "29fa9f12-c74e-4158-8b6e-417b2cb90d86",
+                                        "name": "Dimensity 1000,Dimensity 1200",
+                                        "attributeId": "a42e8e7b-888c-4556-90cb-a54cc7899649"
+                                    },
+                                    {
+                                        "modelId": "2567e91a-4ce5-44f6-87e8-4d35c4fe34f4",
+                                        "name": "Dimensity 1300,Dimensity 1300",
+                                        "attributeId": "a42e8e7b-888c-4556-90cb-a54cc7899649"
+                                    },
+                                    {
+                                        "modelId": "d680fc8a-a0a9-4eb6-8c66-bef0737a0575",
+                                        "name": "Dimensity 9000,Dimensity 9000",
+                                        "attributeId": "a42e8e7b-888c-4556-90cb-a54cc7899649"
+                                    },
+                                    {
+                                        "modelId": "70889dc3-dd0c-4dd2-a4a1-b17925f6da2e",
+                                        "name": "Dimensity 9000,Dimensity 9200",
+                                        "attributeId": "a42e8e7b-888c-4556-90cb-a54cc7899649"
+                                    },
+                                    {
+                                        "modelId": "0ea6f40c-2dc8-4e19-bee5-b0d5b504ef3d",
+                                        "name": "Dimensity 9200,Dimensity 9300",
+                                        "attributeId": "a42e8e7b-888c-4556-90cb-a54cc7899649"
+                                    },
+                                    {
+                                        "modelId": "ec69bffe-1d28-4400-9f57-795c8e8310eb",
+                                        "name": "Kompanio,Kompanio 500",
+                                        "attributeId": "a42e8e7b-888c-4556-90cb-a54cc7899649"
+                                    },
+                                    {
+                                        "modelId": "2e2e97b8-90dc-458b-b3b8-22f05b3e1e82",
+                                        "name": "Kompanio,Kompanio 800",
+                                        "attributeId": "a42e8e7b-888c-4556-90cb-a54cc7899649"
+                                    },
+                                    {
+                                        "modelId": "a9fae866-fd31-4adf-9e46-d77999a7ae8a",
+                                        "name": "Kompanio,Kompanio 900T",
+                                        "attributeId": "a42e8e7b-888c-4556-90cb-a54cc7899649"
+                                    },
+                                    {
+                                        "modelId": "fc6c7c83-f646-4622-841b-d64bdbf2d240",
+                                        "name": "Kompanio,Kompanio 1200",
+                                        "attributeId": "a42e8e7b-888c-4556-90cb-a54cc7899649"
+                                    },
+                                    {
+                                        "modelId": "2cb25478-da7d-4986-bc34-c4e2d8d0eab9",
+                                        "name": "Kompanio,Kompanio 1380",
+                                        "attributeId": "a42e8e7b-888c-4556-90cb-a54cc7899649"
                                     }
                                 ]
                             },
@@ -10311,9 +10929,84 @@ const jsonString = '''{
                                 "value": "Samsung",
                                 "list": [
                                     {
-                                        "modelId": null,
-                                        "name": null,
-                                        "attributeId": null
+                                        "modelId": "3761b9d0-5b3b-47ed-84e1-79b9762b220a",
+                                        "name": "Exynos 3,Exynos 3210",
+                                        "attributeId": "9c47bee8-06ae-464a-b494-19d961efc4d2"
+                                    },
+                                    {
+                                        "modelId": "e32aa599-75e2-401b-998a-20b62e9184e3",
+                                        "name": "Exynos 3,Exynos 4412",
+                                        "attributeId": "9c47bee8-06ae-464a-b494-19d961efc4d2"
+                                    },
+                                    {
+                                        "modelId": "8b23108d-26ef-40db-9220-0cd71141b662",
+                                        "name": "Exynos 4,Exynos 5250",
+                                        "attributeId": "9c47bee8-06ae-464a-b494-19d961efc4d2"
+                                    },
+                                    {
+                                        "modelId": "37a269b4-4aeb-4812-8b8d-21b47a4e5bcb",
+                                        "name": "Exynos 4,Exynos 5410",
+                                        "attributeId": "9c47bee8-06ae-464a-b494-19d961efc4d2"
+                                    },
+                                    {
+                                        "modelId": "05754ff9-baa9-42da-9c45-78c35eb0fde4",
+                                        "name": "Exynos 5,Exynos 5410",
+                                        "attributeId": "9c47bee8-06ae-464a-b494-19d961efc4d2"
+                                    },
+                                    {
+                                        "modelId": "213b48fc-36f1-435d-9bbd-d3ca3a434388",
+                                        "name": "Exynos 5,Exynos 7420",
+                                        "attributeId": "9c47bee8-06ae-464a-b494-19d961efc4d2"
+                                    },
+                                    {
+                                        "modelId": "53fba126-402b-44b0-bd57-1177472fec40",
+                                        "name": "Exynos 7,Exynos 7420",
+                                        "attributeId": "9c47bee8-06ae-464a-b494-19d961efc4d2"
+                                    },
+                                    {
+                                        "modelId": "0ecaa227-33ce-4ed5-b78d-b89d0ad2333f",
+                                        "name": "Exynos 7,Exynos 8890",
+                                        "attributeId": "9c47bee8-06ae-464a-b494-19d961efc4d2"
+                                    },
+                                    {
+                                        "modelId": "36c40e0d-b17d-4f56-ab29-60b906b09390",
+                                        "name": "Exynos 8,Exynos 8895",
+                                        "attributeId": "9c47bee8-06ae-464a-b494-19d961efc4d2"
+                                    },
+                                    {
+                                        "modelId": "e7a88275-e022-47fa-bc0b-5fbe86e23ea5",
+                                        "name": "Exynos 9,Exynos 9810",
+                                        "attributeId": "9c47bee8-06ae-464a-b494-19d961efc4d2"
+                                    },
+                                    {
+                                        "modelId": "1479423d-6723-4e20-84d1-2f4a2b6da5c4",
+                                        "name": "Exynos 9,Exynos 9820",
+                                        "attributeId": "9c47bee8-06ae-464a-b494-19d961efc4d2"
+                                    },
+                                    {
+                                        "modelId": "d2ae4dae-507b-4849-9793-acd00f668752",
+                                        "name": "Exynos 9,Exynos 9825",
+                                        "attributeId": "9c47bee8-06ae-464a-b494-19d961efc4d2"
+                                    },
+                                    {
+                                        "modelId": "f5e9f0fc-09e9-49f5-8081-7d91644e3a27",
+                                        "name": "Exynos 9,Exynos 990",
+                                        "attributeId": "9c47bee8-06ae-464a-b494-19d961efc4d2"
+                                    },
+                                    {
+                                        "modelId": "1165f040-71c3-40de-a71a-3341c33eb3d9",
+                                        "name": "Exynos 2100,Exynos 2100",
+                                        "attributeId": "9c47bee8-06ae-464a-b494-19d961efc4d2"
+                                    },
+                                    {
+                                        "modelId": "5e4563f9-1ee8-40ea-adab-b27a54fbcfc3",
+                                        "name": "Exynos 2200,Exynos 2200",
+                                        "attributeId": "9c47bee8-06ae-464a-b494-19d961efc4d2"
+                                    },
+                                    {
+                                        "modelId": "ae86bd7a-afc3-4663-a901-83c5e2704ced",
+                                        "name": "Exynos 2400,Exynos 2400",
+                                        "attributeId": "9c47bee8-06ae-464a-b494-19d961efc4d2"
                                     }
                                 ]
                             },
@@ -10323,9 +11016,134 @@ const jsonString = '''{
                                 "value": "NVIDIA",
                                 "list": [
                                     {
-                                        "modelId": null,
-                                        "name": null,
-                                        "attributeId": null
+                                        "modelId": "22f90c21-40ee-4581-8055-5614c9afd43b",
+                                        "name": "Tegra,Tegra 2",
+                                        "attributeId": "8679a009-56b6-4c99-a003-e51d185e8fa1"
+                                    },
+                                    {
+                                        "modelId": "d8f0bb37-93b0-45c6-b894-a78db48b3a5d",
+                                        "name": "Tegra,Tegra 3",
+                                        "attributeId": "8679a009-56b6-4c99-a003-e51d185e8fa1"
+                                    },
+                                    {
+                                        "modelId": "5994b237-922d-412c-96cd-2dcdab471922",
+                                        "name": "Tegra,Tegra 4",
+                                        "attributeId": "8679a009-56b6-4c99-a003-e51d185e8fa1"
+                                    },
+                                    {
+                                        "modelId": "0f369991-e9b4-4526-9eba-359980d0d670",
+                                        "name": "Tegra,Tegra K1",
+                                        "attributeId": "8679a009-56b6-4c99-a003-e51d185e8fa1"
+                                    },
+                                    {
+                                        "modelId": "3f4b3080-3264-4f35-9ffd-32eaf89312aa",
+                                        "name": "Tegra,Tegra X1",
+                                        "attributeId": "8679a009-56b6-4c99-a003-e51d185e8fa1"
+                                    },
+                                    {
+                                        "modelId": "8b2536bc-1ea7-485b-a922-a91b68eacbf7",
+                                        "name": "Tegra,Tegra X2",
+                                        "attributeId": "8679a009-56b6-4c99-a003-e51d185e8fa1"
+                                    },
+                                    {
+                                        "modelId": "425f256f-868d-4e58-bd70-7dd056430f39",
+                                        "name": "Tegra,Tegra Orin",
+                                        "attributeId": "8679a009-56b6-4c99-a003-e51d185e8fa1"
+                                    },
+                                    {
+                                        "modelId": "789b6774-860e-40cc-999f-07f128bb77b9",
+                                        "name": "Jetson,Jetson Nano",
+                                        "attributeId": "8679a009-56b6-4c99-a003-e51d185e8fa1"
+                                    },
+                                    {
+                                        "modelId": "9d0e03c0-c6c2-4a5c-8831-972e5ebbe5f5",
+                                        "name": "Jetson,Jetson TX1",
+                                        "attributeId": "8679a009-56b6-4c99-a003-e51d185e8fa1"
+                                    },
+                                    {
+                                        "modelId": "bf6c5c0e-2fe5-43f3-9600-86866b16624f",
+                                        "name": "Jetson,Jetson TX2",
+                                        "attributeId": "8679a009-56b6-4c99-a003-e51d185e8fa1"
+                                    },
+                                    {
+                                        "modelId": "6da35ebb-3f25-407f-9c94-39e72a2f5460",
+                                        "name": "Jetson,Jetson Xavier",
+                                        "attributeId": "8679a009-56b6-4c99-a003-e51d185e8fa1"
+                                    },
+                                    {
+                                        "modelId": "0da59c39-fc1d-47f2-a0db-4c2428ed8596",
+                                        "name": "Jetson,Jetson Xavier NX",
+                                        "attributeId": "8679a009-56b6-4c99-a003-e51d185e8fa1"
+                                    },
+                                    {
+                                        "modelId": "af1a3f27-86d0-4b11-a414-db9754d1bf56",
+                                        "name": "Jetson,Jetson Orin Nano",
+                                        "attributeId": "8679a009-56b6-4c99-a003-e51d185e8fa1"
+                                    },
+                                    {
+                                        "modelId": "bd36fc85-dbb5-420d-ba31-a5496faf55ca",
+                                        "name": "Jetson,Jetson Orin NX",
+                                        "attributeId": "8679a009-56b6-4c99-a003-e51d185e8fa1"
+                                    },
+                                    {
+                                        "modelId": "faeac6b7-22fc-46fa-9f3c-57b3e99df5e6",
+                                        "name": "Drive,Drive PX2",
+                                        "attributeId": "8679a009-56b6-4c99-a003-e51d185e8fa1"
+                                    },
+                                    {
+                                        "modelId": "a7156754-6caa-496f-98d1-3422125e8b4c",
+                                        "name": "Drive,Drive AGX Pegasus",
+                                        "attributeId": "8679a009-56b6-4c99-a003-e51d185e8fa1"
+                                    },
+                                    {
+                                        "modelId": "3f32c22f-6a0d-4ef8-b626-2cbf8c79290c",
+                                        "name": "Drive,Drive Orin",
+                                        "attributeId": "8679a009-56b6-4c99-a003-e51d185e8fa1"
+                                    },
+                                    {
+                                        "modelId": "6f447804-b87d-4cf3-b94e-189becf0df17",
+                                        "name": "Grace,Grace CPU Superchip",
+                                        "attributeId": "8679a009-56b6-4c99-a003-e51d185e8fa1"
+                                    },
+                                    {
+                                        "modelId": "4695b116-208e-446d-8b5f-2a0a4e1b4638",
+                                        "name": "Grace,Grace Hopper Superchip",
+                                        "attributeId": "8679a009-56b6-4c99-a003-e51d185e8fa1"
+                                    },
+                                    {
+                                        "modelId": "68b5c18b-868a-4b57-b460-93216a0cb1b1",
+                                        "name": "CUDA GPUs,GeForce GTX 10 Series (Pascal)",
+                                        "attributeId": "8679a009-56b6-4c99-a003-e51d185e8fa1"
+                                    },
+                                    {
+                                        "modelId": "c21d974a-2f85-4bb7-948e-0275ce4c0cd1",
+                                        "name": "CUDA GPUs,GeForce GTX 16 Series (Turing)",
+                                        "attributeId": "8679a009-56b6-4c99-a003-e51d185e8fa1"
+                                    },
+                                    {
+                                        "modelId": "e4d65d07-65ca-4e85-b2d5-b74543126f62",
+                                        "name": "CUDA GPUs,GeForce RTX 20 Series (Turing)",
+                                        "attributeId": "8679a009-56b6-4c99-a003-e51d185e8fa1"
+                                    },
+                                    {
+                                        "modelId": "c7332e24-366b-40b4-a9c6-ebda0face839",
+                                        "name": "CUDA GPUs,GeForce RTX 30 Series (Ampere)",
+                                        "attributeId": "8679a009-56b6-4c99-a003-e51d185e8fa1"
+                                    },
+                                    {
+                                        "modelId": "11a62ac9-a025-49ba-a4fe-59ca2a603a91",
+                                        "name": "CUDA GPUs,GeForce RTX 40 Series (Ada Lovelace)",
+                                        "attributeId": "8679a009-56b6-4c99-a003-e51d185e8fa1"
+                                    },
+                                    {
+                                        "modelId": "b41e409b-4082-4833-876e-4a36b9035e55",
+                                        "name": "A100,Ampere A100",
+                                        "attributeId": "8679a009-56b6-4c99-a003-e51d185e8fa1"
+                                    },
+                                    {
+                                        "modelId": "ea3546bb-68b9-4987-96bf-823bd465ded8",
+                                        "name": "H100,Hopper H100",
+                                        "attributeId": "8679a009-56b6-4c99-a003-e51d185e8fa1"
                                     }
                                 ]
                             }
@@ -11669,7 +12487,7 @@ const jsonString = '''{
                         "helperText": "Select Battery Capacity",
                         "subHelperText": "oneSelectable",
                         "widgetType": "null",
-                        "subWidgetType": "",
+                        "subWidgetType": "null",
                         "dataType": "string",
                         "values": [
                             {
@@ -14373,9 +15191,264 @@ const jsonString = '''{
                                 "value": "Intel",
                                 "list": [
                                     {
-                                        "modelId": null,
-                                        "name": null,
-                                        "attributeId": null
+                                        "modelId": "fece1f7b-559e-4caf-86e9-6db83fb7cad7",
+                                        "name": "Core i3,1st Generation (Nehalem)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "18b15c9b-64dc-45b9-8468-8e9c46200515",
+                                        "name": "Core i3,2nd Generation (Sandy Bridge)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "c0ef559e-5eb5-43fb-849d-b1d4e46a126f",
+                                        "name": "Core i3,3rd Generation (Ivy Bridge)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "31a26334-b3fd-41a8-a668-4620dbad7609",
+                                        "name": "Core i3,4th Generation (Haswell)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "a8cca27e-80f5-4518-b461-ef144200d69d",
+                                        "name": "Core i3,5th Generation (Broadwell)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "52c35e39-57d7-4a4d-8912-242156c40c47",
+                                        "name": "Core i3,6th Generation (Skylake)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "f9704cff-c622-4653-b0a4-9007e7d82d1a",
+                                        "name": "Core i3,7th Generation (Kaby Lake)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "7a413161-7fce-4f04-8c91-cfd6fcf03305",
+                                        "name": "Core i3,8th Generation (Coffee Lake)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "a2b678cf-2286-4bf3-9423-6fa6ee315633",
+                                        "name": "Core i3,9th Generation (Coffee Lake Refresh)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "d40c84ad-9f42-4e30-9087-c1deddaeb7f7",
+                                        "name": "Core i3,10th Generation (Comet Lake)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "ca711d6a-2414-4f94-863b-aee684c965c0",
+                                        "name": "Core i3,11th Generation (Tiger Lake)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "5a3152a3-f24b-4482-987f-094d5e47f8a4",
+                                        "name": "Core i3,12th Generation (Alder Lake)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "22f41ee2-d12a-44be-a0fb-81a516929165",
+                                        "name": "Core i3,13th Generation (Raptor Lake)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "17020c84-62cd-41f5-8ad2-0c907f859c6f",
+                                        "name": "Core i5,1st Generation (Nehalem)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "c433cba5-7f32-4d5e-aed1-22154263335a",
+                                        "name": "Core i5,2nd Generation (Sandy Bridge)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "f87971f2-9d1e-4ebe-8e71-521005fbb287",
+                                        "name": "Core i5,3rd Generation (Ivy Bridge)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "c906f03e-c648-4888-b97f-29abfa5cdda0",
+                                        "name": "Core i5,4th Generation (Haswell)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "47a5c79a-6bb8-48c0-8822-10a39091c629",
+                                        "name": "Core i5,5th Generation (Broadwell)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "878352ee-fd09-46f9-98bb-268c10dd556c",
+                                        "name": "Core i5,6th Generation (Skylake)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "a1e15c84-7e52-43d8-b403-c657af84913d",
+                                        "name": "Core i5,7th Generation (Kaby Lake)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "f293bcf5-558c-44a0-9ec6-b5ae3e7cb7f8",
+                                        "name": "Core i5,8th Generation (Coffee Lake)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "a78383e5-de27-49da-9a94-740505789081",
+                                        "name": "Core i5,9th Generation (Coffee Lake Refresh)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "4ad046d1-e62e-43d0-9536-3de39137fff2",
+                                        "name": "Core i5,10th Generation (Comet Lake)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "ec4f6a2e-b5ce-4389-b54c-e7b6a08e9bd9",
+                                        "name": "Core i5,11th Generation (Tiger Lake)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "549514b6-3fce-48d3-9f1f-a0e02242eca3",
+                                        "name": "Core i5,12th Generation (Alder Lake)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "59e66b63-497d-4fef-8901-fcd7bdec3bf6",
+                                        "name": "Core i5,13th Generation (Raptor Lake)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "67745647-4226-4f9e-be48-42cdde359fec",
+                                        "name": "Core i7,1st Generation (Nehalem)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "dc046aea-07d8-4433-8938-45d1921b39ab",
+                                        "name": "Core i7,2nd Generation (Sandy Bridge)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "f28aabbe-d7fd-4bfd-84f9-09d451507dcb",
+                                        "name": "Core i7,3rd Generation (Ivy Bridge)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "bbfadd3b-cd23-4393-a3f6-d05fc9fe9d85",
+                                        "name": "Core i7,4th Generation (Haswell)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "1f3ea57a-bce8-4747-8f5c-2ae6f434c5bf",
+                                        "name": "Core i7,5th Generation (Broadwell)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "22d4d8c6-1bbf-4344-8bd5-f63c70831c6c",
+                                        "name": "Core i7,6th Generation (Skylake)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "2c674e2a-7ab3-4370-ac25-66488bdb1547",
+                                        "name": "Core i7,7th Generation (Kaby Lake)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "8229925c-7bd1-40f1-8ff5-52a0ae80be8a",
+                                        "name": "Core i7,8th Generation (Coffee Lake)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "1eda1cf1-dbbc-4702-ac0c-20d1006e07ea",
+                                        "name": "Core i7,9th Generation (Coffee Lake Refresh)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "a5618e8e-dd87-4b92-a848-75dab9db0e57",
+                                        "name": "Core i7,10th Generation (Comet Lake)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "585bade7-e956-448e-b312-e1099b7d91a4",
+                                        "name": "Core i7,11th Generation (Tiger Lake)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "510f8c36-b1d8-47cb-8666-504717579c1c",
+                                        "name": "Core i7,12th Generation (Alder Lake)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "1172f2d3-45f4-46f7-851c-97123b164898",
+                                        "name": "Core i7,13th Generation (Raptor Lake)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "091d6e42-52cc-4cb9-b8c1-eb9c38ba4cce",
+                                        "name": "Core i9,8th Generation (Coffee Lake)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "d9cff706-1904-4fb8-aa8b-0cf13051fbca",
+                                        "name": "Core i9,9th Generation (Coffee Lake Refresh)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "6c0823e2-8080-4d7c-acda-833a4926e9e9",
+                                        "name": "Core i9,10th Generation (Comet Lake)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "cd94b3eb-383f-4986-8078-226205f7dfe6",
+                                        "name": "Core i9,11th Generation (Tiger Lake)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "9940f4a1-da34-49bf-be51-f30285b4d6a9",
+                                        "name": "Core i9,12th Generation (Alder Lake)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "b7de5cc5-f874-47e7-8419-9c19d6af39ea",
+                                        "name": "Core i9,13th Generation (Raptor Lake)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "e57424ea-c83d-4344-9095-cd60533b0557",
+                                        "name": "Pentium,Gold (Kaby Lake)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "476551d3-9e0c-4d03-afec-0b9f8183d928",
+                                        "name": "Pentium,Silver (Gemini Lake)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "9115a270-b7d5-48b4-b889-dac1c1dd4aca",
+                                        "name": "Pentium,Gold (Comet Lake)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "bfd642a4-9c51-4e07-aa5b-620af71028f1",
+                                        "name": "Pentium,Gold (Alder Lake)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "e84a1925-6e7d-41f6-8d6b-8d9ca28f2f6b",
+                                        "name": "Celeron,Silver (Gemini Lake)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "d101b626-4434-4ac7-9343-e2b9fdb4ef58",
+                                        "name": "Celeron,Gold (Comet Lake)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
+                                    },
+                                    {
+                                        "modelId": "adc33321-db4d-42d7-a0a9-1c53fab191c0",
+                                        "name": "Celeron,Silver (Alder Lake)",
+                                        "attributeId": "9714dc9b-cc35-4d68-a9c9-f9e898f34677"
                                     }
                                 ]
                             },
@@ -14385,9 +15458,164 @@ const jsonString = '''{
                                 "value": "AMD",
                                 "list": [
                                     {
-                                        "modelId": null,
-                                        "name": null,
-                                        "attributeId": null
+                                        "modelId": "0170e8b8-2517-4853-8bee-9d3a255c1e25",
+                                        "name": "Athlon,Zen",
+                                        "attributeId": "49daa663-57f2-4357-86e5-95c17699a3a3"
+                                    },
+                                    {
+                                        "modelId": "158df96e-e55c-4d2e-8696-911fbc865262",
+                                        "name": "Athlon,Zen+",
+                                        "attributeId": "49daa663-57f2-4357-86e5-95c17699a3a3"
+                                    },
+                                    {
+                                        "modelId": "bf2f38eb-04a6-4c80-b8ca-2e89a2d71c13",
+                                        "name": "Athlon,Zen 2",
+                                        "attributeId": "49daa663-57f2-4357-86e5-95c17699a3a3"
+                                    },
+                                    {
+                                        "modelId": "71068e5d-65df-4682-85ae-0c7eba070c20",
+                                        "name": "Athlon,Zen 3",
+                                        "attributeId": "49daa663-57f2-4357-86e5-95c17699a3a3"
+                                    },
+                                    {
+                                        "modelId": "5de50e45-1171-4e10-9a0e-49efbf86f36d",
+                                        "name": "Ryzen 3,Zen",
+                                        "attributeId": "49daa663-57f2-4357-86e5-95c17699a3a3"
+                                    },
+                                    {
+                                        "modelId": "1eab53f0-1ebe-4c04-a3a3-a41664615c97",
+                                        "name": "Ryzen 3,Zen+",
+                                        "attributeId": "49daa663-57f2-4357-86e5-95c17699a3a3"
+                                    },
+                                    {
+                                        "modelId": "5fcc7fde-7061-4059-a5d1-4c6f7b62ce2e",
+                                        "name": "Ryzen 3,Zen 2",
+                                        "attributeId": "49daa663-57f2-4357-86e5-95c17699a3a3"
+                                    },
+                                    {
+                                        "modelId": "cfd053ed-0889-45bc-af50-0691025ce1fb",
+                                        "name": "Ryzen 3,Zen 3",
+                                        "attributeId": "49daa663-57f2-4357-86e5-95c17699a3a3"
+                                    },
+                                    {
+                                        "modelId": "56ace827-2af0-4228-b56d-dbdac2d7a79c",
+                                        "name": "Ryzen 5,Zen",
+                                        "attributeId": "49daa663-57f2-4357-86e5-95c17699a3a3"
+                                    },
+                                    {
+                                        "modelId": "8083a0c7-1be8-40df-8e43-ad2de8dae8e2",
+                                        "name": "Ryzen 5,Zen+",
+                                        "attributeId": "49daa663-57f2-4357-86e5-95c17699a3a3"
+                                    },
+                                    {
+                                        "modelId": "539c4579-87c4-4845-ab31-f11000593ae8",
+                                        "name": "Ryzen 5,Zen 2",
+                                        "attributeId": "49daa663-57f2-4357-86e5-95c17699a3a3"
+                                    },
+                                    {
+                                        "modelId": "433496f8-e705-4916-8ccd-8dd950c2bd5f",
+                                        "name": "Ryzen 5,Zen 3",
+                                        "attributeId": "49daa663-57f2-4357-86e5-95c17699a3a3"
+                                    },
+                                    {
+                                        "modelId": "aeccf428-516b-4cb2-98e4-83de1805ae2b",
+                                        "name": "Ryzen 5,Zen 4",
+                                        "attributeId": "49daa663-57f2-4357-86e5-95c17699a3a3"
+                                    },
+                                    {
+                                        "modelId": "fb1cd6d3-9f70-4db4-8150-44da81683eb4",
+                                        "name": "Ryzen 7,Zen",
+                                        "attributeId": "49daa663-57f2-4357-86e5-95c17699a3a3"
+                                    },
+                                    {
+                                        "modelId": "de14b589-ae5d-44fd-ab7c-5a1dd902689a",
+                                        "name": "Ryzen 7,Zen+",
+                                        "attributeId": "49daa663-57f2-4357-86e5-95c17699a3a3"
+                                    },
+                                    {
+                                        "modelId": "35bcdfe0-2ff4-433a-87fb-8fe3d08e9180",
+                                        "name": "Ryzen 7,Zen 2",
+                                        "attributeId": "49daa663-57f2-4357-86e5-95c17699a3a3"
+                                    },
+                                    {
+                                        "modelId": "6b4cb2ba-5156-4c73-9aac-0c70e409af68",
+                                        "name": "Ryzen 7,Zen 3",
+                                        "attributeId": "49daa663-57f2-4357-86e5-95c17699a3a3"
+                                    },
+                                    {
+                                        "modelId": "cdf81fa8-adef-48ea-a752-b321d027c73f",
+                                        "name": "Ryzen 7,Zen 4",
+                                        "attributeId": "49daa663-57f2-4357-86e5-95c17699a3a3"
+                                    },
+                                    {
+                                        "modelId": "817f68f4-e93d-4cff-b451-3a8700816238",
+                                        "name": "Ryzen 9,Zen 2",
+                                        "attributeId": "49daa663-57f2-4357-86e5-95c17699a3a3"
+                                    },
+                                    {
+                                        "modelId": "2181d984-8b4f-40fe-a0a4-142739c68c70",
+                                        "name": "Ryzen 9,Zen 3",
+                                        "attributeId": "49daa663-57f2-4357-86e5-95c17699a3a3"
+                                    },
+                                    {
+                                        "modelId": "72c43f11-b4b7-45f9-9531-6f6e8262477d",
+                                        "name": "Ryzen 9,Zen 4",
+                                        "attributeId": "49daa663-57f2-4357-86e5-95c17699a3a3"
+                                    },
+                                    {
+                                        "modelId": "a59ef27c-f956-4482-aeec-a0e61dcc1263",
+                                        "name": "Threadripper,Zen",
+                                        "attributeId": "49daa663-57f2-4357-86e5-95c17699a3a3"
+                                    },
+                                    {
+                                        "modelId": "20aca1e0-4f7b-4052-9668-90ce3baf6c19",
+                                        "name": "Threadripper,Zen+",
+                                        "attributeId": "49daa663-57f2-4357-86e5-95c17699a3a3"
+                                    },
+                                    {
+                                        "modelId": "acb821c6-9f0b-4811-aa48-6a4d8214041d",
+                                        "name": "Threadripper,Zen 2",
+                                        "attributeId": "49daa663-57f2-4357-86e5-95c17699a3a3"
+                                    },
+                                    {
+                                        "modelId": "dca5baf4-dab9-4a5b-999a-d4fad61c68e0",
+                                        "name": "Threadripper,Zen 3",
+                                        "attributeId": "49daa663-57f2-4357-86e5-95c17699a3a3"
+                                    },
+                                    {
+                                        "modelId": "590150aa-b73a-4a0c-bece-e0e46a342a34",
+                                        "name": "Threadripper PRO,Zen 2",
+                                        "attributeId": "49daa663-57f2-4357-86e5-95c17699a3a3"
+                                    },
+                                    {
+                                        "modelId": "323e864d-e88b-4ca5-90ba-1aa2d11728be",
+                                        "name": "Threadripper PRO,Zen 3",
+                                        "attributeId": "49daa663-57f2-4357-86e5-95c17699a3a3"
+                                    },
+                                    {
+                                        "modelId": "0542d1ff-46ea-40c5-bccb-fe29b1a9fae6",
+                                        "name": "EPYC,Zen",
+                                        "attributeId": "49daa663-57f2-4357-86e5-95c17699a3a3"
+                                    },
+                                    {
+                                        "modelId": "6dc4b82c-6572-47de-b87f-b1d3776762e1",
+                                        "name": "EPYC,Zen+",
+                                        "attributeId": "49daa663-57f2-4357-86e5-95c17699a3a3"
+                                    },
+                                    {
+                                        "modelId": "1fc72524-3a2a-46a2-9b28-5a71829eeaa9",
+                                        "name": "EPYC,Zen 2",
+                                        "attributeId": "49daa663-57f2-4357-86e5-95c17699a3a3"
+                                    },
+                                    {
+                                        "modelId": "f7b0e28b-754f-4ca4-bd9d-0a4a738ff822",
+                                        "name": "EPYC,Zen 3",
+                                        "attributeId": "49daa663-57f2-4357-86e5-95c17699a3a3"
+                                    },
+                                    {
+                                        "modelId": "7e257ce5-c285-4a74-a6a8-ae68d5b686c0",
+                                        "name": "EPYC,Zen 4",
+                                        "attributeId": "49daa663-57f2-4357-86e5-95c17699a3a3"
                                     }
                                 ]
                             },
@@ -14397,9 +15625,204 @@ const jsonString = '''{
                                 "value": "ARM",
                                 "list": [
                                     {
-                                        "modelId": null,
-                                        "name": null,
-                                        "attributeId": null
+                                        "modelId": "046ba75c-72b7-4447-9a86-94a479d3ca5f",
+                                        "name": "Cortex-A,Cortex-A5",
+                                        "attributeId": "ec1e3092-9f7f-4559-9d73-2344c884ac63"
+                                    },
+                                    {
+                                        "modelId": "9b6617b8-fc0a-4ac6-bd55-0cb1ef4d8fa4",
+                                        "name": "Cortex-A,Cortex-A7",
+                                        "attributeId": "ec1e3092-9f7f-4559-9d73-2344c884ac63"
+                                    },
+                                    {
+                                        "modelId": "194b22e7-edef-4288-a5d0-ce45fd1adefc",
+                                        "name": "Cortex-A,Cortex-A8",
+                                        "attributeId": "ec1e3092-9f7f-4559-9d73-2344c884ac63"
+                                    },
+                                    {
+                                        "modelId": "a5a419e6-709b-41d4-87d2-f53d6206af07",
+                                        "name": "Cortex-A,Cortex-A9",
+                                        "attributeId": "ec1e3092-9f7f-4559-9d73-2344c884ac63"
+                                    },
+                                    {
+                                        "modelId": "7dbfebe4-6582-4b8f-9c87-6553df5b0693",
+                                        "name": "Cortex-A,Cortex-A12",
+                                        "attributeId": "ec1e3092-9f7f-4559-9d73-2344c884ac63"
+                                    },
+                                    {
+                                        "modelId": "223bff58-4125-4fdd-a61e-3299fcf7a6b0",
+                                        "name": "Cortex-A,Cortex-A15",
+                                        "attributeId": "ec1e3092-9f7f-4559-9d73-2344c884ac63"
+                                    },
+                                    {
+                                        "modelId": "964128ce-e224-4b5c-aead-999e3a55ce3d",
+                                        "name": "Cortex-A,Cortex-A17",
+                                        "attributeId": "ec1e3092-9f7f-4559-9d73-2344c884ac63"
+                                    },
+                                    {
+                                        "modelId": "35af6c54-05d1-4cbb-a678-11bcacc20686",
+                                        "name": "Cortex-A,Cortex-A32",
+                                        "attributeId": "ec1e3092-9f7f-4559-9d73-2344c884ac63"
+                                    },
+                                    {
+                                        "modelId": "663b638c-4bcd-4d0c-9588-6334c7e44681",
+                                        "name": "Cortex-A,Cortex-A35",
+                                        "attributeId": "ec1e3092-9f7f-4559-9d73-2344c884ac63"
+                                    },
+                                    {
+                                        "modelId": "ab3c7d74-dcf8-4001-bec0-4e0b16bd15ba",
+                                        "name": "Cortex-A,Cortex-A53",
+                                        "attributeId": "ec1e3092-9f7f-4559-9d73-2344c884ac63"
+                                    },
+                                    {
+                                        "modelId": "d6da45e7-82f5-44a6-b2cd-643921c64505",
+                                        "name": "Cortex-A,Cortex-A55",
+                                        "attributeId": "ec1e3092-9f7f-4559-9d73-2344c884ac63"
+                                    },
+                                    {
+                                        "modelId": "f462a6c7-5740-41d9-bd92-7993f62b54f9",
+                                        "name": "Cortex-A,Cortex-A57",
+                                        "attributeId": "ec1e3092-9f7f-4559-9d73-2344c884ac63"
+                                    },
+                                    {
+                                        "modelId": "6087b5ec-1467-4947-828c-9463bbb68371",
+                                        "name": "Cortex-A,Cortex-A72",
+                                        "attributeId": "ec1e3092-9f7f-4559-9d73-2344c884ac63"
+                                    },
+                                    {
+                                        "modelId": "f24de90f-ff79-4027-91a6-094756568690",
+                                        "name": "Cortex-A,Cortex-A73",
+                                        "attributeId": "ec1e3092-9f7f-4559-9d73-2344c884ac63"
+                                    },
+                                    {
+                                        "modelId": "9fd22c54-8491-4a70-bae7-d0965db8c608",
+                                        "name": "Cortex-A,Cortex-A75",
+                                        "attributeId": "ec1e3092-9f7f-4559-9d73-2344c884ac63"
+                                    },
+                                    {
+                                        "modelId": "849d64dd-97a6-4fca-bbe1-5069066ddcfc",
+                                        "name": "Cortex-A,Cortex-A76",
+                                        "attributeId": "ec1e3092-9f7f-4559-9d73-2344c884ac63"
+                                    },
+                                    {
+                                        "modelId": "bfc2e5e9-393c-4a91-86c2-a97f4c4dd8d3",
+                                        "name": "Cortex-A,Cortex-A77",
+                                        "attributeId": "ec1e3092-9f7f-4559-9d73-2344c884ac63"
+                                    },
+                                    {
+                                        "modelId": "a2b74a57-2afa-413c-86fc-cb639a1b0523",
+                                        "name": "Cortex-A,Cortex-A78",
+                                        "attributeId": "ec1e3092-9f7f-4559-9d73-2344c884ac63"
+                                    },
+                                    {
+                                        "modelId": "73db3b88-7b70-42a3-998f-846f9f80d5f0",
+                                        "name": "Cortex-A,Cortex-A710",
+                                        "attributeId": "ec1e3092-9f7f-4559-9d73-2344c884ac63"
+                                    },
+                                    {
+                                        "modelId": "ffdd54eb-5416-47a3-8aca-c4297602fc47",
+                                        "name": "Cortex-A,Cortex-A715",
+                                        "attributeId": "ec1e3092-9f7f-4559-9d73-2344c884ac63"
+                                    },
+                                    {
+                                        "modelId": "c9d18b63-776b-4f6a-9085-482785130032",
+                                        "name": "Cortex-M,Cortex-M0",
+                                        "attributeId": "ec1e3092-9f7f-4559-9d73-2344c884ac63"
+                                    },
+                                    {
+                                        "modelId": "98d1eb7f-efe1-4f90-8000-21e741d40537",
+                                        "name": "Cortex-M,Cortex-M0+",
+                                        "attributeId": "ec1e3092-9f7f-4559-9d73-2344c884ac63"
+                                    },
+                                    {
+                                        "modelId": "71ecc21b-b724-4363-8695-5eb16595d95d",
+                                        "name": "Cortex-M,Cortex-M1",
+                                        "attributeId": "ec1e3092-9f7f-4559-9d73-2344c884ac63"
+                                    },
+                                    {
+                                        "modelId": "f4d79f38-b2f1-46a8-93cc-268b9064eb9e",
+                                        "name": "Cortex-M,Cortex-M3",
+                                        "attributeId": "ec1e3092-9f7f-4559-9d73-2344c884ac63"
+                                    },
+                                    {
+                                        "modelId": "177e3924-9c99-4fe3-a6ed-7746259b1c6b",
+                                        "name": "Cortex-M,Cortex-M4",
+                                        "attributeId": "ec1e3092-9f7f-4559-9d73-2344c884ac63"
+                                    },
+                                    {
+                                        "modelId": "14b3d82d-7896-4324-af46-7b7ec243ac88",
+                                        "name": "Cortex-M,Cortex-M7",
+                                        "attributeId": "ec1e3092-9f7f-4559-9d73-2344c884ac63"
+                                    },
+                                    {
+                                        "modelId": "19979ef9-d8f4-4ff2-ba91-c29a5d37a0cb",
+                                        "name": "Cortex-M,Cortex-M23",
+                                        "attributeId": "ec1e3092-9f7f-4559-9d73-2344c884ac63"
+                                    },
+                                    {
+                                        "modelId": "cd31e9d5-e60a-4ff1-91f6-651f096cf0e9",
+                                        "name": "Cortex-M,Cortex-M33",
+                                        "attributeId": "ec1e3092-9f7f-4559-9d73-2344c884ac63"
+                                    },
+                                    {
+                                        "modelId": "fffc64da-18fb-4950-9361-9d6b1fd7f4ac",
+                                        "name": "Cortex-M,Cortex-M55",
+                                        "attributeId": "ec1e3092-9f7f-4559-9d73-2344c884ac63"
+                                    },
+                                    {
+                                        "modelId": "74941906-4abd-4059-bbf0-0cd283bc53bb",
+                                        "name": "Cortex-M,Cortex-M85",
+                                        "attributeId": "ec1e3092-9f7f-4559-9d73-2344c884ac63"
+                                    },
+                                    {
+                                        "modelId": "6daa25de-e219-46f6-80f1-441ce4bf590f",
+                                        "name": "Cortex-R,Cortex-R4",
+                                        "attributeId": "ec1e3092-9f7f-4559-9d73-2344c884ac63"
+                                    },
+                                    {
+                                        "modelId": "614f1a4e-0b01-4123-8ceb-7da63493c358",
+                                        "name": "Cortex-R,Cortex-R5",
+                                        "attributeId": "ec1e3092-9f7f-4559-9d73-2344c884ac63"
+                                    },
+                                    {
+                                        "modelId": "5accae42-8246-401c-90b4-ec0923b0d154",
+                                        "name": "Cortex-R,Cortex-R7",
+                                        "attributeId": "ec1e3092-9f7f-4559-9d73-2344c884ac63"
+                                    },
+                                    {
+                                        "modelId": "ea2b64e3-19bd-43e1-9d6e-dddd8d7851b0",
+                                        "name": "Cortex-R,Cortex-R8",
+                                        "attributeId": "ec1e3092-9f7f-4559-9d73-2344c884ac63"
+                                    },
+                                    {
+                                        "modelId": "4b7afeca-ccc0-4f26-a889-d717ea567b91",
+                                        "name": "Cortex-R,Cortex-R52",
+                                        "attributeId": "ec1e3092-9f7f-4559-9d73-2344c884ac63"
+                                    },
+                                    {
+                                        "modelId": "ee94dc47-b2cf-42d1-89a1-707f031b04e5",
+                                        "name": "Neoverse,Neoverse N1",
+                                        "attributeId": "ec1e3092-9f7f-4559-9d73-2344c884ac63"
+                                    },
+                                    {
+                                        "modelId": "b21dffdc-558d-4900-a5cf-fed7b7d8f4c2",
+                                        "name": "Neoverse,Neoverse V1",
+                                        "attributeId": "ec1e3092-9f7f-4559-9d73-2344c884ac63"
+                                    },
+                                    {
+                                        "modelId": "81dba143-d5b5-48b0-bf15-9050b380c990",
+                                        "name": "Neoverse,Neoverse N2",
+                                        "attributeId": "ec1e3092-9f7f-4559-9d73-2344c884ac63"
+                                    },
+                                    {
+                                        "modelId": "9f5c9f30-1fe3-4685-806b-53aa07421b67",
+                                        "name": "Neoverse,Neoverse V2",
+                                        "attributeId": "ec1e3092-9f7f-4559-9d73-2344c884ac63"
+                                    },
+                                    {
+                                        "modelId": "7993718a-3cf9-42ee-9dde-147d7f93e061",
+                                        "name": "Neoverse,Neoverse E1",
+                                        "attributeId": "ec1e3092-9f7f-4559-9d73-2344c884ac63"
                                     }
                                 ]
                             },
@@ -14409,9 +15832,84 @@ const jsonString = '''{
                                 "value": "Apple",
                                 "list": [
                                     {
-                                        "modelId": null,
-                                        "name": null,
-                                        "attributeId": null
+                                        "modelId": "e4d3b810-f49f-403a-b967-2b01c7bd8c71",
+                                        "name": "Apple Silicon,M1",
+                                        "attributeId": "02ac5e20-b2af-42ce-9919-86ab775f16a5"
+                                    },
+                                    {
+                                        "modelId": "a5f7e9c8-10a3-434d-a127-bef222faa9dc",
+                                        "name": "Apple Silicon,M1 Pro",
+                                        "attributeId": "02ac5e20-b2af-42ce-9919-86ab775f16a5"
+                                    },
+                                    {
+                                        "modelId": "806fc2ac-5b11-43e1-9297-dea184092a9a",
+                                        "name": "Apple Silicon,M1 Max",
+                                        "attributeId": "02ac5e20-b2af-42ce-9919-86ab775f16a5"
+                                    },
+                                    {
+                                        "modelId": "657b042d-9fbd-4a95-bfe4-a63498ebd9a9",
+                                        "name": "Apple Silicon,M1 Ultra",
+                                        "attributeId": "02ac5e20-b2af-42ce-9919-86ab775f16a5"
+                                    },
+                                    {
+                                        "modelId": "4ef8699a-938e-4bc2-9839-1888559afd90",
+                                        "name": "Apple Silicon,M2",
+                                        "attributeId": "02ac5e20-b2af-42ce-9919-86ab775f16a5"
+                                    },
+                                    {
+                                        "modelId": "a1f877e1-9891-404f-84e6-b22869ed8c6a",
+                                        "name": "Apple Silicon,M2 Pro",
+                                        "attributeId": "02ac5e20-b2af-42ce-9919-86ab775f16a5"
+                                    },
+                                    {
+                                        "modelId": "d46ebe1c-a944-4b81-978f-dad98f02d4a5",
+                                        "name": "Apple Silicon,M2 Max",
+                                        "attributeId": "02ac5e20-b2af-42ce-9919-86ab775f16a5"
+                                    },
+                                    {
+                                        "modelId": "1cb214c1-e238-4788-a85b-057a6efd1fa3",
+                                        "name": "Apple Silicon,M2 Ultra",
+                                        "attributeId": "02ac5e20-b2af-42ce-9919-86ab775f16a5"
+                                    },
+                                    {
+                                        "modelId": "bbf7375d-f58f-4f3d-b2c2-6f80bcd97bfc",
+                                        "name": "Apple Silicon,M3",
+                                        "attributeId": "02ac5e20-b2af-42ce-9919-86ab775f16a5"
+                                    },
+                                    {
+                                        "modelId": "9ef09f9e-ea81-4e59-b939-4dce716f2b2d",
+                                        "name": "Apple Silicon,M3 Pro",
+                                        "attributeId": "02ac5e20-b2af-42ce-9919-86ab775f16a5"
+                                    },
+                                    {
+                                        "modelId": "0a69059d-c8b9-403f-bf52-012297e8a497",
+                                        "name": "Apple Silicon,M3 Max",
+                                        "attributeId": "02ac5e20-b2af-42ce-9919-86ab775f16a5"
+                                    },
+                                    {
+                                        "modelId": "b98d9de4-f0a6-44d6-b133-d3da988a93bc",
+                                        "name": "Apple Silicon,M3 Ultra",
+                                        "attributeId": "02ac5e20-b2af-42ce-9919-86ab775f16a5"
+                                    },
+                                    {
+                                        "modelId": "0cba52d5-4de2-4667-81e4-83ed80aa9981",
+                                        "name": "Apple Silicon,M4",
+                                        "attributeId": "02ac5e20-b2af-42ce-9919-86ab775f16a5"
+                                    },
+                                    {
+                                        "modelId": "49e24b51-903b-4f13-9f89-45465431aaaf",
+                                        "name": "Apple Silicon,M4 Pro",
+                                        "attributeId": "02ac5e20-b2af-42ce-9919-86ab775f16a5"
+                                    },
+                                    {
+                                        "modelId": "7e854699-6d9d-4dd0-837c-ab4efecaa360",
+                                        "name": "Apple Silicon,M4 Max",
+                                        "attributeId": "02ac5e20-b2af-42ce-9919-86ab775f16a5"
+                                    },
+                                    {
+                                        "modelId": "a1f93b07-5dfd-4826-9279-5ea0c2758a73",
+                                        "name": "Apple Silicon,M4 Ultra",
+                                        "attributeId": "02ac5e20-b2af-42ce-9919-86ab775f16a5"
                                     }
                                 ]
                             },
@@ -14421,9 +15919,39 @@ const jsonString = '''{
                                 "value": "Qualcomm",
                                 "list": [
                                     {
-                                        "modelId": null,
-                                        "name": null,
-                                        "attributeId": null
+                                        "modelId": "e52fafee-cb36-4660-935e-dea2dcd6d0bb",
+                                        "name": "Snapdragon,7c",
+                                        "attributeId": "30eea909-f5b1-424e-8ea5-355cf3dc9bc6"
+                                    },
+                                    {
+                                        "modelId": "11a9ef6b-dea8-4515-9dcb-8d5b245b1b2b",
+                                        "name": "Snapdragon,7c Gen 2",
+                                        "attributeId": "30eea909-f5b1-424e-8ea5-355cf3dc9bc6"
+                                    },
+                                    {
+                                        "modelId": "bc66d5a2-3f3c-418e-880c-2ac1edf95bc6",
+                                        "name": "Snapdragon,8c",
+                                        "attributeId": "30eea909-f5b1-424e-8ea5-355cf3dc9bc6"
+                                    },
+                                    {
+                                        "modelId": "9451f416-b613-444d-a381-cd6fc17ff9a5",
+                                        "name": "Snapdragon,8cx",
+                                        "attributeId": "30eea909-f5b1-424e-8ea5-355cf3dc9bc6"
+                                    },
+                                    {
+                                        "modelId": "14bb3335-ab3c-42cd-ad24-9746ceb7271f",
+                                        "name": "Snapdragon,8cx Gen 2",
+                                        "attributeId": "30eea909-f5b1-424e-8ea5-355cf3dc9bc6"
+                                    },
+                                    {
+                                        "modelId": "5da284f4-8fb5-4514-ad94-50ca2d56e342",
+                                        "name": "Snapdragon,8cx Gen 3",
+                                        "attributeId": "30eea909-f5b1-424e-8ea5-355cf3dc9bc6"
+                                    },
+                                    {
+                                        "modelId": "a159c8b6-e105-430a-abe2-e4bda0ddd99f",
+                                        "name": "Snapdragon,X Elite",
+                                        "attributeId": "30eea909-f5b1-424e-8ea5-355cf3dc9bc6"
                                     }
                                 ]
                             },
@@ -14433,9 +15961,54 @@ const jsonString = '''{
                                 "value": "IBM",
                                 "list": [
                                     {
-                                        "modelId": null,
-                                        "name": null,
-                                        "attributeId": null
+                                        "modelId": "9a7d4e70-4258-4a1a-b76e-9fe3caa8dd74",
+                                        "name": "PowerPC,603",
+                                        "attributeId": "eded1fb5-6e97-43f2-a6ae-636afb934ac5"
+                                    },
+                                    {
+                                        "modelId": "770afa4a-1993-4b78-8b69-f88ecdebffc4",
+                                        "name": "PowerPC,604",
+                                        "attributeId": "eded1fb5-6e97-43f2-a6ae-636afb934ac5"
+                                    },
+                                    {
+                                        "modelId": "5b1efddb-ac10-401a-b217-55ae1e8b4676",
+                                        "name": "PowerPC,750",
+                                        "attributeId": "eded1fb5-6e97-43f2-a6ae-636afb934ac5"
+                                    },
+                                    {
+                                        "modelId": "9addfa2c-02a0-45da-914a-aa7410ef1476",
+                                        "name": "PowerPC,750FX",
+                                        "attributeId": "eded1fb5-6e97-43f2-a6ae-636afb934ac5"
+                                    },
+                                    {
+                                        "modelId": "9ffa5c1b-3126-4a74-8b7c-37c7123f5796",
+                                        "name": "PowerPC,970",
+                                        "attributeId": "eded1fb5-6e97-43f2-a6ae-636afb934ac5"
+                                    },
+                                    {
+                                        "modelId": "5ffdfb78-63b5-4db3-b33e-cd88a4275740",
+                                        "name": "PowerPC,970MP",
+                                        "attributeId": "eded1fb5-6e97-43f2-a6ae-636afb934ac5"
+                                    },
+                                    {
+                                        "modelId": "f4c23418-6eba-4b71-9d17-a13f330124b5",
+                                        "name": "PowerPC,970GX",
+                                        "attributeId": "eded1fb5-6e97-43f2-a6ae-636afb934ac5"
+                                    },
+                                    {
+                                        "modelId": "e02c8711-ffa3-48db-853f-ea82ac12038e",
+                                        "name": "PowerPC,7400",
+                                        "attributeId": "eded1fb5-6e97-43f2-a6ae-636afb934ac5"
+                                    },
+                                    {
+                                        "modelId": "f5b90ac3-705d-4541-a117-4116447a6019",
+                                        "name": "PowerPC,7450",
+                                        "attributeId": "eded1fb5-6e97-43f2-a6ae-636afb934ac5"
+                                    },
+                                    {
+                                        "modelId": "31f9ec04-ffe7-4c98-bc50-6f1995007e3e",
+                                        "name": "PowerPC,7550",
+                                        "attributeId": "eded1fb5-6e97-43f2-a6ae-636afb934ac5"
                                     }
                                 ]
                             },
@@ -14445,9 +16018,69 @@ const jsonString = '''{
                                 "value": "VIA Technologies",
                                 "list": [
                                     {
-                                        "modelId": null,
-                                        "name": null,
-                                        "attributeId": null
+                                        "modelId": "56bb8e84-e31e-4e4b-9f72-0379fe3660a3",
+                                        "name": "C3,Nehemiah",
+                                        "attributeId": "24dfe7a7-1c96-4a42-a9a2-f78ca9efdf86"
+                                    },
+                                    {
+                                        "modelId": "d95a415f-eb99-4d60-a7c6-b87288cc0098",
+                                        "name": "C3,Ezra",
+                                        "attributeId": "24dfe7a7-1c96-4a42-a9a2-f78ca9efdf86"
+                                    },
+                                    {
+                                        "modelId": "f87a2a26-18d5-417e-9999-ff515c55a3b2",
+                                        "name": "C3,Eden",
+                                        "attributeId": "24dfe7a7-1c96-4a42-a9a2-f78ca9efdf86"
+                                    },
+                                    {
+                                        "modelId": "f56d5fd5-9ab9-4f4e-a2c5-2e42adc3bd81",
+                                        "name": "C7,Esther",
+                                        "attributeId": "24dfe7a7-1c96-4a42-a9a2-f78ca9efdf86"
+                                    },
+                                    {
+                                        "modelId": "b0b3e01f-d3ce-4e93-a397-ebe17090a569",
+                                        "name": "C7,Via Nano",
+                                        "attributeId": "24dfe7a7-1c96-4a42-a9a2-f78ca9efdf86"
+                                    },
+                                    {
+                                        "modelId": "2683c615-2d13-41a6-aedc-878ff291483f",
+                                        "name": "Via Nano,X2",
+                                        "attributeId": "24dfe7a7-1c96-4a42-a9a2-f78ca9efdf86"
+                                    },
+                                    {
+                                        "modelId": "8676dd5c-5762-479b-b4ee-0502974aa3a9",
+                                        "name": "Via Nano,Via Nano 3000",
+                                        "attributeId": "24dfe7a7-1c96-4a42-a9a2-f78ca9efdf86"
+                                    },
+                                    {
+                                        "modelId": "d9c1dc26-5760-48f9-9f48-f57f80f020a5",
+                                        "name": "Via Nano,Via Nano 4000",
+                                        "attributeId": "24dfe7a7-1c96-4a42-a9a2-f78ca9efdf86"
+                                    },
+                                    {
+                                        "modelId": "80e0ac4a-f916-422e-9e84-01da2198c7e3",
+                                        "name": "Via Nano,Via Nano 5000",
+                                        "attributeId": "24dfe7a7-1c96-4a42-a9a2-f78ca9efdf86"
+                                    },
+                                    {
+                                        "modelId": "6355ff47-fca0-49a2-bdce-7cd396eac126",
+                                        "name": "Via Nano,Via Nano X2",
+                                        "attributeId": "24dfe7a7-1c96-4a42-a9a2-f78ca9efdf86"
+                                    },
+                                    {
+                                        "modelId": "0fc951b4-b29d-4968-a30c-e3bdfdcd1d96",
+                                        "name": "Via Nano,X4",
+                                        "attributeId": "24dfe7a7-1c96-4a42-a9a2-f78ca9efdf86"
+                                    },
+                                    {
+                                        "modelId": "d4bf9344-891e-4d8c-a0a5-2ef174c3cd9c",
+                                        "name": "Via Nano,Via Nano X4 4000",
+                                        "attributeId": "24dfe7a7-1c96-4a42-a9a2-f78ca9efdf86"
+                                    },
+                                    {
+                                        "modelId": "146db4b9-1e6f-4025-9515-8fab847a1117",
+                                        "name": "Via Nano,Via Nano 6000",
+                                        "attributeId": "24dfe7a7-1c96-4a42-a9a2-f78ca9efdf86"
                                     }
                                 ]
                             },
@@ -14457,9 +16090,69 @@ const jsonString = '''{
                                 "value": "Samsung",
                                 "list": [
                                     {
-                                        "modelId": null,
-                                        "name": null,
-                                        "attributeId": null
+                                        "modelId": "0d9aaab9-a199-4491-84d3-7e8fd372c84d",
+                                        "name": "Exynos,Exynos 5 Dual",
+                                        "attributeId": "3aba15e7-2ef4-40d8-ab1a-6c22965564bf"
+                                    },
+                                    {
+                                        "modelId": "8bd7ff6f-7e16-4da5-a798-efc5f8188c69",
+                                        "name": "Exynos,Exynos 5 Octa",
+                                        "attributeId": "3aba15e7-2ef4-40d8-ab1a-6c22965564bf"
+                                    },
+                                    {
+                                        "modelId": "6c1a302f-422d-4883-95ad-5ccb3591e099",
+                                        "name": "Exynos,Exynos 7 Octa",
+                                        "attributeId": "3aba15e7-2ef4-40d8-ab1a-6c22965564bf"
+                                    },
+                                    {
+                                        "modelId": "befbcc4f-4ce9-4595-ae6d-ca37a2e5bd28",
+                                        "name": "Exynos,Exynos 8 Octa",
+                                        "attributeId": "3aba15e7-2ef4-40d8-ab1a-6c22965564bf"
+                                    },
+                                    {
+                                        "modelId": "956a42de-4653-45ac-8a15-d60594252447",
+                                        "name": "Exynos,Exynos 9 Octa",
+                                        "attributeId": "3aba15e7-2ef4-40d8-ab1a-6c22965564bf"
+                                    },
+                                    {
+                                        "modelId": "59f362aa-a24d-4555-9097-9a59bafcd8fe",
+                                        "name": "Exynos,Exynos 9810",
+                                        "attributeId": "3aba15e7-2ef4-40d8-ab1a-6c22965564bf"
+                                    },
+                                    {
+                                        "modelId": "28c3cf9f-a7ee-4e92-93c9-8d1c67d6b64a",
+                                        "name": "Exynos,Exynos 9820",
+                                        "attributeId": "3aba15e7-2ef4-40d8-ab1a-6c22965564bf"
+                                    },
+                                    {
+                                        "modelId": "9f1c4157-05b9-4921-8a8d-93092e647576",
+                                        "name": "Exynos,Exynos 9825",
+                                        "attributeId": "3aba15e7-2ef4-40d8-ab1a-6c22965564bf"
+                                    },
+                                    {
+                                        "modelId": "9f9227d0-9ec4-4c6d-b4fb-9d7559d41565",
+                                        "name": "Exynos,Exynos 990",
+                                        "attributeId": "3aba15e7-2ef4-40d8-ab1a-6c22965564bf"
+                                    },
+                                    {
+                                        "modelId": "220335f7-61c3-4137-a8a4-cddd6a6418bc",
+                                        "name": "Exynos,Exynos 1080",
+                                        "attributeId": "3aba15e7-2ef4-40d8-ab1a-6c22965564bf"
+                                    },
+                                    {
+                                        "modelId": "347f5752-3d05-4f14-83de-b27a94bab905",
+                                        "name": "Exynos,Exynos 2100",
+                                        "attributeId": "3aba15e7-2ef4-40d8-ab1a-6c22965564bf"
+                                    },
+                                    {
+                                        "modelId": "91aba5ae-acdd-43f5-8101-bf75b0c059ee",
+                                        "name": "Exynos,Exynos 2200",
+                                        "attributeId": "3aba15e7-2ef4-40d8-ab1a-6c22965564bf"
+                                    },
+                                    {
+                                        "modelId": "5299bb8e-5deb-4525-885c-6869bf759ad1",
+                                        "name": "Exynos,Exynos 2400",
+                                        "attributeId": "3aba15e7-2ef4-40d8-ab1a-6c22965564bf"
                                     }
                                 ]
                             }
@@ -17806,6 +19499,18 @@ const jsonString = '''{
                         "dataType": "string",
                         "values": [
                             {
+                                "attributeValueId": "23696305-b2f0-4918-8ec4-faf5cfc7aad0",
+                                "attributeKeyId": "1fb4b553-a8d8-4563-9352-5a8889c2a13f",
+                                "value": "Fan",
+                                "list": [
+                                    {
+                                        "modelId": null,
+                                        "name": null,
+                                        "attributeId": null
+                                    }
+                                ]
+                            },
+                            {
                                 "attributeValueId": "d82f1b1a-be79-4797-894f-f8e62a7ccbc1",
                                 "attributeKeyId": "1fb4b553-a8d8-4563-9352-5a8889c2a13f",
                                 "value": "Television",
@@ -17941,18 +19646,6 @@ const jsonString = '''{
                                 "attributeValueId": "39acfa3f-9f73-44da-84d4-efa97b6f449d",
                                 "attributeKeyId": "1fb4b553-a8d8-4563-9352-5a8889c2a13f",
                                 "value": "Iron",
-                                "list": [
-                                    {
-                                        "modelId": null,
-                                        "name": null,
-                                        "attributeId": null
-                                    }
-                                ]
-                            },
-                            {
-                                "attributeValueId": "23696305-b2f0-4918-8ec4-faf5cfc7aad0",
-                                "attributeKeyId": "1fb4b553-a8d8-4563-9352-5a8889c2a13f",
-                                "value": "Fan",
                                 "list": [
                                     {
                                         "modelId": null,
@@ -18346,4 +20039,5 @@ const jsonString = '''{
         ]
     }
 ]
+
 }''';
