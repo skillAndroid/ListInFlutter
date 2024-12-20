@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:list_in/features/auth/presentation/pages/register_details_page.dart';
+import 'package:list_in/features/map/domain/entities/coordinates_entity.dart';
+import 'package:list_in/features/map/domain/entities/location_entity.dart';
 import 'package:list_in/features/post/data/models/model.dart';
 
-class CatalogProvider extends ChangeNotifier {
+class PostProvider extends ChangeNotifier {
   CatalogModel? _catalogModel;
   Catalog? _selectedCatalog;
   ChildCategory? _selectedChildCategory;
@@ -341,11 +345,25 @@ class CatalogProvider extends ChangeNotifier {
   String _postTitle = "";
   String _postDescription = "";
   double _price = 0.0;
+  List<XFile> _images = [];
+  XFile? _video;
+  LocationEntity _location = const LocationEntity(
+    name: "Yashnobod Tumani, Toshkent",
+    coordinates: CoordinatesEntity(
+      latitude: 41.3227,
+      longitude: 69.2932,
+    ),
+  );
+  LocationSharingMode _locationSharingMode = LocationSharingMode.region;
 
   // Getter to access postTitle
   String get postTitle => _postTitle;
   String get postDescription => _postDescription;
   double get price => _price;
+  List<XFile> get images => _images;
+  XFile? get video => _video;
+  LocationEntity get location => _location;
+  LocationSharingMode get locationSharingMode => _locationSharingMode;
 
   void changePostTitle(String title) {
     if (title.isNotEmpty && title != _postTitle) {
@@ -373,5 +391,92 @@ class CatalogProvider extends ChangeNotifier {
           RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
           (Match m) => '${m[1]} ',
         );
+  }
+
+  void setImages(List<XFile> newImages) {
+    if (newImages.isNotEmpty) {
+      _images = newImages;
+      notifyListeners();
+    }
+  }
+
+  void removeImageAt(int index) {
+    if (index >= 0 && index < _images.length) {
+      _images.removeAt(index);
+      notifyListeners();
+    }
+  }
+
+  void setVideo(XFile newVideo) {
+    _video = newVideo;
+    notifyListeners();
+  }
+
+  void reorderImages(int oldIndex, int newIndex) {
+    if (oldIndex < newIndex) {
+      newIndex -= 1;
+    }
+    final item = _images.removeAt(oldIndex);
+    _images.insert(newIndex, item);
+    notifyListeners();
+  }
+
+  void clearVideo() {
+    _video = null;
+    notifyListeners();
+  }
+
+  void setLocation(LocationEntity newLocation) {
+    _location = newLocation;
+    notifyListeners();
+  }
+
+  void setLocationSharingMode(LocationSharingMode mode) {
+    _locationSharingMode = mode;
+    notifyListeners();
+  }
+
+  String _phoneNumber = '+998901234567'; // Default phone number
+  bool _allowCalls = true;
+  TimeOfDay _callStartTime =
+      const TimeOfDay(hour: 9, minute: 0); // Default 9 AM
+  TimeOfDay _callEndTime = const TimeOfDay(hour: 18, minute: 0); // Default 6 PM
+
+  // Phone-related getters
+  String get phoneNumber => _phoneNumber;
+  bool get allowCalls => _allowCalls;
+  TimeOfDay get callStartTime => _callStartTime;
+  TimeOfDay get callEndTime => _callEndTime;
+
+  // Phone-related methods
+  void setPhoneNumber(String number) {
+    if (number.isNotEmpty && number != _phoneNumber) {
+      _phoneNumber = number;
+      notifyListeners();
+    }
+  }
+
+  void setAllowCalls(bool allow) {
+    _allowCalls = allow;
+    notifyListeners();
+  }
+
+  void setCallTime(TimeOfDay start, TimeOfDay end) {
+    _callStartTime = start;
+    _callEndTime = end;
+    notifyListeners();
+  }
+
+  String _productCondition = 'new'; // Default to 'new'
+
+// Add this to your getters
+  String get productCondition => _productCondition;
+
+// Add this to your methods
+  void changeProductCondition(String condition) {
+    if (condition != _productCondition) {
+      _productCondition = condition;
+      notifyListeners();
+    }
   }
 }

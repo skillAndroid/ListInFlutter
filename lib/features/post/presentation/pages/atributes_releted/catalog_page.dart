@@ -12,7 +12,7 @@ class CatalogListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<CatalogProvider>(context);
+    final provider = Provider.of<PostProvider>(context);
     final catalogs = provider.catalogModel?.catalogs ?? [];
 
     return ListView(

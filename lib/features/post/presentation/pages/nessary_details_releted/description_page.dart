@@ -27,7 +27,7 @@ class _AddDescriptionPageState extends State<AddDescriptionPage> {
   @override
   void initState() {
     super.initState();
-    final provider = Provider.of<CatalogProvider>(context, listen: false);
+    final provider = Provider.of<PostProvider>(context, listen: false);
     _lastCommittedText = provider.postDescription;
     _descriptionController = TextEditingController(text: _lastCommittedText);
     _descriptionController.addListener(_onTextChanged);
@@ -73,7 +73,7 @@ class _AddDescriptionPageState extends State<AddDescriptionPage> {
     if (!mounted) return;
     final newText = _descriptionController.text;
     if (newText != _lastCommittedText && _errorText == null) {
-      final provider = Provider.of<CatalogProvider>(context, listen: false);
+      final provider = Provider.of<PostProvider>(context, listen: false);
       provider.changePostTitle(newText);
       _lastCommittedText = newText;
       _needsUpdate = false;
@@ -104,7 +104,11 @@ class _AddDescriptionPageState extends State<AddDescriptionPage> {
               padding: EdgeInsets.only(bottom: 4.0, left: 2),
               child: Text(
                 'Next, add description',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  fontFamily: "Syne",
+                ),
               ),
             ),
             SizedBox(
@@ -141,7 +145,8 @@ class _AddDescriptionPageState extends State<AddDescriptionPage> {
                 child: Text(
                   '${_descriptionController.text.length}/$_maxLength',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 13.5,
+                    fontFamily: "Syne",
                     color: _descriptionController.text.length > _maxLength
                         ? Colors.red
                         : Colors.grey[600],

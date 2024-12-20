@@ -9,10 +9,7 @@ import 'package:smooth_corner_updated/smooth_corner.dart';
 class ColorSelectableWidget extends StatelessWidget {
   final Attribute attribute;
 
-  const ColorSelectableWidget({
-    super.key, 
-    required this.attribute
-  });
+  const ColorSelectableWidget({super.key, required this.attribute});
 
   final Map<String, Color> colorMap = const {
     'Black': Colors.black,
@@ -25,7 +22,7 @@ class ColorSelectableWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<CatalogProvider>(context);
+    final provider = Provider.of<PostProvider>(context);
     final selectedValue = provider.getSelectedAttributeValue(attribute);
 
     return Column(
@@ -43,7 +40,7 @@ class ColorSelectableWidget extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 4),
-        Consumer<CatalogProvider>(
+        Consumer<PostProvider>(
           builder: (context, provider, child) {
             return Column(
               children: [
@@ -94,7 +91,8 @@ class ColorSelectableWidget extends StatelessWidget {
                               child: Container(
                                 width: 16,
                                 height: 16,
-                                color: colorMap[selectedValue?.value] ?? Colors.transparent,
+                                color: colorMap[selectedValue?.value] ??
+                                    Colors.transparent,
                               ),
                             ),
                           ],
@@ -126,48 +124,50 @@ class ColorSelectableWidget extends StatelessWidget {
                           child: ConstrainedBox(
                             constraints: const BoxConstraints(maxHeight: 250),
                             child: ListView.builder(
-                              shrinkWrap: true,
-                              physics: const AlwaysScrollableScrollPhysics(),
-                              itemCount: attribute.values.length,
-                              itemBuilder: (context, index) {
-                                var value = attribute.values[index];
-                                return InkWell(
-                                  onTap: () {
-                                    provider.selectAttributeValue(attribute, value);
-                                    provider.toggleAttributeOptionsVisibility(attribute);
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 8.0, 
-                                      horizontal: 16.0
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          value.value,
-                                          style: const TextStyle(
-                                            fontSize: 13,
-                                            fontFamily: "Poppins",
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.black,
+                                shrinkWrap: true,
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                itemCount: attribute.values.length,
+                                itemBuilder: (context, index) {
+                                  var value = attribute.values[index];
+                                  return InkWell(
+                                    onTap: () {
+                                      provider.selectAttributeValue(
+                                          attribute, value);
+                                      provider.toggleAttributeOptionsVisibility(
+                                          attribute);
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8.0, horizontal: 16.0),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            value.value,
+                                            style: const TextStyle(
+                                              fontSize: 13,
+                                              fontFamily: "Poppins",
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.black,
+                                            ),
                                           ),
-                                        ),
-                                        SmoothClipRRect(
-                                          smoothness: 1,
-                                          borderRadius: BorderRadius.circular(3),
-                                          child: Container(
-                                            width: 14,
-                                            height: 14,
-                                            color: colorMap[value.value] ?? Colors.transparent,
+                                          SmoothClipRRect(
+                                            smoothness: 1,
+                                            borderRadius:
+                                                BorderRadius.circular(3),
+                                            child: Container(
+                                              width: 14,
+                                              height: 14,
+                                              color: colorMap[value.value] ??
+                                                  Colors.transparent,
+                                            ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                );
-                              }
-                            ),
+                                  );
+                                }),
                           ),
                         )
                       : const SizedBox.shrink(),

@@ -27,7 +27,7 @@ class _AddTitlePageState extends State<AddTitlePage> {
   @override
   void initState() {
     super.initState();
-    final provider = Provider.of<CatalogProvider>(context, listen: false);
+    final provider = Provider.of<PostProvider>(context, listen: false);
     _lastCommittedText = provider.postTitle;
     _titleController = TextEditingController(text: _lastCommittedText);
     _titleController.addListener(_onTextChanged);
@@ -73,7 +73,7 @@ class _AddTitlePageState extends State<AddTitlePage> {
     if (!mounted) return;
     final newText = _titleController.text;
     if (newText != _lastCommittedText && _errorText == null) {
-      final provider = Provider.of<CatalogProvider>(context, listen: false);
+      final provider = Provider.of<PostProvider>(context, listen: false);
       provider.changePostTitle(newText);
       _lastCommittedText = newText;
       _needsUpdate = false;
@@ -104,7 +104,11 @@ class _AddTitlePageState extends State<AddTitlePage> {
               padding: EdgeInsets.only(bottom: 4.0, left: 2),
               child: Text(
                 'Ok! Add title now...',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  fontFamily: "Syne",
+                ),
               ),
             ),
             SizedBox(
@@ -126,7 +130,7 @@ class _AddTitlePageState extends State<AddTitlePage> {
                     border: OutlineInputBorder(),
                     hintText: 'For example: Iphone 15 pro',
                     contentPadding: EdgeInsets.all(14),
-                  //  errorText: _errorText,
+                    //  errorText: _errorText,
                     counterText: '', // Remove built-in counter
                   ),
                 ),
@@ -139,7 +143,8 @@ class _AddTitlePageState extends State<AddTitlePage> {
                 child: Text(
                   '${_titleController.text.length}/$_maxLength',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 13.5,
+                    fontFamily: "Syne",
                     color: _titleController.text.length > _maxLength
                         ? Colors.red
                         : Colors.grey[600],

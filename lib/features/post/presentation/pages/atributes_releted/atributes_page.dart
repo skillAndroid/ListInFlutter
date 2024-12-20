@@ -8,12 +8,11 @@ import 'package:list_in/features/post/presentation/widgets/one_selectable-widget
 import 'package:provider/provider.dart';
 
 class AttributesPage extends StatelessWidget {
-
   const AttributesPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<CatalogProvider>(context);
+    final provider = Provider.of<PostProvider>(context);
     return Stack(
       children: [
         Padding(
@@ -31,7 +30,7 @@ class AttributesPage extends StatelessWidget {
   }
 
   Widget _buildAttributeWidget(
-      BuildContext context, CatalogProvider provider, Attribute attribute) {
+      BuildContext context, PostProvider provider, Attribute attribute) {
     switch (attribute.widgetType) {
       case 'oneSelectable':
         return OneSelectableWidget(attribute: attribute);

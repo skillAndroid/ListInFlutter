@@ -9,14 +9,11 @@ import 'package:smooth_corner_updated/smooth_corner.dart';
 class OneSelectableWidget extends StatelessWidget {
   final Attribute attribute;
 
-  const OneSelectableWidget({
-    super.key, 
-    required this.attribute
-  });
+  const OneSelectableWidget({super.key, required this.attribute});
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<CatalogProvider>(context);
+    final provider = Provider.of<PostProvider>(context);
     final selectedValue = provider.getSelectedAttributeValue(attribute);
 
     return Column(
@@ -34,7 +31,7 @@ class OneSelectableWidget extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 4),
-        Consumer<CatalogProvider>(
+        Consumer<PostProvider>(
           builder: (context, provider, child) {
             return Column(
               children: [
@@ -103,39 +100,41 @@ class OneSelectableWidget extends StatelessWidget {
                           child: ConstrainedBox(
                             constraints: const BoxConstraints(maxHeight: 250),
                             child: ListView.builder(
-                              shrinkWrap: true,
-                              physics: const AlwaysScrollableScrollPhysics(),
-                              itemCount: attribute.values.length,
-                              itemBuilder: (context, index) {
-                                var value = attribute.values[index];
-                                return InkWell(
-                                  onTap: () {
-                                    provider.selectAttributeValue(attribute, value);
-                                    provider.toggleAttributeOptionsVisibility(attribute);
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 8.0,
-                                      horizontal: 12.0,
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          value.value,
-                                          style: const TextStyle(
-                                            fontSize: 13,
-                                            fontFamily: "Poppins",
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.black,
+                                shrinkWrap: true,
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                itemCount: attribute.values.length,
+                                itemBuilder: (context, index) {
+                                  var value = attribute.values[index];
+                                  return InkWell(
+                                    onTap: () {
+                                      provider.selectAttributeValue(
+                                          attribute, value);
+                                      provider.toggleAttributeOptionsVisibility(
+                                          attribute);
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 8.0,
+                                        horizontal: 12.0,
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            value.value,
+                                            style: const TextStyle(
+                                              fontSize: 13,
+                                              fontFamily: "Poppins",
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.black,
+                                            ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                );
-                              }
-                            ),
+                                  );
+                                }),
                           ),
                         )
                       : const SizedBox.shrink(),

@@ -5,7 +5,7 @@ import 'package:list_in/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:list_in/features/map/presentation/bloc/MapBloc.dart';
 import 'package:list_in/features/post/data/sources/post_remoute_data_source.dart';
 import 'package:list_in/features/post/presentation/pages/catalog_screen.dart';
-import 'package:list_in/features/post/presentation/pages/nessary_details_releted/image_picker_page.dart';
+import 'package:list_in/features/post/presentation/pages/nessary_details_releted/media_page.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
 import 'package:list_in/list.dart';
 import 'package:provider/provider.dart';
@@ -876,7 +876,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (_) => CatalogProvider(),
+          create: (_) => PostProvider(),
         ),
       ],
       child: MultiBlocProvider(
@@ -903,8 +903,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final ThemeData theme = AppTheme.lightTheme;
     AppTheme.setStatusBarAndNavBarColor(theme);
-    Provider.of<CatalogProvider>(context, listen: false)
-        .loadCatalog(jsonString);
+    Provider.of<PostProvider>(context, listen: false).loadCatalog(jsonString);
     return MaterialApp(
       title: 'Your App',
       theme: AppTheme.lightTheme,
@@ -924,8 +923,7 @@ class Catalog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Provider.of<CatalogProvider>(context, listen: false)
-        .loadCatalog(jsonString);
+    Provider.of<PostProvider>(context, listen: false).loadCatalog(jsonString);
     return const CatalogPagerScreen();
   }
 }

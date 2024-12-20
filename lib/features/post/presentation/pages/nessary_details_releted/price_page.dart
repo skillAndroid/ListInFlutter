@@ -27,7 +27,7 @@ class _AddPricePageState extends State<AddPricePage> {
   @override
   void initState() {
     super.initState();
-    final provider = Provider.of<CatalogProvider>(context, listen: false);
+    final provider = Provider.of<PostProvider>(context, listen: false);
     // Only set initial text if price is greater than 0
     _lastCommittedText = provider.price > 0 ? provider.price.toString() : '';
     _priceController = TextEditingController(
@@ -133,7 +133,7 @@ class _AddPricePageState extends State<AddPricePage> {
     if (!mounted) return;
     final newText = _priceController.text;
     if (newText != _lastCommittedText) {
-      final provider = Provider.of<CatalogProvider>(context, listen: false);
+      final provider = Provider.of<PostProvider>(context, listen: false);
       provider.changePrice(parsePrice(newText));
       _lastCommittedText = newText;
       _needsUpdate = false;
@@ -152,7 +152,11 @@ class _AddPricePageState extends State<AddPricePage> {
               padding: EdgeInsets.only(bottom: 4.0),
               child: Text(
                 'Great! Please enter price',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  fontFamily: "Syne",
+                ),
               ),
             ),
             SizedBox(
@@ -197,8 +201,8 @@ class _AddPricePageState extends State<AddPricePage> {
               child: Text(
                 'You can set a fixed price or make it negatable. Enable this option if your are open to discussing the price with the buyer. ',
                 style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.gray,
+                  fontSize: 13.5,
+                  color: AppColors.darkGray,
                   fontWeight: FontWeight.w400,
                 ),
               ),
@@ -211,7 +215,11 @@ class _AddPricePageState extends State<AddPricePage> {
                   padding: EdgeInsets.only(bottom: 4.0),
                   child: Text(
                     'Negatable Price?',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: "Syne",
+                    ),
                   ),
                 ),
                 Transform.scale(

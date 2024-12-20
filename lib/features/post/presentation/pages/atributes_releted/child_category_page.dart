@@ -16,7 +16,7 @@ class ChildCategoryListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<CatalogProvider>(context);
+    final provider = Provider.of<PostProvider>(context);
     final childCategories = provider.selectedCatalog?.childCategories ?? [];
 
     return ListView(

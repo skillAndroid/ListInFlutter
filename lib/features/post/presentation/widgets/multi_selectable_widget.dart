@@ -6,21 +6,20 @@ import 'package:list_in/features/post/presentation/provider/post_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
-
 class MultiSelectableWidget extends StatelessWidget {
   final Attribute attribute;
 
-  const MultiSelectableWidget({
-    super.key, 
-    required this.attribute
-  });
+  const MultiSelectableWidget({super.key, required this.attribute});
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<CatalogProvider>(context);
-    final selectedAttributeValue = provider.getSelectedAttributeValue(attribute);
+    final provider = Provider.of<PostProvider>(context);
+    final selectedAttributeValue =
+        provider.getSelectedAttributeValue(attribute);
     final selectedValues = attribute.widgetType == 'multiSelectable'
-        ? (provider.selectedValues[attribute.attributeKey] as List<AttributeValue>? ?? [])
+        ? (provider.selectedValues[attribute.attributeKey]
+                as List<AttributeValue>? ??
+            [])
         : (selectedAttributeValue != null ? [selectedAttributeValue] : []);
 
     return Column(
@@ -38,7 +37,7 @@ class MultiSelectableWidget extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 4),
-        
+
         // Selected values chips
         if (selectedValues.isNotEmpty)
           Padding(
@@ -53,7 +52,8 @@ class MultiSelectableWidget extends StatelessWidget {
                   borderRadius: BorderRadius.circular(4),
                   child: Container(
                     color: AppColors.containerColor,
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -82,10 +82,9 @@ class MultiSelectableWidget extends StatelessWidget {
           style: ButtonStyle(
             textStyle: WidgetStateProperty.all(
               const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w500,
-                fontFamily: 'Poppins'
-              ),
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  fontFamily: 'Poppins'),
             ),
             padding: WidgetStateProperty.all(EdgeInsets.zero),
             elevation: WidgetStateProperty.all(0),
@@ -153,9 +152,10 @@ class MultiSelectableWidget extends StatelessWidget {
                           primary: false,
                           physics: const AlwaysScrollableScrollPhysics(),
                           itemCount: attribute.values.length,
-                                     itemBuilder: (context, index) {
+                          itemBuilder: (context, index) {
                             var value = attribute.values[index];
-                            bool isSelected = provider.isValueSelected(attribute, value);
+                            bool isSelected =
+                                provider.isValueSelected(attribute, value);
 
                             return InkWell(
                               onTap: () {
@@ -165,7 +165,8 @@ class MultiSelectableWidget extends StatelessWidget {
                                 padding: const EdgeInsets.symmetric(
                                     vertical: 4, horizontal: 16),
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Text(
@@ -176,7 +177,8 @@ class MultiSelectableWidget extends StatelessWidget {
                                       ),
                                     ),
                                     AnimatedSwitcher(
-                                      duration: const Duration(milliseconds: 400),
+                                      duration:
+                                          const Duration(milliseconds: 400),
                                       transitionBuilder: (child, animation) {
                                         return ScaleTransition(
                                           scale: animation,
@@ -192,7 +194,8 @@ class MultiSelectableWidget extends StatelessWidget {
                                           child: Container(
                                             color: isSelected
                                                 ? AppColors.black
-                                                : AppColors.gray.withOpacity(0.5),
+                                                : AppColors.gray
+                                                    .withOpacity(0.5),
                                             child: isSelected
                                                 ? const Icon(
                                                     Icons.check,
@@ -238,13 +241,13 @@ class MultiSelectableWidget extends StatelessWidget {
                             ),
                             onPressed: () {
                               provider.confirmMultiSelection(attribute);
-                              provider.toggleAttributeOptionsVisibility(attribute);
+                              provider
+                                  .toggleAttributeOptionsVisibility(attribute);
                             },
                             child: const Text(
                               'Confirm',
                               style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600),
+                                  fontSize: 12, fontWeight: FontWeight.w600),
                             ),
                           ),
                         ),

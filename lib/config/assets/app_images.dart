@@ -17,15 +17,17 @@ class AppImages {
   static const sport = '${basePath}sport$format'; //
 
   // welcome page images for categories :
-  static const wAuto = '${basePath}w_auto$wFormat'; 
-  static const wPlats = '${basePath}w_pnats$wFormat'; 
-  static const wAnimals = '${basePath}w_animals$wFormat'; 
-  static const wCloses = '${basePath}w_closes$wFormat'; 
-  static const wElectronics = '${basePath}w_electronics$wFormat'; 
-  static const wForchildren = '${basePath}w_forchildren$wFormat'; 
-  static const wGarden = '${basePath}w_garden$wFormat'; 
-  static const wHousehold = '${basePath}w_household$wFormat'; 
-  static const wRealestate = '${basePath}w_realestate$wFormat'; 
-  static const wSport = '${basePath}w_sport$wFormat'; 
+  static const wAuto = '${basePath}w_auto$wFormat';
+  static const wPlats = '${basePath}w_pnats$wFormat';
+  static const wAnimals = '${basePath}w_animals$wFormat';
+  static const wCloses = '${basePath}w_closes$wFormat';
+  static const wElectronics = '${basePath}w_electronics$wFormat';
+  static const wForchildren = '${basePath}w_forchildren$wFormat';
+  static const wGarden = '${basePath}w_garden$wFormat';
+  static const wHousehold = '${basePath}w_household$wFormat';
+  static const wRealestate = '${basePath}w_realestate$wFormat';
+  static const wSport = '${basePath}w_sport$wFormat';
   static const wBeautyAccessories = '${basePath}w_beauty_accessories$wFormat';
+
+  static const videoVector = '${basePath}video_vector$format';
 }
