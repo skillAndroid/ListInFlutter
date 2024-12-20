@@ -39,12 +39,12 @@ class _LocationSelectionPageState extends State<LocationSelectionPage> {
               'This screen shows your current location according to your profile data. You can make temporary changes for this post, or update your profile location permanently through your profile settings.',
               style: TextStyle(
                 color: AppColors.darkGray,
-                fontSize: 13.5,
+                fontSize: 14,
                 fontWeight: FontWeight.w400,
               ),
             ),
             const SizedBox(
-              height: 16,
+              height: 8,
             ),
             Card(
               elevation: 0,
@@ -65,28 +65,26 @@ class _LocationSelectionPageState extends State<LocationSelectionPage> {
                         SizedBox(
                           height: 50,
                           width: 150,
-                          child: Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: () => provider.setLocationSharingMode(
-                                  LocationSharingMode.precise),
-                              icon: const Icon(Icons.location_on),
-                              label: const Text(
-                                'Exact Location',
-                                style: TextStyle(
-                                    fontSize: 15, fontFamily: "Poppins"),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                elevation: 0,
-                                shadowColor: AppColors.transparent,
-                                backgroundColor: provider.locationSharingMode ==
-                                        LocationSharingMode.precise
-                                    ? AppColors.black
-                                    : Colors.grey.shade300,
-                                foregroundColor: provider.locationSharingMode ==
-                                        LocationSharingMode.precise
-                                    ? Colors.white
-                                    : Colors.black,
-                              ),
+                          child: ElevatedButton.icon(
+                            onPressed: () => provider.setLocationSharingMode(
+                                LocationSharingMode.precise),
+                            icon: const Icon(Icons.location_on),
+                            label: const Text(
+                              'Exact Location',
+                              style: TextStyle(
+                                  fontSize: 15, fontFamily: "Poppins"),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              elevation: 0,
+                              shadowColor: AppColors.transparent,
+                              backgroundColor: provider.locationSharingMode ==
+                                      LocationSharingMode.precise
+                                  ? AppColors.black
+                                  : Colors.grey.shade300,
+                              foregroundColor: provider.locationSharingMode ==
+                                      LocationSharingMode.precise
+                                  ? Colors.white
+                                  : Colors.black,
                             ),
                           ),
                         ),
@@ -94,28 +92,26 @@ class _LocationSelectionPageState extends State<LocationSelectionPage> {
                         SizedBox(
                           height: 50,
                           width: 150,
-                          child: Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: () => provider.setLocationSharingMode(
-                                  LocationSharingMode.region),
-                              icon: const Icon(Icons.location_city),
-                              label: const Text(
-                                'Region Only',
-                                style: TextStyle(
-                                    fontSize: 15, fontFamily: "Poppins"),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                shadowColor: AppColors.transparent,
-                                elevation: 0,
-                                backgroundColor: provider.locationSharingMode ==
-                                        LocationSharingMode.region
-                                    ? AppColors.black
-                                    : Colors.grey.shade300,
-                                foregroundColor: provider.locationSharingMode ==
-                                        LocationSharingMode.region
-                                    ? Colors.white
-                                    : Colors.black,
-                              ),
+                          child: ElevatedButton.icon(
+                            onPressed: () => provider.setLocationSharingMode(
+                                LocationSharingMode.region),
+                            icon: const Icon(Icons.location_city),
+                            label: const Text(
+                              'Region Only',
+                              style: TextStyle(
+                                  fontSize: 15, fontFamily: "Poppins"),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              shadowColor: AppColors.transparent,
+                              elevation: 0,
+                              backgroundColor: provider.locationSharingMode ==
+                                      LocationSharingMode.region
+                                  ? AppColors.black
+                                  : Colors.grey.shade300,
+                              foregroundColor: provider.locationSharingMode ==
+                                      LocationSharingMode.region
+                                  ? Colors.white
+                                  : Colors.black,
                             ),
                           ),
                         ),

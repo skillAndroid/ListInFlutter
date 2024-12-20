@@ -403,45 +403,43 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                                 SizedBox(
                                                   height: 50,
                                                   width: 150,
-                                                  child: Expanded(
-                                                    child: ElevatedButton.icon(
-                                                      onPressed: () {
-                                                        setState(() {
-                                                          _locationSharingPreference =
-                                                              LocationSharingMode
-                                                                  .precise;
-                                                        });
-                                                      },
-                                                      icon: const Icon(
-                                                        Icons.location_on,
-                                                      ),
-                                                      label: const Text(
-                                                        style: TextStyle(
-                                                            fontSize: 15,
-                                                            fontFamily:
-                                                                "Poppins"),
-                                                        'Exact Location',
-                                                      ),
-                                                      style: ElevatedButton
-                                                          .styleFrom(
-                                                        elevation: 0,
-                                                        shadowColor: AppColors
-                                                            .transparent,
-                                                        backgroundColor:
-                                                            _locationSharingPreference ==
-                                                                    LocationSharingMode
-                                                                        .precise
-                                                                ? AppColors
-                                                                    .black
-                                                                : Colors.grey
-                                                                    .shade300,
-                                                        foregroundColor:
-                                                            _locationSharingPreference ==
-                                                                    LocationSharingMode
-                                                                        .precise
-                                                                ? Colors.white
-                                                                : Colors.black,
-                                                      ),
+                                                  child: ElevatedButton.icon(
+                                                    onPressed: () {
+                                                      setState(() {
+                                                        _locationSharingPreference =
+                                                            LocationSharingMode
+                                                                .precise;
+                                                      });
+                                                    },
+                                                    icon: const Icon(
+                                                      Icons.location_on,
+                                                    ),
+                                                    label: const Text(
+                                                      style: TextStyle(
+                                                          fontSize: 15,
+                                                          fontFamily:
+                                                              "Poppins"),
+                                                      'Exact Location',
+                                                    ),
+                                                    style: ElevatedButton
+                                                        .styleFrom(
+                                                      elevation: 0,
+                                                      shadowColor: AppColors
+                                                          .transparent,
+                                                      backgroundColor:
+                                                          _locationSharingPreference ==
+                                                                  LocationSharingMode
+                                                                      .precise
+                                                              ? AppColors
+                                                                  .black
+                                                              : Colors.grey
+                                                                  .shade300,
+                                                      foregroundColor:
+                                                          _locationSharingPreference ==
+                                                                  LocationSharingMode
+                                                                      .precise
+                                                              ? Colors.white
+                                                              : Colors.black,
                                                     ),
                                                   ),
                                                 ),
@@ -449,43 +447,41 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                                 SizedBox(
                                                   height: 50,
                                                   width: 150,
-                                                  child: Expanded(
-                                                    child: ElevatedButton.icon(
-                                                      onPressed: () {
-                                                        setState(() {
-                                                          _locationSharingPreference =
-                                                              LocationSharingMode
-                                                                  .region;
-                                                        });
-                                                      },
-                                                      icon: const Icon(
-                                                          Icons.location_city),
-                                                      label: const Text(
-                                                          style: TextStyle(
-                                                              fontSize: 15,
-                                                              fontFamily:
-                                                                  "Poppins"),
-                                                          'Region Only'),
-                                                      style: ElevatedButton
-                                                          .styleFrom(
-                                                        shadowColor: AppColors
-                                                            .transparent,
-                                                        elevation: 0,
-                                                        backgroundColor:
-                                                            _locationSharingPreference ==
-                                                                    LocationSharingMode
-                                                                        .region
-                                                                ? AppColors
-                                                                    .black
-                                                                : Colors.grey
-                                                                    .shade300,
-                                                        foregroundColor:
-                                                            _locationSharingPreference ==
-                                                                    LocationSharingMode
-                                                                        .region
-                                                                ? Colors.white
-                                                                : Colors.black,
-                                                      ),
+                                                  child: ElevatedButton.icon(
+                                                    onPressed: () {
+                                                      setState(() {
+                                                        _locationSharingPreference =
+                                                            LocationSharingMode
+                                                                .region;
+                                                      });
+                                                    },
+                                                    icon: const Icon(
+                                                        Icons.location_city),
+                                                    label: const Text(
+                                                        style: TextStyle(
+                                                            fontSize: 15,
+                                                            fontFamily:
+                                                                "Poppins"),
+                                                        'Region Only'),
+                                                    style: ElevatedButton
+                                                        .styleFrom(
+                                                      shadowColor: AppColors
+                                                          .transparent,
+                                                      elevation: 0,
+                                                      backgroundColor:
+                                                          _locationSharingPreference ==
+                                                                  LocationSharingMode
+                                                                      .region
+                                                              ? AppColors
+                                                                  .black
+                                                              : Colors.grey
+                                                                  .shade300,
+                                                      foregroundColor:
+                                                          _locationSharingPreference ==
+                                                                  LocationSharingMode
+                                                                      .region
+                                                              ? Colors.white
+                                                              : Colors.black,
                                                     ),
                                                   ),
                                                 ),

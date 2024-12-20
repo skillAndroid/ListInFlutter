@@ -182,9 +182,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
               const ProductConditionPage(),
               const MediaPage(),
               _buildPage(child: const PhoneSettingsPage()),
-              _buildPage(
-                child: const LocationSelectionPage(),
-              ),
+             LocationSelectionPage()
             ],
           ),
         );
