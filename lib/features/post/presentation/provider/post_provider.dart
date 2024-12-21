@@ -5,45 +5,42 @@ import 'package:list_in/core/usecases/usecases.dart';
 import 'package:list_in/features/auth/presentation/pages/register_details_page.dart';
 import 'package:list_in/features/map/domain/entities/coordinates_entity.dart';
 import 'package:list_in/features/map/domain/entities/location_entity.dart';
-import 'package:list_in/features/post/data/models/attribute.dart';
-import 'package:list_in/features/post/data/models/attribute_value.dart';
-import 'package:list_in/features/post/data/models/category.dart';
-import 'package:list_in/features/post/data/models/child_category.dart';
-import 'package:list_in/features/post/data/models/sub_model.dart';
+import 'package:list_in/features/post/data/models/attribute_model.dart';
+import 'package:list_in/features/post/data/models/attribute_value_model.dart';
+import 'package:list_in/features/post/data/models/category_model.dart';
+import 'package:list_in/features/post/data/models/child_category_model.dart';
 import 'package:list_in/features/post/domain/usecases/get_catalogs_usecase.dart';
 
 class PostProvider extends ChangeNotifier {
   final GetCatalogs getCatalogsUseCase;
-  PostProvider({required this.getCatalogsUseCase}) {
-    print('DEBUG: PostProvider initialized');
-  }
+  PostProvider({required this.getCatalogsUseCase});
 
-  List<Category>? _catalogs;
+  List<CategoryModel>? _catalogs;
   // CatalogModel? _catalogModel;
-  Category? _selectedCatalog;
-  ChildCategory? _selectedChildCategory;
+  CategoryModel? _selectedCatalog;
+  ChildCategoryModel? _selectedChildCategory;
   bool _isLoading = false;
   String? _error;
 
   final Map<String, Map<String, dynamic>> _childCategorySelections = {};
-  final Map<String, List<Attribute>> _childCategoryDynamicAttributes = {};
+  final Map<String, List<AttributeModel>> _childCategoryDynamicAttributes = {};
 
-  List<Attribute> _currentAttributes = [];
-  List<Attribute> dynamicAttributes = [];
+  List<AttributeModel> _currentAttributes = [];
+  List<AttributeModel> dynamicAttributes = [];
   final Map<String, dynamic> _selectedValues = {};
 
-  final List<Category> _catalogHistory = [];
-  final List<ChildCategory> _childCategoryHistory = [];
+  final List<CategoryModel> _catalogHistory = [];
+  final List<ChildCategoryModel> _childCategoryHistory = [];
 
-  List<Category>? get catalogs => _catalogs;
-  Category? get selectedCatalog => _selectedCatalog;
-  ChildCategory? get selectedChildCategory => _selectedChildCategory;
+  List<CategoryModel>? get catalogs => _catalogs;
+  CategoryModel? get selectedCatalog => _selectedCatalog;
+  ChildCategoryModel? get selectedChildCategory => _selectedChildCategory;
   bool get isLoading => _isLoading;
   String? get error => _error;
 
-  List<Attribute> get currentAttributes {
+  List<AttributeModel> get currentAttributes {
     if (dynamicAttributes.isEmpty) return _currentAttributes;
-    final List<Attribute> orderedAttributes = [];
+    final List<AttributeModel> orderedAttributes = [];
     for (var attr in _currentAttributes) {
       orderedAttributes.add(attr);
       final relatedDynamicAttrs = dynamicAttributes
@@ -56,19 +53,19 @@ class PostProvider extends ChangeNotifier {
   }
 
   Map<String, dynamic> get selectedValues => _selectedValues;
-  final Map<Attribute, bool> _attributeOptionsVisibility = {};
-  final Map<Attribute, AttributeValue> _selectedAttributeValues = {};
-  void toggleAttributeOptionsVisibility(Attribute attribute) {
+  final Map<AttributeModel, bool> _attributeOptionsVisibility = {};
+  final Map<AttributeModel, AttributeValueModel> _selectedAttributeValues = {};
+  void toggleAttributeOptionsVisibility(AttributeModel attribute) {
     _attributeOptionsVisibility[attribute] =
         !(_attributeOptionsVisibility[attribute] ?? false);
     notifyListeners();
   }
 
-  bool isAttributeOptionsVisible(Attribute attribute) {
+  bool isAttributeOptionsVisible(AttributeModel attribute) {
     return _attributeOptionsVisibility[attribute] ?? false;
   }
 
-  AttributeValue? getSelectedAttributeValue(Attribute attribute) {
+  AttributeValueModel? getSelectedAttributeValue(AttributeModel attribute) {
     return _selectedAttributeValues[attribute];
   }
 
@@ -104,7 +101,7 @@ class PostProvider extends ChangeNotifier {
     }
   }
 
-  void selectCatalog(Category catalog) {
+  void selectCatalog(CategoryModel catalog) {
     if (_selectedCatalog == null || _selectedCatalog?.id != catalog.id) {
       _childCategorySelections.clear();
       _childCategoryDynamicAttributes.clear();
@@ -122,7 +119,7 @@ class PostProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void selectChildCategory(ChildCategory childCategory) {
+  void selectChildCategory(ChildCategoryModel childCategory) {
     final previousChildCategoryId = _selectedChildCategory?.id;
     if (previousChildCategoryId != null &&
         previousChildCategoryId != childCategory.id) {
@@ -190,7 +187,7 @@ class PostProvider extends ChangeNotifier {
       _childCategorySelections[_selectedChildCategory!.id] =
           Map<String, dynamic>.from(_selectedValues);
       _childCategoryDynamicAttributes[_selectedChildCategory!.id] =
-          List<Attribute>.from(dynamicAttributes);
+          List<AttributeModel>.from(dynamicAttributes);
     }
   }
 
@@ -206,7 +203,8 @@ class PostProvider extends ChangeNotifier {
     }
   }
 
-  void selectAttributeValue(Attribute attribute, AttributeValue value) {
+  void selectAttributeValue(
+      AttributeModel attribute, AttributeValueModel value) {
     if (attribute.widgetType == 'oneSelectable' ||
         attribute.widgetType == 'colorSelectable') {
       final currentValue = _selectedValues[attribute.attributeKey];
@@ -215,9 +213,9 @@ class PostProvider extends ChangeNotifier {
       _handleDynamicAttributeCreation(attribute, value);
     } else if (attribute.widgetType == 'multiSelectable') {
       _selectedValues.putIfAbsent(
-          attribute.attributeKey, () => <AttributeValue>[]);
+          attribute.attributeKey, () => <AttributeValueModel>[]);
       final list =
-          _selectedValues[attribute.attributeKey] as List<AttributeValue>;
+          _selectedValues[attribute.attributeKey] as List<AttributeValueModel>;
       if (list.contains(value)) {
         list.remove(value);
       } else {
@@ -229,14 +227,14 @@ class PostProvider extends ChangeNotifier {
   }
 
   void _handleDynamicAttributeCreation(
-      Attribute attribute, AttributeValue value) {
+      AttributeModel attribute, AttributeValueModel value) {
     dynamicAttributes.removeWhere(
         (attr) => attr.attributeKey.startsWith('$attribute.attributeKey'));
 
     if (attribute.subWidgetsType != 'null' &&
         value.list.isNotEmpty &&
         value.list[0].name != null) {
-      final newAttribute = Attribute(
+      final newAttribute = AttributeModel(
         attributeKey: attribute.attributeKey,
         helperText: attribute.subHelperText,
         subHelperText: 'null',
@@ -244,7 +242,7 @@ class PostProvider extends ChangeNotifier {
         subWidgetsType: 'null',
         dataType: 'string',
         values: value.list.map((subModel) {
-          return AttributeValue(
+          return AttributeValueModel(
             attributeValueId: subModel.modelId ?? '',
             attributeKeyId: '',
             value: subModel.name ?? '',
@@ -257,19 +255,20 @@ class PostProvider extends ChangeNotifier {
     }
   }
 
-  bool isValueSelected(Attribute attribute, AttributeValue value) {
+  bool isValueSelected(AttributeModel attribute, AttributeValueModel value) {
     final selectedValue = _selectedValues[attribute.attributeKey];
     if (attribute.widgetType == 'oneSelectable' ||
         attribute.widgetType == 'colorSelectable') {
       return selectedValue == value;
     } else if (attribute.widgetType == 'multiSelectable') {
-      final selectedList = selectedValue as List<AttributeValue>?;
+      final selectedList = selectedValue as List<AttributeValueModel>?;
       return selectedList?.contains(value) ?? false;
     }
     return false;
   }
 
-  void preserveAttributeState(Attribute oldAttribute, Attribute newAttribute) {
+  void preserveAttributeState(
+      AttributeModel oldAttribute, AttributeModel newAttribute) {
     if (_attributeOptionsVisibility.containsKey(oldAttribute)) {
       _attributeOptionsVisibility[newAttribute] =
           _attributeOptionsVisibility[oldAttribute]!;
@@ -280,11 +279,11 @@ class PostProvider extends ChangeNotifier {
     }
   }
 
-  void confirmMultiSelection(Attribute attribute) {
+  void confirmMultiSelection(AttributeModel attribute) {
     if (attribute.widgetType == 'multiSelectable') {
-      final selectedValues =
-          _selectedValues[attribute.attributeKey] as List<AttributeValue>? ??
-              [];
+      final selectedValues = _selectedValues[attribute.attributeKey]
+              as List<AttributeValueModel>? ??
+          [];
       if (selectedValues.isEmpty) return;
 
       // Clear previous dynamic attributes related to this multi-selection attribute
@@ -298,7 +297,7 @@ class PostProvider extends ChangeNotifier {
               value.list.isNotEmpty &&
               value.list.any((subModel) =>
                   subModel.name != null && subModel.name!.isNotEmpty))
-          .map((value) => Attribute(
+          .map((value) => AttributeModel(
                 attributeKey:
                     '${attribute.attributeKey} Model - ${value.value}',
                 helperText: attribute.subHelperText,
@@ -309,7 +308,7 @@ class PostProvider extends ChangeNotifier {
                 values: value.list
                     .where((subModel) =>
                         subModel.name != null && subModel.name!.isNotEmpty)
-                    .map((subModel) => AttributeValue(
+                    .map((subModel) => AttributeValueModel(
                           attributeValueId: subModel.modelId ?? '',
                           attributeKeyId: '',
                           value: subModel.name ?? '',
@@ -326,13 +325,13 @@ class PostProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  AttributeValue? getSelectedValue(Attribute attribute) {
+  AttributeValueModel? getSelectedValue(AttributeModel attribute) {
     final selectedValue = _selectedValues[attribute.attributeKey];
     if (attribute.widgetType == 'oneSelectable' ||
         attribute.widgetType == 'colorSelectable') {
-      return selectedValue as AttributeValue?;
+      return selectedValue as AttributeValueModel?;
     } else if (attribute.widgetType == 'multiSelectable') {
-      final selectedList = selectedValue as List<AttributeValue>?;
+      final selectedList = selectedValue as List<AttributeValueModel>?;
       return selectedList!.isNotEmpty ? selectedList.first : null;
     }
     return null;
@@ -373,7 +372,7 @@ class PostProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void resetSelectionForChildCategory(ChildCategory newChildCategory) {
+  void resetSelectionForChildCategory(ChildCategoryModel newChildCategory) {
     _attributeOptionsVisibility.clear();
     _selectedAttributeValues.clear();
     _childCategorySelections.remove(newChildCategory.id);

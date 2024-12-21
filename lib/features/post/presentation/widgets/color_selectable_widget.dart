@@ -1,13 +1,13 @@
 // ignore: file_names
 import 'package:flutter/material.dart';
 import 'package:list_in/config/theme/app_colors.dart';
-import 'package:list_in/features/post/data/models/attribute.dart';
+import 'package:list_in/features/post/data/models/attribute_model.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class ColorSelectableWidget extends StatelessWidget {
-  final Attribute attribute;
+  final AttributeModel attribute;
 
   const ColorSelectableWidget({super.key, required this.attribute});
 

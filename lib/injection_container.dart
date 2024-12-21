@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:hive/hive.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:dio/dio.dart';
 import 'package:list_in/core/network/network_info.dart';
@@ -20,20 +21,34 @@ import 'package:list_in/features/map/domain/repositories/location_repository.dar
 import 'package:list_in/features/map/domain/usecases/get_location_usecase.dart';
 import 'package:list_in/features/map/domain/usecases/search_locations_usecase.dart';
 import 'package:list_in/features/map/presentation/bloc/MapBloc.dart';
+import 'package:list_in/features/post/data/models/attribute_model.dart';
+import 'package:list_in/features/post/data/models/attribute_value_model.dart';
+import 'package:list_in/features/post/data/models/category_model.dart';
+import 'package:list_in/features/post/data/models/child_category_model.dart';
+import 'package:list_in/features/post/data/models/sub_model.dart';
 import 'package:list_in/features/post/data/repository/catalog_repository_impl.dart';
 import 'package:list_in/features/post/data/sources/catalog_remote_data_source.dart';
+import 'package:list_in/features/post/data/sources/category_local_data_source.dart';
 import 'package:list_in/features/post/domain/repository/catalog_repository.dart';
 import 'package:list_in/features/post/domain/usecases/get_catalogs_usecase.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:path_provider/path_provider.dart' as path_provider;
 
 final sl = GetIt.instance;
 
 Future<void> init() async {
-  // Get SharedPreferences instance
   final sharedPreferences = await SharedPreferences.getInstance();
-  //! Features - Auth
-  // Bloc
+  final appDocumentDirectory =
+      await path_provider.getApplicationDocumentsDirectory();
+  Hive.init(appDocumentDirectory.path);
+  Hive.registerAdapter(CategoryModelAdapter());
+  Hive.registerAdapter(ChildCategoryModelAdapter());
+  Hive.registerAdapter(AttributeModelAdapter());
+  Hive.registerAdapter(AttributeValueModelAdapter());
+  Hive.registerAdapter(SubModelAdapter());
+
+  final catalogBox = await Hive.openBox<CategoryModel>('catalogs');
   sl.registerFactory(
     () => AuthBloc(
       loginUseCase: sl(),
@@ -76,7 +91,7 @@ Future<void> init() async {
   sl.registerLazySingleton(
     () {
       final dio = Dio();
-      dio.options.baseUrl = 'https://7cab-62-209-146-62.ngrok-free.app';
+      dio.options.baseUrl = 'https://3e41-62-209-146-62.ngrok-free.app';
       dio.options.connectTimeout = const Duration(seconds: 5);
       dio.options.receiveTimeout = const Duration(seconds: 3);
       return dio;
@@ -105,13 +120,16 @@ Future<void> init() async {
 
   sl.registerLazySingleton<LocationRemoteDatasource>(
       () => LocationRemoteDataSourceImpl(dio: sl()));
-
+  sl.registerLazySingleton<CatalogLocalDataSource>(
+    () => CatalogLocalDataSourceImpl(categoryBox: catalogBox),
+  );
   sl.registerFactory(() => PostProvider(
         getCatalogsUseCase: sl<GetCatalogs>(),
       ));
 
   sl.registerLazySingleton<CatalogRepository>(
-    () => CatalogRepositoryImpl(remoteDataSource: sl(), networkInfo: sl()),
+    () => CatalogRepositoryImpl(
+        remoteDataSource: sl(), localDataSource: sl(), networkInfo: sl()),
   );
 
   sl.registerLazySingleton<CatalogRemoteDataSource>(

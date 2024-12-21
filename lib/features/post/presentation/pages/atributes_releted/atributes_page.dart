@@ -1,6 +1,6 @@
 // Separate widget for Attributes Page
 import 'package:flutter/material.dart';
-import 'package:list_in/features/post/data/models/attribute.dart';
+import 'package:list_in/features/post/data/models/attribute_model.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
 import 'package:list_in/features/post/presentation/widgets/color_selectable_widget.dart';
 import 'package:list_in/features/post/presentation/widgets/multi_selectable_widget.dart';
@@ -30,7 +30,7 @@ class AttributesPage extends StatelessWidget {
   }
 
   Widget _buildAttributeWidget(
-      BuildContext context, PostProvider provider, Attribute attribute) {
+      BuildContext context, PostProvider provider, AttributeModel attribute) {
     switch (attribute.widgetType) {
       case 'oneSelectable':
         return OneSelectableWidget(attribute: attribute);

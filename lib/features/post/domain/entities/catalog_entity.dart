@@ -1,13 +1,13 @@
 import 'package:equatable/equatable.dart';
-import 'package:list_in/features/post/data/models/child_category.dart';
+import 'package:list_in/features/post/data/models/child_category_model.dart';
 
-class Catalog extends Equatable {
+class CatalogEntity extends Equatable {
   final String id;
   final String name;
   final String description;
-  final List<ChildCategory> childCategories;
+  final List<ChildCategoryModel> childCategories;
 
-  const Catalog({
+  const CatalogEntity({
     required this.id,
     required this.name,
     required this.description,
