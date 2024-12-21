@@ -226,14 +226,20 @@ class PostProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _handleDynamicAttributeCreation(
-      AttributeModel attribute, AttributeValueModel value) {
-    dynamicAttributes.removeWhere(
-        (attr) => attr.attributeKey.startsWith('$attribute.attributeKey'));
+ void _handleDynamicAttributeCreation(
+    AttributeModel attribute, AttributeValueModel value) {
+  if (attribute.subWidgetsType != 'null' &&
+      value.list.isNotEmpty &&
+      value.list[0].name != null) {
+    // Проверяем, существует ли уже такой же атрибут с теми же значениями
+    bool alreadyExists = dynamicAttributes.any((attr) =>
+        attr.attributeKey == attribute.attributeKey &&
+        attr.subWidgetsType == 'null' &&
+        attr.values.length == value.list.length &&
+        attr.values.every((existingValue) => value.list.any(
+            (newValue) => existingValue.value == newValue.name)));
 
-    if (attribute.subWidgetsType != 'null' &&
-        value.list.isNotEmpty &&
-        value.list[0].name != null) {
+    if (!alreadyExists) {
       final newAttribute = AttributeModel(
         attributeKey: attribute.attributeKey,
         helperText: attribute.subHelperText,
@@ -251,10 +257,18 @@ class PostProvider extends ChangeNotifier {
         }).toList(),
       );
 
+      // Удаляем старый атрибут
+      dynamicAttributes.removeWhere(
+        (attr) =>
+            attr.attributeKey == attribute.attributeKey &&
+            attr.subWidgetsType == 'null', // Удаляем только родительский
+      );
+
+      // Добавляем новый атрибут
       dynamicAttributes.insert(0, newAttribute);
     }
   }
-
+}
   bool isValueSelected(AttributeModel attribute, AttributeValueModel value) {
     final selectedValue = _selectedValues[attribute.attributeKey];
     if (attribute.widgetType == 'oneSelectable' ||
