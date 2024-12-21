@@ -1,14 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:list_in/core/error/failure.dart';
+import 'package:list_in/core/usecases/usecases.dart';
 import 'package:list_in/features/auth/presentation/pages/register_details_page.dart';
 import 'package:list_in/features/map/domain/entities/coordinates_entity.dart';
 import 'package:list_in/features/map/domain/entities/location_entity.dart';
-import 'package:list_in/features/post/data/models/model.dart';
+import 'package:list_in/features/post/data/models/attribute.dart';
+import 'package:list_in/features/post/data/models/attribute_value.dart';
+import 'package:list_in/features/post/data/models/category.dart';
+import 'package:list_in/features/post/data/models/child_category.dart';
+import 'package:list_in/features/post/data/models/sub_model.dart';
+import 'package:list_in/features/post/domain/usecases/get_catalogs_usecase.dart';
 
 class PostProvider extends ChangeNotifier {
-  CatalogModel? _catalogModel;
-  Catalog? _selectedCatalog;
+  final GetCatalogs getCatalogsUseCase;
+  PostProvider({required this.getCatalogsUseCase}) {
+    print('DEBUG: PostProvider initialized');
+  }
+
+  List<Category>? _catalogs;
+  // CatalogModel? _catalogModel;
+  Category? _selectedCatalog;
   ChildCategory? _selectedChildCategory;
+  bool _isLoading = false;
+  String? _error;
 
   final Map<String, Map<String, dynamic>> _childCategorySelections = {};
   final Map<String, List<Attribute>> _childCategoryDynamicAttributes = {};
@@ -17,12 +32,14 @@ class PostProvider extends ChangeNotifier {
   List<Attribute> dynamicAttributes = [];
   final Map<String, dynamic> _selectedValues = {};
 
-  final List<Catalog> _catalogHistory = [];
+  final List<Category> _catalogHistory = [];
   final List<ChildCategory> _childCategoryHistory = [];
 
-  CatalogModel? get catalogModel => _catalogModel;
-  Catalog? get selectedCatalog => _selectedCatalog;
+  List<Category>? get catalogs => _catalogs;
+  Category? get selectedCatalog => _selectedCatalog;
   ChildCategory? get selectedChildCategory => _selectedChildCategory;
+  bool get isLoading => _isLoading;
+  String? get error => _error;
 
   List<Attribute> get currentAttributes {
     if (dynamicAttributes.isEmpty) return _currentAttributes;
@@ -55,12 +72,39 @@ class PostProvider extends ChangeNotifier {
     return _selectedAttributeValues[attribute];
   }
 
-  void loadCatalog(String jsonString) {
-    _catalogModel = CatalogModel.fromJson(jsonString);
+  Future<void> fetchCatalogs() async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    final result = await getCatalogsUseCase(params: NoParams());
+    result.fold(
+      (failure) {
+        _error = _mapFailureToMessage(failure);
+        _catalogs = null;
+      },
+      (catalogs) {
+        _catalogs = catalogs;
+        _error = null;
+      },
+    );
+
+    _isLoading = false;
     notifyListeners();
   }
 
-  void selectCatalog(Catalog catalog) {
+  String _mapFailureToMessage(Failure failure) {
+    switch (failure.runtimeType) {
+      case ServerFailure _:
+        return 'Server error occurred';
+      case NetworkFailure _:
+        return 'Network connection error';
+      default:
+        return 'Unexpected error';
+    }
+  }
+
+  void selectCatalog(Category catalog) {
     if (_selectedCatalog == null || _selectedCatalog?.id != catalog.id) {
       _childCategorySelections.clear();
       _childCategoryDynamicAttributes.clear();

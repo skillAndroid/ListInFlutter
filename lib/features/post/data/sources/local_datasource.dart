@@ -1,5 +1,8 @@
 
 // // Catalog data model for Hive
+// import 'package:hive/hive.dart';
+// import 'package:hive_flutter/adapters.dart';
+
 // @HiveType(typeId: 0)
 // class CatalogData extends HiveObject {
 //   @HiveField(0)

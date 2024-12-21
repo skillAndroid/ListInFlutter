@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:list_in/config/assets/app_images.dart';
-import 'package:list_in/features/post/data/models/model.dart';
+import 'package:list_in/features/post/data/models/child_category.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 

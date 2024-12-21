@@ -6,6 +6,7 @@ import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/auth/presentation/pages/signup_page.dart';
 import 'package:list_in/features/auth/presentation/widgets/auth_text_field.dart';
+import 'package:list_in/main.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import '../bloc/auth_bloc.dart';
 
@@ -38,7 +39,11 @@ class _LoginPageState extends State<LoginPage> {
               SnackBar(content: Text(state.message)),
             );
           } else if (state is AuthSuccess) {
-            Navigator.of(context).pushReplacementNamed('/home');
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (_) => const CatalogScreen(),
+              ),
+            );
           }
         },
         builder: (context, state) {

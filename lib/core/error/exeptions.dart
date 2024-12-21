@@ -83,3 +83,8 @@ class UnImplementedExeption implements Exception {
     return "Server exeption: $message";
   }
 }
+
+class UnauthorizedException implements Exception {
+  final String message;
+  UnauthorizedException(this.message);
+}
