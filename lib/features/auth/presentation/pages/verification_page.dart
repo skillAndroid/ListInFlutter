@@ -169,8 +169,7 @@ class _VerificationPageState extends State<VerificationPage> {
                           fontWeight: FontWeight.w600,
                         ),
                         decoration: BoxDecoration(
-                          color: AppColors.bgColor,
-                          // border: Border.all(color: AppColors.secondaryColor),
+                          color: AppColors.containerColor,
                           borderRadius: BorderRadius.circular(16),
                         ),
                       ),

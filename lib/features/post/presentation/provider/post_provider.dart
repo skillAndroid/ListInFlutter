@@ -16,7 +16,6 @@ class PostProvider extends ChangeNotifier {
   PostProvider({required this.getCatalogsUseCase});
 
   List<CategoryModel>? _catalogs;
-  // CatalogModel? _catalogModel;
   CategoryModel? _selectedCatalog;
   ChildCategoryModel? _selectedChildCategory;
   bool _isLoading = false;

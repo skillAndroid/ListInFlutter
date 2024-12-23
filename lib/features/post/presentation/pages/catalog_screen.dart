@@ -16,6 +16,7 @@ import 'package:list_in/features/post/presentation/widgets/page_call_back_button
 import 'package:provider/provider.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
+
 // Optimized CatalogPagerScreen
 class CatalogPagerScreen extends StatefulWidget {
   const CatalogPagerScreen({super.key});

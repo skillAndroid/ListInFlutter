@@ -90,9 +90,10 @@ class _SignupPageState extends State<SignupPage> {
                                 smoothness: 1,
                                 borderRadius: BorderRadius.circular(16.0),
                                 child: Image.asset(
-                                  AppImages.appLogo,
-                                  width: 50,
-                                  height: 50,
+                                   AppImages.appLogo,
+                              width: 50,
+                              height: 50,
+                              fit: BoxFit.cover,
                                 ),
                               ),
                             ),

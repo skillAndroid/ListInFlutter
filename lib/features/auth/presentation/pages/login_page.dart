@@ -6,8 +6,9 @@ import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/auth/presentation/pages/signup_page.dart';
 import 'package:list_in/features/auth/presentation/widgets/auth_text_field.dart';
-import 'package:list_in/main.dart';
+import 'package:list_in/features/post/presentation/pages/post_screen.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
+
 import '../bloc/auth_bloc.dart';
 
 class LoginPage extends StatefulWidget {
@@ -41,7 +42,7 @@ class _LoginPageState extends State<LoginPage> {
           } else if (state is AuthSuccess) {
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
-                builder: (_) => const CatalogScreen(),
+                builder: (_) => const PostScreen(),
               ),
             );
           }
@@ -82,6 +83,7 @@ class _LoginPageState extends State<LoginPage> {
                               AppImages.appLogo,
                               width: 50,
                               height: 50,
+                              fit: BoxFit.cover,
                             ),
                           ),
                         ),

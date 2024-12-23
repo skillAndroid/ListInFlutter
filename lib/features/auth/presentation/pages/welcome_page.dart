@@ -16,7 +16,7 @@ class _WelcomePageState extends State<WelcomePage> {
   final double height = 180;
   final double borderRadius = 20;
   final double borderRadiusSmoothness = 0.8;
-  final double spaceHeight = 7;
+  final double spaceHeight = 5;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +26,7 @@ class _WelcomePageState extends State<WelcomePage> {
           fit: StackFit.expand,
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 28),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: _buildImageGrid(),
             ),
             _buildGradientOverlay(),
@@ -88,6 +88,7 @@ class _WelcomePageState extends State<WelcomePage> {
       child: SmoothClipRRect(
         smoothness: borderRadiusSmoothness,
         borderRadius: BorderRadius.circular(borderRadius),
+        side: const BorderSide(width: 2, color: AppColors.white),
         child: Image.asset(
           assetPath,
           height: height,
@@ -107,6 +108,7 @@ class _WelcomePageState extends State<WelcomePage> {
           stops: const [0.4, 0.5],
           colors: [
             AppColors.white,
+            // ignore: deprecated_member_use
             AppColors.white.withOpacity(0),
           ],
         ),
@@ -117,8 +119,8 @@ class _WelcomePageState extends State<WelcomePage> {
   Widget _buildWelcomeOverlay(BuildContext context) {
     return Positioned(
       bottom: 16,
-      left: 34,
-      right: 34,
+      left: 16,
+      right: 16,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -129,7 +131,10 @@ class _WelcomePageState extends State<WelcomePage> {
             child: SizedBox(
               height: 70,
               width: 70,
-              child: Image.asset(AppImages.appLogo),
+              child: Image.asset(
+                AppImages.appLogo,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -148,7 +153,7 @@ class _WelcomePageState extends State<WelcomePage> {
           _buildElevatedButton(
             context,
             label: 'Log In',
-            color: AppColors.bgColor,
+            color: AppColors.transparent,
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const LoginPage()),
@@ -172,9 +177,9 @@ class _WelcomePageState extends State<WelcomePage> {
         children: [
           TextSpan(text: 'Welcome to '),
           TextSpan(
-            text: 'Sellers',
+            text: 'ListIn',
             style: TextStyle(
-              color: Color.fromARGB(255, 228, 132, 105),
+              color: Color.fromARGB(255, 11, 100, 54),
             ),
           ),
           TextSpan(text: ' World'),
