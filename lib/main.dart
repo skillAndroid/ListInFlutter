@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:list_in/features/app_screens/presentation/app_navigation_screen.dart';
+import 'package:go_router/go_router.dart';
+import 'package:list_in/config/theme/app_theme.dart';
+import 'package:list_in/core/router/go_router.dart';
 import 'package:list_in/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:list_in/features/map/presentation/bloc/MapBloc.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
@@ -885,10 +888,42 @@ void main() async {
             create: (_) => di.sl<MapBloc>(), // Provide the MapBloc here
           ),
         ],
-        child: const MaterialApp(
-          home: AppScreens(),
-        ),
+        child: MyApp(router: di.sl<AppRouter>().router),
       ),
     ),
   );
+}
+
+class MyApp extends StatelessWidget {
+  final GoRouter router;
+
+  const MyApp({
+    super.key,
+    required this.router,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
+        systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarDividerColor: Colors.transparent,
+      ),
+    );
+    SystemChrome.setEnabledSystemUIMode(
+      SystemUiMode.edgeToEdge,
+      overlays: [], 
+    );
+
+    return MaterialApp.router(
+      routerConfig: router,
+      title: 'Your App',
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.lightTheme,
+      debugShowCheckedModeBanner: false,
+    );
+  }
 }

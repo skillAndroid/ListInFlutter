@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
-import 'package:list_in/features/auth/presentation/pages/login_page.dart';
-import 'package:list_in/features/auth/presentation/pages/signup_page.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class WelcomePage extends StatefulWidget {
@@ -144,20 +143,14 @@ class _WelcomePageState extends State<WelcomePage> {
             context,
             label: 'Create an Account',
             color: AppColors.littleGreen,
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const SignupPage()),
-            ),
+            onPressed: () => context.push('/signup'),
           ),
           const SizedBox(height: 8),
           _buildElevatedButton(
             context,
             label: 'Log In',
             color: AppColors.transparent,
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const LoginPage()),
-            ),
+            onPressed: () => context.push('/login'),
           ),
           const SizedBox(height: 20),
         ],

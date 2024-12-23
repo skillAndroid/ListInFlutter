@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/auth/data/models/auth_token_model.dart';
 import 'package:list_in/features/auth/data/models/retrived_email_model.dart';
 import 'package:list_in/features/auth/domain/entities/retrived_email.dart';
@@ -16,22 +17,17 @@ abstract class AuthLocalDataSource {
 
 class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   final SharedPreferences sharedPreferences;
-  // ignore: constant_identifier_names
-  static const CACHED_AUTH_TOKEN = 'CACHED_AUTH_TOKEN';
-  // ignore: constant_identifier_names
-  static const CACHED_RETRIVED_EMAIL = "CACHED_RETRIVED_EMAIL";
-
   AuthLocalDataSourceImpl({required this.sharedPreferences});
 
   @override
   Future<void> cacheAuthToken(AuthTokenModel authToken) async {
     await sharedPreferences.setString(
-        CACHED_AUTH_TOKEN, json.encode(authToken.toJson()));
+        Constants.CACHED_AUTH_TOKEN, json.encode(authToken.toJson()));
   }
 
   @override
   Future<AuthTokenModel?> getLastAuthToken() async {
-    final jsonString = sharedPreferences.getString(CACHED_AUTH_TOKEN);
+    final jsonString = sharedPreferences.getString(Constants.CACHED_AUTH_TOKEN);
     if (jsonString != null) {
       return AuthTokenModel.fromJson(json.decode(jsonString));
     }
@@ -40,23 +36,23 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
 
   @override
   Future<void> clearAuthToken() async {
-    await sharedPreferences.remove(CACHED_AUTH_TOKEN);
+    await sharedPreferences.remove(Constants.CACHED_AUTH_TOKEN);
   }
 
   @override
   Future<void> cacheRetrivedEmail(RetrivedEmailModel retrivedEmail) async {
     await sharedPreferences.setString(
-        CACHED_RETRIVED_EMAIL, json.encode(retrivedEmail.toJson()));
+        Constants.CACHED_RETRIVED_EMAIL, json.encode(retrivedEmail.toJson()));
   }
 
   @override
   Future<void> deleteRetrivedEmail() async {
-    await sharedPreferences.remove(CACHED_RETRIVED_EMAIL);
+    await sharedPreferences.remove(Constants.CACHED_RETRIVED_EMAIL);
   }
 
   @override
   Future<RetrivedEmail?> getRetrivedEmail() async {
-    final jsonString = sharedPreferences.getString(CACHED_RETRIVED_EMAIL);
+    final jsonString = sharedPreferences.getString(Constants.CACHED_RETRIVED_EMAIL);
     if (jsonString != null) {
       return RetrivedEmailModel.fromJson(json.decode(jsonString));
     }

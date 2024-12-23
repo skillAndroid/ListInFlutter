@@ -4,6 +4,7 @@ import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:dio/dio.dart';
 import 'package:list_in/core/network/network_info.dart';
 import 'package:list_in/core/network/network_info_impl.dart';
+import 'package:list_in/core/router/go_router.dart';
 import 'package:list_in/core/services/auth_service.dart';
 import 'package:list_in/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:list_in/features/auth/data/sources/auth_local_data_source.dart';
@@ -39,6 +40,9 @@ final sl = GetIt.instance;
 
 Future<void> init() async {
   final sharedPreferences = await SharedPreferences.getInstance();
+
+ sl.registerLazySingleton(() => AppRouter(sl<SharedPreferences>()));
+
   final appDocumentDirectory =
       await path_provider.getApplicationDocumentsDirectory();
   Hive.init(appDocumentDirectory.path);
