@@ -107,7 +107,7 @@ class ColorSelectableWidget extends StatelessWidget {
                   ),
                 ),
 
-                // Dropdown options card
+            
                 AnimatedSize(
                   duration: const Duration(milliseconds: 400),
                   curve: Curves.easeInOut,

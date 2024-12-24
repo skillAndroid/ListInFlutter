@@ -39,7 +39,6 @@ class MultiSelectableWidget extends StatelessWidget {
         ),
         const SizedBox(height: 4),
 
-        // Selected values chips
         if (selectedValues.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(bottom: 4.0),
@@ -127,7 +126,6 @@ class MultiSelectableWidget extends StatelessWidget {
           ),
         ),
 
-        // Dropdown options card
         AnimatedSize(
           duration: const Duration(milliseconds: 300),
           curve: Curves.ease,
@@ -145,7 +143,6 @@ class MultiSelectableWidget extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Scrollable list of values
                       ConstrainedBox(
                         constraints: const BoxConstraints(maxHeight: 250),
                         child: ListView.builder(
@@ -196,6 +193,7 @@ class MultiSelectableWidget extends StatelessWidget {
                                             color: isSelected
                                                 ? AppColors.black
                                                 : AppColors.gray
+                                                    // ignore: deprecated_member_use
                                                     .withOpacity(0.5),
                                             child: isSelected
                                                 ? const Icon(
