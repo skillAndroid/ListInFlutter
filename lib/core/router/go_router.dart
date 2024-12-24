@@ -31,7 +31,7 @@ class AppRouter {
     debugLogDiagnostics: true,
     redirect: (context, state) {
       final loggedIn =
-          sharedPreferences.getString(Constants.CACHED_AUTH_TOKEN) != null;
+          sharedPreferences.getString(Constants.CACHED_AUTH_TOKEN) == null;
       final isAuthRoute = state.matchedLocation == AppPath.login ||
           state.matchedLocation == AppPath.signup ||
           state.matchedLocation == AppPath.welcome ||
