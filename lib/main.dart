@@ -917,9 +917,11 @@ class MyApp extends StatelessWidget {
       SystemUiMode.edgeToEdge,
       overlays: [],
     );
-
+     
+    // bu tomonda router ishlatilardi
+    // Manshu list qotvotti --
     return MaterialApp(
-      home: ProductListScreen(
+      home: ProductListScreen(  
           advertisedProducts: sampleVideos, regularProducts: sampleProducts),
       title: 'Your App',
       theme: AppTheme.lightTheme,
