@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/post/presentation/pages/atributes_releted/atributes_page.dart';
 import 'package:list_in/features/post/presentation/pages/atributes_releted/catalog_page.dart';
@@ -16,8 +16,6 @@ import 'package:list_in/features/post/presentation/widgets/page_call_back_button
 import 'package:provider/provider.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
-
-// Optimized CatalogPagerScreen
 class CatalogPagerScreen extends StatefulWidget {
   const CatalogPagerScreen({super.key});
 
@@ -68,11 +66,16 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
       return false;
     }
 
-    await SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+    context.pop();
     return false;
   }
 
   void _handleBackNavigation(PostProvider provider) {
+    if (_currentPage == 0) {
+      provider.clear();
+      context.pop();
+      return;
+    }
     provider.resetUIState();
 
     if (_currentPage == 9 ||
@@ -107,7 +110,6 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
         body: Stack(
           children: [
             _buildPageViewBody(context),
-            // Conditional Next Button
             if (_currentPage >= 2)
               Positioned(
                 left: 0,
@@ -220,23 +222,15 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
       automaticallyImplyLeading: false,
       flexibleSpace: _buildProgressIndicator(),
       leadingWidth: 56,
-      leading: Consumer<PostProvider>(
-        builder: (context, provider, child) {
-          return Visibility(
-            visible: _currentPage >= 0,
-            child: Transform.translate(
-              offset: const Offset(10, 0),
-              child: Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: CatalogBackButton(
-                  onTap: () => _handleBackNavigation(provider),
-                  isVisible: provider.selectedChildCategory != null ||
-                      provider.selectedCatalog != null,
-                ),
-              ),
-            ),
-          );
-        },
+      leading: Transform.translate(
+        offset: const Offset(10, 0),
+        child: Padding(
+          padding: const EdgeInsets.all(4.0),
+          child: CatalogBackButton(onTap: () {
+            final provider = Provider.of<PostProvider>(context, listen: false);
+            _handleBackNavigation(provider);
+          }),
+        ),
       ),
     );
   }

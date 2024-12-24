@@ -225,49 +225,50 @@ class PostProvider extends ChangeNotifier {
     notifyListeners();
   }
 
- void _handleDynamicAttributeCreation(
-    AttributeModel attribute, AttributeValueModel value) {
-  if (attribute.subWidgetsType != 'null' &&
-      value.list.isNotEmpty &&
-      value.list[0].name != null) {
-    // Проверяем, существует ли уже такой же атрибут с теми же значениями
-    bool alreadyExists = dynamicAttributes.any((attr) =>
-        attr.attributeKey == attribute.attributeKey &&
-        attr.subWidgetsType == 'null' &&
-        attr.values.length == value.list.length &&
-        attr.values.every((existingValue) => value.list.any(
-            (newValue) => existingValue.value == newValue.name)));
+  void _handleDynamicAttributeCreation(
+      AttributeModel attribute, AttributeValueModel value) {
+    if (attribute.subWidgetsType != 'null' &&
+        value.list.isNotEmpty &&
+        value.list[0].name != null) {
+      // Проверяем, существует ли уже такой же атрибут с теми же значениями
+      bool alreadyExists = dynamicAttributes.any((attr) =>
+          attr.attributeKey == attribute.attributeKey &&
+          attr.subWidgetsType == 'null' &&
+          attr.values.length == value.list.length &&
+          attr.values.every((existingValue) => value.list
+              .any((newValue) => existingValue.value == newValue.name)));
 
-    if (!alreadyExists) {
-      final newAttribute = AttributeModel(
-        attributeKey: attribute.attributeKey,
-        helperText: attribute.subHelperText,
-        subHelperText: 'null',
-        widgetType: attribute.subWidgetsType,
-        subWidgetsType: 'null',
-        dataType: 'string',
-        values: value.list.map((subModel) {
-          return AttributeValueModel(
-            attributeValueId: subModel.modelId ?? '',
-            attributeKeyId: '',
-            value: subModel.name ?? '',
-            list: [],
-          );
-        }).toList(),
-      );
+      if (!alreadyExists) {
+        final newAttribute = AttributeModel(
+          attributeKey: attribute.attributeKey,
+          helperText: attribute.subHelperText,
+          subHelperText: 'null',
+          widgetType: attribute.subWidgetsType,
+          subWidgetsType: 'null',
+          dataType: 'string',
+          values: value.list.map((subModel) {
+            return AttributeValueModel(
+              attributeValueId: subModel.modelId ?? '',
+              attributeKeyId: '',
+              value: subModel.name ?? '',
+              list: [],
+            );
+          }).toList(),
+        );
 
-      // Удаляем старый атрибут
-      dynamicAttributes.removeWhere(
-        (attr) =>
-            attr.attributeKey == attribute.attributeKey &&
-            attr.subWidgetsType == 'null', // Удаляем только родительский
-      );
+        // Удаляем старый атрибут
+        dynamicAttributes.removeWhere(
+          (attr) =>
+              attr.attributeKey == attribute.attributeKey &&
+              attr.subWidgetsType == 'null', // Удаляем только родительский
+        );
 
-      // Добавляем новый атрибут
-      dynamicAttributes.insert(0, newAttribute);
+        // Добавляем новый атрибут
+        dynamicAttributes.insert(0, newAttribute);
+      }
     }
   }
-}
+
   bool isValueSelected(AttributeModel attribute, AttributeValueModel value) {
     final selectedValue = _selectedValues[attribute.attributeKey];
     if (attribute.widgetType == 'oneSelectable' ||
@@ -534,5 +535,55 @@ class PostProvider extends ChangeNotifier {
       _productCondition = condition;
       notifyListeners();
     }
+  }
+
+  void clear() {
+    // Reset catalog and category selections
+    _selectedCatalog = null;
+    _selectedChildCategory = null;
+    _catalogHistory.clear();
+    _childCategoryHistory.clear();
+
+    // Reset attributes and their selections
+    _currentAttributes = [];
+    dynamicAttributes = [];
+    _selectedValues.clear();
+    _attributeOptionsVisibility.clear();
+    _selectedAttributeValues.clear();
+    _childCategorySelections.clear();
+    _childCategoryDynamicAttributes.clear();
+
+    // Reset post details
+    _postTitle = "";
+    _postDescription = "";
+    _price = 0.0;
+    _images = [];
+    _video = null;
+
+    // Reset location settings
+    _location = const LocationEntity(
+      name: "Yashnobod Tumani, Toshkent",
+      coordinates: CoordinatesEntity(
+        latitude: 41.3227,
+        longitude: 69.2932,
+      ),
+    );
+    _locationSharingMode = LocationSharingMode.region;
+
+    // Reset phone and call settings
+    _phoneNumber = '+998901234567';
+    _allowCalls = true;
+    _callStartTime = const TimeOfDay(hour: 9, minute: 0);
+    _callEndTime = const TimeOfDay(hour: 18, minute: 0);
+
+    // Reset product condition
+    _productCondition = 'new';
+
+    // Reset error and loading states
+    _error = null;
+    _isLoading = false;
+
+    // Notify listeners of all changes
+    notifyListeners();
   }
 }
