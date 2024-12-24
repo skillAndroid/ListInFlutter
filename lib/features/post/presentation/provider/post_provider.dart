@@ -230,7 +230,6 @@ class PostProvider extends ChangeNotifier {
     if (attribute.subWidgetsType != 'null' &&
         value.list.isNotEmpty &&
         value.list[0].name != null) {
-      // Проверяем, существует ли уже такой же атрибут с теми же значениями
       bool alreadyExists = dynamicAttributes.any((attr) =>
           attr.attributeKey == attribute.attributeKey &&
           attr.subWidgetsType == 'null' &&
@@ -256,14 +255,14 @@ class PostProvider extends ChangeNotifier {
           }).toList(),
         );
 
-        // Удаляем старый атрибут
+       
         dynamicAttributes.removeWhere(
           (attr) =>
               attr.attributeKey == attribute.attributeKey &&
-              attr.subWidgetsType == 'null', // Удаляем только родительский
+              attr.subWidgetsType == 'null',
         );
 
-        // Добавляем новый атрибут
+      
         dynamicAttributes.insert(0, newAttribute);
       }
     }
@@ -300,11 +299,11 @@ class PostProvider extends ChangeNotifier {
           [];
       if (selectedValues.isEmpty) return;
 
-      // Clear previous dynamic attributes related to this multi-selection attribute
+     
       dynamicAttributes.removeWhere((attr) =>
           attr.attributeKey.startsWith('${attribute.attributeKey} Model'));
 
-      // Only create dynamic attributes for selected values that have sub-models
+    
       final dynamicAttributesToAdd = selectedValues
           .where((value) =>
               attribute.subWidgetsType != 'null' &&
@@ -332,7 +331,7 @@ class PostProvider extends ChangeNotifier {
               ))
           .toList();
 
-      // Add new dynamic attributes
+    
       dynamicAttributes.insertAll(0, dynamicAttributesToAdd);
     }
 
@@ -398,7 +397,7 @@ class PostProvider extends ChangeNotifier {
 
   // Post 2nd part : Seller informations, images & videos, nessary details
 
-  // Private field
+ 
   String _postTitle = "";
   String _postDescription = "";
   double _price = 0.0;
@@ -413,7 +412,7 @@ class PostProvider extends ChangeNotifier {
   );
   LocationSharingMode _locationSharingMode = LocationSharingMode.region;
 
-  // Getter to access postTitle
+ 
   String get postTitle => _postTitle;
   String get postDescription => _postDescription;
   double get price => _price;
