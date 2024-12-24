@@ -885,7 +885,7 @@ void main() async {
             create: (_) => di.sl<AuthBloc>(),
           ),
           BlocProvider<MapBloc>(
-            create: (_) => di.sl<MapBloc>(), // Provide the MapBloc here
+            create: (_) => di.sl<MapBloc>(),
           ),
         ],
         child: MyApp(router: di.sl<AppRouter>().router),
@@ -918,23 +918,12 @@ class MyApp extends StatelessWidget {
       overlays: [],
     );
 
-    // bu tomonda router ishlatilardi
-    // Manshu list qotvotti --
-    return MaterialApp(
-      home: ProductListScreen(
-          advertisedProducts: sampleVideos, regularProducts: sampleProducts),
+    return MaterialApp.router(
       title: 'Your App',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.lightTheme,
       debugShowCheckedModeBanner: false,
+      routerConfig: router,
     );
-
-    // return MaterialApp.router(
-    //   title: 'Your App',
-    //   theme: AppTheme.lightTheme,
-    //   darkTheme: AppTheme.lightTheme,
-    //   debugShowCheckedModeBanner: false,
-    //   routerConfig: router,
-    // );
   }
 }

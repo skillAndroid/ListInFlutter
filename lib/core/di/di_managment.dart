@@ -91,7 +91,7 @@ Future<void> init() async {
 
   //! External
   sl.registerLazySingleton(() => sharedPreferences);
-  sl.registerLazySingleton(() => InternetConnectionChecker());
+  sl.registerLazySingleton(() => InternetConnectionChecker.createInstance());
   sl.registerLazySingleton(
     () {
       final dio = Dio();
