@@ -3,15 +3,15 @@ import 'package:go_router/go_router.dart';
 import 'package:list_in/core/router/keep_alive_wrapper.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/core/utils/const.dart';
-import 'package:list_in/details.dart';
-import 'package:list_in/features/app_screens/presentation/app_navigation_screen.dart';
+import 'package:list_in/features/undefined_screens_yet/details.dart';
 import 'package:list_in/features/auth/presentation/pages/login_page.dart';
 import 'package:list_in/features/auth/presentation/pages/register_details_page.dart';
 import 'package:list_in/features/auth/presentation/pages/signup_page.dart';
 import 'package:list_in/features/auth/presentation/pages/verification_page.dart';
 import 'package:list_in/features/auth/presentation/pages/welcome_page.dart';
 import 'package:list_in/features/post/presentation/pages/post_screen.dart';
-import 'package:list_in/list.dart';
+import 'package:list_in/features/undefined_screens_yet/wrapper_screen.dart';
+import 'package:list_in/features/undefined_screens_yet/list.dart';
 import 'package:list_in/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -27,49 +27,49 @@ class AppRouter {
   late final router = GoRouter(
     refreshListenable: ValueNotifier<int>(0),
     navigatorKey: _rootNavigatorKey,
-    initialLocation: AppPath.home,
+    initialLocation: Routes.home,
     debugLogDiagnostics: true,
     redirect: (context, state) {
       final loggedIn =
           sharedPreferences.getString(Constants.CACHED_AUTH_TOKEN) == null;
-      final isAuthRoute = state.matchedLocation == AppPath.login ||
-          state.matchedLocation == AppPath.signup ||
-          state.matchedLocation == AppPath.welcome ||
-          state.matchedLocation == AppPath.verification ||
-          state.matchedLocation == AppPath.userRegisterDetails;
-      if (!loggedIn && !isAuthRoute) return AppPath.welcome;
-      if (loggedIn && isAuthRoute) return AppPath.home;
+      final isAuthRoute = state.matchedLocation == Routes.login ||
+          state.matchedLocation == Routes.signup ||
+          state.matchedLocation == Routes.welcome ||
+          state.matchedLocation == Routes.verification ||
+          state.matchedLocation == Routes.userRegisterDetails;
+      if (!loggedIn && !isAuthRoute) return Routes.welcome;
+      if (loggedIn && isAuthRoute) return Routes.home;
       return null;
     },
     routes: [
       // Auth routes
       GoRoute(
-        path: AppPath.welcome,
+        path: Routes.welcome,
         builder: (context, state) => const WelcomePage(),
       ),
       GoRoute(
-        path: AppPath.signup,
+        path: Routes.signup,
         builder: (context, state) => const SignupPage(),
       ),
       GoRoute(
-        path: AppPath.verification,
+        path: Routes.verification,
         builder: (context, state) => const VerificationPage(),
       ),
       GoRoute(
-        path: AppPath.userRegisterDetails,
+        path: Routes.userRegisterDetails,
         builder: (context, state) => const RegisterUserDataPage(),
       ),
       GoRoute(
-        path: AppPath.login,
+        path: Routes.login,
         builder: (context, state) => const LoginPage(),
       ),
       GoRoute(
-        path: AppPath.post,
+        path: Routes.post,
         builder: (context, state) => const PostScreen(),
       ),
 
       GoRoute(
-        path: AppPath.productDetails,
+        path: Routes.productDetails,
         builder: (context, state) {
           final productId = state.pathParameters['id']!;
           final extraProducts = state.extra;
@@ -101,7 +101,7 @@ class AppRouter {
             navigatorKey: _homeNavigatorKey,
             routes: [
               GoRoute(
-                path: AppPath.home,
+                path: Routes.home,
                 builder: (context, state) => KeepAliveWrapper(
                   child: ProductListScreen(
                     advertisedProducts: sampleVideos,
@@ -111,12 +111,11 @@ class AppRouter {
               ),
             ],
           ),
-
           StatefulShellBranch(
             navigatorKey: _eventsNavigatorKey,
             routes: [
               GoRoute(
-                path: AppPath.events,
+                path: Routes.events,
                 builder: (context, state) => const KeepAliveWrapper(
                   child: EventsScreen(),
                 ),

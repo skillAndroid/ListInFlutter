@@ -3,14 +3,13 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:list_in/core/router/routes.dart';
-import 'package:list_in/list.dart';
+import 'package:list_in/features/undefined_screens_yet/list.dart';
 import 'package:list_in/main.dart';
-
 
 class ProductDetailsScreen extends StatefulWidget {
   final String productId;
   final List<Product> recommendedProducts;
-  
+
   const ProductDetailsScreen({
     super.key,
     required this.productId,
@@ -101,7 +100,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     onTap: () {
                       // Navigate to new product details while keeping current in stack
                       context.push(
-                        AppPath.productDetails.replaceAll(':id', recommendedProduct.id),
+                        Routes.productDetails
+                            .replaceAll(':id', recommendedProduct.id),
                         extra: getRecommendedProducts(recommendedProduct.id),
                       );
                     },
@@ -150,10 +150,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   }
 }
 
-
 List<Product> getRecommendedProducts(String currentProductId) {
-  return sampleProducts
-    .where((p) => p.id != currentProductId)
-    .take(6)
-    .toList();
+  return sampleProducts.where((p) => p.id != currentProductId).take(6).toList();
 }

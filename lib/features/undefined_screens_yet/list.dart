@@ -4,8 +4,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:list_in/core/router/routes.dart';
-import 'package:list_in/details.dart';
-import 'package:list_in/video_player.dart';
+import 'package:list_in/features/undefined_screens_yet/details.dart';
+import 'package:list_in/features/undefined_screens_yet/video_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 // Data Classes
@@ -260,7 +260,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 return InkWell(
                   onTap: () {
                     context.push(
-                      AppPath.productDetails.replaceAll(':id', product.id),
+                      Routes.productDetails.replaceAll(':id', product.id),
                       extra: getRecommendedProducts(product.id),
                     );
                   },

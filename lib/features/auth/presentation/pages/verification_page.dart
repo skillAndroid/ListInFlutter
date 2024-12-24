@@ -38,7 +38,7 @@ class _VerificationPageState extends State<VerificationPage> {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Email Verified!')),
             );
-            context.push(AppPath.userRegisterDetails);
+            context.push(Routes.userRegisterDetails);
           }
         },
         builder: (context, state) {

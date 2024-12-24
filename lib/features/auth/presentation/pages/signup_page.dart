@@ -39,7 +39,7 @@ class _SignupPageState extends State<SignupPage> {
               SnackBar(content: Text(state.message)),
             );
           } else if (state is EmailReceivedSuccess) {
-            context.push(AppPath.verification);
+            context.push(Routes.verification);
           }
         },
         builder: (context, state) {
@@ -311,7 +311,7 @@ class _SignupPageState extends State<SignupPage> {
                               fontWeight: FontWeight.bold),
                         ),
                         GestureDetector(
-                          onTap: () => context.pushReplacement(AppPath.login),
+                          onTap: () => context.pushReplacement(Routes.login),
                           child: const Text(
                             'Log In',
                             style: TextStyle(

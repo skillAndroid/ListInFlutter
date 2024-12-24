@@ -1,4 +1,4 @@
-class AppPath {
+class Routes {
   // Auth paths
   static const welcome = '/welcome';
   static const login = '/login';
@@ -10,17 +10,5 @@ class AppPath {
   static const home = '/home';
   static const events = '/events';
   static const post = '/post';
-  static const String productDetails = '/product/:id'; 
-}
-
-class PathName {
-  // Auth names
-  static const welcome = 'welcome';
-  static const login = 'login';
-  static const signup = 'signup';
-  static const verification = 'verification';
-
-  // Main names
-  static const home = 'home';
-  static const events = 'events';
+  static const String productDetails = '/product/:id';
 }

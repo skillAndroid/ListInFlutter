@@ -36,7 +36,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   cached_network_image: ^3.4.1  
-  video_player:  # For video playback
+  video_player: ^2.9.2
   visibility_detector: ^0.4.0+2 
   flutter_bloc: ^8.1.6
   get_it: ^8.0.2

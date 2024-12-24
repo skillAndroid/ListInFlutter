@@ -7,10 +7,10 @@ import 'package:list_in/core/router/go_router.dart';
 import 'package:list_in/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:list_in/features/map/presentation/bloc/MapBloc.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
-import 'package:list_in/list.dart';
+import 'package:list_in/features/undefined_screens_yet/list.dart';
 import 'package:provider/provider.dart';
 
-import 'injection_container.dart' as di;
+import 'core/di/di_managment.dart' as di;
 
 // Sample data for products and advertisements
 final List<AdvertisedProduct> sampleVideos = [
@@ -915,11 +915,12 @@ class MyApp extends StatelessWidget {
     );
     SystemChrome.setEnabledSystemUIMode(
       SystemUiMode.edgeToEdge,
-      overlays: [], 
+      overlays: [],
     );
 
-    return MaterialApp.router(
-      routerConfig: router,
+    return MaterialApp(
+      home: ProductListScreen(
+          advertisedProducts: sampleVideos, regularProducts: sampleProducts),
       title: 'Your App',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.lightTheme,

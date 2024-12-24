@@ -40,7 +40,7 @@ class _LoginPageState extends State<LoginPage> {
               SnackBar(content: Text(state.message)),
             );
           } else if (state is AuthSuccess) {
-            context.pushReplacement(AppPath.home);
+            context.pushReplacement(Routes.home);
           }
         },
         builder: (context, state) {
@@ -224,7 +224,7 @@ class _LoginPageState extends State<LoginPage> {
                               backgroundColor: AppColors.black,
                             ),
                             onPressed: () =>
-                                context.pushReplacement(AppPath.signup),
+                                context.pushReplacement(Routes.signup),
                             child: const Center(
                               child: Text(
                                 'Create an Account',

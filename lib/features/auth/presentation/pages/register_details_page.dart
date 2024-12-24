@@ -107,7 +107,7 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                 SnackBar(content: Text(state.message)),
               );
             } else if (state is RegistrationUserSuccess) {
-              context.pushReplacement(AppPath.home);
+              context.pushReplacement(Routes.home);
             }
           },
           builder: (context, state) {
