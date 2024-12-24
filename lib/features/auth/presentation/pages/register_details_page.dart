@@ -1,9 +1,11 @@
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:list_in/features/auth/presentation/widgets/auth_text_field.dart';
 import 'package:list_in/features/map/domain/entities/coordinates_entity.dart';
@@ -80,16 +82,16 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
         _currentPage--;
       });
     } else {
-      Navigator.of(context).pop(); // Exit the page if on the first page
+      context.pop();
     }
   }
 
   Future<bool> _onWillPop() async {
     if (_currentPage > 0) {
       _previousPage();
-      return false; // Prevent default pop behavior
+      return false;
     }
-    return true; // Allow default pop behavior (close the screen)
+    return true;
   }
 
   @override
@@ -105,7 +107,7 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                 SnackBar(content: Text(state.message)),
               );
             } else if (state is RegistrationUserSuccess) {
-              Navigator.of(context).pushReplacementNamed('/home');
+              context.pushReplacement(AppPath.home);
             }
           },
           builder: (context, state) {
@@ -123,11 +125,10 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                             offset: const Offset(
                               -20,
                               0,
-                            ), // Move 10 pixels to the left
+                            ),
                             child: IconButton(
                               onPressed: () => _previousPage(),
-                              padding:
-                                  EdgeInsets.zero, // Removes internal padding
+                              padding: EdgeInsets.zero,
                               icon: const HugeIcon(
                                 icon: EvaIcons.arrowIosBack,
                                 color: AppColors.black,
@@ -149,7 +150,7 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                     end: (_currentPage + 1) / _totalPages),
                                 duration: const Duration(
                                   milliseconds: 300,
-                                ), // Adjust the duration for smoothness
+                                ),
                                 builder: (context, value, child) {
                                   return LinearProgressIndicator(
                                     value: value,
@@ -168,13 +169,12 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                             offset: const Offset(
                               12,
                               0,
-                            ), // Move 10 pixels to the left
+                            ),
                             child: InkWell(
                               onTap: () => {},
                               borderRadius: BorderRadius.circular(16),
                               child: const Padding(
-                                padding: EdgeInsets
-                                    .zero, // Ensures no extra padding around the icon
+                                padding: EdgeInsets.zero,
                                 child: Icon(
                                   EvaIcons.infoOutline,
                                   color: AppColors.black,
@@ -185,8 +185,6 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                           ),
                         ],
                       ),
-                      // Progress Indicator at the top
-
                       Expanded(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
@@ -232,17 +230,15 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                               elevation:
                                                   WidgetStateProperty.all(
                                                 0,
-                                              ), // Disable elevation (shadow)
+                                              ),
                                             ),
                                             child: Card(
                                               color: _selectedOption == index
                                                   ? AppColors.myRedBrown
-                                                      .withOpacity(
-                                                          0.25) // Change color if selected
+                                                      // ignore: deprecated_member_use
+                                                      .withOpacity(0.25)
                                                   : AppColors.containerColor,
                                               elevation: 0,
-                                              // margin: const EdgeInsets.symmetric(
-                                              //     vertical: 8, horizontal: 0),
                                               shape: SmoothRectangleBorder(
                                                 smoothness: 0.8,
                                                 borderRadius:
@@ -253,37 +249,36 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                                     const EdgeInsets.all(16),
                                                 child: Row(
                                                   children: [
-                                                    // Animated circle with increased size and width
                                                     AnimatedContainer(
                                                       duration: const Duration(
                                                           milliseconds: 300),
                                                       width: _selectedOption ==
                                                               index
                                                           ? 21
-                                                          : 20, // Wider circle when selected
+                                                          : 20,
                                                       height: _selectedOption ==
                                                               index
                                                           ? 21
-                                                          : 20, // Larger circle when selected
+                                                          : 20,
                                                       decoration: BoxDecoration(
                                                         shape: BoxShape.circle,
                                                         border: Border.all(
-                                                          color: _selectedOption ==
-                                                                  index
-                                                              ? AppColors
-                                                                  .black // Border color when selected
-                                                              : AppColors
-                                                                  .gray, // Border color when unselected
-                                                          width: _selectedOption ==
-                                                                  index
-                                                              ? 5
-                                                              : 2, // Thicker border when selected
+                                                          color:
+                                                              _selectedOption ==
+                                                                      index
+                                                                  ? AppColors
+                                                                      .black
+                                                                  : AppColors
+                                                                      .gray,
+                                                          width:
+                                                              _selectedOption ==
+                                                                      index
+                                                                  ? 5
+                                                                  : 2,
                                                         ),
                                                       ),
                                                     ),
-                                                    const SizedBox(
-                                                        width:
-                                                            16), // Space between circle and text
+                                                    const SizedBox(width: 16),
                                                     Expanded(
                                                       child: Column(
                                                         crossAxisAlignment:
@@ -333,9 +328,7 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                             ),
                                           ),
                                           if (index < options.length - 1)
-                                            const SizedBox(
-                                                height:
-                                                    8), // Adjust the height as needed
+                                            const SizedBox(height: 8),
                                         ],
                                       );
                                     },
@@ -424,14 +417,13 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                                     style: ElevatedButton
                                                         .styleFrom(
                                                       elevation: 0,
-                                                      shadowColor: AppColors
-                                                          .transparent,
+                                                      shadowColor:
+                                                          AppColors.transparent,
                                                       backgroundColor:
                                                           _locationSharingPreference ==
                                                                   LocationSharingMode
                                                                       .precise
-                                                              ? AppColors
-                                                                  .black
+                                                              ? AppColors.black
                                                               : Colors.grey
                                                                   .shade300,
                                                       foregroundColor:
@@ -465,15 +457,14 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                                         'Region Only'),
                                                     style: ElevatedButton
                                                         .styleFrom(
-                                                      shadowColor: AppColors
-                                                          .transparent,
+                                                      shadowColor:
+                                                          AppColors.transparent,
                                                       elevation: 0,
                                                       backgroundColor:
                                                           _locationSharingPreference ==
                                                                   LocationSharingMode
                                                                       .region
-                                                              ? AppColors
-                                                                  .black
+                                                              ? AppColors.black
                                                               : Colors.grey
                                                                   .shade300,
                                                       foregroundColor:
@@ -535,7 +526,7 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                                 const FractionallySizedBox(
                                               heightFactor: 1.0,
                                               child: Scaffold(
-                                                body: MapSample(),
+                                                body: LocationSelectionPage(),
                                               ),
                                             ),
                                           ).then((result) {
@@ -698,7 +689,8 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                                         password:
                                                             _passwordController
                                                                 .text,
-                                                        roles: 'INDIVIDUAL_SELLER',
+                                                        roles:
+                                                            'INDIVIDUAL_SELLER',
                                                         isGrantedForPreciseLocation:
                                                             _locationSharingPreference ==
                                                                 LocationSharingMode

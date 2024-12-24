@@ -1,11 +1,12 @@
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:list_in/features/auth/presentation/pages/register_details_page.dart';
 import 'package:pinput/pinput.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
@@ -37,15 +38,7 @@ class _VerificationPageState extends State<VerificationPage> {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Email Verified!')),
             );
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => BlocProvider.value(
-                  value: BlocProvider.of<AuthBloc>(context),
-                  child: const RegisterUserDataPage(),
-                ),
-              ),
-            );
+            context.push(AppPath.userRegisterDetails);
           }
         },
         builder: (context, state) {
@@ -60,14 +53,10 @@ class _VerificationPageState extends State<VerificationPage> {
                     Row(
                       children: [
                         Transform.translate(
-                          offset: const Offset(
-                              -10, 0), // Move 10 pixels to the left
+                          offset: const Offset(-10, 0),
                           child: IconButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            padding:
-                                EdgeInsets.zero, // Removes internal padding
+                            onPressed: () => context.pop(),
+                            padding: EdgeInsets.zero,
                             icon: const HugeIcon(
                               icon: EvaIcons.arrowIosBack,
                               color: AppColors.black,
@@ -198,6 +187,7 @@ class _VerificationPageState extends State<VerificationPage> {
                           fontWeight: FontWeight.w600,
                         ),
                         decoration: BoxDecoration(
+                          // ignore: deprecated_member_use
                           color: AppColors.error.withOpacity(0.1),
                           border: Border.all(color: Colors.red),
                           borderRadius: BorderRadius.circular(16),
@@ -269,8 +259,6 @@ class _VerificationPageState extends State<VerificationPage> {
                         ],
                       ),
                     ),
-
-                    // const SizedBox(height: 16),
                   ],
                 )),
           ));
@@ -278,7 +266,4 @@ class _VerificationPageState extends State<VerificationPage> {
       ),
     );
   }
-
-//
 }
-//

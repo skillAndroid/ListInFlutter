@@ -1,12 +1,12 @@
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
-import 'package:list_in/features/auth/presentation/pages/login_page.dart';
-import 'package:list_in/features/auth/presentation/pages/verification_page.dart';
+import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/auth/presentation/widgets/auth_text_field.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import '../bloc/auth_bloc.dart';
@@ -39,20 +39,7 @@ class _SignupPageState extends State<SignupPage> {
               SnackBar(content: Text(state.message)),
             );
           } else if (state is EmailReceivedSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Please check your email.'),
-              ),
-            );
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => BlocProvider.value(
-                  value: BlocProvider.of<AuthBloc>(context),
-                  child: const VerificationPage(),
-                ),
-              ),
-            );
+            context.push(AppPath.verification);
           }
         },
         builder: (context, state) {
@@ -69,14 +56,12 @@ class _SignupPageState extends State<SignupPage> {
                         Row(
                           children: [
                             Transform.translate(
-                              offset: const Offset(
-                                  -10, 0), // Move 10 pixels to the left
+                              offset: const Offset(-10, 0),
                               child: IconButton(
                                 onPressed: () {
                                   Navigator.pop(context);
                                 },
-                                padding:
-                                    EdgeInsets.zero, // Removes internal padding
+                                padding: EdgeInsets.zero,
                                 icon: const HugeIcon(
                                   icon: EvaIcons.arrowIosBack,
                                   color: AppColors.black,
@@ -90,10 +75,10 @@ class _SignupPageState extends State<SignupPage> {
                                 smoothness: 1,
                                 borderRadius: BorderRadius.circular(16.0),
                                 child: Image.asset(
-                                   AppImages.appLogo,
-                              width: 50,
-                              height: 50,
-                              fit: BoxFit.cover,
+                                  AppImages.appLogo,
+                                  width: 50,
+                                  height: 50,
+                                  fit: BoxFit.cover,
                                 ),
                               ),
                             ),
@@ -177,6 +162,7 @@ class _SignupPageState extends State<SignupPage> {
                           Expanded(
                             child: Container(
                               height: 1,
+                              // ignore: deprecated_member_use
                               color: AppColors.lightText.withOpacity(0.75),
                             ),
                           ),
@@ -193,6 +179,7 @@ class _SignupPageState extends State<SignupPage> {
                           Expanded(
                             child: Container(
                               height: 1,
+                              // ignore: deprecated_member_use
                               color: AppColors.lightText.withOpacity(0.75),
                             ),
                           ),
@@ -207,9 +194,7 @@ class _SignupPageState extends State<SignupPage> {
                             style: ElevatedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 20),
                             ),
-                            onPressed: () {
-                              // Handle Continue with Google
-                            },
+                            onPressed: () {},
                             child: const Padding(
                               padding: EdgeInsets.symmetric(horizontal: 24),
                               child: Row(
@@ -326,17 +311,7 @@ class _SignupPageState extends State<SignupPage> {
                               fontWeight: FontWeight.bold),
                         ),
                         GestureDetector(
-                          onTap: () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => BlocProvider.value(
-                                  value: BlocProvider.of<AuthBloc>(context),
-                                  child: const LoginPage(),
-                                ),
-                              ),
-                            );
-                          },
+                          onTap: () => context.pushReplacement(AppPath.login),
                           child: const Text(
                             'Log In',
                             style: TextStyle(

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:list_in/core/router/routes.dart';
+import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/app_screens/presentation/app_navigation_screen.dart';
 import 'package:list_in/features/auth/presentation/pages/login_page.dart';
+import 'package:list_in/features/auth/presentation/pages/register_details_page.dart';
 import 'package:list_in/features/auth/presentation/pages/signup_page.dart';
 import 'package:list_in/features/auth/presentation/pages/verification_page.dart';
 import 'package:list_in/features/auth/presentation/pages/welcome_page.dart';
@@ -19,44 +22,44 @@ class AppRouter {
   late final router = GoRouter(
     refreshListenable: ValueNotifier<int>(0),
     navigatorKey: _rootNavigatorKey,
-    initialLocation: '/home',
+    initialLocation: AppPath.home,
     debugLogDiagnostics: true,
     redirect: (context, state) {
-      final loggedIn = sharedPreferences.getString('CACHED_AUTH_TOKEN') == null;
-      final isAuthRoute = state.matchedLocation == '/login' ||
-          state.matchedLocation == '/signup' ||
-          state.matchedLocation == '/welcome' ||
-          state.matchedLocation == '/verification';
+      final loggedIn =
+          sharedPreferences.getString(Constants.CACHED_AUTH_TOKEN) == null;
+      final isAuthRoute = state.matchedLocation == AppPath.login ||
+          state.matchedLocation == AppPath.signup ||
+          state.matchedLocation == AppPath.welcome ||
+          state.matchedLocation == AppPath.verification ||
+          state.matchedLocation == AppPath.userRegisterDetails;
 
-      
-      if (!loggedIn && !isAuthRoute) return '/welcome';
+      if (!loggedIn && !isAuthRoute) return AppPath.welcome;
 
-     
-      if (loggedIn && isAuthRoute) return '/home';
+      if (loggedIn && isAuthRoute) return AppPath.home;
 
-      // Otherwise, no redirection
       return null;
     },
     routes: [
-      // Auth routes
       GoRoute(
-        path: '/welcome',
+        path: AppPath.welcome,
         builder: (context, state) => const WelcomePage(),
       ),
       GoRoute(
-        path: '/signup',
+        path: AppPath.signup,
         builder: (context, state) => const SignupPage(),
       ),
       GoRoute(
-        path: '/verification',
+        path: AppPath.verification,
         builder: (context, state) => const VerificationPage(),
       ),
       GoRoute(
-        path: '/login',
+        path: AppPath.userRegisterDetails,
+        builder: (context, state) => const RegisterUserDataPage(),
+      ),
+      GoRoute(
+        path: AppPath.login,
         builder: (context, state) => const LoginPage(),
       ),
-
-      // Using ShellRoute instead of StatefulShellRoute
       ShellRoute(
         navigatorKey: _shellNavigatorKey,
         builder: (context, state, child) {
@@ -67,12 +70,12 @@ class AppRouter {
         },
         routes: [
           GoRoute(
-            path: '/home',
+            path: AppPath.home,
             parentNavigatorKey: _shellNavigatorKey,
             builder: (context, state) => const PostScreen(),
           ),
           GoRoute(
-            path: '/events',
+            path: AppPath.events,
             parentNavigatorKey: _shellNavigatorKey,
             builder: (context, state) => const EventsScreen(),
           ),

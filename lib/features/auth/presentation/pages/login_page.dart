@@ -1,12 +1,12 @@
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
-import 'package:list_in/features/auth/presentation/pages/signup_page.dart';
+import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/auth/presentation/widgets/auth_text_field.dart';
-import 'package:list_in/features/post/presentation/pages/post_screen.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 import '../bloc/auth_bloc.dart';
@@ -40,11 +40,7 @@ class _LoginPageState extends State<LoginPage> {
               SnackBar(content: Text(state.message)),
             );
           } else if (state is AuthSuccess) {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                builder: (_) => const PostScreen(),
-              ),
-            );
+            context.pushReplacement(AppPath.home);
           }
         },
         builder: (context, state) {
@@ -193,6 +189,7 @@ class _LoginPageState extends State<LoginPage> {
                           Expanded(
                             child: Container(
                               height: 1,
+                              // ignore: deprecated_member_use
                               color: AppColors.lightText.withOpacity(0.75),
                             ),
                           ),
@@ -209,6 +206,7 @@ class _LoginPageState extends State<LoginPage> {
                           Expanded(
                             child: Container(
                               height: 1,
+                              // ignore: deprecated_member_use
                               color: AppColors.lightText.withOpacity(0.75),
                             ),
                           ),
@@ -225,17 +223,8 @@ class _LoginPageState extends State<LoginPage> {
                               foregroundColor: AppColors.white,
                               backgroundColor: AppColors.black,
                             ),
-                            onPressed: () {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => BlocProvider.value(
-                                    value: BlocProvider.of<AuthBloc>(context),
-                                    child: const SignupPage(),
-                                  ),
-                                ),
-                              );
-                            },
+                            onPressed: () =>
+                                context.pushReplacement(AppPath.signup),
                             child: const Center(
                               child: Text(
                                 'Create an Account',

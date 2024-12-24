@@ -1,7 +1,10 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:list_in/config/assets/app_icons.dart';
@@ -17,14 +20,14 @@ import 'package:list_in/features/map/service/AppLocation.dart';
 import 'package:list_in/features/map/service/models.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
-class MapSample extends StatefulWidget {
-  const MapSample({super.key});
+class LocationSelectionPage extends StatefulWidget {
+  const LocationSelectionPage({super.key});
 
   @override
-  State<MapSample> createState() => _MapSampleState();
+  State<LocationSelectionPage> createState() => _LocationSelectionPageState();
 }
 
-class _MapSampleState extends State<MapSample> {
+class _LocationSelectionPageState extends State<LocationSelectionPage> {
   final Completer<GoogleMapController> _controllerCompleter = Completer();
   GoogleMapController? _mapController;
   final CameraPosition _initialCameraPosition = const CameraPosition(
@@ -147,10 +150,8 @@ class _MapSampleState extends State<MapSample> {
                       onCameraIdle: () async {
                         final LatLng position = await _mapController!.getLatLng(
                           ScreenCoordinate(
-                            x: MediaQuery.of(context).size.width ~/
-                                2, // Центр по ширине
-                            y: MediaQuery.of(context).size.height ~/
-                                2, // Центр по высоте
+                            x: MediaQuery.of(context).size.width ~/ 2,
+                            y: MediaQuery.of(context).size.height ~/ 2,
                           ),
                         );
 
@@ -398,7 +399,6 @@ class _MapSampleState extends State<MapSample> {
                   ),
                   margin: const EdgeInsets.only(bottom: 4),
                 ),
-                // Поле для поиска
                 Card(
                   elevation: 8,
                   color: AppColors.white,
@@ -411,16 +411,14 @@ class _MapSampleState extends State<MapSample> {
                         child: Row(
                           children: [
                             Container(
-                              width: 20, // diameter of the circle
-                              height: 20, // diameter of the circle
+                              width: 20,
+                              height: 20,
                               decoration: BoxDecoration(
-                                color:
-                                    AppColors.littleGreen, // inner circle color
+                                color: AppColors.littleGreen,
                                 shape: BoxShape.circle,
                                 border: Border.all(
-                                  color:
-                                      AppColors.secondaryColor, // border color
-                                  width: 2, // border thickness
+                                  color: AppColors.secondaryColor,
+                                  width: 2,
                                 ),
                               ),
                             ),
@@ -462,7 +460,6 @@ class _MapSampleState extends State<MapSample> {
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 16),
                 BlocBuilder<MapBloc, MapState>(
                   builder: (context, state) {
@@ -528,7 +525,7 @@ class _MapSampleState extends State<MapSample> {
                                   _selectedLocationCoordinates =
                                       location.coordinates;
                                 });
-                                Navigator.pop(context);
+                                context.pop();
                               },
                             );
                           },
