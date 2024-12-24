@@ -197,10 +197,10 @@ class _ProductListScreenState extends State<ProductListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Rest of the build method remains unchanged
     return Scaffold(
       appBar: AppBar(title: const Text('Product List')),
       body: CustomScrollView(
+        physics: const BouncingScrollPhysics(), 
         controller: _scrollController,
         slivers: [
           SliverList(
