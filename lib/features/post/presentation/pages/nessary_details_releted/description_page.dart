@@ -74,7 +74,7 @@ class _AddDescriptionPageState extends State<AddDescriptionPage> {
     final newText = _descriptionController.text;
     if (newText != _lastCommittedText && _errorText == null) {
       final provider = Provider.of<PostProvider>(context, listen: false);
-      provider.changePostTitle(newText);
+      provider.changePostDescription(newText);
       _lastCommittedText = newText;
       _needsUpdate = false;
     }

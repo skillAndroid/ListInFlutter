@@ -110,41 +110,14 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
         body: Stack(
           children: [
             _buildPageViewBody(context),
-            if (_currentPage >= 2)
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 8,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16.0,
-                  ),
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      shape: SmoothRectangleBorder(
-                        smoothness: 1,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      backgroundColor: AppColors.black,
-                      foregroundColor: AppColors.white,
-                    ),
-                    onPressed: _handleNextPage,
-                    child: const Padding(
-                      padding: EdgeInsets.all(18.0),
-                      child: Text(
-                        'Next',
-                        style: TextStyle(fontFamily: "Syne"),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+            if (_currentPage >= 2) _buildBottomButton(context),
           ],
         ),
       ),
     );
   }
 
+//
   Widget _buildPageViewBody(BuildContext context) {
     return Consumer<PostProvider>(
       builder: (context, provider, child) {
@@ -248,4 +221,134 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
       ),
     );
   }
+
+  Widget _buildBottomButton(BuildContext context) {
+    return Consumer<PostProvider>(
+      builder: (context, provider, child) {
+        final isLastPage = _currentPage == 9;
+        final isLoading = provider.postCreationState ==
+                PostCreationState.uploadingImages ||
+            provider.postCreationState == PostCreationState.uploadingVideo ||
+            provider.postCreationState == PostCreationState.creatingPost;
+
+        Widget buttonChild;
+        if (isLastPage) {
+          buttonChild = isLoading
+              ? Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        color: AppColors.white,
+                        strokeWidth: 2,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      _getLoadingText(provider.postCreationState),
+                      style: const TextStyle(fontFamily: "Syne"),
+                    ),
+                  ],
+                )
+              : const Text(
+                  'Create Post',
+                  style: TextStyle(fontFamily: "Syne"),
+                );
+        } else {
+          buttonChild = const Text(
+            'Next',
+            style: TextStyle(fontFamily: "Syne"),
+          );
+        }
+
+        return Positioned(
+          left: 0,
+          right: 0,
+          bottom: 8,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                shape: SmoothRectangleBorder(
+                  smoothness: 1,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                backgroundColor: AppColors.black,
+                foregroundColor: AppColors.white,
+              ),
+              onPressed: isLoading
+                  ? null
+                  : () async {
+                      if (isLastPage) {
+                        provider.getAtributesForPost();
+                        // final result = await provider.createPost();
+                        // result.fold(
+                        //   (failure) {
+                        //     ScaffoldMessenger.of(context).showSnackBar(
+                        //       SnackBar(
+                        //         content: Text(provider.postCreationError ??
+                        //             'Failed to create post'),
+                        //         backgroundColor: Colors.red,
+                        //       ),
+                        //     );
+                        //   },
+                        //   (success) {
+                        //     showDialog(
+                        //       context: context,
+                        //       barrierDismissible: false,
+                        //       builder: (context) => AlertDialog(
+                        //         title: const Text('Success'),
+                        //         content: const Text(
+                        //             'Your post has been created successfully!'),
+                        //         actions: [
+                        //           TextButton(
+                        //             onPressed: () {
+                        //             //  Navigator.of(context).pop();
+                        //               context.pop();
+                        //             },
+                        //             child: const Text('OK'),
+                        //           ),
+                        //         ],
+                        //       ),
+                        //     );
+                        //   },
+                        // );
+                      } else {
+                        _handleNextPage();
+                      }
+                    },
+              child: Padding(
+                padding: const EdgeInsets.all(18.0),
+                child: buttonChild,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  String _getLoadingText(PostCreationState state) {
+    switch (state) {
+      case PostCreationState.uploadingImages:
+        return 'Uploading Images...';
+      case PostCreationState.uploadingVideo:
+        return 'Uploading Video...';
+      case PostCreationState.creatingPost:
+        return 'Creating Post...';
+      default:
+        return 'Please wait...';
+    }
+  }
+}
+
+enum PostCreationState {
+  initial,
+  uploadingImages,
+  uploadingVideo,
+  creatingPost,
+  success,
+  error
 }

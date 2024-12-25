@@ -1,3 +1,4 @@
+import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:list_in/core/error/failure.dart';
@@ -7,13 +8,273 @@ import 'package:list_in/features/map/domain/entities/coordinates_entity.dart';
 import 'package:list_in/features/map/domain/entities/location_entity.dart';
 import 'package:list_in/features/post/data/models/attribute_model.dart';
 import 'package:list_in/features/post/data/models/attribute_value_model.dart';
+import 'package:list_in/features/post/data/models/blabla.dart';
 import 'package:list_in/features/post/data/models/category_model.dart';
 import 'package:list_in/features/post/data/models/child_category_model.dart';
+import 'package:list_in/features/post/domain/entities/post_entity.dart';
+import 'package:list_in/features/post/domain/usecases/create_post_usecase.dart';
 import 'package:list_in/features/post/domain/usecases/get_catalogs_usecase.dart';
+import 'package:list_in/features/post/domain/usecases/upload_images_usecase.dart';
+import 'package:list_in/features/post/domain/usecases/upload_video_usecase.dart';
+import 'package:list_in/features/post/presentation/pages/catalog_screen.dart';
 
 class PostProvider extends ChangeNotifier {
-  final GetCatalogs getCatalogsUseCase;
-  PostProvider({required this.getCatalogsUseCase});
+  final GetGategoriesUsecase getCatalogsUseCase;
+  final UploadImagesUseCase uploadImagesUseCase;
+  final UploadVideoUseCase uploadVideoUseCase;
+  final CreatePostUseCase createPostUseCase;
+  PostProvider({
+    required this.getCatalogsUseCase,
+    required this.uploadImagesUseCase,
+    required this.uploadVideoUseCase,
+    required this.createPostUseCase,
+  });
+
+  Future<Either<Failure, List<String>>> uploadImagesRemoute(
+      List<XFile> images) async {
+    return await uploadImagesUseCase(params: images);
+  }
+
+  Future<Either<Failure, String>> uploadVideoRemoute(XFile video) async {
+    return await uploadVideoUseCase(params: video);
+  }
+
+  List<AttributeRequestValue> attributeRequests = [];
+  Future<Either<Failure, String>> createPost() async {
+    getAtributesForPost();
+
+    if (!_validatePost()) {
+      _updatePostCreationState(
+          PostCreationState.error, 'Please fill all required fields');
+      return Left(ValidationFailure());
+    }
+
+    try {
+      String? videoUrl;
+      List<String> imageUrls = [];
+
+      // Upload images
+      if (_images.isNotEmpty) {
+        _updatePostCreationState(PostCreationState.uploadingImages);
+        final imagesResult = await uploadImagesRemoute(_images);
+
+        final hasImageUploadFailed = imagesResult.fold(
+          (failure) => true,
+          (urls) {
+            imageUrls = urls;
+            return false;
+          },
+        );
+
+        if (hasImageUploadFailed) {
+          _updatePostCreationState(
+              PostCreationState.error, 'Failed to upload images');
+          return Left(ServerFailure());
+        }
+      }
+
+      // Upload video if exists
+      if (_video != null) {
+        _updatePostCreationState(PostCreationState.uploadingVideo);
+        final videoResult = await uploadVideoRemoute(_video!);
+
+        final hasVideoUploadFailed = videoResult.fold(
+          (failure) => true,
+          (url) {
+            videoUrl = url;
+            return false;
+          },
+        );
+
+        if (hasVideoUploadFailed) {
+          _updatePostCreationState(
+              PostCreationState.error, 'Failed to upload video');
+          return Left(ServerFailure());
+        }
+      }
+
+      for (var entry in _selectedAttributeValues.entries) {
+        AttributeValueModel value = entry.value;
+        attributeRequests.add(AttributeRequestValue(
+          attributeId: value.attributeKeyId,
+          attributeValueIds: [value.attributeValueId],
+        ));
+      }
+
+      for (var entry in _selectedValues.entries) {
+        if (entry.value is List<AttributeValueModel>) {
+          List<AttributeValueModel> values =
+              entry.value as List<AttributeValueModel>;
+          if (values.isNotEmpty) {
+            attributeRequests.add(AttributeRequestValue(
+              attributeId: values.first.attributeKeyId,
+              attributeValueIds: values.map((v) => v.attributeValueId).toList(),
+            ));
+          }
+        }
+      }
+
+      _updatePostCreationState(PostCreationState.creatingPost);
+      getAtributesForPost();
+      final post = PostEntity(
+        title: _postTitle,
+        description: _postDescription,
+        price: _price,
+        imageUrls: imageUrls,
+        videoUrl: videoUrl,
+        locationName: _location.name,
+        longitude: _location.coordinates.latitude,
+        latitude: _location.coordinates.longitude,
+        locationSharingMode: _locationSharingMode,
+        productCondition: _productCondition,
+        isNegatable: false,
+        childCategoryId: _selectedChildCategory?.id ?? '',
+        attributeValues: attributeRequests,
+      );
+
+      final result = await createPostUseCase(params: post);
+
+      result.fold(
+        (failure) => _updatePostCreationState(
+            PostCreationState.error, 'Failed to create post'),
+        (success) {
+          _updatePostCreationState(PostCreationState.success);
+          clear();
+        },
+      );
+
+      return result;
+    } catch (e) {
+      _updatePostCreationState(
+          PostCreationState.error, 'An unexpected error occurred');
+      return Left(UnexpectedFailure());
+    }
+  }
+
+  void getAtributesForPost() {
+    // Clear previous requests
+    attributeRequests.clear();
+
+    // Set to track processed attribute-value combinations
+    final Set<String> processedCombinations = {};
+
+    // Handle single-selection attributes (oneSelectable and colorSelectable)
+    for (var entry in _selectedAttributeValues.entries) {
+      AttributeModel attribute = entry.key;
+      AttributeValueModel value = entry.value;
+
+      // Only process single-selection attributes
+      if (attribute.widgetType == 'oneSelectable' ||
+          attribute.widgetType == 'colorSelectable') {
+        // Create unique key for this combination
+        String combinationKey =
+            '${value.attributeKeyId}_${value.attributeValueId}';
+
+        // Only add if not processed
+        if (!processedCombinations.contains(combinationKey)) {
+          processedCombinations.add(combinationKey);
+
+          // Add main attribute
+          if (value.attributeKeyId.isNotEmpty &&
+              value.attributeValueId.isNotEmpty) {
+            attributeRequests.add(AttributeRequestValue(
+              attributeId: value.attributeKeyId,
+              attributeValueIds: [value.attributeValueId],
+            ));
+          }
+
+          // Handle child attributes if they exist
+          if (attribute.subHelperText != 'null' &&
+              value.list.isNotEmpty &&
+              value.list.first.attributeId != null &&
+              value.list.first.modelId != null) {
+            String childCombinationKey =
+                '${value.list.first.attributeId}_${value.list.first.modelId}';
+
+            if (!processedCombinations.contains(childCombinationKey) &&
+                value.list.first.attributeId!.isNotEmpty &&
+                value.list.first.modelId!.isNotEmpty) {
+              processedCombinations.add(childCombinationKey);
+              attributeRequests.add(AttributeRequestValue(
+                attributeId: value.list.first.attributeId!,
+                attributeValueIds: [value.list.first.modelId!],
+              ));
+            }
+          }
+        }
+      }
+    }
+
+    // Handle multi-selection attributes
+    for (var entry in _selectedValues.entries) {
+      if (entry.value is List<AttributeValueModel>) {
+        List<AttributeValueModel> values =
+            entry.value as List<AttributeValueModel>;
+        if (values.isNotEmpty) {
+          // Add main multi-selection attribute
+          String attributeId = values.first.attributeKeyId;
+          List<String> valueIds =
+              values.map((v) => v.attributeValueId).toList();
+
+          if (attributeId.isNotEmpty && valueIds.isNotEmpty) {
+            attributeRequests.add(AttributeRequestValue(
+              attributeId: attributeId,
+              attributeValueIds: valueIds,
+            ));
+
+            // Handle child attributes for multi-selection if they exist
+            for (var value in values) {
+              if (value.list.isNotEmpty &&
+                  value.list.first.attributeId != null &&
+                  value.list.first.modelId != null) {
+                String childCombinationKey =
+                    '${value.list.first.attributeId}_${value.list.first.modelId}';
+
+                if (!processedCombinations.contains(childCombinationKey) &&
+                    value.list.first.attributeId!.isNotEmpty &&
+                    value.list.first.modelId!.isNotEmpty) {
+                  processedCombinations.add(childCombinationKey);
+                  attributeRequests.add(AttributeRequestValue(
+                    attributeId: value.list.first.attributeId!,
+                    attributeValueIds: [value.list.first.modelId!],
+                  ));
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Debug printing
+    print("Attribute requests:");
+    for (var request in attributeRequests) {
+      print("Attribute ID: ${request.attributeId}");
+      print("Attribute Value IDs: ${request.attributeValueIds.join(', ')}");
+      print("------------");
+    }
+  }
+
+  bool _validatePost() {
+    return _postTitle.isNotEmpty &&
+        _postDescription.isNotEmpty &&
+        _price > 0 &&
+        _images.isNotEmpty &&
+        _selectedCatalog != null &&
+        _selectedChildCategory != null;
+  }
+
+  PostCreationState _postCreationState = PostCreationState.initial;
+  String? _postCreationError;
+
+  PostCreationState get postCreationState => _postCreationState;
+  String? get postCreationError => _postCreationError;
+
+  void _updatePostCreationState(PostCreationState state, [String? error]) {
+    _postCreationState = state;
+    _postCreationError = error;
+    notifyListeners();
+  }
 
   List<CategoryModel>? _catalogs;
   CategoryModel? _selectedCatalog;
@@ -255,14 +516,12 @@ class PostProvider extends ChangeNotifier {
           }).toList(),
         );
 
-       
         dynamicAttributes.removeWhere(
           (attr) =>
               attr.attributeKey == attribute.attributeKey &&
               attr.subWidgetsType == 'null',
         );
 
-      
         dynamicAttributes.insert(0, newAttribute);
       }
     }
@@ -299,11 +558,9 @@ class PostProvider extends ChangeNotifier {
           [];
       if (selectedValues.isEmpty) return;
 
-     
       dynamicAttributes.removeWhere((attr) =>
           attr.attributeKey.startsWith('${attribute.attributeKey} Model'));
 
-    
       final dynamicAttributesToAdd = selectedValues
           .where((value) =>
               attribute.subWidgetsType != 'null' &&
@@ -331,7 +588,6 @@ class PostProvider extends ChangeNotifier {
               ))
           .toList();
 
-    
       dynamicAttributes.insertAll(0, dynamicAttributesToAdd);
     }
 
@@ -397,7 +653,6 @@ class PostProvider extends ChangeNotifier {
 
   // Post 2nd part : Seller informations, images & videos, nessary details
 
- 
   String _postTitle = "";
   String _postDescription = "";
   double _price = 0.0;
@@ -412,7 +667,6 @@ class PostProvider extends ChangeNotifier {
   );
   LocationSharingMode _locationSharingMode = LocationSharingMode.region;
 
- 
   String get postTitle => _postTitle;
   String get postDescription => _postDescription;
   double get price => _price;
@@ -523,7 +777,7 @@ class PostProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  String _productCondition = 'new'; // Default to 'new'
+  String _productCondition = 'NEW_PRODUCT';
 
 // Add this to your getters
   String get productCondition => _productCondition;
@@ -537,13 +791,11 @@ class PostProvider extends ChangeNotifier {
   }
 
   void clear() {
-    // Reset catalog and category selections
     _selectedCatalog = null;
     _selectedChildCategory = null;
     _catalogHistory.clear();
     _childCategoryHistory.clear();
 
-    // Reset attributes and their selections
     _currentAttributes = [];
     dynamicAttributes = [];
     _selectedValues.clear();
@@ -552,14 +804,12 @@ class PostProvider extends ChangeNotifier {
     _childCategorySelections.clear();
     _childCategoryDynamicAttributes.clear();
 
-    // Reset post details
     _postTitle = "";
     _postDescription = "";
     _price = 0.0;
     _images = [];
     _video = null;
 
-    // Reset location settings
     _location = const LocationEntity(
       name: "Yashnobod Tumani, Toshkent",
       coordinates: CoordinatesEntity(
@@ -569,20 +819,16 @@ class PostProvider extends ChangeNotifier {
     );
     _locationSharingMode = LocationSharingMode.region;
 
-    // Reset phone and call settings
     _phoneNumber = '+998901234567';
     _allowCalls = true;
     _callStartTime = const TimeOfDay(hour: 9, minute: 0);
     _callEndTime = const TimeOfDay(hour: 18, minute: 0);
 
-    // Reset product condition
     _productCondition = 'new';
 
-    // Reset error and loading states
     _error = null;
     _isLoading = false;
 
-    // Notify listeners of all changes
     notifyListeners();
   }
 }

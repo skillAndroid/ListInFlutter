@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:list_in/core/router/keep_alive_wrapper.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/core/utils/const.dart';
-import 'package:list_in/features/map/presentation/map/map.dart';
 import 'package:list_in/features/undefined_screens_yet/details.dart';
 import 'package:list_in/features/auth/presentation/pages/login_page.dart';
 import 'package:list_in/features/auth/presentation/pages/register_details_page.dart';
@@ -32,7 +31,7 @@ class AppRouter {
     debugLogDiagnostics: true,
     redirect: (context, state) {
       final loggedIn =
-          sharedPreferences.getString(Constants.CACHED_AUTH_TOKEN) == null;
+          sharedPreferences.getString(Constants.CACHED_AUTH_TOKEN) != null;
       final isAuthRoute = state.matchedLocation == Routes.login ||
           state.matchedLocation == Routes.signup ||
           state.matchedLocation == Routes.welcome ||
@@ -66,7 +65,7 @@ class AppRouter {
       ),
       GoRoute(
         path: Routes.post,
-        builder: (context, state) => const LocationSelectionPage(),// PostScreen(),
+        builder: (context, state) => const PostScreen(),
       ),
 
       GoRoute(

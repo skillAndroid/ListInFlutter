@@ -27,11 +27,14 @@ import 'package:list_in/features/post/data/models/attribute_value_model.dart';
 import 'package:list_in/features/post/data/models/category_model.dart';
 import 'package:list_in/features/post/data/models/child_category_model.dart';
 import 'package:list_in/features/post/data/models/sub_model.dart';
-import 'package:list_in/features/post/data/repository/catalog_repository_impl.dart';
-import 'package:list_in/features/post/data/sources/catalog_remote_data_source.dart';
-import 'package:list_in/features/post/data/sources/category_local_data_source.dart';
-import 'package:list_in/features/post/domain/repository/catalog_repository.dart';
+import 'package:list_in/features/post/data/repository/post_repository_impl.dart';
+import 'package:list_in/features/post/data/sources/post_remote_data_source.dart';
+import 'package:list_in/features/post/data/sources/post_local_data_source.dart';
+import 'package:list_in/features/post/domain/repository/post_repository.dart';
+import 'package:list_in/features/post/domain/usecases/create_post_usecase.dart';
 import 'package:list_in/features/post/domain/usecases/get_catalogs_usecase.dart';
+import 'package:list_in/features/post/domain/usecases/upload_images_usecase.dart';
+import 'package:list_in/features/post/domain/usecases/upload_video_usecase.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart' as path_provider;
@@ -41,7 +44,7 @@ final sl = GetIt.instance;
 Future<void> init() async {
   final sharedPreferences = await SharedPreferences.getInstance();
 
- sl.registerLazySingleton(() => AppRouter(sl<SharedPreferences>()));
+  sl.registerLazySingleton(() => AppRouter(sl<SharedPreferences>()));
 
   final appDocumentDirectory =
       await path_provider.getApplicationDocumentsDirectory();
@@ -95,7 +98,7 @@ Future<void> init() async {
   sl.registerLazySingleton(
     () {
       final dio = Dio();
-      dio.options.baseUrl = 'https://3e41-62-209-146-62.ngrok-free.app';
+      dio.options.baseUrl = 'https://f207-62-209-146-62.ngrok-free.app';
       dio.options.connectTimeout = const Duration(seconds: 5);
       dio.options.receiveTimeout = const Duration(seconds: 3);
       return dio;
@@ -120,7 +123,11 @@ Future<void> init() async {
     ),
   );
 
-  sl.registerLazySingleton(() => GetCatalogs(sl()));
+  sl.registerLazySingleton(() => GetGategoriesUsecase(sl()));
+// UseCases
+  sl.registerLazySingleton(() => UploadImagesUseCase(sl()));
+  sl.registerLazySingleton(() => UploadVideoUseCase(sl()));
+  sl.registerLazySingleton(() => CreatePostUseCase(sl()));
 
   sl.registerLazySingleton<LocationRemoteDatasource>(
       () => LocationRemoteDataSourceImpl(dio: sl()));
@@ -128,11 +135,14 @@ Future<void> init() async {
     () => CatalogLocalDataSourceImpl(categoryBox: catalogBox),
   );
   sl.registerFactory(() => PostProvider(
-        getCatalogsUseCase: sl<GetCatalogs>(),
+        getCatalogsUseCase: sl<GetGategoriesUsecase>(),
+        uploadImagesUseCase: sl<UploadImagesUseCase>(),
+        uploadVideoUseCase: sl<UploadVideoUseCase>(),
+        createPostUseCase: sl<CreatePostUseCase>(),
       ));
 
-  sl.registerLazySingleton<CatalogRepository>(
-    () => CatalogRepositoryImpl(
+  sl.registerLazySingleton<PostRepository>(
+    () => PostRepositoryImpl(
         remoteDataSource: sl(), localDataSource: sl(), networkInfo: sl()),
   );
 

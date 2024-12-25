@@ -12,7 +12,7 @@ class ProductConditionPage extends StatefulWidget {
 }
 
 class _ProductConditionPageState extends State<ProductConditionPage> {
-  String _selectedCondition = 'new'; // Default value
+  String _selectedCondition = 'NEW_PRODUCT';
 
   @override
   void initState() {
@@ -51,13 +51,13 @@ class _ProductConditionPageState extends State<ProductConditionPage> {
             _buildConditionOption(
               title: 'New',
               description: 'Unused product with original packaging',
-              value: 'new',
+              value: 'NEW_PRODUCT',
             ),
             const SizedBox(height: 12),
             _buildConditionOption(
               title: 'Used',
               description: 'Product has been used before',
-              value: 'used',
+              value: 'USED_PRODUCT',
             ),
           ],
         ),
