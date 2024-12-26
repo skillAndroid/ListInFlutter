@@ -20,14 +20,14 @@ import 'package:list_in/features/map/service/AppLocation.dart';
 import 'package:list_in/features/map/service/models.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
-class LocationSelectionPage extends StatefulWidget {
-  const LocationSelectionPage({super.key});
+class ListInMap extends StatefulWidget {
+  const ListInMap({super.key});
 
   @override
-  State<LocationSelectionPage> createState() => _LocationSelectionPageState();
+  State<ListInMap> createState() => _ListInMapState();
 }
 
-class _LocationSelectionPageState extends State<LocationSelectionPage> {
+class _ListInMapState extends State<ListInMap> {
   final Completer<GoogleMapController> _controllerCompleter = Completer();
   GoogleMapController? _mapController;
   final CameraPosition _initialCameraPosition = const CameraPosition(

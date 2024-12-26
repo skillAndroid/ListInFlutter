@@ -124,6 +124,10 @@ class PostProvider extends ChangeNotifier {
         price: _price,
         imageUrls: imageUrls,
         videoUrl: videoUrl,
+        phoneNumber: _phoneNumber,
+        allowCalls: _allowCalls,
+        callStartTime: _callStartTime,
+        callEndTime: _callEndTime,
         locationName: _location.name,
         longitude: _location.coordinates.latitude,
         latitude: _location.coordinates.longitude,
@@ -755,11 +759,10 @@ class PostProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  String _phoneNumber = ''; 
+  String _phoneNumber = '';
   bool _allowCalls = true;
-  TimeOfDay _callStartTime =
-      const TimeOfDay(hour: 9, minute: 0); 
-  TimeOfDay _callEndTime = const TimeOfDay(hour: 18, minute: 0); 
+  TimeOfDay _callStartTime = const TimeOfDay(hour: 9, minute: 0);
+  TimeOfDay _callEndTime = const TimeOfDay(hour: 18, minute: 0);
 
   // Phone-related getters
   String get phoneNumber => _phoneNumber;

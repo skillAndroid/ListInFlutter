@@ -125,7 +125,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
           padding: EdgeInsets.only(
             left: 16.0,
             right: 16.0,
-            bottom: _currentPage >= 2 ? 70.0 : 8,
+            bottom: _currentPage >= 2 ? 80.0 : 8,
           ),
           child: PageView(
             controller: _pageController,
@@ -259,14 +259,16 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
         } else {
           buttonChild = const Text(
             'Next',
-            style: TextStyle(fontFamily: "Syne"),
+            style: TextStyle(
+              fontFamily: "Syne",
+            ),
           );
         }
 
         return Positioned(
           left: 0,
           right: 0,
-          bottom: 8,
+          bottom: 22,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: ElevatedButton(
@@ -282,39 +284,38 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
                   ? null
                   : () async {
                       if (isLastPage) {
-                        provider.getAtributesForPost();
-                        // final result = await provider.createPost();
-                        // result.fold(
-                        //   (failure) {
-                        //     ScaffoldMessenger.of(context).showSnackBar(
-                        //       SnackBar(
-                        //         content: Text(provider.postCreationError ??
-                        //             'Failed to create post'),
-                        //         backgroundColor: Colors.red,
-                        //       ),
-                        //     );
-                        //   },
-                        //   (success) {
-                        //     showDialog(
-                        //       context: context,
-                        //       barrierDismissible: false,
-                        //       builder: (context) => AlertDialog(
-                        //         title: const Text('Success'),
-                        //         content: const Text(
-                        //             'Your post has been created successfully!'),
-                        //         actions: [
-                        //           TextButton(
-                        //             onPressed: () {
-                        //             //  Navigator.of(context).pop();
-                        //               context.pop();
-                        //             },
-                        //             child: const Text('OK'),
-                        //           ),
-                        //         ],
-                        //       ),
-                        //     );
-                        //   },
-                        // );
+                        final result = await provider.createPost();
+                        result.fold(
+                          (failure) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(provider.postCreationError ??
+                                    'Failed to create post'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          },
+                          (success) {
+                            showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (context) => AlertDialog(
+                                title: const Text('Success'),
+                                content: const Text(
+                                    'Your post has been created successfully!'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      //  Navigator.of(context).pop();
+                                      context.pop();
+                                    },
+                                    child: const Text('OK'),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        );
                       } else {
                         _handleNextPage();
                       }

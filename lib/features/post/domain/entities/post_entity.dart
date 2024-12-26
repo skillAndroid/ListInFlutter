@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:list_in/features/auth/presentation/pages/register_details_page.dart';
 import 'package:list_in/features/post/data/models/blabla.dart';
 import 'package:list_in/features/post/data/models/post_model.dart';
@@ -12,10 +13,10 @@ class PostEntity {
   final double latitude;
   final double longitude;
   final LocationSharingMode locationSharingMode;
-  //final String phoneNumber;
-  //final bool allowCalls;
-  // final TimeOfDay callStartTime;
-  // final TimeOfDay callEndTime;
+  final String phoneNumber;
+  final bool allowCalls;
+  final TimeOfDay callStartTime;
+  final TimeOfDay callEndTime;
   final bool isNegatable;
   final String productCondition;
   final String childCategoryId;
@@ -32,10 +33,10 @@ class PostEntity {
     required this.latitude,
     required this.longitude,
     required this.locationSharingMode,
-    //required this.phoneNumber,
-    // required this.allowCalls,
-    // required this.callStartTime,
-    // required this.callEndTime,
+    required this.phoneNumber,
+    required this.allowCalls,
+    required this.callStartTime,
+    required this.callEndTime,
     required this.productCondition,
     required this.childCategoryId,
     required this.attributeValues,
@@ -51,10 +52,10 @@ class PostEntity {
       latitude: latitude,
       longitude: longitude,
       locationSharingMode: locationSharingMode,
-      // phoneNumber: phoneNumber,
-      // allowCalls: allowCalls,
-      // callStartTime: callStartTime,
-      // callEndTime: callEndTime,
+      phoneNumber: phoneNumber,
+      allowCalls: allowCalls,
+      callStartTime: callStartTime,
+      callEndTime: callEndTime,
       productCondition: productCondition,
       isNegatable: isNegatable,
       childCategoryId: childCategoryId,

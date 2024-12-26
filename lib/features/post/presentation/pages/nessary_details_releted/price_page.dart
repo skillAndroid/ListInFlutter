@@ -223,7 +223,7 @@ class _AddPricePageState extends State<AddPricePage> {
                   ),
                 ),
                 Transform.scale(
-                  scale: 0.75, // Adjust scale for smaller size
+                  scale: 0.8,
                   child: CupertinoSwitch(
                     value: context.watch<PostProvider>().isNegatable,
                     onChanged: (bool value) {
@@ -231,9 +231,9 @@ class _AddPricePageState extends State<AddPricePage> {
                           .read<PostProvider>()
                           .changeIsNegatable(value); 
                     },
-                    activeTrackColor: AppColors.green, // Color when ON
+                    activeTrackColor: AppColors.green, 
                     inactiveTrackColor:
-                        CupertinoColors.systemGrey, // Color when OFF
+                        CupertinoColors.systemGrey, 
                   ),
                 ),
               ],

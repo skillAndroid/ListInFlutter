@@ -526,7 +526,7 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                                 const FractionallySizedBox(
                                               heightFactor: 1.0,
                                               child: Scaffold(
-                                                body: LocationSelectionPage(),
+                                                body: ListInMap(),
                                               ),
                                             ),
                                           ).then((result) {
