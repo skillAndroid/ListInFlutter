@@ -1,8 +1,12 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/undefined_screens_yet/details.dart';
 import 'package:list_in/features/undefined_screens_yet/video_player.dart';
@@ -198,9 +202,64 @@ class _ProductListScreenState extends State<ProductListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Product List')),
+      backgroundColor: AppColors.bgColor,
+      appBar: PreferredSize(
+        preferredSize: Size(double.infinity, 60),
+        child: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(
+              sigmaX: 40,
+              sigmaY: 40,
+              tileMode: TileMode.clamp,
+            ),
+            child: AppBar(
+              elevation: 0,
+              // ignore: deprecated_member_use
+              backgroundColor: AppColors.transparent,
+              flexibleSpace: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.bgColor.withOpacity(0.7),
+                  border: Border(
+                    bottom: BorderSide(
+                      // ignore: deprecated_member_use
+                      color: Colors.grey.withOpacity(0.3),
+                      width: 0.5,
+                    ),
+                  ),
+                ),
+              ),
+              bottom: PreferredSize(
+                preferredSize: const Size.fromHeight(60),
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    bottom: 8,
+                  ),
+                  child: CupertinoSearchTextField(
+                    placeholder: 'Search products',
+                    placeholderStyle: const TextStyle(
+                      color: CupertinoColors.systemGrey,
+                      fontSize: 17,
+                    ),
+                    style: const TextStyle(
+                      color: CupertinoColors.black,
+                      fontSize: 17,
+                    ),
+                  ),
+                ),
+              ),
+              systemOverlayStyle: SystemUiOverlayStyle(
+                statusBarIconBrightness: Brightness.dark,
+              ),
+            ),
+          ),
+        ),
+      ),
+      extendBody: true,
+      extendBodyBehindAppBar: true,
       body: CustomScrollView(
-        physics: const BouncingScrollPhysics(), 
+        physics: const BouncingScrollPhysics(),
         controller: _scrollController,
         slivers: [
           SliverList(

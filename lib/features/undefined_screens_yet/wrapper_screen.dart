@@ -1,5 +1,10 @@
+import 'dart:ui';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
 
 class MainWrapper extends StatefulWidget {
@@ -35,34 +40,61 @@ class _MainWrapperState extends State<MainWrapper> {
     }
   }
 
-  @override
   Widget build(BuildContext context) {
     final String location = GoRouterState.of(context).matchedLocation;
     final bool showBottomNav = !location.startsWith(Routes.post);
 
     return Scaffold(
-      body: SafeArea(
-        top: false,
-        child: widget.child,
-      ),
+      extendBody: true,
+      body: widget.child,
       bottomNavigationBar: showBottomNav
-          ? NavigationBar(
-              selectedIndex: _calculateSelectedIndex(context),
-              onDestinationSelected: (index) => _onItemTapped(context, index),
-              destinations: const [
-                NavigationDestination(
-                  icon: Icon(Icons.home),
-                  label: 'Home',
+          ? ClipRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(
+                  sigmaX: 40,
+                  sigmaY: 40,
+                  tileMode: TileMode.clamp,
                 ),
-                NavigationDestination(
-                  icon: Icon(Icons.post_add),
-                  label: 'Post',
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border(
+                      top: BorderSide(
+                        // ignore: deprecated_member_use
+                        color: Colors.grey.withOpacity(0.3),
+                        width: 0.5,
+                      ),
+                    ),
+                  ),
+                  child: BottomNavigationBar(
+                    // ignore: deprecated_member_use
+                    backgroundColor: AppColors.white.withOpacity(0.7),
+                    selectedItemColor: AppColors.littleGreen,
+                    unselectedItemColor: CupertinoColors.inactiveGray,
+                    currentIndex: _calculateSelectedIndex(context),
+                    onTap: (index) => _onItemTapped(context, index),
+                    type: BottomNavigationBarType.fixed,
+                    showSelectedLabels: false,
+                    showUnselectedLabels: false,
+                    items: const [
+                      BottomNavigationBarItem(
+                        icon: Icon(CupertinoIcons.home),
+                        label: 'Home',
+                      ),
+                      BottomNavigationBarItem(
+                        icon: Icon(
+                          CupertinoIcons.plus_circled,
+                          size: 32,
+                        ),
+                        label: '',
+                      ),
+                      BottomNavigationBarItem(
+                        icon: Icon(CupertinoIcons.calendar),
+                        label: 'Events',
+                      ),
+                    ],
+                  ),
                 ),
-                NavigationDestination(
-                  icon: Icon(Icons.event),
-                  label: 'Events',
-                ),
-              ],
+              ),
             )
           : null,
     );
@@ -83,4 +115,18 @@ class _EventsScreenState extends State<EventsScreen> {
       body: Text("Events"),
     );
   }
+}
+
+
+class DynamicLabelBottomNavigationBarItem extends BottomNavigationBarItem {
+  final Widget icon;
+  final String? label; 
+
+  DynamicLabelBottomNavigationBarItem({
+    required this.icon,
+    this.label,
+  }) : super(
+          icon: icon,
+          label: label, 
+        );
 }

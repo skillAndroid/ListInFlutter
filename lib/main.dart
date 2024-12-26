@@ -915,7 +915,7 @@ class MyApp extends StatelessWidget {
     );
     SystemChrome.setEnabledSystemUIMode(
       SystemUiMode.edgeToEdge,
-      overlays: [],
+      overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom],
     );
 
     return MaterialApp.router(
