@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -127,8 +129,8 @@ class PostProvider extends ChangeNotifier {
         latitude: _location.coordinates.longitude,
         locationSharingMode: _locationSharingMode,
         productCondition: _productCondition,
-        isNegatable: false,
-        childCategoryId: _selectedChildCategory?.id ?? '',
+        isNegatable: isNegatable,
+        childCategoryId: _selectedChildCategory!.id,
         attributeValues: attributeRequests,
       );
 
@@ -656,6 +658,7 @@ class PostProvider extends ChangeNotifier {
   String _postTitle = "";
   String _postDescription = "";
   double _price = 0.0;
+  bool _isNegatable = false;
   List<XFile> _images = [];
   XFile? _video;
   LocationEntity _location = const LocationEntity(
@@ -670,6 +673,7 @@ class PostProvider extends ChangeNotifier {
   String get postTitle => _postTitle;
   String get postDescription => _postDescription;
   double get price => _price;
+  bool get isNegatable => _isNegatable;
   List<XFile> get images => _images;
   XFile? get video => _video;
   LocationEntity get location => _location;
@@ -694,6 +698,11 @@ class PostProvider extends ChangeNotifier {
       _price = newPrice;
       notifyListeners();
     }
+  }
+
+  void changeIsNegatable(bool value) {
+    _isNegatable = value;
+    notifyListeners();
   }
 
   String getFormattedPrice() {
@@ -746,11 +755,11 @@ class PostProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  String _phoneNumber = '+998901234567'; // Default phone number
+  String _phoneNumber = ''; 
   bool _allowCalls = true;
   TimeOfDay _callStartTime =
-      const TimeOfDay(hour: 9, minute: 0); // Default 9 AM
-  TimeOfDay _callEndTime = const TimeOfDay(hour: 18, minute: 0); // Default 6 PM
+      const TimeOfDay(hour: 9, minute: 0); 
+  TimeOfDay _callEndTime = const TimeOfDay(hour: 18, minute: 0); 
 
   // Phone-related getters
   String get phoneNumber => _phoneNumber;

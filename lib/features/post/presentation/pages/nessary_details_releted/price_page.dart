@@ -225,11 +225,11 @@ class _AddPricePageState extends State<AddPricePage> {
                 Transform.scale(
                   scale: 0.75, // Adjust scale for smaller size
                   child: CupertinoSwitch(
-                    value: _isSwitchOn,
+                    value: context.watch<PostProvider>().isNegatable,
                     onChanged: (bool value) {
-                      setState(() {
-                        _isSwitchOn = value;
-                      });
+                      context
+                          .read<PostProvider>()
+                          .changeIsNegatable(value); 
                     },
                     activeTrackColor: AppColors.green, // Color when ON
                     inactiveTrackColor:

@@ -211,6 +211,7 @@ class MediaPageState extends State<MediaPage> {
                   borderRadius: BorderRadius.circular(8),
                   boxShadow: [
                     BoxShadow(
+                      // ignore: deprecated_member_use
                       color: AppColors.black.withOpacity(0.3),
                       blurRadius: elevationValue,
                       spreadRadius: 1,
@@ -401,10 +402,11 @@ class MediaPageState extends State<MediaPage> {
               children: [
                 if (provider.video != null) ...[
                   _buildVideoPreview(provider.video),
-                ],
-                const SizedBox(
+                  const SizedBox(
                   width: 8,
                 ),
+                ],
+                
                 SmoothClipRRect(
                   smoothness: 1,
                   borderRadius: BorderRadius.circular(16),
