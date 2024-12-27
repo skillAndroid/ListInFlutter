@@ -3,9 +3,14 @@ import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/router/routes.dart';
+import 'package:list_in/features/map/service/AppLocation.dart';
+import 'package:list_in/features/undefined_screens_yet/details.dart';
 import 'package:list_in/features/undefined_screens_yet/video_player.dart';
+import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 // Data Classes
@@ -76,7 +81,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
   final ValueNotifier<String?> _currentlyPlayingId =
       ValueNotifier<String?>(null);
   final ValueNotifier<Set<int>> _selectedFilters = ValueNotifier<Set<int>>({});
-
+  bool _isSliverAppBarVisible = true;
   // Video visibility tracking
   final Map<String, ValueNotifier<double>> _visibilityNotifiers = {};
   final Map<String, ValueNotifier<int>> _pageNotifiers = {};
@@ -139,10 +144,11 @@ class _ProductListScreenState extends State<ProductListScreen> {
 
   PreferredSizeWidget _buildAppBar() {
     return PreferredSize(
-      preferredSize: const Size.fromHeight(60),
+      preferredSize: const Size.fromHeight(65),
       child: AppBar(
-        elevation: 2,
-        backgroundColor: AppColors.white,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        backgroundColor: AppColors.bgColor,
         systemOverlayStyle: const SystemUiOverlayStyle(
           statusBarIconBrightness: Brightness.dark,
         ),
@@ -150,84 +156,104 @@ class _ProductListScreenState extends State<ProductListScreen> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              padding: const EdgeInsets.only(left: 16, right: 8),
               child: Row(
                 children: [
                   Expanded(
-                    child: Container(
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: AppColors.containerColor,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Row(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Image.asset(
-                              AppIcons.searchIcon,
-                              width: 24,
-                              height: 24,
-                            ),
-                          ),
-                          Expanded(
-                            child: TextField(
-                              controller: _searchController,
-                              decoration: const InputDecoration(
-                                hintText: "Search...",
-                                border: InputBorder.none,
+                    child: SmoothClipRRect(
+                      smoothness: 1,
+                      borderRadius: BorderRadius.circular(10),
+                      child: Container(
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: AppColors.containerColor,
+                        ),
+                        child: Row(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: Image.asset(
+                                AppIcons.searchIcon,
+                                width: 24,
+                                height: 24,
+                                color: AppColors.gray,
                               ),
                             ),
-                          ),
-                          const VerticalDivider(
-                            color: AppColors.lightGray,
-                            width: 1,
-                            indent: 12,
-                            endIndent: 12,
-                          ),
-                          IconButton(
-                            icon: Image.asset(
-                              AppIcons.filterIc,
-                              width: 24,
-                              height: 24,
+                            Expanded(
+                              child: TextField(
+                                controller: _searchController,
+                                cursorRadius: Radius.circular(2),
+                                decoration: const InputDecoration(
+                                  hintStyle:
+                                      TextStyle(color: AppColors.darkGray),
+                                  contentPadding: EdgeInsets.zero,
+                                  hintText: "Search...",
+                                  border: InputBorder.none,
+                                ),
+                              ),
                             ),
-                            onPressed: () {},
-                          ),
-                        ],
+                            const VerticalDivider(
+                              color: AppColors.lightGray,
+                              width: 1,
+                              indent: 12,
+                              endIndent: 12,
+                            ),
+                            SizedBox(
+                              width: 2,
+                            ),
+                            IconButton(
+                              icon: Image.asset(
+                                AppIcons.filterIc,
+                                width: 24,
+                                height: 24,
+                              ),
+                              onPressed: () {},
+                            ),
+                            SizedBox(
+                              width: 2,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 10),
-                  Stack(
-                    children: [
-                      IconButton(
-                        icon: Image.asset(
-                          AppIcons.chatIc,
-                          width: 46,
-                          height: 46,
-                          color: AppColors.black,
-                        ),
-                        onPressed: () {},
-                      ),
-                      Positioned(
-                        right: 8,
-                        bottom: 8,
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: AppColors.error,
-                            borderRadius: BorderRadius.circular(10),
+                  const SizedBox(width: 4),
+                  Transform.translate(
+                    offset: Offset(0, 3),
+                    child: Stack(
+                      children: [
+                        IconButton(
+                          icon: Image.asset(
+                            AppIcons.chatIc,
+                            width: 46,
+                            height: 46,
+                            color: AppColors.black,
                           ),
-                          child: const Text(
-                            "2",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
+                          onPressed: () {},
+                        ),
+                        Positioned(
+                          right: 8,
+                          bottom: 12,
+                          child: Container(
+                            width: 18,
+                            height: 18,
+                            decoration: BoxDecoration(
+                              color: AppColors.error,
+                              borderRadius: BorderRadius.circular(32),
+                            ),
+                            child: Center(
+                              child: const Text(
+                                "2",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -242,8 +268,9 @@ class _ProductListScreenState extends State<ProductListScreen> {
     return ValueListenableBuilder<Set<int>>(
       valueListenable: _selectedFilters,
       builder: (context, selectedFilters, _) {
-        return SizedBox(
-          height: 44,
+        return Container(
+          color: AppColors.bgColor,
+          height: 46,
           child: ListView.builder(
             physics: BouncingScrollPhysics(),
             scrollDirection: Axis.horizontal,
@@ -257,11 +284,21 @@ class _ProductListScreenState extends State<ProductListScreen> {
     );
   }
 
+  Widget _buildCategories() {
+    return Container(
+      height: 90,
+      color: AppColors.white,
+      child: Text('Just testing for now'),
+    );
+  }
+
   Widget _buildFilterChip(int index, Set<int> selectedFilters) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: FilterChip(
         label: Text(myFilters[index].name),
+        shape: SmoothRectangleBorder(
+            smoothness: 1, borderRadius: BorderRadius.circular(8)),
         selected: selectedFilters.contains(index),
         backgroundColor: AppColors.containerColor,
         selectedColor: AppColors.black,
@@ -280,8 +317,6 @@ class _ProductListScreenState extends State<ProductListScreen> {
       ),
     );
   }
-
-//
 
   Widget _buildAdvertisedProduct(AdvertisedProduct product) {
     return ValueListenableBuilder<double>(
@@ -372,21 +407,36 @@ class _ProductListScreenState extends State<ProductListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.bgColor,
+      extendBody: true,
       appBar: _buildAppBar(),
       body: CustomScrollView(
         controller: _scrollController,
         physics: const BouncingScrollPhysics(),
         slivers: [
-          // Second SliverAppBar for filters
-          SliverAppBar(
-            floating: true,
-            snap: false,
-            pinned: false,
-            automaticallyImplyLeading: true,
-            toolbarHeight: 60,
-            flexibleSpace: _buildFiltersBar(),
-            backgroundColor: Colors.white,
+          SliverVisibilityDetector(
+            key: Key('sliver-to-box-adapter'),
+            onVisibilityChanged: (visibilityInfo) {
+              double visiblePercentage = visibilityInfo.visibleFraction;
+              setState(() {
+                _isSliverAppBarVisible = visiblePercentage == 0;
+              });
+            },
+            sliver: SliverToBoxAdapter(
+              child: _buildCategories(),
+            ),
           ),
+          // Only show SliverAppBar when the flag is true
+          if (_isSliverAppBarVisible)
+            SliverAppBar(
+              floating: true,
+              snap: false,
+              pinned: false,
+              automaticallyImplyLeading: true,
+              toolbarHeight: 44,
+              flexibleSpace: _buildFiltersBar(),
+              backgroundColor: AppColors.bgColor,
+            ),
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             sliver: SliverList(
@@ -398,13 +448,13 @@ class _ProductListScreenState extends State<ProductListScreen> {
             ),
           ),
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 4),
             sliver: SliverGrid(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
                 childAspectRatio: 0.7,
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 8,
+                crossAxisSpacing: 1,
+                mainAxisSpacing: 1,
               ),
               delegate: SliverChildBuilderDelegate(
                 (context, index) =>
@@ -426,42 +476,92 @@ class RegularProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: CachedNetworkImage(
-              imageUrl: product.images[0],
-              fit: BoxFit.cover,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  product.name,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  product.location,
-                  style: const TextStyle(color: Colors.grey),
-                ),
-                Text(
-                  '\$${product.price}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.green,
+    return GestureDetector(
+      onTap: () {
+        context.push(
+          Routes.productDetails.replaceAll(':id', product.id),
+          extra: getRecommendedProducts(product.id),
+        );
+      },
+      child: Card(
+        shape: SmoothRectangleBorder(
+          smoothness: 1,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        elevation: 2,
+        color: AppColors.white,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.all(3),
+              child: Stack(
+                children: [
+                  SmoothClipRRect(
+                    smoothness: 1,
+                    borderRadius: BorderRadius.circular(10),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 160,
+                      child: CachedNetworkImage(
+                        imageUrl: product.images[0],
+                        fit: BoxFit.cover,
+                      ),
+                    ),
                   ),
-                ),
-              ],
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    child: SmoothCard(
+                      margin: EdgeInsets.all(0),
+                      elevation: 1,
+                      color: AppColors.black.withOpacity(0.4),
+                      borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(8),
+                          bottomRight: Radius.circular(8),
+                          topLeft: Radius.circular(8),
+                          topRight: Radius.circular(0.1)),
+                      child: Padding(
+                          padding: EdgeInsets.all(6),
+                          child: Text(
+                            'New',
+                            style: TextStyle(
+                                color: AppColors.white,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: "Poppins"),
+                          )),
+                    ),
+                  )
+                ],
+              ),
             ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    product.name,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    product.location,
+                    style: const TextStyle(color: Colors.grey),
+                  ),
+                  Text(
+                    '\$${product.price}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
