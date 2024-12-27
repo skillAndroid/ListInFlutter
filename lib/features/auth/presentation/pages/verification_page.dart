@@ -108,7 +108,7 @@ class _VerificationPageState extends State<VerificationPage> {
                               fontFamily: 'Poppins',
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
-                              color: AppColors.gray,
+                              color: AppColors.grey,
                             ),
                           ),
                         ],

@@ -199,7 +199,7 @@ class _LoginPageState extends State<LoginPage> {
                               'or',
                               style: TextStyle(
                                 fontSize: 14,
-                                color: AppColors.gray,
+                                color: AppColors.grey,
                               ),
                             ),
                           ),

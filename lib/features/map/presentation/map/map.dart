@@ -429,7 +429,7 @@ class _ListInMapState extends State<ListInMap> {
                               child: Text(
                                 locationName,
                                 style: const TextStyle(
-                                  color: AppColors.gray,
+                                  color: AppColors.grey,
                                   fontWeight: FontWeight.w500,
                                   fontSize: 15,
                                 ),

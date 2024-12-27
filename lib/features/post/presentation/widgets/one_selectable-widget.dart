@@ -24,7 +24,7 @@ class OneSelectableWidget extends StatelessWidget {
           child: Text(
             attribute.helperText,
             style: const TextStyle(
-              color: AppColors.gray,
+              color: AppColors.grey,
               fontSize: 15,
               fontWeight: FontWeight.w500,
             ),

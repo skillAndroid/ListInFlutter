@@ -269,7 +269,7 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                                                   ? AppColors
                                                                       .black
                                                                   : AppColors
-                                                                      .gray,
+                                                                      .grey,
                                                           width:
                                                               _selectedOption ==
                                                                       index

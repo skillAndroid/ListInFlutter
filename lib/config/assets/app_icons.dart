@@ -9,4 +9,5 @@ class AppIcons {
 
   static const filterIc = '${_basePath}filter_ic$_format';
   static const chatIc = '${_basePath}chat_ic$_format';
+  static const favorite = '${_basePath}favorite_ic$_format';
 }

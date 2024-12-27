@@ -1,9 +1,14 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:eva_icons_flutter/eva_icons_flutter.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
@@ -176,7 +181,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                                 AppIcons.searchIcon,
                                 width: 24,
                                 height: 24,
-                                color: AppColors.gray,
+                                color: AppColors.grey,
                               ),
                             ),
                             Expanded(
@@ -270,7 +275,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
       builder: (context, selectedFilters, _) {
         return Container(
           color: AppColors.bgColor,
-          height: 46,
+          height: 50,
           child: ListView.builder(
             physics: BouncingScrollPhysics(),
             scrollDirection: Axis.horizontal,
@@ -294,16 +299,21 @@ class _ProductListScreenState extends State<ProductListScreen> {
 
   Widget _buildFilterChip(int index, Set<int> selectedFilters) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 4,
+      ),
       child: FilterChip(
+        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
         label: Text(myFilters[index].name),
         shape: SmoothRectangleBorder(
             smoothness: 1, borderRadius: BorderRadius.circular(8)),
         selected: selectedFilters.contains(index),
         backgroundColor: AppColors.containerColor,
-        selectedColor: AppColors.black,
+        selectedColor: AppColors.green,
         labelStyle: TextStyle(
-          color: selectedFilters.contains(index) ? Colors.white : Colors.black,
+          color: selectedFilters.contains(index)
+              ? AppColors.white
+              : AppColors.black,
         ),
         onSelected: (selected) {
           final newFilters = Set<int>.from(selectedFilters);
@@ -314,6 +324,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
           }
           _selectedFilters.value = newFilters;
         },
+        side: BorderSide.none, // This removes the border
       ),
     );
   }
@@ -336,42 +347,266 @@ class _ProductListScreenState extends State<ProductListScreen> {
 
   Widget _buildProductCard(AdvertisedProduct product) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Text(
-              product.title,
-              style: Theme.of(context).textTheme.bodyLarge,
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Card(
+        color: AppColors.white,
+        shape: SmoothRectangleBorder(
+            smoothness: 1, borderRadius: BorderRadius.circular(6)),
+        clipBehavior: Clip.hardEdge,
+        elevation: 1,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AspectRatio(
+              aspectRatio: 16 / 10,
+              child: ValueListenableBuilder<String?>(
+                valueListenable: _currentlyPlayingId,
+                builder: (context, currentlyPlayingId, _) {
+                  return ValueListenableBuilder<int>(
+                    valueListenable: _pageNotifiers[product.id]!,
+                    builder: (context, currentPage, _) {
+                      return Stack(
+                        children: [
+                          PageView.builder(
+                            itemCount: product.images.length,
+                            onPageChanged: (page) =>
+                                _pageNotifiers[product.id]?.value = page,
+                            itemBuilder: (context, index) => _buildMediaContent(
+                              product,
+                              index,
+                              currentPage,
+                              currentlyPlayingId == product.id,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Align(
+                              alignment: Alignment.bottomCenter,
+                              child: SmoothClipRRect(
+                                smoothness: 1,
+                                borderRadius: BorderRadius.circular(6),
+                                child: Container(
+                                  color: AppColors.black.withOpacity(0.4),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 6,
+                                    horizontal: 10,
+                                  ),
+                                  child: Text(
+                                    '${currentPage + 1}/${product.images.length}',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+              ),
             ),
-          ),
-          AspectRatio(
-            aspectRatio: 16 / 9,
-            child: ValueListenableBuilder<String?>(
-              valueListenable: _currentlyPlayingId,
-              builder: (context, currentlyPlayingId, _) {
-                return ValueListenableBuilder<int>(
-                  valueListenable: _pageNotifiers[product.id]!,
-                  builder: (context, currentPage, _) {
-                    return PageView.builder(
-                      itemCount: product.images.length,
-                      onPageChanged: (page) =>
-                          _pageNotifiers[product.id]?.value = page,
-                      itemBuilder: (context, index) => _buildMediaContent(
-                        product,
-                        index,
-                        currentPage,
-                        currentlyPlayingId == product.id,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        flex: 8, // 80% of the row's width
+                        child: Text(
+                          "${product.title} sotiladi yandgi ishlatilmagan",
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                            color: AppColors.primary,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                    );
-                  },
-                );
-              },
+                      SizedBox(
+                          width: 8), // Optional spacing between Text and Card
+                      Card(
+                        margin: const EdgeInsets.only(top: 2, right: 0),
+                        elevation: 0,
+                        shape: SmoothRectangleBorder(
+                            smoothness: 1,
+                            borderRadius: BorderRadius.circular(8)),
+                        color: CupertinoColors.systemYellow,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 8, horizontal: 8),
+                          child: Text(
+                            'New',
+                            style: const TextStyle(
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.white),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      SizedBox(
+                        width: 32,
+                        height: 32,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(
+                            40,
+                          ), // Adjust radius for desired roundness
+                          child: CachedNetworkImage(
+                            imageUrl: product.thumbnailUrl,
+                            fit: BoxFit.cover,
+                            errorWidget: (context, url, error) =>
+                                const Center(child: Icon(Icons.error)),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 8,
+                      ),
+                      Text(
+                        product.userName,
+                        style: TextStyle(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 15,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 8,
+                      ),
+                      Icon(
+                        CupertinoIcons.star_fill,
+                        color: CupertinoColors.systemYellow,
+                        size: 22,
+                      ),
+                      SizedBox(
+                        width: 8,
+                      ),
+                      Text(
+                        product.userRating.toString(),
+                        style: TextStyle(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 15,
+                        ),
+                      ),
+                      Text(
+                        "(${product.reviewsCount})",
+                        style: TextStyle(
+                          color: AppColors.grey,
+                          fontWeight: FontWeight.w400,
+                          fontSize: 15,
+                        ),
+                      )
+                    ],
+                  ),
+                  SizedBox(
+                    height: 8,
+                  ),
+                  Row(
+                    children: [
+                      SizedBox(
+                        width: 8,
+                      ),
+                      Icon(
+                        Ionicons.location,
+                        size: 20,
+                        color: AppColors.secondaryColor,
+                      ),
+                      SizedBox(
+                        width: 8,
+                      ),
+                      Text(
+                        product.location,
+                        style: const TextStyle(
+                          color: AppColors.secondaryColor,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 8,
+                  ),
+                  Text(
+                    "Experience the pinnacle of innovation with the iPhone 15 Pro Max. Featuring a stunning titanium design, advanced A17 Pro chip for unmatched performance, an incredible 48MP camera with 5x zoom, and all-day battery life. ",
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.grey,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(
+                    height: 8,
+                  ),
+                  Text(
+                    'Price',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.grey,
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        product.price,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 17,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: Image.asset(
+                          AppIcons.favorite,
+                          color: AppColors.green,
+                        ),
+                      )
+                    ],
+                  ),
+                  SizedBox(
+                    height: 4,
+                  ),
+                  ElevatedButton(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                        shape: SmoothRectangleBorder(
+                            smoothness: 1,
+                            borderRadius: BorderRadius.circular(8))),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: Center(
+                        child: Text(
+                          'Call Now',
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.error),
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -397,8 +632,10 @@ class _ProductListScreenState extends State<ProductListScreen> {
       imageUrl:
           pageIndex == 0 ? product.thumbnailUrl : product.images[pageIndex],
       fit: BoxFit.cover,
-      placeholder: (context, url) =>
-          const Center(child: CircularProgressIndicator()),
+      placeholder: (context, url) => const Center(
+          child: CircularProgressIndicator(
+        color: AppColors.white,
+      )),
       errorWidget: (context, url, error) =>
           const Center(child: Icon(Icons.error)),
     );
@@ -433,7 +670,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
               snap: false,
               pinned: false,
               automaticallyImplyLeading: true,
-              toolbarHeight: 44,
+              toolbarHeight: 50,
               flexibleSpace: _buildFiltersBar(),
               backgroundColor: AppColors.bgColor,
             ),
@@ -536,26 +773,61 @@ class RegularProductCard extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     product.name,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                    maxLines: 1,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                      color: AppColors.primary,
+                    ),
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(
+                    height: 2,
                   ),
                   Text(
                     product.location,
-                    style: const TextStyle(color: Colors.grey),
+                    style: const TextStyle(
+                      color: AppColors.grey,
+                      fontSize: 13,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 16,
                   ),
                   Text(
-                    '\$${product.price}',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green,
+                    'Price',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.grey,
                     ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        '\$${product.price}',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: Image.asset(
+                          AppIcons.favorite,
+                          color: AppColors.green,
+                        ),
+                      )
+                    ],
                   ),
                 ],
               ),

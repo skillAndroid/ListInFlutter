@@ -102,12 +102,15 @@ class VideoPlayerWidgetState extends State<VideoPlayerWidget> {
             activeTrackColor: AppColors.green,
             inactiveTrackColor: AppColors.containerColor,
             thumbColor: AppColors.primary,
-            thumbShape: const RoundSliderThumbShape(
+            // Custom rectangle shape for track
+            trackShape: const RectangularSliderTrackShape(),
+            // Custom rectangle shape for thumb
+            thumbShape: const RectangularSliderThumbShape(
               enabledThumbRadius: 0,
+              disabledThumbRadius: 0,
             ),
-            overlayShape: const RoundSliderOverlayShape(
-              overlayRadius: 0,
-            ),
+            // Remove overlay completely
+            overlayShape: SliderComponentShape.noOverlay,
           ),
           child: Slider(
             value: position.inMilliseconds.toDouble(),
@@ -166,21 +169,21 @@ class VideoPlayerWidgetState extends State<VideoPlayerWidget> {
           child: _buildProgressBar(),
         ),
         Positioned(
-          bottom: 16,
-          right: 16,
+          bottom: 8,
+          right: 12,
           child: SmoothClipRRect(
             smoothness: 1,
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: BorderRadius.circular(6),
             child: Container(
               // ignore: deprecated_member_use
               color: AppColors.black.withOpacity(0.5),
               child: Padding(
-                padding: const EdgeInsets.all(6),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
                 child: Text(
                   _formatDuration(_controller.value.position),
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 14,
+                    fontSize: 13,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -213,5 +216,50 @@ class VideoPlayerWidgetState extends State<VideoPlayerWidget> {
         ),
       ],
     );
+  }
+}
+// Custom rectangular thumb shape
+class RectangularSliderThumbShape extends SliderComponentShape {
+  final double enabledThumbRadius;
+  final double disabledThumbRadius;
+
+  const RectangularSliderThumbShape({
+    this.enabledThumbRadius = 4.0,
+    this.disabledThumbRadius = 4.0,
+  });
+
+  @override
+  Size getPreferredSize(bool isEnabled, bool isDiscrete) {
+    return Size.fromRadius(isEnabled ? enabledThumbRadius : disabledThumbRadius);
+  }
+
+  @override
+  void paint(
+    PaintingContext context,
+    Offset center, {
+    required Animation<double> activationAnimation,
+    required Animation<double> enableAnimation,
+    required bool isDiscrete,
+    required TextPainter labelPainter,
+    required RenderBox parentBox,
+    required SliderThemeData sliderTheme,
+    required TextDirection textDirection,
+    required double value,
+    required double textScaleFactor,
+    required Size sizeWithOverflow,
+  }) {
+    final Canvas canvas = context.canvas;
+
+    final Paint paint = Paint()
+      ..color = sliderTheme.thumbColor!
+      ..style = PaintingStyle.fill;
+
+    final rect = Rect.fromCenter(
+      center: center,
+      width: enabledThumbRadius * 2,
+      height: sliderTheme.trackHeight!,
+    );
+
+    canvas.drawRect(rect, paint);
   }
 }

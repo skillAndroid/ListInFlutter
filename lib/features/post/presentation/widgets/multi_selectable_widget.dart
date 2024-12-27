@@ -31,7 +31,7 @@ class MultiSelectableWidget extends StatelessWidget {
           child: Text(
             attribute.helperText,
             style: const TextStyle(
-              color: AppColors.gray,
+              color: AppColors.grey,
               fontSize: 15,
               fontWeight: FontWeight.w500,
             ),
@@ -192,7 +192,7 @@ class MultiSelectableWidget extends StatelessWidget {
                                           child: Container(
                                             color: isSelected
                                                 ? AppColors.black
-                                                : AppColors.gray
+                                                : AppColors.grey
                                                     // ignore: deprecated_member_use
                                                     .withOpacity(0.5),
                                             child: isSelected

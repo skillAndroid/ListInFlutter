@@ -21,7 +21,7 @@ class AppTheme {
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       hintStyle: const TextStyle(
-        color: AppColors.gray,
+        color: AppColors.grey,
         fontWeight: FontWeight.w400,
       ),
       fillColor: AppColors.containerColor,
