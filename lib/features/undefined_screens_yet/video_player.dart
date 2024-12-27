@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
@@ -27,7 +28,6 @@ class VideoPlayerWidget extends StatefulWidget {
 class VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   late VideoPlayerController _controller;
   bool _isInitialized = false;
-  bool _isDragging = false;
   bool _isMuted = false;
   bool _isBuffering = true;
 
@@ -38,6 +38,7 @@ class VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   }
 
   void _initializeVideo() {
+    // ignore: deprecated_member_use
     _controller = VideoPlayerController.network(widget.videoUrl)
       ..initialize().then((_) {
         setState(() {
@@ -91,71 +92,39 @@ class VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   Widget _buildProgressBar() {
     final duration = _controller.value.duration;
     final position = _controller.value.position;
-    final buffered = _controller.value.buffered;
-
-    // Calculate buffered progress as a percentage of the total duration
-    double getBufferedPosition() {
-      if (buffered.isNotEmpty) {
-        return buffered.last.end.inMilliseconds.toDouble();
-      }
-      return 0.0;
-    }
 
     return Stack(
+      alignment: Alignment.center,
       children: [
-        // Buffered progress
-        Positioned.fill(
-          child: SliderTheme(
-            data: SliderThemeData(
-              trackHeight: 4,
-              activeTrackColor:
-                  Colors.green.shade700, // Color for buffered progress
-              inactiveTrackColor: Colors.transparent,
-              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 0),
-              overlayShape: const RoundSliderOverlayShape(overlayRadius: 0),
+        SliderTheme(
+          data: SliderThemeData(
+            trackHeight: 4,
+            activeTrackColor: AppColors.green,
+            inactiveTrackColor: AppColors.containerColor,
+            thumbColor: AppColors.primary,
+            thumbShape: const RoundSliderThumbShape(
+              enabledThumbRadius: 0,
             ),
-            child: Slider(
-              value: getBufferedPosition(),
-              min: 0,
-              max: duration.inMilliseconds.toDouble(),
-              onChanged: null, // Buffered slider is non-interactive
+            overlayShape: const RoundSliderOverlayShape(
+              overlayRadius: 0,
             ),
           ),
-        ),
-        // Current progress
-        Positioned.fill(
-          child: SliderTheme(
-            data: SliderThemeData(
-              trackHeight: 3,
-              activeTrackColor: AppColors.green, // Color for current progress
-              inactiveTrackColor: AppColors.containerColor,
-              thumbColor: AppColors.primary,
-              thumbShape: const RoundSliderThumbShape(
-                enabledThumbRadius: 0,
-              ),
-              overlayShape: const RoundSliderOverlayShape(
-                overlayRadius: 0,
-              ),
-            ),
-            child: Slider(
-              value: position.inMilliseconds.toDouble(),
-              min: 0,
-              max: duration.inMilliseconds.toDouble(),
-              onChanged: (value) {
-                setState(() {
-                  _isDragging = true;
-                  _controller.seekTo(Duration(milliseconds: value.toInt()));
-                });
-              },
-              onChangeEnd: (value) {
-                setState(() {
-                  _isDragging = false;
-                  if (widget.isPlaying) {
-                    _controller.play();
-                  }
-                });
-              },
-            ),
+          child: Slider(
+            value: position.inMilliseconds.toDouble(),
+            min: 0,
+            max: duration.inMilliseconds.toDouble(),
+            onChanged: (value) {
+              setState(() {
+                _controller.seekTo(Duration(milliseconds: value.toInt()));
+              });
+            },
+            onChangeEnd: (value) {
+              setState(() {
+                if (widget.isPlaying) {
+                  _controller.play();
+                }
+              });
+            },
           ),
         ),
       ],
@@ -197,7 +166,7 @@ class VideoPlayerWidgetState extends State<VideoPlayerWidget> {
           child: _buildProgressBar(),
         ),
         Positioned(
-          bottom: 16, // Adjusted to be just above the slider
+          bottom: 16,
           right: 16,
           child: SmoothClipRRect(
             smoothness: 1,
@@ -230,9 +199,9 @@ class VideoPlayerWidgetState extends State<VideoPlayerWidget> {
           right: 8,
           child: IconButton(
             icon: Icon(
-              _isMuted ? Icons.volume_off : Icons.volume_up,
+              _isMuted ? CupertinoIcons.volume_off : CupertinoIcons.volume_mute,
               color: Colors.white,
-              size: 24,
+              size: 28,
             ),
             onPressed: () {
               setState(() {

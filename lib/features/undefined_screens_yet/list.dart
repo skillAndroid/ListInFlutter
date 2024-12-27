@@ -357,7 +357,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
         ),
       ),
       extendBody: true,
-      extendBodyBehindAppBar: true,
+      extendBodyBehindAppBar: false,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         controller: _scrollController,
