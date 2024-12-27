@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -67,14 +68,14 @@ class _MainWrapperState extends State<MainWrapper> {
                   ),
                   child: BottomNavigationBar(
                     // ignore: deprecated_member_use
-                    backgroundColor: AppColors.white.withOpacity(0.7),
-                    selectedItemColor: AppColors.littleGreen,
+                    backgroundColor: AppColors.bgColor.withOpacity(0.8),
+                    selectedItemColor: AppColors.primary,
                     unselectedItemColor: CupertinoColors.inactiveGray,
                     currentIndex: _calculateSelectedIndex(context),
                     onTap: (index) => _onItemTapped(context, index),
                     type: BottomNavigationBarType.fixed,
-                    showSelectedLabels: false,
-                    showUnselectedLabels: false,
+                    showSelectedLabels: true,
+                    showUnselectedLabels: true,
                     items: const [
                       BottomNavigationBarItem(
                         icon: Icon(CupertinoIcons.home),
@@ -83,13 +84,13 @@ class _MainWrapperState extends State<MainWrapper> {
                       BottomNavigationBarItem(
                         icon: Icon(
                           CupertinoIcons.plus_circled,
-                          size: 32,
+                          size: 30,
                         ),
-                        label: '',
+                        label: 'Add Post',
                       ),
                       BottomNavigationBarItem(
-                        icon: Icon(CupertinoIcons.calendar),
-                        label: 'Events',
+                        icon: Icon(CupertinoIcons.person),
+                        label: 'Profile',
                       ),
                     ],
                   ),
@@ -117,16 +118,15 @@ class _EventsScreenState extends State<EventsScreen> {
   }
 }
 
-
 class DynamicLabelBottomNavigationBarItem extends BottomNavigationBarItem {
   final Widget icon;
-  final String? label; 
+  final String? label;
 
   DynamicLabelBottomNavigationBarItem({
     required this.icon,
     this.label,
   }) : super(
           icon: icon,
-          label: label, 
+          label: label,
         );
 }

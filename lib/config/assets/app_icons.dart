@@ -6,4 +6,7 @@ class AppIcons {
   static const geoLocationIc = '${_basePath}geo_location$_format';
   static const homeLocationIc = '${_basePath}home_ic$_format';
   static const arrowBackNoShadow = '${_basePath}arrow_back_no_shadow$_format';
+
+  static const filterIc = '${_basePath}ic_filter$_format';
+  static const chatIc = '${_basePath}chat_ic$_format';
 }
