@@ -1,17 +1,11 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:go_router/go_router.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
-import 'package:list_in/core/router/routes.dart';
-import 'package:list_in/features/undefined_screens_yet/details.dart';
 import 'package:list_in/features/undefined_screens_yet/video_player.dart';
-import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 // Data Classes
@@ -76,37 +70,51 @@ class ProductListScreen extends StatefulWidget {
 }
 
 class _ProductListScreenState extends State<ProductListScreen> {
-  String? _currentlyPlayingId;
-  String? _pendingPlayId;
-  final Map<String, bool> _isItemVisible = {};
-  final Map<String, int> _currentPages = {};
-  final Map<String, double> _visibilityFractions = {};
-  Timer? _debounceTimer;
-  Timer? _playTimer;
+  // Controllers and state management
   final ScrollController _scrollController = ScrollController();
+  final SearchController _searchController = SearchController();
+  final ValueNotifier<String?> _currentlyPlayingId =
+      ValueNotifier<String?>(null);
+  final ValueNotifier<Set<int>> _selectedFilters = ValueNotifier<Set<int>>({});
 
-  Set<int> selectedFilters = {};
-  bool _isVisible = true;
+  // Video visibility tracking
+  final Map<String, ValueNotifier<double>> _visibilityNotifiers = {};
+  final Map<String, ValueNotifier<int>> _pageNotifiers = {};
 
   @override
   void initState() {
     super.initState();
-    _initializeState();
+    _initializeVideoTracking();
+  }
+
+  void _initializeVideoTracking() {
+    for (var product in widget.advertisedProducts) {
+      _visibilityNotifiers[product.id] = ValueNotifier<double>(0.0);
+      _pageNotifiers[product.id] = ValueNotifier<int>(0);
+    }
   }
 
   @override
   void dispose() {
-    _debounceTimer?.cancel();
-    _playTimer?.cancel();
     _scrollController.dispose();
+    _searchController.dispose();
+    _currentlyPlayingId.dispose();
+    _selectedFilters.dispose();
+
+    for (var notifier in _visibilityNotifiers.values) {
+      notifier.dispose();
+    }
+    for (var notifier in _pageNotifiers.values) {
+      notifier.dispose();
+    }
+
     super.dispose();
   }
 
-  void _initializeState() {
-    for (var product in widget.advertisedProducts) {
-      _isItemVisible[product.id] = false;
-      _currentPages[product.id] = 0;
-      _visibilityFractions[product.id] = 0.0;
+  void _handleVisibilityChanged(String id, double visibilityFraction) {
+    if (_visibilityNotifiers[id]?.value != visibilityFraction) {
+      _visibilityNotifiers[id]?.value = visibilityFraction;
+      Future.microtask(() => _updateMostVisibleVideo());
     }
   }
 
@@ -114,76 +122,236 @@ class _ProductListScreenState extends State<ProductListScreen> {
     String? mostVisibleId;
     double maxVisibility = 0.0;
 
-    _visibilityFractions.forEach((id, visibility) {
-      if (visibility > maxVisibility &&
-          (_currentPages[id] ?? 0) == 0 &&
-          visibility > 0.7) {
+    _visibilityNotifiers.forEach((id, notifier) {
+      final visibility = notifier.value;
+      final currentPage = _pageNotifiers[id]?.value ?? 0;
+
+      if (visibility > maxVisibility && currentPage == 0 && visibility > 0.7) {
         maxVisibility = visibility;
         mostVisibleId = id;
       }
     });
 
-    // If there's a new most visible video different from what's currently playing
-    if (mostVisibleId != null && mostVisibleId != _currentlyPlayingId) {
-      _playTimer?.cancel();
-
-      // Set the pending video
-      setState(() {
-        _pendingPlayId = mostVisibleId;
-      });
-
-      // Wait 1 second before actually playing the video
-      _playTimer = Timer(const Duration(milliseconds: 100), () {
-        if (_pendingPlayId == mostVisibleId) {
-          // Check if it's still the most visible
-          setState(() {
-            _currentlyPlayingId = mostVisibleId;
-            _pendingPlayId = null;
-          });
-        }
-      });
+    if (mostVisibleId != _currentlyPlayingId.value) {
+      _currentlyPlayingId.value = mostVisibleId;
     }
   }
 
-  void _handleVisibilityChanged(String id, double visibilityFraction) {
-    if (_visibilityFractions[id] != visibilityFraction) {
-      setState(() {
-        _visibilityFractions[id] = visibilityFraction;
-        _isItemVisible[id] = visibilityFraction > 0;
-      });
-
-      if (_debounceTimer?.isActive ?? false) {
-        _debounceTimer!.cancel();
-      }
-      _debounceTimer = Timer(const Duration(milliseconds: 150), () {
-        _updateMostVisibleVideo();
-      });
-    }
+  PreferredSizeWidget _buildAppBar() {
+    return PreferredSize(
+      preferredSize: const Size.fromHeight(60),
+      child: AppBar(
+        elevation: 2,
+        backgroundColor: AppColors.white,
+        systemOverlayStyle: const SystemUiOverlayStyle(
+          statusBarIconBrightness: Brightness.dark,
+        ),
+        flexibleSpace: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: AppColors.containerColor,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Image.asset(
+                              AppIcons.searchIcon,
+                              width: 24,
+                              height: 24,
+                            ),
+                          ),
+                          Expanded(
+                            child: TextField(
+                              controller: _searchController,
+                              decoration: const InputDecoration(
+                                hintText: "Search...",
+                                border: InputBorder.none,
+                              ),
+                            ),
+                          ),
+                          const VerticalDivider(
+                            color: AppColors.lightGray,
+                            width: 1,
+                            indent: 12,
+                            endIndent: 12,
+                          ),
+                          IconButton(
+                            icon: Image.asset(
+                              AppIcons.filterIc,
+                              width: 24,
+                              height: 24,
+                            ),
+                            onPressed: () {},
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Stack(
+                    children: [
+                      IconButton(
+                        icon: Image.asset(
+                          AppIcons.chatIc,
+                          width: 46,
+                          height: 46,
+                          color: AppColors.black,
+                        ),
+                        onPressed: () {},
+                      ),
+                      Positioned(
+                        right: 8,
+                        bottom: 8,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: AppColors.error,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Text(
+                            "2",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
-  void _handlePageChanged(String id, int pageIndex) {
-    setState(() {
-      _currentPages[id] = pageIndex;
-
-      if (_currentlyPlayingId == id && pageIndex != 0) {
-        _currentlyPlayingId = null;
-        _pendingPlayId = null;
-      } else if (pageIndex == 0) {
-        _updateMostVisibleVideo();
-      }
-    });
+  Widget _buildFiltersBar() {
+    return ValueListenableBuilder<Set<int>>(
+      valueListenable: _selectedFilters,
+      builder: (context, selectedFilters, _) {
+        return SizedBox(
+          height: 44,
+          child: ListView.builder(
+            physics: BouncingScrollPhysics(),
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            itemCount: myFilters.length,
+            itemBuilder: (context, index) =>
+                _buildFilterChip(index, selectedFilters),
+          ),
+        );
+      },
+    );
   }
 
-  Widget _buildMediaContent(AdvertisedProduct product, int pageIndex) {
-    final isVisible = _isItemVisible[product.id] ?? false;
-    final isCurrentPageZero = pageIndex == 0;
-    final isPlaying = _currentlyPlayingId == product.id;
+  Widget _buildFilterChip(int index, Set<int> selectedFilters) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: FilterChip(
+        label: Text(myFilters[index].name),
+        selected: selectedFilters.contains(index),
+        backgroundColor: AppColors.containerColor,
+        selectedColor: AppColors.black,
+        labelStyle: TextStyle(
+          color: selectedFilters.contains(index) ? Colors.white : Colors.black,
+        ),
+        onSelected: (selected) {
+          final newFilters = Set<int>.from(selectedFilters);
+          if (selected) {
+            newFilters.add(index);
+          } else {
+            newFilters.remove(index);
+          }
+          _selectedFilters.value = newFilters;
+        },
+      ),
+    );
+  }
 
-    if (isVisible && isCurrentPageZero && isPlaying) {
+//
+
+  Widget _buildAdvertisedProduct(AdvertisedProduct product) {
+    return ValueListenableBuilder<double>(
+      valueListenable: _visibilityNotifiers[product.id]!,
+      builder: (context, visibility, _) {
+        return VisibilityDetector(
+          key: Key('detector_${product.id}'),
+          onVisibilityChanged: (info) => _handleVisibilityChanged(
+            product.id,
+            info.visibleFraction,
+          ),
+          child: _buildProductCard(product),
+        );
+      },
+    );
+  }
+
+  Widget _buildProductCard(AdvertisedProduct product) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Text(
+              product.title,
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+          ),
+          AspectRatio(
+            aspectRatio: 16 / 9,
+            child: ValueListenableBuilder<String?>(
+              valueListenable: _currentlyPlayingId,
+              builder: (context, currentlyPlayingId, _) {
+                return ValueListenableBuilder<int>(
+                  valueListenable: _pageNotifiers[product.id]!,
+                  builder: (context, currentPage, _) {
+                    return PageView.builder(
+                      itemCount: product.images.length,
+                      onPageChanged: (page) =>
+                          _pageNotifiers[product.id]?.value = page,
+                      itemBuilder: (context, index) => _buildMediaContent(
+                        product,
+                        index,
+                        currentPage,
+                        currentlyPlayingId == product.id,
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMediaContent(
+    AdvertisedProduct product,
+    int pageIndex,
+    int currentPage,
+    bool isPlaying,
+  ) {
+    if (pageIndex == 0 && isPlaying) {
       return VideoPlayerWidget(
         key: Key('video_${product.id}'),
         videoUrl: product.videoUrl,
-        thumbnailUrl: product.thumbnailUrl, // Pass the thumbnail URL
+        thumbnailUrl: product.thumbnailUrl,
         isPlaying: true,
         onPlay: () {},
         onPause: () {},
@@ -191,418 +359,106 @@ class _ProductListScreenState extends State<ProductListScreen> {
     }
 
     return CachedNetworkImage(
-      key: Key('thumb_${product.id}'),
       imageUrl:
-          isCurrentPageZero ? product.thumbnailUrl : product.images[pageIndex],
+          pageIndex == 0 ? product.thumbnailUrl : product.images[pageIndex],
       fit: BoxFit.cover,
-      placeholder: (context, url) => const Center(
-        child: CircularProgressIndicator(),
-      ),
-      errorWidget: (context, url, error) => const Center(
-        child: Icon(Icons.error),
-      ),
+      placeholder: (context, url) =>
+          const Center(child: CircularProgressIndicator()),
+      errorWidget: (context, url, error) =>
+          const Center(child: Icon(Icons.error)),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.bgColor,
-      appBar: PreferredSize(
-        preferredSize: Size(double.infinity, 60),
-        child: ClipRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(
-              sigmaX: 40,
-              sigmaY: 40,
-              tileMode: TileMode.clamp,
-            ),
-            child: AppBar(
-              elevation: 2,
-              // ignore: deprecated_member_use
-              backgroundColor: AppColors.transparent,
-              flexibleSpace: Container(
-                decoration: BoxDecoration(
-                  // ignore: deprecated_member_use
-                  color: AppColors.bgColor.withOpacity(1),
-                ),
-              ),
-              bottom: PreferredSize(
-                preferredSize: const Size.fromHeight(60),
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                    left: 16,
-                    right: 8,
-                    bottom: 8,
-                  ),
-                  child: Row(
-                    children: [
-                      SmoothClipRRect(
-                        smoothness: 1,
-                        borderRadius: BorderRadius.circular(10),
-                        child: Container(
-                          width: 308,
-                          alignment: Alignment.centerLeft,
-                          color: AppColors.containerColor,
-                          child: Row(
-                            children: [
-                              SizedBox(
-                                width: 248,
-                                child: TextField(
-                                  style: const TextStyle(
-                                    color: AppColors.black,
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 15,
-                                  ),
-                                  cursorRadius: Radius.circular(2),
-                                  decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.only(right: 16),
-                                    fillColor: AppColors.containerColor,
-                                    icon: Padding(
-                                      padding: const EdgeInsets.only(
-                                        left: 12,
-                                        top: 12,
-                                        bottom: 12,
-                                      ),
-                                      child: Image.asset(
-                                        width: 24,
-                                        height: 24,
-                                        AppIcons.searchIcon,
-                                      ),
-                                    ),
-                                    hintText: "Search...",
-                                    hintStyle: TextStyle(
-                                      // ignore: deprecated_member_use
-                                      color:
-                                          // ignore: deprecated_member_use
-                                          AppColors.darkGray.withOpacity(0.8),
-                                      fontFamily: 'Poppins',
-                                      fontWeight: FontWeight.w400,
-                                      fontSize: 15.5,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Row(
-                                children: [
-                                  SizedBox(
-                                    width: 12,
-                                  ),
-                                  Container(
-                                    color: AppColors.lightGray,
-                                    height: 24,
-                                    width: 2,
-                                  ),
-                                  SizedBox(
-                                    width: 6,
-                                  ),
-                                  Image.asset(
-                                    width: 24,
-                                    height: 24,
-                                    AppIcons.filterIc,
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Stack(
-                        children: [
-                          Transform.translate(
-                            offset: Offset(0, 4),
-                            child: Image.asset(
-                              scale: 2,
-                              width: 46,
-                              height: 46,
-                              AppIcons.chatIc,
-                              color: AppColors.black,
-                            ),
-                          ),
-                          Positioned(
-                            bottom: 1,
-                            right: 1,
-                            child: SmoothClipRRect(
-                              borderRadius: BorderRadius.circular(32),
-                              child: Container(
-                                color: AppColors.error,
-                                width: 18,
-                                height: 18,
-                                child: Center(
-                                  child: Text(
-                                    "2",
-                                    style: TextStyle(
-                                      color: AppColors.white,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              systemOverlayStyle: SystemUiOverlayStyle(
-                statusBarIconBrightness: Brightness.dark,
-              ),
-            ),
-          ),
-        ),
-      ),
-      extendBody: true,
-      extendBodyBehindAppBar: false,
+      appBar: _buildAppBar(),
       body: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
         controller: _scrollController,
+        physics: const BouncingScrollPhysics(),
         slivers: [
-          SliverToBoxAdapter(
-            child: VisibilityDetector(
-              key: Key('regular_widget_1'),
-              onVisibilityChanged: (VisibilityInfo info) {
-                setState(() {
-                  _isVisible = info.visibleFraction > 0;
-                });
-              },
-              child: Container(
-                height: 100,
-                color: Colors.blue,
-                child: Center(
-                  child: Text("Regular Widget 1"),
-                ),
-              ),
-            ),
+          // Second SliverAppBar for filters
+          SliverAppBar(
+            floating: true,
+            snap: false,
+            pinned: false,
+            automaticallyImplyLeading: true,
+            toolbarHeight: 60,
+            flexibleSpace: _buildFiltersBar(),
+            backgroundColor: Colors.white,
           ),
-          if (!_isVisible)
-            SliverAppBar(
-              floating: true,
-              snap: false,
-              pinned: false,
-              expandedHeight: 30,
-              flexibleSpace: FlexibleSpaceBar(
-                background: Container(
-                  color: AppColors
-                      .bgColor, // Using theme color instead of AppColors
-                  padding: EdgeInsets.only(
-                    top: MediaQuery.of(context).padding.top + kToolbarHeight,
-                  ),
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    physics: BouncingScrollPhysics(),
-                    padding: EdgeInsets.symmetric(horizontal: 8),
-                    itemCount: 15,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: EdgeInsets.only(right: 3),
-                        child: SmoothClipRRect(
-                          smoothness: 1,
-                          child: FilterChip(
-                            disabledColor: AppColors
-                                .containerColor, // Default background color for disabled state
-                            backgroundColor:
-                                Colors.white, // Default background color
-                            selectedColor:
-                                Colors.black, // Background color when selected
-                            shape: SmoothRectangleBorder(
-                              smoothness: 1,
-                              side: BorderSide(
-                                color: AppColors
-                                    .lightGray, // Border color when not selected
-                                width: 1.2, // Border width
-                              ),
-                              borderRadius:
-                                  BorderRadius.circular(8.0), // Rounded corners
-                            ),
-
-                            label: Padding(
-                              padding: EdgeInsets.symmetric(vertical: 3),
-                              child: Text(
-                                "Item $index",
-                                style: TextStyle(
-                                  color: selectedFilters.contains(index)
-                                      ? Colors.white
-                                      : Colors
-                                          .black, // Text color changes dynamically
-                                ),
-                              ),
-                            ),
-                            selected: selectedFilters.contains(index),
-                            onSelected: (bool selected) {
-                              setState(() {
-                                if (selected) {
-                                  selectedFilters.add(index);
-                                } else {
-                                  selectedFilters.remove(index);
-                                }
-                              });
-                            },
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
-            ),
           SliverPadding(
-            padding: EdgeInsets.symmetric(horizontal: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 8),
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final product = widget.advertisedProducts[index];
-
-                  return VisibilityDetector(
-                    key: Key('detector_${product.id}'),
-                    onVisibilityChanged: (visibilityInfo) {
-                      _handleVisibilityChanged(
-                        product.id,
-                        visibilityInfo.visibleFraction,
-                      );
-                    },
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            product.title,
-                            style: const TextStyle(fontSize: 32),
-                          ),
-                        ),
-                        SmoothClipRRect(
-                          smoothness: 1,
-                          borderRadius: BorderRadius.circular(4),
-                          child: SizedBox(
-                            height: 240,
-                            child: PageView.builder(
-                              key: Key('pager_${product.id}'),
-                              itemCount: product.images.length,
-                              onPageChanged: (pageIndex) {
-                                _handlePageChanged(product.id, pageIndex);
-                              },
-                              itemBuilder: (context, pageIndex) {
-                                return _buildMediaContent(product, pageIndex);
-                              },
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 8,
-                        ),
-                      ],
-                    ),
-                  );
-                },
+                (context, index) =>
+                    _buildAdvertisedProduct(widget.advertisedProducts[index]),
                 childCount: widget.advertisedProducts.length,
               ),
             ),
           ),
-          // Regular Products Grid remains unchanged
           SliverPadding(
-            padding: EdgeInsets.symmetric(horizontal: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 8),
             sliver: SliverGrid(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
+                childAspectRatio: 0.7,
                 crossAxisSpacing: 8,
                 mainAxisSpacing: 8,
-                childAspectRatio: 0.7,
               ),
               delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final product = widget.regularProducts[index];
-                  return InkWell(
-                    onTap: () {
-                      context.push(
-                        Routes.productDetails.replaceAll(':id', product.id),
-                        extra: getRecommendedProducts(product.id),
-                      );
-                    },
-                    child: SmoothClipRRect(
-                      smoothness: 1,
-                      borderRadius: BorderRadius.circular(10),
-                      child: Card(
-                        margin: EdgeInsets.all(1),
-                        elevation: 1.5,
-                        shadowColor: AppColors.containerColor,
-                        color: AppColors.bgColor,
-                        child: SizedBox(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(4.0),
-                                child: SmoothClipRRect(
-                                  smoothness: 1,
-                                  borderRadius: BorderRadius.circular(10),
-                                  child: CachedNetworkImage(
-                                    height: 160,
-                                    width: double.infinity,
-                                    imageUrl: product.images[0],
-                                    fit: BoxFit.cover,
-                                    placeholder: (context, url) => const Center(
-                                      child: CircularProgressIndicator(),
-                                    ),
-                                    errorWidget: (context, url, error) =>
-                                        const Center(
-                                      child: Icon(Icons.error),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(
-                                  product.name,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 8.0),
-                                child: Text(
-                                  product.location,
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8.0,
-                                  vertical: 4.0,
-                                ),
-                                child: Text(
-                                  '\$${product.price}',
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.green,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
+                (context, index) =>
+                    RegularProductCard(product: widget.regularProducts[index]),
                 childCount: widget.regularProducts.length,
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class RegularProductCard extends StatelessWidget {
+  final Product product;
+
+  const RegularProductCard({super.key, required this.product});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: CachedNetworkImage(
+              imageUrl: product.images[0],
+              fit: BoxFit.cover,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  product.name,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  product.location,
+                  style: const TextStyle(color: Colors.grey),
+                ),
+                Text(
+                  '\$${product.price}',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -629,3 +485,5 @@ class Filter {
 
   Filter({required this.name, required this.value});
 }
+
+// Ai
