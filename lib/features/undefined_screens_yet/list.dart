@@ -84,7 +84,9 @@ class _ProductListScreenState extends State<ProductListScreen> {
   Timer? _debounceTimer;
   Timer? _playTimer;
   final ScrollController _scrollController = ScrollController();
+
   Set<int> selectedFilters = {};
+  bool _isVisible = true;
 
   @override
   void initState() {
@@ -317,6 +319,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                               width: 46,
                               height: 46,
                               AppIcons.chatIc,
+                              color: AppColors.black,
                             ),
                           ),
                           Positioned(
@@ -359,73 +362,94 @@ class _ProductListScreenState extends State<ProductListScreen> {
         physics: const BouncingScrollPhysics(),
         controller: _scrollController,
         slivers: [
-          SliverAppBar(
-            floating: true,
-            snap: false,
-            pinned: false,
-            expandedHeight: 30,
-            flexibleSpace: FlexibleSpaceBar(
-              background: Container(
-                color:
-                    AppColors.bgColor, // Using theme color instead of AppColors
-                padding: EdgeInsets.only(
-                  top: MediaQuery.of(context).padding.top + kToolbarHeight,
-                ),
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  physics: BouncingScrollPhysics(),
-                  padding: EdgeInsets.symmetric(horizontal: 8),
-                  itemCount: 15,
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: EdgeInsets.only(right: 3),
-                      child: SmoothClipRRect(
-                        smoothness: 1,
-                        child: FilterChip(
-                          disabledColor: AppColors
-                              .containerColor, // Default background color for disabled state
-                          backgroundColor:
-                              Colors.white, // Default background color
-                          selectedColor:
-                              Colors.black, // Background color when selected
-                          shape: SmoothRectangleBorder(
-                            smoothness: 1,
-                            side: BorderSide(
-                              color: AppColors
-                                  .lightGray, // Border color when not selected
-                              width: 1.2, // Border width
-                            ),
-                            borderRadius:
-                                BorderRadius.circular(8.0), // Rounded corners
-                          ),
-
-                          label: Text(
-                            "Item $index",
-                            style: TextStyle(
-                              color: selectedFilters.contains(index)
-                                  ? Colors.white
-                                  : Colors
-                                      .black, // Text color changes dynamically
-                            ),
-                          ),
-                          selected: selectedFilters.contains(index),
-                          onSelected: (bool selected) {
-                            setState(() {
-                              if (selected) {
-                                selectedFilters.add(index);
-                              } else {
-                                selectedFilters.remove(index);
-                              }
-                            });
-                          },
-                        ),
-                      ),
-                    );
-                  },
+          SliverToBoxAdapter(
+            child: VisibilityDetector(
+              key: Key('regular_widget_1'),
+              onVisibilityChanged: (VisibilityInfo info) {
+                setState(() {
+                  _isVisible = info.visibleFraction > 0;
+                });
+              },
+              child: Container(
+                height: 100,
+                color: Colors.blue,
+                child: Center(
+                  child: Text("Regular Widget 1"),
                 ),
               ),
             ),
           ),
+          if (!_isVisible)
+            SliverAppBar(
+              floating: true,
+              snap: false,
+              pinned: false,
+              expandedHeight: 30,
+              flexibleSpace: FlexibleSpaceBar(
+                background: Container(
+                  color: AppColors
+                      .bgColor, // Using theme color instead of AppColors
+                  padding: EdgeInsets.only(
+                    top: MediaQuery.of(context).padding.top + kToolbarHeight,
+                  ),
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    physics: BouncingScrollPhysics(),
+                    padding: EdgeInsets.symmetric(horizontal: 8),
+                    itemCount: 15,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: EdgeInsets.only(right: 3),
+                        child: SmoothClipRRect(
+                          smoothness: 1,
+                          child: FilterChip(
+                            disabledColor: AppColors
+                                .containerColor, // Default background color for disabled state
+                            backgroundColor:
+                                Colors.white, // Default background color
+                            selectedColor:
+                                Colors.black, // Background color when selected
+                            shape: SmoothRectangleBorder(
+                              smoothness: 1,
+                              side: BorderSide(
+                                color: AppColors
+                                    .lightGray, // Border color when not selected
+                                width: 1.2, // Border width
+                              ),
+                              borderRadius:
+                                  BorderRadius.circular(8.0), // Rounded corners
+                            ),
+
+                            label: Padding(
+                              padding: EdgeInsets.symmetric(vertical: 3),
+                              child: Text(
+                                "Item $index",
+                                style: TextStyle(
+                                  color: selectedFilters.contains(index)
+                                      ? Colors.white
+                                      : Colors
+                                          .black, // Text color changes dynamically
+                                ),
+                              ),
+                            ),
+                            selected: selectedFilters.contains(index),
+                            onSelected: (bool selected) {
+                              setState(() {
+                                if (selected) {
+                                  selectedFilters.add(index);
+                                } else {
+                                  selectedFilters.remove(index);
+                                }
+                              });
+                            },
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
           SliverPadding(
             padding: EdgeInsets.symmetric(horizontal: 8),
             sliver: SliverList(
@@ -453,7 +477,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                         ),
                         SmoothClipRRect(
                           smoothness: 1,
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(4),
                           child: SizedBox(
                             height: 240,
                             child: PageView.builder(
