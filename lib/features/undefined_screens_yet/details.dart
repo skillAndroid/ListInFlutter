@@ -151,40 +151,41 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
- Widget _buildLocation() {
-  return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          children: [
-            Icon(
-              CupertinoIcons.location,  // Using solid variant for better visibility
-              color: AppColors.secondaryColor,
-              size: 20,
-            ),
-            const SizedBox(width: 10),
-            Text(
-              'Tashkent, Quyliq Bozor',
-              style: const TextStyle(
-                fontSize: 15,
-                color: Color(0xFF2F2F2F),
-                fontWeight: FontWeight.w500,
-                height: 1.2,
+  Widget _buildLocation() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Icon(
+                CupertinoIcons
+                    .location, // Using solid variant for better visibility
+                color: AppColors.secondaryColor,
+                size: 20,
               ),
-            ),
-          ],
-        ),
-        Icon(
-          Icons.chevron_right_rounded,  // Using rounded variant for softer look
-          color: Colors.grey.shade600,
-          size: 24,
-        ),
-      ],
-    ),
-  );
-}
+              const SizedBox(width: 10),
+              Text(
+                'Tashkent, Quyliq Bozor',
+                style: const TextStyle(
+                  fontSize: 15,
+                  color: Color(0xFF2F2F2F),
+                  fontWeight: FontWeight.w500,
+                  height: 1.2,
+                ),
+              ),
+            ],
+          ),
+          Icon(
+           CupertinoIcons.forward, // Using rounded variant for softer look
+            color: Colors.grey.shade600,
+            size: 24,
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildSellerInfo() {
     return Padding(
@@ -416,7 +417,8 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
       floating: false,
       pinned: true,
       elevation: 0,
-      shadowColor: AppColors.containerColor,
+      scrolledUnderElevation: 0.6,
+      shadowColor: AppColors.black,
       backgroundColor: Colors.white,
       systemOverlayStyle: SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -425,7 +427,7 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
       ),
       // Equal spacing from left edge
       leading: _buildAppBarButton(
-        icon: Icons.arrow_back_ios_new,
+        icon: CupertinoIcons.back,
         onPressed: () => context.pop(),
         isLeading: true,
       ),

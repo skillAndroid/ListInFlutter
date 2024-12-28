@@ -156,7 +156,7 @@ class _AnimatedProfileScreenState extends State<ProfileScreen> {
                 IconButton(
                   onPressed: () => Navigator.pop(context),
                   icon: const Icon(
-                    Icons.arrow_back_ios_new,
+                    CupertinoIcons.back,
                     color: AppColors.white,
                   ),
                   style: IconButton.styleFrom(
@@ -184,15 +184,12 @@ class _AnimatedProfileScreenState extends State<ProfileScreen> {
               ],
             ),
           ),
-
           Positioned(
             top: 0,
             left: 0,
             right: 0,
             child: _buildInteractiveAppBar(),
           ),
-          // Inside the Stack of FlexibleSpaceBar's background
-// Add these buttons after the BackdropFilter widget and before the Profile content
         ],
       ),
     );
@@ -233,7 +230,7 @@ class _AnimatedProfileScreenState extends State<ProfileScreen> {
                       child: IconButton(
                         onPressed: () => Navigator.pop(context),
                         icon: Icon(
-                          Icons.arrow_back_ios_new,
+                          CupertinoIcons.back,
                           color: Colors.black.withOpacity(_appBarOpacity),
                         ),
                         style: IconButton.styleFrom(

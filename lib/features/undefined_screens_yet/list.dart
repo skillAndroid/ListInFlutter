@@ -980,9 +980,9 @@ class CategoriesList extends StatelessWidget {
   final List<CategoryItem> categories;
 
   const CategoriesList({
-    Key? key,
+    super.key,
     required this.categories,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1278,9 +1278,9 @@ class RecommendationCard extends StatelessWidget {
   final RecommendationItem item;
 
   const RecommendationCard({
-    Key? key,
+    super.key,
     required this.item,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
