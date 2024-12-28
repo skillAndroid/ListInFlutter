@@ -77,24 +77,27 @@ class AppRouter {
       ),
 
       GoRoute(
-        path: Routes.productDetails,
-        builder: (context, state) {
-          final productId = state.pathParameters['id']!;
-          final extraProducts = state.extra;
-
-          final List<Product> recommendedProducts;
-          if (extraProducts is List<Product>) {
-            recommendedProducts = extraProducts;
-          } else {
-            recommendedProducts = getRecommendedProducts(productId);
-          }
-
-          return ProductDetailsScreen(
-            productId: productId,
-            recommendedProducts: recommendedProducts,
-          );
-        },
-      ),
+      path: '/product/:id',
+      builder: (context, state) {
+        final productId = state.pathParameters['id']!;
+        final extraProducts = state.extra;
+        
+        final List<Product> recommendedProducts;
+        if (extraProducts is List<Product>) {
+          recommendedProducts = extraProducts;
+        } else {
+          recommendedProducts = getRecommendedProducts(productId);
+        }
+        
+        final productDetails = findProductById(productId);
+        
+        return ProductDetailsScreen(
+          productId: productId,
+          recommendedProducts: recommendedProducts,
+          productDetails: productDetails,
+        );
+      },
+    ),
 
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
@@ -127,5 +130,12 @@ class AppRouter {
         ],
       ),
     ],
+  );
+}
+// Helper functions
+Product findProductById(String id) {
+  return sampleProducts.firstWhere(
+    (product) => product.id == id,
+    orElse: () => throw Exception('Product not found'),
   );
 }
