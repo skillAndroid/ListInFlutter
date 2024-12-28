@@ -1,497 +1,728 @@
-import 'package:eva_icons_flutter/eva_icons_flutter.dart';
+// ignore_for_file: deprecated_member_use
+
+import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:ionicons/ionicons.dart';
+import 'package:flutter/services.dart';
 import 'package:list_in/config/assets/app_icons.dart';
+import 'dart:math' as math;
+
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:smooth_corner_updated/smooth_corner.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _AnimatedProfileScreenState();
+}
+
+class _AnimatedProfileScreenState extends State<ProfileScreen> {
+  late ScrollController _scrollController;
+  double _offset = 0;
+  final double _maxAppBarHeight = 300;
+  final double _minAppBarHeight = 80;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController()
+      ..addListener(() {
+        setState(() {
+          _offset = _scrollController.offset;
+        });
+      });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  double get _appBarOpacity {
+    // Start showing app bar content after 60% of scroll
+    return math.min(
+        1,
+        math.max(
+            0, (_offset - _maxAppBarHeight * 0.6) / (_maxAppBarHeight * 0.4)));
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5), // bgColor
-      body: Column(
+      backgroundColor: AppColors.bgColor,
+      body: Stack(
         children: [
-          Container(
-            height: 30,
-            color: const Color(0xFFEEEEEE), // secondaryColor
-          ),
-          const TopBarProfile(),
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  Container(
-                    height: 2,
-                    color: const Color(0xFFEEEEEE),
-                  ),
-                  const ProfilePart(),
-                  Container(
-                    height: 12,
-                    color: const Color(0xFFEEEEEE),
-                  ),
-                  const LittleInfoPart(),
-                  Container(
-                    height: 12,
-                    color: const Color(0xFFEEEEEE),
-                  ),
-                  const UpgradePart(),
-                  Container(
-                    height: 12,
-                    color: const Color(0xFFEEEEEE),
-                  ),
-                  const BasePart(),
-                  Container(
-                    height: 12,
-                    color: const Color(0xFFEEEEEE),
-                  ),
-                  const BasePart2(),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class TopBarProfile extends StatelessWidget {
-  const TopBarProfile({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 55,
-      color: const Color(0xFFEEEEEE),
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          InkWell(
-            onTap: () {},
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: Colors.black.withOpacity(0.3),
-                  width: 1.5,
-                ),
-              ),
-              child: const Icon(Icons.arrow_back, size: 20),
-            ),
-          ),
-          const Text(
-            'My Profile',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          InkWell(
-            onTap: () {
-              // Navigate to edit profile
-            },
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  'Edit',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF8A8A8A),
-                  ),
-                ),
-                Container(
-                  height: 1,
-                  width: 30,
-                  color: const Color(0xFF8A8A8A).withOpacity(0.5),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class ProfilePart extends StatelessWidget {
-  const ProfilePart({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          ClipOval(
-            child: Image.asset(
-              AppImages.appLogo,
-              width: 68,
-              height: 68,
-              fit: BoxFit.cover,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Anna Dii',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFEEEEEE),
-                        elevation: 0,
-                        padding: EdgeInsets.zero,
-                        minimumSize: const Size(92, 43),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+          CustomScrollView(
+            controller: _scrollController,
+            physics: const BouncingScrollPhysics(),
+            slivers: [
+              SliverAppBar(
+                expandedHeight: _maxAppBarHeight,
+                pinned: true,
+                stretch: true,
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                leading: Container(), // Empty container to preserve space
+                flexibleSpace: FlexibleSpaceBar(
+                  background: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      // Background image with blur
+                      Image.asset(
+                        AppImages.wAuto,
+                        fit: BoxFit.cover,
+                      ),
+                      // Blur overlay
+                      BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.black.withOpacity(0.3),
+                                Colors.black.withOpacity(0.5),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
-                      child: const Text(
-                        '12 Following',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF8B4513),
+                      // Profile content
+                      Positioned(
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        child: Container(
+                          height: 300,
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              _buildAnimatedAvatar(),
+                              const SizedBox(height: 16),
+                              const Text(
+                                'Anna Dii',
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  _buildStatItem('12', 'Following'),
+                                  Container(
+                                    height: 20,
+                                    width: 1,
+                                    margin: const EdgeInsets.symmetric(
+                                        horizontal: 16),
+                                    color: Colors.white.withOpacity(0.5),
+                                  ),
+                                  _buildStatItem('19', 'Followers'),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: Column(
+                  children: [
+                    _buildReviewSection(),
+                    _buildMainContent(),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          Positioned(
+            top: MediaQuery.of(context).padding.top,
+            left: 16,
+            child: IconButton(
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(
+                Icons.arrow_back_ios_new,
+                color: AppColors.white,
+              ),
+              style: IconButton.styleFrom(
+                backgroundColor: AppColors.black.withOpacity(0.2),
+                shape: SmoothRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: MediaQuery.of(context).padding.top,
+            right: 16,
+            child: IconButton(
+              onPressed: () {
+                // Add your photo change logic here
+              },
+              icon: const Icon(
+                CupertinoIcons.photo_camera_solid,
+                color: Colors.white,
+              ),
+              style: IconButton.styleFrom(
+                backgroundColor: AppColors.black.withOpacity(0.2),
+                shape: SmoothRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: _buildInteractiveAppBar(),
+          ),
+          // Inside the Stack of FlexibleSpaceBar's background
+// Add these buttons after the BackdropFilter widget and before the Profile content
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInteractiveAppBar() {
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent, // Light background
+        statusBarIconBrightness: Brightness.dark, // Black icons
+      ),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          children: [
+            Container(
+              height: _minAppBarHeight,
+              padding: const EdgeInsets.only(left: 16, right: 16, top: 30),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(_appBarOpacity),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1 * _appBarOpacity),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Stack(
+                children: [
+                  // Back button
+
+                  Positioned(
+                    left: 0,
+                    top: 0,
+                    bottom: 0,
+                    child: Center(
+                      child: IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: Icon(
+                          Icons.arrow_back_ios_new,
+                          color: Colors.black.withOpacity(_appBarOpacity),
+                        ),
+                        style: IconButton.styleFrom(
+                          backgroundColor:
+                              Colors.grey.withOpacity(0.1 * _appBarOpacity),
+                          shape: SmoothRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 16),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  ),
+                  // Animated profile info
+                  Positioned.fill(
+                    child: Opacity(
+                      opacity: _appBarOpacity,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Small avatar
+                          Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 2),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: ClipOval(
+                              child: Image.asset(
+                                AppImages.appLogo,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          // Name and status
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Anna Dii',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              Text(
+                                'Online',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.green[600],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  // Action buttons
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    bottom: 0,
+                    child: Row(
                       children: [
-                        const Text(
-                          '19 Followers',
+                        _buildAppBarAction(Icons.edit, () {}),
+                        _buildAppBarAction(Icons.more_vert, () {}),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAppBarAction(IconData icon, VoidCallback onTap) {
+    return Opacity(
+      opacity: _appBarOpacity,
+      child: IconButton(
+        onPressed: onTap,
+        icon: Icon(
+          icon,
+          color: Colors.black,
+        ),
+        style: IconButton.styleFrom(
+          backgroundColor: Colors.grey.withOpacity(0.1),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAnimatedAvatar() {
+    final avatarSize = math.max(40, 120 - _offset * 0.5);
+    final scale = math.max(0.0, 1 - _offset / 300);
+
+    return Transform.scale(
+      scale: scale,
+      child: Container(
+        width: avatarSize.toDouble(),
+        height: avatarSize.toDouble(),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white, width: 4),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 16,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: ClipOval(
+          child: Image.asset(
+            AppImages.wPlats, // Replace with your image
+            fit: BoxFit.cover,
+          ),
+        ),
+      ),
+    );
+  }
+
+//
+  Widget _buildStatItem(String count, String label) {
+    return Column(
+      children: [
+        Text(
+          count,
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w900,
+            color: Colors.white,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+            color: Colors.white.withOpacity(0.8),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildReviewSection() {
+    return SizedBox(
+      height: 115,
+      width: double.infinity,
+      child: Card(
+        color: AppColors.containerColor,
+        elevation: 0,
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        shape: SmoothRectangleBorder(
+          smoothness: 1,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          child: Row(
+            children: [
+              // Rating Section
+              Expanded(
+                flex: 10,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          '4.8',
                           style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
                           ),
                         ),
-                        Container(
-                          height: 1,
-                          width: 61,
-                          color: Colors.black,
+                        const SizedBox(width: 8),
+                        Row(
+                          children: List.generate(
+                            5,
+                            (index) => Icon(
+                              index < 4 ? Icons.star : Icons.star_half,
+                              color: Colors.amber,
+                              size: 20,
+                            ),
+                          ),
                         ),
                       ],
                     ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class LittleInfoPart extends StatelessWidget {
-  const LittleInfoPart({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(40, 20, 8, 20),
-      child: Row(
-        children: [
-          Expanded(
-            child: Row(
-              children: [
-                const Icon(
-                  Ionicons.location,
-                  size: 34,
-                ),
-                const SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
+                    const SizedBox(height: 4),
                     Text(
-                      'City',
+                      'Based on 128 reviews',
                       style: TextStyle(
                         fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF8A8A8A),
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      'Tashkent',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
+                        color: Colors.grey[600],
                       ),
                     ),
                   ],
                 ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: Row(
-              children: [
-                const Icon(
-                  Ionicons.person,
-                  size: 34,
-                ),
-                const SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Text(
-                      'Face',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF8A8A8A),
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      'Business',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class UpgradePart extends StatelessWidget {
-  const UpgradePart({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 72,
-      child: TextButton(
-        onPressed: () {},
-        style: TextButton.styleFrom(
-          backgroundColor: const Color(0xFFF5F5F5),
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Text(
-              'Upgrade Premium',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.black,
               ),
-            ),
-            SizedBox(width: 8),
-            Icon(
-              Icons.star,
-              color: Color(0xFFFFD700),
-              size: 28,
-            ),
-          ],
+              // Vertical Divider
+              Container(
+                height: 60,
+                width: 1,
+                color: Colors.grey.withOpacity(0.2),
+              ),
+              // Recent Reviewers Section
+              Expanded(
+                flex: 11,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Recent Reviews',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey[700],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        height: 40,
+                        child: Stack(
+                          children: [
+                            for (var i = 0; i < 3; i++)
+                              Positioned(
+                                left: i * 25.0,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: AppColors.white,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  child: CircleAvatar(
+                                    radius: 16,
+                                    backgroundImage: NetworkImage(
+                                      'https://picsum.photos/200?random=$i',
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            Positioned(
+                              left: 85,
+                              top: 8,
+                              child: Text(
+                                '+25 more',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey[600],
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
-}
 
-class BasePart extends StatelessWidget {
-  const BasePart({super.key});
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildMainContent() {
     return Column(
       children: [
-        ProfileMenuItem(
-          image: AppIcons.addsIc,
-          title: 'My Ads',
-          trailing: '(5)',
+        _buildPremiumCard(),
+        const SizedBox(height: 16),
+        ...List.generate(
+          10,
+          (index) => _buildListItem(
+            icon: _getIcon(index),
+            title: _getTitle(index),
+            trailing: _getTrailing(index),
+          ),
         ),
-        const Divider(),
-        ProfileMenuItem(
-          image: AppIcons.favorite,
-          title: 'My favourites',
-        ),
-        const Divider(),
-        ProfileMenuItem(
-          image: AppIcons.chatIc,
-          title: 'Chats',
-          trailing: '(3)',
-        ),
-        const Divider(),
-        ProfileMenuItem(
-          image: AppIcons.cardIc,
-          title: 'My balance',
-          trailing: '\$33',
-          showTrailingBox: true,
-        ),
-        const Divider(),
-        ProfileMenuItem(
-          image: AppIcons.languageIc,
-          title: 'Language',
-          trailing: 'English',
-          showTrailingBox: true,
-        ),
+        const SizedBox(height: 32),
       ],
     );
   }
-}
 
-class BasePart2 extends StatelessWidget {
-  const BasePart2({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        ProfileMenuItem(
-          image: AppIcons.supportIc,
-          title: 'Contact Support',
-        ),
-        const Divider(),
-        ProfileMenuItem(
-          image: AppIcons.logoutIc,
-          title: 'Log out',
-          onTap: () {
-            // Handle logout
-            showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: const Text('Logout'),
-                content: const Text('Are you sure you want to logout?'),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Cancel'),
+  Widget _buildPremiumCard() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: SmoothClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: Material(
+          elevation: 4, // Shadow
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 0),
+              padding: const EdgeInsets.all(16),
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [AppColors.secondaryColor, AppColors.primary],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.star,
+                    color: Colors.yellow,
+                    size: 32,
                   ),
-                  TextButton(
-                    onPressed: () {
-                      // Handle logout
-                      Navigator.pop(context);
-                    },
-                    child: const Text(
-                      'Logout',
-                      style: TextStyle(color: Colors.red),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        Text(
+                          'Upgrade to Premium',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Get exclusive features and benefits',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SmoothClipRRect(
+                    smoothness: 1,
+                    borderRadius: BorderRadius.circular(10),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                      ),
+                      child: const Text(
+                        'Upgrade',
+                        style: TextStyle(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 ],
               ),
-            );
-          },
-        ),
-      ],
-    );
-  }
-}
-
-class ProfileMenuItem extends StatelessWidget {
-  final String image;
-  final String title;
-  final String? trailing;
-  final bool showTrailingBox;
-  final VoidCallback? onTap;
-
-  const ProfileMenuItem({
-    super.key,
-    required this.image,
-    required this.title,
-    this.trailing,
-    this.showTrailingBox = false,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        height: 72,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                SizedBox(
-                  width: 34,
-                  height: 34,
-                  child: Image.asset(image,color: AppColors.black,),
-                ),
-                const SizedBox(width: 16),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
             ),
-            Row(
-              children: [
-                if (trailing != null)
-                  showTrailingBox
-                      ? Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFEEEEEE),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            trailing!,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        )
-                      : Text(
-                          trailing!,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                const SizedBox(width: 12),
-                const Icon(
-                  Icons.arrow_forward_ios,
-                  size: 22,
-                ),
-              ],
-            ),
-          ],
+          ),
         ),
       ),
     );
+  }
+
+  Widget _buildListItem({
+    required String icon,
+    required String title,
+    String? trailing,
+  }) {
+    return ListTile(
+      leading: SmoothClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: AppColors.primary.withOpacity(0.1),
+          ),
+          child: SizedBox(
+            width: 28,
+            height: 28,
+            child: Image.asset(
+              icon,
+              color: AppColors.primary,
+            ),
+          ),
+        ),
+      ),
+      title: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      trailing: trailing != null
+          ? Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  trailing,
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                const Icon(
+                  Icons.arrow_forward_ios,
+                  size: 16,
+                  color: Colors.grey,
+                ),
+              ],
+            )
+          : const Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: Colors.grey,
+            ),
+      onTap: () {},
+    );
+  }
+
+  String _getIcon(int index) {
+    final icons = [
+      AppIcons.addsIc,
+      AppIcons.favorite,
+      AppIcons.chatIc,
+      AppIcons.languageIc,
+      AppIcons.cardIc, // settings should be
+      AppIcons.supportIc,
+      AppIcons.supportIc,
+      AppIcons.supportIc,
+      AppIcons.logoutIc,
+      AppIcons.logoutIc,
+    ];
+    return icons[index];
+  }
+
+  String _getTitle(int index) {
+    final titles = [
+      'My Ads',
+      'My Favorites',
+      'Chats',
+      'My Balance',
+      'Language',
+      'Settings',
+      'Help Center',
+      'About Us',
+      'Contact Support',
+      'Log Out',
+    ];
+    return titles[index];
+  }
+
+  String? _getTrailing(int index) {
+    switch (index) {
+      case 0:
+        return '5 active';
+      case 2:
+        return '3 unread';
+      case 3:
+        return '\$33';
+      case 4:
+        return 'English';
+      default:
+        return null;
+    }
   }
 }

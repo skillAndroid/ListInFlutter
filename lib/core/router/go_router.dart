@@ -70,6 +70,13 @@ class AppRouter {
       ),
 
       GoRoute(
+        path: Routes.events,
+        builder: (context, state) => const KeepAliveWrapper(
+          child: ProfileScreen(),
+        ),
+      ),
+
+      GoRoute(
         path: Routes.productDetails,
         builder: (context, state) {
           final productId = state.pathParameters['id']!;
@@ -111,17 +118,12 @@ class AppRouter {
               ),
             ],
           ),
-          StatefulShellBranch(
-            navigatorKey: _eventsNavigatorKey,
-            routes: [
-              GoRoute(
-                path: Routes.events,
-                builder: (context, state) => const KeepAliveWrapper(
-                  child: ProfileScreen(),
-                ),
-              ),
-            ],
-          ),
+          // StatefulShellBranch(
+          //   navigatorKey: _eventsNavigatorKey,
+          //   routes: [
+
+          //   ],
+          // ),
         ],
       ),
     ],

@@ -34,7 +34,7 @@ class _MainWrapperState extends State<MainWrapper> {
         context.push(Routes.post);
         break;
       case 2:
-        context.go(Routes.events);
+        context.push(Routes.events);
         break;
     }
   }
