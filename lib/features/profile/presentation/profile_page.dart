@@ -149,39 +149,42 @@ class _AnimatedProfileScreenState extends State<ProfileScreen> {
           Positioned(
             top: MediaQuery.of(context).padding.top,
             left: 16,
-            child: IconButton(
-              onPressed: () => Navigator.pop(context),
-              icon: const Icon(
-                Icons.arrow_back_ios_new,
-                color: AppColors.white,
-              ),
-              style: IconButton.styleFrom(
-                backgroundColor: AppColors.black.withOpacity(0.2),
-                shape: SmoothRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: MediaQuery.of(context).padding.top,
             right: 16,
-            child: IconButton(
-              onPressed: () {
-                // Add your photo change logic here
-              },
-              icon: const Icon(
-                CupertinoIcons.photo_camera_solid,
-                color: Colors.white,
-              ),
-              style: IconButton.styleFrom(
-                backgroundColor: AppColors.black.withOpacity(0.2),
-                shape: SmoothRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(
+                    Icons.arrow_back_ios_new,
+                    color: AppColors.white,
+                  ),
+                  style: IconButton.styleFrom(
+                    backgroundColor: AppColors.black.withOpacity(0.2),
+                    shape: SmoothRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                 ),
-              ),
+                IconButton(
+                  onPressed: () {
+                    // Add your photo change logic here
+                  },
+                  icon: const Icon(
+                    CupertinoIcons.photo_camera_solid,
+                    color: Colors.white,
+                  ),
+                  style: IconButton.styleFrom(
+                    backgroundColor: AppColors.black.withOpacity(0.2),
+                    shape: SmoothRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
+
           Positioned(
             top: 0,
             left: 0,
