@@ -10,4 +10,18 @@ class AppIcons {
   static const filterIc = '${_basePath}filter_ic$_format';
   static const chatIc = '${_basePath}chat_ic$_format';
   static const favorite = '${_basePath}favorite_ic$_format';
+
+  static const logoutIc = '${_basePath}logout_ic$_format';
+  static const startIc = '${_basePath}ic_star$_format';
+  static const personIc = '${_basePath}person_ic$_format';
+  static const supportIc = '${_basePath}support_ic$_format';
+  static const phoneIc = '${_basePath}phone_ic$_format';
+  static const languageIc = '${_basePath}language_ic$_format';
+  static const editPhotoIc = '${_basePath}edit_photo_ic$_format';
+
+  static const followIc = '${_basePath}follow_ic$_format';
+  static const notificationIc = '${_basePath}ic_notification$_format';
+  static const addsIc = '${_basePath}adds_ic$_format';
+
+  static const cardIc = '${_basePath}card_ic$_format';
 }

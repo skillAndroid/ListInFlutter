@@ -1,9 +1,7 @@
 import 'dart:ui';
 
-import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
@@ -98,22 +96,6 @@ class _MainWrapperState extends State<MainWrapper> {
               ),
             )
           : null,
-    );
-  }
-}
-
-class EventsScreen extends StatefulWidget {
-  const EventsScreen({super.key});
-
-  @override
-  State<EventsScreen> createState() => _EventsScreenState();
-}
-
-class _EventsScreenState extends State<EventsScreen> {
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Text("Events"),
     );
   }
 }

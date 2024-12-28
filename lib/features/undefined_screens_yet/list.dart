@@ -3,7 +3,6 @@
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,7 +11,6 @@ import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
-import 'package:list_in/features/map/service/AppLocation.dart';
 import 'package:list_in/features/undefined_screens_yet/details.dart';
 import 'package:list_in/features/undefined_screens_yet/video_player.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
@@ -751,8 +749,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
           if (_isSliverAppBarVisible)
             SliverAppBar(
               floating: true,
-              snap: false,
-              pinned: false,
+              snap: !_isSliverAppBarVisible,
+              pinned: !_isSliverAppBarVisible,
               automaticallyImplyLeading: true,
               toolbarHeight: 50,
               flexibleSpace: _buildFiltersBar(),
@@ -954,10 +952,10 @@ class TopAppRecomendation extends StatelessWidget {
   final List<RecommendationItem> recommendations;
 
   const TopAppRecomendation({
-    Key? key,
+    super.key,
     required this.categories,
     required this.recommendations,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:list_in/core/router/keep_alive_wrapper.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/core/utils/const.dart';
+import 'package:list_in/features/profile/presentation/profile_page.dart';
 import 'package:list_in/features/undefined_screens_yet/details.dart';
 import 'package:list_in/features/auth/presentation/pages/login_page.dart';
 import 'package:list_in/features/auth/presentation/pages/register_details_page.dart';
@@ -74,7 +75,6 @@ class AppRouter {
           final productId = state.pathParameters['id']!;
           final extraProducts = state.extra;
 
-          
           final List<Product> recommendedProducts;
           if (extraProducts is List<Product>) {
             recommendedProducts = extraProducts;
@@ -117,7 +117,7 @@ class AppRouter {
               GoRoute(
                 path: Routes.events,
                 builder: (context, state) => const KeepAliveWrapper(
-                  child: EventsScreen(),
+                  child: ProfileScreen(),
                 ),
               ),
             ],
