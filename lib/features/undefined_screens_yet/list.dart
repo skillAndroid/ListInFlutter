@@ -1026,11 +1026,11 @@ class CategoriesList extends StatelessWidget {
             ),
           ),
           SizedBox(
-            height: 55,
+            height: 56,
             child: ListView(
               scrollDirection: Axis.horizontal,
               physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.only(right: 8, left: 8, bottom: 8),
+              padding: const EdgeInsets.only(right: 8, left: 8, bottom: 6),
               children: rowItems
                   .map((category) => CategoryCard(category: category))
                   .toList(),
@@ -1115,19 +1115,9 @@ class _CategoryCardState extends State<CategoryCard>
                 children: [
                   SmoothClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        // borderRadius: BorderRadius.circular(8),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            offset: const Offset(0, 2),
-                            blurRadius: 4,
-                          ),
-                        ],
-                      ),
+                    child: SizedBox(
+                      width: 42,
+                      height: 42,
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: Image.network(
@@ -1271,7 +1261,7 @@ class RecommendationsRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 48,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       child: ListView.separated(
         physics: BouncingScrollPhysics(),
         scrollDirection: Axis.horizontal,
