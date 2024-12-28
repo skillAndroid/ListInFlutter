@@ -290,10 +290,93 @@ class _ProductListScreenState extends State<ProductListScreen> {
   }
 
   Widget _buildCategories() {
-    return Container(
-      height: 90,
-      color: AppColors.white,
-      child: Text('Just testing for now'),
+    final categories = [
+      CategoryItem(
+        title: "Food",
+        imageUrl:
+            "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=200",
+      ),
+      CategoryItem(
+        title: "Sports",
+        imageUrl:
+            "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=200",
+      ),
+      CategoryItem(
+        title: "Music",
+        imageUrl:
+            "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=200",
+      ),
+      CategoryItem(
+        title: "Art",
+        imageUrl:
+            "https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?w=200",
+      ),
+      CategoryItem(
+        title: "Technology",
+        imageUrl:
+            "https://images.unsplash.com/photo-1518997554305-5eea2f04e384?w=200",
+      ),
+      CategoryItem(
+        title: "Travel",
+        imageUrl:
+            "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=200",
+      ),
+      CategoryItem(
+        title: "Fashion",
+        imageUrl:
+            "https://images.unsplash.com/photo-1445205170230-053b83016050?w=200",
+      ),
+      CategoryItem(
+        title: "Books",
+        imageUrl:
+            "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=200",
+      ),
+      CategoryItem(
+        title: "Fitness",
+        imageUrl:
+            "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=200",
+      ),
+      CategoryItem(
+        title: "Gaming",
+        imageUrl:
+            "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=200",
+      ),
+      CategoryItem(
+        title: "Nature",
+        imageUrl:
+            "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=200",
+      ),
+      CategoryItem(
+        title: "Science",
+        imageUrl:
+            "https://images.unsplash.com/photo-1507668077129-56e32842fceb?w=200",
+      ),
+    ];
+    final recommendations = [
+      RecommendationItem(
+        title: "Recent",
+        icon: Icons.access_time_rounded,
+        color: Colors.blue,
+      ),
+      RecommendationItem(
+        title: "Season Fashion",
+        icon: Icons.checkroom_rounded,
+        color: Colors.purple,
+      ),
+      RecommendationItem(
+        title: "For Free",
+        icon: Icons.card_giftcard_rounded,
+        color: Colors.red,
+      ),
+      RecommendationItem(
+        title: "Gift Ideas",
+        icon: Icons.redeem_rounded,
+        color: Colors.orange,
+      ),
+    ];
+    return TopAppRecomendation(
+      categories: categories,
+      recommendations: recommendations,
     );
   }
 
@@ -303,12 +386,12 @@ class _ProductListScreenState extends State<ProductListScreen> {
         horizontal: 4,
       ),
       child: FilterChip(
-        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-        label: Text(myFilters[index].name),
+        padding: EdgeInsets.symmetric(horizontal: 7, vertical: 12),
+        label: Text(myFilters[index].name, style: TextStyle(fontSize: 12)),
         shape: SmoothRectangleBorder(
-            smoothness: 1, borderRadius: BorderRadius.circular(8)),
+            smoothness: 0.8, borderRadius: BorderRadius.circular(10)),
         selected: selectedFilters.contains(index),
-        backgroundColor: AppColors.containerColor,
+        backgroundColor: AppColors.white,
         selectedColor: AppColors.green,
         labelStyle: TextStyle(
           color: selectedFilters.contains(index)
@@ -324,7 +407,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
           }
           _selectedFilters.value = newFilters;
         },
-        side: BorderSide.none, // This removes the border
+        side: BorderSide(
+            width: 1, color: AppColors.lightGray), // This removes the border
       ),
     );
   }
@@ -858,4 +942,413 @@ class Filter {
   Filter({required this.name, required this.value});
 }
 
-// Ai
+class CategoryItem {
+  final String title;
+  final String imageUrl;
+
+  CategoryItem({required this.title, required this.imageUrl});
+}
+
+class TopAppRecomendation extends StatelessWidget {
+  final List<CategoryItem> categories;
+  final List<RecommendationItem> recommendations;
+
+  const TopAppRecomendation({
+    Key? key,
+    required this.categories,
+    required this.recommendations,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: AppColors.bgColor,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CategoriesList(categories: categories),
+          const SizedBox(height: 16),
+          const LocationBar(),
+          const SizedBox(height: 16),
+          RecommendationsRow(recommendations: recommendations),
+          const SizedBox(height: 20),
+        ],
+      ),
+    );
+  }
+}
+
+class CategoriesList extends StatelessWidget {
+  final List<CategoryItem> categories;
+
+  const CategoriesList({
+    Key? key,
+    required this.categories,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: AppColors.bgColor,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildCategoryRow(categories.sublist(0, 4), "Popular Categories"),
+          const SizedBox(height: 12), // Increased spacing between sections
+          _buildCategoryRow(categories.sublist(4, 8), "Featured Categories"),
+          const SizedBox(height: 12),
+          _buildCategoryRow(categories.sublist(8, 12), "More Categories"),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCategoryRow(List<CategoryItem> rowItems, String title) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.containerColor
+            .withOpacity(0.5), // Light grey background for each section
+        borderRadius: BorderRadius.circular(12),
+      ),
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 16, bottom: 8),
+            child: Text(
+              title,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Poppins',
+              ),
+            ),
+          ),
+          SizedBox(
+            height: 55,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.only(right: 8, left: 8, bottom: 8),
+              children: rowItems
+                  .map((category) => CategoryCard(category: category))
+                  .toList(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class CategoryCard extends StatefulWidget {
+  final CategoryItem category;
+
+  const CategoryCard({
+    super.key,
+    required this.category,
+  });
+
+  @override
+  State<CategoryCard> createState() => _CategoryCardState();
+}
+
+class _CategoryCardState extends State<CategoryCard>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _scaleController;
+  bool _isPressed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scaleController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 150),
+      lowerBound: 0.95,
+      upperBound: 1.0,
+    );
+    _scaleController.value = 1.0;
+  }
+
+  @override
+  void dispose() {
+    _scaleController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: GestureDetector(
+        onTapDown: (_) {
+          setState(() => _isPressed = true);
+          _scaleController.reverse();
+        },
+        onTapUp: (_) {
+          setState(() => _isPressed = false);
+          _scaleController.forward();
+        },
+        onTapCancel: () {
+          setState(() => _isPressed = false);
+          _scaleController.forward();
+        },
+        child: ScaleTransition(
+          scale: _scaleController,
+          child: SmoothClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(_isPressed ? 0.1 : 0.2),
+                    offset: Offset(0, _isPressed ? 1 : 2),
+                    blurRadius: _isPressed ? 2 : 4,
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SmoothClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        // borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            offset: const Offset(0, 2),
+                            blurRadius: 4,
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.network(
+                          widget.category.imageUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(Icons.error, size: 16);
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    widget.category.title,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.normal,
+                      fontFamily: 'Poppins',
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class LocationBar extends StatelessWidget {
+  const LocationBar({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Icon(
+                    Icons.location_on_rounded,
+                    color: AppColors.primary,
+                    size: 24,
+                  ),
+                  Positioned(
+                    right: -2,
+                    top: -2,
+                    child: Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: AppColors.myRedBrown,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(width: 8),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Tashkent',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  Text(
+                    'Uzbekistan',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: AppColors.darkGray,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.black.withOpacity(0.05),
+                  offset: const Offset(0, 2),
+                  blurRadius: 8,
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.edit_location_alt_rounded,
+                  color: AppColors.primary,
+                  size: 20,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  'Change',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Recommendations row with iOS-style cards
+class RecommendationsRow extends StatelessWidget {
+  final List<RecommendationItem> recommendations;
+
+  const RecommendationsRow({
+    super.key,
+    required this.recommendations,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 48,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: ListView.separated(
+        physics: BouncingScrollPhysics(),
+        scrollDirection: Axis.horizontal,
+        itemCount: recommendations.length,
+        separatorBuilder: (context, index) => const SizedBox(width: 12),
+        itemBuilder: (context, index) {
+          final item = recommendations[index];
+          return RecommendationCard(item: item);
+        },
+      ),
+    );
+  }
+}
+
+class RecommendationCard extends StatelessWidget {
+  final RecommendationItem item;
+
+  const RecommendationCard({
+    Key? key,
+    required this.item,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4), // Add bottom padding here
+      child: SmoothClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: Colors.white,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SmoothClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: item.color.withOpacity(0.1),
+                  ),
+                  child: Icon(
+                    item.icon,
+                    size: 16,
+                    color: item.color,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                item.title,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey[800],
+                  fontFamily: 'SF Pro Text',
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+//
+class RecommendationItem {
+  final String title;
+  final IconData icon;
+  final Color color;
+
+  RecommendationItem({
+    required this.title,
+    required this.icon,
+    required this.color,
+  });
+}
