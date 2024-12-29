@@ -10,5 +10,8 @@ class Routes {
   static const home = '/home';
   static const events = '/events';
   static const post = '/post';
-  static const String productDetails = '/product/:id';
+  static const subcategories = '/subcategories';
+  static const attributes = '/attributes';
+  static const productDetails = '/product/:id';
 }
+

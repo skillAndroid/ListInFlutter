@@ -10,14 +10,15 @@ import 'package:go_router/go_router.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
-import 'package:list_in/features/undefined_screens_yet/list.dart';
+import 'package:list_in/features/explore/domain/enties/product_entity.dart';
+import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
 import 'package:list_in/main.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
   final String productId;
-  final List<Product> recommendedProducts;
-  final Product productDetails;
+  final List<ProductEntity> recommendedProducts;
+  final ProductEntity productDetails;
 
   const ProductDetailsScreen({
     super.key,
@@ -178,7 +179,7 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
             ],
           ),
           Icon(
-           CupertinoIcons.forward, // Using rounded variant for softer look
+            CupertinoIcons.forward, // Using rounded variant for softer look
             color: Colors.grey.shade600,
             size: 24,
           ),
@@ -784,6 +785,6 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
   }
 }
 
-List<Product> getRecommendedProducts(String currentProductId) {
+List<ProductEntity> getRecommendedProducts(String currentProductId) {
   return sampleProducts.where((p) => p.id != currentProductId).take(6).toList();
 }

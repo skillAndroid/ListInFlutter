@@ -5,16 +5,18 @@ import 'package:go_router/go_router.dart';
 import 'package:list_in/config/theme/app_theme.dart';
 import 'package:list_in/core/router/go_router.dart';
 import 'package:list_in/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:list_in/features/explore/domain/enties/advertised_product_entity.dart';
+import 'package:list_in/features/explore/domain/enties/product_entity.dart';
+import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/map/presentation/bloc/MapBloc.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
-import 'package:list_in/features/undefined_screens_yet/list.dart';
 import 'package:provider/provider.dart';
 
 import 'core/di/di_managment.dart' as di;
 
 // Sample data for products and advertisements
-final List<AdvertisedProduct> sampleVideos = [
-  AdvertisedProduct(
+final List<AdvertisedProductEntity> sampleVideos = [
+  AdvertisedProductEntity(
     videoUrl:
         "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
     thumbnailUrl:
@@ -32,7 +34,7 @@ final List<AdvertisedProduct> sampleVideos = [
     price: "\$90",
     id: "1",
   ),
-  AdvertisedProduct(
+  AdvertisedProductEntity(
     videoUrl:
         "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
     thumbnailUrl:
@@ -50,7 +52,7 @@ final List<AdvertisedProduct> sampleVideos = [
     price: "\$420",
     id: "2",
   ),
-  AdvertisedProduct(
+  AdvertisedProductEntity(
     videoUrl:
         "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
     thumbnailUrl:
@@ -68,7 +70,7 @@ final List<AdvertisedProduct> sampleVideos = [
     price: "\$205",
     id: "3",
   ),
-  AdvertisedProduct(
+  AdvertisedProductEntity(
     videoUrl:
         "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
     thumbnailUrl:
@@ -86,7 +88,7 @@ final List<AdvertisedProduct> sampleVideos = [
     price: "\$90",
     id: "4",
   ),
-  AdvertisedProduct(
+  AdvertisedProductEntity(
     videoUrl:
         "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
     thumbnailUrl:
@@ -104,7 +106,7 @@ final List<AdvertisedProduct> sampleVideos = [
     price: "\$420",
     id: "5",
   ),
-  AdvertisedProduct(
+  AdvertisedProductEntity(
     videoUrl:
         "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
     thumbnailUrl:
@@ -122,7 +124,7 @@ final List<AdvertisedProduct> sampleVideos = [
     price: "\$205",
     id: "6",
   ),
-  AdvertisedProduct(
+  AdvertisedProductEntity(
     videoUrl:
         "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
     thumbnailUrl:
@@ -140,7 +142,7 @@ final List<AdvertisedProduct> sampleVideos = [
     price: "\$90",
     id: "7",
   ),
-  AdvertisedProduct(
+  AdvertisedProductEntity(
     videoUrl:
         "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
     thumbnailUrl:
@@ -158,7 +160,7 @@ final List<AdvertisedProduct> sampleVideos = [
     price: "\$420",
     id: "8",
   ),
-  AdvertisedProduct(
+  AdvertisedProductEntity(
     videoUrl:
         "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
     thumbnailUrl:
@@ -176,7 +178,7 @@ final List<AdvertisedProduct> sampleVideos = [
     price: "\$205",
     id: "9",
   ),
-  AdvertisedProduct(
+  AdvertisedProductEntity(
     videoUrl:
         "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
     thumbnailUrl:
@@ -194,7 +196,7 @@ final List<AdvertisedProduct> sampleVideos = [
     price: "\$90",
     id: "10",
   ),
-  AdvertisedProduct(
+  AdvertisedProductEntity(
     videoUrl:
         "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
     thumbnailUrl:
@@ -212,7 +214,7 @@ final List<AdvertisedProduct> sampleVideos = [
     price: "\$420",
     id: "11",
   ),
-  AdvertisedProduct(
+  AdvertisedProductEntity(
     videoUrl:
         "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
     thumbnailUrl:
@@ -230,7 +232,7 @@ final List<AdvertisedProduct> sampleVideos = [
     price: "\$205",
     id: "12",
   ),
-  AdvertisedProduct(
+  AdvertisedProductEntity(
     videoUrl:
         "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
     thumbnailUrl:
@@ -248,7 +250,7 @@ final List<AdvertisedProduct> sampleVideos = [
     price: "\$90",
     id: "13",
   ),
-  AdvertisedProduct(
+  AdvertisedProductEntity(
     videoUrl:
         "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
     thumbnailUrl:
@@ -266,7 +268,7 @@ final List<AdvertisedProduct> sampleVideos = [
     price: "\$420",
     id: "14",
   ),
-  AdvertisedProduct(
+  AdvertisedProductEntity(
     videoUrl:
         "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
     thumbnailUrl:
@@ -284,7 +286,7 @@ final List<AdvertisedProduct> sampleVideos = [
     price: "\$205",
     id: "15",
   ),
-  AdvertisedProduct(
+  AdvertisedProductEntity(
     videoUrl:
         "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
     thumbnailUrl:
@@ -302,7 +304,7 @@ final List<AdvertisedProduct> sampleVideos = [
     price: "\$90",
     id: "16",
   ),
-  AdvertisedProduct(
+  AdvertisedProductEntity(
     videoUrl:
         "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
     thumbnailUrl:
@@ -320,7 +322,7 @@ final List<AdvertisedProduct> sampleVideos = [
     price: "\$420",
     id: "17",
   ),
-  AdvertisedProduct(
+  AdvertisedProductEntity(
     videoUrl:
         "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
     thumbnailUrl:
@@ -338,7 +340,7 @@ final List<AdvertisedProduct> sampleVideos = [
     price: "\$205",
     id: "18",
   ),
-  AdvertisedProduct(
+  AdvertisedProductEntity(
     videoUrl:
         "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
     thumbnailUrl:
@@ -356,7 +358,7 @@ final List<AdvertisedProduct> sampleVideos = [
     price: "\$90",
     id: "19",
   ),
-  AdvertisedProduct(
+  AdvertisedProductEntity(
     videoUrl:
         "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
     thumbnailUrl:
@@ -374,7 +376,7 @@ final List<AdvertisedProduct> sampleVideos = [
     price: "\$420",
     id: "20",
   ),
-  AdvertisedProduct(
+  AdvertisedProductEntity(
     videoUrl:
         "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
     thumbnailUrl:
@@ -393,8 +395,8 @@ final List<AdvertisedProduct> sampleVideos = [
     id: "21",
   ),
 ];
-final List<Product> sampleProducts = [
-  Product(
+final List<ProductEntity> sampleProducts = [
+  ProductEntity(
     name: "iPhone 4 Pro Max",
     images: [
       "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg"
@@ -404,7 +406,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "1",
   ),
-  Product(
+  ProductEntity(
     name: "Car",
     images: [
       "https://cdn.pixabay.com/photo/2024/09/03/08/56/dairy-cattle-9018750_640.jpg",
@@ -417,7 +419,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "2",
   ),
-  Product(
+  ProductEntity(
     name: "Green iPhone",
     images: [
       "https://cdn.pixabay.com/photo/2017/03/27/15/17/apartment-2179337_640.jpg"
@@ -427,7 +429,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "3",
   ),
-  Product(
+  ProductEntity(
     name: "Apartments",
     images: [
       "https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_640.jpg"
@@ -437,7 +439,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "4",
   ),
-  Product(
+  ProductEntity(
     name: "iPhone 4 Pro Max",
     images: [
       "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg"
@@ -447,7 +449,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "1",
   ),
-  Product(
+  ProductEntity(
     name: "Car",
     images: [
       "https://cdn.pixabay.com/photo/2024/09/03/08/56/dairy-cattle-9018750_640.jpg",
@@ -460,7 +462,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "2",
   ),
-  Product(
+  ProductEntity(
     name: "Green iPhone",
     images: [
       "https://cdn.pixabay.com/photo/2017/03/27/15/17/apartment-2179337_640.jpg"
@@ -470,7 +472,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "3",
   ),
-  Product(
+  ProductEntity(
     name: "Apartments",
     images: [
       "https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_640.jpg"
@@ -480,7 +482,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "4",
   ),
-  Product(
+  ProductEntity(
     name: "iPhone 4 Pro Max",
     images: [
       "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg"
@@ -490,7 +492,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "1",
   ),
-  Product(
+  ProductEntity(
     name: "Car",
     images: [
       "https://cdn.pixabay.com/photo/2024/09/03/08/56/dairy-cattle-9018750_640.jpg",
@@ -503,7 +505,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "2",
   ),
-  Product(
+  ProductEntity(
     name: "Green iPhone",
     images: [
       "https://cdn.pixabay.com/photo/2017/03/27/15/17/apartment-2179337_640.jpg"
@@ -513,7 +515,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "3",
   ),
-  Product(
+  ProductEntity(
     name: "Apartments",
     images: [
       "https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_640.jpg"
@@ -523,7 +525,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "4",
   ),
-  Product(
+  ProductEntity(
     name: "iPhone 4 Pro Max",
     images: [
       "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg"
@@ -533,7 +535,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "1",
   ),
-  Product(
+  ProductEntity(
     name: "Car",
     images: [
       "https://cdn.pixabay.com/photo/2024/09/03/08/56/dairy-cattle-9018750_640.jpg",
@@ -546,7 +548,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "2",
   ),
-  Product(
+  ProductEntity(
     name: "Green iPhone",
     images: [
       "https://cdn.pixabay.com/photo/2017/03/27/15/17/apartment-2179337_640.jpg"
@@ -556,7 +558,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "3",
   ),
-  Product(
+  ProductEntity(
     name: "Apartments",
     images: [
       "https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_640.jpg"
@@ -566,7 +568,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "4",
   ),
-  Product(
+  ProductEntity(
     name: "iPhone 4 Pro Max",
     images: [
       "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg"
@@ -576,7 +578,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "1",
   ),
-  Product(
+  ProductEntity(
     name: "Car",
     images: [
       "https://cdn.pixabay.com/photo/2024/09/03/08/56/dairy-cattle-9018750_640.jpg",
@@ -589,7 +591,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "2",
   ),
-  Product(
+  ProductEntity(
     name: "Green iPhone",
     images: [
       "https://cdn.pixabay.com/photo/2017/03/27/15/17/apartment-2179337_640.jpg"
@@ -599,7 +601,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "3",
   ),
-  Product(
+  ProductEntity(
     name: "Apartments",
     images: [
       "https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_640.jpg"
@@ -609,7 +611,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "4",
   ),
-  Product(
+  ProductEntity(
     name: "iPhone 4 Pro Max",
     images: [
       "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg"
@@ -619,7 +621,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "1",
   ),
-  Product(
+  ProductEntity(
     name: "Car",
     images: [
       "https://cdn.pixabay.com/photo/2024/09/03/08/56/dairy-cattle-9018750_640.jpg",
@@ -632,7 +634,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "2",
   ),
-  Product(
+  ProductEntity(
     name: "Green iPhone",
     images: [
       "https://cdn.pixabay.com/photo/2017/03/27/15/17/apartment-2179337_640.jpg"
@@ -642,7 +644,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "3",
   ),
-  Product(
+  ProductEntity(
     name: "Apartments",
     images: [
       "https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_640.jpg"
@@ -652,7 +654,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "4",
   ),
-  Product(
+  ProductEntity(
     name: "iPhone 4 Pro Max",
     images: [
       "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg"
@@ -662,7 +664,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "1",
   ),
-  Product(
+  ProductEntity(
     name: "Car",
     images: [
       "https://cdn.pixabay.com/photo/2024/09/03/08/56/dairy-cattle-9018750_640.jpg",
@@ -675,7 +677,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "2",
   ),
-  Product(
+  ProductEntity(
     name: "Green iPhone",
     images: [
       "https://cdn.pixabay.com/photo/2017/03/27/15/17/apartment-2179337_640.jpg"
@@ -685,7 +687,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "3",
   ),
-  Product(
+  ProductEntity(
     name: "Apartments",
     images: [
       "https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_640.jpg"
@@ -695,7 +697,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "4",
   ),
-  Product(
+  ProductEntity(
     name: "iPhone 4 Pro Max",
     images: [
       "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg"
@@ -705,7 +707,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "1",
   ),
-  Product(
+  ProductEntity(
     name: "Car",
     images: [
       "https://cdn.pixabay.com/photo/2024/09/03/08/56/dairy-cattle-9018750_640.jpg",
@@ -718,7 +720,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "2",
   ),
-  Product(
+  ProductEntity(
     name: "Green iPhone",
     images: [
       "https://cdn.pixabay.com/photo/2017/03/27/15/17/apartment-2179337_640.jpg"
@@ -728,7 +730,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "3",
   ),
-  Product(
+  ProductEntity(
     name: "Apartments",
     images: [
       "https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_640.jpg"
@@ -738,7 +740,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "4",
   ),
-  Product(
+  ProductEntity(
     name: "iPhone 4 Pro Max",
     images: [
       "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg"
@@ -748,7 +750,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "1",
   ),
-  Product(
+  ProductEntity(
     name: "Car",
     images: [
       "https://cdn.pixabay.com/photo/2024/09/03/08/56/dairy-cattle-9018750_640.jpg",
@@ -761,7 +763,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "2",
   ),
-  Product(
+  ProductEntity(
     name: "Green iPhone",
     images: [
       "https://cdn.pixabay.com/photo/2017/03/27/15/17/apartment-2179337_640.jpg"
@@ -771,7 +773,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "3",
   ),
-  Product(
+  ProductEntity(
     name: "Apartments",
     images: [
       "https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_640.jpg"
@@ -781,7 +783,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "4",
   ),
-  Product(
+  ProductEntity(
     name: "iPhone 4 Pro Max",
     images: [
       "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg"
@@ -791,7 +793,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "1",
   ),
-  Product(
+  ProductEntity(
     name: "Car",
     images: [
       "https://cdn.pixabay.com/photo/2024/09/03/08/56/dairy-cattle-9018750_640.jpg",
@@ -804,7 +806,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "2",
   ),
-  Product(
+  ProductEntity(
     name: "Green iPhone",
     images: [
       "https://cdn.pixabay.com/photo/2017/03/27/15/17/apartment-2179337_640.jpg"
@@ -814,7 +816,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "3",
   ),
-  Product(
+  ProductEntity(
     name: "Apartments",
     images: [
       "https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_640.jpg"
@@ -824,7 +826,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "4",
   ),
-  Product(
+  ProductEntity(
     name: "iPhone 4 Pro Max",
     images: [
       "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg"
@@ -834,7 +836,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "1",
   ),
-  Product(
+  ProductEntity(
     name: "Car",
     images: [
       "https://cdn.pixabay.com/photo/2024/09/03/08/56/dairy-cattle-9018750_640.jpg",
@@ -847,7 +849,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "2",
   ),
-  Product(
+  ProductEntity(
     name: "Green iPhone",
     images: [
       "https://cdn.pixabay.com/photo/2017/03/27/15/17/apartment-2179337_640.jpg"
@@ -857,7 +859,7 @@ final List<Product> sampleProducts = [
     isNew: true,
     id: "3",
   ),
-  Product(
+  ProductEntity(
     name: "Apartments",
     images: [
       "https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_640.jpg"
@@ -887,6 +889,7 @@ void main() async {
           BlocProvider<MapBloc>(
             create: (_) => di.sl<MapBloc>(),
           ),
+          BlocProvider<HomeTreeCubit>(create: (_) => di.sl<HomeTreeCubit>())
         ],
         child: MyApp(router: di.sl<AppRouter>().router),
       ),

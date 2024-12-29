@@ -16,6 +16,7 @@ import 'package:list_in/features/auth/domain/usecases/register_user_data.dart';
 import 'package:list_in/features/auth/domain/usecases/signup_usecase.dart';
 import 'package:list_in/features/auth/domain/usecases/verify_email_signup.dart';
 import 'package:list_in/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/map/data/repositories/location_repository_impl.dart';
 import 'package:list_in/features/map/data/sources/location_remote_datasource.dart';
 import 'package:list_in/features/map/domain/repositories/location_repository.dart';
@@ -113,6 +114,8 @@ Future<void> init() async {
       searchLocationsUseCase: sl(),
     ),
   );
+
+  sl.registerFactory(() => HomeTreeCubit(getCatalogsUseCase: sl()));
 
   sl.registerLazySingleton(() => GetLocationUseCase(sl()));
   sl.registerLazySingleton(() => SearchLocationsUseCase(sl()));

@@ -11,61 +11,20 @@ import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
+import 'package:list_in/features/explore/domain/enties/advertised_product_entity.dart';
+import 'package:list_in/features/explore/domain/enties/product_entity.dart';
+import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
+import 'package:list_in/features/explore/presentation/widgets/top_app_recomendation.dart';
 import 'package:list_in/features/undefined_screens_yet/details.dart';
 import 'package:list_in/features/undefined_screens_yet/video_player.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
-// Data Classes
-class AdvertisedProduct {
-  final String videoUrl;
-  final List<String> images;
-  final String thumbnailUrl;
-  final String title;
-  int duration;
-  final String id;
-  final String userName;
-  final double userRating;
-  final int reviewsCount;
-  final String location;
-  final String price;
 
-  AdvertisedProduct({
-    required this.videoUrl,
-    required this.images,
-    required this.thumbnailUrl,
-    required this.title,
-    this.duration = 0,
-    required this.id,
-    required this.userName,
-    required this.userRating,
-    required this.reviewsCount,
-    required this.location,
-    required this.price,
-  });
-}
-
-class Product {
-  final String name;
-  final List<String> images;
-  final String location;
-  final int price;
-  final bool isNew;
-  final String id;
-
-  Product({
-    required this.name,
-    required this.images,
-    required this.location,
-    required this.price,
-    required this.isNew,
-    required this.id,
-  });
-}
 
 class ProductListScreen extends StatefulWidget {
-  final List<AdvertisedProduct> advertisedProducts;
-  final List<Product> regularProducts;
+  final List<AdvertisedProductEntity> advertisedProducts;
+  final List<ProductEntity> regularProducts;
 
   const ProductListScreen({
     super.key,
@@ -78,14 +37,12 @@ class ProductListScreen extends StatefulWidget {
 }
 
 class _ProductListScreenState extends State<ProductListScreen> {
-  // Controllers and state management
   final ScrollController _scrollController = ScrollController();
   final SearchController _searchController = SearchController();
   final ValueNotifier<String?> _currentlyPlayingId =
       ValueNotifier<String?>(null);
   final ValueNotifier<Set<int>> _selectedFilters = ValueNotifier<Set<int>>({});
   bool _isSliverAppBarVisible = true;
-  // Video visibility tracking
   final Map<String, ValueNotifier<double>> _visibilityNotifiers = {};
   final Map<String, ValueNotifier<int>> _pageNotifiers = {};
 
@@ -411,7 +368,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
     );
   }
 
-  Widget _buildAdvertisedProduct(AdvertisedProduct product) {
+  Widget _buildAdvertisedProduct(AdvertisedProductEntity product) {
     return ValueListenableBuilder<double>(
       valueListenable: _visibilityNotifiers[product.id]!,
       builder: (context, visibility, _) {
@@ -427,7 +384,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
     );
   }
 
-  Widget _buildProductCard(AdvertisedProduct product) {
+  Widget _buildProductCard(AdvertisedProductEntity product) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Card(
@@ -694,7 +651,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
   }
 
   Widget _buildMediaContent(
-    AdvertisedProduct product,
+    AdvertisedProductEntity product,
     int pageIndex,
     int currentPage,
     bool isPlaying,
@@ -788,138 +745,6 @@ class _ProductListScreenState extends State<ProductListScreen> {
   }
 }
 
-class RegularProductCard extends StatelessWidget {
-  final Product product;
-
-  const RegularProductCard({super.key, required this.product});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        context.push(
-          Routes.productDetails.replaceAll(':id', product.id),
-          extra: getRecommendedProducts(product.id),
-        );
-      },
-      child: Card(
-        shape: SmoothRectangleBorder(
-          smoothness: 1,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        elevation: 2,
-        color: AppColors.white,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: EdgeInsets.all(3),
-              child: Stack(
-                children: [
-                  SmoothClipRRect(
-                    smoothness: 1,
-                    borderRadius: BorderRadius.circular(10),
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: 160,
-                      child: CachedNetworkImage(
-                        imageUrl: product.images[0],
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    left: 0,
-                    child: SmoothCard(
-                      margin: EdgeInsets.all(0),
-                      elevation: 1,
-                      color: AppColors.black.withOpacity(0.4),
-                      borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(8),
-                          bottomRight: Radius.circular(8),
-                          topLeft: Radius.circular(8),
-                          topRight: Radius.circular(0.1)),
-                      child: Padding(
-                          padding: EdgeInsets.all(6),
-                          child: Text(
-                            'New',
-                            style: TextStyle(
-                                color: AppColors.white,
-                                fontWeight: FontWeight.w500,
-                                fontFamily: "Poppins"),
-                          )),
-                    ),
-                  )
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    product.name,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 15,
-                      color: AppColors.primary,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  SizedBox(
-                    height: 2,
-                  ),
-                  Text(
-                    product.location,
-                    style: const TextStyle(
-                      color: AppColors.grey,
-                      fontSize: 13,
-                    ),
-                  ),
-                  SizedBox(
-                    height: 16,
-                  ),
-                  Text(
-                    'Price',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.grey,
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        '\$${product.price}',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                      SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: Image.asset(
-                          AppIcons.favorite,
-                          color: AppColors.green,
-                        ),
-                      )
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 List<Filter> myFilters = [
   Filter(name: "Category 1", value: "cat1"),
@@ -947,34 +772,6 @@ class CategoryItem {
   CategoryItem({required this.title, required this.imageUrl});
 }
 
-class TopAppRecomendation extends StatelessWidget {
-  final List<CategoryItem> categories;
-  final List<RecommendationItem> recommendations;
-
-  const TopAppRecomendation({
-    super.key,
-    required this.categories,
-    required this.recommendations,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: AppColors.bgColor,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          CategoriesList(categories: categories),
-          const SizedBox(height: 16),
-          const LocationBar(),
-          const SizedBox(height: 16),
-          RecommendationsRow(recommendations: recommendations),
-          const SizedBox(height: 20),
-        ],
-      ),
-    );
-  }
-}
 
 class CategoriesList extends StatelessWidget {
   final List<CategoryItem> categories;
@@ -1148,105 +945,7 @@ class _CategoryCardState extends State<CategoryCard>
   }
 }
 
-class LocationBar extends StatelessWidget {
-  const LocationBar({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Icon(
-                    Icons.location_on_rounded,
-                    color: AppColors.primary,
-                    size: 24,
-                  ),
-                  Positioned(
-                    right: -2,
-                    top: -2,
-                    child: Container(
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: AppColors.myRedBrown,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(width: 8),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Tashkent',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: -0.5,
-                    ),
-                  ),
-                  Text(
-                    'Uzbekistan',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: AppColors.darkGray,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.black.withOpacity(0.05),
-                  offset: const Offset(0, 2),
-                  blurRadius: 8,
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.edit_location_alt_rounded,
-                  color: AppColors.primary,
-                  size: 20,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  'Change',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// Recommendations row with iOS-style cards
 class RecommendationsRow extends StatelessWidget {
   final List<RecommendationItem> recommendations;
 
@@ -1328,7 +1027,6 @@ class RecommendationCard extends StatelessWidget {
   }
 }
 
-//
 class RecommendationItem {
   final String title;
   final IconData icon;
