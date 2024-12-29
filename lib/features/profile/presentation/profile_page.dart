@@ -63,7 +63,6 @@ class _AnimatedProfileScreenState extends State<ProfileScreen> {
               SliverAppBar(
                 expandedHeight: _maxAppBarHeight,
                 pinned: true,
-                stretch: true,
                 backgroundColor: AppColors.white,
                 elevation: 0,
                 scrolledUnderElevation: 0.5,
@@ -168,24 +167,46 @@ class _AnimatedProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                 ),
-                IconButton(
-                  onPressed: () {
-                    // Add your photo change logic here
-                  },
-                  icon: const Icon(
-                    CupertinoIcons.photo_camera_solid,
-                    color: Colors.white,
-                  ),
-                  style: IconButton.styleFrom(
-                    backgroundColor: AppColors.black.withOpacity(0.2),
-                    shape: SmoothRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                Row(
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        // Add your edit logic here
+                      },
+                      icon: const Icon(
+                        Icons.edit,
+                        color: AppColors.white,
+                      ),
+                      style: IconButton.styleFrom(
+                        backgroundColor: AppColors.black.withOpacity(0.2),
+                        shape: SmoothRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
                     ),
-                  ),
+                    const SizedBox(width: 2.5),
+                    IconButton(
+                      onPressed: () {
+                        // Add your photo change logic here
+                      },
+                      icon: const Icon(
+                        CupertinoIcons.photo_camera_solid,
+                        color: AppColors.white,
+                      ),
+                      style: IconButton.styleFrom(
+                        backgroundColor: AppColors.black.withOpacity(0.2),
+                        shape: SmoothRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
+
+          //
           Positioned(
             top: 0,
             left: 0,
@@ -200,30 +221,115 @@ class _AnimatedProfileScreenState extends State<ProfileScreen> {
   Widget _buildInteractiveAppBar() {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent, // Light background
-        statusBarIconBrightness: Brightness.dark, // Black icons
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
       ),
       child: SafeArea(
         top: false,
-        child: Column(
-          children: [
-            Container(
-              height: _minAppBarHeight,
-              padding: const EdgeInsets.only(left: 16, right: 16, top: 30),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(_appBarOpacity),
-              ),
-              child: Stack(
-                children: [
-                  Positioned(
-                    left: 0,
-                    top: 0,
-                    bottom: 0,
-                    child: Center(
-                      child: IconButton(
-                        onPressed: () => context.pop(),
+        child: Card(
+          color: Colors.white.withOpacity(_appBarOpacity),
+          shadowColor: AppColors.grey.withOpacity(_appBarOpacity),
+          margin: EdgeInsets.zero,
+          shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(0)),
+          elevation: 2,
+          child: Container(
+            height: _minAppBarHeight,
+            padding: EdgeInsets.only(
+              left: 16,
+              right: 16,
+              top: MediaQuery.of(context).padding.top,
+            ),
+            child: Stack(
+              children: [
+                // Back button
+                Positioned(
+                  left: 0,
+                  top: 0,
+                  bottom: 0,
+                  child: Center(
+                    child: IconButton(
+                      onPressed: () => context.pop(),
+                      icon: Icon(
+                        CupertinoIcons.back,
+                        color: Colors.black.withOpacity(_appBarOpacity),
+                      ),
+                      style: IconButton.styleFrom(
+                        backgroundColor:
+                            Colors.grey.withOpacity(0.1 * _appBarOpacity),
+                        shape: SmoothRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                // Animated profile info (keep as is)
+                Positioned.fill(
+                  child: Opacity(
+                    opacity: _appBarOpacity,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 2),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: ClipOval(
+                            child: Image.asset(
+                              AppImages.appLogo,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Anna Dii',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                            ),
+                            Text(
+                              'Online',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.green[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                // Action buttons
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  bottom: 0,
+                  child: Row(
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          // Add your edit logic here
+                        },
                         icon: Icon(
-                          CupertinoIcons.back,
+                          Icons.edit,
                           color: Colors.black.withOpacity(_appBarOpacity),
                         ),
                         style: IconButton.styleFrom(
@@ -234,98 +340,27 @@ class _AnimatedProfileScreenState extends State<ProfileScreen> {
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                  // Animated profile info
-                  Positioned.fill(
-                    child: Opacity(
-                      opacity: _appBarOpacity,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          // Small avatar
-                          Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 2),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: ClipOval(
-                              child: Image.asset(
-                                AppImages.appLogo,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
+                      IconButton(
+                        onPressed: () {
+                          // Add your photo gallery logic here
+                        },
+                        icon: Icon(
+                          CupertinoIcons.photo_camera_solid,
+                          color: Colors.black.withOpacity(_appBarOpacity),
+                        ),
+                        style: IconButton.styleFrom(
+                          backgroundColor:
+                              Colors.grey.withOpacity(0.1 * _appBarOpacity),
+                          shape: SmoothRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          const SizedBox(width: 12),
-                          // Name and status
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Anna Dii',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
-                                ),
-                              ),
-                              Text(
-                                'Online',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.green[600],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
+                    ],
                   ),
-                  // Action buttons
-                  Positioned(
-                    right: 0,
-                    top: 0,
-                    bottom: 0,
-                    child: Row(
-                      children: [
-                        _buildAppBarAction(Icons.edit, () {}),
-                        _buildAppBarAction(Icons.more_vert, () {}),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAppBarAction(IconData icon, VoidCallback onTap) {
-    return Opacity(
-      opacity: _appBarOpacity,
-      child: IconButton(
-        onPressed: onTap,
-        icon: Icon(
-          icon,
-          color: Colors.black,
-        ),
-        style: IconButton.styleFrom(
-          backgroundColor: Colors.grey.withOpacity(0.1),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
           ),
         ),
       ),
@@ -362,7 +397,6 @@ class _AnimatedProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-//
   Widget _buildStatItem(String count, String label) {
     return Column(
       children: [
@@ -719,3 +753,4 @@ class _AnimatedProfileScreenState extends State<ProfileScreen> {
     }
   }
 }
+//

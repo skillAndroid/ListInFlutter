@@ -43,7 +43,7 @@ class _MainWrapperState extends State<MainWrapper> {
     final bool showBottomNav = !location.startsWith(Routes.post);
 
     return Scaffold(
-      extendBody: true,
+      extendBody: false,
       body: widget.child,
       bottomNavigationBar: showBottomNav
           ? Container(
