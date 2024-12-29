@@ -473,7 +473,167 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
         return 'Unexpected error';
     }
   }
+
+  void clearSelectedAttribute(AttributeModel attribute) {
+    Map<String, dynamic> newSelectedValues = Map.from(state.selectedValues);
+    Map<AttributeModel, bool> newVisibility =
+        Map.from(state.attributeOptionsVisibility);
+    Map<AttributeModel, AttributeValueModel> newSelectedAttributeValues =
+        Map.from(state.selectedAttributeValues);
+    List<AttributeModel> newDynamicAttributes =
+        List.from(state.dynamicAttributes);
+
+    // Check if this is a dynamic attribute
+    bool isDynamicAttribute = state.dynamicAttributes.contains(attribute);
+
+    if (isDynamicAttribute) {
+      // For dynamic attributes, only clear the selection and visibility
+      newSelectedValues.remove(attribute.attributeKey);
+      newVisibility.remove(attribute);
+      newSelectedAttributeValues.remove(attribute);
+
+      // Find parent attribute
+      String parentAttributeKey = attribute.attributeKey.split(' Model')[0];
+      var parentAttribute = state.currentAttributes.firstWhere(
+          (attr) => attr.attributeKey == parentAttributeKey,
+          orElse: () =>
+              attribute // fallback to current attribute if parent not found
+          );
+
+      // Check if parent attribute still has any selection
+      var parentValue = state.selectedValues[parentAttributeKey];
+      bool hasParentSelection = false;
+
+      if (parentValue != null) {
+        if (parentValue is List<AttributeValueModel>) {
+          hasParentSelection = parentValue.isNotEmpty;
+        } else if (parentValue is AttributeValueModel) {
+          hasParentSelection = true;
+        }
+      }
+
+      // Only remove dynamic attribute if parent has no selection
+      if (!hasParentSelection) {
+        newDynamicAttributes.removeWhere(
+            (attr) => attr.attributeKey.startsWith(parentAttributeKey));
+      }
+    } else {
+      // For regular attributes, clear everything including related dynamic attributes
+      newSelectedValues.remove(attribute.attributeKey);
+      newVisibility.remove(attribute);
+      newSelectedAttributeValues.remove(attribute);
+      newDynamicAttributes.removeWhere(
+          (attr) => attr.attributeKey.startsWith(attribute.attributeKey));
+    }
+
+    // Update child category selections if needed
+    if (state.selectedChildCategory != null) {
+      final childCategoryId = state.selectedChildCategory!.id;
+      if (_childCategorySelections.containsKey(childCategoryId)) {
+        if (isDynamicAttribute) {
+          // For dynamic attributes, only clear the specific value
+          _childCategorySelections[childCategoryId]
+              ?.remove(attribute.attributeKey);
+        } else {
+          // For regular attributes, clear all related values
+          _childCategorySelections[childCategoryId]
+              ?.remove(attribute.attributeKey);
+          _childCategoryDynamicAttributes[childCategoryId]?.removeWhere(
+              (attr) => attr.attributeKey.startsWith(attribute.attributeKey));
+        }
+      }
+    }
+
+    emit(state.copyWith(
+      selectedValues: newSelectedValues,
+      attributeOptionsVisibility: newVisibility,
+      selectedAttributeValues: newSelectedAttributeValues,
+      dynamicAttributes: newDynamicAttributes,
+    ));
+  }
+
+  void clearAllSelectedAttributes() {
+    // Clear all current selections
+    final newSelectedValues = <String, dynamic>{};
+    final newVisibility = <AttributeModel, bool>{};
+    final newSelectedAttributeValues = <AttributeModel, AttributeValueModel>{};
+
+    // Clear dynamic attributes
+    final newDynamicAttributes = <AttributeModel>[];
+
+    // If we have a selected child category, clear its stored selections
+    if (state.selectedChildCategory != null) {
+      final childCategoryId = state.selectedChildCategory!.id;
+      _childCategorySelections.remove(childCategoryId);
+      _childCategoryDynamicAttributes.remove(childCategoryId);
+    }
+
+    emit(state.copyWith(
+      selectedValues: newSelectedValues,
+      attributeOptionsVisibility: newVisibility,
+      selectedAttributeValues: newSelectedAttributeValues,
+      dynamicAttributes: newDynamicAttributes,
+    ));
+  }
+
+// Optional helper method to clear attributes for specific widget types
+  void clearAttributesByType(String widgetType) {
+    Map<String, dynamic> newSelectedValues = Map.from(state.selectedValues);
+    Map<AttributeModel, bool> newVisibility =
+        Map.from(state.attributeOptionsVisibility);
+    Map<AttributeModel, AttributeValueModel> newSelectedAttributeValues =
+        Map.from(state.selectedAttributeValues);
+    List<AttributeModel> newDynamicAttributes =
+        List.from(state.dynamicAttributes);
+
+    // Get all attributes of the specified type
+    final attributesToClear =
+        state.currentAttributes.where((attr) => attr.widgetType == widgetType);
+
+    for (var attribute in attributesToClear) {
+      // Clear the selected value
+      newSelectedValues.remove(attribute.attributeKey);
+
+      // Clear visibility state
+      newVisibility.remove(attribute);
+
+      // Clear from selectedAttributeValues
+      newSelectedAttributeValues.remove(attribute);
+
+      // Remove associated dynamic attributes
+      newDynamicAttributes.removeWhere(
+          (attr) => attr.attributeKey.startsWith(attribute.attributeKey));
+    }
+
+    // Update child category selections if needed
+    if (state.selectedChildCategory != null) {
+      final childCategoryId = state.selectedChildCategory!.id;
+      if (_childCategorySelections.containsKey(childCategoryId)) {
+        for (var attribute in attributesToClear) {
+          _childCategorySelections[childCategoryId]
+              ?.remove(attribute.attributeKey);
+        }
+      }
+      if (_childCategoryDynamicAttributes.containsKey(childCategoryId)) {
+        for (var attribute in attributesToClear) {
+          _childCategoryDynamicAttributes[childCategoryId]?.removeWhere(
+              (attr) => attr.attributeKey.startsWith(attribute.attributeKey));
+        }
+      }
+    }
+
+    emit(state.copyWith(
+      selectedValues: newSelectedValues,
+      attributeOptionsVisibility: newVisibility,
+      selectedAttributeValues: newSelectedAttributeValues,
+      dynamicAttributes: newDynamicAttributes,
+    ));
+  }
+
+
 }
+
+
 
 extension PostStateGetters on HomeTreeState {
   bool get isLoading => status == PostCreationStatus.loading;

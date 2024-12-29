@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'dart:math' as math;
 
@@ -63,8 +64,9 @@ class _AnimatedProfileScreenState extends State<ProfileScreen> {
                 expandedHeight: _maxAppBarHeight,
                 pinned: true,
                 stretch: true,
-                backgroundColor: Colors.transparent,
+                backgroundColor: AppColors.white,
                 elevation: 0,
+                scrolledUnderElevation: 0.5,
                 leading: Container(), // Empty container to preserve space
                 flexibleSpace: FlexibleSpaceBar(
                   background: Stack(
@@ -210,25 +212,16 @@ class _AnimatedProfileScreenState extends State<ProfileScreen> {
               padding: const EdgeInsets.only(left: 16, right: 16, top: 30),
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(_appBarOpacity),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1 * _appBarOpacity),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
               ),
               child: Stack(
                 children: [
-                  // Back button
-
                   Positioned(
                     left: 0,
                     top: 0,
                     bottom: 0,
                     child: Center(
                       child: IconButton(
-                        onPressed: () => Navigator.pop(context),
+                        onPressed: () => context.pop(),
                         icon: Icon(
                           CupertinoIcons.back,
                           color: Colors.black.withOpacity(_appBarOpacity),

@@ -69,6 +69,28 @@ class AppRouter {
         path: Routes.post,
         builder: (context, state) => const PostScreen(),
       ),
+      GoRoute(
+        path: Routes.productDetails,
+        builder: (context, state) {
+          final productId = state.pathParameters['id']!;
+          final extraProducts = state.extra;
+
+          final List<ProductEntity> recommendedProducts;
+          if (extraProducts is List<ProductEntity>) {
+            recommendedProducts = extraProducts;
+          } else {
+            recommendedProducts = getRecommendedProducts(productId);
+          }
+
+          final productDetails = findProductById(productId);
+
+          return ProductDetailsScreen(
+            productId: productId,
+            recommendedProducts: recommendedProducts,
+            productDetails: productDetails,
+          );
+        },
+      ),
       // Main shell route
       ShellRoute(
         navigatorKey: _shellNavigatorKey,
@@ -99,31 +121,7 @@ class AppRouter {
           ),
           GoRoute(
             path: Routes.events,
-            builder: (context, state) => const KeepAliveWrapper(
-              child: ProfileScreen(),
-            ),
-          ),
-          GoRoute(
-            path: Routes.productDetails,
-            builder: (context, state) {
-              final productId = state.pathParameters['id']!;
-              final extraProducts = state.extra;
-
-              final List<ProductEntity> recommendedProducts;
-              if (extraProducts is List<ProductEntity>) {
-                recommendedProducts = extraProducts;
-              } else {
-                recommendedProducts = getRecommendedProducts(productId);
-              }
-
-              final productDetails = findProductById(productId);
-
-              return ProductDetailsScreen(
-                productId: productId,
-                recommendedProducts: recommendedProducts,
-                productDetails: productDetails,
-              );
-            },
+            builder: (context, state) => ProfileScreen(),
           ),
         ],
       ),

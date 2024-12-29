@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -34,11 +32,12 @@ class _MainWrapperState extends State<MainWrapper> {
         context.push(Routes.post);
         break;
       case 2:
-        context.push(Routes.events);
+        context.go(Routes.events);
         break;
     }
   }
 
+  @override
   Widget build(BuildContext context) {
     final String location = GoRouterState.of(context).matchedLocation;
     final bool showBottomNav = !location.startsWith(Routes.post);
@@ -47,52 +46,43 @@ class _MainWrapperState extends State<MainWrapper> {
       extendBody: true,
       body: widget.child,
       bottomNavigationBar: showBottomNav
-          ? ClipRect(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(
-                  sigmaX: 40,
-                  sigmaY: 40,
-                  tileMode: TileMode.clamp,
-                ),
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border(
-                      top: BorderSide(
-                        // ignore: deprecated_member_use
-                        color: Colors.grey.withOpacity(0.3),
-                        width: 0.5,
-                      ),
-                    ),
-                  ),
-                  child: BottomNavigationBar(
+          ? Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  top: BorderSide(
                     // ignore: deprecated_member_use
-                    backgroundColor: AppColors.bgColor.withOpacity(0.8),
-                    selectedItemColor: AppColors.primary,
-                    unselectedItemColor: CupertinoColors.inactiveGray,
-                    currentIndex: _calculateSelectedIndex(context),
-                    onTap: (index) => _onItemTapped(context, index),
-                    type: BottomNavigationBarType.fixed,
-                    showSelectedLabels: true,
-                    showUnselectedLabels: true,
-                    items: const [
-                      BottomNavigationBarItem(
-                        icon: Icon(CupertinoIcons.home),
-                        label: 'Home',
-                      ),
-                      BottomNavigationBarItem(
-                        icon: Icon(
-                          CupertinoIcons.plus_circled,
-                          size: 30,
-                        ),
-                        label: 'Add Post',
-                      ),
-                      BottomNavigationBarItem(
-                        icon: Icon(CupertinoIcons.person),
-                        label: 'Profile',
-                      ),
-                    ],
+                    color: Colors.grey.withOpacity(0.3),
+                    width: 0.5,
                   ),
                 ),
+              ),
+              child: BottomNavigationBar(
+                // ignore: deprecated_member_use
+                backgroundColor: AppColors.white,
+                selectedItemColor: AppColors.primary,
+                unselectedItemColor: CupertinoColors.inactiveGray,
+                currentIndex: _calculateSelectedIndex(context),
+                onTap: (index) => _onItemTapped(context, index),
+                type: BottomNavigationBarType.fixed,
+                showSelectedLabels: true,
+                showUnselectedLabels: true,
+                items: const [
+                  BottomNavigationBarItem(
+                    icon: Icon(CupertinoIcons.home),
+                    label: 'Home',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(
+                      CupertinoIcons.plus_circled,
+                      size: 30,
+                    ),
+                    label: 'Add Post',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(CupertinoIcons.person),
+                    label: 'Profile',
+                  ),
+                ],
               ),
             )
           : null,
@@ -100,15 +90,4 @@ class _MainWrapperState extends State<MainWrapper> {
   }
 }
 
-class DynamicLabelBottomNavigationBarItem extends BottomNavigationBarItem {
-  final Widget icon;
-  final String? label;
 
-  DynamicLabelBottomNavigationBarItem({
-    required this.icon,
-    this.label,
-  }) : super(
-          icon: icon,
-          label: label,
-        );
-}

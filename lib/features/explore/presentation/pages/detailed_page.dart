@@ -5,7 +5,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
@@ -15,6 +14,7 @@ import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
 import 'package:list_in/features/post/data/models/attribute_model.dart';
+import 'package:list_in/features/post/data/models/attribute_value_model.dart';
 import 'package:list_in/features/undefined_screens_yet/video_player.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -38,7 +38,6 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
   final ValueNotifier<String?> _currentlyPlayingId =
       ValueNotifier<String?>(null);
   final ValueNotifier<Set<int>> _selectedFilters = ValueNotifier<Set<int>>({});
-  bool _isSliverAppBarVisible = true;
   final Map<String, ValueNotifier<double>> _visibilityNotifiers = {};
   final Map<String, ValueNotifier<int>> _pageNotifiers = {};
 
@@ -114,15 +113,15 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                 snap: true,
                 pinned: false,
                 automaticallyImplyLeading: false,
-                toolbarHeight: 70,
+                toolbarHeight: 50,
                 flexibleSpace: Column(
                   children: [
-                    SizedBox(
+                    Container(
+                      color: AppColors.bgColor,
                       height: 50,
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
                         itemCount: attributes.length,
                         itemBuilder: (context, index) {
                           final attribute = attributes[index];
@@ -143,8 +142,12 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                           }
 
                           return Padding(
-                            padding: const EdgeInsets.only(right: 8),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 4,
+                            ),
                             child: FilterChip(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 7, vertical: 12),
                               label: Text(
                                 chipLabel,
                                 style: TextStyle(
@@ -154,12 +157,15 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                       : null,
                                 ),
                               ),
+                              side: BorderSide(
+                                  width: 1, color: AppColors.lightGray),
+                              shape: SmoothRectangleBorder(
+                                  smoothness: 0.8,
+                                  borderRadius: BorderRadius.circular(10)),
                               selected: selectedValue != null ||
                                   selectedValues.isNotEmpty,
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.surface,
-                              selectedColor:
-                                  Theme.of(context).colorScheme.primary,
+                              backgroundColor: AppColors.white,
+                              selectedColor: AppColors.green,
                               onSelected: (_) {
                                 if (attribute.values.isNotEmpty) {
                                   _showAttributeSelectionUI(context, attribute);
@@ -213,6 +219,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
       child: AppBar(
         elevation: 0,
         scrolledUnderElevation: 0,
+        automaticallyImplyLeading: false,
         backgroundColor: AppColors.bgColor,
         systemOverlayStyle: const SystemUiOverlayStyle(
           statusBarIconBrightness: Brightness.dark,
@@ -631,7 +638,6 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
         onPause: () {},
       );
     }
-
     return CachedNetworkImage(
       imageUrl:
           pageIndex == 0 ? product.thumbnailUrl : product.images[pageIndex],
@@ -645,106 +651,157 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
     );
   }
 
-//
-
   void _showSelectionBottomSheet(
       BuildContext context, AttributeModel attribute) {
+    // Temporary selections map for multi-select
+    Map<String, dynamic> temporarySelections = {};
+    final cubit = context.read<HomeTreeCubit>();
+
+    // Initialize temporary selections with current selections
+    if (attribute.widgetType == 'multiSelectable') {
+      final currentSelections = cubit.getSelectedValues(attribute);
+      temporarySelections[attribute.attributeKey] =
+          List<AttributeValueModel>.from(currentSelections);
+    }
+
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
       useRootNavigator: true,
-      routeSettings: const RouteSettings(name: '/attribute_sheet'),
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.bgColor,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+      ),
       builder: (context) {
-        return DraggableScrollableSheet(
-          initialChildSize: 0.6,
-          maxChildSize: 0.9,
-          minChildSize: 0.3,
-          builder: (context, scrollController) {
+        final scrollController = ScrollController();
+
+        return StatefulBuilder(
+          builder: (context, setState) {
             return Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(16)),
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.8,
               ),
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Handle bar
-                  Center(
-                    child: Container(
-                      margin: const EdgeInsets.only(top: 8),
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  Container(
+                    color: AppColors.white,
+                    child: Column(
                       children: [
-                        Expanded(
-                          child: Text(
-                            attribute.helperText,
-                            style: Theme.of(context).textTheme.titleLarge,
-                            overflow: TextOverflow.ellipsis,
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 16, 12, 12),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  attribute.helperText,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.black,
+                                  ),
+                                ),
+                              ),
+                              if (attribute.widgetType == 'multiSelectable' ||
+                                  cubit.getSelectedAttributeValue(attribute) !=
+                                      null)
+                                TextButton(
+                                  onPressed: () {
+                                    if (attribute.widgetType ==
+                                        'multiSelectable') {
+                                      setState(() {
+                                        temporarySelections[
+                                                attribute.attributeKey] =
+                                            <AttributeValueModel>[];
+                                      });
+                                    } else {
+                                      cubit.clearSelectedAttribute(attribute);
+                                      Navigator.pop(context);
+                                    }
+                                  },
+                                  child: const Text(
+                                    'Clear',
+                                    style: TextStyle(
+                                      color: AppColors.black,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ),
+                              IconButton(
+                                icon: const Icon(Icons.close, size: 20),
+                                padding: const EdgeInsets.all(8),
+                                constraints: const BoxConstraints(
+                                  minHeight: 32,
+                                  minWidth: 32,
+                                ),
+                                onPressed: () => Navigator.pop(context),
+                              ),
+                            ],
                           ),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.close),
-                          onPressed: () => Navigator.pop(context),
-                        ),
+                        const Divider(height: 1),
                       ],
                     ),
                   ),
-                  const Divider(),
-                  Expanded(
-                    child: attribute.widgetType == 'multiSelectable'
-                        ? _buildMultiSelectList(
-                            context, attribute, scrollController)
-                        : _buildSingleSelectList(
-                            context, attribute, scrollController),
+                  Flexible(
+                    child: Container(
+                      color: AppColors.white,
+                      child: attribute.widgetType == 'multiSelectable'
+                          ? _buildMultiSelectList(
+                              context,
+                              attribute,
+                              scrollController,
+                              temporarySelections,
+                              setState,
+                            )
+                          : _buildSingleSelectList(
+                              context,
+                              attribute,
+                              scrollController,
+                            ),
+                    ),
                   ),
                   if (attribute.widgetType == 'multiSelectable')
                     Container(
+                      color: AppColors.white,
                       padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surface,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 4,
-                            offset: const Offset(0, -2),
-                          ),
-                        ],
-                      ),
                       child: Row(
                         children: [
                           Expanded(
-                            child: OutlinedButton(
+                            child: ElevatedButton(
                               onPressed: () {
-                                context
-                                    .read<HomeTreeCubit>()
-                                    .clearSelection(attribute);
-                              },
-                              child: const Text('Clear All'),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: FilledButton(
-                              onPressed: () {
-                                context
-                                    .read<HomeTreeCubit>()
-                                    .confirmMultiSelection(attribute);
+                                final selections =
+                                    temporarySelections[attribute.attributeKey]
+                                        as List<AttributeValueModel>;
+                                if (selections.isEmpty) {
+                                  cubit.clearSelectedAttribute(attribute);
+                                } else {
+                                  for (var value in selections) {
+                                    cubit.selectAttributeValue(
+                                        attribute, value);
+                                  }
+                                  cubit.confirmMultiSelection(attribute);
+                                }
                                 Navigator.pop(context);
                               },
-                              child: const Text('Apply'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.black,
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              child: const Text(
+                                'Apply',
+                                style: TextStyle(
+                                  color: AppColors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
                             ),
                           ),
                         ],
@@ -758,84 +815,334 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
       },
     );
   }
-//
-//
-  void _showColorSelectDialog(BuildContext context, AttributeModel attribute) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(attribute.helperText),
-        content: SizedBox(
-          width: double.maxFinite,
+
+  Widget _buildMultiSelectList(
+    BuildContext context,
+    AttributeModel attribute,
+    ScrollController scrollController,
+    Map<String, dynamic> temporarySelections,
+    StateSetter setState,
+  ) {
+    return Column(
+      children: [
+        Expanded(
+          child: ListView.builder(
+            controller: scrollController,
+            padding: EdgeInsets.zero,
+            itemCount: attribute.values.length,
+            itemBuilder: (context, index) {
+              final value = attribute.values[index];
+              final selections = temporarySelections[attribute.attributeKey]
+                  as List<AttributeValueModel>;
+              final isSelected = selections.contains(value);
+
+              return InkWell(
+                onTap: () {
+                  setState(() {
+                    if (isSelected) {
+                      selections.remove(value);
+                    } else {
+                      selections.add(value);
+                    }
+                  });
+                },
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    border: Border(
+                      bottom: BorderSide(
+                        color: AppColors.lightGray.withOpacity(0.3),
+                        width: 1,
+                      ),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          value.value,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: isSelected
+                                ? AppColors.black
+                                : AppColors.darkGray,
+                            fontWeight: isSelected
+                                ? FontWeight.w500
+                                : FontWeight.normal,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        width: 20,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(
+                            color:
+                                isSelected ? AppColors.black : AppColors.grey,
+                            width: 1.5,
+                          ),
+                          color: isSelected
+                              ? AppColors.black
+                              : AppColors.transparent,
+                        ),
+                        child: isSelected
+                            ? const Icon(
+                                Icons.check,
+                                size: 14,
+                                color: AppColors.white,
+                              )
+                            : null,
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        Container(
+          color: AppColors.white,
+          padding: const EdgeInsets.all(16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Wrap(
-                spacing: 12,
-                runSpacing: 12,
-                children: attribute.values.map((value) {
-                  final isSelected = context
-                      .read<HomeTreeCubit>()
-                      .isValueSelected(attribute, value);
-                  return InkWell(
-                    onTap: () {
-                      context
-                          .read<HomeTreeCubit>()
-                          .selectAttributeValue(attribute, value);
-                      Navigator.pop(context);
-                    },
-                    child: Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: _parseColor(value.value),
-                        border: Border.all(
-                          color: isSelected
-                              ? Theme.of(context).colorScheme.primary
-                              : Colors.grey.withOpacity(0.3),
-                          width: isSelected ? 2 : 1,
+              const Divider(height: 1),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        final cubit = context.read<HomeTreeCubit>();
+                        final selections =
+                            temporarySelections[attribute.attributeKey]
+                                as List<AttributeValueModel>;
+
+                        if (selections.isEmpty) {
+                          cubit.clearSelectedAttribute(attribute);
+                        } else {
+                          // Clear previous selections first
+                          cubit.clearSelectedAttribute(attribute);
+
+                          // Add new selections
+                          for (var value in selections) {
+                            cubit.selectAttributeValue(attribute, value);
+                          }
+
+                          // Confirm and handle dynamic attributes
+                          cubit.confirmMultiSelection(attribute);
+                        }
+
+                        Navigator.pop(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.black,
+                        foregroundColor: AppColors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                        shape: BoxShape.circle,
-                        boxShadow: isSelected
-                            ? [
-                                BoxShadow(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .primary
-                                      .withOpacity(0.3),
-                                  blurRadius: 8,
-                                  spreadRadius: 2,
-                                ),
-                              ]
-                            : null,
+                        elevation: 0,
                       ),
-                      child: isSelected
-                          ? Icon(
-                              Icons.check,
-                              color: _isLightColor(_parseColor(value.value))
-                                  ? Colors.black
-                                  : Colors.white,
-                            )
-                          : null,
+                      child: Text(
+                        'Apply ${(temporarySelections[attribute.attributeKey] as List).length} selected',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                     ),
-                  );
-                }).toList(),
+                  ),
+                ],
               ),
             ],
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
+      ],
     );
   }
 
-  bool _isLightColor(Color color) {
-    return color.computeLuminance() > 0.5;
+  Widget _buildSingleSelectList(
+    BuildContext context,
+    AttributeModel attribute,
+    ScrollController scrollController,
+  ) {
+    final cubit = context.read<HomeTreeCubit>();
+    return ListView.builder(
+      controller: scrollController,
+      padding: EdgeInsets.zero,
+      itemCount: attribute.values.length,
+      itemBuilder: (context, index) {
+        final value = attribute.values[index];
+        final selectedValue = cubit.getSelectedAttributeValue(attribute);
+        final isSelected =
+            selectedValue?.attributeValueId == value.attributeValueId;
+        return InkWell(
+          onTap: () {
+            if (isSelected) {
+              cubit.clearSelectedAttribute(attribute);
+            } else {
+              cubit.selectAttributeValue(attribute, value);
+            }
+            Navigator.pop(context);
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  color: AppColors.lightGray.withOpacity(0.3),
+                  width: 1,
+                ),
+              ),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    value.value,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: isSelected ? AppColors.black : AppColors.darkGray,
+                      fontWeight:
+                          isSelected ? FontWeight.w500 : FontWeight.normal,
+                    ),
+                  ),
+                ),
+                if (isSelected)
+                  const Icon(
+                    Icons.check,
+                    size: 20,
+                    color: AppColors.black,
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+//
+  void _showColorSelectDialog(BuildContext context, AttributeModel attribute) {
+    final cubit = context.read<HomeTreeCubit>();
+    final currentValue = cubit.getSelectedAttributeValue(attribute);
+
+    showDialog(
+      context: context,
+      useRootNavigator: true,
+      builder: (context) => Dialog(
+        backgroundColor: AppColors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Container(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.6,
+            maxWidth: MediaQuery.of(context).size.width * 0.85,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 12, 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      attribute.helperText,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.black,
+                      ),
+                    ),
+                    if (currentValue != null)
+                      TextButton(
+                        onPressed: () {
+                          cubit.clearSelectedAttribute(attribute);
+                          Navigator.pop(context);
+                        },
+                        child: const Text(
+                          'Clear',
+                          style: TextStyle(
+                            color: AppColors.black,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    IconButton(
+                      icon: const Icon(Icons.close, size: 20),
+                      padding: const EdgeInsets.all(8),
+                      constraints: const BoxConstraints(
+                        minHeight: 32,
+                        minWidth: 32,
+                      ),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(height: 1),
+              Flexible(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  child: Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
+                    alignment: WrapAlignment.start,
+                    children: attribute.values.map((value) {
+                      final isSelected =
+                          cubit.isValueSelected(attribute, value);
+                      final color = _parseColor(value.value);
+
+                      return InkWell(
+                        onTap: () {
+                          if (isSelected) {
+                            cubit.clearSelectedAttribute(attribute);
+                          } else {
+                            cubit.selectAttributeValue(attribute, value);
+                          }
+                          Navigator.pop(context);
+                        },
+                        child: Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: color,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: isSelected
+                                  ? AppColors.black
+                                  : Colors.transparent,
+                              width: 2,
+                            ),
+                          ),
+                          child: isSelected
+                              ? const Icon(
+                                  Icons.check,
+                                  color: AppColors.white,
+                                  size: 20,
+                                )
+                              : null,
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   void _showAttributeSelectionUI(
@@ -849,65 +1156,6 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
         _showSelectionBottomSheet(context, attribute);
         break;
     }
-  }
-
-  Widget _buildMultiSelectList(
-    BuildContext context,
-    AttributeModel attribute,
-    ScrollController scrollController,
-  ) {
-    return StatefulBuilder(
-      builder: (context, setState) {
-        return ListView.builder(
-          controller: scrollController,
-          itemCount: attribute.values.length,
-          itemBuilder: (context, index) {
-            final value = attribute.values[index];
-            final isSelected =
-                context.read<HomeTreeCubit>().isValueSelected(attribute, value);
-
-            return CheckboxListTile(
-              title: Text(value.value),
-              value: isSelected,
-              onChanged: (bool? checked) {
-                context
-                    .read<HomeTreeCubit>()
-                    .selectAttributeValue(attribute, value);
-                setState(() {});
-              },
-            );
-          },
-        );
-      },
-    );
-  }
-
-  Widget _buildSingleSelectList(
-    BuildContext context,
-    AttributeModel attribute,
-    ScrollController scrollController,
-  ) {
-    return ListView.builder(
-      controller: scrollController,
-      itemCount: attribute.values.length,
-      itemBuilder: (context, index) {
-        final value = attribute.values[index];
-        final isSelected =
-            context.read<HomeTreeCubit>().isValueSelected(attribute, value);
-
-        return ListTile(
-          title: Text(value.value),
-          trailing:
-              isSelected ? const Icon(Icons.check, color: Colors.green) : null,
-          onTap: () {
-            context
-                .read<HomeTreeCubit>()
-                .selectAttributeValue(attribute, value);
-            Navigator.pop(context);
-          },
-        );
-      },
-    );
   }
 
   Color _parseColor(String colorString) {

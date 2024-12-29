@@ -148,7 +148,7 @@ class _InitialHomeTreePageState extends State<ChildHomeTreePage> {
                   floating: true,
                   snap: !_isSliverAppBarVisible,
                   pinned: !_isSliverAppBarVisible,
-                  automaticallyImplyLeading: true,
+                  automaticallyImplyLeading: false,
                   toolbarHeight: 50,
                   flexibleSpace: _buildFiltersBar(state),
                   backgroundColor: AppColors.bgColor,
@@ -248,6 +248,7 @@ class _InitialHomeTreePageState extends State<ChildHomeTreePage> {
         systemOverlayStyle: const SystemUiOverlayStyle(
           statusBarIconBrightness: Brightness.dark,
         ),
+        automaticallyImplyLeading: false,
         flexibleSpace: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
@@ -359,6 +360,7 @@ class _InitialHomeTreePageState extends State<ChildHomeTreePage> {
       ),
     );
   }
+
 //
   Widget _buildAdvertisedProduct(AdvertisedProductEntity product) {
     return ValueListenableBuilder<double>(
@@ -375,6 +377,7 @@ class _InitialHomeTreePageState extends State<ChildHomeTreePage> {
       },
     );
   }
+
 //
   Widget _buildProductCard(AdvertisedProductEntity product) {
     return Padding(

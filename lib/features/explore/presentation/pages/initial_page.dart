@@ -38,6 +38,7 @@ class InitialHomeTreePage extends StatefulWidget {
 class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
   final ScrollController _scrollController = ScrollController();
   final SearchController _searchController = SearchController();
+
   final ValueNotifier<String?> _currentlyPlayingId =
       ValueNotifier<String?>(null);
   final ValueNotifier<Set<int>> _selectedFilters = ValueNotifier<Set<int>>({});
@@ -125,21 +126,6 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
           backgroundColor: AppColors.bgColor,
           extendBody: true,
           appBar: _buildAppBar(),
-          // body: ListView.builder(
-          //   itemCount: state.catalogs?.length ?? 0,
-          //   itemBuilder: (context, index) {
-          //     final catalog = state.catalogs![index];
-          //     return ListTile(
-          //       leading: const Icon(Icons.category),
-          //       title: Text(catalog.name),
-          //       trailing: const Icon(Icons.chevron_right),
-          //       onTap: () {
-          //         context.read<HomeTreeCubit>().selectCatalog(catalog);
-          //         context.push('/subcategories');
-          //       },
-          //     );
-          //   },
-          // ),
           body: CustomScrollView(
             controller: _scrollController,
             physics: const BouncingScrollPhysics(),
@@ -714,4 +700,4 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
     );
   }
 }
-
+//
