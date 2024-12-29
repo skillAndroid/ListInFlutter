@@ -1,47 +1,43 @@
 // ignore_for_file: deprecated_member_use
 
-import 'dart:async';
-
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:smooth_corner_updated/smooth_corner.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/router/go_router.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/domain/enties/advertised_product_entity.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
-import 'package:list_in/features/explore/presentation/widgets/category_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/recomendation_widget.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/top_app_recomendation.dart';
 import 'package:list_in/features/post/data/models/category_model.dart';
-import 'package:list_in/features/post/data/models/child_category_model.dart';
-import 'package:list_in/features/undefined_screens_yet/details.dart';
 import 'package:list_in/features/undefined_screens_yet/video_player.dart';
-import 'package:smooth_corner_updated/smooth_corner.dart';
-import 'package:visibility_detector/visibility_detector.dart';
 
-class ProductListScreen extends StatefulWidget {
+class ChildHomeTreePage extends StatefulWidget {
   final List<AdvertisedProductEntity> advertisedProducts;
   final List<ProductEntity> regularProducts;
-
-  const ProductListScreen({
+  const ChildHomeTreePage({
     super.key,
     required this.advertisedProducts,
     required this.regularProducts,
   });
 
   @override
-  State<ProductListScreen> createState() => _ProductListScreenState();
+  State<ChildHomeTreePage> createState() => _InitialHomeTreePageState();
 }
 
-class _ProductListScreenState extends State<ProductListScreen> {
+class _InitialHomeTreePageState extends State<ChildHomeTreePage> {
   final ScrollController _scrollController = ScrollController();
   final SearchController _searchController = SearchController();
   final ValueNotifier<String?> _currentlyPlayingId =
@@ -54,6 +50,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
   @override
   void initState() {
     super.initState();
+    context.read<HomeTreeCubit>().fetchCatalogs();
     _initializeVideoTracking();
   }
 
@@ -70,14 +67,12 @@ class _ProductListScreenState extends State<ProductListScreen> {
     _searchController.dispose();
     _currentlyPlayingId.dispose();
     _selectedFilters.dispose();
-
     for (var notifier in _visibilityNotifiers.values) {
       notifier.dispose();
     }
     for (var notifier in _pageNotifiers.values) {
       notifier.dispose();
     }
-
     super.dispose();
   }
 
@@ -106,6 +101,142 @@ class _ProductListScreenState extends State<ProductListScreen> {
       _currentlyPlayingId.value = mostVisibleId;
     }
   }
+
+//
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<HomeTreeCubit, HomeTreeState>(
+      buildWhen: (previous, current) =>
+          previous.catalogs != current.catalogs ||
+          previous.isLoading != current.isLoading ||
+          previous.hasError != current.hasError,
+      builder: (context, state) {
+        if (state.isLoading) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if (state.hasError) {
+          return Scaffold(
+            body: Center(child: Text(state.error!)),
+          );
+        }
+
+        return Scaffold(
+          backgroundColor: AppColors.bgColor,
+          extendBody: true,
+          appBar: _buildAppBar(),
+          body: CustomScrollView(
+            controller: _scrollController,
+            physics: const BouncingScrollPhysics(),
+            slivers: [
+              SliverVisibilityDetector(
+                key: Key('sliver-to-box-adapter'),
+                onVisibilityChanged: (visibilityInfo) {
+                  double visiblePercentage = visibilityInfo.visibleFraction;
+                  setState(() {
+                    _isSliverAppBarVisible = visiblePercentage == 0;
+                  });
+                },
+                sliver: SliverToBoxAdapter(
+                  child: _buildCategories(),
+                ),
+              ),
+              if (_isSliverAppBarVisible)
+                SliverAppBar(
+                  floating: true,
+                  snap: !_isSliverAppBarVisible,
+                  pinned: !_isSliverAppBarVisible,
+                  automaticallyImplyLeading: true,
+                  toolbarHeight: 50,
+                  flexibleSpace: _buildFiltersBar(state),
+                  backgroundColor: AppColors.bgColor,
+                ),
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) => _buildAdvertisedProduct(
+                        widget.advertisedProducts[index]),
+                    childCount: widget.advertisedProducts.length,
+                  ),
+                ),
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                sliver: SliverGrid(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 0.7,
+                    crossAxisSpacing: 1,
+                    mainAxisSpacing: 1,
+                  ),
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) => RegularProductCard(
+                        product: widget.regularProducts[index]),
+                    childCount: widget.regularProducts.length,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildFiltersBar(HomeTreeState state) {
+    return ValueListenableBuilder<Set<int>>(
+      valueListenable: _selectedFilters,
+      builder: (context, selectedFilters, _) {
+        return Container(
+          color: AppColors.bgColor,
+          height: 50,
+          child: ListView.builder(
+            physics: BouncingScrollPhysics(),
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            itemCount: state.selectedCatalog?.childCategories.length,
+            itemBuilder: (context, index) =>
+                _buildFilterChip(state, index, selectedFilters),
+          ),
+        );
+      },
+    );
+  }
+
+  //
+  Widget _buildFilterChip(
+      HomeTreeState state, int index, Set<int> selectedFilters) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 4,
+      ),
+      child: FilterChip(
+        padding: EdgeInsets.symmetric(horizontal: 7, vertical: 12),
+        label: Text(state.selectedCatalog!.childCategories[index].name,
+            style: TextStyle(fontSize: 12)),
+        shape: SmoothRectangleBorder(
+            smoothness: 0.8, borderRadius: BorderRadius.circular(10)),
+        selected: selectedFilters.contains(index),
+        backgroundColor: AppColors.white,
+        selectedColor: AppColors.green,
+        labelStyle: TextStyle(
+          color: selectedFilters.contains(index)
+              ? AppColors.white
+              : AppColors.black,
+        ),
+        onSelected: (selected) {
+          context.read<HomeTreeCubit>().selectChildCategory(
+              state.selectedCatalog!.childCategories[index]);
+          context.push(Routes.attributes);
+        },
+        side: BorderSide(width: 1, color: AppColors.lightGray),
+      ),
+    );
+  }
+//
 
   PreferredSizeWidget _buildAppBar() {
     return PreferredSize(
@@ -228,152 +359,6 @@ class _ProductListScreenState extends State<ProductListScreen> {
       ),
     );
   }
-
-//
-  Widget _buildFiltersBar() {
-    return ValueListenableBuilder<Set<int>>(
-      valueListenable: _selectedFilters,
-      builder: (context, selectedFilters, _) {
-        return Container(
-          color: AppColors.bgColor,
-          height: 50,
-          child: ListView.builder(
-            physics: BouncingScrollPhysics(),
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            itemCount: myFilters.length,
-            itemBuilder: (context, index) =>
-                _buildFilterChip(index, selectedFilters),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildCategories() {
-    // final categories = [
-    //   CategoryItem(
-    //     title: "Food",
-    //     imageUrl:
-    //         "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=200",
-    //   ),
-    //   CategoryItem(
-    //     title: "Sports",
-    //     imageUrl:
-    //         "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=200",
-    //   ),
-    //   CategoryItem(
-    //     title: "Music",
-    //     imageUrl:
-    //         "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=200",
-    //   ),
-    //   CategoryItem(
-    //     title: "Art",
-    //     imageUrl:
-    //         "https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?w=200",
-    //   ),
-    //   CategoryItem(
-    //     title: "Technology",
-    //     imageUrl:
-    //         "https://images.unsplash.com/photo-1518997554305-5eea2f04e384?w=200",
-    //   ),
-    //   CategoryItem(
-    //     title: "Travel",
-    //     imageUrl:
-    //         "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=200",
-    //   ),
-    //   CategoryItem(
-    //     title: "Fashion",
-    //     imageUrl:
-    //         "https://images.unsplash.com/photo-1445205170230-053b83016050?w=200",
-    //   ),
-    //   CategoryItem(
-    //     title: "Books",
-    //     imageUrl:
-    //         "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=200",
-    //   ),
-    //   CategoryItem(
-    //     title: "Fitness",
-    //     imageUrl:
-    //         "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=200",
-    //   ),
-    //   CategoryItem(
-    //     title: "Gaming",
-    //     imageUrl:
-    //         "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=200",
-    //   ),
-    //   CategoryItem(
-    //     title: "Nature",
-    //     imageUrl:
-    //         "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=200",
-    //   ),
-    //   CategoryItem(
-    //     title: "Science",
-    //     imageUrl:
-    //         "https://images.unsplash.com/photo-1507668077129-56e32842fceb?w=200",
-    //   ),
-    // ];
-    final recommendations = [
-      RecommendationItem(
-        title: "Recent",
-        icon: Icons.access_time_rounded,
-        color: Colors.blue,
-      ),
-      RecommendationItem(
-        title: "Season Fashion",
-        icon: Icons.checkroom_rounded,
-        color: Colors.purple,
-      ),
-      RecommendationItem(
-        title: "For Free",
-        icon: Icons.card_giftcard_rounded,
-        color: Colors.red,
-      ),
-      RecommendationItem(
-        title: "Gift Ideas",
-        icon: Icons.redeem_rounded,
-        color: Colors.orange,
-      ),
-    ];
-    return TopAppRecomendation(
-      recommendations: recommendations,
-    );
-  }
-
-//
-  Widget _buildFilterChip(int index, Set<int> selectedFilters) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 4,
-      ),
-      child: FilterChip(
-        padding: EdgeInsets.symmetric(horizontal: 7, vertical: 12),
-        label: Text(myFilters[index].name, style: TextStyle(fontSize: 12)),
-        shape: SmoothRectangleBorder(
-            smoothness: 0.8, borderRadius: BorderRadius.circular(10)),
-        selected: selectedFilters.contains(index),
-        backgroundColor: AppColors.white,
-        selectedColor: AppColors.green,
-        labelStyle: TextStyle(
-          color: selectedFilters.contains(index)
-              ? AppColors.white
-              : AppColors.black,
-        ),
-        onSelected: (selected) {
-          final newFilters = Set<int>.from(selectedFilters);
-          if (selected) {
-            newFilters.add(index);
-          } else {
-            newFilters.remove(index);
-          }
-          _selectedFilters.value = newFilters;
-        },
-        side: BorderSide(
-            width: 1, color: AppColors.lightGray), // This removes the border
-      ),
-    );
-  }
-
 //
   Widget _buildAdvertisedProduct(AdvertisedProductEntity product) {
     return ValueListenableBuilder<double>(
@@ -390,7 +375,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
       },
     );
   }
-
+//
   Widget _buildProductCard(AdvertisedProductEntity product) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
@@ -688,345 +673,33 @@ class _ProductListScreenState extends State<ProductListScreen> {
   }
 
 //
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.bgColor,
-      extendBody: true,
-      appBar: _buildAppBar(),
-      body: CustomScrollView(
-        controller: _scrollController,
-        physics: const BouncingScrollPhysics(),
-        slivers: [
-          SliverVisibilityDetector(
-            key: Key('sliver-to-box-adapter'),
-            onVisibilityChanged: (visibilityInfo) {
-              double visiblePercentage = visibilityInfo.visibleFraction;
-              setState(() {
-                _isSliverAppBarVisible = visiblePercentage == 0;
-              });
-            },
-            sliver: SliverToBoxAdapter(
-              child: _buildCategories(),
-            ),
-          ),
-          // Only show SliverAppBar when the flag is true
-          if (_isSliverAppBarVisible)
-            SliverAppBar(
-              floating: true,
-              snap: !_isSliverAppBarVisible,
-              pinned: !_isSliverAppBarVisible,
-              automaticallyImplyLeading: true,
-              toolbarHeight: 50,
-              flexibleSpace: _buildFiltersBar(),
-              backgroundColor: AppColors.bgColor,
-            ),
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) =>
-                    _buildAdvertisedProduct(widget.advertisedProducts[index]),
-                childCount: widget.advertisedProducts.length,
-              ),
-            ),
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            sliver: SliverGrid(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 0.7,
-                crossAxisSpacing: 1,
-                mainAxisSpacing: 1,
-              ),
-              delegate: SliverChildBuilderDelegate(
-                (context, index) =>
-                    RegularProductCard(product: widget.regularProducts[index]),
-                childCount: widget.regularProducts.length,
-              ),
-            ),
-          ),
-        ],
+//
+  Widget _buildCategories() {
+    final recommendations = [
+      RecommendationItem(
+        title: "Recent",
+        icon: Icons.access_time_rounded,
+        color: Colors.blue,
       ),
+      RecommendationItem(
+        title: "Season Fashion",
+        icon: Icons.checkroom_rounded,
+        color: Colors.purple,
+      ),
+      RecommendationItem(
+        title: "For Free",
+        icon: Icons.card_giftcard_rounded,
+        color: Colors.red,
+      ),
+      RecommendationItem(
+        title: "Gift Ideas",
+        icon: Icons.redeem_rounded,
+        color: Colors.orange,
+      ),
+    ];
+    return TopAppRecomendation2(
+      recommendations: recommendations,
     );
   }
-}
-
-List<Filter> myFilters = [
-  Filter(name: "Category 1", value: "cat1"),
-  Filter(name: "Category 2", value: "cat2"),
-  Filter(name: "Category 3", value: "cat3"),
-  Filter(name: "Category 4", value: "cat4"),
-  Filter(name: "Category 5", value: "cat5"),
-  Filter(name: "Category 6", value: "cat6"),
-  Filter(name: "Category 7", value: "cat7"),
-  Filter(name: "Category 8", value: "cat8"),
-  // ... more filters
-];
-
-class Filter {
-  final String name;
-  final String value;
-
-  Filter({required this.name, required this.value});
-}
-
-class CategoryItem {
-  final String title;
-  final String imageUrl;
-
-  CategoryItem({required this.title, required this.imageUrl});
-}
-
-class CategoriesList extends StatelessWidget {
-  const CategoriesList({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<HomeTreeCubit, HomeTreeState>(
-      builder: (context, state) {
-        return Container(
-          color: AppColors.bgColor,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildCategoryRow(
-                  state.catalogs!.sublist(0, 1), "Popular Categories"),
-              const SizedBox(height: 12), // Increased spacing between sections
-              _buildCategoryRow(
-                  state.catalogs!.sublist(0, 1), "Featured Categories"),
-              const SizedBox(height: 12),
-              _buildCategoryRow(
-                  state.catalogs!.sublist(0, 1), "More Categories"),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildCategoryRow(List<CategoryModel> rowItems, String title) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.containerColor
-            .withOpacity(0.5), // Light grey background for each section
-        borderRadius: BorderRadius.circular(12),
-      ),
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 16, bottom: 8),
-            child: Text(
-              title,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Poppins',
-              ),
-            ),
-          ),
-          SizedBox(
-            height: 56,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.only(right: 8, left: 8, bottom: 6),
-              children: rowItems
-                  .map((category) => CategoryCard(
-                        category: category,
-                      ))
-                  .toList(),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class SubcategoriesList extends StatelessWidget {
-  final List<ChildCategoryModel> subcategories;
-  final String title;
-
-  const SubcategoriesList({
-    super.key,
-    required this.subcategories,
-    required this.title,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.containerColor.withOpacity(0.5),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 16, bottom: 8),
-            child: Text(
-              title,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Poppins',
-              ),
-            ),
-          ),
-          SizedBox(
-            height: 56,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.only(right: 8, left: 8, bottom: 6),
-              itemCount: subcategories.length,
-              itemBuilder: (context, index) => SubcategoryCard(
-                category: subcategories[index],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class SubcategoryCard extends StatefulWidget {
-  final ChildCategoryModel category;
-
-  const SubcategoryCard({
-    super.key,
-    required this.category,
-  });
-
-  @override
-  State<SubcategoryCard> createState() => _SubcategoryCardState();
-}
-
-class _SubcategoryCardState extends State<SubcategoryCard>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _scaleController;
-  bool _isPressed = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _scaleController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 150),
-      lowerBound: 0.95,
-      upperBound: 1.0,
-    );
-    _scaleController.value = 1.0;
-  }
-
-  @override
-  void dispose() {
-    _scaleController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 8),
-      child: GestureDetector(
-        onTap: () {
-          context.read<HomeTreeCubit>().selectChildCategory(widget.category);
-          // If there are more subcategories, navigate deeper
-          if (widget.category.attributes.isNotEmpty) {
-            context.go(Routes.attributes);
-          } else {
-            context.push('/products');
-          }
-        },
-        onTapDown: (_) {
-          setState(() => _isPressed = true);
-          _scaleController.reverse();
-        },
-        onTapUp: (_) {
-          setState(() => _isPressed = false);
-          _scaleController.forward();
-        },
-        onTapCancel: () {
-          setState(() => _isPressed = false);
-          _scaleController.forward();
-        },
-        child: ScaleTransition(
-          scale: _scaleController,
-          child: SmoothClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(_isPressed ? 0.1 : 0.2),
-                    offset: Offset(0, _isPressed ? 1 : 2),
-                    blurRadius: _isPressed ? 2 : 4,
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SmoothClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: SizedBox(
-                      width: 42,
-                      height: 42,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.network(
-                          "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=200",
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Icon(Icons.error, size: 16);
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.category.name,
-                        style: const TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.normal,
-                          fontFamily: 'Poppins',
-                        ),
-                      ),
-                      if (widget.category.attributes.isNotEmpty)
-                        Text(
-                          '${widget.category.attributes.length} items',
-                          style: TextStyle(
-                            fontSize: 9,
-                            color: Colors.grey[600],
-                            fontFamily: 'Poppins',
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(width: 12),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+//
 }

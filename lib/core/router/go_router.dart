@@ -3,18 +3,19 @@ import 'package:go_router/go_router.dart';
 import 'package:list_in/core/router/keep_alive_wrapper.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/core/utils/const.dart';
-import 'package:list_in/features/explore/domain/enties/product_entity.dart';
-import 'package:list_in/features/explore/presentation/pages/initial_page.dart';
-import 'package:list_in/features/profile/presentation/profile_page.dart';
-import 'package:list_in/features/undefined_screens_yet/details.dart';
 import 'package:list_in/features/auth/presentation/pages/login_page.dart';
 import 'package:list_in/features/auth/presentation/pages/register_details_page.dart';
 import 'package:list_in/features/auth/presentation/pages/signup_page.dart';
 import 'package:list_in/features/auth/presentation/pages/verification_page.dart';
 import 'package:list_in/features/auth/presentation/pages/welcome_page.dart';
+import 'package:list_in/features/explore/domain/enties/product_entity.dart';
+import 'package:list_in/features/explore/presentation/pages/child_page.dart';
+import 'package:list_in/features/explore/presentation/pages/detailed_page.dart';
+import 'package:list_in/features/explore/presentation/pages/initial_page.dart';
 import 'package:list_in/features/post/presentation/pages/post_screen.dart';
+import 'package:list_in/features/profile/presentation/profile_page.dart';
+import 'package:list_in/features/undefined_screens_yet/details.dart';
 import 'package:list_in/features/undefined_screens_yet/wrapper_screen.dart';
-import 'package:list_in/features/undefined_screens_yet/list.dart';
 import 'package:list_in/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -64,7 +65,10 @@ class AppRouter {
         path: Routes.login,
         builder: (context, state) => const LoginPage(),
       ),
-
+      GoRoute(
+        path: Routes.post,
+        builder: (context, state) => const PostScreen(),
+      ),
       // Main shell route
       ShellRoute(
         navigatorKey: _shellNavigatorKey,
@@ -81,21 +85,23 @@ class AppRouter {
           ),
           GoRoute(
             path: Routes.subcategories,
-            builder: (context, state) => const ChildCategoriesScreen(),
+            builder: (context, state) => ChildHomeTreePage(
+              regularProducts: sampleProducts,
+              advertisedProducts: sampleVideos,
+            ),
           ),
           GoRoute(
             path: Routes.attributes,
-            builder: (context, state) => const AttributesScreen(),
+            builder: (context, state) => DetailedHomeTreePage(
+              regularProducts: sampleProducts,
+              advertisedProducts: sampleVideos,
+            ),
           ),
           GoRoute(
             path: Routes.events,
             builder: (context, state) => const KeepAliveWrapper(
               child: ProfileScreen(),
             ),
-          ),
-          GoRoute(
-            path: Routes.post,
-            builder: (context, state) => const PostScreen(),
           ),
           GoRoute(
             path: Routes.productDetails,
