@@ -575,7 +575,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
       dynamicAttributes: newDynamicAttributes,
     ));
   }
-
+//
 // Optional helper method to clear attributes for specific widget types
   void clearAttributesByType(String widgetType) {
     Map<String, dynamic> newSelectedValues = Map.from(state.selectedValues);

@@ -90,7 +90,7 @@ class CategoriesList extends StatelessWidget {
   }
 }
 
-class SubcategoriesList extends StatelessWidget {
+class SubcategoriesList extends StatefulWidget {
   final List<ChildCategoryModel> subcategories;
   final String title;
 
@@ -101,7 +101,19 @@ class SubcategoriesList extends StatelessWidget {
   });
 
   @override
+  // ignore: library_private_types_in_public_api
+  _SubcategoriesListState createState() => _SubcategoriesListState();
+}
+
+class _SubcategoriesListState extends State<SubcategoriesList> {
+  bool _showAll = false; // To toggle between showing limited and full list.
+
+  @override
   Widget build(BuildContext context) {
+    // Determine the subcategories to display based on the toggle state.
+    final displayedSubcategories =
+        _showAll ? widget.subcategories : widget.subcategories.take(7).toList();
+
     return Container(
       decoration: BoxDecoration(
         color: AppColors.containerColor.withOpacity(0.5),
@@ -114,7 +126,7 @@ class SubcategoriesList extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: 16, bottom: 8),
             child: Text(
-              title,
+              widget.title,
               style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
@@ -122,18 +134,36 @@ class SubcategoriesList extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(
-            height: 56,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.only(right: 8, left: 8, bottom: 6),
-              itemCount: subcategories.length,
-              itemBuilder: (context, index) => SubcategoryCard(
-                category: subcategories[index],
-              ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Wrap(
+              spacing: 8, // Horizontal spacing between cards.
+              runSpacing: 8, // Vertical spacing between lines.
+              children: displayedSubcategories
+                  .map((category) => SubcategoryCard(
+                        category: category,
+                      ))
+                  .toList(),
             ),
           ),
+          if (widget.subcategories.length > 7)
+            Center(
+              child: TextButton(
+                onPressed: () {
+                  setState(() {
+                    _showAll = !_showAll; // Toggle the state.
+                  });
+                },
+                child: Text(
+                  _showAll ? "Show Less" : "Show All",
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.green,
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -184,9 +214,9 @@ class _SubcategoryCardState extends State<SubcategoryCard>
           context.read<HomeTreeCubit>().selectChildCategory(widget.category);
           // If there are more subcategories, navigate deeper
           if (widget.category.attributes.isNotEmpty) {
-            context.go(Routes.attributes);
+            context.push(Routes.attributes);
           } else {
-            context.push('/products');
+            context.push(Routes.attributes);
           }
         },
         onTapDown: (_) {
@@ -206,7 +236,7 @@ class _SubcategoryCardState extends State<SubcategoryCard>
           child: SmoothClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
               decoration: BoxDecoration(
                 color: Colors.white,
                 boxShadow: [

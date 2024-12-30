@@ -124,12 +124,26 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                         itemCount: attributes.length,
                         itemBuilder: (context, index) {
                           final attribute = attributes[index];
-                          final selectedValue = context
-                              .read<HomeTreeCubit>()
-                              .getSelectedAttributeValue(attribute);
-                          final selectedValues = context
-                              .read<HomeTreeCubit>()
-                              .getSelectedValues(attribute);
+                          final cubit = context.read<HomeTreeCubit>();
+                          final selectedValue =
+                              cubit.getSelectedAttributeValue(attribute);
+                          final selectedValues =
+                              cubit.getSelectedValues(attribute);
+
+                          // Color mapping
+                          final Map<String, Color> colorMap = {
+                            'Silver': Colors.grey[300]!,
+                            'Pink': Colors.pink,
+                            'Rose Gold': Color(0xFFB76E79),
+                            'Space Gray': Color(0xFF4A4A4A),
+                            'Blue': Colors.blue,
+                            'Yellow': Colors.yellow,
+                            'Green': Colors.green,
+                            'Purple': Colors.purple,
+                            'White': Colors.white,
+                            'Red': Colors.red,
+                            'Black': Colors.black,
+                          };
 
                           String chipLabel = attribute.helperText;
                           if (attribute.widgetType == 'multiSelectable' &&
@@ -140,31 +154,96 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                             chipLabel = selectedValue.value;
                           }
 
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 4,
-                            ),
-                            child: FilterChip(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 7, vertical: 12),
-                              label: Text(
-                                chipLabel,
-                                style: TextStyle(
-                                  color: selectedValue != null ||
-                                          selectedValues.isNotEmpty
-                                      ? Theme.of(context).colorScheme.onPrimary
-                                      : null,
+                          Widget? colorIndicator;
+                          if (attribute.widgetType == 'colorSelectable') {
+                            if (selectedValues.isNotEmpty) {
+                              // Create overlapping circles for multiple selections
+                              colorIndicator = SizedBox(
+                                width: 40,
+                                height: 20,
+                                child: Stack(
+                                  children: [
+                                    for (int i = 0;
+                                        i < selectedValues.length;
+                                        i++)
+                                      Positioned(
+                                        left: i * 10.0,
+                                        child: Container(
+                                          width: 14,
+                                          height: 14,
+                                          decoration: BoxDecoration(
+                                            color: colorMap[
+                                                    selectedValues[i].value] ??
+                                                Colors.grey,
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                              color: (colorMap[selectedValues[i]
+                                                          .value] ==
+                                                      Colors.white)
+                                                  ? Colors.grey
+                                                  : Colors.transparent,
+                                              width: 1,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
                                 ),
+                              );
+                            } else if (selectedValue != null) {
+                              // Single color circle
+                              colorIndicator = Container(
+                                width: 18,
+                                height: 18,
+                                margin: const EdgeInsets.only(right: 8),
+                                decoration: BoxDecoration(
+                                  color: colorMap[selectedValue.value] ??
+                                      Colors.grey,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: (colorMap[selectedValue.value] ==
+                                            Colors.white)
+                                        ? Colors.grey
+                                        : Colors.transparent,
+                                    width: 1,
+                                  ),
+                                ),
+                              );
+                            }
+                          }
+
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: FilterChip(
+                              showCheckmark:
+                                  false, // Disable the leading check icon
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 4, vertical: 10),
+                              label: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (colorIndicator != null) ...[
+                                    colorIndicator,
+                                    const SizedBox(width: 4),
+                                  ],
+                                  Text(
+                                    chipLabel,
+                                    style: TextStyle(
+                                      color: AppColors.black,
+                                    ),
+                                  ),
+                                ],
                               ),
                               side: BorderSide(
                                   width: 1, color: AppColors.lightGray),
                               shape: SmoothRectangleBorder(
-                                  smoothness: 0.8,
-                                  borderRadius: BorderRadius.circular(10)),
+                                smoothness: 0.8,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
                               selected: selectedValue != null ||
                                   selectedValues.isNotEmpty,
                               backgroundColor: AppColors.white,
-                              selectedColor: AppColors.green,
+                              selectedColor: AppColors.white,
                               onSelected: (_) {
                                 if (attribute.values.isNotEmpty) {
                                   _showAttributeSelectionUI(context, attribute);
@@ -673,7 +752,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
               if (values.length >= 15) return 0.8;
               if (values.length >= 10) return 0.65;
               if (values.length >= 5) return 0.5;
-              return values.length * 0.08;
+              return values.length * 0.1;
             }
 
             return DraggableScrollableSheet(
@@ -1140,4 +1219,3 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
     }
   }
 }
-
