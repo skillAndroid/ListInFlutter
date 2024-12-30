@@ -53,7 +53,7 @@ class TopAppRecomendation2 extends StatelessWidget {
             children: [
               SubcategoriesList(
                   subcategories: state.selectedCatalog!.childCategories,
-                  title:  state.selectedCatalog!.name),
+                  title: state.selectedCatalog!.name),
               const SizedBox(height: 16),
               const LocationBar(),
               const SizedBox(height: 16),

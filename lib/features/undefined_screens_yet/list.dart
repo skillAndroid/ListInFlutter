@@ -12,7 +12,6 @@ import 'package:list_in/features/post/data/models/category_model.dart';
 import 'package:list_in/features/post/data/models/child_category_model.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
-
 class CategoryItem {
   final String title;
   final String imageUrl;
@@ -34,8 +33,9 @@ class CategoriesList extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _buildCategoryRow(
-                  state.catalogs!.sublist(0, 1), "Popular Categories"),
+              if (state.catalogs != null)
+                _buildCategoryRow(
+                    state.catalogs!.sublist(0, 1), "Popular Categories"),
               const SizedBox(height: 12), // Increased spacing between sections
               _buildCategoryRow(
                   state.catalogs!.sublist(0, 1), "Featured Categories"),

@@ -611,9 +611,11 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                   ElevatedButton(
                     onPressed: () {},
                     style: ElevatedButton.styleFrom(
-                        shape: SmoothRectangleBorder(
-                            smoothness: 1,
-                            borderRadius: BorderRadius.circular(8))),
+                      shape: SmoothRectangleBorder(
+                        smoothness: 1,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
                     child: SizedBox(
                       width: double.infinity,
                       child: Center(
