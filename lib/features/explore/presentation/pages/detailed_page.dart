@@ -334,9 +334,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
       ),
     );
   }
-//
 
-//
   Widget _buildAdvertisedProduct(AdvertisedProductEntity product) {
     return ValueListenableBuilder<double>(
       valueListenable: _visibilityNotifiers[product.id]!,
@@ -353,8 +351,6 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
     );
   }
 
-//
-//
   Widget _buildProductCard(AdvertisedProductEntity product) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
@@ -777,7 +773,6 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
     );
   }
 
-//
   Widget _buildMultiSelectList(
     BuildContext context,
     AttributeModel attribute,
@@ -953,8 +948,8 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                   if (isSelected)
                     const Icon(
                       Icons.check_circle,
-                      size: 22,
-                      color: AppColors.secondaryColor,
+                      size: 24,
+                      color: AppColors.black,
                     ),
                 ],
               ),
@@ -967,132 +962,168 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
 
   void _showColorSelectDialog(BuildContext context, AttributeModel attribute) {
     final cubit = context.read<HomeTreeCubit>();
-    final currentValue = cubit.getSelectedAttributeValue(attribute);
 
-    showDialog(
+    // Color mapping for common colors
+    final Map<String, Color> colorMap = {
+      'Silver': Colors.grey[300]!,
+      'Pink': Colors.pink,
+      'Rose Gold': Color(0xFFB76E79),
+      'Space Gray': Color(0xFF4A4A4A),
+      'Blue': Colors.blue,
+      'Yellow': Colors.yellow,
+      'Green': Colors.green,
+      'Purple': Colors.purple,
+      'White': Colors.white,
+      'Red': Colors.red,
+      'Black': Colors.black,
+    };
+
+    showModalBottomSheet(
       context: context,
       useRootNavigator: true,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
-        child: Container(
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.8,
-            maxWidth: MediaQuery.of(context).size.width * 0.9,
-          ),
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 20, 20, 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      shape: SmoothRectangleBorder(
+        smoothness: 1,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+      ),
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            double calculateInitialSize(List<dynamic> values) {
+              if (values.length >= 20) return 0.9;
+              if (values.length >= 15) return 0.8;
+              if (values.length >= 10) return 0.65;
+              if (values.length >= 5) return 0.5;
+              return values.length * 0.08;
+            }
+
+            return DraggableScrollableSheet(
+              initialChildSize: calculateInitialSize(attribute.values),
+              maxChildSize: attribute.values.length >= 20
+                  ? 0.9
+                  : calculateInitialSize(attribute.values),
+              minChildSize: 0,
+              expand: false,
+              builder: (context, scrollController) {
+                return Column(
                   children: [
-                    Text(
-                      attribute.helperText,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.black,
+                    Container(
+                      margin: const EdgeInsets.only(top: 8),
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: AppColors.lightGray,
+                        borderRadius: BorderRadius.circular(2),
                       ),
                     ),
-                    Row(
-                      children: [
-                        if (currentValue != null)
-                          TextButton(
-                            onPressed: () {
-                              cubit.clearSelectedAttribute(attribute);
-                              Navigator.pop(context);
-                            },
-                            style: TextButton.styleFrom(
-                              foregroundColor: AppColors.primary,
-                            ),
-                            child: const Text(
-                              'Clear',
-                              style: TextStyle(fontSize: 14),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 0, 6, 0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              attribute.helperText,
+                              style: const TextStyle(
+                                fontSize: 17,
+                                color: CupertinoColors.black,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
-                        IconButton(
-                          icon: const Icon(Icons.close),
-                          onPressed: () => Navigator.pop(context),
-                          color: AppColors.darkGray,
-                        ),
-                      ],
+                          IconButton(
+                            icon: const Icon(Ionicons.close_circle),
+                            onPressed: () => Navigator.pop(context),
+                            color: AppColors.black,
+                          ),
+                        ],
+                      ),
                     ),
-                  ],
-                ),
-              ),
-              const Divider(height: 1),
-              Flexible(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(20),
-                  child: Wrap(
-                    spacing: 16,
-                    runSpacing: 16,
-                    children: attribute.values.map((value) {
-                      final isSelected =
-                          cubit.isValueSelected(attribute, value);
+                    const Divider(
+                      height: 1,
+                      color: AppColors.containerColor,
+                    ),
+                    Expanded(
+                      child: ListView.builder(
+                        controller: scrollController,
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        itemCount: attribute.values.length,
+                        itemBuilder: (context, index) {
+                          final value = attribute.values[index];
+                          final selectedValue =
+                              cubit.getSelectedAttributeValue(attribute);
+                          final isSelected = selectedValue?.attributeValueId ==
+                              value.attributeValueId;
+                          final color = colorMap[value.value] ?? Colors.grey;
 
-                      return GestureDetector(
-                        onTap: () {
-                          if (isSelected) {
-                            cubit.clearSelectedAttribute(attribute);
-                          } else {
-                            cubit.selectAttributeValue(attribute, value);
-                          }
-                          Navigator.pop(context);
-                        },
-                        child: Column(
-                          children: [
-                            Container(
-                              width: 50,
-                              height: 50,
-                              decoration: BoxDecoration(
-                                color: AppColors.littleGreen2,
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: isSelected
-                                      ? AppColors.primary
-                                      : AppColors.lightGray,
-                                  width: 2,
+                          return Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: () {
+                                if (isSelected) {
+                                  cubit.clearSelectedAttribute(attribute);
+                                } else {
+                                  cubit.selectAttributeValue(attribute, value);
+                                }
+                                Navigator.pop(context);
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 12),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 24,
+                                      height: 24,
+                                      decoration: BoxDecoration(
+                                        color: color,
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: color == Colors.white
+                                              ? Colors.grey
+                                              : Colors.transparent,
+                                          width: 1,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Text(
+                                        value.value,
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          color: isSelected
+                                              ? AppColors.black
+                                              : AppColors.darkGray
+                                                  .withOpacity(0.6),
+                                          fontWeight: isSelected
+                                              ? FontWeight.w600
+                                              : FontWeight.normal,
+                                        ),
+                                      ),
+                                    ),
+                                    if (isSelected)
+                                      const Icon(
+                                        Icons.check_circle,
+                                        size: 24,
+                                        color: AppColors.black,
+                                      ),
+                                  ],
                                 ),
                               ),
-                              child: isSelected
-                                  ? const Icon(
-                                      Icons.check,
-                                      color: AppColors.primary,
-                                      size: 24,
-                                    )
-                                  : null,
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              value.value,
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: isSelected
-                                    ? AppColors.primary
-                                    : AppColors.darkGray,
-                                fontWeight: isSelected
-                                    ? FontWeight.w500
-                                    : FontWeight.normal,
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+        );
+      },
     );
   }
 
@@ -1109,4 +1140,4 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
     }
   }
 }
-//
+
