@@ -672,10 +672,20 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
+            double calculateInitialSize(List<dynamic> values) {
+              if (values.length >= 20) return 0.9;
+              if (values.length >= 15) return 0.8;
+              if (values.length >= 10) return 0.65;
+              if (values.length >= 5) return 0.5;
+              return values.length * 0.08;
+            }
+
             return DraggableScrollableSheet(
-              initialChildSize: 0.6,
-              minChildSize: 0.4,
-              maxChildSize: 0.85,
+              initialChildSize: calculateInitialSize(attribute.values),
+              maxChildSize: attribute.values.length >= 20
+                  ? 0.9
+                  : calculateInitialSize(attribute.values),
+              minChildSize: 0,
               expand: false,
               builder: (context, scrollController) {
                 return Column(
@@ -767,6 +777,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
     );
   }
 
+//
   Widget _buildMultiSelectList(
     BuildContext context,
     AttributeModel attribute,
@@ -800,8 +811,8 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                     });
                   },
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 12),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                     child: Row(
                       children: [
                         Expanded(
@@ -930,7 +941,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                     child: Text(
                       value.value,
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 15,
                         color: isSelected
                             ? AppColors.black
                             : AppColors.darkGray.withOpacity(0.6),
