@@ -23,7 +23,7 @@ class _AnimatedProfileScreenState extends State<ProfileScreen> {
   late ScrollController _scrollController;
   double _offset = 0;
   final double _maxAppBarHeight = 300;
-  final double _minAppBarHeight = 80;
+  final double _minAppBarHeight = 60;
 
   @override
   void initState() {
@@ -62,6 +62,7 @@ class _AnimatedProfileScreenState extends State<ProfileScreen> {
             slivers: [
               SliverAppBar(
                 expandedHeight: _maxAppBarHeight,
+                toolbarHeight: _minAppBarHeight,
                 pinned: true,
                 backgroundColor: AppColors.white,
                 elevation: 0,
@@ -140,6 +141,7 @@ class _AnimatedProfileScreenState extends State<ProfileScreen> {
               SliverToBoxAdapter(
                 child: Column(
                   children: [
+                    const SizedBox(height: 8),
                     _buildReviewSection(),
                     _buildMainContent(),
                   ],
@@ -233,7 +235,7 @@ class _AnimatedProfileScreenState extends State<ProfileScreen> {
           shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(0)),
           elevation: 2,
           child: Container(
-            height: _minAppBarHeight,
+            height: _minAppBarHeight + MediaQuery.of(context).padding.top,
             padding: EdgeInsets.only(
               left: 16,
               right: 16,
@@ -428,7 +430,7 @@ class _AnimatedProfileScreenState extends State<ProfileScreen> {
       child: Card(
         color: AppColors.containerColor,
         elevation: 0,
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
         shape: SmoothRectangleBorder(
           smoothness: 1,
           borderRadius: BorderRadius.circular(10),
