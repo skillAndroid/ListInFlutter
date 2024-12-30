@@ -1,7 +1,7 @@
+import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
-import 'package:dio/dio.dart';
 import 'package:list_in/core/network/network_info.dart';
 import 'package:list_in/core/network/network_info_impl.dart';
 import 'package:list_in/core/router/go_router.dart';
@@ -29,16 +29,16 @@ import 'package:list_in/features/post/data/models/category_model.dart';
 import 'package:list_in/features/post/data/models/child_category_model.dart';
 import 'package:list_in/features/post/data/models/sub_model.dart';
 import 'package:list_in/features/post/data/repository/post_repository_impl.dart';
-import 'package:list_in/features/post/data/sources/post_remote_data_source.dart';
 import 'package:list_in/features/post/data/sources/post_local_data_source.dart';
+import 'package:list_in/features/post/data/sources/post_remote_data_source.dart';
 import 'package:list_in/features/post/domain/repository/post_repository.dart';
 import 'package:list_in/features/post/domain/usecases/create_post_usecase.dart';
 import 'package:list_in/features/post/domain/usecases/get_catalogs_usecase.dart';
 import 'package:list_in/features/post/domain/usecases/upload_images_usecase.dart';
 import 'package:list_in/features/post/domain/usecases/upload_video_usecase.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart' as path_provider;
+import 'package:shared_preferences/shared_preferences.dart';
 
 final sl = GetIt.instance;
 
@@ -99,7 +99,7 @@ Future<void> init() async {
   sl.registerLazySingleton(
     () {
       final dio = Dio();
-      dio.options.baseUrl = 'https://7026-185-213-230-66.ngrok-free.app';
+      dio.options.baseUrl = 'https://faa4-185-213-229-38.ngrok-free.app';
       dio.options.connectTimeout = const Duration(seconds: 5);
       dio.options.receiveTimeout = const Duration(seconds: 3);
       return dio;

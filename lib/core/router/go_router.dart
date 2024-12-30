@@ -14,7 +14,7 @@ import 'package:list_in/features/explore/presentation/pages/detailed_page.dart';
 import 'package:list_in/features/explore/presentation/pages/initial_page.dart';
 import 'package:list_in/features/post/presentation/pages/post_screen.dart';
 import 'package:list_in/features/profile/presentation/profile_page.dart';
-import 'package:list_in/features/undefined_screens_yet/details.dart';
+import 'package:list_in/features/details/presentation/pages/details.dart';
 import 'package:list_in/features/undefined_screens_yet/wrapper_screen.dart';
 import 'package:list_in/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';

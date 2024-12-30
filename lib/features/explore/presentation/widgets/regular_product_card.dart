@@ -7,7 +7,7 @@ import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
-import 'package:list_in/features/undefined_screens_yet/details.dart';
+import 'package:list_in/features/details/presentation/pages/details.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class RegularProductCard extends StatelessWidget {
