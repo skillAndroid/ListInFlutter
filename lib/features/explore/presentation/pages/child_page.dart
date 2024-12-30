@@ -2,17 +2,13 @@
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ionicons/ionicons.dart';
-import 'package:smooth_corner_updated/smooth_corner.dart';
-import 'package:visibility_detector/visibility_detector.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
-import 'package:list_in/core/router/go_router.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/domain/enties/advertised_product_entity.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
@@ -21,8 +17,9 @@ import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/explore/presentation/widgets/recomendation_widget.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/top_app_recomendation.dart';
-import 'package:list_in/features/post/data/models/category_model.dart';
 import 'package:list_in/features/undefined_screens_yet/video_player.dart';
+import 'package:smooth_corner_updated/smooth_corner.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 class ChildHomeTreePage extends StatefulWidget {
   final List<AdvertisedProductEntity> advertisedProducts;

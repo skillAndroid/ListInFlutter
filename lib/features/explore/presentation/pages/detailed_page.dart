@@ -101,7 +101,6 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
     return BlocBuilder<HomeTreeCubit, HomeTreeState>(
       builder: (context, state) {
         final attributes = state.allAttributes;
-
         return Scaffold(
           appBar: _buildAppBar(),
           body: CustomScrollView(
@@ -653,11 +652,9 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
 
   void _showSelectionBottomSheet(
       BuildContext context, AttributeModel attribute) {
-    // Temporary selections map for multi-select
     Map<String, dynamic> temporarySelections = {};
     final cubit = context.read<HomeTreeCubit>();
 
-    // Initialize temporary selections with current selections
     if (attribute.widgetType == 'multiSelectable') {
       final currentSelections = cubit.getSelectedValues(attribute);
       temporarySelections[attribute.attributeKey] =
@@ -667,147 +664,104 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
     showModalBottomSheet(
       context: context,
       useRootNavigator: true,
-      backgroundColor: AppColors.bgColor,
+      backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-      ),
       builder: (context) {
         final scrollController = ScrollController();
 
         return StatefulBuilder(
           builder: (context, setState) {
             return Container(
-              constraints: BoxConstraints(
-                maxHeight: MediaQuery.of(context).size.height * 0.8,
+              decoration: const BoxDecoration(
+                color: AppColors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Container(
-                    color: AppColors.white,
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 16, 12, 12),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  attribute.helperText,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.black,
-                                  ),
-                                ),
-                              ),
-                              if (attribute.widgetType == 'multiSelectable' ||
-                                  cubit.getSelectedAttributeValue(attribute) !=
-                                      null)
-                                TextButton(
-                                  onPressed: () {
-                                    if (attribute.widgetType ==
-                                        'multiSelectable') {
-                                      setState(() {
-                                        temporarySelections[
-                                                attribute.attributeKey] =
-                                            <AttributeValueModel>[];
-                                      });
-                                    } else {
-                                      cubit.clearSelectedAttribute(attribute);
-                                      Navigator.pop(context);
-                                    }
-                                  },
-                                  child: const Text(
-                                    'Clear',
-                                    style: TextStyle(
-                                      color: AppColors.black,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ),
-                              IconButton(
-                                icon: const Icon(Icons.close, size: 20),
-                                padding: const EdgeInsets.all(8),
-                                constraints: const BoxConstraints(
-                                  minHeight: 32,
-                                  minWidth: 32,
-                                ),
-                                onPressed: () => Navigator.pop(context),
-                              ),
-                            ],
-                          ),
+              child: DraggableScrollableSheet(
+                initialChildSize: 0.6,
+                minChildSize: 0.4,
+                maxChildSize: 0.85,
+                expand: false,
+                builder: (context, scrollController) {
+                  return Column(
+                    children: [
+                      // Handle bar
+                      Container(
+                        margin: const EdgeInsets.only(top: 8),
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: AppColors.lightGray,
+                          borderRadius: BorderRadius.circular(2),
                         ),
-                        const Divider(height: 1),
-                      ],
-                    ),
-                  ),
-                  Flexible(
-                    child: Container(
-                      color: AppColors.white,
-                      child: attribute.widgetType == 'multiSelectable'
-                          ? _buildMultiSelectList(
-                              context,
-                              attribute,
-                              scrollController,
-                              temporarySelections,
-                              setState,
-                            )
-                          : _buildSingleSelectList(
-                              context,
-                              attribute,
-                              scrollController,
-                            ),
-                    ),
-                  ),
-                  if (attribute.widgetType == 'multiSelectable')
-                    Container(
-                      color: AppColors.white,
-                      padding: const EdgeInsets.all(16),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: () {
-                                final selections =
-                                    temporarySelections[attribute.attributeKey]
-                                        as List<AttributeValueModel>;
-                                if (selections.isEmpty) {
-                                  cubit.clearSelectedAttribute(attribute);
-                                } else {
-                                  for (var value in selections) {
-                                    cubit.selectAttributeValue(
-                                        attribute, value);
-                                  }
-                                  cubit.confirmMultiSelection(attribute);
-                                }
-                                Navigator.pop(context);
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.black,
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 12),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                              child: const Text(
-                                'Apply',
-                                style: TextStyle(
-                                  color: AppColors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
                       ),
-                    ),
-                ],
+                      // Header
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                attribute.helperText,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.black,
+                                ),
+                              ),
+                            ),
+                            if (attribute.widgetType == 'multiSelectable' ||
+                                cubit.getSelectedAttributeValue(attribute) !=
+                                    null)
+                              TextButton(
+                                onPressed: () {
+                                  if (attribute.widgetType ==
+                                      'multiSelectable') {
+                                    setState(() {
+                                      temporarySelections[
+                                              attribute.attributeKey] =
+                                          <AttributeValueModel>[];
+                                    });
+                                  } else {
+                                    cubit.clearSelectedAttribute(attribute);
+                                    Navigator.pop(context);
+                                  }
+                                },
+                                style: TextButton.styleFrom(
+                                  foregroundColor: AppColors.primary,
+                                ),
+                                child: const Text(
+                                  'Clear all',
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                              ),
+                            IconButton(
+                              icon: const Icon(Icons.close),
+                              onPressed: () => Navigator.pop(context),
+                              color: AppColors.darkGray,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Divider(height: 1),
+                      Expanded(
+                        child: attribute.widgetType == 'multiSelectable'
+                            ? _buildMultiSelectList(
+                                context,
+                                attribute,
+                                scrollController,
+                                temporarySelections,
+                                setState,
+                              )
+                            : _buildSingleSelectList(
+                                context,
+                                attribute,
+                                scrollController,
+                              ),
+                      ),
+                    ],
+                  );
+                },
               ),
             );
           },
@@ -828,7 +782,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
         Expanded(
           child: ListView.builder(
             controller: scrollController,
-            padding: EdgeInsets.zero,
+            padding: const EdgeInsets.symmetric(vertical: 8),
             itemCount: attribute.values.length,
             itemBuilder: (context, index) {
               final value = attribute.values[index];
@@ -836,67 +790,63 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                   as List<AttributeValueModel>;
               final isSelected = selections.contains(value);
 
-              return InkWell(
-                onTap: () {
-                  setState(() {
-                    if (isSelected) {
-                      selections.remove(value);
-                    } else {
-                      selections.add(value);
-                    }
-                  });
-                },
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: AppColors.white,
-                    border: Border(
-                      bottom: BorderSide(
-                        color: AppColors.lightGray.withOpacity(0.3),
-                        width: 1,
-                      ),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          value.value,
-                          style: TextStyle(
-                            fontSize: 14,
+              return Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    setState(() {
+                      if (isSelected) {
+                        selections.remove(value);
+                      } else {
+                        selections.add(value);
+                      }
+                    });
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 12),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            value.value,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: isSelected
+                                  ? AppColors.primary
+                                  : AppColors.black,
+                              fontWeight: isSelected
+                                  ? FontWeight.w500
+                                  : FontWeight.normal,
+                            ),
+                          ),
+                        ),
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(
+                              color: isSelected
+                                  ? AppColors.primary
+                                  : AppColors.lightGray,
+                              width: 2,
+                            ),
                             color: isSelected
-                                ? AppColors.black
-                                : AppColors.darkGray,
-                            fontWeight: isSelected
-                                ? FontWeight.w500
-                                : FontWeight.normal,
+                                ? AppColors.primary
+                                : AppColors.white,
                           ),
+                          child: isSelected
+                              ? const Icon(
+                                  Icons.check,
+                                  size: 16,
+                                  color: AppColors.white,
+                                )
+                              : null,
                         ),
-                      ),
-                      Container(
-                        width: 20,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4),
-                          border: Border.all(
-                            color:
-                                isSelected ? AppColors.black : AppColors.grey,
-                            width: 1.5,
-                          ),
-                          color: isSelected
-                              ? AppColors.black
-                              : AppColors.transparent,
-                        ),
-                        child: isSelected
-                            ? const Icon(
-                                Icons.check,
-                                size: 14,
-                                color: AppColors.white,
-                              )
-                            : null,
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               );
@@ -904,61 +854,55 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
           ),
         ),
         Container(
-          color: AppColors.white,
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Divider(height: 1),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        final cubit = context.read<HomeTreeCubit>();
-                        final selections =
-                            temporarySelections[attribute.attributeKey]
-                                as List<AttributeValueModel>;
-
-                        if (selections.isEmpty) {
-                          cubit.clearSelectedAttribute(attribute);
-                        } else {
-                          // Clear previous selections first
-                          cubit.clearSelectedAttribute(attribute);
-
-                          // Add new selections
-                          for (var value in selections) {
-                            cubit.selectAttributeValue(attribute, value);
-                          }
-
-                          // Confirm and handle dynamic attributes
-                          cubit.confirmMultiSelection(attribute);
-                        }
-
-                        Navigator.pop(context);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.black,
-                        foregroundColor: AppColors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: Text(
-                        'Apply ${(temporarySelections[attribute.attributeKey] as List).length} selected',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+          padding: EdgeInsets.only(
+            left: 20,
+            right: 20,
+            bottom: MediaQuery.of(context).padding.bottom + 16,
+            top: 16,
+          ),
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, -5),
               ),
             ],
+          ),
+          child: ElevatedButton(
+            onPressed: () {
+              final cubit = context.read<HomeTreeCubit>();
+              final selections = temporarySelections[attribute.attributeKey]
+                  as List<AttributeValueModel>;
+
+              if (selections.isEmpty) {
+                cubit.clearSelectedAttribute(attribute);
+              } else {
+                cubit.clearSelectedAttribute(attribute);
+                for (var value in selections) {
+                  cubit.selectAttributeValue(attribute, value);
+                }
+                cubit.confirmMultiSelection(attribute);
+              }
+              Navigator.pop(context);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: AppColors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 0,
+            ),
+            child: Text(
+              'Apply (${(temporarySelections[attribute.attributeKey] as List).length} selected)',
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
         ),
       ],
@@ -973,52 +917,48 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
     final cubit = context.read<HomeTreeCubit>();
     return ListView.builder(
       controller: scrollController,
-      padding: EdgeInsets.zero,
+      padding: const EdgeInsets.symmetric(vertical: 8),
       itemCount: attribute.values.length,
       itemBuilder: (context, index) {
         final value = attribute.values[index];
         final selectedValue = cubit.getSelectedAttributeValue(attribute);
         final isSelected =
             selectedValue?.attributeValueId == value.attributeValueId;
-        return InkWell(
-          onTap: () {
-            if (isSelected) {
-              cubit.clearSelectedAttribute(attribute);
-            } else {
-              cubit.selectAttributeValue(attribute, value);
-            }
-            Navigator.pop(context);
-          },
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(
-                  color: AppColors.lightGray.withOpacity(0.3),
-                  width: 1,
-                ),
-              ),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    value.value,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: isSelected ? AppColors.black : AppColors.darkGray,
-                      fontWeight:
-                          isSelected ? FontWeight.w500 : FontWeight.normal,
+
+        return Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () {
+              if (isSelected) {
+                cubit.clearSelectedAttribute(attribute);
+              } else {
+                cubit.selectAttributeValue(attribute, value);
+              }
+              Navigator.pop(context);
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      value.value,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: isSelected ? AppColors.primary : AppColors.black,
+                        fontWeight:
+                            isSelected ? FontWeight.w500 : FontWeight.normal,
+                      ),
                     ),
                   ),
-                ),
-                if (isSelected)
-                  const Icon(
-                    Icons.check,
-                    size: 20,
-                    color: AppColors.black,
-                  ),
-              ],
+                  if (isSelected)
+                    const Icon(
+                      Icons.check,
+                      size: 22,
+                      color: AppColors.primary,
+                    ),
+                ],
+              ),
             ),
           ),
         );
@@ -1026,7 +966,6 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
     );
   }
 
-//
   void _showColorSelectDialog(BuildContext context, AttributeModel attribute) {
     final cubit = context.read<HomeTreeCubit>();
     final currentValue = cubit.getSelectedAttributeValue(attribute);
@@ -1035,54 +974,55 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
       context: context,
       useRootNavigator: true,
       builder: (context) => Dialog(
-        backgroundColor: AppColors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        backgroundColor: Colors.transparent,
         child: Container(
           constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.6,
-            maxWidth: MediaQuery.of(context).size.width * 0.85,
+            maxHeight: MediaQuery.of(context).size.height * 0.8,
+            maxWidth: MediaQuery.of(context).size.width * 0.9,
+          ),
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(20),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 12, 12),
+                padding: const EdgeInsets.fromLTRB(24, 20, 20, 12),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       attribute.helperText,
                       style: const TextStyle(
-                        fontSize: 16,
+                        fontSize: 18,
                         fontWeight: FontWeight.w600,
                         color: AppColors.black,
                       ),
                     ),
-                    if (currentValue != null)
-                      TextButton(
-                        onPressed: () {
-                          cubit.clearSelectedAttribute(attribute);
-                          Navigator.pop(context);
-                        },
-                        child: const Text(
-                          'Clear',
-                          style: TextStyle(
-                            color: AppColors.black,
-                            fontSize: 14,
+                    Row(
+                      children: [
+                        if (currentValue != null)
+                          TextButton(
+                            onPressed: () {
+                              cubit.clearSelectedAttribute(attribute);
+                              Navigator.pop(context);
+                            },
+                            style: TextButton.styleFrom(
+                              foregroundColor: AppColors.primary,
+                            ),
+                            child: const Text(
+                              'Clear',
+                              style: TextStyle(fontSize: 14),
+                            ),
                           ),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => Navigator.pop(context),
+                          color: AppColors.darkGray,
                         ),
-                      ),
-                    IconButton(
-                      icon: const Icon(Icons.close, size: 20),
-                      padding: const EdgeInsets.all(8),
-                      constraints: const BoxConstraints(
-                        minHeight: 32,
-                        minWidth: 32,
-                      ),
-                      onPressed: () => Navigator.pop(context),
+                      ],
                     ),
                   ],
                 ),
@@ -1090,20 +1030,15 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
               const Divider(height: 1),
               Flexible(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
+                  padding: const EdgeInsets.all(20),
                   child: Wrap(
-                    spacing: 12,
-                    runSpacing: 12,
-                    alignment: WrapAlignment.start,
+                    spacing: 16,
+                    runSpacing: 16,
                     children: attribute.values.map((value) {
                       final isSelected =
                           cubit.isValueSelected(attribute, value);
-                      final color = _parseColor(value.value);
 
-                      return InkWell(
+                      return GestureDetector(
                         onTap: () {
                           if (isSelected) {
                             cubit.clearSelectedAttribute(attribute);
@@ -1112,26 +1047,43 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                           }
                           Navigator.pop(context);
                         },
-                        child: Container(
-                          width: 44,
-                          height: 44,
-                          decoration: BoxDecoration(
-                            color: color,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: isSelected
-                                  ? AppColors.black
-                                  : Colors.transparent,
-                              width: 2,
+                        child: Column(
+                          children: [
+                            Container(
+                              width: 50,
+                              height: 50,
+                              decoration: BoxDecoration(
+                                color: AppColors.littleGreen2,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: isSelected
+                                      ? AppColors.primary
+                                      : AppColors.lightGray,
+                                  width: 2,
+                                ),
+                              ),
+                              child: isSelected
+                                  ? const Icon(
+                                      Icons.check,
+                                      color: AppColors.primary,
+                                      size: 24,
+                                    )
+                                  : null,
                             ),
-                          ),
-                          child: isSelected
-                              ? const Icon(
-                                  Icons.check,
-                                  color: AppColors.white,
-                                  size: 20,
-                                )
-                              : null,
+                            const SizedBox(height: 4),
+                            Text(
+                              value.value,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: isSelected
+                                    ? AppColors.primary
+                                    : AppColors.darkGray,
+                                fontWeight: isSelected
+                                    ? FontWeight.w500
+                                    : FontWeight.normal,
+                              ),
+                            ),
+                          ],
                         ),
                       );
                     }).toList(),
@@ -1155,17 +1107,6 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
       case 'multiSelectable':
         _showSelectionBottomSheet(context, attribute);
         break;
-    }
-  }
-
-  Color _parseColor(String colorString) {
-    try {
-      if (colorString.startsWith('#')) {
-        return Color(int.parse('FF${colorString.substring(1)}', radix: 16));
-      }
-      return Colors.grey;
-    } catch (e) {
-      return Colors.grey;
     }
   }
 }

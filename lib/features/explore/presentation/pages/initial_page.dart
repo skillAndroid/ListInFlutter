@@ -105,10 +105,6 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<HomeTreeCubit, HomeTreeState>(
-      buildWhen: (previous, current) =>
-          previous.catalogs != current.catalogs ||
-          previous.isLoading != current.isLoading ||
-          previous.hasError != current.hasError,
       builder: (context, state) {
         if (state.isLoading) {
           return const Scaffold(
