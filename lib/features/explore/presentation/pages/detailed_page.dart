@@ -664,105 +664,102 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
     showModalBottomSheet(
       context: context,
       useRootNavigator: true,
-      backgroundColor: Colors.transparent,
+      shape: SmoothRectangleBorder(
+          smoothness: 1,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(12))),
+      backgroundColor: Colors.white,
       isScrollControlled: true,
       builder: (context) {
-        final scrollController = ScrollController();
-
         return StatefulBuilder(
           builder: (context, setState) {
-            return Container(
-              decoration: const BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-              ),
-              child: DraggableScrollableSheet(
-                initialChildSize: 0.6,
-                minChildSize: 0.4,
-                maxChildSize: 0.85,
-                expand: false,
-                builder: (context, scrollController) {
-                  return Column(
-                    children: [
-                      // Handle bar
-                      Container(
-                        margin: const EdgeInsets.only(top: 8),
-                        width: 40,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: AppColors.lightGray,
-                          borderRadius: BorderRadius.circular(2),
-                        ),
+            return DraggableScrollableSheet(
+              initialChildSize: 0.6,
+              minChildSize: 0.4,
+              maxChildSize: 0.85,
+              expand: false,
+              builder: (context, scrollController) {
+                return Column(
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.only(top: 8),
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: AppColors.lightGray,
+                        borderRadius: BorderRadius.circular(2),
                       ),
-                      // Header
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Text(
-                                attribute.helperText,
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.black,
-                                ),
+                    ),
+                    // Header
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 0, 6, 0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              attribute.helperText,
+                              style: const TextStyle(
+                                fontSize: 17,
+                                color: CupertinoColors.black,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
-                            if (attribute.widgetType == 'multiSelectable' ||
-                                cubit.getSelectedAttributeValue(attribute) !=
-                                    null)
-                              TextButton(
-                                onPressed: () {
-                                  if (attribute.widgetType ==
-                                      'multiSelectable') {
-                                    setState(() {
-                                      temporarySelections[
-                                              attribute.attributeKey] =
-                                          <AttributeValueModel>[];
-                                    });
-                                  } else {
-                                    cubit.clearSelectedAttribute(attribute);
-                                    Navigator.pop(context);
-                                  }
-                                },
-                                style: TextButton.styleFrom(
-                                  foregroundColor: AppColors.primary,
-                                ),
-                                child: const Text(
-                                  'Clear all',
-                                  style: TextStyle(fontSize: 14),
-                                ),
-                              ),
-                            IconButton(
-                              icon: const Icon(Icons.close),
-                              onPressed: () => Navigator.pop(context),
-                              color: AppColors.darkGray,
+                          ),
+                          // if (attribute.widgetType == 'multiSelectable' ||
+                          //     cubit.getSelectedAttributeValue(attribute) !=
+                          //         null)
+                          // TextButton(
+                          //   onPressed: () {
+                          //     if (attribute.widgetType ==
+                          //         'multiSelectable') {
+                          //       setState(() {
+                          //         temporarySelections[
+                          //                 attribute.attributeKey] =
+                          //             <AttributeValueModel>[];
+                          //       });
+                          //     } else {
+                          //       cubit.clearSelectedAttribute(attribute);
+                          //       Navigator.pop(context);
+                          //     }
+                          //   },
+                          //   style: TextButton.styleFrom(
+                          //     foregroundColor: AppColors.primary,
+                          //   ),
+                          //   child: const Text(
+                          //     'Clear all',
+                          //     style: TextStyle(fontSize: 14),
+                          //   ),
+                          // ),
+                          IconButton(
+                            icon: const Icon(Ionicons.close_circle),
+                            onPressed: () => Navigator.pop(context),
+                            color: AppColors.black,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Divider(
+                      height: 1,
+                      color: AppColors.containerColor,
+                    ),
+                    Expanded(
+                      child: attribute.widgetType == 'multiSelectable'
+                          ? _buildMultiSelectList(
+                              context,
+                              attribute,
+                              scrollController,
+                              temporarySelections,
+                              setState,
+                            )
+                          : _buildSingleSelectList(
+                              context,
+                              attribute,
+                              scrollController,
                             ),
-                          ],
-                        ),
-                      ),
-                      const Divider(height: 1),
-                      Expanded(
-                        child: attribute.widgetType == 'multiSelectable'
-                            ? _buildMultiSelectList(
-                                context,
-                                attribute,
-                                scrollController,
-                                temporarySelections,
-                                setState,
-                              )
-                            : _buildSingleSelectList(
-                                context,
-                                attribute,
-                                scrollController,
-                              ),
-                      ),
-                    ],
-                  );
-                },
-              ),
+                    ),
+                  ],
+                );
+              },
             );
           },
         );
@@ -811,12 +808,12 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                           child: Text(
                             value.value,
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: 15,
                               color: isSelected
-                                  ? AppColors.primary
-                                  : AppColors.black,
+                                  ? CupertinoColors.darkBackgroundGray
+                                  : AppColors.darkGray.withOpacity(0.6),
                               fontWeight: isSelected
-                                  ? FontWeight.w500
+                                  ? FontWeight.w600
                                   : FontWeight.normal,
                             ),
                           ),
@@ -826,22 +823,22 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                           width: 24,
                           height: 24,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(6),
+                            borderRadius: BorderRadius.circular(12),
                             border: Border.all(
                               color: isSelected
-                                  ? AppColors.primary
+                                  ? AppColors.littleGreen
                                   : AppColors.lightGray,
                               width: 2,
                             ),
                             color: isSelected
-                                ? AppColors.primary
+                                ? AppColors.littleGreen
                                 : AppColors.white,
                           ),
                           child: isSelected
                               ? const Icon(
                                   Icons.check,
-                                  size: 16,
-                                  color: AppColors.white,
+                                  size: 17,
+                                  color: AppColors.black,
                                 )
                               : null,
                         ),
@@ -853,54 +850,43 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
             },
           ),
         ),
-        Container(
-          padding: EdgeInsets.only(
-            left: 20,
-            right: 20,
-            bottom: MediaQuery.of(context).padding.bottom + 16,
-            top: 16,
-          ),
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.black.withOpacity(0.05),
-                blurRadius: 10,
-                offset: const Offset(0, -5),
-              ),
-            ],
-          ),
-          child: ElevatedButton(
-            onPressed: () {
-              final cubit = context.read<HomeTreeCubit>();
-              final selections = temporarySelections[attribute.attributeKey]
-                  as List<AttributeValueModel>;
+        SizedBox(
+          width: double.infinity,
+          child: Padding(
+            padding:
+                const EdgeInsets.only(left: 16, right: 16, bottom: 32, top: 8),
+            child: ElevatedButton(
+              onPressed: () {
+                final cubit = context.read<HomeTreeCubit>();
+                final selections = temporarySelections[attribute.attributeKey]
+                    as List<AttributeValueModel>;
 
-              if (selections.isEmpty) {
-                cubit.clearSelectedAttribute(attribute);
-              } else {
-                cubit.clearSelectedAttribute(attribute);
-                for (var value in selections) {
-                  cubit.selectAttributeValue(attribute, value);
+                if (selections.isEmpty) {
+                  cubit.clearSelectedAttribute(attribute);
+                } else {
+                  cubit.clearSelectedAttribute(attribute);
+                  for (var value in selections) {
+                    cubit.selectAttributeValue(attribute, value);
+                  }
+                  cubit.confirmMultiSelection(attribute);
                 }
-                cubit.confirmMultiSelection(attribute);
-              }
-              Navigator.pop(context);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: AppColors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                shape: SmoothRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 0,
               ),
-              elevation: 0,
-            ),
-            child: Text(
-              'Apply (${(temporarySelections[attribute.attributeKey] as List).length} selected)',
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
+              child: Text(
+                'Apply (${(temporarySelections[attribute.attributeKey] as List).length})',
+                style: const TextStyle(
+                  fontSize: 17,
+                  fontFamily: "Syne",
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ),
@@ -937,25 +923,27 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
               Navigator.pop(context);
             },
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
               child: Row(
                 children: [
                   Expanded(
                     child: Text(
                       value.value,
                       style: TextStyle(
-                        fontSize: 16,
-                        color: isSelected ? AppColors.primary : AppColors.black,
+                        fontSize: 14,
+                        color: isSelected
+                            ? AppColors.black
+                            : AppColors.darkGray.withOpacity(0.6),
                         fontWeight:
-                            isSelected ? FontWeight.w500 : FontWeight.normal,
+                            isSelected ? FontWeight.w600 : FontWeight.normal,
                       ),
                     ),
                   ),
                   if (isSelected)
                     const Icon(
-                      Icons.check,
+                      Icons.check_circle,
                       size: 22,
-                      color: AppColors.primary,
+                      color: AppColors.secondaryColor,
                     ),
                 ],
               ),
