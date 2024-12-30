@@ -212,12 +212,7 @@ class _SubcategoryCardState extends State<SubcategoryCard>
       child: GestureDetector(
         onTap: () {
           context.read<HomeTreeCubit>().selectChildCategory(widget.category);
-          // If there are more subcategories, navigate deeper
-          if (widget.category.attributes.isNotEmpty) {
-            context.push(Routes.attributes);
-          } else {
-            context.push(Routes.attributes);
-          }
+          context.goNamed(RoutesByName.attributes);
         },
         onTapDown: (_) {
           setState(() => _isPressed = true);

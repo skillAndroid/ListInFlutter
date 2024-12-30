@@ -24,7 +24,11 @@ class AppRouter {
   AppRouter(this.sharedPreferences);
 
   static final _rootNavigatorKey = GlobalKey<NavigatorState>();
-  static final _shellNavigatorKey = GlobalKey<NavigatorState>();
+  static final _shellNavigatorHome =
+      GlobalKey<NavigatorState>(debugLabel: "shellHome");
+
+  static final _shellNavigatorProfile =
+      GlobalKey<NavigatorState>(debugLabel: "shellProfile");
 
   late final router = GoRouter(
     navigatorKey: _rootNavigatorKey,
@@ -43,7 +47,7 @@ class AppRouter {
       if (loggedIn && isAuthRoute) return Routes.home;
       return null;
     },
-    routes: [
+    routes: <RouteBase>[
       // Auth routes
       GoRoute(
         path: Routes.welcome,
@@ -85,43 +89,80 @@ class AppRouter {
           final productDetails = findProductById(productId);
 
           return ProductDetailsScreen(
+            key: state.pageKey,
             productId: productId,
             recommendedProducts: recommendedProducts,
             productDetails: productDetails,
           );
         },
       ),
-      // Main shell route
-      ShellRoute(
-        navigatorKey: _shellNavigatorKey,
-        builder: (context, state, child) => MainWrapper(child: child),
-        routes: [
-          GoRoute(
-            path: Routes.home,
-            builder: (context, state) => KeepAliveWrapper(
-              child: InitialHomeTreePage(
-                regularProducts: sampleProducts,
-                advertisedProducts: sampleVideos,
+
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) =>
+            MainWrapper(navigationShell: navigationShell),
+        branches: [
+          StatefulShellBranch(
+            navigatorKey: _shellNavigatorHome,
+            routes: [
+              GoRoute(
+                path: Routes.home,
+                name: "Home",
+                builder: (context, state) {
+                  return InitialHomeTreePage(
+                    key: state.pageKey,
+                    regularProducts: sampleProducts,
+                    advertisedProducts: sampleVideos,
+                  );
+                },
+                routes: [
+                  GoRoute(
+                    name: RoutesByName.subcategories,
+                    path: Routes.subcategories,
+                    builder: (context, state) => ChildHomeTreePage(
+                      key: state.pageKey,
+                      regularProducts: sampleProducts,
+                      advertisedProducts: sampleVideos,
+                    ),
+                    routes: [
+                      GoRoute(
+                        name: RoutesByName.attributes,
+                        path: Routes.attributes,
+                        builder: (context, state) => DetailedHomeTreePage(
+                          key: state.pageKey,
+                          regularProducts: sampleProducts,
+                          advertisedProducts: sampleVideos,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-            ),
+            ],
           ),
-          GoRoute(
-            path: Routes.subcategories,
-            builder: (context, state) => ChildHomeTreePage(
-              regularProducts: sampleProducts,
-              advertisedProducts: sampleVideos,
-            ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: "/no",
+                builder: (context, state) => const Placeholder(),
+              ),
+            ],
           ),
-          GoRoute(
-            path: Routes.attributes,
-            builder: (context, state) => DetailedHomeTreePage(
-              regularProducts: sampleProducts,
-              advertisedProducts: sampleVideos,
-            ),
-          ),
-          GoRoute(
-            path: Routes.events,
-            builder: (context, state) => ProfileScreen(),
+          StatefulShellBranch(
+            navigatorKey: _shellNavigatorProfile,
+            routes: [
+              GoRoute(
+                path: Routes.profile,
+                name: "Profile",
+                builder: (context, state) {
+                  return ProfileScreen(
+                    key: state.pageKey,
+                  );
+                },
+                routes: [
+                  // here should be profile datas : ))
+                ],
+              ),
+            ],
           ),
         ],
       ),

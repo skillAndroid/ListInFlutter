@@ -227,7 +227,7 @@ class _InitialHomeTreePageState extends State<ChildHomeTreePage> {
         onSelected: (selected) {
           context.read<HomeTreeCubit>().selectChildCategory(
               state.selectedCatalog!.childCategories[index]);
-          context.push(Routes.attributes);
+          context.goNamed(RoutesByName.attributes);
         },
         side: BorderSide(width: 1, color: AppColors.lightGray),
       ),
@@ -253,6 +253,15 @@ class _InitialHomeTreePageState extends State<ChildHomeTreePage> {
               padding: const EdgeInsets.only(left: 16, right: 8),
               child: Row(
                 children: [
+                  Transform.translate(
+                    offset: Offset(-10, 0),
+                    child: IconButton(
+                        onPressed: () => context.pop(),
+                        icon: Icon(
+                          Icons.arrow_back_rounded,
+                          color: AppColors.black,
+                        )),
+                  ),
                   Expanded(
                     child: SmoothClipRRect(
                       smoothness: 1,
@@ -309,44 +318,6 @@ class _InitialHomeTreePageState extends State<ChildHomeTreePage> {
                           ],
                         ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  Transform.translate(
-                    offset: Offset(0, 3),
-                    child: Stack(
-                      children: [
-                        IconButton(
-                          icon: Image.asset(
-                            AppIcons.chatIc,
-                            width: 46,
-                            height: 46,
-                            color: AppColors.black,
-                          ),
-                          onPressed: () {},
-                        ),
-                        Positioned(
-                          right: 8,
-                          bottom: 12,
-                          child: Container(
-                            width: 18,
-                            height: 18,
-                            decoration: BoxDecoration(
-                              color: AppColors.error,
-                              borderRadius: BorderRadius.circular(32),
-                            ),
-                            child: Center(
-                              child: const Text(
-                                "2",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
                     ),
                   ),
                 ],

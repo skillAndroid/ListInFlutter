@@ -224,7 +224,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
         ),
         onSelected: (selected) {
           context.read<HomeTreeCubit>().selectCatalog(state.catalogs![index]);
-          context.push(Routes.subcategories);
+          context.goNamed(RoutesByName.subcategories);
         },
         side: BorderSide(width: 1, color: AppColors.lightGray),
       ),

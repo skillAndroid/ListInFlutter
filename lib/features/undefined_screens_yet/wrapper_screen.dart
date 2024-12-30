@@ -5,10 +5,10 @@ import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
 
 class MainWrapper extends StatefulWidget {
-  final Widget child;
+  final StatefulNavigationShell navigationShell;
   const MainWrapper({
     super.key,
-    required this.child,
+    required this.navigationShell,
   });
 
   @override
@@ -16,24 +16,18 @@ class MainWrapper extends StatefulWidget {
 }
 
 class _MainWrapperState extends State<MainWrapper> {
-  int _calculateSelectedIndex(BuildContext context) {
-    final String location = GoRouterState.of(context).matchedLocation;
-    if (location.startsWith(Routes.home)) return 0;
-    if (location.startsWith(Routes.events)) return 2;
-    return 0;
-  }
-
-  void _onItemTapped(BuildContext context, int index) {
-    switch (index) {
-      case 0:
-        context.go(Routes.home);
-        break;
-      case 1:
+  void _goToBranch(int index) {
+    if (index == 1) {
+      // Check if we're in home or events section
+      if (widget.navigationShell.currentIndex == 0 ||
+          widget.navigationShell.currentIndex == 2) {
         context.push(Routes.post);
-        break;
-      case 2:
-        context.go(Routes.events);
-        break;
+      }
+    } else {
+      widget.navigationShell.goBranch(
+        index,
+        initialLocation: index == widget.navigationShell.currentIndex,
+      );
     }
   }
 
@@ -44,7 +38,7 @@ class _MainWrapperState extends State<MainWrapper> {
 
     return Scaffold(
       extendBody: false,
-      body: widget.child,
+      body: widget.navigationShell,
       bottomNavigationBar: showBottomNav
           ? Container(
               decoration: BoxDecoration(
@@ -61,8 +55,7 @@ class _MainWrapperState extends State<MainWrapper> {
                 backgroundColor: AppColors.white,
                 selectedItemColor: AppColors.primary,
                 unselectedItemColor: CupertinoColors.inactiveGray,
-                currentIndex: _calculateSelectedIndex(context),
-                onTap: (index) => _onItemTapped(context, index),
+                onTap: (index) => _goToBranch(index),
                 type: BottomNavigationBarType.fixed,
                 showSelectedLabels: true,
                 showUnselectedLabels: true,
@@ -89,5 +82,3 @@ class _MainWrapperState extends State<MainWrapper> {
     );
   }
 }
-
-
