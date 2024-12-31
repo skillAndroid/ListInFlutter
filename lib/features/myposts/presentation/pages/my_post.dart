@@ -21,14 +21,14 @@ class MyPosts extends StatelessWidget {
         elevation: 8,
         shadowColor: AppColors.black.withOpacity(0.1),
         surfaceTintColor: AppColors.white,
-        leading: IconButton(
-          onPressed: () {
-            context.pop();
-          },
-          icon: Icon(Icons.arrow_back_ios_new_rounded),
-        ),
         title: Row(
           children: [
+            IconButton(
+              onPressed: () {
+                context.pop();
+              },
+              icon: Icon(Icons.arrow_back_ios_new_rounded),
+            ),
             SmoothClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: Container(
@@ -160,7 +160,8 @@ class MyPosts extends StatelessWidget {
   Widget _buildProductCard() {
     return Card(
       color: AppColors.white,
-      elevation: 2,
+      elevation: 3,
+      shadowColor: Colors.black.withOpacity(0.075),
       shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
