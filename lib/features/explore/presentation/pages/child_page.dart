@@ -16,7 +16,7 @@ import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/explore/presentation/widgets/recomendation_widget.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
-import 'package:list_in/features/explore/presentation/widgets/top_app_recomendation.dart';
+import 'package:list_in/features/explore/presentation/widgets/top_app_bar_recomendation_sub.dart';
 import 'package:list_in/features/undefined_screens_yet/video_player.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -671,7 +671,7 @@ class _InitialHomeTreePageState extends State<ChildHomeTreePage> {
         color: Colors.orange,
       ),
     ];
-    return TopAppRecomendation2(
+    return TopAppRecomendationSubCategory(
       recommendations: recommendations,
     );
   }

@@ -693,7 +693,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
         color: Colors.orange,
       ),
     ];
-    return TopAppRecomendation(
+    return TopAppRecomendationCategory(
       recommendations: recommendations,
     );
   }

@@ -753,7 +753,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                       ),
                     ),
                     // New toolbar with centered title
-                    Container(
+                    SizedBox(
                       height: 48,
                       child: Stack(
                         alignment: Alignment.center,
