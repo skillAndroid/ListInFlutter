@@ -13,6 +13,8 @@ class Routes {
   static const subcategories = '/subcategories';
   static const attributes = '/details';
   static const productDetails = '/product/:id';
+
+  static const myPosts = '/my_posts';
 }
 
 class RoutesByName {
@@ -29,4 +31,6 @@ class RoutesByName {
   static const subcategories = 'subcategories';
   static const attributes = 'details';
   static const productDetails = 'product/:id';
+
+  static const myPosts = 'my_posts';
 }

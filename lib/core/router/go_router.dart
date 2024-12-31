@@ -13,6 +13,7 @@ import 'package:list_in/features/explore/presentation/pages/child_page.dart';
 import 'package:list_in/features/explore/presentation/pages/detailed_page.dart';
 import 'package:list_in/features/explore/presentation/pages/initial_page.dart';
 import 'package:list_in/features/post/presentation/pages/post_screen.dart';
+import 'package:list_in/features/myposts/presentation/pages/my_post.dart';
 import 'package:list_in/features/profile/presentation/profile_page.dart';
 import 'package:list_in/features/details/presentation/pages/details.dart';
 import 'package:list_in/features/undefined_screens_yet/wrapper_screen.dart';
@@ -159,7 +160,14 @@ class AppRouter {
                   );
                 },
                 routes: [
-                  // here should be profile datas : ))
+                  GoRoute(
+                    name: RoutesByName.myPosts,
+                    path: Routes.myPosts,
+                    builder: (context, state) => MyPosts(
+                      key: state.pageKey,
+                    ),
+                    routes: [],
+                  ),
                 ],
               ),
             ],

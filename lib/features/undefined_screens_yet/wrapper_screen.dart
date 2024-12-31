@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -10,20 +12,25 @@ class MainWrapper extends StatefulWidget {
     super.key,
     required this.navigationShell,
   });
-
   @override
   State<MainWrapper> createState() => _MainWrapperState();
 }
 
 class _MainWrapperState extends State<MainWrapper> {
+  int _selectedIndex = 0; // Track selected index separately
+
   void _goToBranch(int index) {
     if (index == 1) {
-      // Check if we're in home or events section
+      // For Add Post tab, don't update selection but push the route
       if (widget.navigationShell.currentIndex == 0 ||
           widget.navigationShell.currentIndex == 2) {
         context.push(Routes.post);
       }
     } else {
+      // Update selected index and navigate
+      setState(() {
+        _selectedIndex = index;
+      });
       widget.navigationShell.goBranch(
         index,
         initialLocation: index == widget.navigationShell.currentIndex,
@@ -36,6 +43,18 @@ class _MainWrapperState extends State<MainWrapper> {
     final String location = GoRouterState.of(context).matchedLocation;
     final bool showBottomNav = !location.startsWith(Routes.post);
 
+    // Update selected index based on navigation shell when component mounts
+    // or when the navigation shell's index changes
+    if (_selectedIndex != widget.navigationShell.currentIndex &&
+        widget.navigationShell.currentIndex != 1) {
+      // Ignore Add Post tab
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() {
+          _selectedIndex = widget.navigationShell.currentIndex;
+        });
+      });
+    }
+
     return Scaffold(
       extendBody: false,
       body: widget.navigationShell,
@@ -44,17 +63,16 @@ class _MainWrapperState extends State<MainWrapper> {
               decoration: BoxDecoration(
                 border: Border(
                   top: BorderSide(
-                    // ignore: deprecated_member_use
                     color: Colors.grey.withOpacity(0.3),
                     width: 0.5,
                   ),
                 ),
               ),
               child: BottomNavigationBar(
-                // ignore: deprecated_member_use
                 backgroundColor: AppColors.white,
                 selectedItemColor: AppColors.primary,
                 unselectedItemColor: CupertinoColors.inactiveGray,
+                currentIndex: _selectedIndex, // Use our tracked index
                 onTap: (index) => _goToBranch(index),
                 type: BottomNavigationBarType.fixed,
                 showSelectedLabels: true,

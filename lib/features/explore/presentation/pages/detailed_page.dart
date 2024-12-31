@@ -303,84 +303,88 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
         systemOverlayStyle: const SystemUiOverlayStyle(
           statusBarIconBrightness: Brightness.dark,
         ),
-        flexibleSpace: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 16, right: 8),
-              child: Row(
-                children: [
-                  Transform.translate(
-                    offset: Offset(-10, 0),
-                    child: IconButton(
+        flexibleSpace: Padding(
+          padding: const EdgeInsets.only(bottom: 4),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 16, right: 8),
+                child: Row(
+                  children: [
+                    Transform.translate(
+                      offset: Offset(-10, 0),
+                      child: IconButton(
                         onPressed: () => context.pop(),
                         icon: Icon(
                           Icons.arrow_back_rounded,
                           color: AppColors.black,
-                        )),
-                  ),
-                  Expanded(
-                    child: SmoothClipRRect(
-                      smoothness: 1,
-                      borderRadius: BorderRadius.circular(10),
-                      child: Container(
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: AppColors.containerColor,
-                        ),
-                        child: Row(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(12),
-                              child: Image.asset(
-                                AppIcons.searchIcon,
-                                width: 24,
-                                height: 24,
-                                color: AppColors.grey,
-                              ),
-                            ),
-                            Expanded(
-                              child: TextField(
-                                controller: _searchController,
-                                cursorRadius: Radius.circular(2),
-                                decoration: const InputDecoration(
-                                  hintStyle:
-                                      TextStyle(color: AppColors.darkGray),
-                                  contentPadding: EdgeInsets.zero,
-                                  hintText: "Search...",
-                                  border: InputBorder.none,
-                                ),
-                              ),
-                            ),
-                            const VerticalDivider(
-                              color: AppColors.lightGray,
-                              width: 1,
-                              indent: 12,
-                              endIndent: 12,
-                            ),
-                            SizedBox(
-                              width: 2,
-                            ),
-                            IconButton(
-                              icon: Image.asset(
-                                AppIcons.filterIc,
-                                width: 24,
-                                height: 24,
-                              ),
-                              onPressed: () {},
-                            ),
-                            SizedBox(
-                              width: 2,
-                            ),
-                          ],
                         ),
                       ),
                     ),
-                  ),
-                ],
+                    Expanded(
+                      child: SmoothClipRRect(
+                        smoothness: 1,
+                        borderRadius: BorderRadius.circular(10),
+                        child: Container(
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: AppColors.containerColor,
+                          ),
+                          child: Row(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(12),
+                                child: Image.asset(
+                                  AppIcons.searchIcon,
+                                  width: 24,
+                                  height: 24,
+                                  color: AppColors.grey,
+                                ),
+                              ),
+                              Expanded(
+                                child: TextField(
+                                  controller: _searchController,
+                                  cursorRadius: Radius.circular(2),
+                                  decoration: const InputDecoration(
+                                    hintStyle:
+                                        TextStyle(color: AppColors.darkGray),
+                                    contentPadding: EdgeInsets.zero,
+                                    hintText: "Search...",
+                                    border: InputBorder.none,
+                                  ),
+                                ),
+                              ),
+                              const VerticalDivider(
+                                color: AppColors.lightGray,
+                                width: 1,
+                                indent: 12,
+                                endIndent: 12,
+                              ),
+                              SizedBox(
+                                width: 2,
+                              ),
+                              IconButton(
+                                icon: Image.asset(
+                                  AppIcons.filterIc,
+                                  width: 24,
+                                  height: 24,
+                                ),
+                                onPressed: () {},
+                              ),
+                              SizedBox(
+                                width: 2,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -712,8 +716,9 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
       context: context,
       useRootNavigator: true,
       shape: SmoothRectangleBorder(
-          smoothness: 1,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(12))),
+        smoothness: 1,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+      ),
       backgroundColor: Colors.white,
       isScrollControlled: true,
       builder: (context) {
@@ -737,6 +742,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
               builder: (context, scrollController) {
                 return Column(
                   children: [
+                    // Drag handle
                     Container(
                       margin: const EdgeInsets.only(top: 8),
                       width: 40,
@@ -746,51 +752,79 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
-                    // Header
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 0, 6, 0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    // New toolbar with centered title
+                    Container(
+                      height: 48,
+                      child: Stack(
+                        alignment: Alignment.center,
                         children: [
-                          Expanded(
-                            child: Text(
-                              attribute.helperText,
-                              style: const TextStyle(
-                                fontSize: 17,
-                                color: CupertinoColors.black,
-                                fontWeight: FontWeight.w600,
+                          // Centered title
+                          Positioned.fill(
+                            child: Center(
+                              child: Text(
+                                attribute.helperText,
+                                style: const TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w600,
+                                  color: CupertinoColors.black,
+                                ),
+                                textAlign: TextAlign.center,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ),
-                          // if (attribute.widgetType == 'multiSelectable' ||
-                          //     cubit.getSelectedAttributeValue(attribute) !=
-                          //         null)
-                          // TextButton(
-                          //   onPressed: () {
-                          //     if (attribute.widgetType ==
-                          //         'multiSelectable') {
-                          //       setState(() {
-                          //         temporarySelections[
-                          //                 attribute.attributeKey] =
-                          //             <AttributeValueModel>[];
-                          //       });
-                          //     } else {
-                          //       cubit.clearSelectedAttribute(attribute);
-                          //       Navigator.pop(context);
-                          //     }
-                          //   },
-                          //   style: TextButton.styleFrom(
-                          //     foregroundColor: AppColors.primary,
-                          //   ),
-                          //   child: const Text(
-                          //     'Clear all',
-                          //     style: TextStyle(fontSize: 14),
-                          //   ),
-                          // ),
-                          IconButton(
-                            icon: const Icon(Ionicons.close_circle),
-                            onPressed: () => Navigator.pop(context),
-                            color: AppColors.black,
+                          // Left and right buttons
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Ionicons.close_circle),
+                                  onPressed: () => Navigator.pop(context),
+                                  color: AppColors.black,
+                                ),
+                                if (attribute.widgetType == 'multiSelectable' &&
+                                    cubit.getSelectedAttributeValue(
+                                            attribute) !=
+                                        null)
+                                  TextButton(
+                                    onPressed: () {
+                                      cubit.clearAllSelectedAttributes();
+                                      Navigator.pop(context);
+                                    },
+                                    style: TextButton.styleFrom(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 3),
+                                      foregroundColor: AppColors.black,
+                                    ),
+                                    child: const Text(
+                                      'Clear all',
+                                      style: TextStyle(fontSize: 13),
+                                    ),
+                                  )
+                                else if (cubit
+                                        .getSelectedAttributeValue(attribute) !=
+                                    null)
+                                  TextButton(
+                                    onPressed: () {
+                                      cubit.clearSelectedAttribute(attribute);
+                                      Navigator.pop(context);
+                                    },
+                                    style: TextButton.styleFrom(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 3),
+                                      foregroundColor: AppColors.black,
+                                    ),
+                                    child: const Text(
+                                      'Clear',
+                                      style: TextStyle(fontSize: 13),
+                                    ),
+                                  )
+                                else
+                                  const SizedBox(width: 48),
+                              ],
+                            ),
                           ),
                         ],
                       ),
@@ -1014,7 +1048,6 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
   void _showColorSelectDialog(BuildContext context, AttributeModel attribute) {
     final cubit = context.read<HomeTreeCubit>();
 
-    // Color mapping for common colors
     final Map<String, Color> colorMap = {
       'Silver': Colors.grey[300]!,
       'Pink': Colors.pink,
@@ -1059,6 +1092,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
               builder: (context, scrollController) {
                 return Column(
                   children: [
+                    // Drag handle
                     Container(
                       margin: const EdgeInsets.only(top: 8),
                       width: 40,
@@ -1068,25 +1102,60 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 0, 6, 0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    // Updated toolbar with same style as selection sheet
+                    SizedBox(
+                      height: 48,
+                      child: Stack(
+                        alignment: Alignment.center,
                         children: [
-                          Expanded(
-                            child: Text(
-                              attribute.helperText,
-                              style: const TextStyle(
-                                fontSize: 17,
-                                color: CupertinoColors.black,
-                                fontWeight: FontWeight.w600,
+                          // Centered title
+                          Positioned.fill(
+                            child: Center(
+                              child: Text(
+                                attribute.helperText,
+                                style: const TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w600,
+                                  color: CupertinoColors.black,
+                                ),
+                                textAlign: TextAlign.center,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ),
-                          IconButton(
-                            icon: const Icon(Ionicons.close_circle),
-                            onPressed: () => Navigator.pop(context),
-                            color: AppColors.black,
+                          // Left and right buttons
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Ionicons.close_circle),
+                                  onPressed: () => Navigator.pop(context),
+                                  color: AppColors.black,
+                                ),
+                                if (cubit
+                                        .getSelectedAttributeValue(attribute) !=
+                                    null)
+                                  TextButton(
+                                    onPressed: () {
+                                      cubit.clearSelectedAttribute(attribute);
+                                      Navigator.pop(context);
+                                    },
+                                    style: TextButton.styleFrom(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 3),
+                                      foregroundColor: AppColors.black,
+                                    ),
+                                    child: const Text(
+                                      'Clear',
+                                      style: TextStyle(fontSize: 13),
+                                    ),
+                                  )
+                                else
+                                  const SizedBox(width: 48),
+                              ],
+                            ),
                           ),
                         ],
                       ),

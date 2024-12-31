@@ -246,84 +246,87 @@ class _InitialHomeTreePageState extends State<ChildHomeTreePage> {
           statusBarIconBrightness: Brightness.dark,
         ),
         automaticallyImplyLeading: false,
-        flexibleSpace: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 16, right: 8),
-              child: Row(
-                children: [
-                  Transform.translate(
-                    offset: Offset(-10, 0),
-                    child: IconButton(
-                        onPressed: () => context.pop(),
-                        icon: Icon(
-                          Icons.arrow_back_rounded,
-                          color: AppColors.black,
-                        )),
-                  ),
-                  Expanded(
-                    child: SmoothClipRRect(
-                      smoothness: 1,
-                      borderRadius: BorderRadius.circular(10),
-                      child: Container(
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: AppColors.containerColor,
-                        ),
-                        child: Row(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(12),
-                              child: Image.asset(
-                                AppIcons.searchIcon,
-                                width: 24,
-                                height: 24,
-                                color: AppColors.grey,
-                              ),
-                            ),
-                            Expanded(
-                              child: TextField(
-                                controller: _searchController,
-                                cursorRadius: Radius.circular(2),
-                                decoration: const InputDecoration(
-                                  hintStyle:
-                                      TextStyle(color: AppColors.darkGray),
-                                  contentPadding: EdgeInsets.zero,
-                                  hintText: "Search...",
-                                  border: InputBorder.none,
+        flexibleSpace: Padding(
+          padding: const EdgeInsets.only(bottom: 4),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 16, right: 8),
+                child: Row(
+                  children: [
+                    Transform.translate(
+                      offset: Offset(-10, 0),
+                      child: IconButton(
+                          onPressed: () => context.pop(),
+                          icon: Icon(
+                            Icons.arrow_back_rounded,
+                            color: AppColors.black,
+                          )),
+                    ),
+                    Expanded(
+                      child: SmoothClipRRect(
+                        smoothness: 1,
+                        borderRadius: BorderRadius.circular(10),
+                        child: Container(
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: AppColors.containerColor,
+                          ),
+                          child: Row(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(12),
+                                child: Image.asset(
+                                  AppIcons.searchIcon,
+                                  width: 24,
+                                  height: 24,
+                                  color: AppColors.grey,
                                 ),
                               ),
-                            ),
-                            const VerticalDivider(
-                              color: AppColors.lightGray,
-                              width: 1,
-                              indent: 12,
-                              endIndent: 12,
-                            ),
-                            SizedBox(
-                              width: 2,
-                            ),
-                            IconButton(
-                              icon: Image.asset(
-                                AppIcons.filterIc,
-                                width: 24,
-                                height: 24,
+                              Expanded(
+                                child: TextField(
+                                  controller: _searchController,
+                                  cursorRadius: Radius.circular(2),
+                                  decoration: const InputDecoration(
+                                    hintStyle:
+                                        TextStyle(color: AppColors.darkGray),
+                                    contentPadding: EdgeInsets.zero,
+                                    hintText: "Search...",
+                                    border: InputBorder.none,
+                                  ),
+                                ),
                               ),
-                              onPressed: () {},
-                            ),
-                            SizedBox(
-                              width: 2,
-                            ),
-                          ],
+                              const VerticalDivider(
+                                color: AppColors.lightGray,
+                                width: 1,
+                                indent: 12,
+                                endIndent: 12,
+                              ),
+                              SizedBox(
+                                width: 2,
+                              ),
+                              IconButton(
+                                icon: Image.asset(
+                                  AppIcons.filterIc,
+                                  width: 24,
+                                  height: 24,
+                                ),
+                                onPressed: () {},
+                              ),
+                              SizedBox(
+                                width: 2,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

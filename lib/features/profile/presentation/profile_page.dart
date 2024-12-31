@@ -1,15 +1,17 @@
 // ignore_for_file: deprecated_member_use
 
+import 'dart:math' as math;
 import 'dart:ui';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/assets/app_icons.dart';
-import 'dart:math' as math;
-
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/router/routes.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -21,6 +23,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _AnimatedProfileScreenState extends State<ProfileScreen> {
   late ScrollController _scrollController;
+
   double _offset = 0;
   final double _maxAppBarHeight = 300;
   final double _minAppBarHeight = 60;
@@ -43,11 +46,11 @@ class _AnimatedProfileScreenState extends State<ProfileScreen> {
   }
 
   double get _appBarOpacity {
-    // Start showing app bar content after 60% of scroll
+    // Start showing app bar content after 40% of scroll instead of 60%
     return math.min(
         1,
         math.max(
-            0, (_offset - _maxAppBarHeight * 0.6) / (_maxAppBarHeight * 0.4)));
+            0, (_offset - _maxAppBarHeight * 0.4) / (_maxAppBarHeight * 0.3)));
   }
 
   @override
@@ -69,12 +72,12 @@ class _AnimatedProfileScreenState extends State<ProfileScreen> {
                 scrolledUnderElevation: 0.5,
                 leading: Container(), // Empty container to preserve space
                 flexibleSpace: FlexibleSpaceBar(
+                  collapseMode: CollapseMode.parallax,
                   background: Stack(
                     fit: StackFit.expand,
                     children: [
-                      // Background image with blur
                       Image.asset(
-                        AppImages.wAuto,
+                        AppImages.wBeautyAccessories,
                         fit: BoxFit.cover,
                       ),
                       // Blur overlay
@@ -150,25 +153,12 @@ class _AnimatedProfileScreenState extends State<ProfileScreen> {
             ],
           ),
           Positioned(
-            top: MediaQuery.of(context).padding.top,
+            top: MediaQuery.of(context).padding.top + 6,
             left: 16,
             right: 16,
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(
-                    CupertinoIcons.back,
-                    color: AppColors.white,
-                  ),
-                  style: IconButton.styleFrom(
-                    backgroundColor: AppColors.black.withOpacity(0.2),
-                    shape: SmoothRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
                 Row(
                   children: [
                     IconButton(
@@ -176,23 +166,7 @@ class _AnimatedProfileScreenState extends State<ProfileScreen> {
                         // Add your edit logic here
                       },
                       icon: const Icon(
-                        Icons.edit,
-                        color: AppColors.white,
-                      ),
-                      style: IconButton.styleFrom(
-                        backgroundColor: AppColors.black.withOpacity(0.2),
-                        shape: SmoothRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 2.5),
-                    IconButton(
-                      onPressed: () {
-                        // Add your photo change logic here
-                      },
-                      icon: const Icon(
-                        CupertinoIcons.photo_camera_solid,
+                        CupertinoIcons.square_grid_2x2_fill,
                         color: AppColors.white,
                       ),
                       style: IconButton.styleFrom(
@@ -220,6 +194,153 @@ class _AnimatedProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  void _showIOSMenu(BuildContext context) {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (BuildContext context) => CupertinoActionSheet(
+        title: const Text(
+          'Profile Settings',
+          style: TextStyle(fontFamily: "Syne"),
+        ),
+        message: const Text(
+          'Manage your profile',
+          style: TextStyle(fontFamily: "Syne"),
+        ),
+        actions: [
+          // Profile & Account Management
+          _buildActionSheetItem(
+            icon: CupertinoIcons.person_crop_circle_fill_badge_checkmark,
+            title: 'Edit Profile',
+            onPressed: () {
+              Navigator.pop(context);
+              // Handle edit profile
+            },
+          ),
+          _buildActionSheetItem(
+            icon: CupertinoIcons.camera_fill,
+            title: 'Change Profile Photo',
+            onPressed: () {
+              Navigator.pop(context);
+              // Handle photo change
+            },
+          ),
+          _buildActionSheetItem(
+            icon: CupertinoIcons.time,
+            title: 'Working Hours',
+            subtitle: '9:00 - 17:00',
+            onPressed: () {
+              Navigator.pop(context);
+              // Handle working hours
+            },
+          ),
+          _buildActionSheetItem(
+            icon: CupertinoIcons.moon_fill,
+            title: 'Theme',
+            subtitle: 'Light',
+            onPressed: () {
+              Navigator.pop(context);
+              // Handle theme change
+            },
+          ),
+          // Logout (Destructive Action)
+          CupertinoActionSheetAction(
+            isDestructiveAction: true,
+            onPressed: () {
+              Navigator.pop(context);
+              // Handle logout
+            },
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(CupertinoIcons.square_arrow_right),
+                SizedBox(width: 10),
+                Text('Logout',
+                    style: TextStyle(fontSize: 18, fontFamily: "Syne")),
+              ],
+            ),
+          ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.pop(context),
+          child: Text(
+            'Cancel',
+            style: TextStyle(
+                color: AppColors.black, fontSize: 18, fontFamily: "Syne"),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionSheetItem({
+    required IconData icon,
+    required String title,
+    String? subtitle,
+    required VoidCallback onPressed,
+  }) {
+    return CupertinoActionSheetAction(
+      onPressed: onPressed,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // Icon with container
+            SmoothClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                color: AppColors.primary.withOpacity(0.1),
+                child: Icon(
+                  icon,
+                  color: AppColors.primary,
+                  size: 20,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+
+            // Title
+            Expanded(
+              child: Text(
+                title,
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                  fontFamily: "Syne",
+                  color: AppColors.black,
+                  fontSize: 17,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+
+            // Subtitle if provided
+            if (subtitle != null) ...[
+              Text(
+                subtitle,
+                style: TextStyle(
+                  color: AppColors.grey,
+                  fontSize: 15,
+                  fontFamily: "Syne",
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(width: 4),
+            ],
+
+            // Arrow icon
+            Icon(
+              Ionicons.arrow_forward,
+              color: AppColors.grey,
+              size: 18,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildInteractiveAppBar() {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
@@ -233,7 +354,7 @@ class _AnimatedProfileScreenState extends State<ProfileScreen> {
           shadowColor: AppColors.grey.withOpacity(_appBarOpacity),
           margin: EdgeInsets.zero,
           shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(0)),
-          elevation: 2,
+          elevation: 1,
           child: Container(
             height: _minAppBarHeight + MediaQuery.of(context).padding.top,
             padding: EdgeInsets.only(
@@ -243,28 +364,6 @@ class _AnimatedProfileScreenState extends State<ProfileScreen> {
             ),
             child: Stack(
               children: [
-                // Back button
-                Positioned(
-                  left: 0,
-                  top: 0,
-                  bottom: 0,
-                  child: Center(
-                    child: IconButton(
-                      onPressed: () => context.pop(),
-                      icon: Icon(
-                        CupertinoIcons.back,
-                        color: Colors.black.withOpacity(_appBarOpacity),
-                      ),
-                      style: IconButton.styleFrom(
-                        backgroundColor:
-                            Colors.grey.withOpacity(0.1 * _appBarOpacity),
-                        shape: SmoothRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
                 // Animated profile info (keep as is)
                 Positioned.fill(
                   child: Opacity(
@@ -328,26 +427,10 @@ class _AnimatedProfileScreenState extends State<ProfileScreen> {
                     children: [
                       IconButton(
                         onPressed: () {
-                          // Add your edit logic here
+                          _showIOSMenu(context);
                         },
                         icon: Icon(
-                          Icons.edit,
-                          color: Colors.black.withOpacity(_appBarOpacity),
-                        ),
-                        style: IconButton.styleFrom(
-                          backgroundColor:
-                              Colors.grey.withOpacity(0.1 * _appBarOpacity),
-                          shape: SmoothRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () {
-                          // Add your photo gallery logic here
-                        },
-                        icon: Icon(
-                          CupertinoIcons.photo_camera_solid,
+                          CupertinoIcons.square_grid_2x2_fill,
                           color: Colors.black.withOpacity(_appBarOpacity),
                         ),
                         style: IconButton.styleFrom(
@@ -370,7 +453,7 @@ class _AnimatedProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildAnimatedAvatar() {
-    final avatarSize = math.max(40, 120 - _offset * 0.5);
+    final avatarSize = math.max(40, 120 - _offset * 0.7);
     final scale = math.max(0.0, 1 - _offset / 300);
 
     return Transform.scale(
@@ -554,99 +637,25 @@ class _AnimatedProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildMainContent() {
+    double screenHeight = MediaQuery.of(context).size.height;
     return Column(
       children: [
-        _buildPremiumCard(),
         const SizedBox(height: 16),
         ...List.generate(
-          10,
+          8,
           (index) => _buildListItem(
             icon: _getIcon(index),
             title: _getTitle(index),
             trailing: _getTrailing(index),
+            onTap: () {
+              if (index == 0) {
+                context.goNamed(RoutesByName.myPosts);
+              }
+            },
           ),
         ),
-        const SizedBox(height: 32),
+        SizedBox(height: screenHeight / 9),
       ],
-    );
-  }
-
-  Widget _buildPremiumCard() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: SmoothClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: Material(
-          elevation: 4, // Shadow
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 0),
-              padding: const EdgeInsets.all(16),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [AppColors.secondaryColor, AppColors.primary],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
-              child: Row(
-                children: [
-                  const Icon(
-                    Icons.star,
-                    color: Colors.yellow,
-                    size: 32,
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text(
-                          'Upgrade to Premium',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          'Get exclusive features and benefits',
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SmoothClipRRect(
-                    smoothness: 1,
-                    borderRadius: BorderRadius.circular(10),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                      ),
-                      child: const Text(
-                        'Upgrade',
-                        style: TextStyle(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
     );
   }
 
@@ -654,6 +663,7 @@ class _AnimatedProfileScreenState extends State<ProfileScreen> {
     required String icon,
     required String title,
     String? trailing,
+    VoidCallback? onTap,
   }) {
     return ListTile(
       leading: SmoothClipRRect(
@@ -704,7 +714,7 @@ class _AnimatedProfileScreenState extends State<ProfileScreen> {
               size: 16,
               color: Colors.grey,
             ),
-      onTap: () {},
+      onTap: onTap,
     );
   }
 
@@ -713,12 +723,10 @@ class _AnimatedProfileScreenState extends State<ProfileScreen> {
       AppIcons.addsIc,
       AppIcons.favorite,
       AppIcons.chatIc,
+      AppIcons.cardIc,
       AppIcons.languageIc,
-      AppIcons.cardIc, // settings should be
       AppIcons.supportIc,
-      AppIcons.supportIc,
-      AppIcons.supportIc,
-      AppIcons.logoutIc,
+      AppIcons.personIc,
       AppIcons.logoutIc,
     ];
     return icons[index];
@@ -731,10 +739,8 @@ class _AnimatedProfileScreenState extends State<ProfileScreen> {
       'Chats',
       'My Balance',
       'Language',
-      'Settings',
       'Help Center',
       'About Us',
-      'Contact Support',
       'Log Out',
     ];
     return titles[index];
