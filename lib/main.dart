@@ -396,7 +396,7 @@ final List<AdvertisedProductEntity> sampleVideos = [
 ];
 final List<ProductEntity> sampleProducts = [
   ProductEntity(
-    name: "iPhone 4 Pro Max",
+    name: "iPhone 4 Pro Max stoladi srochno narx kelishilgan",
     images: [
       "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg"
     ],
@@ -462,7 +462,7 @@ final List<ProductEntity> sampleProducts = [
     id: "2",
   ),
   ProductEntity(
-    name: "Green iPhone",
+    name: "Green iPhone 15 pro max sotiladi narxi kelishilgan",
     images: [
       "https://cdn.pixabay.com/photo/2017/03/27/15/17/apartment-2179337_640.jpg"
     ],

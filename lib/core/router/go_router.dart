@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:list_in/core/router/keep_alive_wrapper.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/auth/presentation/pages/login_page.dart';
@@ -8,17 +7,18 @@ import 'package:list_in/features/auth/presentation/pages/register_details_page.d
 import 'package:list_in/features/auth/presentation/pages/signup_page.dart';
 import 'package:list_in/features/auth/presentation/pages/verification_page.dart';
 import 'package:list_in/features/auth/presentation/pages/welcome_page.dart';
+import 'package:list_in/features/details/presentation/pages/details.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/presentation/pages/child_page.dart';
 import 'package:list_in/features/explore/presentation/pages/detailed_page.dart';
 import 'package:list_in/features/explore/presentation/pages/initial_page.dart';
 import 'package:list_in/features/post/presentation/pages/post_screen.dart';
-import 'package:list_in/features/myposts/presentation/pages/my_post.dart';
 import 'package:list_in/features/profile/presentation/profile_page.dart';
-import 'package:list_in/features/details/presentation/pages/details.dart';
 import 'package:list_in/features/undefined_screens_yet/wrapper_screen.dart';
 import 'package:list_in/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../features/myposts/presentation/pages/future_content_post/future_my_post.dart';
 
 class AppRouter {
   final SharedPreferences sharedPreferences;
@@ -37,7 +37,7 @@ class AppRouter {
     debugLogDiagnostics: true,
     redirect: (context, state) {
       final loggedIn =
-          sharedPreferences.getString(Constants.CACHED_AUTH_TOKEN) == null;
+          sharedPreferences.getString(Constants.CACHED_AUTH_TOKEN) != null; 
       final isAuthRoute = state.matchedLocation == Routes.login ||
           state.matchedLocation == Routes.signup ||
           state.matchedLocation == Routes.welcome ||
@@ -163,7 +163,7 @@ class AppRouter {
                   GoRoute(
                     name: RoutesByName.myPosts,
                     path: Routes.myPosts,
-                    builder: (context, state) => MyPosts(
+                    builder: (context, state) => ContentManagementScreen(
                       key: state.pageKey,
                     ),
                     routes: [],

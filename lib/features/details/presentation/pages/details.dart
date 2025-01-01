@@ -63,11 +63,12 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
       borderRadius: BorderRadius.circular(8),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        color: AppColors.primary.withOpacity(0.1),
+        color: AppColors.containerColor,
         child: Text(
           text,
           style: const TextStyle(
-            color: AppColors.primary,
+            fontWeight: FontWeight.w500,
+            color: AppColors.darkGray,
           ),
         ),
       ),
@@ -139,7 +140,7 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
             crossAxisCount: 2,
             crossAxisSpacing: 4,
             mainAxisSpacing: 4,
-            childAspectRatio: 0.66,
+            childAspectRatio: 0.65,
           ),
           itemCount: widget.recommendedProducts.length,
           itemBuilder: (context, index) {

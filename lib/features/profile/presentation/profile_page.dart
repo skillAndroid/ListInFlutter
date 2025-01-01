@@ -71,73 +71,78 @@ class _AnimatedProfileScreenState extends State<ProfileScreen> {
                 elevation: 0,
                 scrolledUnderElevation: 0.5,
                 leading: Container(), // Empty container to preserve space
-                flexibleSpace: FlexibleSpaceBar(
-                  collapseMode: CollapseMode.parallax,
-                  background: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      Image.asset(
-                        AppImages.wBeautyAccessories,
-                        fit: BoxFit.cover,
-                      ),
-                      // Blur overlay
-                      BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.black.withOpacity(0.3),
-                                Colors.black.withOpacity(0.5),
+                flexibleSpace: SmoothClipRRect(
+                  borderRadius: BorderRadius.only(
+                      bottomRight: Radius.circular(10),
+                      bottomLeft: Radius.circular(10)),
+                  child: FlexibleSpaceBar(
+                    collapseMode: CollapseMode.parallax,
+                    background: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        Image.asset(
+                          AppImages.wHousehold,
+                          fit: BoxFit.cover,
+                        ),
+                        // Blur overlay
+                        BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  Colors.black.withOpacity(0.3),
+                                  Colors.black.withOpacity(0.5),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        // Profile content
+                        Positioned(
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          child: Container(
+                            height: 300,
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                _buildAnimatedAvatar(),
+                                const SizedBox(height: 16),
+                                const Text(
+                                  'Anna Dii',
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    _buildStatItem('12', 'Following'),
+                                    Container(
+                                      height: 20,
+                                      width: 1,
+                                      margin: const EdgeInsets.symmetric(
+                                          horizontal: 16),
+                                      color: Colors.white.withOpacity(0.5),
+                                    ),
+                                    _buildStatItem('19', 'Followers'),
+                                  ],
+                                ),
                               ],
                             ),
                           ),
                         ),
-                      ),
-                      // Profile content
-                      Positioned(
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        child: Container(
-                          height: 300,
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              _buildAnimatedAvatar(),
-                              const SizedBox(height: 16),
-                              const Text(
-                                'Anna Dii',
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  _buildStatItem('12', 'Following'),
-                                  Container(
-                                    height: 20,
-                                    width: 1,
-                                    margin: const EdgeInsets.symmetric(
-                                        horizontal: 16),
-                                    color: Colors.white.withOpacity(0.5),
-                                  ),
-                                  _buildStatItem('19', 'Followers'),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -513,7 +518,7 @@ class _AnimatedProfileScreenState extends State<ProfileScreen> {
       child: Card(
         color: AppColors.containerColor,
         elevation: 0,
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+        margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
         shape: SmoothRectangleBorder(
           smoothness: 1,
           borderRadius: BorderRadius.circular(10),

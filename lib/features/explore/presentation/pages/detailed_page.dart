@@ -274,7 +274,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                 sliver: SliverGrid(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    childAspectRatio: 0.7,
+                    childAspectRatio: 0.65,
                     crossAxisSpacing: 1,
                     mainAxisSpacing: 1,
                   ),
@@ -410,16 +410,17 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Card(
+        shadowColor: AppColors.black.withOpacity(0.2),
         color: AppColors.white,
         shape: SmoothRectangleBorder(
-            smoothness: 1, borderRadius: BorderRadius.circular(6)),
+            smoothness: 1, borderRadius: BorderRadius.circular(4)),
         clipBehavior: Clip.hardEdge,
-        elevation: 1,
+        elevation: 5,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             AspectRatio(
-              aspectRatio: 16 / 10,
+              aspectRatio: 16 / 11,
               child: ValueListenableBuilder<String?>(
                 valueListenable: _currentlyPlayingId,
                 builder: (context, currentlyPlayingId, _) {
@@ -437,6 +438,25 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                               index,
                               currentPage,
                               currentlyPlayingId == product.id,
+                            ),
+                          ),
+                          Card(
+                            margin: const EdgeInsets.only(top: 8, left: 8),
+                            elevation: 0,
+                            shape: SmoothRectangleBorder(
+                                smoothness: 1,
+                                borderRadius: BorderRadius.circular(6)),
+                            color: AppColors.primary,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 4, horizontal: 8),
+                              child: Text(
+                                'New',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.white,
+                                ),
+                              ),
                             ),
                           ),
                           Padding(
@@ -472,7 +492,12 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
+              padding: const EdgeInsets.only(
+                left: 8,
+                right: 8,
+                top: 6,
+                bottom: 4,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -481,13 +506,12 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Expanded(
-                        flex: 8, // 80% of the row's width
                         child: Text(
                           "${product.title} sotiladi yandgi ishlatilmagan",
                           style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 16,
-                            color: AppColors.primary,
+                            // color: AppColors.primary,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -495,31 +519,16 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                       ),
                       SizedBox(
                           width: 8), // Optional spacing between Text and Card
-                      Card(
-                        margin: const EdgeInsets.only(top: 2, right: 0),
-                        elevation: 0,
-                        shape: SmoothRectangleBorder(
-                            smoothness: 1,
-                            borderRadius: BorderRadius.circular(8)),
-                        color: CupertinoColors.systemYellow,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 8, horizontal: 8),
-                          child: Text(
-                            'New',
-                            style: const TextStyle(
-                                fontWeight: FontWeight.w500,
-                                color: AppColors.white),
-                          ),
-                        ),
-                      ),
                     ],
+                  ),
+                  SizedBox(
+                    height: 8,
                   ),
                   Row(
                     children: [
                       SizedBox(
-                        width: 32,
-                        height: 32,
+                        width: 28,
+                        height: 28,
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(
                             40,
@@ -538,9 +547,9 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                       Text(
                         product.userName,
                         style: TextStyle(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                          color: AppColors.green,
                         ),
                       ),
                       SizedBox(
@@ -557,17 +566,17 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                       Text(
                         product.userRating.toString(),
                         style: TextStyle(
-                          color: AppColors.primary,
                           fontWeight: FontWeight.w500,
-                          fontSize: 15,
+                          fontSize: 14,
+                          color: AppColors.green,
                         ),
                       ),
                       Text(
                         "(${product.reviewsCount})",
                         style: TextStyle(
-                          color: AppColors.grey,
+                          color: AppColors.lightText,
                           fontWeight: FontWeight.w400,
-                          fontSize: 15,
+                          fontSize: 14,
                         ),
                       )
                     ],
@@ -578,20 +587,20 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                   Row(
                     children: [
                       SizedBox(
-                        width: 8,
+                        width: 5,
                       ),
                       Icon(
                         Ionicons.location,
                         size: 20,
-                        color: AppColors.secondaryColor,
+                        color: AppColors.primary,
                       ),
                       SizedBox(
                         width: 8,
                       ),
                       Text(
                         product.location,
-                        style: const TextStyle(
-                          color: AppColors.secondaryColor,
+                        style: TextStyle(
+                          color: AppColors.darkGray.withOpacity(0.7),
                           fontSize: 13,
                         ),
                       ),
@@ -604,7 +613,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                     "Experience the pinnacle of innovation with the iPhone 15 Pro Max. Featuring a stunning titanium design, advanced A17 Pro chip for unmatched performance, an incredible 48MP camera with 5x zoom, and all-day battery life. ",
                     style: TextStyle(
                       fontSize: 12,
-                      color: AppColors.grey,
+                      color: AppColors.darkGray.withOpacity(0.7),
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -616,7 +625,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                     'Price',
                     style: TextStyle(
                       fontSize: 12,
-                      color: AppColors.grey,
+                      color: AppColors.darkGray.withOpacity(0.7),
                     ),
                   ),
                   Row(
@@ -631,12 +640,21 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                           color: AppColors.primary,
                         ),
                       ),
-                      SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: Image.asset(
-                          AppIcons.favorite,
-                          color: AppColors.green,
+                      SmoothClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          color: AppColors.containerColor,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: Image.asset(
+                                AppIcons.favorite,
+                                color: AppColors.darkGray,
+                              ),
+                            ),
+                          ),
                         ),
                       )
                     ],
@@ -647,9 +665,11 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                   ElevatedButton(
                     onPressed: () {},
                     style: ElevatedButton.styleFrom(
-                        shape: SmoothRectangleBorder(
-                            smoothness: 1,
-                            borderRadius: BorderRadius.circular(8))),
+                      shape: SmoothRectangleBorder(
+                        smoothness: 1,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
                     child: SizedBox(
                       width: double.infinity,
                       child: Center(
@@ -672,6 +692,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
     );
   }
 
+//
   Widget _buildMediaContent(
     AdvertisedProductEntity product,
     int pageIndex,

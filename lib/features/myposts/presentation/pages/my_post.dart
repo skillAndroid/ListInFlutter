@@ -27,20 +27,16 @@ class MyPosts extends StatelessWidget {
               onPressed: () {
                 context.pop();
               },
-              icon: Icon(Icons.arrow_back_ios_new_rounded),
+              icon: Icon(Icons.arrow_back),
             ),
             SmoothClipRRect(
               borderRadius: BorderRadius.circular(10),
-              child: Container(
-                padding: EdgeInsets.all(8),
-                color: AppColors.containerColor,
-                child: Text(
-                  'My Posts',
-                  style: TextStyle(
-                    color: AppColors.black,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                  ),
+              child: Text(
+                'My Posts',
+                style: TextStyle(
+                  color: AppColors.black,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
@@ -161,7 +157,7 @@ class MyPosts extends StatelessWidget {
     return Card(
       color: AppColors.white,
       elevation: 3,
-      shadowColor: Colors.black.withOpacity(0.075),
+      shadowColor: Colors.black.withOpacity(0.2),
       shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

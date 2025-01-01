@@ -29,111 +29,135 @@ class RegularProductCard extends StatelessWidget {
           smoothness: 1,
           borderRadius: BorderRadius.circular(10),
         ),
-        elevation: 2,
+        elevation: 5,
+        shadowColor: Colors.black.withOpacity(0.2),
         color: AppColors.white,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: EdgeInsets.all(3),
-              child: Stack(
-                children: [
-                  SmoothClipRRect(
-                    smoothness: 1,
-                    borderRadius: BorderRadius.circular(10),
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: 160,
-                      child: CachedNetworkImage(
-                        imageUrl: product.images[0],
-                        fit: BoxFit.cover,
+            // Image section with fixed aspect ratio
+            AspectRatio(
+              aspectRatio: 1.1, // Adjust this value to control image height
+              child: Padding(
+                padding: const EdgeInsets.all(3),
+                child: Stack(
+                  children: [
+                    SmoothClipRRect(
+                      smoothness: 1,
+                      borderRadius: BorderRadius.circular(10),
+                      child: SizedBox.expand(
+                        child: CachedNetworkImage(
+                          imageUrl: product.images[0],
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    left: 0,
-                    child: SmoothCard(
-                      margin: EdgeInsets.all(0),
-                      elevation: 1,
-                      color: AppColors.black.withOpacity(0.4),
-                      borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(8),
-                          bottomRight: Radius.circular(8),
-                          topLeft: Radius.circular(8),
-                          topRight: Radius.circular(0.1)),
-                      child: Padding(
-                          padding: EdgeInsets.all(6),
+                    Positioned(
+                      top: 8,
+                      left: 8,
+                      child: SmoothCard(
+                        margin: const EdgeInsets.all(0),
+                        elevation: 0,
+                        color: AppColors.primary,
+                        borderRadius: BorderRadius.circular(6),
+                        child: const Padding(
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           child: Text(
                             'New',
                             style: TextStyle(
-                                color: AppColors.white,
-                                fontWeight: FontWeight.w500,
-                                fontFamily: "Poppins"),
-                          )),
-                    ),
-                  )
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    product.name,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 15,
-                      color: AppColors.primary,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  SizedBox(
-                    height: 2,
-                  ),
-                  Text(
-                    product.location,
-                    style: const TextStyle(
-                      color: AppColors.grey,
-                      fontSize: 13,
-                    ),
-                  ),
-                  SizedBox(
-                    height: 16,
-                  ),
-                  Text(
-                    'Price',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.grey,
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        '\$${product.price}',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
-                          color: AppColors.primary,
+                              color: AppColors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
                       ),
-                      SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: Image.asset(
-                          AppIcons.favorite,
-                          color: AppColors.green,
+                    )
+                  ],
+                ),
+              ),
+            ),
+            // Content section with flexible height
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title with flexible height
+                    Expanded(
+                      child: Text(
+                        product.name,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
                         ),
-                      )
-                    ],
-                  ),
-                ],
+                        maxLines: 2, // Allow multiple lines
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    // Location with single line
+                    Text(
+                      product.location,
+                      style: const TextStyle(
+                        color: AppColors.lightText,
+                        fontSize: 13,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    //  const SizedBox(height: 8),
+                    // Price section with fixed height
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Transform.translate(
+                          offset: Offset(0, 6),
+                          child: const Text(
+                            'Price',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.lightText,
+                            ),
+                          ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              '\$${product.price}',
+                              style: const TextStyle(
+                                color: AppColors.primary,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SmoothClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Container(
+                                color: AppColors.containerColor,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: Image.asset(
+                                      AppIcons.favorite,
+                                      color: AppColors.darkGray,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -142,4 +166,3 @@ class RegularProductCard extends StatelessWidget {
     );
   }
 }
-//
