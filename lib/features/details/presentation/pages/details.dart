@@ -10,6 +10,7 @@ import 'package:go_router/go_router.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
 import 'package:list_in/main.dart';
@@ -220,52 +221,57 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
       children: [
         SmoothClipRRect(
           borderRadius: BorderRadius.circular(10),
-          child: Container(
-            color: AppColors.containerColor,
-            margin: const EdgeInsets.only(left: 24),
-            child: Padding(
-              padding: const EdgeInsets.only(
-                top: 7,
-                bottom: 7,
-                left: 45,
-                right: 8,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Axel',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+          child: InkWell(
+            onTap: () {
+              context.push(Routes.anotherUserProfile);
+            },
+            child: Container(
+              color: AppColors.containerColor,
+              margin: const EdgeInsets.only(left: 24),
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  top: 7,
+                  bottom: 7,
+                  left: 45,
+                  right: 8,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Axel',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ),
-                  Row(
-                    children: [
-                      const Text(
-                        '4.8',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
+                    Row(
+                      children: [
+                        const Text(
+                          '4.8',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 2),
-                      const Icon(
-                        Icons.star,
-                        size: 16,
-                        color: Colors.amber,
-                      ),
-                      const SizedBox(width: 2),
-                      Text(
-                        '138 reviews',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 13,
+                        const SizedBox(width: 2),
+                        const Icon(
+                          Icons.star,
+                          size: 16,
+                          color: Colors.amber,
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                        const SizedBox(width: 2),
+                        Text(
+                          '138 reviews',
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 13,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

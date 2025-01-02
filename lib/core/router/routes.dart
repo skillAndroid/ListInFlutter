@@ -15,6 +15,7 @@ class Routes {
   static const productDetails = '/product/:id';
 
   static const myPosts = '/my_posts';
+  static const anotherUserProfile = '/a_u_profile';
 }
 
 class RoutesByName {
@@ -33,4 +34,5 @@ class RoutesByName {
   static const productDetails = 'product/:id';
 
   static const myPosts = 'my_posts';
+  static const anotherUserProfile = 'a_u_profile';
 }

@@ -37,6 +37,7 @@ import 'package:list_in/features/post/domain/usecases/get_catalogs_usecase.dart'
 import 'package:list_in/features/post/domain/usecases/upload_images_usecase.dart';
 import 'package:list_in/features/post/domain/usecases/upload_video_usecase.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
+import 'package:list_in/features/short_videos/presentation/bloc/video_bloc.dart';
 import 'package:path_provider/path_provider.dart' as path_provider;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -66,6 +67,8 @@ Future<void> init() async {
       getStoredEmailUsecase: sl(),
     ),
   );
+
+  sl.registerFactory(() => VideoBloc());
 
   // Use cases
   sl.registerLazySingleton(() => LoginUseCase(sl()));
@@ -99,7 +102,7 @@ Future<void> init() async {
   sl.registerLazySingleton(
     () {
       final dio = Dio();
-      dio.options.baseUrl = 'https://31fc-89-236-252-44.ngrok-free.app';
+      dio.options.baseUrl = 'https://9470-185-213-230-44.ngrok-free.app';
       dio.options.connectTimeout = const Duration(seconds: 5);
       dio.options.receiveTimeout = const Duration(seconds: 3);
       return dio;

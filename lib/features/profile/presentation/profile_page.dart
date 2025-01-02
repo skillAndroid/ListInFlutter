@@ -518,7 +518,7 @@ class _AnimatedProfileScreenState extends State<ProfileScreen> {
       child: Card(
         color: AppColors.containerColor,
         elevation: 0,
-        margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
         shape: SmoothRectangleBorder(
           smoothness: 1,
           borderRadius: BorderRadius.circular(10),
@@ -539,31 +539,34 @@ class _AnimatedProfileScreenState extends State<ProfileScreen> {
                         Text(
                           '4.8',
                           style: TextStyle(
-                            fontSize: 24,
+                            fontSize: 28,
                             fontWeight: FontWeight.bold,
                             color: Colors.black87,
                           ),
                         ),
                         const SizedBox(width: 8),
-                        Row(
-                          children: List.generate(
-                            5,
-                            (index) => Icon(
-                              index < 4 ? Icons.star : Icons.star_half,
-                              color: Colors.amber,
-                              size: 20,
+                        Column(
+                          children: [
+                            Row(
+                              children: List.generate(
+                                5,
+                                (index) => Icon(
+                                  index < 4 ? Icons.star : Icons.star_half,
+                                  color: Colors.amber,
+                                  size: 20,
+                                ),
+                              ),
                             ),
-                          ),
+                            Text(
+                              '(128 reviews)',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
                         ),
                       ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Based on 128 reviews',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                      ),
                     ),
                   ],
                 ),

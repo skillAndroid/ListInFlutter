@@ -1,9 +1,11 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
@@ -221,7 +223,7 @@ class MyPosts extends StatelessWidget {
                     child: Text(
                       'Boosted',
                       style: TextStyle(
-                        color: AppColors.primary,
+                        color: AppColors.darkGray,
                         fontSize: 10,
                         fontWeight: FontWeight.w600,
                       ),
@@ -234,7 +236,7 @@ class MyPosts extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.primary,
+                    color: AppColors.darkBackground,
                   ),
                 ),
                 SizedBox(height: 4),
@@ -265,17 +267,36 @@ class MyPosts extends StatelessWidget {
                         ),
                       ],
                     ),
-                    Container(
-                      padding: EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: AppColors.containerColor,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(
-                        Icons.edit_rounded,
-                        color: AppColors.primary,
-                        size: 16,
-                      ),
+                    Row(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: AppColors.containerColor,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(
+                            Icons.edit_rounded,
+                            color: AppColors.darkGray,
+                            size: 16,
+                          ),
+                        ),
+                        SizedBox(
+                          width: 4,
+                        ),
+                        Container(
+                          padding: EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: AppColors.containerColor,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(
+                            Ionicons.ellipsis_vertical,
+                            color: AppColors.darkGray,
+                            size: 16,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),

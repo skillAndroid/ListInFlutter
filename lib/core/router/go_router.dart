@@ -12,13 +12,13 @@ import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/presentation/pages/child_page.dart';
 import 'package:list_in/features/explore/presentation/pages/detailed_page.dart';
 import 'package:list_in/features/explore/presentation/pages/initial_page.dart';
+import 'package:list_in/features/myposts/presentation/pages/my_post.dart';
 import 'package:list_in/features/post/presentation/pages/post_screen.dart';
 import 'package:list_in/features/profile/presentation/profile_page.dart';
 import 'package:list_in/features/undefined_screens_yet/wrapper_screen.dart';
+import 'package:list_in/features/visitior_profile/visiter_profile.dart';
 import 'package:list_in/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import '../../features/myposts/presentation/pages/future_content_post/future_my_post.dart';
 
 class AppRouter {
   final SharedPreferences sharedPreferences;
@@ -37,7 +37,7 @@ class AppRouter {
     debugLogDiagnostics: true,
     redirect: (context, state) {
       final loggedIn =
-          sharedPreferences.getString(Constants.CACHED_AUTH_TOKEN) != null; 
+          sharedPreferences.getString(Constants.CACHED_AUTH_TOKEN) == null;
       final isAuthRoute = state.matchedLocation == Routes.login ||
           state.matchedLocation == Routes.signup ||
           state.matchedLocation == Routes.welcome ||
@@ -98,6 +98,14 @@ class AppRouter {
         },
       ),
 
+      GoRoute(
+        path: Routes.anotherUserProfile,
+        builder: (context, state) => VisitorProfileScreen(
+          userId: 'userId',
+          products: sampleProducts,
+        ),
+      ),
+
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
             MainWrapper(navigationShell: navigationShell),
@@ -155,15 +163,17 @@ class AppRouter {
                 path: Routes.profile,
                 name: "Profile",
                 builder: (context, state) {
-                  return ProfileScreen(
+                  return VisitorProfileScreen(
                     key: state.pageKey,
+                    userId: 'userId',
+                    products: sampleProducts,
                   );
                 },
                 routes: [
                   GoRoute(
                     name: RoutesByName.myPosts,
                     path: Routes.myPosts,
-                    builder: (context, state) => ContentManagementScreen(
+                    builder: (context, state) => MyPosts(
                       key: state.pageKey,
                     ),
                     routes: [],
