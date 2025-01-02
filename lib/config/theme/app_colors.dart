@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  static const primary = Color(0xFF2E7D32);      // Deep green as primary brand color
-  static const primaryLight = Color(0xFF81C784);  // Light green for secondary elements
-  static const primaryDark = Color(0xFF1B5E20);   // Dark green for emphasis
+  // static const primary = Color(0xFFFF4F67);
+  static const primary = Color(0xFF2AC3EA); // Deep green as primary brand color
+  static const primaryLight =
+      Color(0xFF81C784); // Light green for secondary elements
+  static const primaryDark = Color(0xFF1B5E20); // Dark green for emphasis
   static const bgColor = Color(0xFFFFFAFA);
   static const secondaryColor = Color(0xFF274646);
   // static const littleGreen = Color(0xFFCFE9DC);

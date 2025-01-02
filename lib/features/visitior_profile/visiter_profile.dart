@@ -324,7 +324,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.primary,
+                    color: AppColors.black,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -363,6 +363,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
       ),
     );
   }
+
 //
   Widget _buildStatItem(String count, String label) {
     return Column(
@@ -401,7 +402,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
             CupertinoIcons.phone_fill,
             'Call',
             AppColors.white,
-            AppColors.primary,
+            AppColors.myRedBrown,
           ),
           _buildActionItem(
             CupertinoIcons.paperplane_fill,
@@ -413,7 +414,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
             isFollowing ? Ionicons.person_remove : Ionicons.person_add,
             isFollowing ? 'Unfollow' : 'Follow',
             isFollowing ? AppColors.white : AppColors.white,
-            isFollowing ? Colors.grey : AppColors.primary,
+            isFollowing ? Colors.grey : AppColors.darkGray,
             onTap: () {
               setState(() {
                 isFollowing = !isFollowing;
@@ -424,13 +425,13 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
             Ionicons.notifications,
             'Notifications',
             AppColors.white,
-            AppColors.primary,
+            AppColors.darkGray,
           ),
           _buildActionItem(
             Icons.more_horiz,
             'More',
             AppColors.white,
-            AppColors.primary,
+            AppColors.darkGray,
             isMoreOptions: true,
           ),
         ],

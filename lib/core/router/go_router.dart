@@ -162,7 +162,7 @@ class AppRouter {
                 path: Routes.profile,
                 name: "Profile",
                 builder: (context, state) {
-                  return ProfileScreen(
+                  return VisitorProfileScreen(
                     key: state.pageKey,
                     userId: 'userId',
                     products: sampleProducts,
