@@ -1,7 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class AppColors {
-  static const primary = Color(0xFF006C53); 
+  static const primary = CupertinoColors.activeGreen; 
   static const bgColor = Color(0xFFFFFAFA);
   static const secondaryColor = Color(0xFF274646);
   // static const littleGreen = Color(0xFFCFE9DC);

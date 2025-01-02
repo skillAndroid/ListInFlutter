@@ -2,16 +2,15 @@
 
 import 'dart:math' as math;
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
+import 'package:list_in/features/visitior_profile/product_profile_card.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class VisitorProfileScreen extends StatefulWidget {
@@ -31,8 +30,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
   bool isFollowing = false;
 
   double _offset = 0;
-  final double _maxAppBarHeight = 300;
-  final double _minAppBarHeight = 60;
+  final double _maxAppBarHeight = 180;
 
   @override
   void initState() {
@@ -51,13 +49,6 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
     _scrollController.dispose();
     _tabController.dispose();
     super.dispose();
-  }
-
-  double get _appBarOpacity {
-    return math.min(
-        1,
-        math.max(
-            0, (_offset - _maxAppBarHeight * 0.4) / (_maxAppBarHeight * 0.3)));
   }
 
   @override
@@ -85,38 +76,55 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                   delegate: _SliverTabBarDelegate(
                     TabBar(
                       controller: _tabController,
-                      tabs: const [
+                      tabs: [
                         Tab(
-                          child: Text(
-                            "Posts",
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                            ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(CupertinoIcons.shopping_cart),
+                              SizedBox(width: 8),
+                              Text(
+                                "Products",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         Tab(
-                          child: Text(
-                            "Products",
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                            ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(CupertinoIcons.photo_fill),
+                              SizedBox(width: 8),
+                              Text(
+                                "Posts",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         Tab(
-                          child: Text(
-                            "Videos",
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                            ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(CupertinoIcons.play_circle_fill),
+                              SizedBox(width: 8),
+                              Text(
+                                "Videos",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
-                      labelColor: AppColors.primary,
-                      unselectedLabelColor: Colors.grey,
-                      indicatorColor:
-                          AppColors.primary, // Remove default indicator
-                      indicatorWeight: 4,
                     ),
+                    backgroundColor: AppColors.bgColor,
                   ),
                   pinned: true,
                 ),
@@ -129,12 +137,12 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                 children: [
                   CustomScrollView(
                     slivers: [
-                      _buildInfinitePostsGrid(),
+                      _buildInfiniteProductsGrid(),
                     ],
                   ),
                   CustomScrollView(
                     slivers: [
-                      _buildInfiniteProductsGrid(),
+                      _buildInfinitePostsGrid(),
                     ],
                   ),
                   CustomScrollView(
@@ -146,160 +154,242 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
               ),
             ),
           ),
-          _buildFloatingAppBar(),
+          //  _buildFloatingAppBar(),
         ],
       ),
     );
   }
 
-// Update your _buildSliverAppBar method
   Widget _buildSliverAppBar() {
+    final double progress = math.min(1.0, _offset / _maxAppBarHeight);
+    final Size screenSize = MediaQuery.of(context).size;
+    final double topPadding = MediaQuery.of(context).padding.top;
+
+    // Dynamic sizing based on screen width
+    final double maxAvatarSize = math.min(125, screenSize.width * 0.3);
+    final double minAvatarSize = 40;
+    final double avatarSize =
+        math.max(minAvatarSize, maxAvatarSize * (1 - progress));
+
+    // Calculate positions
+    final double avatarLeftPosition =
+        Tween<double>(begin: 16, end: 56).transform(progress);
+    final double avatarTopPosition =
+        Tween<double>(begin: 50, end: 8).transform(progress);
+
+    final double maxNameWidth = screenSize.width * 0.45;
+    final double nameScale =
+        Tween<double>(begin: 1.0, end: 0.85).transform(progress);
+    final double nameLeftPosition = Tween<double>(
+            begin: avatarLeftPosition + maxAvatarSize + 20,
+            end: avatarLeftPosition + minAvatarSize + 12)
+        .transform(progress);
+    final double nameTopPosition =
+        Tween<double>(begin: 70, end: 12).transform(progress);
+
+    final double statsOpacity = math.max(0, 1 - (progress * 2));
+    final double statsOffset = _offset * 0.3;
+
+    // Adjusted action buttons opacity to appear later
+    final double actionOpacity =
+        math.max(0, (progress - 0.7) * 3.3); // More delayed appearance
+
     return SliverAppBar(
-      expandedHeight: 300,
+      expandedHeight: _maxAppBarHeight,
       pinned: true,
-      backgroundColor: AppColors.white,
-      elevation: 0,
-      scrolledUnderElevation: 0.5,
+      scrolledUnderElevation: 0,
+      backgroundColor: AppColors.bgColor.withOpacity(math.max(0, progress)),
+      elevation: progress > 0.5 ? 1 : 0,
       automaticallyImplyLeading: false,
-      flexibleSpace: LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) {
-          return FlexibleSpaceBar(
-            collapseMode: CollapseMode.parallax,
-            background: SmoothClipRRect(
-              borderRadius: BorderRadius.only(
-                bottomRight: Radius.circular(10),
-                bottomLeft: Radius.circular(10),
-              ),
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Image.asset(
-                    AppImages.wHousehold,
-                    fit: BoxFit.cover,
+      actions: [
+        Opacity(
+          opacity: actionOpacity,
+          child: Row(
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                margin: const EdgeInsets.only(right: 8),
+                child: TextButton(
+                  onPressed: () {
+                    setState(() {
+                      isFollowing = !isFollowing;
+                    });
+                  },
+                  style: TextButton.styleFrom(
+                    backgroundColor:
+                        isFollowing ? Colors.grey.shade200 : AppColors.primary,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 6,
+                    ),
+                    shape: SmoothRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    minimumSize: const Size(80, 32),
                   ),
-                  BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.black.withOpacity(0.3),
-                            Colors.black.withOpacity(0.5),
-                          ],
-                        ),
-                      ),
+                  child: Text(
+                    isFollowing ? 'Following' : 'Follow',
+                    style: TextStyle(
+                      color: isFollowing ? Colors.black : Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  _buildProfileHeader(),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildProfileHeader() {
-    return Positioned(
-      left: 0,
-      right: 0,
-      bottom: 0,
-      child: Container(
-        height: _maxAppBarHeight,
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            _buildAnimatedAvatar(),
-            const SizedBox(height: 16),
-            const Text(
-              'Anna Dii',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildStatItem('12', 'Following'),
-                Container(
-                  height: 20,
-                  width: 1,
-                  margin: const EdgeInsets.symmetric(horizontal: 16),
-                  color: Colors.white.withOpacity(0.5),
                 ),
-                _buildStatItem('19', 'Followers'),
-              ],
-            ),
-            const SizedBox(height: 16),
-          ],
-        ),
-      ),
-    );
-  }
-
-//
-  Widget _buildAnimatedAvatar() {
-    final avatarSize = math.max(40, 120 - _offset * 0.7);
-    final scale = math.max(0.0, 1 - _offset / 300);
-
-    return Transform.scale(
-      scale: scale,
-      child: Container(
-        width: avatarSize.toDouble(),
-        height: avatarSize.toDouble(),
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.white, width: 4),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.2),
-              blurRadius: 16,
-              offset: const Offset(0, 8),
-            ),
-          ],
-        ),
-        child: ClipOval(
-          child: Image.asset(
-            AppImages.wPlats,
-            fit: BoxFit.cover,
+              ),
+              IconButton(
+                icon: const Icon(
+                  CupertinoIcons.ellipsis,
+                  color: Colors.black,
+                  size: 22,
+                ),
+                onPressed: () {
+                  showCupertinoModalPopup(
+                    context: context,
+                    builder: (context) => CupertinoActionSheet(
+                      actions: [
+                        CupertinoActionSheetAction(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('Share Profile'),
+                        ),
+                        CupertinoActionSheetAction(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('Report'),
+                        ),
+                        CupertinoActionSheetAction(
+                          isDestructiveAction: true,
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('Block User'),
+                        ),
+                      ],
+                      cancelButton: CupertinoActionSheetAction(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('Cancel'),
+                      ),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(width: 8),
+            ],
           ),
         ),
+      ],
+      flexibleSpace: Stack(
+        children: [
+          // Back button with original style
+          Positioned(
+            top: topPadding + 4,
+            left: 8,
+            child: IconButton(
+              icon: const Icon(Ionicons.arrow_back, color: Colors.black),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
+
+          // Avatar
+          Positioned(
+            left: avatarLeftPosition,
+            top: topPadding + avatarTopPosition,
+            child: Container(
+              width: avatarSize,
+              height: avatarSize,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 2),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: ClipOval(
+                child: Image.asset(AppImages.wAuto, fit: BoxFit.cover),
+              ),
+            ),
+          ),
+
+          // Username
+          Positioned(
+            left: nameLeftPosition,
+            top: topPadding + nameTopPosition,
+            child: Transform.scale(
+              scale: nameScale,
+              child: Container(
+                constraints: BoxConstraints(maxWidth: maxNameWidth),
+                child: const Text(
+                  'Anna Dii',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),
+          ),
+
+          // Stats
+          Positioned(
+            left: nameLeftPosition,
+            top: topPadding + 110 - statsOffset,
+            child: Opacity(
+              opacity: statsOpacity,
+              child: Transform.translate(
+                offset: Offset(0, -statsOffset),
+                child: Container(
+                  constraints: BoxConstraints(maxWidth: maxNameWidth),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _buildStatItem('12', 'Following'),
+                      Container(
+                        height: 20,
+                        width: 1,
+                        margin: const EdgeInsets.symmetric(horizontal: 16),
+                        color: Colors.black,
+                      ),
+                      _buildStatItem('19', 'Followers'),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildStatItem(String count, String label) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Text(
           count,
           style: const TextStyle(
-            fontSize: 20,
+            fontSize: 18,
             fontWeight: FontWeight.w900,
-            color: Colors.white,
+            color: Colors.black,
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 2),
         Text(
           label,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
-            color: Colors.white.withOpacity(0.8),
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
           ),
         ),
       ],
     );
   }
 
+//
   Widget _buildContactActions() {
     return Container(
       height: 85,
@@ -310,20 +400,20 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
           _buildActionItem(
             CupertinoIcons.phone_fill,
             'Call',
-            AppColors.containerColor,
-            AppColors.green,
+            AppColors.white,
+            AppColors.primary,
           ),
           _buildActionItem(
             CupertinoIcons.paperplane_fill,
             'Message',
-            AppColors.containerColor,
-            AppColors.green,
+            AppColors.white,
+            AppColors.primary,
           ),
           _buildActionItem(
             isFollowing ? Ionicons.person_remove : Ionicons.person_add,
             isFollowing ? 'Unfollow' : 'Follow',
-            isFollowing ? Colors.grey[200]! : AppColors.containerColor,
-            isFollowing ? Colors.grey : AppColors.green,
+            isFollowing ? AppColors.white : AppColors.white,
+            isFollowing ? Colors.grey : AppColors.primary,
             onTap: () {
               setState(() {
                 isFollowing = !isFollowing;
@@ -333,14 +423,14 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
           _buildActionItem(
             Ionicons.notifications,
             'Notifications',
-            AppColors.containerColor,
-            AppColors.green,
+            AppColors.white,
+            AppColors.primary,
           ),
           _buildActionItem(
             Icons.more_horiz,
             'More',
-            AppColors.containerColor,
-            AppColors.green,
+            AppColors.white,
+            AppColors.primary,
             isMoreOptions: true,
           ),
         ],
@@ -356,12 +446,15 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
     VoidCallback? onTap,
     bool isMoreOptions = false,
   }) {
-    final buttonContent = SmoothClipRRect(
-      borderRadius: BorderRadius.circular(10),
-      child: Container(
+    final buttonContent = Card(
+      margin: EdgeInsets.zero,
+      elevation: 5,
+      shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      color: backgroundColor,
+      shadowColor: AppColors.black.withOpacity(0.2),
+      child: SizedBox(
         width: 70,
         height: 68,
-        color: backgroundColor,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -413,36 +506,14 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
     );
   }
 
-  Widget _buildMoreButton() {
-    return PopupMenuButton(
-      icon: const Icon(Icons.more_horiz),
-      itemBuilder: (context) => [
-        const PopupMenuItem(
-          value: 'block',
-          child: Text('Block User'),
-        ),
-        const PopupMenuItem(
-          value: 'report',
-          child: Text('Report'),
-        ),
-        const PopupMenuItem(
-          value: 'share',
-          child: Text('Share Profile'),
-        ),
-      ],
-      onSelected: (value) {
-        // Handle menu item selection
-      },
-    );
-  }
-
   Widget _buildReviewSection() {
     return SizedBox(
       height: 115,
       width: double.infinity,
       child: Card(
-        color: AppColors.containerColor,
-        elevation: 0,
+        color: AppColors.white,
+        elevation: 10,
+        shadowColor: AppColors.black.withOpacity(0.2),
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
         shape: SmoothRectangleBorder(
           smoothness: 1,
@@ -567,103 +638,12 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
     );
   }
 
-  Widget _buildFloatingAppBar() {
-    return Positioned(
-      top: 0,
-      left: 0,
-      right: 0,
-      child: AnnotatedRegion<SystemUiOverlayStyle>(
-        value: SystemUiOverlayStyle(
-          statusBarColor: Colors.transparent,
-          statusBarIconBrightness:
-              _appBarOpacity > 0.5 ? Brightness.dark : Brightness.light,
-        ),
-        child: Container(
-          height: _minAppBarHeight + MediaQuery.of(context).padding.top,
-          padding: EdgeInsets.only(
-            top: MediaQuery.of(context).padding.top,
-            left: 8,
-            right: 16,
-          ),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(_appBarOpacity),
-          ),
-          child: Row(
-            children: [
-              SmoothClipRRect(
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  color: _appBarOpacity > 0.5
-                      ? Colors.white
-                      : Colors.black.withOpacity(0.1),
-                  child: IconButton(
-                    icon: Icon(
-                      Ionicons.arrow_back,
-                      color: _appBarOpacity > 0.5 ? Colors.black : Colors.white,
-                    ),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ),
-              ),
-              if (_appBarOpacity > 0.5) ...[
-                const SizedBox(width: 8),
-                Stack(
-                  children: [
-                    Container(
-                      width: 32,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 2),
-                      ),
-                      child: ClipOval(
-                        child: Image.asset(
-                          AppImages.wPlats,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                    // Online indicator
-                    Positioned(
-                      right: 0,
-                      bottom: 0,
-                      child: Container(
-                        width: 12,
-                        height: 12,
-                        decoration: BoxDecoration(
-                          color: Colors.green,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 2),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(width: 8),
-                const Text(
-                  'Anna Dii',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-                const Spacer(),
-                _buildMoreButton(),
-              ],
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildInfinitePostsGrid() {
     return SliverGrid(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
-        crossAxisSpacing: 8,
-        mainAxisSpacing: 8,
+        crossAxisSpacing: 4,
+        mainAxisSpacing: 4,
       ),
       delegate: SliverChildBuilderDelegate(
         (BuildContext context, int index) {
@@ -676,34 +656,31 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
 
           return GestureDetector(
             onTap: () {},
-            child: SmoothClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Image.asset(
-                    AppImages.wPlats,
-                    fit: BoxFit.cover,
-                  ),
-                  if (index % 3 == 0)
-                    Positioned(
-                      top: 8,
-                      right: 8,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.7),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: const Icon(
-                          Icons.play_arrow,
-                          color: Colors.white,
-                          size: 16,
-                        ),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Image.asset(
+                  AppImages.wPlats,
+                  fit: BoxFit.cover,
+                ),
+                if (index % 3 == 0)
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.7),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: const Icon(
+                        Icons.play_arrow,
+                        color: Colors.white,
+                        size: 16,
                       ),
                     ),
-                ],
-              ),
+                  ),
+              ],
             ),
           );
         },
@@ -742,8 +719,8 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
     return SliverGrid(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        crossAxisSpacing: 8,
-        mainAxisSpacing: 8,
+        crossAxisSpacing: 4,
+        mainAxisSpacing: 4,
         childAspectRatio: 0.8,
       ),
       delegate: SliverChildBuilderDelegate(
@@ -756,81 +733,78 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
 
           return GestureDetector(
             onTap: () {},
-            child: SmoothClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Image.asset(
-                    AppImages.wPlats,
-                    fit: BoxFit.cover,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Image.asset(
+                  AppImages.wPlats,
+                  fit: BoxFit.cover,
+                ),
+                Positioned(
+                  right: 8,
+                  top: 8,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.7),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: const Text(
+                      '3:45',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
-                  Positioned(
-                    right: 8,
-                    top: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.7),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: const Text(
-                        '3:45',
-                        style: TextStyle(
+                ),
+                Center(
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.7),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.play_arrow,
+                      color: Colors.white,
+                      size: 32,
+                    ),
+                  ),
+                ),
+                Positioned(
+                  left: 8,
+                  right: 8,
+                  bottom: 8,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Video ${index + 1}',
+                        style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 12,
+                          fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                  ),
-                  Center(
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.7),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.play_arrow,
-                        color: Colors.white,
-                        size: 32,
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    left: 8,
-                    right: 8,
-                    bottom: 8,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Video ${index + 1}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                      const SizedBox(height: 4),
+                      Text(
+                        '${Random().nextInt(1000)}K views',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.8),
+                          fontSize: 12,
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${Random().nextInt(1000)}K views',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           );
         },
@@ -842,26 +816,80 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
 
 class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
   final TabBar tabBar;
+  final Color backgroundColor;
 
-  _SliverTabBarDelegate(this.tabBar);
+  _SliverTabBarDelegate(this.tabBar, {this.backgroundColor = Colors.white});
 
   @override
   Widget build(
       BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
-      color: AppColors.white,
-      child: tabBar,
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        boxShadow: overlapsContent
+            ? [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ]
+            : null,
+      ),
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.grey.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Theme(
+          data: ThemeData(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+          ),
+          child: TabBar(
+            controller: tabBar.controller,
+            tabs: tabBar.tabs,
+            labelColor: AppColors.primary,
+            unselectedLabelColor: Colors.grey,
+            indicator: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.primary.withOpacity(0.2),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            labelStyle: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+            ),
+            unselectedLabelStyle: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+            ),
+            labelPadding: const EdgeInsets.symmetric(vertical: 8),
+            indicatorSize: TabBarIndicatorSize.tab,
+            dividerColor: Colors.transparent,
+            splashBorderRadius: BorderRadius.circular(10),
+            overlayColor: MaterialStateProperty.all(Colors.transparent),
+          ),
+        ),
+      ),
     );
   }
 
   @override
-  double get maxExtent => tabBar.preferredSize.height;
+  double get maxExtent => 65;
 
   @override
-  double get minExtent => tabBar.preferredSize.height;
+  double get minExtent => 65;
 
   @override
   bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
-    return false;
+    return true;
   }
 }

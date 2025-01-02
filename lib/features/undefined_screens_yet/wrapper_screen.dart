@@ -77,6 +77,11 @@ class _MainWrapperState extends State<MainWrapper> {
                 type: BottomNavigationBarType.fixed,
                 showSelectedLabels: true,
                 showUnselectedLabels: true,
+                selectedLabelStyle: const TextStyle(
+                  fontWeight: FontWeight.bold, // Bold font for selected label
+                ),
+                unselectedLabelStyle:
+                    const TextStyle(fontWeight: FontWeight.bold),
                 items: const [
                   BottomNavigationBarItem(
                     icon: Icon(CupertinoIcons.home),
@@ -90,7 +95,7 @@ class _MainWrapperState extends State<MainWrapper> {
                     label: 'Add Post',
                   ),
                   BottomNavigationBarItem(
-                    icon: Icon(CupertinoIcons.person),
+                    icon: Icon(CupertinoIcons.person_fill),
                     label: 'Profile',
                   ),
                 ],
