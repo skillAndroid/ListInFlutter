@@ -1,14 +1,360 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // ignore_for_file: deprecated_member_use
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ionicons/ionicons.dart';
+import 'package:smooth_corner_updated/smooth_corner.dart';
+
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
-import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/details/presentation/pages/details.dart';
-import 'package:smooth_corner_updated/smooth_corner.dart';
+import 'package:list_in/features/explore/domain/enties/product_entity.dart';
+
+class HorizontalProfileProductCard extends StatelessWidget {
+  final ProductEntity product;
+  const HorizontalProfileProductCard({
+    super.key,
+    required this.product,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: AppColors.white,
+      elevation: 8,
+      shadowColor: Colors.black.withOpacity(0.15),
+      shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      child: SizedBox(
+        height: 120,
+        child: Row(
+          children: [
+            SizedBox(
+              width: 120,
+              child: Stack(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(2),
+                    child: SmoothClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: AspectRatio(
+                        aspectRatio: 1,
+                        child: CachedNetworkImage(
+                          imageUrl: product.images[0],
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: SmoothClipRRect(
+                      borderRadius: BorderRadius.circular(6),
+                      child: Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        color: AppColors.white.withOpacity(0.9),
+                        child: Row(
+                          children: [
+                            Icon(Icons.remove_red_eye_rounded,
+                                size: 13,
+                                color: AppColors.black), // Slightly smaller
+                            SizedBox(width: 4),
+                            Text(
+                              '2.5k',
+                              style: TextStyle(
+                                color: AppColors.black,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            SmoothClipRRect(
+                              borderRadius: BorderRadius.circular(6),
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: AppColors.containerColor,
+                                ),
+                                child: Text(
+                                  'Boosted',
+                                  style: TextStyle(
+                                    color: AppColors.darkGray,
+                                    fontSize: 9.5,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 6),
+                        Text(
+                          'Product Name',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.darkBackground,
+                          ),
+                        ),
+                        SizedBox(height: 2),
+                        Text(
+                          '\$299.99',
+                          style: TextStyle(
+                            color: AppColors.primary,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.favorite_rounded,
+                                size: 14,
+                                color:
+                                    AppColors.myRedBrown), // Slightly smaller
+                            SizedBox(width: 4),
+                            Text(
+                              '1.2k',
+                              style: TextStyle(
+                                color: AppColors.darkGray,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Container(
+                              padding:
+                                  EdgeInsets.all(6), // Slightly smaller padding
+                              decoration: BoxDecoration(
+                                color: AppColors.containerColor,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(
+                                Icons.edit_rounded,
+                                color: AppColors.darkGray,
+                                size: 18, // Slightly smaller
+                              ),
+                            ),
+                            SizedBox(width: 4),
+                            Container(
+                              padding:
+                                  EdgeInsets.all(6), // Slightly smaller padding
+                              decoration: BoxDecoration(
+                                color: AppColors.containerColor,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(
+                                Ionicons.ellipsis_vertical,
+                                color: AppColors.darkGray,
+                                size: 18, // Slightly smaller
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ProfileProductCard extends StatelessWidget {
+  final ProductEntity product;
+  const ProfileProductCard({
+    super.key,
+    required this.product,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: AppColors.white,
+      elevation: 10,
+      shadowColor: Colors.black.withOpacity(0.2),
+      shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(2),
+                child: SmoothClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: AspectRatio(
+                    aspectRatio: 1.1,
+                    child: CachedNetworkImage(
+                      imageUrl: product.images[0],
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 12,
+                right: 12,
+                child: SmoothClipRRect(
+                  borderRadius: BorderRadius.circular(7),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    color: AppColors.white.withOpacity(0.9),
+                    child: Row(
+                      children: [
+                        Icon(Icons.remove_red_eye_rounded,
+                            size: 14, color: AppColors.black),
+                        SizedBox(width: 4),
+                        Text(
+                          '2.5k',
+                          style: TextStyle(
+                            color: AppColors.black,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SmoothClipRRect(
+                  borderRadius: BorderRadius.circular(7),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.containerColor,
+                    ),
+                    child: Text(
+                      'Boosted',
+                      style: TextStyle(
+                        color: AppColors.darkGray,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Product Name',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.darkBackground,
+                  ),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  '\$299.99',
+                  style: TextStyle(
+                    color: AppColors.primary,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.favorite_rounded,
+                            size: 16, color: AppColors.myRedBrown),
+                        SizedBox(width: 4),
+                        Text(
+                          '1.2k',
+                          style: TextStyle(
+                            color: AppColors.darkGray,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: AppColors.containerColor,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(
+                            Icons.edit_rounded,
+                            color: AppColors.darkGray,
+                            size: 16,
+                          ),
+                        ),
+                        SizedBox(
+                          width: 4,
+                        ),
+                        Container(
+                          padding: EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: AppColors.containerColor,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(
+                            Ionicons.ellipsis_vertical,
+                            color: AppColors.darkGray,
+                            size: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 class RegularProductCard extends StatelessWidget {
   final ProductEntity product;

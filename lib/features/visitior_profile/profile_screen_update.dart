@@ -1,7 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
 import 'dart:math' as math;
-import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -10,24 +9,25 @@ import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
-import 'package:list_in/features/visitior_profile/product_profile_card.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
-class VisitorProfileScreen extends StatefulWidget {
+class ProfileScreen extends StatefulWidget {
   final String userId;
   final List<ProductEntity> products; // ID of the profile being viewed
-  const VisitorProfileScreen(
+  const ProfileScreen(
       {super.key, required this.userId, required this.products});
 
   @override
-  State<VisitorProfileScreen> createState() => _VisitorProfileScreenState();
+  State<ProfileScreen> createState() => _VisitorProfileScreenState();
 }
 
-class _VisitorProfileScreenState extends State<VisitorProfileScreen>
+class _VisitorProfileScreenState extends State<ProfileScreen>
     with SingleTickerProviderStateMixin {
   late ScrollController _scrollController;
   late TabController _tabController;
   bool isFollowing = false;
+
+  String selectedProductFilter = 'active';
 
   double _offset = 0;
   final double _maxAppBarHeight = 180;
@@ -137,17 +137,64 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                 children: [
                   CustomScrollView(
                     slivers: [
-                      _buildInfiniteProductsGrid(),
+                      _buildProductFilters(),
+                      _buildFilteredProductsGrid(),
                     ],
                   ),
                   CustomScrollView(
                     slivers: [
-                      _buildInfinitePostsGrid(),
+                      SliverToBoxAdapter(
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              height: 56,
+                            ),
+                            Icon(
+                              CupertinoIcons.doc_text,
+                              size: 76,
+                              color: AppColors.grey,
+                            ),
+                            SizedBox(
+                              height: 16,
+                            ),
+                            Text(
+                              "Empty List",
+                              style: TextStyle(
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.grey),
+                            )
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                   CustomScrollView(
                     slivers: [
-                      _buildInfiniteVideosGrid(),
+                      SliverToBoxAdapter(
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              height: 56,
+                            ),
+                            Icon(
+                              CupertinoIcons.video_camera,
+                              size: 76,
+                              color: AppColors.grey,
+                            ),
+                            SizedBox(
+                              height: 16,
+                            ),
+                            Text(
+                              "Empty List",
+                              style: TextStyle(
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.grey),
+                            )
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -165,15 +212,15 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
     final Size screenSize = MediaQuery.of(context).size;
     final double topPadding = MediaQuery.of(context).padding.top;
 
-    // Dynamic sizing based on screen width
+    final bool showEditButtons = progress < 0.3;
+
     final double maxAvatarSize = math.min(125, screenSize.width * 0.3);
     final double minAvatarSize = 40;
     final double avatarSize =
         math.max(minAvatarSize, maxAvatarSize * (1 - progress));
 
-    // Calculate positions
     final double avatarLeftPosition =
-        Tween<double>(begin: 16, end: 56).transform(progress);
+        Tween<double>(begin: 12, end: 28).transform(progress);
     final double avatarTopPosition =
         Tween<double>(begin: 50, end: 8).transform(progress);
 
@@ -181,18 +228,14 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
     final double nameScale =
         Tween<double>(begin: 1.0, end: 0.85).transform(progress);
     final double nameLeftPosition = Tween<double>(
-            begin: avatarLeftPosition + maxAvatarSize + 20,
-            end: avatarLeftPosition + minAvatarSize + 12)
+            begin: avatarLeftPosition + maxAvatarSize + 28,
+            end: avatarLeftPosition + minAvatarSize + 4)
         .transform(progress);
     final double nameTopPosition =
         Tween<double>(begin: 70, end: 12).transform(progress);
 
     final double statsOpacity = math.max(0, 1 - (progress * 2));
     final double statsOffset = _offset * 0.3;
-
-    // Adjusted action buttons opacity to appear later
-    final double actionOpacity =
-        math.max(0, (progress - 0.7) * 3.3); // More delayed appearance
 
     return SliverAppBar(
       expandedHeight: _maxAppBarHeight,
@@ -202,112 +245,64 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
       elevation: progress > 0.5 ? 1 : 0,
       automaticallyImplyLeading: false,
       actions: [
-        Opacity(
-          opacity: actionOpacity,
-          child: Row(
-            children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                margin: const EdgeInsets.only(right: 8),
-                child: TextButton(
-                  onPressed: () {
-                    setState(() {
-                      isFollowing = !isFollowing;
-                    });
-                  },
-                  style: TextButton.styleFrom(
-                    backgroundColor:
-                        isFollowing ? Colors.grey.shade200 : AppColors.primary,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 6,
-                    ),
-                    shape: SmoothRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    minimumSize: const Size(80, 32),
-                  ),
-                  child: Text(
-                    isFollowing ? 'Following' : 'Follow',
-                    style: TextStyle(
-                      color: isFollowing ? Colors.black : Colors.white,
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-              IconButton(
-                icon: const Icon(
-                  CupertinoIcons.ellipsis,
-                  color: Colors.black,
-                  size: 22,
-                ),
-                onPressed: () {
-                  showCupertinoModalPopup(
-                    context: context,
-                    builder: (context) => CupertinoActionSheet(
-                      actions: [
-                        CupertinoActionSheetAction(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text('Share Profile'),
-                        ),
-                        CupertinoActionSheetAction(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text('Report'),
-                        ),
-                        CupertinoActionSheetAction(
-                          isDestructiveAction: true,
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text('Block User'),
-                        ),
-                      ],
-                      cancelButton: CupertinoActionSheetAction(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('Cancel'),
-                      ),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(width: 8),
-            ],
+        IconButton(
+          icon: const Icon(
+            Ionicons.ellipsis_horizontal,
+            color: Colors.black87, // Changed to black87 for consistency
+            size: 22,
           ),
+          onPressed: () {
+            // Navigate to settings
+          },
         ),
+        const SizedBox(width: 8),
       ],
       flexibleSpace: Stack(
         children: [
-          // Back button with original style
-          Positioned(
-            top: topPadding + 4,
-            left: 8,
-            child: IconButton(
-              icon: const Icon(Ionicons.arrow_back, color: Colors.black),
-              onPressed: () => Navigator.pop(context),
-            ),
-          ),
-
-          // Avatar
+          // Avatar with edit button
           Positioned(
             left: avatarLeftPosition,
             top: topPadding + avatarTopPosition,
-            child: Container(
-              width: avatarSize,
-              height: avatarSize,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 2),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
+            child: Stack(
+              children: [
+                Container(
+                  width: avatarSize,
+                  height: avatarSize,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              child: ClipOval(
-                child: Image.asset(AppImages.wAuto, fit: BoxFit.cover),
-              ),
+                  child: ClipOval(
+                    child: Image.asset(AppImages.wAuto, fit: BoxFit.cover),
+                  ),
+                ),
+                if (showEditButtons)
+                  Positioned(
+                    right: 0,
+                    bottom: 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color:
+                            Colors.black87, // Changed from primary to black87
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2),
+                      ),
+                      child: const Icon(
+                        Icons.edit,
+                        size: 14, // Slightly smaller
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
 
@@ -319,14 +314,29 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
               scale: nameScale,
               child: Container(
                 constraints: BoxConstraints(maxWidth: maxNameWidth),
-                child: const Text(
-                  'Anna Dii',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.primary,
-                  ),
-                  overflow: TextOverflow.ellipsis,
+                child: Row(
+                  children: [
+                    Text(
+                      'Anna Dii',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color:
+                            Colors.black87, // Changed from primary to black87
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (showEditButtons)
+                      IconButton(
+                        icon: Icon(
+                          Icons.edit,
+                          size: 16,
+                          color:
+                              Colors.black54, // Changed from primary to black54
+                        ),
+                        onPressed: null,
+                      ),
+                  ],
                 ),
               ),
             ),
@@ -350,7 +360,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                         height: 20,
                         width: 1,
                         margin: const EdgeInsets.symmetric(horizontal: 16),
-                        color: Colors.black,
+                        color: Colors.black26, // Changed to lighter color
                       ),
                       _buildStatItem('19', 'Followers'),
                     ],
@@ -363,7 +373,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
       ),
     );
   }
-//
+
   Widget _buildStatItem(String count, String label) {
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -389,7 +399,6 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
     );
   }
 
-//
   Widget _buildContactActions() {
     return Container(
       height: 85,
@@ -398,40 +407,49 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           _buildActionItem(
-            CupertinoIcons.phone_fill,
-            'Call',
+            CupertinoIcons.plus_circle_fill,
+            'Create',
             AppColors.white,
-            AppColors.primary,
-          ),
-          _buildActionItem(
-            CupertinoIcons.paperplane_fill,
-            'Message',
-            AppColors.white,
-            AppColors.primary,
-          ),
-          _buildActionItem(
-            isFollowing ? Ionicons.person_remove : Ionicons.person_add,
-            isFollowing ? 'Unfollow' : 'Follow',
-            isFollowing ? AppColors.white : AppColors.white,
-            isFollowing ? Colors.grey : AppColors.primary,
+            AppColors.primaryDark,
             onTap: () {
-              setState(() {
-                isFollowing = !isFollowing;
-              });
+              // Handle create action
             },
           ),
           _buildActionItem(
-            Ionicons.notifications,
-            'Notifications',
+            CupertinoIcons.bell_fill,
+            'Alerts',
             AppColors.white,
-            AppColors.primary,
+            AppColors.darkGray,
+            onTap: () {
+              // Handle notifications
+            },
           ),
           _buildActionItem(
-            Icons.more_horiz,
-            'More',
+            Icons.edit,
+            'Edit',
             AppColors.white,
-            AppColors.primary,
-            isMoreOptions: true,
+            AppColors.darkGray,
+            onTap: () {
+              // Handle edit profile
+            },
+          ),
+          _buildActionItem(
+            Icons.workspace_premium,
+            'Premium',
+            AppColors.white,
+            AppColors.myRedBrown,
+            onTap: () {
+              // Handle premium upgrade
+            },
+          ),
+          _buildActionItem(
+            Icons.settings,
+            'Settings',
+            AppColors.white,
+            AppColors.darkGray,
+            onTap: () {
+              // Handle settings
+            },
           ),
         ],
       ),
@@ -443,66 +461,40 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
     String label,
     Color backgroundColor,
     Color iconColor, {
-    VoidCallback? onTap,
-    bool isMoreOptions = false,
+    required VoidCallback onTap,
   }) {
-    final buttonContent = Card(
-      margin: EdgeInsets.zero,
-      elevation: 5,
-      shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      color: backgroundColor,
-      shadowColor: AppColors.black.withOpacity(0.2),
-      child: SizedBox(
-        width: 70,
-        height: 68,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              color: iconColor,
-              size: 24,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 11,
-                color: iconColor,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-
-    if (isMoreOptions) {
-      return PopupMenuButton(
-        child: buttonContent,
-        itemBuilder: (context) => [
-          const PopupMenuItem(
-            value: 'block',
-            child: Text('Block User'),
-          ),
-          const PopupMenuItem(
-            value: 'report',
-            child: Text('Report'),
-          ),
-          const PopupMenuItem(
-            value: 'share',
-            child: Text('Share Profile'),
-          ),
-        ],
-        onSelected: (value) {
-          // Handle menu item selection
-        },
-      );
-    }
-
     return GestureDetector(
       onTap: onTap,
-      child: buttonContent,
+      child: Card(
+        margin: EdgeInsets.zero,
+        elevation: 5,
+        shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        color: backgroundColor,
+        shadowColor: AppColors.black.withOpacity(0.2),
+        child: SizedBox(
+          width: 70,
+          height: 68,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                color: iconColor,
+                size: 24,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: iconColor,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -638,177 +630,113 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
     );
   }
 
-  Widget _buildInfinitePostsGrid() {
-    return SliverGrid(
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        crossAxisSpacing: 4,
-        mainAxisSpacing: 4,
-      ),
-      delegate: SliverChildBuilderDelegate(
-        (BuildContext context, int index) {
-          // Check if we need to load more data
-          if (index >= widget.products.length - 5) {
-            // Implement your load more logic here
-            // You can call a method to fetch more data
-            // loadMorePosts();
-          }
-
-          return GestureDetector(
-            onTap: () {},
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                Image.asset(
-                  AppImages.wPlats,
-                  fit: BoxFit.cover,
-                ),
-                if (index % 3 == 0)
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.7),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: const Icon(
-                        Icons.play_arrow,
-                        color: Colors.white,
-                        size: 16,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          );
-        },
-        childCount: widget.products.length,
+  Widget _buildProductFilters() {
+    return SliverToBoxAdapter(
+      child: Container(
+        height: 40,
+        margin: const EdgeInsets.only(bottom: 16, left: 8),
+        child: ListView(
+          scrollDirection: Axis.horizontal,
+          children: [
+            _buildFilterChip('Active', 'active'),
+            _buildFilterChip('In Queue', 'queue'),
+            _buildFilterChip('Inactive', 'inactive'),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildInfiniteProductsGrid() {
-    return SliverGrid(
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 4,
-        mainAxisSpacing: 4,
-        childAspectRatio: 0.65,
-      ),
-      delegate: SliverChildBuilderDelegate(
-        (BuildContext context, int index) {
-          // Check if we need to load more data
-          if (index >= widget.products.length - 4) {
-            // Implement your load more logic here
-            // loadMoreProducts();
-          }
-
-          return GestureDetector(
-            onTap: () {},
-            child: RegularProductCard(product: widget.products[index]),
-          );
+  Widget _buildFilterChip(String label, String value) {
+    final isSelected = selectedProductFilter == value;
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: FilterChip(
+        elevation: 0,
+        shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        label: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? AppColors.primary : Colors.black87,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+          ),
+        ),
+        side: BorderSide.none,
+        selected: isSelected,
+        onSelected: (bool selected) {
+          setState(() {
+            selectedProductFilter = value;
+          });
         },
-        childCount: widget.products.length,
+        backgroundColor: AppColors.containerColor,
+        selectedColor: AppColors.containerColor,
+        showCheckmark: false,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
     );
   }
 
-  Widget _buildInfiniteVideosGrid() {
+  Widget _buildFilteredProductsGrid() {
+    // Filter products based on selectedProductFilter
+    final List<ProductEntity> filteredProducts =
+        widget.products.where((product) {
+      switch (selectedProductFilter) {
+        case 'active':
+          return true; // Assuming all products in the list are active
+        case 'queue':
+        case 'inactive':
+          return false; // For demonstration, showing no products for these filters
+        default:
+          return true;
+      }
+    }).toList();
+
+    if (filteredProducts.isEmpty) {
+      return SliverToBoxAdapter(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                height: 32,
+              ),
+              Icon(
+                Icons.inventory_2_outlined,
+                size: 72,
+                color: Colors.grey[400],
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'No $selectedProductFilter products',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey[600],
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return SliverGrid(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
+        crossAxisCount: 1, // Changed to 1 for single column
         crossAxisSpacing: 4,
-        mainAxisSpacing: 4,
-        childAspectRatio: 0.8,
+        mainAxisSpacing: 4, // Slightly increased for better vertical spacing
+        childAspectRatio:
+            2.8, // Adjusted for horizontal card (width/height ratio)
       ),
       delegate: SliverChildBuilderDelegate(
         (BuildContext context, int index) {
-          // Check if we need to load more data
-          if (index >= widget.products.length - 4) {
-            // Implement your load more logic here
-            // loadMoreVideos();
-          }
-
           return GestureDetector(
             onTap: () {},
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                Image.asset(
-                  AppImages.wPlats,
-                  fit: BoxFit.cover,
-                ),
-                Positioned(
-                  right: 8,
-                  top: 8,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.7),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: const Text(
-                      '3:45',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-                Center(
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.7),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.play_arrow,
-                      color: Colors.white,
-                      size: 32,
-                    ),
-                  ),
-                ),
-                Positioned(
-                  left: 8,
-                  right: 8,
-                  bottom: 8,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Video ${index + 1}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${Random().nextInt(1000)}K views',
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.8),
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+            child:
+                HorizontalProfileProductCard(product: filteredProducts[index]),
           );
         },
-        childCount: widget.products.length,
+        childCount: filteredProducts.length,
       ),
     );
   }
