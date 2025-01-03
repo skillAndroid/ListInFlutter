@@ -12,8 +12,9 @@ import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/presentation/pages/child_page.dart';
 import 'package:list_in/features/explore/presentation/pages/detailed_page.dart';
 import 'package:list_in/features/post/presentation/pages/post_screen.dart';
+import 'package:list_in/features/profile/presentation/profile_editor_page.dart';
 import 'package:list_in/features/undefined_screens_yet/wrapper_screen.dart';
-import 'package:list_in/features/visitior_profile/profile_screen_update.dart';
+import 'package:list_in/features/profile/presentation/profile_screen.dart';
 import 'package:list_in/features/visitior_profile/visiter_profile.dart';
 import 'package:list_in/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -160,15 +161,23 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: Routes.profile,
-                name: "Profile",
+                name: RoutesByName.profile,
                 builder: (context, state) {
-                  return VisitorProfileScreen(
+                  return ProfileScreen(
                     key: state.pageKey,
                     userId: 'userId',
                     products: sampleProducts,
                   );
                 },
-                routes: [],
+                routes: [
+                  GoRoute(
+                    path: Routes.profileEdit,
+                    name: RoutesByName.profileEdit,
+                    builder: (context, state) => ProfileEditor(
+                      key: state.pageKey,
+                    ),
+                  )
+                ],
               ),
             ],
           ),

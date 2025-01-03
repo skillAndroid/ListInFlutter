@@ -9,6 +9,7 @@ class Routes {
   // Main paths
   static const home = '/home';
   static const profile = '/profile';
+  static const profileEdit = '/profileEdit';
   static const post = '/post';
   static const subcategories = '/subcategories';
   static const attributes = '/details';
@@ -16,6 +17,7 @@ class Routes {
 
   static const myPosts = '/my_posts';
   static const anotherUserProfile = '/a_u_profile';
+
 }
 
 class RoutesByName {
@@ -28,6 +30,7 @@ class RoutesByName {
   // Main paths
   static const home = 'home';
   static const profile = 'profile';
+  static const profileEdit = 'profileEdit';
   static const post = 'post';
   static const subcategories = 'subcategories';
   static const attributes = 'details';

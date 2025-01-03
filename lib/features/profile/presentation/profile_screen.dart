@@ -4,9 +4,11 @@ import 'dart:math' as math;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
@@ -430,7 +432,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
             AppColors.white,
             AppColors.darkGray,
             onTap: () {
-              // Handle edit profile
+              context.goNamed(RoutesByName.profileEdit);
             },
           ),
           _buildActionItem(
@@ -737,6 +739,153 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
           );
         },
         childCount: filteredProducts.length,
+      ),
+    );
+  }
+
+  void _showIOSMenu(BuildContext context) {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (BuildContext context) => CupertinoActionSheet(
+        title: const Text(
+          'Profile Settings',
+          style: TextStyle(fontFamily: "Syne"),
+        ),
+        message: const Text(
+          'Manage your profile',
+          style: TextStyle(fontFamily: "Syne"),
+        ),
+        actions: [
+          // Profile & Account Management
+          _buildActionSheetItem(
+            icon: CupertinoIcons.person_crop_circle_fill_badge_checkmark,
+            title: 'Edit Profile',
+            onPressed: () {
+              Navigator.pop(context);
+              // Handle edit profile
+            },
+          ),
+          _buildActionSheetItem(
+            icon: CupertinoIcons.camera_fill,
+            title: 'Change Profile Photo',
+            onPressed: () {
+              Navigator.pop(context);
+              // Handle photo change
+            },
+          ),
+          _buildActionSheetItem(
+            icon: CupertinoIcons.time,
+            title: 'Working Hours',
+            subtitle: '9:00 - 17:00',
+            onPressed: () {
+              Navigator.pop(context);
+              // Handle working hours
+            },
+          ),
+          _buildActionSheetItem(
+            icon: CupertinoIcons.moon_fill,
+            title: 'Theme',
+            subtitle: 'Light',
+            onPressed: () {
+              Navigator.pop(context);
+              // Handle theme change
+            },
+          ),
+          // Logout (Destructive Action)
+          CupertinoActionSheetAction(
+            isDestructiveAction: true,
+            onPressed: () {
+              Navigator.pop(context);
+              // Handle logout
+            },
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(CupertinoIcons.square_arrow_right),
+                SizedBox(width: 10),
+                Text('Logout',
+                    style: TextStyle(fontSize: 18, fontFamily: "Syne")),
+              ],
+            ),
+          ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.pop(context),
+          child: Text(
+            'Cancel',
+            style: TextStyle(
+                color: AppColors.black, fontSize: 18, fontFamily: "Syne"),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionSheetItem({
+    required IconData icon,
+    required String title,
+    String? subtitle,
+    required VoidCallback onPressed,
+  }) {
+    return CupertinoActionSheetAction(
+      onPressed: onPressed,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // Icon with container
+            SmoothClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                color: AppColors.primary.withOpacity(0.1),
+                child: Icon(
+                  icon,
+                  color: AppColors.primary,
+                  size: 20,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+
+            // Title
+            Expanded(
+              child: Text(
+                title,
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                  fontFamily: "Syne",
+                  color: AppColors.black,
+                  fontSize: 17,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+
+            // Subtitle if provided
+            if (subtitle != null) ...[
+              Text(
+                subtitle,
+                style: TextStyle(
+                  color: AppColors.grey,
+                  fontSize: 15,
+                  fontFamily: "Syne",
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(width: 4),
+            ],
+
+            // Arrow icon
+            Icon(
+              Ionicons.arrow_forward,
+              color: AppColors.grey,
+              size: 18,
+            ),
+          ],
+        ),
       ),
     );
   }
