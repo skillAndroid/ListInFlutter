@@ -37,7 +37,6 @@ import 'package:list_in/features/post/domain/usecases/get_catalogs_usecase.dart'
 import 'package:list_in/features/post/domain/usecases/upload_images_usecase.dart';
 import 'package:list_in/features/post/domain/usecases/upload_video_usecase.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
-import 'package:list_in/features/short_videos/presentation/bloc/video_bloc.dart';
 import 'package:path_provider/path_provider.dart' as path_provider;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -67,8 +66,6 @@ Future<void> init() async {
       getStoredEmailUsecase: sl(),
     ),
   );
-
-  sl.registerFactory(() => VideoBloc());
 
   // Use cases
   sl.registerLazySingleton(() => LoginUseCase(sl()));

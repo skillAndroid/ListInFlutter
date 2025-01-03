@@ -7,7 +7,7 @@ class SubModel {
   String? modelId;
   @HiveField(1)
   String? name;
-  @HiveField(0)
+  @HiveField(2)
   String? attributeId;
   SubModel({this.modelId, this.name, this.attributeId});
   factory SubModel.fromJson(Map<String, dynamic> json) {
