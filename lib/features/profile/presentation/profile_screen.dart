@@ -654,7 +654,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: FilterChip(
-        elevation: 0,
+        elevation: 2,
         shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(8)),
         label: Text(
           label,
