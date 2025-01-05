@@ -147,4 +147,52 @@ class _MultiVideoPlayerState extends State<MultiVideoPlayer> {
       setState(() => isLoading = false);
     }
   }
+
+  Future<void> disposeAllControllers() async {
+    try {
+      for (var video in videosList) {
+        if (video.videoPlayerController != null) {
+          if (video.videoPlayerController!.value.isPlaying) {
+            await video.videoPlayerController!.pause();
+          }
+          await video.videoPlayerController!.dispose();
+          video.videoPlayerController = null;
+        }
+      }
+      MultiVideo.currentIndex = 0;
+    } catch (e) {
+      debugPrint('Error disposing controllers: $e');
+    }
+  }
+
+  /// Pauses current video and releases controller resources temporarily
+  /// Use this when navigating to another screen but planning to return
+  Future<void> pauseAndReleaseControllers() async {
+    try {
+      // Pause and release current video
+      if (MultiVideo.currentIndex < videosList.length) {
+        var currentVideo = videosList[MultiVideo.currentIndex];
+        if (currentVideo.videoPlayerController != null) {
+          if (currentVideo.videoPlayerController!.value.isPlaying) {
+            await currentVideo.videoPlayerController!.pause();
+          }
+          await currentVideo.videoPlayerController!.setVolume(0);
+        }
+      }
+
+      // Release preloaded videos
+      for (var video in videosList) {
+        if (video.index != MultiVideo.currentIndex &&
+            video.videoPlayerController != null) {
+          await video.videoPlayerController!.pause();
+          await video.videoPlayerController!.dispose();
+          video.videoPlayerController = null;
+        }
+      }
+    } catch (e) {
+      debugPrint('Error pausing controllers: $e');
+    }
+  }
+
+  
 }

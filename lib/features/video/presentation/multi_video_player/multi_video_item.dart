@@ -1,41 +1,40 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:list_in/features/video/presentation/multi_video_player/multi_video_model.dart';
 import 'package:video_player/video_player.dart';
-
-/// Stateful widget to fetch and then display video content.
-/// ignore: must_be_immutable
 class MultiVideoItem extends StatefulWidget {
-  dynamic videoSource;
-  int index;
-  Function(VideoPlayerController controller) onInit;
-  Function(int index) onDispose;
-  VideoPlayerOptions? videoPlayerOptions;
-  VideoSource sourceType;
-  Future<ClosedCaptionFile>? closedCaptionFile;
-  Map<String, String>? httpHeaders;
-  VideoFormat? formatHint;
-  String? package;
-  bool showControlsOverlay;
-  bool showVideoProgressIndicator;
-  bool show = true;
+  final dynamic videoSource;
+  final int index;
+  final Function(VideoPlayerController controller) onInit;
+  final Function(int index) onDispose;
+  final VideoPlayerOptions? videoPlayerOptions;
+  final VideoSource sourceType;
+  final Future<ClosedCaptionFile>? closedCaptionFile;
+  final Map<String, String>? httpHeaders;
+  final VideoFormat? formatHint;
+  final String? package;
+  final bool showControlsOverlay;
+  final bool showVideoProgressIndicator;
 
-  MultiVideoItem({
-    super.key,
+  // ignore: use_super_parameters
+  const MultiVideoItem({
+    Key? key,
     required this.videoSource,
     required this.index,
     required this.onInit,
     required this.onDispose,
     this.videoPlayerOptions,
+    required this.sourceType,
     this.closedCaptionFile,
     this.httpHeaders,
     this.formatHint,
     this.package,
     this.showControlsOverlay = true,
     this.showVideoProgressIndicator = true,
-    required this.sourceType,
-  });
+  }) : super(key: key);
 
   @override
   State<MultiVideoItem> createState() => _MultiVideoItemState();
@@ -53,11 +52,9 @@ class _MultiVideoItemState extends State<MultiVideoItem> {
     _initializeVideo();
   }
 
-  /// initializes videos
   void _initializeVideo() async {
     try {
       _playbackTimer?.cancel();
-      // ignore: deprecated_member_use
       _controller = VideoPlayerController.network(
         widget.videoSource,
         videoPlayerOptions: widget.videoPlayerOptions,
@@ -111,38 +108,52 @@ class _MultiVideoItemState extends State<MultiVideoItem> {
     await _controller.dispose();
   }
 
+  void _videoListener() {
+    if (_isDisposed || !mounted) return;
+
+    if (_controller.value.hasError) {
+      debugPrint('Video playback error: ${_controller.value.errorDescription}');
+      _cleanupResources();
+      return;
+    }
+
+    if (widget.index != MultiVideo.currentIndex) {
+      if (_controller.value.isInitialized && _controller.value.isPlaying) {
+        _controller.pause();
+      }
+    }
+
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : _controller.value.isInitialized
-              ? _buildVideoPlayer()
+              ? Center(
+                  child: AspectRatio(
+                    aspectRatio: _controller.value.aspectRatio,
+                    child: Stack(
+                      alignment: Alignment.bottomCenter,
+                      children: <Widget>[
+                        VideoPlayer(_controller),
+                        if (widget.showControlsOverlay)
+                          _ControlsOverlay(controller: _controller),
+                        if (widget.showVideoProgressIndicator)
+                          VideoProgressIndicator(
+                            _controller,
+                            allowScrubbing: true,
+                            padding: const EdgeInsets.all(8.0),
+                          ),
+                      ],
+                    ),
+                  ),
+                )
               : const SizedBox.shrink(),
-    );
-  }
-
-  Widget _buildVideoPlayer() {
-    return Center(
-      child: AspectRatio(
-        aspectRatio: _controller.value.aspectRatio,
-        child: Stack(
-          alignment: Alignment.bottomCenter,
-          children: <Widget>[
-            VideoPlayer(_controller),
-            if (widget.showControlsOverlay)
-              _ControlsOverlay(
-                controller: _controller,
-              ),
-            if (widget.showVideoProgressIndicator)
-              VideoProgressIndicator(
-                _controller,
-                allowScrubbing: true,
-                padding: const EdgeInsets.all(8.0),
-              ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -155,33 +166,10 @@ class _MultiVideoItemState extends State<MultiVideoItem> {
     widget.onDispose.call(widget.index);
     super.dispose();
   }
-
-  void _videoListener() {
-    if (_isDisposed || !mounted) return;
-
-    // Handle playback errors
-    if (_controller.value.hasError) {
-      debugPrint('Video playback error: ${_controller.value.errorDescription}');
-      _cleanupResources();
-      return;
-    }
-
-    // Manage playback based on visibility
-    if (widget.index != MultiVideo.currentIndex) {
-      if (_controller.value.isInitialized && _controller.value.isPlaying) {
-        _controller.pause();
-      }
-    }
-
-    if (mounted) {
-      setState(() {});
-    }
-  }
 }
 
 class _ControlsOverlay extends StatefulWidget {
   const _ControlsOverlay({required this.controller});
-
   final VideoPlayerController controller;
 
   @override

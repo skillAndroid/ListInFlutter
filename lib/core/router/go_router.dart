@@ -128,7 +128,7 @@ class AppRouter {
                   GoRoute(
                     path: Routes.videosFeed,
                     name: RoutesByName.videosFeed,
-                    builder: (context, state) => MultiVideos(
+                    builder: (context, state) => MultiVideosScreen(
                       key: state.pageKey,
                     ),
                   ),
