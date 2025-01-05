@@ -7,16 +7,12 @@ import 'package:video_player/video_player.dart';
 /// Stateful widget to display preloaded videos inside page view.
 //ignore: must_be_immutable
 class MultiVideoPlayer extends StatefulWidget {
-  /// enum sourceType values holds the type of source Network, Assets or File
   VideoSource sourceType;
 
-  /// videoSourceList is List or dynamic video sources
   List<dynamic> videoSourceList;
 
-  /// scroll direction of preload page view
   Axis scrollDirection;
 
-  /// number of videos getting initialized defined by preloadPagesCount
   int preloadPagesCount;
 
   VideoPlayerOptions? videoPlayerOptions;
@@ -33,23 +29,19 @@ class MultiVideoPlayer extends StatefulWidget {
 
   /// getCurrentVideoController return the current playing video controller
   Function(VideoPlayerController? videoPlayerController)?
-      getCurrentVideoController ;
+      getCurrentVideoController;
 
-  /// onPageChanged calls when swiping through the pages, return
-  /// current playing video controller and index
   Function(VideoPlayerController? videoPlayerController, int index)?
       onPageChanged;
   ScrollPhysics? scrollPhysics;
   bool reverse;
   bool pageSnapping;
 
-  /// [PreloadPageView] controller
   PreloadPageController? pageController;
 
   @override
   State<MultiVideoPlayer> createState() => _MultiVideoPlayerState();
 
-  /// plays videos from list of network video urls
   MultiVideoPlayer.network({
     super.key,
     required this.videoSourceList,
@@ -70,48 +62,6 @@ class MultiVideoPlayer extends StatefulWidget {
     this.showControlsOverlay = true,
     this.showVideoProgressIndicator = true,
   }) : sourceType = VideoSource.network;
-
-  /// plays videos from list of video files
-  MultiVideoPlayer.file({
-    super.key,
-    required this.videoSourceList,
-    required this.height,
-    required this.width,
-    this.scrollDirection = Axis.horizontal,
-    this.preloadPagesCount = 1,
-    this.videoPlayerOptions,
-    this.httpHeaders,
-    this.closedCaptionFile,
-    this.scrollPhysics,
-    this.reverse = false,
-    this.pageSnapping = true,
-    this.pageController,
-    this.getCurrentVideoController,
-    this.onPageChanged,
-    this.showControlsOverlay = true,
-    this.showVideoProgressIndicator = true,
-  }) : sourceType = VideoSource.file;
-
-  /// plays videos from list of asset videos
-  MultiVideoPlayer.asset({
-    super.key,
-    required this.videoSourceList,
-    required this.height,
-    required this.width,
-    this.scrollDirection = Axis.horizontal,
-    this.preloadPagesCount = 1,
-    this.videoPlayerOptions,
-    this.package,
-    this.closedCaptionFile,
-    this.scrollPhysics,
-    this.reverse = false,
-    this.pageSnapping = true,
-    this.pageController,
-    this.getCurrentVideoController,
-    this.onPageChanged,
-    this.showControlsOverlay = true,
-    this.showVideoProgressIndicator = true,
-  }) : sourceType = VideoSource.asset;
 }
 
 class _MultiVideoPlayerState extends State<MultiVideoPlayer> {
@@ -140,7 +90,7 @@ class _MultiVideoPlayerState extends State<MultiVideoPlayer> {
       ),
     );
   }
- 
+
   PreloadPageView _pageView() {
     return PreloadPageView.builder(
       itemCount: videosList.length,

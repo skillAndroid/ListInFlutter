@@ -59,7 +59,7 @@ class PostRepositoryImpl implements PostRepository {
     if (await networkInfo.isConnected) {
       try {
         final listOfImages = await remoteDataSource.uploadImages(images);
-        debugPrint("This is the REPOSITORY_IMAGES : ${listOfImages}");
+        debugPrint("This is the REPOSITORY_IMAGES : $listOfImages");
         return Right(listOfImages);
       } on ServerExeption {
         debugPrint("Here is ther error Server Exeption");

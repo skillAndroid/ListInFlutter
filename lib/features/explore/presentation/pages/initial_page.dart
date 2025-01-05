@@ -107,14 +107,32 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
     return BlocBuilder<HomeTreeCubit, HomeTreeState>(
       builder: (context, state) {
         if (state.isLoading) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
+          return Scaffold(
+            body: Column(
+              children: [
+                ElevatedButton(
+                    onPressed: () {
+                      context.pushNamed(RoutesByName.videosFeed);
+                    },
+                    child: Text("go videos")),
+                Center(child: CircularProgressIndicator()),
+              ],
+            ),
           );
         }
 
         if (state.hasError) {
           return Scaffold(
-            body: Center(child: Text(state.error!)),
+            body: Center(child: Column(
+              children: [
+                Text(state.error!),
+                 ElevatedButton(
+                    onPressed: () {
+                      context.pushNamed(RoutesByName.videosFeed);
+                    },
+                    child: Text("go videos")),
+              ],
+            )),
           );
         }
 

@@ -18,6 +18,7 @@ class Routes {
   static const myPosts = '/my_posts';
   static const anotherUserProfile = '/a_u_profile';
 
+  static const videosFeed = '/video_feed';
 }
 
 class RoutesByName {
@@ -38,4 +39,6 @@ class RoutesByName {
 
   static const myPosts = 'my_posts';
   static const anotherUserProfile = 'a_u_profile';
+
+  static const videosFeed = 'video_feed';
 }

@@ -53,16 +53,14 @@ class _MultiVideoItemState extends State<MultiVideoItem> {
   /// initializes videos
   void _initializeVideo() async {
     try {
-      if (widget.sourceType == VideoSource.network) {
-        // ignore: deprecated_member_use
-        _controller = VideoPlayerController.network(
-          widget.videoSource,
-          videoPlayerOptions: widget.videoPlayerOptions,
-          closedCaptionFile: widget.closedCaptionFile,
-          httpHeaders: widget.httpHeaders ?? {},
-          formatHint: widget.formatHint,
-        );
-      }
+      // ignore: deprecated_member_use
+      _controller = VideoPlayerController.network(
+        widget.videoSource,
+        videoPlayerOptions: widget.videoPlayerOptions,
+        closedCaptionFile: widget.closedCaptionFile,
+        httpHeaders: widget.httpHeaders ?? {},
+        formatHint: widget.formatHint,
+      );
 
       await _controller.initialize();
 
@@ -86,15 +84,6 @@ class _MultiVideoItemState extends State<MultiVideoItem> {
         setState(() => isLoading = false);
       }
     }
-
-    // _controller.initialize().then((_) {
-    //   widget.onInit.call(_controller);
-    //   if (widget.index == MultiVideo.currentIndex) {
-    //     _controller.play();
-    //   }
-    //   _controller.addListener(() => _videoListener());
-    //   setState(() => isLoading = false);
-    // });
   }
 
   @override

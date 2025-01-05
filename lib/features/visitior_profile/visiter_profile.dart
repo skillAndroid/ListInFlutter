@@ -10,7 +10,6 @@ import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
-import 'package:list_in/features/visitior_profile/product_profile_card.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class VisitorProfileScreen extends StatefulWidget {

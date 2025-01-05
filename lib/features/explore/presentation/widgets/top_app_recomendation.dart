@@ -1,11 +1,7 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/config/theme/app_colors.dart';
-import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
-import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/explore/presentation/widgets/location_bar.dart';
 import 'package:list_in/features/explore/presentation/widgets/recomendation_widget.dart';
-import 'package:list_in/features/explore/presentation/widgets/sub_category_list.dart';
 import 'package:list_in/features/explore/presentation/widgets/category_list.dart';
 
 class TopAppRecomendationCategory extends StatelessWidget {
