@@ -54,7 +54,7 @@ class MultiVideo {
             if (currentVideo.videoPlayerController!.value.isPlaying) {
               await currentVideo.videoPlayerController!.pause();
             }
-            await currentVideo.videoPlayerController!.setVolume(0);
+          //  await currentVideo.videoPlayerController!.setVolume(0);
           } catch (e) {
             debugPrint('Error pausing current video: $e');
           }
@@ -104,4 +104,6 @@ class MultiVideo {
     this.index = index ?? this.index;
     _retryCount = 0;
   }
+
+
 }
