@@ -457,7 +457,7 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
                   widget.productDetails.name,
                   style: const TextStyle(
                     color: Color(0xFF1A1A1A),
-                    fontSize: 18,
+                    fontSize: 16,
                     fontWeight: FontWeight.w600,
                     letterSpacing: -0.5,
                   ),

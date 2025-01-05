@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:list_in/core/router/routes.dart';
@@ -15,7 +17,7 @@ class MultiVideosScreen extends StatefulWidget {
 }
 
 class _MultiVideosScreenState extends State<MultiVideosScreen> {
-  // Mock data list
+  // Mock data listsa
   final List<dynamic> mockVideos = [
     "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
     "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
@@ -39,6 +41,7 @@ class _MultiVideosScreenState extends State<MultiVideosScreen> {
     id: "1",
   );
   bool _isDisposing = false;
+  bool _isNavigating = false;
 
   @override
   void dispose() {
@@ -49,9 +52,7 @@ class _MultiVideosScreenState extends State<MultiVideosScreen> {
 
   Future<void> _cleanupAndDispose() async {
     try {
-      // First pause all playing videos
-      await MultiVideo.pauseAndReleaseControllers();
-      // Then dispose all controllers
+      await MultiVideo.pauseControllers();
       await MultiVideo.disposeAllControllers();
     } catch (e) {
       debugPrint('Error during cleanup: $e');
@@ -59,32 +60,47 @@ class _MultiVideosScreenState extends State<MultiVideosScreen> {
   }
 
   Future<void> _handleBackPress() async {
-    if (_isDisposing) return;
+    if (_isDisposing || _isNavigating) return;
 
     setState(() {
-      _isDisposing = true;
+      _isNavigating = true;
     });
 
-    try {
-      // Ensure videos are paused first
-      await MultiVideo.pauseAndReleaseControllers();
-      // Then dispose all controllers
-      await MultiVideo.disposeAllControllers();
+    if (mounted) {
+      Navigator.of(context).pop();
+    }
 
-      if (mounted) {
-        Navigator.of(context).pop();
+    _cleanupResources();
+  }
+
+  Future<void> _cleanupResources() async {
+    if (_isDisposing) return;
+    _isDisposing = true;
+
+    try {
+      if (MultiVideo.currentIndex < MultiVideo.instances.length) {
+        final currentVideo = MultiVideo.instances[MultiVideo.currentIndex];
+        if (currentVideo.videoPlayerController?.value.isPlaying ?? false) {
+          await currentVideo.videoPlayerController?.pause();
+        }
       }
+      unawaited(_completeCleanup());
     } catch (e) {
-      debugPrint('Error during back navigation: $e');
-      // Still pop even if there's an error
-      if (mounted) {
-        Navigator.of(context).pop();
-      }
+      debugPrint('Error during cleanup: $e');
+    }
+  }
+
+  Future<void> _completeCleanup() async {
+    try {
+      await MultiVideo.pauseControllers();
+      await MultiVideo.disposeAllControllers();
+    } catch (e) {
+      debugPrint('Error during complete cleanup: $e');
     }
   }
 
   void _navigateToNewScreen() async {
-    await MultiVideo.pauseAndReleaseControllers();
+    await MultiVideo.pauseControllers();
     if (mounted) {
       context.push(
         Routes.productDetails.replaceAll(':id', product.id),
@@ -117,7 +133,6 @@ class _MultiVideosScreenState extends State<MultiVideosScreen> {
           preloadPagesCount: 2,
           videoPlayerOptions: VideoPlayerOptions(),
           onPageChanged: (videoPlayerController, index) {
-            // Handle page change if needed
             debugPrint('Changed to video index: $index');
           },
           getCurrentVideoController: (videoPlayerController) {
