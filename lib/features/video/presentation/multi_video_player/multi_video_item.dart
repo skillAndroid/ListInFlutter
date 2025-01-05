@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:list_in/features/video/presentation/multi_video_player/multi_video_model.dart';
 import 'package:video_player/video_player.dart';
@@ -43,6 +45,7 @@ class _MultiVideoItemState extends State<MultiVideoItem> {
   late VideoPlayerController _controller;
   bool isLoading = true;
   bool _isDisposed = false;
+  Timer? _playbackTimer;
 
   @override
   void initState() {
@@ -53,6 +56,7 @@ class _MultiVideoItemState extends State<MultiVideoItem> {
   /// initializes videos
   void _initializeVideo() async {
     try {
+      _playbackTimer?.cancel();
       // ignore: deprecated_member_use
       _controller = VideoPlayerController.network(
         widget.videoSource,
@@ -62,28 +66,49 @@ class _MultiVideoItemState extends State<MultiVideoItem> {
         formatHint: widget.formatHint,
       );
 
-      await _controller.initialize();
+      _controller.addListener(_videoListener);
+
+      await _controller.initialize().timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          debugPrint('Video initialization timeout: ${widget.videoSource}');
+          throw TimeoutException('Video initialization timeout');
+        },
+      );
 
       if (_isDisposed) {
-        await _controller.dispose();
+        await _cleanupResources();
         return;
       }
 
       widget.onInit.call(_controller);
+
       if (widget.index == MultiVideo.currentIndex) {
-        await _controller.play();
+        _playbackTimer = Timer(const Duration(milliseconds: 300), () {
+          if (!_isDisposed && mounted) {
+            _controller.play();
+          }
+        });
       }
-      _controller.addListener(_videoListener);
 
       if (mounted) {
         setState(() => isLoading = false);
       }
     } catch (e) {
+      await _cleanupResources();
       debugPrint('Error initializing video: $e');
       if (mounted) {
         setState(() => isLoading = false);
       }
     }
+  }
+
+  Future<void> _cleanupResources() async {
+    _playbackTimer?.cancel();
+    if (_controller.value.isInitialized) {
+      await _controller.pause();
+    }
+    await _controller.dispose();
   }
 
   @override
@@ -92,45 +117,62 @@ class _MultiVideoItemState extends State<MultiVideoItem> {
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : _controller.value.isInitialized
-              ? Center(
-                  child: AspectRatio(
-                    aspectRatio: _controller.value.aspectRatio,
-                    child: Stack(
-                      alignment: Alignment.bottomCenter,
-                      children: <Widget>[
-                        VideoPlayer(_controller),
-                        widget.showControlsOverlay
-                            ? _ControlsOverlay(controller: _controller)
-                            : const SizedBox.shrink(),
-                        widget.showVideoProgressIndicator
-                            ? VideoProgressIndicator(_controller,
-                                allowScrubbing: true)
-                            : const SizedBox.shrink(),
-                      ],
-                    ),
-                  ),
-                )
+              ? _buildVideoPlayer()
               : const SizedBox.shrink(),
+    );
+  }
+
+  Widget _buildVideoPlayer() {
+    return Center(
+      child: AspectRatio(
+        aspectRatio: _controller.value.aspectRatio,
+        child: Stack(
+          alignment: Alignment.bottomCenter,
+          children: <Widget>[
+            VideoPlayer(_controller),
+            if (widget.showControlsOverlay)
+              _ControlsOverlay(
+                controller: _controller,
+              ),
+            if (widget.showVideoProgressIndicator)
+              VideoProgressIndicator(
+                _controller,
+                allowScrubbing: true,
+                padding: const EdgeInsets.all(8.0),
+              ),
+          ],
+        ),
+      ),
     );
   }
 
   @override
   void dispose() {
     _isDisposed = true;
+    _playbackTimer?.cancel();
     _controller.removeListener(_videoListener);
-    _controller.dispose();
+    _cleanupResources();
     widget.onDispose.call(widget.index);
     super.dispose();
   }
 
   void _videoListener() {
-    if (_isDisposed) return;
+    if (_isDisposed || !mounted) return;
 
+    // Handle playback errors
+    if (_controller.value.hasError) {
+      debugPrint('Video playback error: ${_controller.value.errorDescription}');
+      _cleanupResources();
+      return;
+    }
+
+    // Manage playback based on visibility
     if (widget.index != MultiVideo.currentIndex) {
       if (_controller.value.isInitialized && _controller.value.isPlaying) {
         _controller.pause();
       }
     }
+
     if (mounted) {
       setState(() {});
     }
