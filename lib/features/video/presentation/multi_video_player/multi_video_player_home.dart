@@ -3,6 +3,7 @@ import 'package:list_in/features/explore/domain/enties/advertised_product_entity
 import 'package:list_in/features/video/presentation/multi_video_player/multi_video_item.dart';
 import 'package:list_in/features/video/presentation/multi_video_player/multi_video_model.dart';
 import 'package:list_in/features/video/presentation/wigets/preload_page/preload_page.dart';
+import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:video_player/video_player.dart';
 
 /// Stateful widget to display preloaded videos inside page view.
@@ -113,15 +114,13 @@ class _MultiVideoPlayerState extends State<MultiVideoPlayer> {
 
   Widget _buildVideoItem(int index) {
     final product = widget.videoSourceList[index];
-    return Container(
-      margin: EdgeInsets.symmetric(
-        vertical: widget.scrollDirection == Axis.vertical ? 8.0 : 0,
-        horizontal: widget.scrollDirection == Axis.horizontal ? 8.0 : 0,
+    return Card(
+      margin: EdgeInsets.symmetric(vertical: 4),
+      shape: SmoothRectangleBorder(
+        smoothness: 0.8,
+        borderRadius: BorderRadius.circular(28)
       ),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        color: Colors.black,
-      ),
+      color: Colors.black,
       clipBehavior:
           Clip.antiAlias, // This ensures the video respects the border radius
       child: Stack(

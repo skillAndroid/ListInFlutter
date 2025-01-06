@@ -2,10 +2,12 @@
 
 import 'dart:async';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/explore/domain/enties/advertised_product_entity.dart';
 import 'package:list_in/features/video/presentation/multi_video_player/multi_video_model.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
@@ -40,7 +42,8 @@ class MultiVideoItem extends StatefulWidget {
     this.formatHint,
     this.package,
     this.showControlsOverlay = true,
-    this.showVideoProgressIndicator = true, required this.onProductTap,
+    this.showVideoProgressIndicator = true,
+    required this.onProductTap,
   }) : super(key: key);
 
   @override
@@ -138,142 +141,180 @@ class _MultiVideoItemState extends State<MultiVideoItem> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.black,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          // Video thumbnail or loading placeholder
-          if (widget.videoSource.thumbnailUrl.isNotEmpty == true)
-            Image.network(
-              widget.videoSource.thumbnailUrl,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  color: Colors.black,
-                  child: const Center(
-                    child: Icon(
-                      Icons.image_not_supported,
-                      color: Colors.white54,
-                      size: 48,
-                    ),
-                  ),
-                );
-              },
-            )
-          else
-            Container(
-              color: Colors.black,
-              child: const Center(
-                child: Icon(
-                  Icons.movie,
-                  color: Colors.white54,
-                  size: 48,
-                ),
-              ),
-            ),
-
-          // Video player
-          if (_controller.value.isInitialized)
-            FittedBox(
-              fit: BoxFit.cover,
-              child: SizedBox(
-                width: _controller.value.size.width,
-                height: _controller.value.size.height,
-                child: VideoPlayer(_controller),
-              ),
-            ),
-
-          Positioned(
-            top: 4,
-            left: 4,
-            child: IconButton(
-                icon: const Icon(Ionicons.close, color: Colors.white),
-                onPressed: () => context.pop()),
-          ),
-
-          if (_controller.value.isBuffering || isLoading)
-            SizedBox(
-              width: 14,
-              height: 14,
-              child: const Center(
-                child: CircularProgressIndicator(
-                  strokeWidth: 3.5,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-
-          // Product info and navigation
-          Positioned(
-            left: 16,
-            right: 16,
-            bottom: 56,
-            child: GestureDetector(
-              onTap: widget.onProductTap,
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.videoSource.title,
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+    return GestureDetector(
+      onTap: () {
+        if (_controller.value.isPlaying) {
+          _controller.pause();
+        }else{
+          _controller.play();
+        }
+      },
+      child: Container(
+        color: Colors.black,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            // Video thumbnail or loading placeholder
+            if (widget.videoSource.thumbnailUrl.isNotEmpty == true)
+              Image.network(
+                widget.videoSource.thumbnailUrl,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    color: Colors.black,
+                    child: const Center(
+                      child: Icon(
+                        Icons.image_not_supported,
+                        color: Colors.white54,
+                        size: 48,
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Row(
+                  );
+                },
+              )
+            else
+              Container(
+                color: Colors.black,
+                child: const Center(
+                  child: Icon(
+                    Icons.movie,
+                    color: Colors.white54,
+                    size: 48,
+                  ),
+                ),
+              ),
+
+            // Video player
+            if (_controller.value.isInitialized)
+              FittedBox(
+                fit: BoxFit.cover,
+                child: SizedBox(
+                  width: _controller.value.size.width,
+                  height: _controller.value.size.height,
+                  child: VideoPlayer(_controller),
+                ),
+              ),
+
+            Positioned(
+              top: 4,
+              left: 4,
+              child: IconButton(
+                  icon: const Icon(Ionicons.close, color: Colors.white),
+                  onPressed: () => context.pop()),
+            ),
+
+            if (_controller.value.isBuffering || isLoading)
+              SizedBox(
+                width: 14,
+                height: 14,
+                child: const Center(
+                  child: CircularProgressIndicator(
+                    strokeWidth: 3.5,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+
+            // Product info and navigation
+            Positioned(
+              left: 24,
+              right: 24,
+              bottom: 64,
+              child: GestureDetector(
+                onTap: widget.onProductTap,
+                child: SmoothClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    height: 84,
+                    color: Colors.white,
+                    child: Row(
                       children: [
-                        Text(
-                          widget.videoSource.price,
-                          style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                        SmoothClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: SizedBox(
+                            width: 84,
+                            height: 84,
+                            child: CachedNetworkImage(
+                              imageUrl: widget.videoSource.images[0],
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         ),
-                        const Spacer(),
-                        Row(
-                          children: [
-                            const Icon(Icons.star,
-                                color: Colors.amber, size: 16),
-                            const SizedBox(width: 4),
-                            Text(
-                              widget.videoSource.userRating.toString(),
-                              style: const TextStyle(color: Colors.black),
-                            ),
-                            Text(
-                              ' (${widget.videoSource.reviewsCount})',
-                              style: const TextStyle(color: Colors.black),
-                            ),
-                          ],
+                        SizedBox(
+                          width: 8,
                         ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.videoSource.price,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 17,
+                                color: AppColors.black,
+                              ),
+                            ),
+                            SizedBox(
+                              height: 4,
+                            ),
+                            Text(
+                              widget.videoSource.title,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w400,
+                                fontSize: 14,
+                                color: AppColors.black,
+                              ),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Text(
+                                  widget.videoSource.userName,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 14,
+                                    color: AppColors.black,
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.star,
+                                  color: CupertinoColors.activeOrange,
+                                ),
+                                Text(
+                                  widget.videoSource.userRating.toString(),
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 14,
+                                    color: AppColors.black,
+                                  ),
+                                ),
+                                Text(
+                                  "(${widget.videoSource.reviewsCount})",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 14,
+                                    color: AppColors.grey,
+                                  ),
+                                ),
+                              ],
+                            )
+                          ],
+                        )
                       ],
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      widget.videoSource.location,
-                      style: const TextStyle(color: Colors.black54),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
 
-          // Video controls
-          if (_controller.value.isInitialized) ...[
-            if (widget.showControlsOverlay)
-              _ControlsOverlay(controller: _controller),
+            // Video controls
+            if (_controller.value.isInitialized) ...[
+              if (widget.showControlsOverlay)
+                _ControlsOverlay(controller: _controller),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -311,11 +352,11 @@ class _ControlsOverlayState extends State<_ControlsOverlay> {
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      left: 0,
-      right: 0,
-      bottom: 0,
+      left: 8,
+      right: 8,
+      bottom: 8,
       child: Container(
-        height: 48,
+        height: 50,
         padding: const EdgeInsets.symmetric(horizontal: 8),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -517,8 +558,8 @@ class _CustomVideoProgressIndicatorState
                         (progressBarWidth -
                             16), // Subtract thumb width to prevent overflow
                     child: Container(
-                      width: 16,
-                      height: 16,
+                      width: 12,
+                      height: 12,
                       decoration: BoxDecoration(
                         color: Colors.white,
                         shape: BoxShape.circle,

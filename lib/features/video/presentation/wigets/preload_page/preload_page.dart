@@ -9,7 +9,7 @@ class PreloadPageControllerListIn extends ScrollController {
   PreloadPageControllerListIn({
     this.initialPage = 0,
     this.keepPage = true,
-    this.viewportFraction = 0.93,
+    this.viewportFraction = 0.95,
   }) : assert(viewportFraction > 0.0);
 
   /// The page to show when first creating the [PreloadPageView}].
