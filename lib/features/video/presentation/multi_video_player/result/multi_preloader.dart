@@ -120,7 +120,7 @@ class _MultiVideosScreenState extends State<MultiVideosScreen> {
             width: MediaQuery.of(context).size.width,
             videoSourceList: widget.source,
             scrollDirection: Axis.vertical,
-            preloadPagesCount: 2,
+            preloadPagesCount: 0,
             videoPlayerOptions: VideoPlayerOptions(),
             onPageChanged: (videoPlayerController, index) {
               debugPrint('Changed to video index: $index');

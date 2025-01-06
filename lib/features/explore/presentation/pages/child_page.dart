@@ -99,7 +99,6 @@ class _InitialHomeTreePageState extends State<ChildHomeTreePage> {
     }
   }
 
-//
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<HomeTreeCubit, HomeTreeState>(
@@ -203,7 +202,6 @@ class _InitialHomeTreePageState extends State<ChildHomeTreePage> {
     );
   }
 
-  //
   Widget _buildFilterChip(
       HomeTreeState state, int index, Set<int> selectedFilters) {
     return Padding(
@@ -233,7 +231,6 @@ class _InitialHomeTreePageState extends State<ChildHomeTreePage> {
       ),
     );
   }
-//
 
   PreferredSizeWidget _buildAppBar() {
     return PreferredSize(
@@ -332,7 +329,6 @@ class _InitialHomeTreePageState extends State<ChildHomeTreePage> {
     );
   }
 
-//
   Widget _buildAdvertisedProduct(AdvertisedProductEntity product) {
     return ValueListenableBuilder<double>(
       valueListenable: _visibilityNotifiers[product.id]!,
@@ -695,5 +691,4 @@ class _InitialHomeTreePageState extends State<ChildHomeTreePage> {
       recommendations: recommendations,
     );
   }
-//
 }
