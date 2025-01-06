@@ -145,7 +145,7 @@ class _MultiVideoItemState extends State<MultiVideoItem> {
       onTap: () {
         if (_controller.value.isPlaying) {
           _controller.pause();
-        }else{
+        } else {
           _controller.play();
         }
       },
@@ -380,7 +380,6 @@ class _ControlsOverlayState extends State<_ControlsOverlay> {
                 });
               },
             ),
-
             // Current position
             Text(
               _formatDuration(widget.controller.value.position),
@@ -389,33 +388,29 @@ class _ControlsOverlayState extends State<_ControlsOverlay> {
                   fontSize: 14,
                   fontWeight: FontWeight.w600),
             ),
-
             const SizedBox(width: 16),
-
             // Progress bar with loading indicator
             Expanded(
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  SmoothClipRRect(
-                    borderRadius: BorderRadius.circular(2),
-                    child: Expanded(
-                      child: CustomVideoProgressIndicator(
-                        widget.controller,
-                        colors: const VideoProgressColors(
-                          playedColor: Colors.white,
-                          bufferedColor: Colors.white24,
-                          backgroundColor: Colors.white12,
-                        ),
+              // Wrap with Expanded
+              child: SizedBox(
+                // Add Container for height constraint
+
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    CustomVideoProgressIndicator(
+                      widget.controller,
+                      colors: const VideoProgressColors(
+                        playedColor: Colors.white,
+                        bufferedColor: Colors.white24,
+                        backgroundColor: Colors.white12,
                       ),
-                    ),
-                  ),
-                ],
+                    )
+                  ],
+                ),
               ),
             ),
-
             const SizedBox(width: 16),
-
             // Total duration
             Text(
               _formatDuration(widget.controller.value.duration),
@@ -424,7 +419,6 @@ class _ControlsOverlayState extends State<_ControlsOverlay> {
                   fontSize: 14,
                   fontWeight: FontWeight.w600),
             ),
-
             // Volume button
             IconButton(
               padding: EdgeInsets.zero,
