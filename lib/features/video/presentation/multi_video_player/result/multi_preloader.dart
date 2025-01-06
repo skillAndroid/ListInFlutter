@@ -1,35 +1,26 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/details/presentation/pages/details.dart';
+import 'package:list_in/features/explore/domain/enties/advertised_product_entity.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/video/presentation/multi_video_player/multi_video_model.dart';
 import 'package:list_in/features/video/presentation/multi_video_player/multi_video_player_home.dart';
 import 'package:video_player/video_player.dart';
 
 class MultiVideosScreen extends StatefulWidget {
-  const MultiVideosScreen({super.key});
+  final List<AdvertisedProductEntity> source;
+  const MultiVideosScreen({super.key, required this.source});
 
   @override
   State<MultiVideosScreen> createState() => _MultiVideosScreenState();
 }
 
 class _MultiVideosScreenState extends State<MultiVideosScreen> {
-  // Mock data listsa
-  final List<dynamic> mockVideos = [
-    "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
-    "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
-    "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
-    "https://storage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4",
-    "https://storage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
-    "https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-    "https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
-    "https://storage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4",
-    "https://storage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4",
-  ];
-
   final product = ProductEntity(
     name: "iPhone 4 Pro Max stoladi srochno narx kelishilgan",
     images: [
@@ -111,37 +102,39 @@ class _MultiVideosScreenState extends State<MultiVideosScreen> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarIconBrightness: Brightness.light, // for Android
+      statusBarBrightness: Brightness.dark, // for iOS
+    ));
     // ignore: deprecated_member_use
-    return WillPopScope(
-      onWillPop: () async {
-        await _handleBackPress();
-        return false;
-      },
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Video Feed'),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: _navigateToNewScreen,
+    return Container(
+      color: Colors.black,
+      child: SafeArea(
+        // ignore: deprecated_member_use
+        child: WillPopScope(
+          onWillPop: () async {
+            await _handleBackPress();
+            return false;
+          },
+          child: MultiVideoPlayer.network(
+            height: double.infinity,
+            width: MediaQuery.of(context).size.width,
+            videoSourceList: widget.source,
+            scrollDirection: Axis.vertical,
+            preloadPagesCount: 2,
+            videoPlayerOptions: VideoPlayerOptions(),
+            onPageChanged: (videoPlayerController, index) {
+              debugPrint('Changed to video index: $index');
+            },
+            getCurrentVideoController: (videoPlayerController) {
+              if (videoPlayerController?.value.hasError ?? false) {
+                debugPrint(
+                  'Video error: ${videoPlayerController?.value.errorDescription}',
+                );
+              }
+            },
+            onProductTap: _navigateToNewScreen,
           ),
-        ),
-        body: MultiVideoPlayer.network(
-          height: double.infinity,
-          width: MediaQuery.of(context).size.width,
-          videoSourceList: mockVideos,
-          scrollDirection: Axis.vertical,
-          preloadPagesCount: 2,
-          videoPlayerOptions: VideoPlayerOptions(),
-          onPageChanged: (videoPlayerController, index) {
-            debugPrint('Changed to video index: $index');
-          },
-          getCurrentVideoController: (videoPlayerController) {
-            if (videoPlayerController?.value.hasError ?? false) {
-              debugPrint(
-                'Video error: ${videoPlayerController?.value.errorDescription}',
-              );
-            }
-          },
         ),
       ),
     );

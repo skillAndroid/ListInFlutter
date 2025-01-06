@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:list_in/features/explore/domain/enties/advertised_product_entity.dart';
 import 'package:video_player/video_player.dart';
 
 enum VideoSource { network, file, asset }
@@ -10,7 +11,7 @@ class MultiVideo {
 
   static final List<MultiVideo> instances = [];
 
-  final dynamic videoSource;
+  final AdvertisedProductEntity videoSource;
   int index;
   VideoPlayerController? videoPlayerController;
   int _retryCount = 0;

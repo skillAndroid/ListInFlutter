@@ -1250,14 +1250,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.3.0+3"
-  tavsta_preload_page_view:
-    dependency: "direct main"
-    description:
-      name: tavsta_preload_page_view
-      sha256: "0d8c34d72a7a4e01ca40d5e6afd61d6f6e778aa33bf50277575aed8ca705cd5b"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.1"
   term_glyph:
     dependency: transitive
     description:

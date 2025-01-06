@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:list_in/features/explore/domain/enties/advertised_product_entity.dart';
 import 'package:list_in/features/video/presentation/multi_video_player/multi_video_item.dart';
 import 'package:list_in/features/video/presentation/multi_video_player/multi_video_model.dart';
-import 'package:tavsta_preload_page_view/tavsta_preload_page_view.dart';
+import 'package:list_in/features/video/presentation/wigets/preload_page/preload_page.dart';
 import 'package:video_player/video_player.dart';
 
 /// Stateful widget to display preloaded videos inside page view.
@@ -9,7 +10,7 @@ import 'package:video_player/video_player.dart';
 class MultiVideoPlayer extends StatefulWidget {
   VideoSource sourceType;
 
-  List<dynamic> videoSourceList;
+  List<AdvertisedProductEntity> videoSourceList;
 
   Axis scrollDirection;
 
@@ -37,7 +38,8 @@ class MultiVideoPlayer extends StatefulWidget {
   bool reverse;
   bool pageSnapping;
 
-  PreloadPageController? pageController;
+  PreloadPageControllerListIn? pageController;
+  final VoidCallback onProductTap;
 
   @override
   State<MultiVideoPlayer> createState() => _MultiVideoPlayerState();
@@ -61,6 +63,7 @@ class MultiVideoPlayer extends StatefulWidget {
     this.onPageChanged,
     this.showControlsOverlay = true,
     this.showVideoProgressIndicator = true,
+    required this.onProductTap,
   }) : sourceType = VideoSource.network;
 }
 
@@ -77,6 +80,7 @@ class _MultiVideoPlayerState extends State<MultiVideoPlayer> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       body: SizedBox(
         height: widget.height,
         width: widget.width,
@@ -91,8 +95,8 @@ class _MultiVideoPlayerState extends State<MultiVideoPlayer> {
     );
   }
 
-  PreloadPageView _pageView() {
-    return PreloadPageView.builder(
+  PreloadPageViewListIn _pageView() {
+    return PreloadPageViewListIn.builder(
       itemCount: videosList.length,
       physics: widget.scrollPhysics,
       reverse: widget.reverse,
@@ -103,31 +107,51 @@ class _MultiVideoPlayerState extends State<MultiVideoPlayer> {
           ? 1
           : widget.preloadPagesCount,
       onPageChanged: (int index) => _onPageChange(index),
-      itemBuilder: (context, index) => _child(index),
+      itemBuilder: (context, index) => _buildVideoItem(index),
     );
   }
 
-  MultiVideoItem _child(int index) {
-    return MultiVideoItem(
-      videoSource: videosList[index].videoSource,
-      index: index,
-      sourceType: widget.sourceType,
-      videoPlayerOptions: widget.videoPlayerOptions,
-      closedCaptionFile: widget.closedCaptionFile,
-      showControlsOverlay: widget.showControlsOverlay,
-      showVideoProgressIndicator: widget.showVideoProgressIndicator,
-      onInit: (VideoPlayerController videoPlayerController) {
-        if (index == MultiVideo.currentIndex) {
-          widget.getCurrentVideoController?.call(videoPlayerController);
-        }
-        videosList[index].updateVideo(
-            videoPlayerController: videoPlayerController,
+  Widget _buildVideoItem(int index) {
+    final product = widget.videoSourceList[index];
+    return Container(
+      margin: EdgeInsets.symmetric(
+        vertical: widget.scrollDirection == Axis.vertical ? 8.0 : 0,
+        horizontal: widget.scrollDirection == Axis.horizontal ? 8.0 : 0,
+      ),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        color: Colors.black,
+      ),
+      clipBehavior:
+          Clip.antiAlias, // This ensures the video respects the border radius
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          MultiVideoItem(
+            videoSource: product,
             index: index,
-            videoSource: videosList[index].videoSource);
-      },
-      onDispose: (int index) {
-        videosList[index].videoPlayerController = null;
-      },
+            sourceType: widget.sourceType,
+            videoPlayerOptions: widget.videoPlayerOptions,
+            closedCaptionFile: widget.closedCaptionFile,
+            showControlsOverlay: widget.showControlsOverlay,
+            showVideoProgressIndicator: widget.showVideoProgressIndicator,
+            onInit: (VideoPlayerController videoPlayerController) {
+              if (index == MultiVideo.currentIndex) {
+                widget.getCurrentVideoController?.call(videoPlayerController);
+              }
+              videosList[index].updateVideo(
+                videoPlayerController: videoPlayerController,
+                videoSource: product.videoUrl,
+                index: index,
+              );
+            },
+            onProductTap: widget.onProductTap,
+            onDispose: (int index) {
+              videosList[index].videoPlayerController = null;
+            },
+          ),
+        ],
+      ),
     );
   }
 
@@ -193,6 +217,4 @@ class _MultiVideoPlayerState extends State<MultiVideoPlayer> {
       debugPrint('Error pausing controllers: $e');
     }
   }
-
-  
 }

@@ -75,6 +75,14 @@ class AppRouter {
         path: Routes.post,
         builder: (context, state) => const PostScreen(),
       ),
+
+      GoRoute(
+        path: Routes.videosFeed,
+        name: RoutesByName.videosFeed,
+        builder: (context, state) => MultiVideosScreen(
+          source: sampleVideos,
+        ),
+      ),
       GoRoute(
         path: Routes.productDetails,
         builder: (context, state) {
@@ -125,13 +133,6 @@ class AppRouter {
                   );
                 },
                 routes: [
-                  GoRoute(
-                    path: Routes.videosFeed,
-                    name: RoutesByName.videosFeed,
-                    builder: (context, state) => MultiVideosScreen(
-                      key: state.pageKey,
-                    ),
-                  ),
                   GoRoute(
                     name: RoutesByName.subcategories,
                     path: Routes.subcategories,

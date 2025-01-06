@@ -112,7 +112,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
               children: [
                 ElevatedButton(
                     onPressed: () {
-                      context.pushNamed(RoutesByName.videosFeed);
+                      context.push(Routes.videosFeed);
                     },
                     child: Text("go videos")),
                 Center(child: CircularProgressIndicator()),
@@ -128,7 +128,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                 Text(state.error!),
                  ElevatedButton(
                     onPressed: () {
-                      context.pushNamed(RoutesByName.videosFeed);
+                        context.push(Routes.videosFeed);
                     },
                     child: Text("go videos")),
               ],
