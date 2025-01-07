@@ -1,9 +1,15 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
+import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/router/routes.dart';
+import 'package:list_in/features/details/presentation/pages/details.dart';
 import 'package:list_in/features/explore/domain/enties/advertised_product_entity.dart';
-import 'package:list_in/features/video/presentation/multi_video_player/multi_video_item.dart';
+import 'package:list_in/features/explore/domain/enties/product_entity.dart';
+import 'package:list_in/features/video/presentation/wigets/video_controlls.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:video_player/video_player.dart';
 
@@ -24,9 +30,10 @@ class _ListInShortsState extends State<ListInShorts> {
     null,
     null,
     null,
-    null
+    null,
   ];
   int _currentIndex = 0;
+  final Map<int, Duration> _videoPositions = {}; // Store video positions
 
   @override
   void initState() {
@@ -86,6 +93,11 @@ class _ListInShortsState extends State<ListInShorts> {
   void _handlePageChange(int newIndex) {
     if (newIndex == _currentIndex) return;
 
+    final currentController = _controllers[2];
+    if (currentController != null && currentController.value.isInitialized) {
+      _videoPositions[_currentIndex] = currentController.value.position;
+    }
+
     final previousIndex = _currentIndex;
     setState(() {
       _currentIndex = newIndex;
@@ -118,10 +130,20 @@ class _ListInShortsState extends State<ListInShorts> {
     }
 
     // Play current video and pause others
-    _controllers[2]?.play();
+    if (_controllers[2] != null) {
+      _controllers[2]?.play().then((_) {
+        if (_videoPositions.containsKey(newIndex)) {
+          _controllers[2]?.seekTo(_videoPositions[newIndex]!);
+        }
+      });
+    }
     for (int i = 0; i < _controllers.length; i++) {
       if (i != 2) _controllers[i]?.pause();
     }
+  }
+
+  void pauseControllers() {
+    _controllers[_currentIndex]?.pause();
   }
 
   @override
@@ -129,12 +151,58 @@ class _ListInShortsState extends State<ListInShorts> {
     for (var controller in _controllers) {
       controller?.dispose();
     }
+    _videoPositions.clear();
     _pageController.dispose();
     super.dispose();
   }
 
+  Future<void> _navigateToNewScreen() async {
+    final currentController = _controllers[2]; // Current playing controller
+
+    // Store the current position if video is initialized
+    if (currentController != null && currentController.value.isInitialized) {
+      _videoPositions[_currentIndex] = currentController.value.position;
+      await currentController.pause();
+    }
+
+    final product = ProductEntity(
+      name: "iPhone 4 Pro Max stoladi srochno narx kelishilgan",
+      images: [
+        "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg"
+      ],
+      location: "Tashkent, Yashnobod",
+      price: 205,
+      isNew: true,
+      id: "1",
+    );
+
+    if (mounted) {
+      // Navigate and wait for return
+      await context.push(
+        Routes.productDetails.replaceAll(':id', product.id),
+        extra: getRecommendedProducts(product.id),
+      );
+
+      // Resume video from stored position when returning
+      if (mounted) {
+        final controller = _controllers[2];
+        if (controller != null && controller.value.isInitialized) {
+          final storedPosition = _videoPositions[_currentIndex];
+          if (storedPosition != null) {
+            await controller.seekTo(storedPosition);
+            await controller.play();
+          }
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarIconBrightness: Brightness.light, // for Android
+      statusBarBrightness: Brightness.dark, // for iOS
+    ));
     return Scaffold(
       backgroundColor: AppColors.black,
       body: SafeArea(
@@ -232,7 +300,7 @@ class _ListInShortsState extends State<ListInShorts> {
                     bottom: 64,
                     child: GestureDetector(
                       onTap: () {
-                        context
+                        _navigateToNewScreen();
                       },
                       child: SmoothClipRRect(
                         borderRadius: BorderRadius.circular(16),
@@ -245,8 +313,8 @@ class _ListInShortsState extends State<ListInShorts> {
                               SmoothClipRRect(
                                 borderRadius: BorderRadius.circular(16),
                                 child: SizedBox(
-                                  width: 84,
-                                  height: 80,
+                                  width: 80,
+                                  height: 84,
                                   child: CachedNetworkImage(
                                     imageUrl: widget.data[index].thumbnailUrl,
                                     width: double.infinity,
@@ -322,6 +390,20 @@ class _ListInShortsState extends State<ListInShorts> {
                       ),
                     ),
                   ),
+                  Positioned(
+                    top: 8,
+                    left: 8,
+                    child: IconButton(
+                      onPressed: () {
+                        context.pop();
+                      },
+                      icon: Icon(
+                        Ionicons.close,
+                        size: 28,
+                        color: AppColors.white,
+                      ),
+                    ),
+                  )
                 ],
               ),
             );

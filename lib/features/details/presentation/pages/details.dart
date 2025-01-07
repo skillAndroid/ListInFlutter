@@ -652,9 +652,9 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
             child: _buildButton(
               icon: EvaIcons.messageSquare,
               label: 'Message',
-              color: Colors.grey.shade50,
-              textColor: Colors.black87,
-              borderColor: Colors.grey.shade300,
+              color: AppColors.white,
+              textColor: AppColors.primary,
+              borderColor:AppColors.containerColor,
               onPressed: () {/* Message logic */},
             ),
           ),
@@ -663,8 +663,8 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
             child: _buildButton(
               icon: EvaIcons.phoneCall,
               label: 'Call',
-              color: AppColors.littleGreen,
-              textColor: Colors.black,
+              color: AppColors.primary,
+              textColor: Colors.white,
               onPressed: () {/* Call logic */},
             ),
           ),
