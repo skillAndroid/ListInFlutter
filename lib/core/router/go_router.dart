@@ -82,10 +82,8 @@ class AppRouter {
         path: Routes.videosFeed,
         name: RoutesByName.videosFeed,
         builder: (context, state) => ListInShorts(
-            videoUrls: sampleVideos
-                .where((list) => list.videoUrl.isNotEmpty)
-                .map((list) => list.videoUrl)
-                .toList()),
+            data: sampleVideos
+        )
       ),
       GoRoute(
         path: Routes.productDetails,
