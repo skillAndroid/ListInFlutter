@@ -311,7 +311,7 @@ class _MultiVideoItemState extends State<MultiVideoItem> {
             // Video controls
             if (_controller.value.isInitialized) ...[
               if (widget.showControlsOverlay)
-                _ControlsOverlay(controller: _controller),
+                ControlsOverlay(controller: _controller),
             ],
           ],
         ),
@@ -330,18 +330,18 @@ class _MultiVideoItemState extends State<MultiVideoItem> {
   }
 }
 
-class _ControlsOverlay extends StatefulWidget {
-  const _ControlsOverlay({
+class ControlsOverlay extends StatefulWidget {
+  const ControlsOverlay({super.key, 
     required this.controller,
   });
 
   final VideoPlayerController controller;
 
   @override
-  State<_ControlsOverlay> createState() => _ControlsOverlayState();
+  State<ControlsOverlay> createState() => _ControlsOverlayState();
 }
 
-class _ControlsOverlayState extends State<_ControlsOverlay> {
+class _ControlsOverlayState extends State<ControlsOverlay> {
   String _formatDuration(Duration duration) {
     String twoDigits(int n) => n.toString().padLeft(2, '0');
     String minutes = twoDigits(duration.inMinutes.remainder(60));

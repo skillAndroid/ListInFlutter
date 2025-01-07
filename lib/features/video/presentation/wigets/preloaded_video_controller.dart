@@ -8,11 +8,11 @@ import 'package:video_player/video_player.dart';
 enum VideoState { none, initializing, buffering, ready, error }
 
 class PreloadedVideoController {
-  final Map<int, VideoPlayerController> _controllers = {};
+   final Map<int, VideoPlayerController> _controllers = {};
   final Map<int, VideoState> _videoStates = {};
   bool _isDisposed = false;
   final Map<int, double> _bufferingProgress = {};
-
+  
   VideoState getVideoState(int index) => _videoStates[index] ?? VideoState.none;
   double getBufferingProgress(int index) => _bufferingProgress[index] ?? 0.0;
 

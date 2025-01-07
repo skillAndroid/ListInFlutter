@@ -17,6 +17,8 @@ import 'package:list_in/features/profile/presentation/profile_editor_page.dart';
 import 'package:list_in/features/profile/presentation/profile_screen.dart';
 import 'package:list_in/features/undefined_screens_yet/wrapper_screen.dart';
 import 'package:list_in/features/video/presentation/multi_video_player/result/multi_preloader.dart';
+import 'package:list_in/features/video/presentation/pages/video_feed_screen.dart';
+import 'package:list_in/features/video/presentation/pages/video_list_screen.dart';
 import 'package:list_in/features/visitior_profile/visiter_profile.dart';
 import 'package:list_in/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -79,9 +81,11 @@ class AppRouter {
       GoRoute(
         path: Routes.videosFeed,
         name: RoutesByName.videosFeed,
-        builder: (context, state) => MultiVideosScreen(
-          source: sampleVideos,
-        ),
+        builder: (context, state) => ListInShorts(
+            videoUrls: sampleVideos
+                .where((list) => list.videoUrl.isNotEmpty)
+                .map((list) => list.videoUrl)
+                .toList()),
       ),
       GoRoute(
         path: Routes.productDetails,
