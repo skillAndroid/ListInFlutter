@@ -79,9 +79,7 @@ class AppRouter {
       GoRoute(
         path: Routes.videosFeed,
         name: RoutesByName.videosFeed,
-        builder: (context, state) => ListInShorts(
-            data: sampleVideos
-        )
+        builder: (context, state) => ListInShorts(data: sampleVideos),
       ),
       GoRoute(
         path: Routes.productDetails,

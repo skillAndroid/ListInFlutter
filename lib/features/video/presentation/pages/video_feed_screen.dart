@@ -1,5 +1,6 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -223,7 +224,7 @@ class _ListInShortsState extends State<ListInShorts> {
                             : 0)];
 
             return Card(
-              margin: const EdgeInsets.symmetric(vertical: 4),
+              margin: const EdgeInsets.symmetric(vertical: 2),
               shape: SmoothRectangleBorder(
                 smoothness: 0.85,
                 borderRadius: BorderRadius.circular(28),
@@ -302,91 +303,166 @@ class _ListInShortsState extends State<ListInShorts> {
                       onTap: () {
                         _navigateToNewScreen();
                       },
-                      child: SmoothClipRRect(
-                        borderRadius: BorderRadius.circular(16),
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          height: 84,
-                          color: Colors.white,
-                          child: Row(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
                             children: [
                               SmoothClipRRect(
-                                borderRadius: BorderRadius.circular(16),
-                                child: SizedBox(
-                                  width: 80,
-                                  height: 84,
-                                  child: CachedNetworkImage(
-                                    imageUrl: widget.data[index].thumbnailUrl,
-                                    width: double.infinity,
-                                    height: double.infinity,
-                                    fit: BoxFit.cover,
+                                borderRadius: BorderRadius.circular(100),
+                                side: BorderSide(
+                                    width: 2, color: AppColors.transparent),
+                                child: CircleAvatar(
+                                  radius: 22,
+                                  backgroundImage: NetworkImage(
+                                    widget.data[index].images[0],
                                   ),
                                 ),
                               ),
-                              SizedBox(
-                                width: 8,
-                              ),
+                              const SizedBox(width: 12),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    widget.data[index].price,
+                                    'TechStore Official',
                                     style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 17,
-                                      color: AppColors.black,
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
                                     ),
-                                  ),
-                                  SizedBox(
-                                    height: 4,
                                   ),
                                   Text(
-                                    widget.data[index].title,
+                                    '2.5M followers',
                                     style: TextStyle(
-                                      fontWeight: FontWeight.w400,
+                                      color: Colors.white.withOpacity(0.8),
                                       fontSize: 14,
-                                      color: AppColors.black,
                                     ),
                                   ),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        widget.data[index].userName,
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 14,
-                                          color: AppColors.black,
-                                        ),
-                                      ),
-                                      Icon(
-                                        Icons.star,
-                                        color: CupertinoColors.activeOrange,
-                                      ),
-                                      Text(
-                                        widget.data[index].userRating
-                                            .toString(),
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 14,
-                                          color: AppColors.black,
-                                        ),
-                                      ),
-                                      Text(
-                                        "(${widget.data[index].reviewsCount})",
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 14,
-                                          color: AppColors.grey,
-                                        ),
-                                      ),
-                                    ],
-                                  )
                                 ],
-                              )
+                              ),
+                              const SizedBox(width: 16),
+                              ElevatedButton(
+                                onPressed: () {},
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.primary,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 5,
+                                  ),
+                                  shape: SmoothRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: const Text(
+                                  'Follow',
+                                  style: TextStyle(
+                                    color: AppColors.white,
+                                    fontSize: 14,
+                                    fontFamily: "Poppins",
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
-                        ),
+                          const SizedBox(height: 8),
+                          SizedBox(
+                            height: 100,
+                            child: Card(
+                              margin: EdgeInsets.zero,
+                              elevation: 0,
+                              clipBehavior: Clip.antiAlias,
+                              shape: SmoothRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              color: AppColors.white.withOpacity(0.75),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        SmoothClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(16),
+                                          side: BorderSide(
+                                            width: 2,
+                                            color: AppColors.white,
+                                          ),
+                                          child: SizedBox(
+                                            width: 76,
+                                            height: 76,
+                                            child: Image.network(
+                                              widget.data[index].images[2],
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                widget.data[index].title,
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                'High-quality sound with active noise cancellation',
+                                                style: TextStyle(
+                                                  color: Colors.black
+                                                      .withOpacity(0.7),
+                                                  fontSize: 12,
+                                                ),
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                              const SizedBox(height: 3),
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                  right: 8.0,
+                                                ),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    const Text(
+                                                      '\$199.99',
+                                                      style: TextStyle(
+                                                        color: Colors.black,
+                                                        fontSize: 16,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                    Icon(Ionicons.arrow_forward)
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                          )
+                        ],
                       ),
                     ),
                   ),
