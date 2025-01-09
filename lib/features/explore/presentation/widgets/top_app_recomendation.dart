@@ -24,7 +24,7 @@ class TopAppRecomendationCategory extends StatelessWidget {
           const LocationBar(),
           const SizedBox(height: 16),
           RecommendationsRow(recommendations: recommendations),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
         ],
       ),
     );

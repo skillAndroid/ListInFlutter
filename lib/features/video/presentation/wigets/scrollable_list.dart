@@ -5,7 +5,9 @@ import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/domain/enties/advertised_product_entity.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:video_player/video_player.dart';
@@ -60,28 +62,29 @@ class _VideoCarouselState extends State<VideoCarousel> {
     }
   }
 
- Future<void> _initializeVideo(int index) async {
-  if (widget.items.isEmpty || !_isVisible || index >= widget.items.length) {
-    return;
+  Future<void> _initializeVideo(int index) async {
+    if (widget.items.isEmpty || !_isVisible || index >= widget.items.length) {
+      return;
+    }
+
+    await _clearVideo();
+
+    _videoController =
+        VideoPlayerController.network(widget.items[index].videoUrl);
+
+    await _videoController?.initialize();
+
+    if (mounted && _isVisible) {
+      setState(() {});
+      _videoController?.setLooping(false);
+      _videoController?.play();
+      _videoController?.setVolume(0);
+      _videoController?.addListener(_checkVideoProgress);
+
+      // Start the timer after video initialization
+      _startVideoTimer();
+    }
   }
-
-  await _clearVideo();
-
-  _videoController = VideoPlayerController.network(widget.items[index].videoUrl);
-
-  await _videoController?.initialize();
-
-  if (mounted && _isVisible) {
-    setState(() {});
-    _videoController?.setLooping(false);
-    _videoController?.play();
-    _videoController?.setVolume(0);
-    _videoController?.addListener(_checkVideoProgress);
-
-    // Start the timer after video initialization
-    _startVideoTimer();
-  }
-}
 
   void _startVideoTimer() {
     _videoTimer?.cancel(); // Cancel any existing timer
@@ -168,54 +171,56 @@ class _VideoCarouselState extends State<VideoCarousel> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(),
-      body: VisibilityDetector(
-        key: const Key('video-carousel'),
-        onVisibilityChanged: (info) {
-          final wasVisible = _isVisible;
-          _isVisible = info.visibleFraction > 0.99;
+    return VisibilityDetector(
+      key: const Key('video-carousel'),
+      onVisibilityChanged: (info) {
+        final wasVisible = _isVisible;
+        _isVisible = info.visibleFraction > 0.99;
 
-          if (wasVisible != _isVisible) {
-            if (_isVisible && _currentIndex < widget.items.length) {
-              _initializeVideo(_currentIndex);
-            } else {
-              _clearVideo();
-            }
+        if (wasVisible != _isVisible) {
+          if (_isVisible && _currentIndex < widget.items.length) {
+            _initializeVideo(_currentIndex);
+          } else {
+            _clearVideo();
           }
-        },
-        child: SizedBox(
-          height: 160,
-          child: PageView.builder(
-            padEnds: false,
-            controller: _pageController,
-            onPageChanged: _onPageChanged,
-            itemCount: widget.items.length + 1,
-            itemBuilder: (context, index) {
-              if (index == widget.items.length) {
-                return Padding(
-                  padding: const EdgeInsets.only(right: 2),
-                  child: SmoothClipRRect(
-                    side: BorderSide(width: 2, color: AppColors.white),
-                    borderRadius: BorderRadius.circular(16),
+        }
+      },
+      child: SizedBox(
+        height: 160,
+        child: PageView.builder(
+          padEnds: false,
+          controller: _pageController,
+          onPageChanged: _onPageChanged,
+          itemCount: widget.items.length + 1,
+          itemBuilder: (context, index) {
+            if (index == widget.items.length) {
+              return Padding(
+                padding: const EdgeInsets.only(right: 2),
+                child: SmoothClipRRect(
+                  side: BorderSide(width: 2, color: AppColors.white),
+                  borderRadius: BorderRadius.circular(16),
+                  child: GestureDetector(
+                    onTap: () {
+                      context.push(Routes.videosFeed);
+                    },
                     child: Container(
                       height: 160,
                       width: 90,
-                      color: Colors.black.withOpacity(0.1),
+                      color: AppColors.containerColor,
                       child: const Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
                             CupertinoIcons.play_circle_fill,
                             size: 32,
-                            color: AppColors.white,
+                            color: AppColors.primary,
                           ),
                           SizedBox(height: 8),
                           Text(
                             'See All\nVideos',
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              color: AppColors.white,
+                              color: AppColors.primary,
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
                             ),
@@ -224,30 +229,31 @@ class _VideoCarouselState extends State<VideoCarousel> {
                       ),
                     ),
                   ),
-                );
-              }
+                ),
+              );
+            }
 
-              final item = widget.items[index];
-              return Padding(
-                padding: const EdgeInsets.only(right: 2),
-                child: SmoothClipRRect(
-                  side: BorderSide(width: 2, color: AppColors.white),
-                  borderRadius: BorderRadius.circular(16),
+            final item = widget.items[index];
+            return Padding(
+              padding: const EdgeInsets.only(right: 2),
+              child: SmoothClipRRect(
+                side: BorderSide(width: 2, color: AppColors.white),
+                borderRadius: BorderRadius.circular(16),
+                child: GestureDetector(
+                  onTap: () {
+                    context.push(Routes.videosFeed);
+                  },
                   child: SizedBox(
                     height: 160,
                     width: 90,
                     child: Stack(
                       fit: StackFit.expand,
                       children: [
-                        AnimatedOpacity(
-                          duration: const Duration(milliseconds: 300),
-                          opacity: _currentIndex == index ? 1.0 : 0.7,
-                          child: CachedNetworkImage(
-                            imageUrl: item.thumbnailUrl,
-                            fit: BoxFit.cover,
-                            placeholder: (context, url) => const Center(
-                              child: CircularProgressIndicator(),
-                            ),
+                        CachedNetworkImage(
+                          imageUrl: item.thumbnailUrl,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => const Center(
+                            child: CircularProgressIndicator(),
                           ),
                         ),
                         if (index == _currentIndex &&
@@ -262,7 +268,7 @@ class _VideoCarouselState extends State<VideoCarousel> {
                             bottom: 8,
                             child: Icon(
                               CupertinoIcons.play_fill,
-                              size: 20,
+                              size: 18,
                               color: AppColors.white,
                             ),
                           ),
@@ -270,9 +276,9 @@ class _VideoCarouselState extends State<VideoCarousel> {
                     ),
                   ),
                 ),
-              );
-            },
-          ),
+              ),
+            );
+          },
         ),
       ),
     );

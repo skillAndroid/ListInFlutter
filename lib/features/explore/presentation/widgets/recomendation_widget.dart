@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:list_in/config/theme/app_colors.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class RecommendationsRow extends StatelessWidget {
@@ -47,7 +48,7 @@ class RecommendationCard extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.containerColor,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -72,7 +73,7 @@ class RecommendationCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: Colors.grey[800],
+                  color: AppColors.black,
                   fontFamily: 'SF Pro Text',
                 ),
               ),

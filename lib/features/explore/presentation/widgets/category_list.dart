@@ -61,7 +61,7 @@ class CategoriesList extends StatelessWidget {
             ),
           ),
           SizedBox(
-            height: 56,
+            height: 64,
             child: ListView(
               scrollDirection: Axis.horizontal,
               physics: const BouncingScrollPhysics(),

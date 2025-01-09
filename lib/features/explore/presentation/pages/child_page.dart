@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, invalid_use_of_protected_member
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
@@ -37,64 +37,136 @@ class ChildHomeTreePage extends StatefulWidget {
 class _InitialHomeTreePageState extends State<ChildHomeTreePage> {
   final ScrollController _scrollController = ScrollController();
   final SearchController _searchController = SearchController();
-  final ValueNotifier<String?> _currentlyPlayingId =
-      ValueNotifier<String?>(null);
+  final ValueNotifier<String?> _currentlyPlayingId = ValueNotifier<String?>(null);
   final ValueNotifier<Set<int>> _selectedFilters = ValueNotifier<Set<int>>({});
-  bool _isSliverAppBarVisible = true;
+  bool _isSliverAppBarVisible = false;
+  final double _scrollThreshold = 800.0;
+  bool _hasPassedThreshold = false;
+
   final Map<String, ValueNotifier<double>> _visibilityNotifiers = {};
   final Map<String, ValueNotifier<int>> _pageNotifiers = {};
+  bool _isDisposed = false;
 
   @override
   void initState() {
     super.initState();
-    context.read<HomeTreeCubit>().fetchCatalogs();
+    // Use addPostFrameCallback to ensure context is available
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<HomeTreeCubit>().fetchCatalogs();
+      }
+    });
+    
     _initializeVideoTracking();
+    _scrollController.addListener(_handleScroll);
+  }
+
+  void _handleScroll() {
+    if (!mounted) return;
+    
+    final currentPosition = _scrollController.position.pixels;
+    if (currentPosition > _scrollThreshold && !_hasPassedThreshold) {
+      _hasPassedThreshold = true;
+      setState(() {
+        _isSliverAppBarVisible = true;
+      });
+    } else if (currentPosition < _scrollThreshold && _hasPassedThreshold) {
+      _hasPassedThreshold = false;
+      setState(() {
+        _isSliverAppBarVisible = false;
+      });
+    }
   }
 
   void _initializeVideoTracking() {
+    if (!mounted) return;
+
     for (var product in widget.advertisedProducts) {
-      _visibilityNotifiers[product.id] = ValueNotifier<double>(0.0);
-      _pageNotifiers[product.id] = ValueNotifier<int>(0);
+      if (!_visibilityNotifiers.containsKey(product.id)) {
+        _visibilityNotifiers[product.id] = ValueNotifier<double>(0.0);
+      }
+      if (!_pageNotifiers.containsKey(product.id)) {
+        _pageNotifiers[product.id] = ValueNotifier<int>(0);
+      }
     }
   }
 
   @override
   void dispose() {
+    _isDisposed = true;
+    
+    // Remove listeners first
+    _scrollController.removeListener(_handleScroll);
+    
+    // Dispose controllers
     _scrollController.dispose();
     _searchController.dispose();
-    _currentlyPlayingId.dispose();
-    _selectedFilters.dispose();
+    
+    // Safely dispose notifiers
+    if (_currentlyPlayingId.hasListeners) {
+      _currentlyPlayingId.dispose();
+    }
+    
+    if (_selectedFilters.hasListeners) {
+      _selectedFilters.dispose();
+    }
+
+    // Dispose map notifiers
     for (var notifier in _visibilityNotifiers.values) {
-      notifier.dispose();
+      if (notifier.hasListeners) {
+        notifier.dispose();
+      }
     }
+    _visibilityNotifiers.clear();
+
     for (var notifier in _pageNotifiers.values) {
-      notifier.dispose();
+      if (notifier.hasListeners) {
+        notifier.dispose();
+      }
     }
+    _pageNotifiers.clear();
+    
     super.dispose();
   }
 
   void _handleVisibilityChanged(String id, double visibilityFraction) {
-    if (_visibilityNotifiers[id]?.value != visibilityFraction) {
-      _visibilityNotifiers[id]?.value = visibilityFraction;
-      Future.microtask(() => _updateMostVisibleVideo());
+    if (_isDisposed || !mounted) return;
+
+    final notifier = _visibilityNotifiers[id];
+    if (notifier != null && notifier.hasListeners && notifier.value != visibilityFraction) {
+      notifier.value = visibilityFraction;
+      if (mounted) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            _updateMostVisibleVideo();
+          }
+        });
+      }
     }
   }
 
   void _updateMostVisibleVideo() {
+    if (_isDisposed || !mounted) return;
+
     String? mostVisibleId;
     double maxVisibility = 0.0;
 
-    _visibilityNotifiers.forEach((id, notifier) {
-      final visibility = notifier.value;
-      final currentPage = _pageNotifiers[id]?.value ?? 0;
+    for (var entry in _visibilityNotifiers.entries) {
+      if (!entry.value.hasListeners) continue;
+      
+      final visibility = entry.value.value;
+      final pageNotifier = _pageNotifiers[entry.key];
+      if (pageNotifier == null || !pageNotifier.hasListeners) continue;
+      
+      final currentPage = pageNotifier.value;
 
       if (visibility > maxVisibility && currentPage == 0 && visibility > 0.7) {
         maxVisibility = visibility;
-        mostVisibleId = id;
+        mostVisibleId = entry.key;
       }
-    });
+    }
 
-    if (mostVisibleId != _currentlyPlayingId.value) {
+    if (mostVisibleId != _currentlyPlayingId.value && _currentlyPlayingId.hasListeners) {
       _currentlyPlayingId.value = mostVisibleId;
     }
   }
@@ -127,23 +199,14 @@ class _InitialHomeTreePageState extends State<ChildHomeTreePage> {
             controller: _scrollController,
             physics: const BouncingScrollPhysics(),
             slivers: [
-              SliverVisibilityDetector(
-                key: Key('sliver-to-box-adapter'),
-                onVisibilityChanged: (visibilityInfo) {
-                  double visiblePercentage = visibilityInfo.visibleFraction;
-                  setState(() {
-                    _isSliverAppBarVisible = visiblePercentage == 0;
-                  });
-                },
-                sliver: SliverToBoxAdapter(
-                  child: _buildCategories(),
-                ),
+              SliverToBoxAdapter(
+                child: _buildCategories(),
               ),
               if (_isSliverAppBarVisible)
                 SliverAppBar(
                   floating: true,
-                  snap: !_isSliverAppBarVisible,
-                  pinned: !_isSliverAppBarVisible,
+                  snap: false,
+                  pinned: false,
                   automaticallyImplyLeading: false,
                   toolbarHeight: 50,
                   flexibleSpace: _buildFiltersBar(state),
@@ -249,7 +312,7 @@ class _InitialHomeTreePageState extends State<ChildHomeTreePage> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Padding(
-                padding: const EdgeInsets.only(left: 16, right: 8),
+                padding: const EdgeInsets.only(left: 16, right: 16),
                 child: Row(
                   children: [
                     Transform.translate(

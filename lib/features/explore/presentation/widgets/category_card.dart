@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/post/data/models/category_model.dart';
@@ -84,10 +85,10 @@ class _CategoryCardState extends State<CategoryCard>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   SmoothClipRRect(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(10),
                     child: SizedBox(
-                      width: 42,
-                      height: 42,
+                      width: 54,
+                      height: 54,
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: Image.network(
@@ -105,7 +106,8 @@ class _CategoryCardState extends State<CategoryCard>
                     widget.category.name,
                     style: const TextStyle(
                       fontSize: 11,
-                      fontWeight: FontWeight.normal,
+                      color: AppColors.black,
+                      fontWeight: FontWeight.w500,
                       fontFamily: 'Poppins',
                     ),
                   ),

@@ -1,4 +1,3 @@
-
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
@@ -21,7 +20,7 @@ class LocationBar extends StatelessWidget {
                 children: [
                   Icon(
                     Icons.location_on_rounded,
-                    color: AppColors.primary,
+                    color: AppColors.black,
                     size: 24,
                   ),
                   Positioned(
@@ -47,7 +46,7 @@ class LocationBar extends StatelessWidget {
                     'Tashkent',
                     style: TextStyle(
                       fontSize: 18,
-                      color: AppColors.primary,
+                      color: AppColors.black,
                       fontWeight: FontWeight.w600,
                       letterSpacing: -0.5,
                     ),
@@ -67,21 +66,14 @@ class LocationBar extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: AppColors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.black.withOpacity(0.05),
-                  offset: const Offset(0, 2),
-                  blurRadius: 8,
-                ),
-              ],
+              color: AppColors.containerColor,
+              borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
               children: [
                 Icon(
                   Icons.edit_location_alt_rounded,
-                  color: AppColors.primary,
+                  color: AppColors.black,
                   size: 20,
                 ),
                 const SizedBox(width: 4),
@@ -89,7 +81,7 @@ class LocationBar extends StatelessWidget {
                   'Change',
                   style: TextStyle(
                     fontSize: 13,
-                    color: AppColors.primary,
+                    color: AppColors.black,
                     fontWeight: FontWeight.w500,
                   ),
                 ),

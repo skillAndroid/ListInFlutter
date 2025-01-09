@@ -85,12 +85,12 @@ class _SubcategoryCardState extends State<SubcategoryCard>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   SmoothClipRRect(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(10),
                     child: SizedBox(
-                      width: 42,
-                      height: 42,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
+                      width: 54,
+                      height: 54,
+                      child: SmoothClipRRect(
+                        borderRadius: BorderRadius.circular(10),
                         child: Image.network(
                           "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=200",
                           fit: BoxFit.cover,

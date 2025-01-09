@@ -70,7 +70,6 @@ class _ListInShortsState extends State<ListInShorts> {
   void _initializeController(int position, int index,
       {required bool fullLoad}) {
     if (_controllers[position] == null) {
-      // ignore: deprecated_member_use
       final controller = VideoPlayerController.network(
         widget.data[index].videoUrl,
         httpHeaders: {
@@ -312,7 +311,7 @@ class _ListInShortsState extends State<ListInShorts> {
                               SmoothClipRRect(
                                 borderRadius: BorderRadius.circular(100),
                                 side: BorderSide(
-                                    width: 2, color: AppColors.transparent),
+                                    width: 2, color: AppColors.white.withOpacity(0.8)),
                                 child: CircleAvatar(
                                   radius: 22,
                                   backgroundImage: NetworkImage(
@@ -345,10 +344,10 @@ class _ListInShortsState extends State<ListInShorts> {
                               ElevatedButton(
                                 onPressed: () {},
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.primary,
+                                  backgroundColor: AppColors.primary.withOpacity(0.8),
                                   padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 5,
+                                    horizontal: 6,
+                                    vertical: 4,
                                   ),
                                   shape: SmoothRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),

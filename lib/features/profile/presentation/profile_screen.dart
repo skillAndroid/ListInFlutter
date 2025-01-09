@@ -261,7 +261,6 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
       ],
       flexibleSpace: Stack(
         children: [
-          // Avatar with edit button
           Positioned(
             left: avatarLeftPosition,
             top: topPadding + avatarTopPosition,
@@ -412,7 +411,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
             CupertinoIcons.plus_circle_fill,
             'Create',
             AppColors.white,
-            AppColors.primaryDark,
+            AppColors.primary,
             onTap: () {
               // Handle create action
             },
@@ -421,7 +420,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
             CupertinoIcons.bell_fill,
             'Alerts',
             AppColors.white,
-            AppColors.darkGray,
+            CupertinoColors.destructiveRed,
             onTap: () {
               // Handle notifications
             },
@@ -654,7 +653,8 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: FilterChip(
-        elevation: 2,
+        elevation: 1,
+        shadowColor: AppColors.containerColor,
         shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(8)),
         label: Text(
           label,
@@ -916,7 +916,7 @@ class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: Colors.grey.withOpacity(0.1),
+          color: AppColors.containerColor,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Theme(
@@ -934,7 +934,7 @@ class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
               borderRadius: BorderRadius.circular(10),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.primary.withOpacity(0.2),
+                  color: AppColors.primary.withOpacity(0.15),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),

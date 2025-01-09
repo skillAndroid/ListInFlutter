@@ -41,58 +41,110 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
   final ValueNotifier<Set<int>> _selectedFilters = ValueNotifier<Set<int>>({});
   final Map<String, ValueNotifier<double>> _visibilityNotifiers = {};
   final Map<String, ValueNotifier<int>> _pageNotifiers = {};
+  bool _isDisposed = false;
 
   @override
   void initState() {
     super.initState();
-    context.read<HomeTreeCubit>().fetchCatalogs();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<HomeTreeCubit>().fetchCatalogs();
+      }
+    });
     _initializeVideoTracking();
   }
 
   void _initializeVideoTracking() {
+    if (!mounted) return;
+
     for (var product in widget.advertisedProducts) {
-      _visibilityNotifiers[product.id] = ValueNotifier<double>(0.0);
-      _pageNotifiers[product.id] = ValueNotifier<int>(0);
+      if (!_visibilityNotifiers.containsKey(product.id)) {
+        _visibilityNotifiers[product.id] = ValueNotifier<double>(0.0);
+      }
+      if (!_pageNotifiers.containsKey(product.id)) {
+        _pageNotifiers[product.id] = ValueNotifier<int>(0);
+      }
     }
   }
 
   @override
   void dispose() {
+    _isDisposed = true;
+
+    // Remove any listeners if needed
+
+    // Dispose controllers
     _scrollController.dispose();
     _searchController.dispose();
-    _currentlyPlayingId.dispose();
-    _selectedFilters.dispose();
+
+    // Safely dispose notifiers
+    if (_currentlyPlayingId.hasListeners) {
+      _currentlyPlayingId.dispose();
+    }
+
+    if (_selectedFilters.hasListeners) {
+      _selectedFilters.dispose();
+    }
+
+    // Dispose map notifiers
     for (var notifier in _visibilityNotifiers.values) {
-      notifier.dispose();
+      if (notifier.hasListeners) {
+        notifier.dispose();
+      }
     }
+    _visibilityNotifiers.clear();
+
     for (var notifier in _pageNotifiers.values) {
-      notifier.dispose();
+      if (notifier.hasListeners) {
+        notifier.dispose();
+      }
     }
+    _pageNotifiers.clear();
+
     super.dispose();
   }
 
   void _handleVisibilityChanged(String id, double visibilityFraction) {
-    if (_visibilityNotifiers[id]?.value != visibilityFraction) {
-      _visibilityNotifiers[id]?.value = visibilityFraction;
-      Future.microtask(() => _updateMostVisibleVideo());
+    if (_isDisposed || !mounted) return;
+
+    final notifier = _visibilityNotifiers[id];
+    if (notifier != null &&
+        notifier.hasListeners &&
+        notifier.value != visibilityFraction) {
+      notifier.value = visibilityFraction;
+      if (mounted) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            _updateMostVisibleVideo();
+          }
+        });
+      }
     }
   }
 
   void _updateMostVisibleVideo() {
+    if (_isDisposed || !mounted) return;
+
     String? mostVisibleId;
     double maxVisibility = 0.0;
 
-    _visibilityNotifiers.forEach((id, notifier) {
-      final visibility = notifier.value;
-      final currentPage = _pageNotifiers[id]?.value ?? 0;
+    for (var entry in _visibilityNotifiers.entries) {
+      if (!entry.value.hasListeners) continue;
+
+      final visibility = entry.value.value;
+      final pageNotifier = _pageNotifiers[entry.key];
+      if (pageNotifier == null || !pageNotifier.hasListeners) continue;
+
+      final currentPage = pageNotifier.value;
 
       if (visibility > maxVisibility && currentPage == 0 && visibility > 0.7) {
         maxVisibility = visibility;
-        mostVisibleId = id;
+        mostVisibleId = entry.key;
       }
-    });
+    }
 
-    if (mostVisibleId != _currentlyPlayingId.value) {
+    if (mostVisibleId != _currentlyPlayingId.value &&
+        _currentlyPlayingId.hasListeners) {
       _currentlyPlayingId.value = mostVisibleId;
     }
   }
@@ -158,7 +210,6 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                           Widget? colorIndicator;
                           if (attribute.widgetType == 'colorSelectable') {
                             if (selectedValues.isNotEmpty) {
-                              // Create overlapping circles for multiple selections
                               colorIndicator = SizedBox(
                                 width: 40,
                                 height: 20,
@@ -192,7 +243,6 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                 ),
                               );
                             } else if (selectedValue != null) {
-                              // Single color circle
                               colorIndicator = Container(
                                 width: 18,
                                 height: 18,
@@ -216,8 +266,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                           return Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 4),
                             child: FilterChip(
-                              showCheckmark:
-                                  false, // Disable the leading check icon
+                              showCheckmark: false,
                               padding: EdgeInsets.symmetric(
                                   horizontal: 4, vertical: 10),
                               label: Row(
@@ -246,7 +295,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                               backgroundColor: AppColors.white,
                               selectedColor: AppColors.white,
                               onSelected: (_) {
-                                if (attribute.values.isNotEmpty) {
+                                if (attribute.values.isNotEmpty && mounted) {
                                   _showAttributeSelectionUI(context, attribute);
                                 }
                               },
@@ -309,7 +358,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Padding(
-                padding: const EdgeInsets.only(left: 16, right: 8),
+                padding: const EdgeInsets.only(left: 16, right: 16),
                 child: Row(
                   children: [
                     Transform.translate(

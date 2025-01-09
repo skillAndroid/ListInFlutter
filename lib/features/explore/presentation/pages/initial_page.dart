@@ -19,6 +19,7 @@ import 'package:list_in/features/explore/presentation/widgets/recomendation_widg
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/top_app_recomendation.dart';
 import 'package:list_in/features/undefined_screens_yet/video_player.dart';
+import 'package:list_in/features/video/presentation/wigets/scrollable_list.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
@@ -39,10 +40,14 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
   final ScrollController _scrollController = ScrollController();
   final SearchController _searchController = SearchController();
 
+  bool _isSliverAppBarVisible = false;
+  final double _scrollThreshold = 800.0;
+  bool _hasPassedThreshold = false;
+
   final ValueNotifier<String?> _currentlyPlayingId =
       ValueNotifier<String?>(null);
   final ValueNotifier<Set<int>> _selectedFilters = ValueNotifier<Set<int>>({});
-  bool _isSliverAppBarVisible = true;
+
   final Map<String, ValueNotifier<double>> _visibilityNotifiers = {};
   final Map<String, ValueNotifier<int>> _pageNotifiers = {};
 
@@ -51,6 +56,22 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
     super.initState();
     context.read<HomeTreeCubit>().fetchCatalogs();
     _initializeVideoTracking();
+
+    _scrollController.addListener(() {
+      final currentPosition = _scrollController.position.pixels;
+
+      if (currentPosition > _scrollThreshold && !_hasPassedThreshold) {
+        _hasPassedThreshold = true;
+        setState(() {
+          _isSliverAppBarVisible = true;
+        });
+      } else if (currentPosition < _scrollThreshold && _hasPassedThreshold) {
+        _hasPassedThreshold = false;
+        setState(() {
+          _isSliverAppBarVisible = false;
+        });
+      }
+    });
   }
 
   void _initializeVideoTracking() {
@@ -123,12 +144,13 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
 
         if (state.hasError) {
           return Scaffold(
-            body: Center(child: Column(
+            body: Center(
+                child: Column(
               children: [
                 Text(state.error!),
-                 ElevatedButton(
+                ElevatedButton(
                     onPressed: () {
-                        context.push(Routes.videosFeed);
+                      context.push(Routes.videosFeed);
                     },
                     child: Text("go videos")),
               ],
@@ -144,40 +166,48 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
             controller: _scrollController,
             physics: const BouncingScrollPhysics(),
             slivers: [
-              SliverVisibilityDetector(
-                key: Key('sliver-to-box-adapter'),
-                onVisibilityChanged: (visibilityInfo) {
-                  double visiblePercentage = visibilityInfo.visibleFraction;
-                  setState(() {
-                    _isSliverAppBarVisible = visiblePercentage == 0;
-                  });
-                },
-                sliver: SliverToBoxAdapter(
-                  child: _buildCategories(),
-                ),
+              SliverToBoxAdapter(
+                child: _buildCategories(),
               ),
               if (_isSliverAppBarVisible)
                 SliverAppBar(
                   floating: true,
-                  snap: !_isSliverAppBarVisible,
-                  pinned: !_isSliverAppBarVisible,
-                  automaticallyImplyLeading: true,
+                  snap: false,
+                  pinned: false,
+                  automaticallyImplyLeading: false,
                   toolbarHeight: 50,
                   flexibleSpace: _buildFiltersBar(state),
                   backgroundColor: AppColors.bgColor,
                 ),
               SliverPadding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) => _buildAdvertisedProduct(
-                        widget.advertisedProducts[index]),
-                    childCount: widget.advertisedProducts.length,
+                sliver: SliverToBoxAdapter(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Video Posts",
+                        style: TextStyle(
+                          color: AppColors.black,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 8,
+                      ),
+                      VideoCarousel(
+                        items: widget.advertisedProducts,
+                      ),
+                      SizedBox(
+                        height: 16,
+                      )
+                    ],
                   ),
                 ),
               ),
               SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 4),
                 sliver: SliverGrid(
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
@@ -192,7 +222,17 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                     childCount: widget.regularProducts.length,
                   ),
                 ),
-              )
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) => _buildAdvertisedProduct(
+                        widget.advertisedProducts[index]),
+                    childCount: widget.advertisedProducts.length,
+                  ),
+                ),
+              ),
             ],
           ),
         );
@@ -271,7 +311,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                   Expanded(
                     child: SmoothClipRRect(
                       smoothness: 1,
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(12),
                       child: Container(
                         height: 48,
                         decoration: BoxDecoration(

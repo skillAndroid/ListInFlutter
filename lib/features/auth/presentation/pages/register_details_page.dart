@@ -62,12 +62,14 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
 
   void _nextPage() {
     if (_formKey.currentState!.validate()) {
+      debugPrint("Before nextPage: _currentPage = $_currentPage");
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
       setState(() {
         _currentPage++;
+        debugPrint("After nextPage: _currentPage = $_currentPage");
       });
     }
   }
@@ -335,6 +337,7 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                   ),
                                 ),
                               ),
+
                               _buildPage(
                                 title: 'Your Phone Number',
                                 subtitle:
@@ -343,14 +346,15 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                   controller: _phoneNumberController,
                                   labelText: 'Phone Number',
                                   keyboardType: TextInputType.phone,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please enter your phone number';
-                                    }
-                                    return null;
-                                  },
+                                  // validator: (value) {
+                                  //   if (value == null || value.isEmpty) {
+                                  //     return 'Please enter your phone number';
+                                  //   }
+                                  //   return null;
+                                  // },
                                 ),
                               ),
+
                               _buildPage(
                                 title: 'Secure Your Account',
                                 subtitle: 'Create a strong password.',
@@ -358,15 +362,15 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                   controller: _passwordController,
                                   labelText: 'Password',
                                   obscureText: true,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please enter your password';
-                                    }
-                                    if (value.length < 6) {
-                                      return 'Password must be at least 6 characters';
-                                    }
-                                    return null;
-                                  },
+                                  // validator: (value) {
+                                  //   if (value == null || value.isEmpty) {
+                                  //     return 'Please enter your password';
+                                  //   }
+                                  //   if (value.length < 6) {
+                                  //     return 'Password must be at least 6 characters';
+                                  //   }
+                                  //   return null;
+                                  // },
                                 ),
                               ),
                               _buildPage(
@@ -674,8 +678,6 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                                         'Please select a valid location.'),
                                                   ),
                                                 );
-                                                // Optionally, you could navigate to the location selection page
-                                                // Navigator.pushNamed(context, '/locationSelection');
                                               } else {
                                                 // Proceed with the registration if location is valid
                                                 context.read<AuthBloc>().add(

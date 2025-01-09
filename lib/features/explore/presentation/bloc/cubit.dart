@@ -15,6 +15,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
   final Map<String, Map<String, dynamic>> _childCategorySelections = {};
   final Map<String, List<AttributeModel>> _childCategoryDynamicAttributes = {};
 
+
   HomeTreeCubit({
     required this.getCatalogsUseCase,
   }) : super(const HomeTreeState());
