@@ -458,7 +458,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
             CupertinoIcons.bell_fill,
             'Alerts',
             AppColors.white,
-            CupertinoColors.destructiveRed,
+            CupertinoColors.systemOrange,
             onTap: () {
               // Handle notifications
             },
@@ -469,8 +469,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
             AppColors.white,
             AppColors.darkGray,
             onTap: () {
-             _navigateToEdit(
-              UserProfileEntity(
+              _navigateToEdit(UserProfileEntity(
                 isBusinessAccount: user?.role != "INDIVIDUAL_SELLER",
                 locationName: user?.locationName,
                 longitude: user?.longitude,
@@ -480,9 +479,8 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                 isGrantedForPreciseLocation: user?.isGrantedForPreciseLocation,
                 nickName: user?.nickName,
                 phoneNumber: user?.phoneNumber,
-                profileImagePath: user?.profileImagePath,             
-              )
-             );
+                profileImagePath: user?.profileImagePath,
+              ));
             },
           ),
           _buildActionItem(
@@ -704,14 +702,14 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: FilterChip(
-        elevation: 1,
-        shadowColor: AppColors.containerColor,
+        elevation: 5,
+        shadowColor: AppColors.containerColor.withOpacity(0.05),
         shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(8)),
         label: Text(
           label,
           style: TextStyle(
-            color: isSelected ? AppColors.primary : Colors.black87,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+            color: isSelected ? AppColors.primary : Colors.grey,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w600,
           ),
         ),
         side: BorderSide.none,

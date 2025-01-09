@@ -149,16 +149,20 @@ class _ProfileEditorState extends State<ProfileEditor> {
       locationName: widget.userData.locationName,
     );
 
-    debugPrint("🔄${updatedProfile.nickName}");
-    debugPrint("🔄${updatedProfile.phoneNumber}");
-    debugPrint("🔄${updatedProfile.isBusinessAccount}");
-    debugPrint("🔄${updatedProfile.isGrantedForPreciseLocation}");
-    debugPrint("🔄${updatedProfile.profileImagePath}");
-    debugPrint("🔄${updatedProfile.toTime}");
-    debugPrint("🔄${updatedProfile.fromTime}");
-    debugPrint("🔄${updatedProfile.locationName}");
-    debugPrint("🔄${updatedProfile.longitude}");
-    debugPrint("🔄${updatedProfile.latitude}");
+    // Check if data has changed
+    bool hasChanges = updatedProfile.nickName != widget.userData.nickName ||
+        updatedProfile.phoneNumber != widget.userData.phoneNumber ||
+        updatedProfile.isBusinessAccount != widget.userData.isBusinessAccount ||
+        updatedProfile.isGrantedForPreciseLocation !=
+            widget.userData.isGrantedForPreciseLocation ||
+        updatedProfile.fromTime != widget.userData.fromTime ||
+        updatedProfile.toTime != widget.userData.toTime ||
+        _selectedImageFile != null;
+
+    if (!hasChanges) {
+      Navigator.pop(context);
+      return;
+    }
 
     context.read<UserProfileBloc>().add(
           UpdateUserProfileWithImage(
