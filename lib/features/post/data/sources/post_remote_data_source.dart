@@ -140,26 +140,19 @@ class CatalogRemoteDataSourceImpl implements CatalogRemoteDataSource {
   @override
   Future<String> createPost(PostModel post) async {
     try {
-      debugPrint('Creating post...');
       final options = await authService.getAuthOptions();
-      debugPrint('Auth options obtained');
 
-      print('Request data: ${post.toJson()}');
       final response = await dio.post(
         '/api/v1/publications',
         data: post.toJson(),
         options: options,
       );
-      debugPrint('Create post response: ${response.statusCode}');
 
       if (response.statusCode == 201) {
-        debugPrint('Post created successfully');
         return response.data;
       }
-      debugPrint('Create post failed with status: ${response.statusCode}');
       throw ServerExeption(message: 'Failed to create post');
     } catch (e) {
-      debugPrint('Create post error: $e');
       rethrow;
     }
   }

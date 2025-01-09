@@ -2,8 +2,10 @@
 
 import 'dart:math' as math;
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/assets/app_images.dart';
@@ -11,11 +13,16 @@ import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
+import 'package:list_in/features/profile/domain/entity/user_data_entity.dart';
+import 'package:list_in/features/profile/domain/entity/user_profile_entity.dart';
+import 'package:list_in/features/profile/presentation/bloc/user_profile_bloc.dart';
+import 'package:list_in/features/profile/presentation/bloc/user_profile_event.dart';
+import 'package:list_in/features/profile/presentation/bloc/user_profile_state.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String userId;
-  final List<ProductEntity> products; // ID of the profile being viewed
+  final List<ProductEntity> products;
   const ProfileScreen(
       {super.key, required this.userId, required this.products});
 
@@ -34,6 +41,13 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
   double _offset = 0;
   final double _maxAppBarHeight = 180;
 
+  void _navigateToEdit(UserProfileEntity userData) {
+    context.pushNamed(
+      RoutesByName.profileEdit,
+      extra: userData,
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -44,6 +58,8 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
         });
       });
     _tabController = TabController(length: 3, vsync: this);
+
+    context.read<UserProfileBloc>().add(GetUserData());
   }
 
   @override
@@ -55,161 +71,179 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.bgColor,
-      body: Stack(
-        children: [
-          NestedScrollView(
-            controller: _scrollController,
-            headerSliverBuilder: (context, innerBoxIsScrolled) {
-              return [
-                _buildSliverAppBar(),
-                SliverToBoxAdapter(
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 8),
-                      _buildContactActions(),
-                      _buildReviewSection(),
-                      const SizedBox(height: 8),
-                    ],
-                  ),
-                ),
-                SliverPersistentHeader(
-                  delegate: _SliverTabBarDelegate(
-                    TabBar(
-                      controller: _tabController,
-                      tabs: [
-                        Tab(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(CupertinoIcons.shopping_cart),
-                              SizedBox(width: 8),
-                              Text(
-                                "Products",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Tab(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(CupertinoIcons.photo_fill),
-                              SizedBox(width: 8),
-                              Text(
-                                "Posts",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Tab(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(CupertinoIcons.play_circle_fill),
-                              SizedBox(width: 8),
-                              Text(
-                                "Videos",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+    return BlocConsumer<UserProfileBloc, UserProfileState>(
+      listener: (context, state) {
+        if (state.status == UserProfileStatus.failure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.errorMessage ?? 'An error occurred')),
+          );
+        }
+      },
+      builder: (context, state) {
+        if (state.status == UserProfileStatus.loading &&
+            state.userData == null) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+        final userData = state.userData;
+        return Scaffold(
+          backgroundColor: AppColors.bgColor,
+          body: Stack(
+            children: [
+              NestedScrollView(
+                controller: _scrollController,
+                headerSliverBuilder: (context, innerBoxIsScrolled) {
+                  return [
+                    _buildSliverAppBar(userData),
+                    SliverToBoxAdapter(
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 8),
+                          _buildContactActions(userData),
+                          _buildReviewSection(userData),
+                          const SizedBox(height: 8),
+                        ],
+                      ),
                     ),
-                    backgroundColor: AppColors.bgColor,
+                    SliverPersistentHeader(
+                      delegate: _SliverTabBarDelegate(
+                        TabBar(
+                          controller: _tabController,
+                          tabs: [
+                            Tab(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(CupertinoIcons.shopping_cart),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    "Products",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Tab(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(CupertinoIcons.photo_fill),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    "Posts",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Tab(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(CupertinoIcons.play_circle_fill),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    "Videos",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        backgroundColor: AppColors.bgColor,
+                      ),
+                      pinned: true,
+                    ),
+                  ];
+                },
+                body: Padding(
+                  padding: const EdgeInsets.only(top: 8.0, right: 8, left: 8),
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      CustomScrollView(
+                        slivers: [
+                          _buildProductFilters(),
+                          _buildFilteredProductsGrid(),
+                        ],
+                      ),
+                      CustomScrollView(
+                        slivers: [
+                          SliverToBoxAdapter(
+                            child: Column(
+                              children: [
+                                SizedBox(
+                                  height: 56,
+                                ),
+                                Icon(
+                                  CupertinoIcons.doc_text,
+                                  size: 76,
+                                  color: AppColors.grey,
+                                ),
+                                SizedBox(
+                                  height: 16,
+                                ),
+                                Text(
+                                  "Empty List",
+                                  style: TextStyle(
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.w500,
+                                      color: AppColors.grey),
+                                )
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      CustomScrollView(
+                        slivers: [
+                          SliverToBoxAdapter(
+                            child: Column(
+                              children: [
+                                SizedBox(
+                                  height: 56,
+                                ),
+                                Icon(
+                                  CupertinoIcons.video_camera,
+                                  size: 76,
+                                  color: AppColors.grey,
+                                ),
+                                SizedBox(
+                                  height: 16,
+                                ),
+                                Text(
+                                  "Empty List",
+                                  style: TextStyle(
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.w500,
+                                      color: AppColors.grey),
+                                )
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  pinned: true,
                 ),
-              ];
-            },
-            body: Padding(
-              padding: const EdgeInsets.only(top: 8.0, right: 8, left: 8),
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  CustomScrollView(
-                    slivers: [
-                      _buildProductFilters(),
-                      _buildFilteredProductsGrid(),
-                    ],
-                  ),
-                  CustomScrollView(
-                    slivers: [
-                      SliverToBoxAdapter(
-                        child: Column(
-                          children: [
-                            SizedBox(
-                              height: 56,
-                            ),
-                            Icon(
-                              CupertinoIcons.doc_text,
-                              size: 76,
-                              color: AppColors.grey,
-                            ),
-                            SizedBox(
-                              height: 16,
-                            ),
-                            Text(
-                              "Empty List",
-                              style: TextStyle(
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.w500,
-                                  color: AppColors.grey),
-                            )
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  CustomScrollView(
-                    slivers: [
-                      SliverToBoxAdapter(
-                        child: Column(
-                          children: [
-                            SizedBox(
-                              height: 56,
-                            ),
-                            Icon(
-                              CupertinoIcons.video_camera,
-                              size: 76,
-                              color: AppColors.grey,
-                            ),
-                            SizedBox(
-                              height: 16,
-                            ),
-                            Text(
-                              "Empty List",
-                              style: TextStyle(
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.w500,
-                                  color: AppColors.grey),
-                            )
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
               ),
-            ),
+              //  _buildFloatingAppBar(),
+            ],
           ),
-          //  _buildFloatingAppBar(),
-        ],
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildSliverAppBar() {
+  Widget _buildSliverAppBar(UserDataEntity? userData) {
     final double progress = math.min(1.0, _offset / _maxAppBarHeight);
     final Size screenSize = MediaQuery.of(context).size;
     final double topPadding = MediaQuery.of(context).padding.top;
@@ -281,7 +315,12 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                     ],
                   ),
                   child: ClipOval(
-                    child: Image.asset(AppImages.wAuto, fit: BoxFit.cover),
+                    child: userData?.profileImagePath != null
+                        ? CachedNetworkImage(
+                            imageUrl: userData!.profileImagePath!,
+                            fit: BoxFit.cover,
+                          )
+                        : Image.asset(AppImages.appLogo, fit: BoxFit.cover),
                   ),
                 ),
                 if (showEditButtons)
@@ -318,7 +357,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                 child: Row(
                   children: [
                     Text(
-                      'Anna Dii',
+                      userData?.nickName ?? 'User',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -343,7 +382,6 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
             ),
           ),
 
-          // Stats
           Positioned(
             left: nameLeftPosition,
             top: topPadding + 110 - statsOffset,
@@ -400,7 +438,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Widget _buildContactActions() {
+  Widget _buildContactActions(UserDataEntity? user) {
     return Container(
       height: 85,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -431,7 +469,20 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
             AppColors.white,
             AppColors.darkGray,
             onTap: () {
-              context.goNamed(RoutesByName.profileEdit);
+             _navigateToEdit(
+              UserProfileEntity(
+                isBusinessAccount: user?.role != "INDIVIDUAL_SELLER",
+                locationName: user?.locationName,
+                longitude: user?.longitude,
+                latitude: user?.latitude,
+                fromTime: user?.fromTime,
+                toTime: user?.toTime,
+                isGrantedForPreciseLocation: user?.isGrantedForPreciseLocation,
+                nickName: user?.nickName,
+                phoneNumber: user?.phoneNumber,
+                profileImagePath: user?.profileImagePath,             
+              )
+             );
             },
           ),
           _buildActionItem(
@@ -499,7 +550,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Widget _buildReviewSection() {
+  Widget _buildReviewSection(UserDataEntity? userData) {
     return SizedBox(
       height: 115,
       width: double.infinity,
@@ -524,7 +575,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      '4.8',
+                      userData?.rating.toString() ?? "0",
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,

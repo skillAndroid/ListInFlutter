@@ -5,13 +5,21 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:list_in/features/profile/domain/entity/user_profile_entity.dart';
+import 'package:list_in/features/profile/presentation/bloc/user_profile_bloc.dart';
+import 'package:list_in/features/profile/presentation/bloc/user_profile_event.dart';
+import 'package:list_in/features/profile/presentation/bloc/user_profile_state.dart';
+import 'package:list_in/features/profile/presentation/widgets/cutom_time_picker.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 import 'package:list_in/config/theme/app_colors.dart';
 
 class ProfileEditor extends StatefulWidget {
-  const ProfileEditor({super.key});
+  final UserProfileEntity userData;
+
+  const ProfileEditor({super.key, required this.userData});
 
   @override
   _ProfileEditorState createState() => _ProfileEditorState();
@@ -29,10 +37,34 @@ class _ProfileEditorState extends State<ProfileEditor> {
   String? _profileImagePath;
   final ImagePicker _picker = ImagePicker();
   final FocusScopeNode _focusScopeNode = FocusScopeNode();
+  XFile? _selectedImageFile;
+
   @override
   void initState() {
     super.initState();
-    // Add listeners to focus nodes
+
+    _nameController.text = widget.userData.nickName ?? '';
+    _phoneController.text = widget.userData.phoneNumber ?? '';
+    _profileImagePath = widget.userData.profileImagePath;
+    isBusinessAccount = widget.userData.isBusinessAccount ?? false;
+    showExactLocation = widget.userData.isGrantedForPreciseLocation ?? false;
+
+    if (widget.userData.fromTime != null) {
+      final parts = widget.userData.fromTime!.split(':');
+      openingTime = TimeOfDay(
+        hour: int.parse(parts[0]),
+        minute: int.parse(parts[1]),
+      );
+    }
+
+    if (widget.userData.toTime != null) {
+      final parts = widget.userData.toTime!.split(':');
+      closingTime = TimeOfDay(
+        hour: int.parse(parts[0]),
+        minute: int.parse(parts[1]),
+      );
+    }
+
     _nameFocusNode.addListener(() {
       if (_nameFocusNode.hasFocus) {
         _phoneFocusNode.unfocus();
@@ -66,6 +98,7 @@ class _ProfileEditorState extends State<ProfileEditor> {
       if (image != null) {
         setState(() {
           _profileImagePath = image.path;
+          _selectedImageFile = image;
         });
       }
     } catch (e) {
@@ -87,189 +120,263 @@ class _ProfileEditorState extends State<ProfileEditor> {
     }
   }
 
+  void _handleSave() {
+    String? formattedFromTime;
+    String? formattedToTime;
+
+    if (openingTime != null) {
+      final hour = openingTime!.hour.toString().padLeft(2, '0');
+      final minute = openingTime!.minute.toString().padLeft(2, '0');
+      formattedFromTime = '$hour:$minute';
+    }
+
+    if (closingTime != null) {
+      final hour = closingTime!.hour.toString().padLeft(2, '0');
+      final minute = closingTime!.minute.toString().padLeft(2, '0');
+      formattedToTime = '$hour:$minute';
+    }
+
+    final updatedProfile = UserProfileEntity(
+      nickName: _nameController.text,
+      phoneNumber: _phoneController.text,
+      isBusinessAccount: isBusinessAccount,
+      isGrantedForPreciseLocation: showExactLocation,
+      profileImagePath: _profileImagePath,
+      fromTime: formattedFromTime,
+      toTime: formattedToTime,
+      longitude: widget.userData.longitude,
+      latitude: widget.userData.latitude,
+      locationName: widget.userData.locationName,
+    );
+
+    debugPrint("🔄${updatedProfile.nickName}");
+    debugPrint("🔄${updatedProfile.phoneNumber}");
+    debugPrint("🔄${updatedProfile.isBusinessAccount}");
+    debugPrint("🔄${updatedProfile.isGrantedForPreciseLocation}");
+    debugPrint("🔄${updatedProfile.profileImagePath}");
+    debugPrint("🔄${updatedProfile.toTime}");
+    debugPrint("🔄${updatedProfile.fromTime}");
+    debugPrint("🔄${updatedProfile.locationName}");
+    debugPrint("🔄${updatedProfile.longitude}");
+    debugPrint("🔄${updatedProfile.latitude}");
+
+    context.read<UserProfileBloc>().add(
+          UpdateUserProfileWithImage(
+            profile: updatedProfile,
+            imageFile: _selectedImageFile,
+          ),
+        );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        return true;
-      },
-      child: FocusScope(
-        node: _focusScopeNode,
-        child: GestureDetector(
-          onTap: _unfocusAll,
-          child: CupertinoPageScaffold(
-            backgroundColor: AppColors.bgColor,
-            navigationBar: CupertinoNavigationBar(
-              backgroundColor: AppColors.white,
-              middle: Text('Edit Profile',
-                  style: TextStyle(
-                      color: AppColors.black, fontWeight: FontWeight.w600)),
-              trailing: CupertinoButton(
-                padding: EdgeInsets.zero,
-                child: Text('Done',
-                    style: TextStyle(
-                        color: AppColors.primary, fontWeight: FontWeight.w600)),
-                onPressed: () {
-                  _unfocusAll();
-                  Navigator.of(context).pop();
-                },
-              ),
+    return BlocConsumer<UserProfileBloc, UserProfileState>(
+      listener: (context, state) {
+        if (state.status == UserProfileStatus.failure) {
+          // Show error message
+          showCupertinoDialog(
+            context: context,
+            builder: (context) => CupertinoAlertDialog(
+              title: Text('Error'),
+              content: Text(state.errorMessage ?? 'An error occurred'),
+              actions: [
+                CupertinoDialogAction(
+                  child: Text('OK'),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
             ),
-            child: SafeArea(
-              child: ListView(
-                padding: EdgeInsets.symmetric(vertical: 16),
-                children: [
-                  // Profile Photo Section
-                  Container(
-                    padding: EdgeInsets.symmetric(vertical: 32),
-                    child: Column(
-                      children: [
-                        Stack(
-                          alignment: Alignment.center,
+          );
+        } else if (state.status == UserProfileStatus.success) {
+          // Navigate back on success
+          Navigator.pop(context);
+        }
+      },
+      builder: (context, state) {
+        return WillPopScope(
+          onWillPop: () async {
+            return true;
+          },
+          child: FocusScope(
+            node: _focusScopeNode,
+            child: GestureDetector(
+              onTap: _unfocusAll,
+              child: CupertinoPageScaffold(
+                backgroundColor: AppColors.bgColor,
+                navigationBar: CupertinoNavigationBar(
+                  backgroundColor: AppColors.white,
+                  middle: Text('Edit Profile',
+                      style: TextStyle(
+                          color: AppColors.black, fontWeight: FontWeight.w600)),
+                  trailing: CupertinoButton(
+                      padding: EdgeInsets.zero,
+                      onPressed: _handleSave,
+                      child: Text('Done',
+                          style: TextStyle(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w600))),
+                ),
+                child: SafeArea(
+                  child: ListView(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    children: [
+                      // Profile Photo Section
+                      Container(
+                        padding: EdgeInsets.symmetric(vertical: 32),
+                        child: Column(
                           children: [
-                            Container(
-                              width: 120,
-                              height: 120,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: AppColors.containerColor,
-                                border: Border.all(
-                                  color: AppColors.primaryLight,
-                                  width: 3,
-                                ),
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(60),
-                                child: _profileImagePath != null
-                                    ? Image.file(
-                                        File(_profileImagePath!),
-                                        fit: BoxFit.cover,
-                                      )
-                                    : Icon(
-                                        CupertinoIcons.person_fill,
-                                        size: 60,
-                                        color: AppColors.grey,
-                                      ),
-                              ),
-                            ),
-                            Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: Container(
-                                padding: EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: AppColors.primary,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: AppColors.white,
-                                    width: 2,
+                            Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                Container(
+                                  width: 120,
+                                  height: 120,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: AppColors.containerColor,
+                                    border: Border.all(
+                                      color: AppColors.primary,
+                                      width: 3,
+                                    ),
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(60),
+                                    child: _profileImagePath != null
+                                        ? Image.file(
+                                            File(_profileImagePath!),
+                                            fit: BoxFit.cover,
+                                          )
+                                        : Icon(
+                                            CupertinoIcons.person_fill,
+                                            size: 60,
+                                            color: AppColors.grey,
+                                          ),
                                   ),
                                 ),
-                                child: Icon(
-                                  CupertinoIcons.camera_fill,
-                                  color: AppColors.white,
-                                  size: 20,
+                                Positioned(
+                                  bottom: 0,
+                                  right: 0,
+                                  child: Container(
+                                    padding: EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primary,
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: AppColors.white,
+                                        width: 2,
+                                      ),
+                                    ),
+                                    child: Icon(
+                                      CupertinoIcons.camera_fill,
+                                      color: AppColors.white,
+                                      size: 20,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 16),
+                            CupertinoButton(
+                              padding: EdgeInsets.zero,
+                              onPressed: _showPhotoOptions,
+                              child: Text(
+                                'Change Profile Photo',
+                                style: TextStyle(
+                                  color: AppColors.primary,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ),
                           ],
                         ),
-                        SizedBox(height: 16),
-                        CupertinoButton(
-                          padding: EdgeInsets.zero,
-                          onPressed: _showPhotoOptions,
-                          child: Text(
-                            'Change Profile Photo',
-                            style: TextStyle(
-                              color: AppColors.primary,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
+                      ),
+
+                      // Profile Info Section
+                      _buildSection(
+                        title: 'PROFILE INFORMATION',
+                        children: [
+                          _buildTextField('Name', 'Enter your name'),
+                          _buildDivider(),
+                          _buildTextField('Phone', 'Enter phone number',
+                              isPhone: true),
+                        ],
+                      ),
+
+                      SizedBox(height: 24),
+
+                      // Location Section
+                      _buildSection(
+                        title: 'LOCATION',
+                        children: [
+                          _buildSwitchRow(
+                            'Show Exact Location',
+                            showExactLocation,
+                            (value) =>
+                                setState(() => showExactLocation = value),
+                          ),
+                          _buildDivider(),
+                          _buildTappableRow(
+                            'Select Location',
+                            showExactLocation
+                                ? 'Current Location'
+                                : 'Region Only',
+                            onTap: _showMapSelector,
+                          ),
+                        ],
+                      ),
+
+                      SizedBox(height: 24),
+
+                      // Working Hours Section
+                      _buildSection(
+                        title: 'WORKING HOURS',
+                        children: [
+                          _buildTappableRow(
+                            'Opening Time',
+                            openingTime?.format(context) ?? 'Select Time',
+                            onTap: () => _showIOSTimePicker(true),
+                          ),
+                          _buildDivider(),
+                          _buildTappableRow(
+                            'Closing Time',
+                            closingTime?.format(context) ?? 'Select Time',
+                            onTap: () => _showIOSTimePicker(false),
+                          ),
+                        ],
+                      ),
+
+                      SizedBox(height: 24),
+
+                      // Account Type Section
+                      _buildSection(
+                        title: 'ACCOUNT TYPE',
+                        children: [
+                          _buildSwitchRow(
+                            'Business Account',
+                            isBusinessAccount,
+                            (value) =>
+                                setState(() => isBusinessAccount = value),
+                          ),
+                        ],
+                        footer: Text(
+                          isBusinessAccount
+                              ? 'Business features are currently active'
+                              : 'Switch to business account to access additional features',
+                          style: TextStyle(
+                            color: AppColors.lightText,
+                            fontSize: 13,
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-
-                  // Profile Info Section
-                  _buildSection(
-                    title: 'PROFILE INFORMATION',
-                    children: [
-                      _buildTextField('Name', 'Enter your name'),
-                      _buildDivider(),
-                      _buildTextField('Phone', 'Enter phone number',
-                          isPhone: true),
-                    ],
-                  ),
-
-                  SizedBox(height: 24),
-
-                  // Location Section
-                  _buildSection(
-                    title: 'LOCATION',
-                    children: [
-                      _buildSwitchRow(
-                        'Show Exact Location',
-                        showExactLocation,
-                        (value) => setState(() => showExactLocation = value),
-                      ),
-                      _buildDivider(),
-                      _buildTappableRow(
-                        'Select Location',
-                        showExactLocation ? 'Current Location' : 'Region Only',
-                        onTap: _showMapSelector,
                       ),
                     ],
                   ),
-
-                  SizedBox(height: 24),
-
-                  // Working Hours Section
-                  _buildSection(
-                    title: 'WORKING HOURS',
-                    children: [
-                      _buildTappableRow(
-                        'Opening Time',
-                        openingTime?.format(context) ?? 'Select Time',
-                        onTap: () => _showIOSTimePicker(true),
-                      ),
-                      _buildDivider(),
-                      _buildTappableRow(
-                        'Closing Time',
-                        closingTime?.format(context) ?? 'Select Time',
-                        onTap: () => _showIOSTimePicker(false),
-                      ),
-                    ],
-                  ),
-
-                  SizedBox(height: 24),
-
-                  // Account Type Section
-                  _buildSection(
-                    title: 'ACCOUNT TYPE',
-                    children: [
-                      _buildSwitchRow(
-                        'Business Account',
-                        isBusinessAccount,
-                        (value) => setState(() => isBusinessAccount = value),
-                      ),
-                    ],
-                    footer: Text(
-                      isBusinessAccount
-                          ? 'Business features are currently active'
-                          : 'Switch to business account to access additional features',
-                      style: TextStyle(
-                        color: AppColors.lightText,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -286,7 +393,7 @@ class _ProfileEditorState extends State<ProfileEditor> {
           child: Text(
             title,
             style: TextStyle(
-              color: AppColors.darkGray,
+              color: AppColors.grey,
               fontSize: 13,
               fontWeight: FontWeight.w600,
             ),
@@ -323,9 +430,9 @@ class _ProfileEditorState extends State<ProfileEditor> {
             child: Text(
               label,
               style: TextStyle(
-                color: AppColors.black,
-                fontSize: 16,
-              ),
+                  color: AppColors.black,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500),
             ),
           ),
           Expanded(
@@ -347,11 +454,13 @@ class _ProfileEditorState extends State<ProfileEditor> {
                 keyboardType:
                     isPhone ? TextInputType.phone : TextInputType.text,
                 placeholderStyle: TextStyle(
+                  fontFamily: "Poppins",
                   color: AppColors.lightText,
                   fontSize: 16,
                 ),
                 style: TextStyle(
-                  color: AppColors.black,
+                  color: AppColors.lightText,
+                  fontFamily: "Poppins",
                   fontSize: 16,
                 ),
                 onTap: () {
@@ -380,9 +489,9 @@ class _ProfileEditorState extends State<ProfileEditor> {
           Text(
             label,
             style: TextStyle(
-              color: AppColors.black,
-              fontSize: 16,
-            ),
+                color: AppColors.black,
+                fontSize: 16,
+                fontWeight: FontWeight.w500),
           ),
           CupertinoSwitch(
             value: value,
@@ -413,9 +522,9 @@ class _ProfileEditorState extends State<ProfileEditor> {
             Text(
               label,
               style: TextStyle(
-                color: AppColors.black,
-                fontSize: 16,
-              ),
+                  color: AppColors.black,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500),
             ),
             Row(
               children: [
@@ -546,15 +655,13 @@ class _ProfileEditorState extends State<ProfileEditor> {
     String currentPreset = isOpeningTime ? '9 am' : '5 pm';
 
     // Set initial time for the controller
-    if (isOpeningTime && openingTime != null) {
-      controller.selectedHour = openingTime!.hourOfPeriod;
-      controller.selectedMinute = openingTime!.minute;
-      controller.isAM = openingTime!.period == DayPeriod.am;
-    } else if (!isOpeningTime && closingTime != null) {
-      controller.selectedHour = closingTime!.hourOfPeriod;
-      controller.selectedMinute = closingTime!.minute;
-      controller.isAM = closingTime!.period == DayPeriod.am;
+    TimeOfDay? initialTime = isOpeningTime ? openingTime : closingTime;
+    if (initialTime != null) {
+      controller.selectedHour = initialTime.hourOfPeriod;
+      controller.selectedMinute = initialTime.minute;
+      controller.isAM = initialTime.period == DayPeriod.am;
     }
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -562,7 +669,18 @@ class _ProfileEditorState extends State<ProfileEditor> {
       useRootNavigator: true,
       builder: (BuildContext context) {
         return StatefulBuilder(
-          builder: (context, setState) {
+          builder: (BuildContext context, StateSetter setModalState) {
+            void onTimeChanged(TimeOfDay newTime) {
+              setState(() {
+                if (isOpeningTime) {
+                  openingTime = newTime;
+                } else {
+                  closingTime = newTime;
+                }
+              });
+              setModalState(() {}); // Update modal state if needed
+            }
+
             return SmoothClipRRect(
               borderRadius: BorderRadius.circular(16),
               child: Container(
@@ -606,8 +724,8 @@ class _ProfileEditorState extends State<ProfileEditor> {
                         children: [
                           CustomTimePicker(
                             controller: controller,
-                            initialTime:
-                                isOpeningTime ? openingTime : closingTime,
+                            initialTime: initialTime,
+                            onTimeChanged: onTimeChanged,
                           ),
                           Positioned(
                             left: 0,
@@ -651,69 +769,17 @@ class _ProfileEditorState extends State<ProfileEditor> {
                       padding: EdgeInsets.symmetric(horizontal: 16),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: isOpeningTime
-                            ? [
-                                _buildPresetButton(
-                                    '8 am', currentPreset == '8 am', (preset) {
-                                  setState(() {
-                                    currentPreset = preset;
-                                    controller.setFromPreset(preset);
-                                  });
-                                }),
-                                _buildPresetButton(
-                                    '9 am', currentPreset == '9 am', (preset) {
-                                  setState(() {
-                                    currentPreset = preset;
-                                    controller.setFromPreset(preset);
-                                  });
-                                }),
-                                _buildPresetButton(
-                                    '10 am', currentPreset == '10 am',
-                                    (preset) {
-                                  setState(() {
-                                    currentPreset = preset;
-                                    controller.setFromPreset(preset);
-                                  });
-                                }),
-                                _buildPresetButton(
-                                    '11 am', currentPreset == '11 am',
-                                    (preset) {
-                                  setState(() {
-                                    currentPreset = preset;
-                                    controller.setFromPreset(preset);
-                                  });
-                                }),
-                              ]
-                            : [
-                                _buildPresetButton(
-                                    '5 pm', currentPreset == '5 pm', (preset) {
-                                  setState(() {
-                                    currentPreset = preset;
-                                    controller.setFromPreset(preset);
-                                  });
-                                }),
-                                _buildPresetButton(
-                                    '6 pm', currentPreset == '6 pm', (preset) {
-                                  setState(() {
-                                    currentPreset = preset;
-                                    controller.setFromPreset(preset);
-                                  });
-                                }),
-                                _buildPresetButton(
-                                    '7 pm', currentPreset == '7 pm', (preset) {
-                                  setState(() {
-                                    currentPreset = preset;
-                                    controller.setFromPreset(preset);
-                                  });
-                                }),
-                                _buildPresetButton(
-                                    '8 pm', currentPreset == '8 pm', (preset) {
-                                  setState(() {
-                                    currentPreset = preset;
-                                    controller.setFromPreset(preset);
-                                  });
-                                }),
-                              ],
+                        children: _buildPresetButtons(
+                          isOpeningTime,
+                          currentPreset,
+                          (String preset) {
+                            controller.setFromPreset(preset);
+                            onTimeChanged(controller.getSelectedTime());
+                            setModalState(() {
+                              currentPreset = preset;
+                            });
+                          },
+                        ),
                       ),
                     ),
 
@@ -773,6 +839,24 @@ class _ProfileEditorState extends State<ProfileEditor> {
     );
   }
 
+  List<Widget> _buildPresetButtons(
+    bool isOpeningTime,
+    String currentPreset,
+    Function(String) onTap,
+  ) {
+    final List<String> presets = isOpeningTime
+        ? ['8 am', '9 am', '10 am', '11 am']
+        : ['5 pm', '6 pm', '7 pm', '8 pm'];
+
+    return presets
+        .map((preset) => _buildPresetButton(
+              preset,
+              currentPreset == preset,
+              onTap,
+            ))
+        .toList();
+  }
+
   Widget _buildPresetButton(
       String time, bool isSelected, Function(String) onTap) {
     return GestureDetector(
@@ -796,195 +880,6 @@ class _ProfileEditorState extends State<ProfileEditor> {
             fontSize: 16,
             fontWeight: FontWeight.w700,
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class CustomTimePickerController {
-  int selectedHour = TimeOfDay.now().hourOfPeriod;
-  int selectedMinute = TimeOfDay.now().minute;
-  bool isAM = TimeOfDay.now().period == DayPeriod.am;
-
-  void setFromPreset(String preset) {
-    final parts = preset.split(' ');
-    final hour = int.parse(parts[0]);
-    final isPM = parts[1].toLowerCase() == 'pm';
-
-    selectedHour = hour;
-    selectedMinute = 0;
-    isAM = !isPM;
-  }
-
-  TimeOfDay getSelectedTime() {
-    final hour = selectedHour + (isAM ? 0 : 12);
-    return TimeOfDay(hour: hour == 24 ? 0 : hour, minute: selectedMinute);
-  }
-}
-
-class CustomTimePicker extends StatefulWidget {
-  final CustomTimePickerController controller;
-  final TimeOfDay? initialTime;
-
-  const CustomTimePicker({
-    super.key,
-    required this.controller,
-    this.initialTime,
-  });
-
-  @override
-  _CustomTimePickerState createState() => _CustomTimePickerState();
-}
-
-class _CustomTimePickerState extends State<CustomTimePicker> {
-  late FixedExtentScrollController _hourController;
-  late FixedExtentScrollController _minuteController;
-  late FixedExtentScrollController _periodController;
-
-  @override
-  void initState() {
-    super.initState();
-
-    // Initialize with current time or initial time if provided
-    final time = widget.initialTime ?? TimeOfDay.now();
-    widget.controller.selectedHour = time.hourOfPeriod;
-    widget.controller.selectedMinute = time.minute;
-    widget.controller.isAM = time.period == DayPeriod.am;
-
-    // Initialize scroll controllers with initial positions
-    _hourController = FixedExtentScrollController(
-        initialItem: widget.controller.selectedHour - 1);
-    _minuteController = FixedExtentScrollController(
-        initialItem: widget.controller.selectedMinute);
-    _periodController = FixedExtentScrollController(
-        initialItem: widget.controller.isAM ? 0 : 1);
-  }
-
-  @override
-  void dispose() {
-    _hourController.dispose();
-    _minuteController.dispose();
-    _periodController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 240,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // Hours wheel
-          SizedBox(
-            width: 70,
-            child: ListWheelScrollView.useDelegate(
-              controller: _hourController,
-              itemExtent: 40,
-              perspective: 0.005,
-              diameterRatio: 1.5,
-              physics: FixedExtentScrollPhysics(),
-              onSelectedItemChanged: (index) {
-                setState(() {
-                  widget.controller.selectedHour = index + 1;
-                });
-              },
-              childDelegate: ListWheelChildBuilderDelegate(
-                childCount: 12,
-                builder: (context, index) {
-                  return _TimePickerItem(
-                    text: '${index + 1}',
-                    isSelected: widget.controller.selectedHour == index + 1,
-                  );
-                },
-              ),
-            ),
-          ),
-          Text(
-            ':',
-            style: TextStyle(
-              fontSize: 30,
-              fontWeight: FontWeight.w600,
-              color: Colors.black,
-            ),
-          ),
-          // Minutes wheel
-          SizedBox(
-            width: 70,
-            child: ListWheelScrollView.useDelegate(
-              controller: _minuteController,
-              itemExtent: 40,
-              perspective: 0.005,
-              diameterRatio: 1.5,
-              physics: FixedExtentScrollPhysics(),
-              onSelectedItemChanged: (index) {
-                setState(() {
-                  widget.controller.selectedMinute = index;
-                });
-              },
-              childDelegate: ListWheelChildBuilderDelegate(
-                childCount: 60,
-                builder: (context, index) {
-                  return _TimePickerItem(
-                    text: index.toString().padLeft(2, '0'),
-                    isSelected: widget.controller.selectedMinute == index,
-                  );
-                },
-              ),
-            ),
-          ),
-          // AM/PM wheel
-          SizedBox(
-            width: 70,
-            child: ListWheelScrollView.useDelegate(
-              controller: _periodController,
-              itemExtent: 40,
-              perspective: 0.005,
-              diameterRatio: 1.5,
-              physics: FixedExtentScrollPhysics(),
-              onSelectedItemChanged: (index) {
-                setState(() {
-                  widget.controller.isAM = index == 0;
-                });
-              },
-              childDelegate: ListWheelChildBuilderDelegate(
-                childCount: 2,
-                builder: (context, index) {
-                  return _TimePickerItem(
-                    text: index == 0 ? 'am' : 'pm',
-                    isSelected: (index == 0) == widget.controller.isAM,
-                  );
-                },
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _TimePickerItem extends StatelessWidget {
-  final String text;
-  final bool isSelected;
-
-  const _TimePickerItem({
-    required this.text,
-    required this.isSelected,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 40,
-      alignment: Alignment.center,
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: isSelected ? 30 : 20,
-          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-          color: isSelected ? Colors.black : Colors.black.withOpacity(0.3),
         ),
       ),
     );

@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, invalid_use_of_protected_member
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
@@ -824,7 +824,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                     ),
                     // New toolbar with centered title
                     SizedBox(
-                      height: 48,
+                      height: 40,
                       child: Stack(
                         alignment: Alignment.center,
                         children: [
@@ -850,7 +850,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 IconButton(
-                                  icon: const Icon(Ionicons.close_circle),
+                                  icon: const Icon(Ionicons.close),
                                   onPressed: () => Navigator.pop(context),
                                   color: AppColors.black,
                                 ),
@@ -869,8 +869,11 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                       foregroundColor: AppColors.black,
                                     ),
                                     child: const Text(
-                                      'Clear all',
-                                      style: TextStyle(fontSize: 13),
+                                      'Clear All',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
                                   )
                                 else if (cubit
@@ -886,10 +889,11 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                           horizontal: 8, vertical: 3),
                                       foregroundColor: AppColors.black,
                                     ),
-                                    child: const Text(
-                                      'Clear',
-                                      style: TextStyle(fontSize: 13),
-                                    ),
+                                    child: const Text('Clear',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                        )),
                                   )
                                 else
                                   const SizedBox(width: 48),
@@ -965,20 +969,6 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                         const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                     child: Row(
                       children: [
-                        Expanded(
-                          child: Text(
-                            value.value,
-                            style: TextStyle(
-                              fontSize: 15,
-                              color: isSelected
-                                  ? CupertinoColors.darkBackgroundGray
-                                  : AppColors.darkGray.withOpacity(0.6),
-                              fontWeight: isSelected
-                                  ? FontWeight.w600
-                                  : FontWeight.normal,
-                            ),
-                          ),
-                        ),
                         AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
                           width: 24,
@@ -987,21 +977,31 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
                               color: isSelected
-                                  ? AppColors.littleGreen
+                                  ? AppColors.primary
                                   : AppColors.lightGray,
                               width: 2,
                             ),
                             color: isSelected
-                                ? AppColors.littleGreen
+                                ? AppColors.primary
                                 : AppColors.white,
                           ),
                           child: isSelected
                               ? const Icon(
                                   Icons.check,
                                   size: 17,
-                                  color: AppColors.black,
+                                  color: AppColors.white,
                                 )
                               : null,
+                        ),
+                        SizedBox(
+                          width: 8,
+                        ),
+                        Text(
+                          value.value,
+                          style: TextStyle(
+                              fontSize: 15,
+                              color: CupertinoColors.darkBackgroundGray,
+                              fontWeight: FontWeight.w600),
                         ),
                       ],
                     ),
@@ -1285,11 +1285,10 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                           fontSize: 15,
                                           color: isSelected
                                               ? AppColors.black
-                                              : AppColors.darkGray
-                                                  .withOpacity(0.6),
+                                              : AppColors.darkGray,
                                           fontWeight: isSelected
-                                              ? FontWeight.w600
-                                              : FontWeight.normal,
+                                              ? FontWeight.w700
+                                              : FontWeight.w600,
                                         ),
                                       ),
                                     ),
@@ -1297,7 +1296,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                       const Icon(
                                         Icons.check_circle,
                                         size: 24,
-                                        color: AppColors.black,
+                                        color: AppColors.primary,
                                       ),
                                   ],
                                 ),

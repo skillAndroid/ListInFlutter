@@ -495,7 +495,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
 
       // Find parent attribute
       String parentAttributeKey = attribute.attributeKey.split(' Model')[0];
-      var parentAttribute = state.currentAttributes.firstWhere(
+      state.currentAttributes.firstWhere(
           (attr) => attr.attributeKey == parentAttributeKey,
           orElse: () =>
               attribute // fallback to current attribute if parent not found

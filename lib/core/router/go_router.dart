@@ -13,8 +13,9 @@ import 'package:list_in/features/explore/presentation/pages/child_page.dart';
 import 'package:list_in/features/explore/presentation/pages/detailed_page.dart';
 import 'package:list_in/features/explore/presentation/pages/initial_page.dart';
 import 'package:list_in/features/post/presentation/pages/post_screen.dart';
-import 'package:list_in/features/profile/presentation/profile_editor_page.dart';
-import 'package:list_in/features/profile/presentation/profile_screen.dart';
+import 'package:list_in/features/profile/domain/entity/user_profile_entity.dart';
+import 'package:list_in/features/profile/presentation/pages/profile_editor_page.dart';
+import 'package:list_in/features/profile/presentation/pages/profile_screen.dart';
 import 'package:list_in/features/undefined_screens_yet/wrapper_screen.dart';
 import 'package:list_in/features/video/presentation/pages/video_feed_screen.dart';
 import 'package:list_in/features/visitior_profile/visiter_profile.dart';
@@ -180,14 +181,18 @@ class AppRouter {
                   GoRoute(
                     path: Routes.profileEdit,
                     name: RoutesByName.profileEdit,
-                    builder: (context, state) => ProfileEditor(
-                      key: state.pageKey,
-                    ),
+                    builder: (context, state) {
+                      final userData = state.extra as UserProfileEntity;
+                      return ProfileEditor(
+                        key: state.pageKey,
+                        userData: userData,
+                      );
+                    },
                   )
                 ],
               ),
             ],
-          ),
+          )
         ],
       ),
     ],

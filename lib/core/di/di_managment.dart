@@ -37,6 +37,13 @@ import 'package:list_in/features/post/domain/usecases/get_catalogs_usecase.dart'
 import 'package:list_in/features/post/domain/usecases/upload_images_usecase.dart';
 import 'package:list_in/features/post/domain/usecases/upload_video_usecase.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
+import 'package:list_in/features/profile/data/repository/user_profile_rep_impl.dart';
+import 'package:list_in/features/profile/data/sources/user_profile_remoute.dart';
+import 'package:list_in/features/profile/domain/repository/user_profile_repository.dart';
+import 'package:list_in/features/profile/domain/usecases/get_user_data_usecase.dart';
+import 'package:list_in/features/profile/domain/usecases/update_user_image_usecase.dart';
+import 'package:list_in/features/profile/domain/usecases/update_user_profile_usecase.dart';
+import 'package:list_in/features/profile/presentation/bloc/user_profile_bloc.dart';
 import 'package:path_provider/path_provider.dart' as path_provider;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -57,6 +64,7 @@ Future<void> init() async {
   Hive.registerAdapter(SubModelAdapter());
 
   final catalogBox = await Hive.openBox<CategoryModel>('catalogs');
+
   sl.registerFactory(
     () => AuthBloc(
       loginUseCase: sl(),
@@ -73,6 +81,10 @@ Future<void> init() async {
   sl.registerLazySingleton(() => VerifyEmailSignupUseCase(sl()));
   sl.registerLazySingleton(() => RegisterUserDataUseCase(sl()));
   sl.registerLazySingleton(() => GetStoredEmailUsecase(sl()));
+  sl.registerLazySingleton(() => GetUserDataUseCase(sl()));
+  sl.registerLazySingleton(() =>
+      UpdateUserProfileUseCase(repository: sl(), authLocalDataSource: sl()));
+  sl.registerLazySingleton(() => UploadUserImagesUseCase(sl()));
 
   // Repository
   sl.registerLazySingleton<AuthRepository>(
@@ -82,6 +94,16 @@ Future<void> init() async {
       networkInfo: sl(),
     ),
   );
+
+  sl.registerLazySingleton<UserProfileRepository>(
+    () => UserProfileRepositoryImpl(
+      remoteDataSource: sl(),
+      networkInfo: sl(),
+    ),
+  );
+
+  sl.registerLazySingleton<UserProfileRemoute>(
+      () => UserProfileRemouteImpl(dio: sl(), authService: sl()));
 
   // Data sources
   sl.registerLazySingleton<AuthRemoteDataSource>(
@@ -99,7 +121,7 @@ Future<void> init() async {
   sl.registerLazySingleton(
     () {
       final dio = Dio();
-      dio.options.baseUrl = 'http://34.47.243.178';
+      dio.options.baseUrl = 'http://listin.uz';
       dio.options.connectTimeout = const Duration(seconds: 5);
       dio.options.receiveTimeout = const Duration(seconds: 3);
       return dio;
@@ -143,6 +165,14 @@ Future<void> init() async {
         uploadVideoUseCase: sl<UploadVideoUseCase>(),
         createPostUseCase: sl<CreatePostUseCase>(),
       ));
+
+  sl.registerFactory(
+    () => UserProfileBloc(
+      updateUserProfileUseCase: sl(),
+      uploadUserImagesUseCase: sl(),
+      getUserDataUseCase: sl(),
+    ),
+  );
 
   sl.registerLazySingleton<PostRepository>(
     () => PostRepositoryImpl(

@@ -22,7 +22,7 @@ class _AddPricePageState extends State<AddPricePage> {
   bool _needsUpdate = false;
   Timer? _debounceTimer;
   String? _errorText;
-  final bool _isSwitchOn = false; // State variable to track the switch status
+// State variable to track the switch status
 
   @override
   void initState() {

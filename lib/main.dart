@@ -10,6 +10,7 @@ import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/map/presentation/bloc/MapBloc.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
+import 'package:list_in/features/profile/presentation/bloc/user_profile_bloc.dart';
 
 import 'package:provider/provider.dart';
 import 'core/di/di_managment.dart' as di;
@@ -585,6 +586,9 @@ void main() async {
           ),
           BlocProvider<HomeTreeCubit>(
             create: (_) => di.sl<HomeTreeCubit>(),
+          ),
+          BlocProvider<UserProfileBloc>(
+            create: (_) => di.sl<UserProfileBloc>(),
           ),
         ],
         child: MyApp(router: di.sl<AppRouter>().router),

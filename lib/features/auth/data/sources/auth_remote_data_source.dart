@@ -28,7 +28,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return right(AuthTokenModel.fromJson(response.data));
-        print("My tokens : ${response.data}");
       } else {
         return left('Server returned ${response.statusCode}');
       }
@@ -86,17 +85,19 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<Either<String, AuthTokenModel>> registerUserData(User user) async {
     try {
-      final responce = await dio.post('/api/v1/auth/register', data: {
-        'nickName': user.nikeName,
-        'phoneNumber': user.phoneNumber,
-        'email': user.email,
-        'password': user.password,
-        'roles': user.roles,
-        'locationName': user.locationName,
-        'isGrantedForPreciseLocation': user.isGrantedForPreciseLocation,
-        'latitude': user.latitude,
-        'longitude': user.longitude
-      },
+      final responce = await dio.post(
+        '/api/v1/auth/register',
+        data: {
+          'nickName': user.nikeName,
+          'phoneNumber': user.phoneNumber,
+          'email': user.email,
+          'password': user.password,
+          'roles': user.roles,
+          'locationName': user.locationName,
+          'isGrantedForPreciseLocation': user.isGrantedForPreciseLocation,
+          'latitude': user.latitude,
+          'longitude': user.longitude
+        },
       );
 
       if (responce.statusCode == 200 || responce.statusCode == 201) {
