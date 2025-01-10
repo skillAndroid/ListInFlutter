@@ -4,14 +4,15 @@ import 'package:image_picker/image_picker.dart';
 import 'package:list_in/core/error/exeptions.dart';
 import 'package:list_in/core/services/auth_service.dart';
 import 'package:list_in/features/auth/data/models/auth_token_model.dart';
-import 'package:list_in/features/profile/data/model/user_data_model.dart';
-import 'package:list_in/features/profile/data/model/user_profile_model.dart';
+import 'package:list_in/features/profile/data/model/user/user_data_model.dart';
+import 'package:list_in/features/profile/data/model/user/user_profile_model.dart';
 
 abstract class UserProfileRemoute {
   Future<List<String>> uploadImages(List<XFile> images);
-  Future<AuthTokenModel> updateUserData(UserProfileModel user);
+  Future<(UserDataModel, AuthTokenModel?)> updateUserData(UserProfileModel user);
   Future<UserDataModel> getUserData();
 }
+
 
 class UserProfileRemouteImpl implements UserProfileRemoute {
   final Dio dio;
@@ -58,25 +59,23 @@ class UserProfileRemouteImpl implements UserProfileRemoute {
     }
   }
 
-  @override
-  Future<AuthTokenModel> updateUserData(UserProfileModel user) async {
+ @override
+  Future<(UserDataModel, AuthTokenModel?)> updateUserData(UserProfileModel user) async {
     final options = await authService.getAuthOptions();
     try {
-      debugPrint("🔄${user.nickName}");
-      debugPrint("🔄${user.phoneNumber}");
-      debugPrint("🔄${user.isBusinessAccount}");
-      debugPrint("🔄${user.isGrantedForPreciseLocation}");
-      debugPrint("🔄${user.profileImagePath}");
-      debugPrint("🔄${user.toTime}");
-      debugPrint("🔄${user.fromTime}");
-      debugPrint("🔄${user.locationName}");
-      debugPrint("🔄${user.longitude}");
-      debugPrint("🔄${user.latitude}");
+      final response = await dio.patch(
+        '/api/v1/user/update',
+        data: user.toJson(),
+        options: options,
+      );
       
-      final response = await dio.patch('/api/v1/user/update',
-          data: user.toJson(), options: options);
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return AuthTokenModel.fromJson(response.data);
+        final userData = UserDataModel.fromJson(response.data['updatedUserDetails']);
+        final tokens = response.data['tokens'] != null 
+          ? AuthTokenModel.fromJson(response.data['tokens'])
+          : null;
+          
+        return (userData, tokens);
       } else {
         throw ServerExeption(message: 'Failed to update user data');
       }
@@ -84,6 +83,7 @@ class UserProfileRemouteImpl implements UserProfileRemoute {
       rethrow;
     }
   }
+
 
   @override
   Future<UserDataModel> getUserData() async {

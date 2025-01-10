@@ -2,12 +2,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/core/error/failure.dart';
 import 'package:list_in/core/usecases/usecases.dart';
-import 'package:list_in/features/profile/domain/entity/user_profile_entity.dart';
-import 'package:list_in/features/profile/domain/usecases/get_user_data_usecase.dart';
-import 'package:list_in/features/profile/domain/usecases/update_user_image_usecase.dart';
-import 'package:list_in/features/profile/domain/usecases/update_user_profile_usecase.dart';
-import 'package:list_in/features/profile/presentation/bloc/user_profile_event.dart';
-import 'package:list_in/features/profile/presentation/bloc/user_profile_state.dart';
+import 'package:list_in/features/profile/domain/entity/user/user_profile_entity.dart';
+import 'package:list_in/features/profile/domain/usecases/user/get_user_data_usecase.dart';
+import 'package:list_in/features/profile/domain/usecases/user/update_user_image_usecase.dart';
+import 'package:list_in/features/profile/domain/usecases/user/update_user_profile_usecase.dart';
+import 'package:list_in/features/profile/presentation/bloc/user/user_profile_event.dart';
+import 'package:list_in/features/profile/presentation/bloc/user/user_profile_state.dart';
 
 class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
   final UpdateUserProfileUseCase updateUserProfileUseCase;
@@ -69,36 +69,14 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
           errorMessage: _mapFailureToMessage(failure),
           isUploading: false,
         )),
-        (success) {
-          // Update both profile and userData with the new profile data
-          if (state.userData != null) {
-            final updatedUserData = state.userData!.copyWith(
-              fromTime: profileToUpdate.fromTime,
-              toTime: profileToUpdate.toTime,
-              locationName: profileToUpdate.locationName,
-              longitude: profileToUpdate.latitude,
-              latitude: profileToUpdate.latitude,
-              isGrantedForPreciseLocation:
-                  profileToUpdate.isGrantedForPreciseLocation,
-              phoneNumber: profileToUpdate.phoneNumber,
-              nickName: profileToUpdate.nickName,
-              //role: profileToUpdate.isBusinessAccount,
-              profileImagePath: profileToUpdate.profileImagePath,
-            );
-
-            emit(state.copyWith(
-              status: UserProfileStatus.success,
-              profile: profileToUpdate,
-              userData: updatedUserData,
-              isUploading: false,
-            ));
-          } else {
-            emit(state.copyWith(
-              status: UserProfileStatus.success,
-              profile: profileToUpdate,
-              isUploading: false,
-            ));
-          }
+        (userDataAndToken) {
+          final (userData, _) =
+              userDataAndToken;
+          emit(state.copyWith(
+            status: UserProfileStatus.success,
+            userData: userData,
+            isUploading: false,
+          ));
         },
       );
     } catch (e) {

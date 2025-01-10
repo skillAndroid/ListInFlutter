@@ -5,7 +5,7 @@ class AuthTokenModel extends AuthToken {
     required super.accessToken,
     required super.refreshToken,
   });
-  
+
   factory AuthTokenModel.fromJson(Map<String, dynamic> json) {
     return AuthTokenModel(
       accessToken: json['access_token'] as String,
@@ -18,5 +18,13 @@ class AuthTokenModel extends AuthToken {
       'access_token': accessToken,
       'refresh_token': refreshToken,
     };
+  }
+
+  // Add this method
+  AuthToken toEntity() {
+    return AuthToken(
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+    );
   }
 }

@@ -1,4 +1,4 @@
-import 'package:list_in/features/profile/domain/entity/user_data_entity.dart';
+import 'package:list_in/features/profile/domain/entity/user/user_data_entity.dart';
 class UserDataModel {
   final String id;
   final String? nickName;

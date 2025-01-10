@@ -5,10 +5,10 @@ import 'package:list_in/core/error/exeptions.dart';
 import 'package:list_in/core/error/failure.dart';
 import 'package:list_in/core/network/network_info.dart';
 import 'package:list_in/features/auth/domain/entities/auth_tokens.dart';
-import 'package:list_in/features/profile/data/model/user_profile_model.dart';
+import 'package:list_in/features/profile/data/model/user/user_profile_model.dart';
 import 'package:list_in/features/profile/data/sources/user_profile_remoute.dart';
-import 'package:list_in/features/profile/domain/entity/user_data_entity.dart';
-import 'package:list_in/features/profile/domain/entity/user_profile_entity.dart';
+import 'package:list_in/features/profile/domain/entity/user/user_data_entity.dart';
+import 'package:list_in/features/profile/domain/entity/user/user_profile_entity.dart';
 import 'package:list_in/features/profile/domain/repository/user_profile_repository.dart';
 
 class UserProfileRepositoryImpl implements UserProfileRepository {
@@ -38,13 +38,11 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
     }
   }
 
-  @override
-  Future<Either<Failure, AuthToken>> updateUserData(
-      UserProfileEntity user) async {
+ @override
+  Future<Either<Failure, (UserDataEntity, AuthToken?)>> updateUserData(UserProfileEntity user) async {
     if (!await networkInfo.isConnected) {
       return Left(NetworkFailure());
     }
-
     try {
       final userModel = UserProfileModel(
         profileImagePath: user.profileImagePath,
@@ -58,20 +56,16 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
         toTime: user.toTime,
         isBusinessAccount: user.isBusinessAccount,
       );
-
-      final result = await remoteDataSource.updateUserData(userModel);
-      return Right(AuthToken(
-        accessToken: result.accessToken,
-        refreshToken: result.refreshToken,
-      ));
+      
+      final (userData, tokens) = await remoteDataSource.updateUserData(userModel);
+      return Right((userData.toEntity(), tokens));
     } on ServerExeption {
       return Left(ServerFailure());
     } on ConnectionExeption {
       return Left(NetworkFailure());
-    } on ConnectiontTimeOutExeption {
-      return Left(NetworkFailure());
     }
   }
+
 
   @override
   Future<Either<Failure, UserDataEntity>> getUserData() async {

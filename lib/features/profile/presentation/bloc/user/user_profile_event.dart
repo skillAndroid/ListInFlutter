@@ -1,5 +1,5 @@
 import 'package:image_picker/image_picker.dart';
-import 'package:list_in/features/profile/domain/entity/user_profile_entity.dart';
+import 'package:list_in/features/profile/domain/entity/user/user_profile_entity.dart';
 
 abstract class UserProfileEvent {}
 

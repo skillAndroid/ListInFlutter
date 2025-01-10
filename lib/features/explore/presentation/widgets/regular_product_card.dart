@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:list_in/features/profile/domain/entity/publication/publication_entity.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 import 'package:list_in/config/assets/app_icons.dart';
@@ -14,7 +15,7 @@ import 'package:list_in/features/details/presentation/pages/details.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 
 class HorizontalProfileProductCard extends StatelessWidget {
-  final ProductEntity product;
+  final PublicationEntity product;
   const HorizontalProfileProductCard({
     super.key,
     required this.product,
@@ -22,6 +23,10 @@ class HorizontalProfileProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String displayImage = product.productImages.isNotEmpty
+        ? "https://${product.productImages[0].url}"
+        : ''; // You might want to add a default image URL here
+
     return Card(
       color: AppColors.white,
       elevation: 8,
@@ -42,8 +47,9 @@ class HorizontalProfileProductCard extends StatelessWidget {
                       child: AspectRatio(
                         aspectRatio: 1,
                         child: CachedNetworkImage(
-                          imageUrl: product.images[0],
+                          imageUrl: displayImage,
                           fit: BoxFit.cover,
+                          // You might want to add error and placeholder widgets
                         ),
                       ),
                     ),
@@ -60,11 +66,10 @@ class HorizontalProfileProductCard extends StatelessWidget {
                         child: Row(
                           children: [
                             Icon(Icons.remove_red_eye_rounded,
-                                size: 13,
-                                color: AppColors.black), // Slightly smaller
+                                size: 13, color: AppColors.black),
                             SizedBox(width: 4),
                             Text(
-                              '2.5k',
+                              '2.5k', // Keeping default value since view count isn't in entity
                               style: TextStyle(
                                 color: AppColors.black,
                                 fontSize: 10,
@@ -100,7 +105,7 @@ class HorizontalProfileProductCard extends StatelessWidget {
                                   color: AppColors.containerColor,
                                 ),
                                 child: Text(
-                                  'Boosted',
+                                  'Boosted', // Keeping default value
                                   style: TextStyle(
                                     color: AppColors.darkGray,
                                     fontSize: 9.5,
@@ -113,7 +118,7 @@ class HorizontalProfileProductCard extends StatelessWidget {
                         ),
                         SizedBox(height: 6),
                         Text(
-                          'Product Name',
+                          product.title,
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -122,7 +127,7 @@ class HorizontalProfileProductCard extends StatelessWidget {
                         ),
                         SizedBox(height: 2),
                         Text(
-                          '\$299.99',
+                          '\$${product.price.toStringAsFixed(2)}',
                           style: TextStyle(
                             color: AppColors.primary,
                             fontSize: 16,
@@ -137,12 +142,10 @@ class HorizontalProfileProductCard extends StatelessWidget {
                         Row(
                           children: [
                             Icon(Icons.favorite_rounded,
-                                size: 14,
-                                color:
-                                    AppColors.myRedBrown), // Slightly smaller
+                                size: 14, color: AppColors.myRedBrown),
                             SizedBox(width: 4),
                             Text(
-                              '1.2k',
+                              '1.2k', // Keeping default value since likes count isn't in entity
                               style: TextStyle(
                                 color: AppColors.darkGray,
                                 fontSize: 11,
@@ -154,8 +157,7 @@ class HorizontalProfileProductCard extends StatelessWidget {
                         Row(
                           children: [
                             Container(
-                              padding:
-                                  EdgeInsets.all(6), // Slightly smaller padding
+                              padding: EdgeInsets.all(6),
                               decoration: BoxDecoration(
                                 color: AppColors.containerColor,
                                 borderRadius: BorderRadius.circular(8),
@@ -163,13 +165,12 @@ class HorizontalProfileProductCard extends StatelessWidget {
                               child: Icon(
                                 Icons.edit_rounded,
                                 color: AppColors.darkGray,
-                                size: 18, // Slightly smaller
+                                size: 18,
                               ),
                             ),
                             SizedBox(width: 4),
                             Container(
-                              padding:
-                                  EdgeInsets.all(6), // Slightly smaller padding
+                              padding: EdgeInsets.all(6),
                               decoration: BoxDecoration(
                                 color: AppColors.containerColor,
                                 borderRadius: BorderRadius.circular(8),
@@ -177,7 +178,7 @@ class HorizontalProfileProductCard extends StatelessWidget {
                               child: Icon(
                                 Ionicons.ellipsis_vertical,
                                 color: AppColors.darkGray,
-                                size: 18, // Slightly smaller
+                                size: 18,
                               ),
                             ),
                           ],

@@ -1,4 +1,4 @@
-import 'package:list_in/features/profile/domain/entity/user_profile_entity.dart';
+import 'package:list_in/features/profile/domain/entity/user/user_profile_entity.dart';
 
 class UserProfileModel {
   final String? profileImagePath;

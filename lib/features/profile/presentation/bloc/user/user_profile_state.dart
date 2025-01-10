@@ -1,5 +1,5 @@
-import 'package:list_in/features/profile/domain/entity/user_data_entity.dart';
-import 'package:list_in/features/profile/domain/entity/user_profile_entity.dart';
+import 'package:list_in/features/profile/domain/entity/user/user_data_entity.dart';
+import 'package:list_in/features/profile/domain/entity/user/user_profile_entity.dart';
 
 enum UserProfileStatus { initial, loading, success, failure }
 class UserProfileState {

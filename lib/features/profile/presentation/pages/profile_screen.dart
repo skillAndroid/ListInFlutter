@@ -1,7 +1,5 @@
 // ignore_for_file: deprecated_member_use
-
 import 'dart:math' as math;
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -13,11 +11,14 @@ import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
-import 'package:list_in/features/profile/domain/entity/user_data_entity.dart';
-import 'package:list_in/features/profile/domain/entity/user_profile_entity.dart';
-import 'package:list_in/features/profile/presentation/bloc/user_profile_bloc.dart';
-import 'package:list_in/features/profile/presentation/bloc/user_profile_event.dart';
-import 'package:list_in/features/profile/presentation/bloc/user_profile_state.dart';
+import 'package:list_in/features/profile/domain/entity/user/user_data_entity.dart';
+import 'package:list_in/features/profile/domain/entity/user/user_profile_entity.dart';
+import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_bloc.dart';
+import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_event.dart';
+import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_state.dart';
+import 'package:list_in/features/profile/presentation/bloc/user/user_profile_bloc.dart';
+import 'package:list_in/features/profile/presentation/bloc/user/user_profile_event.dart';
+import 'package:list_in/features/profile/presentation/bloc/user/user_profile_state.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -60,12 +61,14 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
     _tabController = TabController(length: 3, vsync: this);
 
     context.read<UserProfileBloc>().add(GetUserData());
+    context.read<UserPublicationsBloc>().add(FetchUserPublications());
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
     _tabController.dispose();
+
     super.dispose();
   }
 
@@ -102,7 +105,6 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                           const SizedBox(height: 8),
                           _buildContactActions(userData),
                           _buildReviewSection(userData),
-                          const SizedBox(height: 8),
                         ],
                       ),
                     ),
@@ -115,7 +117,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(CupertinoIcons.shopping_cart),
+                                  Icon(Icons.inventory),
                                   SizedBox(width: 8),
                                   Text(
                                     "Products",
@@ -165,71 +167,45 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                   ];
                 },
                 body: Padding(
-                  padding: const EdgeInsets.only(top: 8.0, right: 8, left: 8),
+                  padding: const EdgeInsets.only(top: 0, right: 8, left: 8),
                   child: TabBarView(
                     controller: _tabController,
                     children: [
-                      CustomScrollView(
-                        slivers: [
-                          _buildProductFilters(),
-                          _buildFilteredProductsGrid(),
-                        ],
+                      // Products Tab
+                      NotificationListener<ScrollNotification>(
+                        onNotification: (ScrollNotification scrollInfo) {
+                          // Check if we're near the bottom
+                          if (scrollInfo is ScrollEndNotification) {
+                            if (scrollInfo.metrics.pixels >=
+                                scrollInfo.metrics.maxScrollExtent * 0.7) {
+                              final publicationsState =
+                                  context.read<UserPublicationsBloc>().state;
+                              if (!publicationsState.hasReachedEnd &&
+                                  !publicationsState.isLoading) {
+                                context
+                                    .read<UserPublicationsBloc>()
+                                    .add(LoadMoreUserPublications());
+                              }
+                            }
+                          }
+                          return true;
+                        },
+                        child: CustomScrollView(
+                          slivers: [
+                            _buildProductFilters(),
+                            _buildFilteredProductsGrid(),
+                          ],
+                        ),
                       ),
-                      CustomScrollView(
-                        slivers: [
-                          SliverToBoxAdapter(
-                            child: Column(
-                              children: [
-                                SizedBox(
-                                  height: 56,
-                                ),
-                                Icon(
-                                  CupertinoIcons.doc_text,
-                                  size: 76,
-                                  color: AppColors.grey,
-                                ),
-                                SizedBox(
-                                  height: 16,
-                                ),
-                                Text(
-                                  "Empty List",
-                                  style: TextStyle(
-                                      fontSize: 28,
-                                      fontWeight: FontWeight.w500,
-                                      color: AppColors.grey),
-                                )
-                              ],
-                            ),
-                          ),
-                        ],
+                      // Posts Tab
+                      _buildEmptyTab(
+                        icon: CupertinoIcons.doc_text,
+                        text: "Empty List",
                       ),
-                      CustomScrollView(
-                        slivers: [
-                          SliverToBoxAdapter(
-                            child: Column(
-                              children: [
-                                SizedBox(
-                                  height: 56,
-                                ),
-                                Icon(
-                                  CupertinoIcons.video_camera,
-                                  size: 76,
-                                  color: AppColors.grey,
-                                ),
-                                SizedBox(
-                                  height: 16,
-                                ),
-                                Text(
-                                  "Empty List",
-                                  style: TextStyle(
-                                      fontSize: 28,
-                                      fontWeight: FontWeight.w500,
-                                      color: AppColors.grey),
-                                )
-                              ],
-                            ),
-                          ),
-                        ],
+                      // Videos Tab
+                      _buildEmptyTab(
+                        icon: CupertinoIcons.video_camera,
+                        text: "Empty List",
                       ),
                     ],
                   ),
@@ -247,8 +223,6 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
     final double progress = math.min(1.0, _offset / _maxAppBarHeight);
     final Size screenSize = MediaQuery.of(context).size;
     final double topPadding = MediaQuery.of(context).padding.top;
-
-    final bool showEditButtons = progress < 0.3;
 
     final double maxAvatarSize = math.min(125, screenSize.width * 0.3);
     final double minAvatarSize = 40;
@@ -317,31 +291,18 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                   child: ClipOval(
                     child: userData?.profileImagePath != null
                         ? CachedNetworkImage(
-                            imageUrl: userData!.profileImagePath!,
+                            imageUrl: 'https://${userData!.profileImagePath!}',
                             fit: BoxFit.cover,
+                            errorWidget: (context, url, error) => Image.asset(
+                              AppImages.appLogo,
+                              fit: BoxFit.cover,
+                            ),
+                            placeholder: (context, url) =>
+                                const CircularProgressIndicator(),
                           )
                         : Image.asset(AppImages.appLogo, fit: BoxFit.cover),
                   ),
                 ),
-                if (showEditButtons)
-                  Positioned(
-                    right: 0,
-                    bottom: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color:
-                            Colors.black87, // Changed from primary to black87
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 2),
-                      ),
-                      child: const Icon(
-                        Icons.edit,
-                        size: 14, // Slightly smaller
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
               ],
             ),
           ),
@@ -358,6 +319,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                   children: [
                     Text(
                       userData?.nickName ?? 'User',
+                      textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -366,16 +328,6 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
-                    if (showEditButtons)
-                      IconButton(
-                        icon: Icon(
-                          Icons.edit,
-                          size: 16,
-                          color:
-                              Colors.black54, // Changed from primary to black54
-                        ),
-                        onPressed: null,
-                      ),
                   ],
                 ),
               ),
@@ -702,13 +654,13 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: FilterChip(
-        elevation: 5,
-        shadowColor: AppColors.containerColor.withOpacity(0.05),
+        elevation: 2,
+        shadowColor: AppColors.primary.withOpacity(0.01),
         shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(8)),
         label: Text(
           label,
           style: TextStyle(
-            color: isSelected ? AppColors.primary : Colors.grey,
+            color: isSelected ? AppColors.black : Colors.grey,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w600,
           ),
         ),
@@ -720,7 +672,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
           });
         },
         backgroundColor: AppColors.containerColor,
-        selectedColor: AppColors.containerColor,
+        selectedColor: AppColors.white,
         showCheckmark: false,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
@@ -728,214 +680,95 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
   }
 
   Widget _buildFilteredProductsGrid() {
-    // Filter products based on selectedProductFilter
-    final List<ProductEntity> filteredProducts =
-        widget.products.where((product) {
-      switch (selectedProductFilter) {
-        case 'active':
-          return true; // Assuming all products in the list are active
-        case 'queue':
-        case 'inactive':
-          return false; // For demonstration, showing no products for these filters
-        default:
-          return true;
-      }
-    }).toList();
+    return BlocConsumer<UserPublicationsBloc, UserPublicationsState>(
+      listener: (context, state) {
+        if (state.error != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.error!)),
+          );
+        }
+      },
+      builder: (context, state) {
+        if (state.isLoading && state.publications.isEmpty) {
+          return const SliverToBoxAdapter(
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
 
-    if (filteredProducts.isEmpty) {
-      return SliverToBoxAdapter(
-        child: Center(
+        if (state.publications.isEmpty) {
+          return SliverToBoxAdapter(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 32),
+                  Icon(Icons.inventory, size: 72, color: Colors.grey[400]),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No $selectedProductFilter products',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        return SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              if (index == state.publications.length) {
+                if (state.isLoading) {
+                  return const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
+                return null;
+              }
+
+              final publication = state.publications[index];
+
+              debugPrint(" 💀💀$publication");
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: HorizontalProfileProductCard(
+                  product: publication,
+                ),
+              );
+            },
+            childCount: state.publications.length + (state.isLoading ? 1 : 0),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildEmptyTab({required IconData icon, required String text}) {
+    return CustomScrollView(
+      slivers: [
+        SliverToBoxAdapter(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SizedBox(
-                height: 32,
-              ),
-              Icon(
-                Icons.inventory_2_outlined,
-                size: 72,
-                color: Colors.grey[400],
-              ),
+              const SizedBox(height: 56),
+              Icon(icon, size: 76, color: AppColors.grey),
               const SizedBox(height: 16),
               Text(
-                'No $selectedProductFilter products',
+                text,
                 style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey[600],
+                  fontSize: 28,
                   fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    return SliverGrid(
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 1, // Changed to 1 for single column
-        crossAxisSpacing: 4,
-        mainAxisSpacing: 4, // Slightly increased for better vertical spacing
-        childAspectRatio:
-            2.8, // Adjusted for horizontal card (width/height ratio)
-      ),
-      delegate: SliverChildBuilderDelegate(
-        (BuildContext context, int index) {
-          return GestureDetector(
-            onTap: () {},
-            child:
-                HorizontalProfileProductCard(product: filteredProducts[index]),
-          );
-        },
-        childCount: filteredProducts.length,
-      ),
-    );
-  }
-
-  void _showIOSMenu(BuildContext context) {
-    showCupertinoModalPopup(
-      context: context,
-      builder: (BuildContext context) => CupertinoActionSheet(
-        title: const Text(
-          'Profile Settings',
-          style: TextStyle(fontFamily: "Syne"),
-        ),
-        message: const Text(
-          'Manage your profile',
-          style: TextStyle(fontFamily: "Syne"),
-        ),
-        actions: [
-          // Profile & Account Management
-          _buildActionSheetItem(
-            icon: CupertinoIcons.person_crop_circle_fill_badge_checkmark,
-            title: 'Edit Profile',
-            onPressed: () {
-              Navigator.pop(context);
-              // Handle edit profile
-            },
-          ),
-          _buildActionSheetItem(
-            icon: CupertinoIcons.camera_fill,
-            title: 'Change Profile Photo',
-            onPressed: () {
-              Navigator.pop(context);
-              // Handle photo change
-            },
-          ),
-          _buildActionSheetItem(
-            icon: CupertinoIcons.time,
-            title: 'Working Hours',
-            subtitle: '9:00 - 17:00',
-            onPressed: () {
-              Navigator.pop(context);
-              // Handle working hours
-            },
-          ),
-          _buildActionSheetItem(
-            icon: CupertinoIcons.moon_fill,
-            title: 'Theme',
-            subtitle: 'Light',
-            onPressed: () {
-              Navigator.pop(context);
-              // Handle theme change
-            },
-          ),
-          // Logout (Destructive Action)
-          CupertinoActionSheetAction(
-            isDestructiveAction: true,
-            onPressed: () {
-              Navigator.pop(context);
-              // Handle logout
-            },
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(CupertinoIcons.square_arrow_right),
-                SizedBox(width: 10),
-                Text('Logout',
-                    style: TextStyle(fontSize: 18, fontFamily: "Syne")),
-              ],
-            ),
-          ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          onPressed: () => Navigator.pop(context),
-          child: Text(
-            'Cancel',
-            style: TextStyle(
-                color: AppColors.black, fontSize: 18, fontFamily: "Syne"),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActionSheetItem({
-    required IconData icon,
-    required String title,
-    String? subtitle,
-    required VoidCallback onPressed,
-  }) {
-    return CupertinoActionSheetAction(
-      onPressed: onPressed,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // Icon with container
-            SmoothClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                color: AppColors.primary.withOpacity(0.1),
-                child: Icon(
-                  icon,
-                  color: AppColors.primary,
-                  size: 20,
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-
-            // Title
-            Expanded(
-              child: Text(
-                title,
-                textAlign: TextAlign.start,
-                style: TextStyle(
-                  fontFamily: "Syne",
-                  color: AppColors.black,
-                  fontSize: 17,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-
-            // Subtitle if provided
-            if (subtitle != null) ...[
-              Text(
-                subtitle,
-                style: TextStyle(
                   color: AppColors.grey,
-                  fontSize: 15,
-                  fontFamily: "Syne",
-                  fontWeight: FontWeight.w500,
                 ),
-              ),
-              const SizedBox(width: 4),
+              )
             ],
-
-            // Arrow icon
-            Icon(
-              Ionicons.arrow_forward,
-              color: AppColors.grey,
-              size: 18,
-            ),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 }
@@ -965,7 +798,7 @@ class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: AppColors.containerColor,
+          color: AppColors.white,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Theme(
@@ -976,7 +809,7 @@ class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
           child: TabBar(
             controller: tabBar.controller,
             tabs: tabBar.tabs,
-            labelColor: AppColors.primary,
+            labelColor: AppColors.black,
             unselectedLabelColor: Colors.grey,
             indicator: BoxDecoration(
               color: Colors.white,
@@ -995,7 +828,7 @@ class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
             ),
             unselectedLabelStyle: const TextStyle(
               fontSize: 15,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.bold,
             ),
             labelPadding: const EdgeInsets.symmetric(vertical: 8),
             indicatorSize: TabBarIndicatorSize.tab,

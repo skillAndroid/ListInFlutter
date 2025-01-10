@@ -4,6 +4,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,10 +12,10 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:list_in/features/map/domain/entities/location_entity.dart';
 import 'package:list_in/features/map/presentation/map/map.dart';
-import 'package:list_in/features/profile/domain/entity/user_profile_entity.dart';
-import 'package:list_in/features/profile/presentation/bloc/user_profile_bloc.dart';
-import 'package:list_in/features/profile/presentation/bloc/user_profile_event.dart';
-import 'package:list_in/features/profile/presentation/bloc/user_profile_state.dart';
+import 'package:list_in/features/profile/domain/entity/user/user_profile_entity.dart';
+import 'package:list_in/features/profile/presentation/bloc/user/user_profile_bloc.dart';
+import 'package:list_in/features/profile/presentation/bloc/user/user_profile_event.dart';
+import 'package:list_in/features/profile/presentation/bloc/user/user_profile_state.dart';
 import 'package:list_in/features/profile/presentation/widgets/cutom_time_picker.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
@@ -220,19 +221,32 @@ class _ProfileEditorState extends State<ProfileEditor> {
                   middle: Text('Edit Profile',
                       style: TextStyle(
                           color: AppColors.black, fontWeight: FontWeight.w600)),
-                  trailing: CupertinoButton(
-                      padding: EdgeInsets.zero,
-                      onPressed: _handleSave,
-                      child: Text('Done',
+                  trailing: state.status == UserProfileStatus.loading
+                      ? Text(
+                          "Updating...",
                           style: TextStyle(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        )
+                      : CupertinoButton(
+                          padding: EdgeInsets.zero,
+                          onPressed: state.status == UserProfileStatus.loading
+                              ? null // Disable button while loading
+                              : _handleSave,
+                          child: Text(
+                            'Done',
+                            style: TextStyle(
                               color: AppColors.primary,
-                              fontWeight: FontWeight.w600))),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
                 ),
                 child: SafeArea(
                   child: ListView(
                     padding: EdgeInsets.symmetric(vertical: 16),
                     children: [
-                      // Profile Photo Section
                       Container(
                         padding: EdgeInsets.symmetric(vertical: 32),
                         child: Column(
@@ -253,16 +267,33 @@ class _ProfileEditorState extends State<ProfileEditor> {
                                   ),
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(60),
-                                    child: _profileImagePath != null
+                                    child: _selectedImageFile != null
+                                        // Show locally selected image
                                         ? Image.file(
-                                            File(_profileImagePath!),
+                                            File(_selectedImageFile!.path),
                                             fit: BoxFit.cover,
                                           )
-                                        : Icon(
-                                            CupertinoIcons.person_fill,
-                                            size: 60,
-                                            color: AppColors.grey,
-                                          ),
+                                        // Show network image or default icon
+                                        : _profileImagePath != null
+                                            ? CachedNetworkImage(
+                                                imageUrl:
+                                                    "https://$_profileImagePath",
+                                                fit: BoxFit.cover,
+                                                placeholder: (context, url) =>
+                                                    const CircularProgressIndicator(),
+                                                errorWidget:
+                                                    (context, url, error) =>
+                                                        Icon(
+                                                  CupertinoIcons.person_fill,
+                                                  size: 60,
+                                                  color: AppColors.grey,
+                                                ),
+                                              )
+                                            : Icon(
+                                                CupertinoIcons.person_fill,
+                                                size: 60,
+                                                color: AppColors.grey,
+                                              ),
                                   ),
                                 ),
                                 Positioned(
