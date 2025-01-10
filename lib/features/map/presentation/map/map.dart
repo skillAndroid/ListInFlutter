@@ -91,7 +91,7 @@ class _ListInMapState extends State<ListInMap> {
       style: ElevatedButton.styleFrom(
         minimumSize: const Size(120, 36),
         padding: EdgeInsets.zero,
-        backgroundColor: AppColors.primary.withOpacity(0.05),
+        backgroundColor: AppColors.transparent,
         shape: SmoothRectangleBorder(
           smoothness: 1,
           borderRadius: BorderRadius.circular(16),
@@ -109,7 +109,7 @@ class _ListInMapState extends State<ListInMap> {
           const SizedBox(width: 4),
           Image.asset(
             AppIcons.searchIcon,
-            color: Colors.black,
+            color: AppColors.black,
             width: 22,
             height: 22,
           ),
@@ -117,7 +117,7 @@ class _ListInMapState extends State<ListInMap> {
           const Text(
             'Search',
             style: TextStyle(
-                color: Colors.black,
+                color: AppColors.black,
                 fontSize: 17,
                 fontWeight: FontWeight.w600,
                 fontFamily: "Poppins"),
@@ -130,7 +130,7 @@ class _ListInMapState extends State<ListInMap> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.littleGreen2,
+      backgroundColor: AppColors.white,
       body: Stack(
         children: [
           Column(
@@ -178,7 +178,7 @@ class _ListInMapState extends State<ListInMap> {
                           height: 22,
                           child: Image.asset(
                             AppIcons.geoLocationIc,
-                            color: AppColors.myRedBrown,
+                            color: AppColors.primary,
                           ),
                         ),
                       ),
@@ -274,8 +274,8 @@ class _ListInMapState extends State<ListInMap> {
                               MainAxisAlignment.start, // Add this line
                           children: [
                             const HugeIcon(
-                              icon: HugeIcons.strokeRoundedLocation01,
-                              color: AppColors.secondaryColor,
+                              icon: HugeIcons.strokeRoundedLocation05,
+                              color: AppColors.black,
                             ),
                             const SizedBox(width: 8),
                             Flexible(
@@ -289,6 +289,7 @@ class _ListInMapState extends State<ListInMap> {
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
                                     fontSize: 15,
+                                    color: Colors.grey,
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -318,7 +319,7 @@ class _ListInMapState extends State<ListInMap> {
                         }
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.secondaryColor,
+                        backgroundColor: AppColors.primary,
                       ).copyWith(
                         elevation: WidgetStateProperty.all(0),
                       ),
@@ -414,10 +415,10 @@ class _ListInMapState extends State<ListInMap> {
                               width: 20,
                               height: 20,
                               decoration: BoxDecoration(
-                                color: AppColors.littleGreen,
+                                color: AppColors.primary.withOpacity(0.1),
                                 shape: BoxShape.circle,
                                 border: Border.all(
-                                  color: AppColors.secondaryColor,
+                                  color: AppColors.primary,
                                   width: 2,
                                 ),
                               ),
@@ -429,7 +430,7 @@ class _ListInMapState extends State<ListInMap> {
                               child: Text(
                                 locationName,
                                 style: const TextStyle(
-                                  color: AppColors.grey,
+                                  color: Colors.grey,
                                   fontWeight: FontWeight.w500,
                                   fontSize: 15,
                                 ),
@@ -464,12 +465,16 @@ class _ListInMapState extends State<ListInMap> {
                 BlocBuilder<MapBloc, MapState>(
                   builder: (context, state) {
                     if (state is MapLoadingState) {
-                      return const Padding(
+                      return  Padding(
                         padding: EdgeInsets.all(12),
                         child: Center(
-                          child: CircularProgressIndicator(
-                            color: AppColors.black,
-                            strokeWidth: 2,
+                          child: Transform.scale(
+                            scale: 0.7,
+                            child: CircularProgressIndicator(
+                              color: AppColors.black,
+                              strokeWidth: 6,
+                              strokeCap: StrokeCap.round,
+                            ),
                           ),
                         ),
                       );
@@ -491,7 +496,7 @@ class _ListInMapState extends State<ListInMap> {
                                   children: [
                                     const Icon(
                                       Icons.location_on,
-                                      color: AppColors.green,
+                                      color: AppColors.primary,
                                     ),
                                     const SizedBox(
                                       width: 8,

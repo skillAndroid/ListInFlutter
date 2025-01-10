@@ -63,7 +63,7 @@ class SearchTextField extends StatelessWidget {
           fillColor: AppColors.white,
           hintText: labelText,
           hintStyle: TextStyle(
-            color: AppColors.primary.withOpacity(0.2),
+            color: Colors.grey,
             fontFamily: 'Poppins',
             fontWeight: FontWeight.w500,
             fontSize: 15,
@@ -73,6 +73,8 @@ class SearchTextField extends StatelessWidget {
             bottom: 20,
           ),
         ),
+        cursorHeight: 16,
+        cursorRadius: Radius.circular(2),
         obscureText: obscureText,
         keyboardType: keyboardType,
         validator: validator,

@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/config/assets/app_lottie.dart';
@@ -102,7 +104,7 @@ class LocationMarkerContent extends StatelessWidget {
                         width: 45,
                         height: 45,
                         decoration: BoxDecoration(
-                          color: AppColors.secondaryColor,
+                          color: AppColors.primary,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: Colors.white,

@@ -34,4 +34,42 @@ class UserDataEntity {
     required this.dateCreated,
     required this.dateUpdated,
   });
+
+  UserDataEntity copyWith({
+    String? id,
+    String? nickName,
+    bool? enableCalling,
+    String? phoneNumber,
+    String? fromTime,
+    String? toTime,
+    String? email,
+    String? profileImagePath,
+    double? rating,
+    bool? isGrantedForPreciseLocation,
+    String? locationName,
+    double? longitude,
+    double? latitude,
+    String? role,
+    DateTime? dateCreated,
+    DateTime? dateUpdated,
+  }) {
+    return UserDataEntity(
+      id: id ?? this.id,
+      nickName: nickName ?? this.nickName,
+      enableCalling: enableCalling ?? this.enableCalling,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+      fromTime: fromTime ?? this.fromTime,
+      toTime: toTime ?? this.toTime,
+      email: email ?? this.email,
+      profileImagePath: profileImagePath ?? this.profileImagePath,
+      rating: rating ?? this.rating,
+      isGrantedForPreciseLocation: isGrantedForPreciseLocation ?? this.isGrantedForPreciseLocation,
+      locationName: locationName ?? this.locationName,
+      longitude: longitude ?? this.longitude,
+      latitude: latitude ?? this.latitude,
+      role: role ?? this.role,
+      dateCreated: dateCreated ?? this.dateCreated,
+      dateUpdated: dateUpdated ?? this.dateUpdated,
+    );
+  }
 }

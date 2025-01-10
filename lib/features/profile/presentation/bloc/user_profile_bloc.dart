@@ -23,7 +23,7 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
     on<GetUserData>(_onGetUserData);
   }
 
- Future<void> _onUpdateUserProfileWithImage(
+  Future<void> _onUpdateUserProfileWithImage(
     UpdateUserProfileWithImage event,
     Emitter<UserProfileState> emit,
   ) async {
@@ -62,18 +62,44 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
       final result = await updateUserProfileUseCase(
         params: profileToUpdate,
       );
-      
+
       result.fold(
         (failure) => emit(state.copyWith(
           status: UserProfileStatus.failure,
           errorMessage: _mapFailureToMessage(failure),
           isUploading: false,
         )),
-        (success) => emit(state.copyWith(
-          status: UserProfileStatus.success,
-          profile: profileToUpdate,
-          isUploading: false,
-        )),
+        (success) {
+          // Update both profile and userData with the new profile data
+          if (state.userData != null) {
+            final updatedUserData = state.userData!.copyWith(
+              fromTime: profileToUpdate.fromTime,
+              toTime: profileToUpdate.toTime,
+              locationName: profileToUpdate.locationName,
+              longitude: profileToUpdate.latitude,
+              latitude: profileToUpdate.latitude,
+              isGrantedForPreciseLocation:
+                  profileToUpdate.isGrantedForPreciseLocation,
+              phoneNumber: profileToUpdate.phoneNumber,
+              nickName: profileToUpdate.nickName,
+              //role: profileToUpdate.isBusinessAccount,
+              profileImagePath: profileToUpdate.profileImagePath,
+            );
+
+            emit(state.copyWith(
+              status: UserProfileStatus.success,
+              profile: profileToUpdate,
+              userData: updatedUserData,
+              isUploading: false,
+            ));
+          } else {
+            emit(state.copyWith(
+              status: UserProfileStatus.success,
+              profile: profileToUpdate,
+              isUploading: false,
+            ));
+          }
+        },
       );
     } catch (e) {
       emit(state.copyWith(
@@ -84,14 +110,13 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
     }
   }
 
-
- Future<void> _onGetUserData(
+  Future<void> _onGetUserData(
     GetUserData event,
     Emitter<UserProfileState> emit,
   ) async {
     debugPrint('🚀 GetUserData event triggered');
     emit(state.copyWith(status: UserProfileStatus.loading));
-    
+
     final result = await getUserDataUseCase(params: NoParams());
     debugPrint('📥 GetUserData result: $result');
 

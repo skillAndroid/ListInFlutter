@@ -7,6 +7,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:list_in/features/map/domain/entities/location_entity.dart';
+import 'package:list_in/features/map/presentation/map/map.dart';
 import 'package:list_in/features/profile/domain/entity/user_profile_entity.dart';
 import 'package:list_in/features/profile/presentation/bloc/user_profile_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/user_profile_event.dart';
@@ -26,6 +28,7 @@ class ProfileEditor extends StatefulWidget {
 }
 
 class _ProfileEditorState extends State<ProfileEditor> {
+  String? _locationName;
   bool showExactLocation = false;
   bool isBusinessAccount = false;
   TimeOfDay? openingTime;
@@ -42,7 +45,7 @@ class _ProfileEditorState extends State<ProfileEditor> {
   @override
   void initState() {
     super.initState();
-
+    _locationName = widget.userData.locationName ?? 'No Location';
     _nameController.text = widget.userData.nickName ?? '';
     _phoneController.text = widget.userData.phoneNumber ?? '';
     _profileImagePath = widget.userData.profileImagePath;
@@ -177,7 +180,6 @@ class _ProfileEditorState extends State<ProfileEditor> {
     return BlocConsumer<UserProfileBloc, UserProfileState>(
       listener: (context, state) {
         if (state.status == UserProfileStatus.failure) {
-          // Show error message
           showCupertinoDialog(
             context: context,
             builder: (context) => CupertinoAlertDialog(
@@ -321,12 +323,12 @@ class _ProfileEditorState extends State<ProfileEditor> {
                           ),
                           _buildDivider(),
                           _buildTappableRow(
-                            'Select Location',
-                            showExactLocation
-                                ? 'Current Location'
-                                : 'Region Only',
-                            onTap: _showMapSelector,
-                          ),
+                              'Select Location',
+                              showExactLocation
+                                  ? _locationName.toString()
+                                  : _locationName.toString(), onTap: () {
+                            _showMapSelector(context);
+                          }),
                         ],
                       ),
 
@@ -532,11 +534,15 @@ class _ProfileEditorState extends State<ProfileEditor> {
             ),
             Row(
               children: [
-                Text(
-                  displayValue,
-                  style: TextStyle(
-                    color: AppColors.lightText,
-                    fontSize: 16,
+                SizedBox(
+                  width: 150,
+                  child: Text(
+                    displayValue,
+                    textAlign: TextAlign.end,
+                    style: TextStyle(
+                        color: AppColors.lightText,
+                        fontSize: 16,
+                        overflow: TextOverflow.ellipsis),
                   ),
                 ),
                 SizedBox(width: 8),
@@ -603,55 +609,27 @@ class _ProfileEditorState extends State<ProfileEditor> {
     });
   }
 
-  void _showMapSelector() {
+  Future<void> _showMapSelector(BuildContext context) async {
     _unfocusAll();
-    Future.delayed(Duration(milliseconds: 10), () {
-      showCupertinoModalPopup(
-        context: context,
-        builder: (context) => Container(
-          height: MediaQuery.of(context).size.height * 0.7,
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-          ),
-          child: Column(
-            children: [
-              Container(
-                padding: EdgeInsets.symmetric(vertical: 16),
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(color: AppColors.lightGray),
-                  ),
-                ),
-                child: Center(
-                  child: Text(
-                    'Select Location',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Center(
-                  child: Text('Map View'),
-                ),
-              ),
-              SafeArea(
-                child: Padding(
-                  padding: EdgeInsets.all(16),
-                  child: CupertinoButton.filled(
-                    child: Text('Confirm Location'),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+    final result = await showModalBottomSheet<LocationEntity>(
+      useRootNavigator: true,
+      context: context,
+      enableDrag: false,
+      isScrollControlled: true,
+      builder: (BuildContext context) => const FractionallySizedBox(
+        heightFactor: 1.0,
+        child: Scaffold(body: ListInMap()),
+      ),
+    );
+
+    if (result != null) {
+      setState(() {
+        _locationName = result.name;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Location updated to: ${result.name}")),
       );
-    });
+    }
   }
 
   void _showIOSTimePicker(bool isOpeningTime) {
