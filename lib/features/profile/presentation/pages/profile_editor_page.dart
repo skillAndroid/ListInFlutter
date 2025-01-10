@@ -1,11 +1,13 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 // ignore_for_file: deprecated_member_use, library_private_types_in_public_api
 
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:list_in/features/map/domain/entities/location_entity.dart';
 import 'package:list_in/features/map/presentation/map/map.dart';
@@ -29,6 +31,8 @@ class ProfileEditor extends StatefulWidget {
 
 class _ProfileEditorState extends State<ProfileEditor> {
   String? _locationName;
+  double? _latitude;
+  double? _longitude;
   bool showExactLocation = false;
   bool isBusinessAccount = false;
   TimeOfDay? openingTime;
@@ -45,6 +49,8 @@ class _ProfileEditorState extends State<ProfileEditor> {
   @override
   void initState() {
     super.initState();
+    _latitude = widget.userData.latitude;
+    _longitude = widget.userData.longitude;
     _locationName = widget.userData.locationName ?? 'No Location';
     _nameController.text = widget.userData.nickName ?? '';
     _phoneController.text = widget.userData.phoneNumber ?? '';
@@ -616,15 +622,21 @@ class _ProfileEditorState extends State<ProfileEditor> {
       context: context,
       enableDrag: false,
       isScrollControlled: true,
-      builder: (BuildContext context) => const FractionallySizedBox(
+      builder: (BuildContext context) => FractionallySizedBox(
         heightFactor: 1.0,
-        child: Scaffold(body: ListInMap()),
+        child: Scaffold(
+          body: ListInMap(
+            coordinates: LatLng(_latitude ?? 41.2995, _longitude ?? 69.2401),
+          ),
+        ),
       ),
     );
 
     if (result != null) {
       setState(() {
         _locationName = result.name;
+        _latitude = result.coordinates.latitude;
+        _longitude = result.coordinates.longitude;
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Location updated to: ${result.name}")),

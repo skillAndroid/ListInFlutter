@@ -227,7 +227,7 @@ class _LocationSelectionPageState extends State<LocationSelectionPage> {
       context: context,
       enableDrag: false,
       isScrollControlled: true,
-      builder: (BuildContext context) => const FractionallySizedBox(
+      builder: (BuildContext context) => FractionallySizedBox(
         heightFactor: 1.0,
         child: Scaffold(body: ListInMap()),
       ),

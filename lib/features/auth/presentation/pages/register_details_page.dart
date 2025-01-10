@@ -527,7 +527,7 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                             enableDrag: false,
                                             isScrollControlled: true,
                                             builder: (BuildContext context) =>
-                                                const FractionallySizedBox(
+                                                FractionallySizedBox(
                                               heightFactor: 1.0,
                                               child: Scaffold(
                                                 body: ListInMap(),

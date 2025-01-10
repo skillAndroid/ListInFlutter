@@ -1,7 +1,9 @@
+// ignore: must_be_immutable
 // ignore_for_file: deprecated_member_use
 
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -17,11 +19,15 @@ import 'package:list_in/features/map/presentation/widgets/marker.dart';
 import 'package:list_in/features/map/presentation/widgets/search_text_field.dart';
 import 'package:list_in/features/map/presentation/widgets/show_custom_sheet.dart';
 import 'package:list_in/features/map/service/AppLocation.dart';
-import 'package:list_in/features/map/service/models.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
+// ignore: must_be_immutable
 class ListInMap extends StatefulWidget {
-  const ListInMap({super.key});
+  LatLng? coordinates;
+  ListInMap({
+    super.key,
+    this.coordinates,
+  });
 
   @override
   State<ListInMap> createState() => _ListInMapState();
@@ -30,10 +36,10 @@ class ListInMap extends StatefulWidget {
 class _ListInMapState extends State<ListInMap> {
   final Completer<GoogleMapController> _controllerCompleter = Completer();
   GoogleMapController? _mapController;
-  final CameraPosition _initialCameraPosition = const CameraPosition(
-    target: LatLng(55.755826, 37.617300), // Default to Moscow
-    zoom: 20,
-  );
+  late final CameraPosition _initialCameraPosition;
+  
+  // Tashkent coordinates: 41.2995, 69.2401
+  static const LatLng _defaultLocation = LatLng(41.2995, 69.2401);
 
   void _onMapCreated(GoogleMapController controller) {
     _mapController = controller;
@@ -52,14 +58,22 @@ class _ListInMapState extends State<ListInMap> {
   }
 
   String _currentLocationName = "Select Location";
-  CoordinatesEntity _selectedLocationCoordinates =
-      const CoordinatesEntity(latitude: 55.755826, longitude: 37.617300);
-
+  late CoordinatesEntity _selectedLocationCoordinates;
   late LocationEntity _currentSelectedLocation;
 
   @override
   void initState() {
     super.initState();
+    final initialLocation = widget.coordinates ?? _defaultLocation;
+    _initialCameraPosition = CameraPosition(
+      target: initialLocation,
+      zoom: 20,
+    );
+    
+    _selectedLocationCoordinates = CoordinatesEntity(
+      latitude: initialLocation.latitude,
+      longitude: initialLocation.longitude,
+    );
     _initPermission().ignore();
   }
 
@@ -270,8 +284,7 @@ class _ListInMapState extends State<ListInMap> {
                         const SizedBox(height: 8),
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment:
-                              MainAxisAlignment.start, // Add this line
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             const HugeIcon(
                               icon: HugeIcons.strokeRoundedLocation05,
@@ -283,9 +296,7 @@ class _ListInMapState extends State<ListInMap> {
                                 duration: const Duration(milliseconds: 300),
                                 child: Text(
                                   textAlign: TextAlign.start,
-                                  isLoading
-                                      ? "Loading..."
-                                      : _currentLocationName,
+                                  isLoading ? "Loading..." : _currentLocationName,
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
                                     fontSize: 15,
@@ -371,7 +382,8 @@ class _ListInMapState extends State<ListInMap> {
   Future<void> _fetchCurrentLocation() async {
     final location = await LocationService()
         .getCurrentLocation()
-        .catchError((_) => const MoscowLocation());
+        // ignore: invalid_return_type_for_catch_error
+        .catchError((_) => const LatLng(41.2995, 69.2401)); // Changed to Tashkent default
 
     _moveToLocation(LatLng(location.lat, location.long), 20);
   }
@@ -465,7 +477,7 @@ class _ListInMapState extends State<ListInMap> {
                 BlocBuilder<MapBloc, MapState>(
                   builder: (context, state) {
                     if (state is MapLoadingState) {
-                      return  Padding(
+                      return Padding(
                         padding: EdgeInsets.all(12),
                         child: Center(
                           child: Transform.scale(
@@ -496,8 +508,7 @@ class _ListInMapState extends State<ListInMap> {
                                   children: [
                                     const Icon(
                                       Icons.location_on,
-                                      color: AppColors.primary,
-                                    ),
+                                      color: AppColors.primary,),
                                     const SizedBox(
                                       width: 8,
                                     ),
@@ -548,6 +559,5 @@ class _ListInMapState extends State<ListInMap> {
       ),
     );
   }
-//
 }
-//
+
