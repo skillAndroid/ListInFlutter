@@ -173,8 +173,6 @@ class AppRouter {
                 builder: (context, state) {
                   return ProfileScreen(
                     key: state.pageKey,
-                    userId: 'userId',
-                    products: sampleProducts,
                   );
                 },
                 routes: [

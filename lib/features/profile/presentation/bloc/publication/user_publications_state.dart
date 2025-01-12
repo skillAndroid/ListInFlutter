@@ -7,6 +7,7 @@ class UserPublicationsState extends Equatable {
   final String? error;
   final bool hasReachedEnd;
   final int currentPage;
+  final bool isInitialLoading; // New field to track initial load state
 
   const UserPublicationsState({
     this.publications = const [],
@@ -14,6 +15,7 @@ class UserPublicationsState extends Equatable {
     this.error,
     this.hasReachedEnd = false,
     this.currentPage = 0,
+    this.isInitialLoading = false,
   });
 
   UserPublicationsState copyWith({
@@ -22,6 +24,7 @@ class UserPublicationsState extends Equatable {
     String? error,
     bool? hasReachedEnd,
     int? currentPage,
+    bool? isInitialLoading,
   }) {
     return UserPublicationsState(
       publications: publications ?? this.publications,
@@ -29,6 +32,7 @@ class UserPublicationsState extends Equatable {
       error: error,
       hasReachedEnd: hasReachedEnd ?? this.hasReachedEnd,
       currentPage: currentPage ?? this.currentPage,
+      isInitialLoading: isInitialLoading ?? this.isInitialLoading,
     );
   }
 
@@ -39,5 +43,6 @@ class UserPublicationsState extends Equatable {
         error,
         hasReachedEnd,
         currentPage,
+        isInitialLoading,
       ];
 }

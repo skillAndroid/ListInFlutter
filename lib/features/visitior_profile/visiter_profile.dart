@@ -53,7 +53,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.bgColor,
+      backgroundColor: AppColors.containerColor,
       body: Stack(
         children: [
           NestedScrollView(
@@ -64,10 +64,9 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                 SliverToBoxAdapter(
                   child: Column(
                     children: [
-                      const SizedBox(height: 8),
                       _buildContactActions(),
                       _buildReviewSection(),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 4),
                     ],
                   ),
                 ),
@@ -80,12 +79,13 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(CupertinoIcons.shopping_cart),
+                              Icon(CupertinoIcons.bag),
                               SizedBox(width: 8),
                               Text(
                                 "Products",
                                 style: TextStyle(
-                                  fontWeight: FontWeight.w600,
+                                  fontFamily: "Poppins",
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
                             ],
@@ -95,12 +95,13 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(CupertinoIcons.photo_fill),
+                              Icon(CupertinoIcons.photo_camera),
                               SizedBox(width: 8),
                               Text(
                                 "Posts",
                                 style: TextStyle(
-                                  fontWeight: FontWeight.w600,
+                                  fontFamily: "Poppins",
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
                             ],
@@ -110,12 +111,13 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(CupertinoIcons.play_circle_fill),
+                              Icon(CupertinoIcons.play_circle),
                               SizedBox(width: 8),
                               Text(
                                 "Videos",
                                 style: TextStyle(
-                                  fontWeight: FontWeight.w600,
+                                  fontFamily: "Poppins",
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
                             ],
@@ -298,10 +300,10 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                 border: Border.all(color: Colors.white, width: 2),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
-                  ),
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 2,
+                        offset: const Offset(0, 4),
+                      ),
                 ],
               ),
               child: ClipOval(
@@ -381,7 +383,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
           label,
           style: const TextStyle(
             fontSize: 12,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w700,
             color: Colors.black,
           ),
         ),
@@ -393,7 +395,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
   Widget _buildContactActions() {
     return Container(
       height: 85,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
@@ -413,7 +415,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
             isFollowing ? Ionicons.person_remove : Ionicons.person_add,
             isFollowing ? 'Unfollow' : 'Follow',
             isFollowing ? AppColors.white : AppColors.white,
-            isFollowing ? Colors.grey : AppColors.darkGray,
+            isFollowing ? Colors.grey : AppColors.black,
             onTap: () {
               setState(() {
                 isFollowing = !isFollowing;
@@ -421,16 +423,16 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
             },
           ),
           _buildActionItem(
-            Ionicons.notifications,
-            'Notifications',
+            Ionicons.information_circle,
+            'Information',
             AppColors.white,
-            AppColors.darkGray,
+            AppColors.black,
           ),
           _buildActionItem(
             Icons.more_horiz,
             'More',
             AppColors.white,
-            AppColors.darkGray,
+            AppColors.black,
             isMoreOptions: true,
           ),
         ],
@@ -448,10 +450,10 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
   }) {
     final buttonContent = Card(
       margin: EdgeInsets.zero,
-      elevation: 5,
-      shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      color: backgroundColor,
-      shadowColor: AppColors.black.withOpacity(0.2),
+      elevation: 2,
+      shadowColor: Colors.white.withOpacity(0.5),
+      shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      color: AppColors.white,
       child: SizedBox(
         width: 70,
         height: 68,
@@ -468,8 +470,8 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
               label,
               style: TextStyle(
                 fontSize: 11,
-                color: iconColor,
-                fontWeight: FontWeight.w600,
+                color: AppColors.black,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ],
@@ -512,16 +514,16 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
       width: double.infinity,
       child: Card(
         color: AppColors.white,
-        elevation: 10,
-        shadowColor: AppColors.black.withOpacity(0.2),
+        elevation: 2,
+        shadowColor: Colors.white.withOpacity(0.5),
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
         shape: SmoothRectangleBorder(
           smoothness: 1,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(16),
         ),
         child: Padding(
           padding:
-              const EdgeInsets.only(right: 20, left: 8, top: 16, bottom: 16),
+              const EdgeInsets.only(right: 20, left: 4, top: 16, bottom: 16),
           child: Row(
             children: [
               Expanded(
@@ -566,7 +568,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
               Container(
                 height: 60,
                 width: 1,
-                color: Colors.grey.withOpacity(0.2),
+                color: Colors.grey.withOpacity(0.1),
               ),
               Expanded(
                 flex: 11,
@@ -587,11 +589,11 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            'Recent Reviews',
+            'Reviews',
             style: TextStyle(
               fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: Colors.grey[700],
+              fontWeight: FontWeight.w700,
+              color: AppColors.grey,
             ),
           ),
           const SizedBox(height: 8),
@@ -601,7 +603,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
               children: [
                 for (var i = 0; i < 3; i++)
                   Positioned(
-                    left: i * 25.0,
+                    left: i * 22.0,
                     child: Container(
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
@@ -611,7 +613,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                         ),
                       ),
                       child: CircleAvatar(
-                        radius: 16,
+                        radius: 18,
                         backgroundImage: NetworkImage(
                           'https://picsum.photos/200?random=$i',
                         ),
@@ -619,14 +621,14 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                     ),
                   ),
                 Positioned(
-                  left: 85,
-                  top: 8,
+                  left: 88,
+                  top: 10,
                   child: Text(
                     '+25 more',
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.grey[600],
-                      fontWeight: FontWeight.w500,
+                      color: AppColors.grey,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
@@ -668,10 +670,10 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                     top: 8,
                     right: 8,
                     child: Container(
-                      padding: const EdgeInsets.all(4),
+                      padding: const EdgeInsets.all(2),
                       decoration: BoxDecoration(
                         color: Colors.black.withOpacity(0.7),
-                        borderRadius: BorderRadius.circular(4),
+                        borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Icon(
                         Icons.play_arrow,
@@ -825,22 +827,22 @@ class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
       BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
       decoration: BoxDecoration(
-        color: backgroundColor,
+        color: AppColors.containerColor,
         boxShadow: overlapsContent
             ? [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.05),
-                  blurRadius: 4,
+                  blurRadius: 2,
                   offset: const Offset(0, 2),
                 ),
               ]
             : null,
       ),
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         decoration: BoxDecoration(
-          color: Colors.grey.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(12),
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(16),
         ),
         child: Theme(
           data: ThemeData(
@@ -848,33 +850,34 @@ class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
             highlightColor: Colors.transparent,
           ),
           child: TabBar(
+            padding: EdgeInsets.all(4),
             controller: tabBar.controller,
             tabs: tabBar.tabs,
             labelColor: AppColors.primary,
             unselectedLabelColor: Colors.grey,
             indicator: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
+              color: AppColors.containerColor,
+              borderRadius: BorderRadius.circular(14),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.primary.withOpacity(0.2),
-                  blurRadius: 8,
+                  color: AppColors.black.withOpacity(0.01),
+                  blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),
               ],
             ),
             labelStyle: const TextStyle(
               fontSize: 15,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w700,
             ),
             unselectedLabelStyle: const TextStyle(
               fontSize: 15,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w700,
             ),
             labelPadding: const EdgeInsets.symmetric(vertical: 8),
             indicatorSize: TabBarIndicatorSize.tab,
             dividerColor: Colors.transparent,
-            splashBorderRadius: BorderRadius.circular(10),
+            splashBorderRadius: BorderRadius.circular(15),
             overlayColor: MaterialStateProperty.all(Colors.transparent),
           ),
         ),

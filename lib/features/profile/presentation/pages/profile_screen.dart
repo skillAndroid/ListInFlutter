@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 import 'dart:math' as math;
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +10,6 @@ import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
-import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
 import 'package:list_in/features/profile/domain/entity/user/user_data_entity.dart';
 import 'package:list_in/features/profile/domain/entity/user/user_profile_entity.dart';
@@ -22,10 +22,7 @@ import 'package:list_in/features/profile/presentation/bloc/user/user_profile_sta
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class ProfileScreen extends StatefulWidget {
-  final String userId;
-  final List<ProductEntity> products;
-  const ProfileScreen(
-      {super.key, required this.userId, required this.products});
+  const ProfileScreen({super.key});
 
   @override
   State<ProfileScreen> createState() => _VisitorProfileScreenState();
@@ -91,7 +88,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
         }
         final userData = state.userData;
         return Scaffold(
-          backgroundColor: AppColors.bgColor,
+          backgroundColor: AppColors.containerColor,
           body: Stack(
             children: [
               NestedScrollView(
@@ -102,7 +99,6 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                     SliverToBoxAdapter(
                       child: Column(
                         children: [
-                          const SizedBox(height: 8),
                           _buildContactActions(userData),
                           _buildReviewSection(userData),
                         ],
@@ -282,8 +278,8 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                     border: Border.all(color: Colors.white, width: 2),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 8,
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 2,
                         offset: const Offset(0, 4),
                       ),
                     ],
@@ -393,15 +389,15 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
   Widget _buildContactActions(UserDataEntity? user) {
     return Container(
       height: 85,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           _buildActionItem(
             CupertinoIcons.plus_circle_fill,
             'Create',
-            AppColors.white,
-            AppColors.primary,
+            AppColors.primaryLight,
+            AppColors.black,
             onTap: () {
               // Handle create action
             },
@@ -409,8 +405,8 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
           _buildActionItem(
             CupertinoIcons.bell_fill,
             'Alerts',
-            AppColors.white,
-            CupertinoColors.systemOrange,
+            AppColors.primaryLight,
+            AppColors.black,
             onTap: () {
               // Handle notifications
             },
@@ -418,8 +414,8 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
           _buildActionItem(
             Icons.edit,
             'Edit',
-            AppColors.white,
-            AppColors.darkGray,
+            AppColors.primaryLight,
+            AppColors.black,
             onTap: () {
               _navigateToEdit(UserProfileEntity(
                 isBusinessAccount: user?.role != "INDIVIDUAL_SELLER",
@@ -438,8 +434,8 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
           _buildActionItem(
             Icons.workspace_premium,
             'Premium',
-            AppColors.white,
-            AppColors.myRedBrown,
+            AppColors.primaryLight,
+            AppColors.black,
             onTap: () {
               // Handle premium upgrade
             },
@@ -447,8 +443,8 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
           _buildActionItem(
             Icons.settings,
             'Settings',
-            AppColors.white,
-            AppColors.darkGray,
+            AppColors.primaryLight,
+            AppColors.black,
             onTap: () {
               // Handle settings
             },
@@ -469,10 +465,10 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
       onTap: onTap,
       child: Card(
         margin: EdgeInsets.zero,
-        elevation: 5,
-        shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        color: backgroundColor,
-        shadowColor: AppColors.black.withOpacity(0.2),
+        elevation: 2,
+        shadowColor: Colors.white.withOpacity(0.5),
+        shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        color: AppColors.white,
         child: SizedBox(
           width: 70,
           height: 68,
@@ -481,7 +477,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
             children: [
               Icon(
                 icon,
-                color: iconColor,
+                color: AppColors.primary,
                 size: 24,
               ),
               const SizedBox(height: 4),
@@ -489,8 +485,8 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                 label,
                 style: TextStyle(
                   fontSize: 11,
-                  color: iconColor,
-                  fontWeight: FontWeight.w600,
+                  color: AppColors.black,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ],
@@ -506,16 +502,16 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
       width: double.infinity,
       child: Card(
         color: AppColors.white,
-        elevation: 10,
-        shadowColor: AppColors.black.withOpacity(0.2),
+        elevation: 1,
+        shadowColor: Colors.white.withOpacity(0.5),
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
         shape: SmoothRectangleBorder(
           smoothness: 1,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(16),
         ),
         child: Padding(
           padding:
-              const EdgeInsets.only(right: 20, left: 8, top: 16, bottom: 16),
+              const EdgeInsets.only(right: 20, left: 4, top: 16, bottom: 16),
           child: Row(
             children: [
               Expanded(
@@ -581,11 +577,11 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            'Recent Reviews',
+            'Reviews',
             style: TextStyle(
               fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: Colors.grey[700],
+              fontWeight: FontWeight.w700,
+              color: AppColors.grey,
             ),
           ),
           const SizedBox(height: 8),
@@ -595,7 +591,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
               children: [
                 for (var i = 0; i < 3; i++)
                   Positioned(
-                    left: i * 25.0,
+                    left: i * 22.0,
                     child: Container(
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
@@ -605,7 +601,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                         ),
                       ),
                       child: CircleAvatar(
-                        radius: 16,
+                        radius: 18,
                         backgroundImage: NetworkImage(
                           'https://picsum.photos/200?random=$i',
                         ),
@@ -613,14 +609,14 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                     ),
                   ),
                 Positioned(
-                  left: 85,
-                  top: 8,
+                  left: 88,
+                  top: 10,
                   child: Text(
                     '+25 more',
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.grey[600],
-                      fontWeight: FontWeight.w500,
+                      color: AppColors.grey,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
@@ -654,9 +650,11 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: FilterChip(
-        elevation: 2,
+        elevation: 0,
         shadowColor: AppColors.primary.withOpacity(0.01),
-        shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        shape: SmoothRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(color: AppColors.white, width: 2)),
         label: Text(
           label,
           style: TextStyle(
@@ -664,7 +662,6 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w600,
           ),
         ),
-        side: BorderSide.none,
         selected: isSelected,
         onSelected: (bool selected) {
           setState(() {
@@ -672,7 +669,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
           });
         },
         backgroundColor: AppColors.containerColor,
-        selectedColor: AppColors.white,
+        selectedColor: AppColors.containerColor,
         showCheckmark: false,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
@@ -689,9 +686,31 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
         }
       },
       builder: (context, state) {
-        if (state.isLoading && state.publications.isEmpty) {
-          return const SliverToBoxAdapter(
-            child: Center(child: CircularProgressIndicator()),
+        if ((state.isLoading || state.isInitialLoading) &&
+            state.publications.isEmpty) {
+          return SliverToBoxAdapter(
+            child: Center(
+                child: Transform.scale(
+              scale: 0.75,
+              child: CircularProgressIndicator(
+                strokeWidth: 6,
+                color: AppColors.green,
+                strokeCap: StrokeCap.round,
+              ),
+            )),
+          );
+        }
+
+        if (state.error != null) {
+          return SliverToBoxAdapter(
+            child: Center(
+                child: TextButton(
+                    onPressed: () {
+                      context
+                          .read<UserPublicationsBloc>()
+                          .add(FetchUserPublications());
+                    },
+                    child: Text("Retry"))),
           );
         }
 
@@ -732,8 +751,6 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
               }
 
               final publication = state.publications[index];
-
-              debugPrint(" 💀💀$publication");
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: HorizontalProfileProductCard(
@@ -784,22 +801,22 @@ class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
       BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
       decoration: BoxDecoration(
-        color: backgroundColor,
+        color: AppColors.containerColor,
         boxShadow: overlapsContent
             ? [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.05),
-                  blurRadius: 4,
+                  blurRadius: 2,
                   offset: const Offset(0, 2),
                 ),
               ]
             : null,
       ),
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         decoration: BoxDecoration(
           color: AppColors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
         ),
         child: Theme(
           data: ThemeData(
@@ -807,33 +824,34 @@ class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
             highlightColor: Colors.transparent,
           ),
           child: TabBar(
+            padding: EdgeInsets.all(4),
             controller: tabBar.controller,
             tabs: tabBar.tabs,
-            labelColor: AppColors.black,
+            labelColor: AppColors.primary,
             unselectedLabelColor: Colors.grey,
             indicator: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
+              color: AppColors.containerColor,
+              borderRadius: BorderRadius.circular(14),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.primary.withOpacity(0.15),
-                  blurRadius: 8,
+                  color: AppColors.black.withOpacity(0.01),
+                  blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),
               ],
             ),
             labelStyle: const TextStyle(
               fontSize: 15,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w700,
             ),
             unselectedLabelStyle: const TextStyle(
               fontSize: 15,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w700,
             ),
             labelPadding: const EdgeInsets.symmetric(vertical: 8),
             indicatorSize: TabBarIndicatorSize.tab,
             dividerColor: Colors.transparent,
-            splashBorderRadius: BorderRadius.circular(10),
+            splashBorderRadius: BorderRadius.circular(15),
             overlayColor: MaterialStateProperty.all(Colors.transparent),
           ),
         ),

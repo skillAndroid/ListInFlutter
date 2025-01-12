@@ -41,7 +41,7 @@ class HorizontalProfileProductCard extends StatelessWidget {
               child: Stack(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.all(2),
+                    padding: const EdgeInsets.all(4),
                     child: SmoothClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: AspectRatio(

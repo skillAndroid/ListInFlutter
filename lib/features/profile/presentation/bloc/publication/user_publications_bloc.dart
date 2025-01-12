@@ -7,7 +7,7 @@ import 'package:list_in/features/profile/presentation/bloc/publication/user_publ
 
 class UserPublicationsBloc extends Bloc<UserPublicationsEvent, UserPublicationsState> {
   final GetUserPublicationsUseCase getUserPublicationsUseCase;
-  static const int _pageSize = 4;
+  static const int _pageSize = 20;
 
   UserPublicationsBloc({
     required this.getUserPublicationsUseCase,
@@ -22,11 +22,17 @@ class UserPublicationsBloc extends Bloc<UserPublicationsEvent, UserPublicationsS
   ) async {
     try {
       debugPrint('DEBUG: Starting initial fetch of publications');
-      emit(state.copyWith(isLoading: true, error: null));
+      
+      // Don't clear existing data immediately if we're retrying a failed initial load
+      if (state.publications.isEmpty) {
+        emit(state.copyWith(isLoading: true, error: null));
+      } else {
+        emit(state.copyWith(isLoading: true, error: null, isInitialLoading: true));
+      }
 
       final result = await getUserPublicationsUseCase(
         params: GetUserPublicationsParams(
-          page: 0, // Start with page 0
+          page: 0,
           size: _pageSize,
         ),
       );
@@ -37,6 +43,7 @@ class UserPublicationsBloc extends Bloc<UserPublicationsEvent, UserPublicationsS
           emit(state.copyWith(
             isLoading: false,
             error: _mapFailureToMessage(failure),
+            isInitialLoading: false,
           ));
         },
         (data) {
@@ -45,7 +52,9 @@ class UserPublicationsBloc extends Bloc<UserPublicationsEvent, UserPublicationsS
             publications: data.content,
             isLoading: false,
             hasReachedEnd: data.last,
-            currentPage: 0, // Start with page 0
+            currentPage: 0,
+            isInitialLoading: false,
+            error: null,
           ));
         },
       );
@@ -55,6 +64,7 @@ class UserPublicationsBloc extends Bloc<UserPublicationsEvent, UserPublicationsS
       emit(state.copyWith(
         isLoading: false,
         error: e.toString(),
+        isInitialLoading: false,
       ));
     }
   }
@@ -63,14 +73,22 @@ class UserPublicationsBloc extends Bloc<UserPublicationsEvent, UserPublicationsS
     LoadMoreUserPublications event,
     Emitter<UserPublicationsState> emit,
   ) async {
-    if (state.hasReachedEnd || state.isLoading) {
+    // Don't proceed if already loading or if we've reached the end
+    if (state.isLoading || state.hasReachedEnd) {
       debugPrint('DEBUG: Skip loading more - hasReachedEnd: ${state.hasReachedEnd}, isLoading: ${state.isLoading}');
+      return;
+    }
+
+    // If no initial data, trigger initial fetch instead
+    if (state.publications.isEmpty) {
+      debugPrint('DEBUG: No initial data, triggering fetch instead of load more');
+      await _onFetchUserPublications(FetchUserPublications(), emit);
       return;
     }
 
     try {
       debugPrint('DEBUG: Starting to load more publications. Current page: ${state.currentPage}');
-      emit(state.copyWith(isLoading: true));
+      emit(state.copyWith(isLoading: true, error: null));
 
       final result = await getUserPublicationsUseCase(
         params: GetUserPublicationsParams(
@@ -85,15 +103,18 @@ class UserPublicationsBloc extends Bloc<UserPublicationsEvent, UserPublicationsS
           emit(state.copyWith(
             isLoading: false,
             error: _mapFailureToMessage(failure),
+            // Preserve current page and data on error
           ));
         },
         (data) {
           debugPrint('DEBUG: Load more successful. New items: ${data.content.length}');
           
+          // Handle empty response
           if (data.content.isEmpty) {
             emit(state.copyWith(
               isLoading: false,
               hasReachedEnd: true,
+              error: null,
             ));
             return;
           }
@@ -103,6 +124,7 @@ class UserPublicationsBloc extends Bloc<UserPublicationsEvent, UserPublicationsS
             isLoading: false,
             hasReachedEnd: data.last,
             currentPage: state.currentPage + 1,
+            error: null,
           ));
         },
       );
@@ -112,6 +134,7 @@ class UserPublicationsBloc extends Bloc<UserPublicationsEvent, UserPublicationsS
       emit(state.copyWith(
         isLoading: false,
         error: e.toString(),
+        // Preserve current page and data on error
       ));
     }
   }
@@ -123,7 +146,7 @@ class UserPublicationsBloc extends Bloc<UserPublicationsEvent, UserPublicationsS
       case NetworkFailure _:
         return 'No internet connection';
       default:
-        return 'Connection error occurred';  // Changed from Unexpected error
+        return 'Connection error occurred';
     }
   }
 }
