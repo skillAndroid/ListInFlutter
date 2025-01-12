@@ -30,6 +30,7 @@ class _VideoCarouselState extends State<VideoCarousel> {
   bool _isVisible = true;
   Timer? _videoTimer;
   bool _shouldAutoAdvance = true;
+  bool _isVideoInitializing = false;
 
   @override
   void initState() {
@@ -43,14 +44,18 @@ class _VideoCarouselState extends State<VideoCarousel> {
   }
 
   Future<void> _clearVideo() async {
-    _videoTimer?.cancel();
-    if (_videoController != null) {
-      _videoController?.removeListener(_checkVideoProgress);
-      await _videoController?.dispose();
-      _videoController = null;
-      if (mounted) {
-        setState(() {});
+    try {
+      _videoTimer?.cancel();
+      if (_videoController != null) {
+        _videoController?.removeListener(_checkVideoProgress);
+        await _videoController?.dispose();
+        _videoController = null;
+        if (mounted) {
+          setState(() {});
+        }
       }
+    } catch (e) {
+      debugPrint('Error clearing video: $e');
     }
   }
 
@@ -58,50 +63,104 @@ class _VideoCarouselState extends State<VideoCarousel> {
     if (_currentIndex < widget.items.length - 1) {
       _autoScrollToNextPage();
     } else {
-      _clearVideo(); // End of content
+      _clearVideo();
     }
   }
 
   Future<void> _initializeVideo(int index) async {
-    if (widget.items.isEmpty || !_isVisible || index >= widget.items.length) {
+    if (widget.items.isEmpty ||
+        !_isVisible ||
+        index >= widget.items.length ||
+        _isVideoInitializing) {
       return;
     }
 
-    await _clearVideo();
+    try {
+      _isVideoInitializing = true;
+      await _clearVideo();
 
-    _videoController =
-        VideoPlayerController.network(widget.items[index].videoUrl);
+      final videoUrl = widget.items[index].videoUrl;
+      if (!await _isValidVideoUrl(videoUrl)) {
+        debugPrint('Invalid video URL: $videoUrl');
+        return;
+      }
 
-    await _videoController?.initialize();
+      _videoController = VideoPlayerController.network(
+        videoUrl,
+        videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
+        httpHeaders: const {
+          'Connection': 'keep-alive',
+        },
+      );
 
-    if (mounted && _isVisible) {
-      setState(() {});
-      _videoController?.setLooping(false);
-      _videoController?.play();
-      _videoController?.setVolume(0);
-      _videoController?.addListener(_checkVideoProgress);
+      bool initialized = false;
+      try {
+        await _videoController?.initialize().timeout(
+          const Duration(seconds: 10),
+          onTimeout: () {
+            throw TimeoutException('Video initialization timed out');
+          },
+        );
+        initialized = true;
+      } catch (e) {
+        debugPrint('Video initialization error: $e');
+        await _clearVideo();
+        return;
+      }
 
-      // Start the timer after video initialization
-      _startVideoTimer();
+      if (!mounted || !_isVisible) {
+        await _clearVideo();
+        return;
+      }
+
+      if (initialized) {
+        setState(() {});
+
+        try {
+          await _videoController?.setLooping(false);
+          await _videoController?.setVolume(0);
+          _videoController?.addListener(_checkVideoProgress);
+          await _videoController?.play();
+          _startVideoTimer();
+        } catch (e) {
+          debugPrint('Video playback configuration error: $e');
+          await _clearVideo();
+        }
+      }
+    } catch (e) {
+      debugPrint('Video initialization error: $e');
+      await _clearVideo();
+    } finally {
+      _isVideoInitializing = false;
     }
   }
 
-  void _startVideoTimer() {
-    _videoTimer?.cancel(); // Cancel any existing timer
+  Future<bool> _isValidVideoUrl(String url) async {
+    try {
+      final uri = Uri.parse(url);
+      if (!uri.hasScheme || !uri.hasAuthority) {
+        return false;
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+ void _startVideoTimer() {
+    _videoTimer?.cancel();
     _videoTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
       if (mounted && _isVisible && !_isScrolling) {
         if (_shouldAutoAdvance) {
-          _handleNavigation(); // Auto-scroll to the next page
+          _handleNavigation();
         } else {
-          // Play next video without changing the visible page
           setState(() {
-            _currentIndex =
-                (_currentIndex + 1) % widget.items.length; // Loop if necessary
+            _currentIndex = (_currentIndex + 1) % widget.items.length;
           });
           if (_currentIndex < widget.items.length) {
-            _initializeVideo(_currentIndex); // Load the next video
+            _initializeVideo(_currentIndex);
           } else {
-            _clearVideo(); // Stop at "See All Videos"
+            _clearVideo();
           }
         }
       }
@@ -118,18 +177,21 @@ class _VideoCarouselState extends State<VideoCarousel> {
     }
   }
 
+
   void _checkVideoProgress() {
     if (_videoController == null || !mounted || !_isVisible) return;
 
-    final duration = _videoController!.value.duration;
-    final position = _videoController!.value.position;
+    try {
+      final duration = _videoController!.value.duration;
+      final position = _videoController!.value.position;
 
-    if (position >= const Duration(seconds: 5) || position >= duration) {
-      if (_shouldAutoAdvance) {
-        _handleNavigation();
-      } else {
-        // Let the timer handle internal updates
+      if (position >= const Duration(seconds: 5) || position >= duration) {
+        if (_shouldAutoAdvance) {
+          _handleNavigation();
+        }
       }
+    } catch (e) {
+      debugPrint('Error checking video progress: $e');
     }
   }
 

@@ -127,36 +127,36 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
   Widget build(BuildContext context) {
     return BlocBuilder<HomeTreeCubit, HomeTreeState>(
       builder: (context, state) {
-        if (state.isLoading) {
-          return Scaffold(
-            body: Column(
-              children: [
-                ElevatedButton(
-                    onPressed: () {
-                      context.push(Routes.videosFeed);
-                    },
-                    child: Text("go videos")),
-                Center(child: CircularProgressIndicator()),
-              ],
-            ),
-          );
-        }
+        // if (state.isLoading) {
+        //   return Scaffold(
+        //     body: Column(
+        //       children: [
+        //         ElevatedButton(
+        //             onPressed: () {
+        //               context.push(Routes.videosFeed);
+        //             },
+        //             child: Text("go videos")),
+        //         Center(child: CircularProgressIndicator()),
+        //       ],
+        //     ),
+        //   );
+        // }
 
-        if (state.hasError) {
-          return Scaffold(
-            body: Center(
-                child: Column(
-              children: [
-                Text(state.error!),
-                ElevatedButton(
-                    onPressed: () {
-                      context.push(Routes.videosFeed);
-                    },
-                    child: Text("go videos")),
-              ],
-            )),
-          );
-        }
+        // if (state.hasError) {
+        //   return Scaffold(
+        //     body: Center(
+        //         child: Column(
+        //       children: [
+        //         Text(state.error!),
+        //         ElevatedButton(
+        //             onPressed: () {
+        //               context.push(Routes.videosFeed);
+        //             },
+        //             child: Text("go videos")),
+        //       ],
+        //     )),
+        //   );
+        // }
 
         return Scaffold(
           backgroundColor: AppColors.bgColor,
@@ -166,19 +166,19 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
             controller: _scrollController,
             physics: const BouncingScrollPhysics(),
             slivers: [
-              SliverToBoxAdapter(
-                child: _buildCategories(),
-              ),
-              if (_isSliverAppBarVisible)
-                SliverAppBar(
-                  floating: true,
-                  snap: false,
-                  pinned: false,
-                  automaticallyImplyLeading: false,
-                  toolbarHeight: 50,
-                  flexibleSpace: _buildFiltersBar(state),
-                  backgroundColor: AppColors.bgColor,
-                ),
+              // SliverToBoxAdapter(
+              //   child: _buildCategories(),
+              // ),
+              // if (_isSliverAppBarVisible)
+              //   SliverAppBar(
+              //     floating: true,
+              //     snap: false,
+              //     pinned: false,
+              //     automaticallyImplyLeading: false,
+              //     toolbarHeight: 50,
+              //     flexibleSpace: _buildFiltersBar(state),
+              //     backgroundColor: AppColors.bgColor,
+              //   ),
               SliverPadding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 sliver: SliverToBoxAdapter(

@@ -11,6 +11,7 @@ import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
+import 'package:list_in/features/details/presentation/pages/product_images_detailed.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
 import 'package:list_in/main.dart';
@@ -57,6 +58,11 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
     } else if (_scrollController.offset <= 300 && _isCollapsed) {
       setState(() => _isCollapsed = false);
     }
+  }
+
+  void _jumpToPage(int page) {
+    _currentPage = page;
+    _pageController.jumpToPage(page);
   }
 
   Widget _buildFeatureChip(String text) {
@@ -557,8 +563,21 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
-  Widget _buildImageSlide(String imageUrl) {
-    return SmoothClipRRect(
+ Widget _buildImageSlide(String imageUrl) {
+  return GestureDetector(
+    onTap: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ProductImagesDetailed(
+            images: widget.productDetails.images,
+            initialIndex: _currentPage,
+            heroTag: widget.productId,
+          ),
+        ),
+      );
+    },
+    child: SmoothClipRRect(
       borderRadius: const BorderRadius.only(
         bottomLeft: Radius.circular(16),
         bottomRight: Radius.circular(16),
@@ -567,8 +586,9 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
         imageUrl: imageUrl,
         fit: BoxFit.cover,
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildImageCounter() {
     return Positioned(
@@ -654,7 +674,7 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
               label: 'Message',
               color: AppColors.white,
               textColor: AppColors.primary,
-              borderColor:AppColors.containerColor,
+              borderColor: AppColors.containerColor,
               onPressed: () {/* Message logic */},
             ),
           ),
