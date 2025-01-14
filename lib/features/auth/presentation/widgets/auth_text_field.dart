@@ -31,6 +31,7 @@ class AuthTextField extends StatelessWidget {
         ),
         cursorColor: AppColors.black,
         controller: controller,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
         decoration: InputDecoration(
           hintText: labelText,
           contentPadding: const EdgeInsets.symmetric(

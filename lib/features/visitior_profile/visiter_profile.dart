@@ -839,7 +839,7 @@ class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
             : null,
       ),
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         decoration: BoxDecoration(
           color: AppColors.white,
           borderRadius: BorderRadius.circular(16),

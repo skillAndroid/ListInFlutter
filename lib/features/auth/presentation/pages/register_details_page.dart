@@ -61,17 +61,40 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
   }
 
   void _nextPage() {
-    if (_formKey.currentState!.validate()) {
-      debugPrint("Before nextPage: _currentPage = $_currentPage");
-      _pageController.nextPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-      setState(() {
-        _currentPage++;
-        debugPrint("After nextPage: _currentPage = $_currentPage");
-      });
+    bool canProceed = true;
+
+    switch (_currentPage) {
+      case 0: // Name page
+        canProceed = _nikeNameController.text.isNotEmpty;
+        break;
+      case 1: // Store type page
+        // No validation needed
+        break;
+      case 2: // Phone number page
+        canProceed = _phoneNumberController.text.isNotEmpty;
+        break;
+      case 3: // Password page
+        canProceed = _passwordController.text.isNotEmpty &&
+            _passwordController.text.length >= 6;
+        break;
+      case 4: // Location page
+        // Don't allow proceeding if location isn't selected
+        canProceed = location.name.isNotEmpty;
+        break;
     }
+
+    if (!canProceed) {
+      _formKey.currentState?.validate();
+      return;
+    }
+
+    _pageController.nextPage(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+    setState(() {
+      _currentPage++;
+    });
   }
 
   void _previousPage() {
@@ -346,12 +369,12 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                   controller: _phoneNumberController,
                                   labelText: 'Phone Number',
                                   keyboardType: TextInputType.phone,
-                                  // validator: (value) {
-                                  //   if (value == null || value.isEmpty) {
-                                  //     return 'Please enter your phone number';
-                                  //   }
-                                  //   return null;
-                                  // },
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter your phone number';
+                                    }
+                                    return null;
+                                  },
                                 ),
                               ),
 
@@ -362,15 +385,18 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                   controller: _passwordController,
                                   labelText: 'Password',
                                   obscureText: true,
-                                  // validator: (value) {
-                                  //   if (value == null || value.isEmpty) {
-                                  //     return 'Please enter your password';
-                                  //   }
-                                  //   if (value.length < 6) {
-                                  //     return 'Password must be at least 6 characters';
-                                  //   }
-                                  //   return null;
-                                  // },
+                                  validator: (value) {
+                                    if (_currentPage != 3) {
+                                      return null; // Don't validate if not on password page
+                                    }
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter your password';
+                                    }
+                                    if (value.length < 6) {
+                                      return 'Password must be at least 6 characters';
+                                    }
+                                    return null;
+                                  },
                                 ),
                               ),
                               _buildPage(
@@ -537,11 +563,14 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                             if (result != null) {
                                               setState(() {
                                                 location = result;
+                                                // Stay on the current page, just update the location
                                                 ScaffoldMessenger.of(context)
                                                     .showSnackBar(
                                                   SnackBar(
                                                     content: Text(
-                                                        "${result.name} ?? ${result.coordinates.latitude} // ${result.coordinates.longitude}"),
+                                                        "Location selected: ${location.name}"),
+                                                    duration: const Duration(
+                                                        seconds: 2),
                                                   ),
                                                 );
                                               });
@@ -549,8 +578,11 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                               ScaffoldMessenger.of(context)
                                                   .showSnackBar(
                                                 const SnackBar(
-                                                    content: Text(
-                                                        "No Location selected")),
+                                                  content: Text(
+                                                      "No Location selected"),
+                                                  duration:
+                                                      Duration(seconds: 2),
+                                                ),
                                               );
                                             }
                                           });

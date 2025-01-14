@@ -8,3 +8,4 @@ abstract class UserPublicationsEvent extends Equatable {
 class FetchUserPublications extends UserPublicationsEvent {}
 
 class LoadMoreUserPublications extends UserPublicationsEvent {}
+class RefreshUserPublications extends UserPublicationsEvent {}

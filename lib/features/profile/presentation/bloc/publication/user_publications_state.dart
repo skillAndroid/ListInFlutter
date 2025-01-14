@@ -6,13 +6,15 @@ class UserPublicationsState extends Equatable {
   final bool isLoading;
   final String? error;
   final bool hasReachedEnd;
+  final bool isRefreshing;
   final int currentPage;
-  final bool isInitialLoading; // New field to track initial load state
+  final bool isInitialLoading; 
 
   const UserPublicationsState({
     this.publications = const [],
     this.isLoading = false,
     this.error,
+    this.isRefreshing = false, 
     this.hasReachedEnd = false,
     this.currentPage = 0,
     this.isInitialLoading = false,
@@ -21,6 +23,7 @@ class UserPublicationsState extends Equatable {
   UserPublicationsState copyWith({
     List<PublicationEntity>? publications,
     bool? isLoading,
+    bool? isRefreshing, 
     String? error,
     bool? hasReachedEnd,
     int? currentPage,
@@ -29,9 +32,10 @@ class UserPublicationsState extends Equatable {
     return UserPublicationsState(
       publications: publications ?? this.publications,
       isLoading: isLoading ?? this.isLoading,
-      error: error,
+      isRefreshing: isRefreshing ?? this.isRefreshing,  // Add this
       hasReachedEnd: hasReachedEnd ?? this.hasReachedEnd,
       currentPage: currentPage ?? this.currentPage,
+      error: error,
       isInitialLoading: isInitialLoading ?? this.isInitialLoading,
     );
   }
@@ -40,9 +44,10 @@ class UserPublicationsState extends Equatable {
   List<Object?> get props => [
         publications,
         isLoading,
-        error,
+        isRefreshing,  // Add this
         hasReachedEnd,
         currentPage,
+        error,
         isInitialLoading,
       ];
 }

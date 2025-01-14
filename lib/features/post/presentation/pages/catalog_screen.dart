@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:list_in/config/theme/app_colors.dart';
@@ -13,6 +15,8 @@ import 'package:list_in/features/post/presentation/pages/nessary_details_releted
 import 'package:list_in/features/post/presentation/pages/nessary_details_releted/title_page.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
 import 'package:list_in/features/post/presentation/widgets/page_call_back_button.dart';
+import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_bloc.dart';
+import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_event.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
@@ -101,7 +105,6 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // ignore: deprecated_member_use
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
@@ -216,7 +219,8 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
       builder: (context, value, _) => LinearProgressIndicator(
         value: value,
         backgroundColor: AppColors.containerColor,
-        valueColor: const AlwaysStoppedAnimation<Color>(AppColors.lighterGray),
+        valueColor: AlwaysStoppedAnimation<Color>(
+            AppColors.lighterGray.withOpacity(0.5)),
         minHeight: double.infinity,
       ),
     );
@@ -241,8 +245,9 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
                       width: 24,
                       height: 24,
                       child: CircularProgressIndicator(
-                        color: AppColors.white,
-                        strokeWidth: 2,
+                        color: AppColors.black,
+                        strokeWidth: 4,
+                        strokeCap: StrokeCap.round,
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -306,7 +311,10 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
                                 actions: [
                                   TextButton(
                                     onPressed: () {
-                                      //  Navigator.of(context).pop();
+                                      context
+                                          .read<UserPublicationsBloc>()
+                                          .add(RefreshUserPublications());
+                                      Navigator.of(context).pop();
                                       context.pop();
                                     },
                                     child: const Text('OK'),

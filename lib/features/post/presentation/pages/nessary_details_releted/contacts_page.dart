@@ -50,19 +50,11 @@ class _PhoneSettingsPageState extends State<PhoneSettingsPage> {
 
   // Inside _PhoneSettingsPageState class
 Future<void> _selectTime(BuildContext context, bool isStartTime) async {
-  // Choose one of these implementations:
-  
-  // 1. Themed Material Time Picker:
+ 
   final TimeOfDay? picked = await showThemedTimePicker(
     context: context,
     initialTime: isStartTime ? _startTime ?? TimeOfDay.now() : _endTime ?? TimeOfDay.now(),
   );
-
-  // 2. Cupertino Style Time Picker:
-  // final TimeOfDay? picked = await showCupertinoTimePicker(
-  //   context: context,
-  //   initialTime: isStartTime ? _startTime ?? TimeOfDay.now() : _endTime ?? TimeOfDay.now(),
-  // );
 
   if (picked != null) {
     setState(() {

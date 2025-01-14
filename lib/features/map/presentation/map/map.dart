@@ -37,7 +37,7 @@ class _ListInMapState extends State<ListInMap> {
   final Completer<GoogleMapController> _controllerCompleter = Completer();
   GoogleMapController? _mapController;
   late final CameraPosition _initialCameraPosition;
-  
+
   // Tashkent coordinates: 41.2995, 69.2401
   static const LatLng _defaultLocation = LatLng(41.2995, 69.2401);
 
@@ -69,7 +69,7 @@ class _ListInMapState extends State<ListInMap> {
       target: initialLocation,
       zoom: 20,
     );
-    
+
     _selectedLocationCoordinates = CoordinatesEntity(
       latitude: initialLocation.latitude,
       longitude: initialLocation.longitude,
@@ -296,7 +296,9 @@ class _ListInMapState extends State<ListInMap> {
                                 duration: const Duration(milliseconds: 300),
                                 child: Text(
                                   textAlign: TextAlign.start,
-                                  isLoading ? "Loading..." : _currentLocationName,
+                                  isLoading
+                                      ? "Loading..."
+                                      : _currentLocationName,
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
                                     fontSize: 15,
@@ -326,7 +328,14 @@ class _ListInMapState extends State<ListInMap> {
                           setState(() {
                             _currentSelectedLocation = selectedLocation;
                           });
-                          Navigator.pop(context, _currentSelectedLocation);
+                          Navigator.of(context).pop(selectedLocation);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Please select a location first'),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
                         }
                       },
                       style: ElevatedButton.styleFrom(
@@ -383,7 +392,8 @@ class _ListInMapState extends State<ListInMap> {
     final location = await LocationService()
         .getCurrentLocation()
         // ignore: invalid_return_type_for_catch_error
-        .catchError((_) => const LatLng(41.2995, 69.2401)); // Changed to Tashkent default
+        .catchError((_) =>
+            const LatLng(41.2995, 69.2401)); // Changed to Tashkent default
 
     _moveToLocation(LatLng(location.lat, location.long), 20);
   }
@@ -508,7 +518,8 @@ class _ListInMapState extends State<ListInMap> {
                                   children: [
                                     const Icon(
                                       Icons.location_on,
-                                      color: AppColors.primary,),
+                                      color: AppColors.primary,
+                                    ),
                                     const SizedBox(
                                       width: 8,
                                     ),
@@ -560,4 +571,3 @@ class _ListInMapState extends State<ListInMap> {
     );
   }
 }
-
