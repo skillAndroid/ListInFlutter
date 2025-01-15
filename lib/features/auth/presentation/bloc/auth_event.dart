@@ -14,21 +14,21 @@ class RegisterUserDataSubmitted extends AuthEvent {
   final String phoneNumber;
   final String? email;
   final String password;
-  final String roles;
   final String locationName;
   final double latitude;
   final double longitude;
   final bool isGrantedForPreciseLocation;
+  final UserType userType;
   RegisterUserDataSubmitted({
     required this.nikeName,
     required this.phoneNumber,
     this.email,
     required this.password,
-    required this.roles,
     required this.locationName,
     required this.isGrantedForPreciseLocation,
     required this.longitude,
     required this.latitude,
+    required this.userType,
   });
 }
 
@@ -43,3 +43,31 @@ class EmailVerificationSubmitted extends AuthEvent {
 }
 
 class InputChanged extends AuthEvent {}
+
+enum UserType { individualSeller, storeSeller }
+abstract class RegistrationEvent {}
+class UpdateNikeName extends RegistrationEvent {
+  final String nikeName;
+  UpdateNikeName(this.nikeName);
+}
+
+class UpdatePhoneNumber extends RegistrationEvent {
+  final String phoneNumber;
+  UpdatePhoneNumber(this.phoneNumber);
+}
+
+class UpdatePassword extends RegistrationEvent {
+  final String password;
+  UpdatePassword(this.password);
+}
+
+class UpdateLocation extends RegistrationEvent {
+  final LocationEntity location;
+  UpdateLocation(this.location);
+}
+
+class UpdateUserType extends RegistrationEvent {
+  final UserType userType;
+  UpdateUserType(this.userType);
+}
+

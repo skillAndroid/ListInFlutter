@@ -10,6 +10,7 @@ import 'package:list_in/features/auth/domain/usecases/login_usecase.dart';
 import 'package:list_in/features/auth/domain/usecases/register_user_data.dart';
 import 'package:list_in/features/auth/domain/usecases/signup_usecase.dart';
 import 'package:list_in/features/auth/domain/usecases/verify_email_signup.dart';
+import 'package:list_in/features/map/domain/entities/location_entity.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';
@@ -27,7 +28,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this.verifyEmailSignupUseCase,
     required this.registerUserDataUseCase,
     required this.getStoredEmailUsecase,
-  }) : super(AuthInitial()) {
+  }) : super(const AuthInitial()) {
     on<LoginSubmitted>(_onLoginSubmitted);
     on<SignupSubmitted>(_onSignupSubmitted);
     on<EmailVerificationSubmitted>(_onVerifyEmailSignupSubmitted);
@@ -54,33 +55,48 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     RegisterUserDataSubmitted event,
     Emitter<AuthState> emit,
   ) async {
-    emit(AuthLoading());
+    try {
+      emit(const AuthLoading());
 
-    final storedEmailResult = await getStoredEmailUsecase();
+      final storedEmailResult = await getStoredEmailUsecase();
 
-    if (storedEmailResult == null || storedEmailResult.email == null) {
-      emit(AuthSignUpError(message: 'Stored email not found'));
-      return;
+      if (storedEmailResult?.email == null) {
+        emit(const AuthError(
+          message: 'Stored email not found',
+          type: AuthErrorType.registration,
+        ));
+        return;
+      }
+
+      final result = await registerUserDataUseCase(
+        params: User(
+          nikeName: event.nikeName,
+          phoneNumber: event.phoneNumber,
+          email: storedEmailResult!.email!,
+          password: event.password,
+          locationName: event.locationName,
+          isGrantedForPreciseLocation: event.isGrantedForPreciseLocation,
+          latitude: event.latitude,
+          longitude: event.longitude,
+          roles: event.userType == UserType.individualSeller
+              ? 'INDIVIDUAL_SELLER'
+              : 'BUSINESS_SELLER',
+        ),
+      );
+
+      result.fold(
+        (failure) => emit(AuthError(
+          message: _mapFailureToMessage(failure),
+          type: AuthErrorType.registration,
+        )),
+        (authToken) => emit(RegistrationUserSuccess(authToken: authToken)),
+      );
+    } catch (e) {
+      emit(AuthError(
+        message: 'An unexpected error occurred',
+        type: AuthErrorType.registration,
+      ));
     }
-
-    final result = await registerUserDataUseCase(
-      params: User(
-        nikeName: event.nikeName,
-        phoneNumber: event.phoneNumber,
-        email: storedEmailResult.email!,
-        password: event.password,
-        locationName: event.locationName,
-        isGrantedForPreciseLocation: event.isGrantedForPreciseLocation,
-        latitude: event.latitude,
-        longitude: event.longitude,
-      ),
-    );
-
-    result.fold(
-      (failure) =>
-          emit(AuthSignUpError(message: _mapFailureToMessage(failure))),
-      (authToken) => emit(RegistrationUserSuccess(authToken: authToken)),
-    );
   }
 
   Future<void> _onSignupSubmitted(

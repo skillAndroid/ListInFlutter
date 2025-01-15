@@ -1,28 +1,49 @@
 // auth_state.dart
 part of 'auth_bloc.dart';
 
-abstract class AuthState {}
+abstract class AuthState {
+  const AuthState();
+}
 
-class AuthInitial extends AuthState {}
+class AuthInitial extends AuthState {
+  const AuthInitial();
+}
 
-class AuthLoading extends AuthState {}
+class AuthLoading extends AuthState {
+  const AuthLoading();
+}
 
 class AuthSuccess extends AuthState {
   final AuthToken authToken;
-  AuthSuccess({required this.authToken});
+  const AuthSuccess({required this.authToken});
 }
 
 class RegistrationUserSuccess extends AuthState {
   final AuthToken authToken;
-  RegistrationUserSuccess({required this.authToken});
+  const RegistrationUserSuccess({required this.authToken});
 }
 
 class SignupSuccess extends AuthState {}
 
-class VerificationSuccess extends AuthState {}
+class VerificationSuccess extends AuthState {
+  const VerificationSuccess();
+}
 
-class EmailReceivedSuccess extends AuthState {}
+class AuthError extends AuthState {
+  final String message;
+  final AuthErrorType type;
 
+  const AuthError({
+    required this.message,
+    required this.type,
+  });
+}
+
+enum AuthErrorType { login, signup, verification, registration }
+
+class EmailReceivedSuccess extends AuthState {
+  const EmailReceivedSuccess();
+}
 
 class AuthVerificationError extends AuthState {
   final String message;
@@ -38,3 +59,5 @@ class AuthSignUpError extends AuthState {
   final String message;
   AuthSignUpError({required this.message});
 }
+
+

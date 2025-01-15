@@ -153,8 +153,9 @@ class _LoginPageState extends State<LoginPage> {
                               height: 20,
                               width: 20,
                               child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
+                                strokeWidth: 3,
+                                strokeCap: StrokeCap.round,
+                                color: Colors.black,
                               ),
                             )
                           : const Text(

@@ -2,11 +2,11 @@ import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:list_in/features/auth/presentation/widgets/location_page.dart';
 import 'package:list_in/features/auth/presentation/widgets/auth_text_field.dart';
 import 'package:list_in/features/map/domain/entities/coordinates_entity.dart';
 import 'package:list_in/features/map/domain/entities/location_entity.dart';
@@ -26,15 +26,17 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
   final _formKey = GlobalKey<FormState>();
   final PageController _pageController = PageController();
   final _nikeNameController = TextEditingController();
-
   final _phoneNumberController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  LocationEntity location = const LocationEntity(
-      name: '', coordinates: CoordinatesEntity(latitude: 0, longitude: 0));
+  LocationEntity _location = const LocationEntity(
+    name: '',
+    coordinates: CoordinatesEntity(latitude: 0, longitude: 0),
+  );
 
-  int _currentPage = 0;
+  late int _currentPage;
   final int _totalPages = 5;
+  final UserType _userType = UserType.individualSeller;
   int _selectedOption = 0;
   LocationSharingMode _locationSharingPreference = LocationSharingMode.region;
 
@@ -52,6 +54,12 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _currentPage = 0;
+  }
+
+  @override
   void dispose() {
     _nikeNameController.dispose();
     _phoneNumberController.dispose();
@@ -61,40 +69,30 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
   }
 
   void _nextPage() {
-    bool canProceed = true;
+    if (!_validateCurrentPage()) return;
 
+    if (_currentPage < _totalPages - 1) {
+      FocusScope.of(context).unfocus();
+      _pageController.nextPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  bool _validateCurrentPage() {
     switch (_currentPage) {
-      case 0: // Name page
-        canProceed = _nikeNameController.text.isNotEmpty;
-        break;
-      case 1: // Store type page
-        // No validation needed
-        break;
-      case 2: // Phone number page
-        canProceed = _phoneNumberController.text.isNotEmpty;
-        break;
-      case 3: // Password page
-        canProceed = _passwordController.text.isNotEmpty &&
-            _passwordController.text.length >= 6;
-        break;
-      case 4: // Location page
-        // Don't allow proceeding if location isn't selected
-        canProceed = location.name.isNotEmpty;
-        break;
+      case 0:
+        return _nikeNameController.text.isNotEmpty;
+      case 2:
+        return _phoneNumberController.text.isNotEmpty;
+      case 3:
+        return _passwordController.text.length >= 6;
+      case 4:
+        return _location.name.isNotEmpty;
+      default:
+        return true;
     }
-
-    if (!canProceed) {
-      _formKey.currentState?.validate();
-      return;
-    }
-
-    _pageController.nextPage(
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    );
-    setState(() {
-      _currentPage++;
-    });
   }
 
   void _previousPage() {
@@ -103,27 +101,49 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
-      setState(() {
-        _currentPage--;
-      });
     } else {
       context.pop();
     }
   }
 
-  Future<bool> _onWillPop() async {
-    if (_currentPage > 0) {
-      _previousPage();
-      return false;
+  void _submitRegistration() {
+    if (!_formKey.currentState!.validate()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill all required fields')),
+      );
+      return;
     }
-    return true;
+
+    if (_location.name.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please selection location')),
+      );
+      return;
+    }
+
+    context.read<AuthBloc>().add(
+          RegisterUserDataSubmitted(
+            nikeName: _nikeNameController.text,
+            phoneNumber: _phoneNumberController.text,
+            password: _passwordController.text,
+            isGrantedForPreciseLocation:
+                _locationSharingPreference == LocationSharingMode.precise,
+            locationName: _location.name,
+            latitude: _location.coordinates.latitude,
+            longitude: _location.coordinates.longitude,
+            userType: _userType,
+          ),
+        );
   }
 
   @override
   Widget build(BuildContext context) {
     // ignore: deprecated_member_use
     return WillPopScope(
-      onWillPop: _onWillPop,
+      onWillPop: () async {
+        _previousPage();
+        return false;
+      },
       child: Scaffold(
         body: BlocConsumer<AuthBloc, AuthState>(
           listener: (context, state) {
@@ -212,477 +232,9 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                       ),
                       Expanded(
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 4, vertical: 0),
-                          child: PageView(
-                            controller: _pageController,
-                            physics: const NeverScrollableScrollPhysics(),
-                            children: [
-                              _buildPage(
-                                title: 'What can we call you?',
-                                subtitle:
-                                    'Please enter your name, company name, or a nickname.',
-                                child: AuthTextField(
-                                  controller: _nikeNameController,
-                                  labelText: 'John Doe, Nike, or YourNickname',
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return "Name can't be empty";
-                                    }
-                                    return null;
-                                  },
-                                ),
-                              ),
-                              _buildPage(
-                                title: 'What are you looking for?',
-                                subtitle: 'Please select your preference.',
-                                child: Column(
-                                  children: List.generate(
-                                    options.length,
-                                    (index) {
-                                      return Column(
-                                        children: [
-                                          ElevatedButton(
-                                            onPressed: () {
-                                              setState(() {
-                                                _selectedOption = index;
-                                              });
-                                            },
-                                            style: ButtonStyle(
-                                              padding: WidgetStateProperty.all(
-                                                EdgeInsets.zero,
-                                              ),
-                                              elevation:
-                                                  WidgetStateProperty.all(
-                                                0,
-                                              ),
-                                            ),
-                                            child: Card(
-                                              color: _selectedOption == index
-                                                  ? AppColors.myRedBrown
-                                                      // ignore: deprecated_member_use
-                                                      .withOpacity(0.25)
-                                                  : AppColors.containerColor,
-                                              elevation: 0,
-                                              shape: SmoothRectangleBorder(
-                                                smoothness: 0.8,
-                                                borderRadius:
-                                                    BorderRadius.circular(16),
-                                              ),
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.all(16),
-                                                child: Row(
-                                                  children: [
-                                                    AnimatedContainer(
-                                                      duration: const Duration(
-                                                          milliseconds: 300),
-                                                      width: _selectedOption ==
-                                                              index
-                                                          ? 21
-                                                          : 20,
-                                                      height: _selectedOption ==
-                                                              index
-                                                          ? 21
-                                                          : 20,
-                                                      decoration: BoxDecoration(
-                                                        shape: BoxShape.circle,
-                                                        border: Border.all(
-                                                          color:
-                                                              _selectedOption ==
-                                                                      index
-                                                                  ? AppColors
-                                                                      .black
-                                                                  : AppColors
-                                                                      .grey,
-                                                          width:
-                                                              _selectedOption ==
-                                                                      index
-                                                                  ? 5
-                                                                  : 2,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 16),
-                                                    Expanded(
-                                                      child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Text(
-                                                            options[index]
-                                                                ['title']!,
-                                                            style: TextStyle(
-                                                              fontSize: 19,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w600,
-                                                              color: _selectedOption ==
-                                                                      index
-                                                                  ? AppColors
-                                                                      .black
-                                                                  : AppColors
-                                                                      .black,
-                                                            ),
-                                                          ),
-                                                          const SizedBox(
-                                                              height: 8),
-                                                          Text(
-                                                            options[index][
-                                                                'description']!,
-                                                            style: TextStyle(
-                                                              fontSize: 15,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w400,
-                                                              color: _selectedOption ==
-                                                                      index
-                                                                  ? AppColors
-                                                                      .black
-                                                                  : AppColors
-                                                                      .black,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          if (index < options.length - 1)
-                                            const SizedBox(height: 8),
-                                        ],
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ),
-
-                              _buildPage(
-                                title: 'Your Phone Number',
-                                subtitle:
-                                    'Enter your phone number to stay connected.',
-                                child: AuthTextField(
-                                  controller: _phoneNumberController,
-                                  labelText: 'Phone Number',
-                                  keyboardType: TextInputType.phone,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please enter your phone number';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                              ),
-
-                              _buildPage(
-                                title: 'Secure Your Account',
-                                subtitle: 'Create a strong password.',
-                                child: AuthTextField(
-                                  controller: _passwordController,
-                                  labelText: 'Password',
-                                  obscureText: true,
-                                  validator: (value) {
-                                    if (_currentPage != 3) {
-                                      return null; // Don't validate if not on password page
-                                    }
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please enter your password';
-                                    }
-                                    if (value.length < 6) {
-                                      return 'Password must be at least 6 characters';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                              ),
-                              _buildPage(
-                                title: 'Select Your Location',
-                                subtitle:
-                                    'Tap to select your location on the map.',
-                                child: Column(
-                                  children: [
-                                    Card(
-                                      elevation: 0,
-                                      margin: EdgeInsets.zero,
-                                      color: AppColors.bgColor,
-                                      shape: SmoothRectangleBorder(
-                                        smoothness: 1,
-                                        borderRadius: BorderRadius.circular(16),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(16.0),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                SizedBox(
-                                                  height: 50,
-                                                  width: 150,
-                                                  child: ElevatedButton.icon(
-                                                    onPressed: () {
-                                                      setState(() {
-                                                        _locationSharingPreference =
-                                                            LocationSharingMode
-                                                                .precise;
-                                                      });
-                                                    },
-                                                    icon: const Icon(
-                                                      Icons.location_on,
-                                                    ),
-                                                    label: const Text(
-                                                      style: TextStyle(
-                                                          fontSize: 15,
-                                                          fontFamily:
-                                                              "Poppins"),
-                                                      'Exact Location',
-                                                    ),
-                                                    style: ElevatedButton
-                                                        .styleFrom(
-                                                      elevation: 0,
-                                                      shadowColor:
-                                                          AppColors.transparent,
-                                                      backgroundColor:
-                                                          _locationSharingPreference ==
-                                                                  LocationSharingMode
-                                                                      .precise
-                                                              ? AppColors.black
-                                                              : Colors.grey
-                                                                  .shade300,
-                                                      foregroundColor:
-                                                          _locationSharingPreference ==
-                                                                  LocationSharingMode
-                                                                      .precise
-                                                              ? Colors.white
-                                                              : Colors.black,
-                                                    ),
-                                                  ),
-                                                ),
-                                                const SizedBox(width: 12),
-                                                SizedBox(
-                                                  height: 50,
-                                                  width: 150,
-                                                  child: ElevatedButton.icon(
-                                                    onPressed: () {
-                                                      setState(() {
-                                                        _locationSharingPreference =
-                                                            LocationSharingMode
-                                                                .region;
-                                                      });
-                                                    },
-                                                    icon: const Icon(
-                                                        Icons.location_city),
-                                                    label: const Text(
-                                                        style: TextStyle(
-                                                            fontSize: 15,
-                                                            fontFamily:
-                                                                "Poppins"),
-                                                        'Region Only'),
-                                                    style: ElevatedButton
-                                                        .styleFrom(
-                                                      shadowColor:
-                                                          AppColors.transparent,
-                                                      elevation: 0,
-                                                      backgroundColor:
-                                                          _locationSharingPreference ==
-                                                                  LocationSharingMode
-                                                                      .region
-                                                              ? AppColors.black
-                                                              : Colors.grey
-                                                                  .shade300,
-                                                      foregroundColor:
-                                                          _locationSharingPreference ==
-                                                                  LocationSharingMode
-                                                                      .region
-                                                              ? Colors.white
-                                                              : Colors.black,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            const SizedBox(height: 16),
-                                            Text(
-                                              _locationSharingPreference ==
-                                                      LocationSharingMode
-                                                          .precise
-                                                  ? '• Shares exact coordinates\n• Most accurate for precise services'
-                                                  : '• Shares general area\n• Protects specific location details',
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                color: Colors.grey[700],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      height: 12,
-                                    ),
-
-                                    Container(
-                                      width: double.infinity,
-                                      margin: const EdgeInsets.symmetric(
-                                          horizontal: 0, vertical: 8),
-                                      child: OutlinedButton(
-                                        style: OutlinedButton.styleFrom(
-                                          side: const BorderSide(
-                                              color: AppColors.transparent,
-                                              width: 0),
-                                          foregroundColor: AppColors.black,
-                                          backgroundColor: AppColors.bgColor,
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 16),
-                                          shape: SmoothRectangleBorder(
-                                            smoothness: 1,
-                                            borderRadius:
-                                                BorderRadius.circular(16),
-                                          ),
-                                        ),
-                                        onPressed: () {
-                                          showModalBottomSheet(
-                                            context: context,
-                                            enableDrag: false,
-                                            isScrollControlled: true,
-                                            builder: (BuildContext context) =>
-                                                FractionallySizedBox(
-                                              heightFactor: 1.0,
-                                              child: Scaffold(
-                                                body: ListInMap(),
-                                              ),
-                                            ),
-                                          ).then((result) {
-                                            if (result != null) {
-                                              setState(() {
-                                                location = result;
-                                                // Stay on the current page, just update the location
-                                                ScaffoldMessenger.of(context)
-                                                    .showSnackBar(
-                                                  SnackBar(
-                                                    content: Text(
-                                                        "Location selected: ${location.name}"),
-                                                    duration: const Duration(
-                                                        seconds: 2),
-                                                  ),
-                                                );
-                                              });
-                                            } else {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(
-                                                const SnackBar(
-                                                  content: Text(
-                                                      "No Location selected"),
-                                                  duration:
-                                                      Duration(seconds: 2),
-                                                ),
-                                              );
-                                            }
-                                          });
-                                        },
-                                        child: const Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Icon(
-                                              Icons.map_outlined,
-                                              size: 24,
-                                            ),
-                                            SizedBox(width: 10),
-                                            Text(
-                                              'Open Map',
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      height: 12,
-                                    ),
-                                    if (location.name != "")
-                                      Column(
-                                        children: [
-                                          SmoothClipRRect(
-                                            smoothness: 1,
-                                            borderRadius:
-                                                BorderRadius.circular(16),
-                                            child: SizedBox(
-                                              width: double.infinity,
-                                              height: 200,
-                                              child: GoogleMap(
-                                                key: ValueKey(
-                                                    location.coordinates),
-                                                liteModeEnabled: true,
-                                                initialCameraPosition:
-                                                    CameraPosition(
-                                                  target: LatLng(
-                                                    location
-                                                        .coordinates.latitude,
-                                                    location
-                                                        .coordinates.longitude,
-                                                  ),
-                                                  zoom: 11,
-                                                ),
-                                                markers: {
-                                                  Marker(
-                                                    alpha: 1,
-                                                    rotation: 0.5,
-                                                    markerId: const MarkerId(
-                                                      'selected_location',
-                                                    ),
-                                                    icon: BitmapDescriptor
-                                                        .defaultMarkerWithHue(
-                                                      BitmapDescriptor
-                                                          .hueOrange,
-                                                    ), // Preset colors
-                                                    position: LatLng(
-                                                      location
-                                                          .coordinates.latitude,
-                                                      location.coordinates
-                                                          .longitude,
-                                                    ),
-                                                    infoWindow: InfoWindow(
-                                                        title: location.name),
-                                                  ),
-                                                },
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                            height: 4,
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.all(
-                                              8.0,
-                                            ),
-                                            child: Text(
-                                              location.name,
-                                              style: const TextStyle(
-                                                  fontSize: 14.5,
-                                                  fontWeight: FontWeight.w500),
-                                            ),
-                                          )
-                                        ],
-                                      ),
-                                    //
-                                  ],
-                                ),
-                              )
-                              //
-                            ],
-                          ),
-                        ),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 4, vertical: 0),
+                            child: _buildPageViewBody()),
                       ),
                       Row(
                         children: [
@@ -693,55 +245,9 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                               child: ElevatedButton(
                                 onPressed: state is AuthLoading
                                     ? null
-                                    : _currentPage < 4
-                                        ? _nextPage
-                                        : () {
-                                            if (_formKey.currentState!
-                                                .validate()) {
-                                              // Check if location.name is empty or "Select Location"
-                                              if (location.name.isEmpty ||
-                                                  location.name ==
-                                                      "Select Location") {
-                                                // Show a Scaffold or Alert to the user to select a location
-                                                ScaffoldMessenger.of(context)
-                                                    .showSnackBar(
-                                                  const SnackBar(
-                                                    content: Text(
-                                                        'Please select a valid location.'),
-                                                  ),
-                                                );
-                                              } else {
-                                                // Proceed with the registration if location is valid
-                                                context.read<AuthBloc>().add(
-                                                      RegisterUserDataSubmitted(
-                                                        nikeName:
-                                                            _nikeNameController
-                                                                .text,
-                                                        phoneNumber:
-                                                            _phoneNumberController
-                                                                .text,
-                                                        password:
-                                                            _passwordController
-                                                                .text,
-                                                        roles:
-                                                            'INDIVIDUAL_SELLER',
-                                                        isGrantedForPreciseLocation:
-                                                            _locationSharingPreference ==
-                                                                LocationSharingMode
-                                                                    .precise,
-                                                        locationName:
-                                                            location.name,
-                                                        latitude: location
-                                                            .coordinates
-                                                            .latitude,
-                                                        longitude: location
-                                                            .coordinates
-                                                            .longitude,
-                                                      ),
-                                                    );
-                                              }
-                                            }
-                                          },
+                                    : _currentPage == _totalPages - 1
+                                        ? _submitRegistration
+                                        : _nextPage,
                                 style: ElevatedButton.styleFrom(
                                   padding:
                                       const EdgeInsets.symmetric(vertical: 20),
@@ -779,6 +285,188 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
     );
   }
 
+  Widget _buildPageViewBody() {
+    final List<PageData> pages = [
+      PageData(
+        title: 'What can we call you?',
+        subtitle: 'Please enter your name, company name, or a nickname.',
+        content: AuthTextField(
+          controller: _nikeNameController,
+          labelText: 'John Doe, Nike, or YourNickname',
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return "Name can't be empty";
+            }
+            return null;
+          },
+        ),
+      ),
+      PageData(
+        title: 'What are you looking for?',
+        subtitle: 'Please select your preference.',
+        content: Column(
+          children: List.generate(
+            options.length,
+            (index) {
+              return Column(
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _selectedOption = index;
+                      });
+                    },
+                    style: ButtonStyle(
+                      padding: WidgetStateProperty.all(EdgeInsets.zero),
+                      elevation: WidgetStateProperty.all(0),
+                    ),
+                    child: Card(
+                      color: _selectedOption == index
+                          ? AppColors.myRedBrown.withOpacity(0.25)
+                          : AppColors.containerColor,
+                      elevation: 0,
+                      shape: SmoothRectangleBorder(
+                        smoothness: 0.8,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Row(
+                          children: [
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
+                              width: _selectedOption == index ? 21 : 20,
+                              height: _selectedOption == index ? 21 : 20,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: _selectedOption == index
+                                      ? AppColors.black
+                                      : AppColors.grey,
+                                  width: _selectedOption == index ? 5 : 2,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    options[index]['title']!,
+                                    style: TextStyle(
+                                      fontSize: 19,
+                                      fontWeight: FontWeight.w600,
+                                      color: _selectedOption == index
+                                          ? AppColors.black
+                                          : AppColors.black,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    options[index]['description']!,
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w400,
+                                      color: _selectedOption == index
+                                          ? AppColors.black
+                                          : AppColors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (index < options.length - 1) const SizedBox(height: 8),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+      PageData(
+        title: 'Your Phone Number',
+        subtitle: 'Enter your phone number to stay connected.',
+        content: AuthTextField(
+          controller: _phoneNumberController,
+          labelText: 'Phone Number',
+          keyboardType: TextInputType.phone,
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter your phone number';
+            }
+            return null;
+          },
+        ),
+      ),
+      PageData(
+        title: 'Secure Your Account',
+        subtitle: 'Create a strong password.',
+        content: AuthTextField(
+          controller: _passwordController,
+          labelText: 'Password',
+          obscureText: true,
+          validator: (value) {
+            if (_currentPage != 3) {
+              return null;
+            }
+            if (value == null || value.isEmpty) {
+              return 'Please enter your password';
+            }
+            if (value.length < 6) {
+              return 'Password must be at least 6 characters';
+            }
+            return null;
+          },
+        ),
+      ),
+      PageData(
+        title: 'Select Your Location',
+        subtitle: 'Tap to select your location on the map.',
+        content: LocationSelectorWidget(
+          selectedLocation: _location,
+          locationSharingMode: _locationSharingPreference,
+          onLocationSharingModeChanged: (mode) {
+            setState(() {
+              _locationSharingPreference = mode;
+            });
+          },
+          onOpenMap: _showLocationPicker,
+          onLocationSelected: (location) {
+            setState(() {
+              _location = location;
+            });
+          },
+        ),
+      ),
+    ];
+
+    return PageView.builder(
+      controller: _pageController,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: _totalPages,
+      onPageChanged: (index) {
+        setState(() {
+          _currentPage = index;
+        });
+      },
+      itemBuilder: (context, index) {
+        final page = pages[index];
+        return _buildPage(
+          title: page.title,
+          subtitle: page.subtitle,
+          child: page.content,
+        );
+      },
+    );
+  }
+
+// Add this class to store page data
+
   Widget _buildPage({
     required String title,
     required String subtitle,
@@ -814,4 +502,41 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
       ],
     );
   }
+
+  Future<void> _showLocationPicker() async {
+    final result = await showModalBottomSheet<LocationEntity>(
+      context: context,
+      enableDrag: false,
+      isScrollControlled: true,
+      builder: (BuildContext context) => FractionallySizedBox(
+        heightFactor: 1.0,
+        child: Scaffold(body: ListInMap()),
+      ),
+    );
+
+    if (result != null) {
+      setState(() {
+        _location = result;
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("No Location selected"),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+}
+
+class PageData {
+  final String title;
+  final String subtitle;
+  final Widget content;
+
+  PageData({
+    required this.title,
+    required this.subtitle,
+    required this.content,
+  });
 }

@@ -1,12 +1,10 @@
 // ignore: must_be_immutable
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, invalid_return_type_for_catch_error
 
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:list_in/config/assets/app_icons.dart';
@@ -41,24 +39,32 @@ class _ListInMapState extends State<ListInMap> {
   // Tashkent coordinates: 41.2995, 69.2401
   static const LatLng _defaultLocation = LatLng(41.2995, 69.2401);
 
-  void _onMapCreated(GoogleMapController controller) {
+   void _onMapCreated(GoogleMapController controller) {
     _mapController = controller;
-    _controllerCompleter.complete(controller);
+    if (!_controllerCompleter.isCompleted) {
+      _controllerCompleter.complete(controller);
+    }
   }
 
-  void _moveToLocation(LatLng location, double zoom) {
-    _mapController?.animateCamera(
-      CameraUpdate.newCameraPosition(
-        CameraPosition(
-          target: location,
-          zoom: zoom,
+  Future<void> _moveToLocation(LatLng location, double zoom) async {
+    try {
+      final controller = await _controllerCompleter.future;
+      await controller.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target: location,
+            zoom: zoom,
+          ),
         ),
-      ),
-    );
+      );
+    } catch (e) {
+      debugPrint('Error moving camera: $e');
+    }
   }
 
   String _currentLocationName = "Select Location";
   late CoordinatesEntity _selectedLocationCoordinates;
+  // ignore: unused_field
   late LocationEntity _currentSelectedLocation;
 
   @override
@@ -76,6 +82,8 @@ class _ListInMapState extends State<ListInMap> {
     );
     _initPermission().ignore();
   }
+
+ 
 
   Widget _buildTopGradient() {
     return Container(
@@ -389,11 +397,8 @@ class _ListInMapState extends State<ListInMap> {
   }
 
   Future<void> _fetchCurrentLocation() async {
-    final location = await LocationService()
-        .getCurrentLocation()
-        // ignore: invalid_return_type_for_catch_error
-        .catchError((_) =>
-            const LatLng(41.2995, 69.2401)); // Changed to Tashkent default
+    final location = await LocationService().getCurrentLocation().catchError(
+        (_) => const LatLng(41.2995, 69.2401)); // Changed to Tashkent default
 
     _moveToLocation(LatLng(location.lat, location.long), 20);
   }
@@ -538,9 +543,9 @@ class _ListInMapState extends State<ListInMap> {
                                   ],
                                 ),
                               ),
-                              onTap: () {
+                              onTap: () async {
                                 searchController.clear();
-                                _moveToLocation(
+                                await _moveToLocation(
                                   LatLng(
                                     location.coordinates.latitude,
                                     location.coordinates.longitude,
@@ -552,7 +557,7 @@ class _ListInMapState extends State<ListInMap> {
                                   _selectedLocationCoordinates =
                                       location.coordinates;
                                 });
-                                context.pop();
+                                Navigator.pop(context);
                               },
                             );
                           },
