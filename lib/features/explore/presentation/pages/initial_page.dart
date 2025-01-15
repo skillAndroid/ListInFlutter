@@ -148,11 +148,6 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                 child: Column(
               children: [
                 Text(state.error!),
-                ElevatedButton(
-                    onPressed: () {
-                      context.push(Routes.videosFeed);
-                    },
-                    child: Text("go videos")),
               ],
             )),
           );

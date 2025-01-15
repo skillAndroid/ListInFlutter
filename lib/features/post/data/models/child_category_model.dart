@@ -12,17 +12,22 @@ class ChildCategoryModel {
   String description;
   @HiveField(3)
   List<AttributeModel> attributes;
+  @HiveField(4)
+  String logoUrl;
 
-  ChildCategoryModel(
-      {required this.id,
-      required this.name,
-      required this.description,
-      required this.attributes});
+  ChildCategoryModel({
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.attributes,
+    required this.logoUrl,
+  });
 
   factory ChildCategoryModel.fromJson(Map<String, dynamic> json) {
     return ChildCategoryModel(
       id: json['id'],
       name: json['name'],
+      logoUrl: json['logoUrl'],
       description: json['description'],
       attributes: (json['attributes'] as List)
           .map((attrJson) => AttributeModel.fromJson(attrJson))

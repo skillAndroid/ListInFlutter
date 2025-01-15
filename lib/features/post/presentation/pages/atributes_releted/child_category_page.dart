@@ -1,5 +1,6 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:list_in/config/assets/app_images.dart';
+import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/post/data/models/child_category_model.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
@@ -40,19 +41,20 @@ class ChildCategoryListPage extends StatelessWidget {
                   children: [
                     const SizedBox(width: 4),
                     SizedBox(
-                      width: 56,
+                      width: 60,
                       height: 56,
                       child: Card(
+                        color: AppColors.containerColor,
                         shape: SmoothRectangleBorder(
                           smoothness: 1,
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(0),
                         ),
-                        elevation: 2,
+                        elevation: 0,
                         child: SmoothClipRRect(
                           smoothness: 1,
-                          borderRadius: BorderRadius.circular(10),
-                          child: Image.asset(
-                            AppImages.appLogo,
+                          borderRadius: BorderRadius.circular(0),
+                          child: CachedNetworkImage(
+                            imageUrl: childCategory.logoUrl,
                             fit: BoxFit.cover,
                           ),
                         ),

@@ -12,17 +12,22 @@ class CategoryModel {
   String description;
   @HiveField(3)
   List<ChildCategoryModel> childCategories;
+  @HiveField(4)
+  String logoUrl;
 
-  CategoryModel(
-      {required this.id,
-      required this.name,
-      required this.description,
-      required this.childCategories});
+  CategoryModel({
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.childCategories,
+    required this.logoUrl,
+  });
   factory CategoryModel.fromJson(Map<String, dynamic> json) {
     return CategoryModel(
       id: json['id'] as String,
       name: json['name'] as String,
       description: json['description'] as String? ?? '',
+      logoUrl: json['logoUrl'] as String,
       childCategories: (json['childCategories'] as List?)
               ?.map(
                   (e) => ChildCategoryModel.fromJson(e as Map<String, dynamic>))

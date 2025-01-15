@@ -253,7 +253,7 @@ class PostProvider extends ChangeNotifier {
     }
 
     // Debug printing
-    print("Attribute requests:");
+    debugPrint("Attribute requests:");
     for (var request in attributeRequests) {
       print("Attribute ID: ${request.attributeId}");
       print("Attribute Value IDs: ${request.attributeValueIds.join(', ')}");
@@ -511,6 +511,10 @@ class PostProvider extends ChangeNotifier {
           subHelperText: 'null',
           widgetType: attribute.subWidgetsType,
           subWidgetsType: 'null',
+          filterText: attribute.filterText,
+          subFilterText: attribute.subFilterText,
+          filterWidgetType: attribute.filterWidgetType,
+          subFilterWidgetType: attribute.subFilterWidgetType,
           dataType: 'string',
           values: value.list.map((subModel) {
             return AttributeValueModel(
@@ -580,6 +584,10 @@ class PostProvider extends ChangeNotifier {
                 subHelperText: 'null',
                 widgetType: attribute.subWidgetsType,
                 subWidgetsType: 'null',
+                filterText: attribute.filterText,
+                subFilterText: 'null',
+                filterWidgetType: attribute.filterWidgetType,
+                subFilterWidgetType: 'null',
                 dataType: 'string',
                 values: value.list
                     .where((subModel) =>

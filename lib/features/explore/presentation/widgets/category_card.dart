@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -11,10 +12,24 @@ import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class CategoryCard extends StatefulWidget {
   final CategoryModel category;
+  final int index;
+  final double width;
+  final double height;
+  final double maxWidth;
+  final BoxFit imageFit;
+  final Offset imageOffset;
+  final double radius;
 
   const CategoryCard({
     super.key,
     required this.category,
+    required this.index,
+    required this.maxWidth,
+    required this.imageFit,
+    required this.imageOffset,
+    required this.width,
+    required this.height,
+    required this.radius,
   });
 
   @override
@@ -47,7 +62,7 @@ class _CategoryCardState extends State<CategoryCard>
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(right: 8),
+      padding: const EdgeInsets.only(right: 12),
       child: GestureDetector(
         onTap: () {
           context.read<HomeTreeCubit>().selectCatalog(widget.category);
@@ -67,43 +82,64 @@ class _CategoryCardState extends State<CategoryCard>
         },
         child: ScaleTransition(
           scale: _scaleController,
-          child: SmoothClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(_isPressed ? 0.1 : 0.2),
-                    offset: Offset(0, _isPressed ? 1 : 2),
-                    blurRadius: _isPressed ? 2 : 4,
+          child: Stack(
+            children: [
+              SmoothClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 0),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(_isPressed ? 0.1 : 0.2),
+                        offset: Offset(0, _isPressed ? 1 : 2),
+                        blurRadius: _isPressed ? 2 : 4,
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SmoothClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: SizedBox(
-                      width: 54,
-                      height: 54,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.network(
-                          "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=200",
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Icon(Icons.error, size: 16);
-                          },
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(width: 6),
+                      ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: widget.maxWidth,
+                        ),
+                        child: Text(
+                          widget.category.name,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          softWrap: true,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: AppColors.transparent,
+                            fontWeight: FontWeight.w500,
+                            fontFamily: 'Poppins',
+                          ),
                         ),
                       ),
-                    ),
+                      SmoothClipRRect(
+                        borderRadius: BorderRadius.circular(0),
+                        child: SizedBox(
+                            width: widget.maxWidth,
+                            height: widget.height,
+                            child: SizedBox()),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 6),
-                  Text(
+                ),
+              ),
+              Positioned(
+                top: 8,
+                left: 8,
+                child: SizedBox(
+                  width: widget.maxWidth,
+                  child: Text(
                     widget.category.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    softWrap: true,
                     style: const TextStyle(
                       fontSize: 11,
                       color: AppColors.black,
@@ -111,16 +147,35 @@ class _CategoryCardState extends State<CategoryCard>
                       fontFamily: 'Poppins',
                     ),
                   ),
-                  const SizedBox(width: 12),
-                ],
+                ),
               ),
-            ),
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: Transform.translate(
+                  offset: widget.imageOffset,
+                  child: SmoothClipRRect(
+                    borderRadius: BorderRadius.circular(widget.radius),
+                    child: SizedBox(
+                      width: widget.width,
+                      height: widget.height,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(
+                          widget.radius,
+                        ),
+                        child: CachedNetworkImage(
+                          imageUrl: widget.category.logoUrl,
+                          fit: widget.imageFit,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 }
-
-
-//

@@ -21,16 +21,20 @@ class AttributeModelAdapter extends TypeAdapter<AttributeModel> {
       helperText: fields[1] as String,
       subHelperText: fields[2] as String,
       widgetType: fields[3] as String,
+      filterText: fields[5] as String,
+      subFilterText: fields[6] as String,
+      subFilterWidgetType: fields[8] as String,
+      filterWidgetType: fields[7] as String,
       subWidgetsType: fields[4] as String,
-      dataType: fields[5] as String,
-      values: (fields[6] as List).cast<AttributeValueModel>(),
+      dataType: fields[9] as String,
+      values: (fields[10] as List).cast<AttributeValueModel>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, AttributeModel obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(11)
       ..writeByte(0)
       ..write(obj.attributeKey)
       ..writeByte(1)
@@ -42,8 +46,16 @@ class AttributeModelAdapter extends TypeAdapter<AttributeModel> {
       ..writeByte(4)
       ..write(obj.subWidgetsType)
       ..writeByte(5)
-      ..write(obj.dataType)
+      ..write(obj.filterText)
       ..writeByte(6)
+      ..write(obj.subFilterText)
+      ..writeByte(7)
+      ..write(obj.filterWidgetType)
+      ..writeByte(8)
+      ..write(obj.subFilterWidgetType)
+      ..writeByte(9)
+      ..write(obj.dataType)
+      ..writeByte(10)
       ..write(obj.values);
   }
 

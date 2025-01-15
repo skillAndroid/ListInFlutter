@@ -15,7 +15,6 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
   final Map<String, Map<String, dynamic>> _childCategorySelections = {};
   final Map<String, List<AttributeModel>> _childCategoryDynamicAttributes = {};
 
-
   HomeTreeCubit({
     required this.getCatalogsUseCase,
   }) : super(const HomeTreeState());
@@ -99,14 +98,14 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     Map<AttributeModel, AttributeValueModel> newSelectedAttributeValues =
         Map.from(state.selectedAttributeValues);
 
-    if (attribute.widgetType == 'oneSelectable' ||
-        attribute.widgetType == 'colorSelectable') {
+    if (attribute.filterWidgetType == 'oneSelectable' ||
+        attribute.filterWidgetType == 'colorSelectable') {
       final currentValue = newSelectedValues[attribute.attributeKey];
       if (currentValue == value) return;
 
       newSelectedValues[attribute.attributeKey] = value;
       _handleDynamicAttributeCreation(attribute, value);
-    } else if (attribute.widgetType == 'multiSelectable') {
+    } else if (attribute.filterWidgetType == 'multiSelectable') {
       newSelectedValues.putIfAbsent(
           attribute.attributeKey, () => <AttributeValueModel>[]);
 
@@ -137,7 +136,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
 
       bool alreadyExists = newDynamicAttributes.any((attr) =>
           attr.attributeKey == attribute.attributeKey &&
-          attr.subWidgetsType == 'null' &&
+          attr.subFilterWidgetType == 'null' &&
           attr.values.length == value.list.length &&
           attr.values.every((existingValue) => value.list
               .any((newValue) => existingValue.value == newValue.name)));
@@ -149,6 +148,10 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
           subHelperText: 'null',
           widgetType: attribute.subWidgetsType,
           subWidgetsType: 'null',
+          filterText: attribute.filterText,
+          subFilterText: 'null',
+          filterWidgetType: attribute.filterWidgetType,
+          subFilterWidgetType: 'null',
           dataType: 'string',
           values: value.list.map((subModel) {
             return AttributeValueModel(
@@ -163,7 +166,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
         newDynamicAttributes.removeWhere(
           (attr) =>
               attr.attributeKey == attribute.attributeKey &&
-              attr.subWidgetsType == 'null',
+              attr.subFilterWidgetType == 'null',
         );
 
         newDynamicAttributes.insert(0, newAttribute);
@@ -182,7 +185,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
   }
 
   void confirmMultiSelection(AttributeModel attribute) {
-    if (attribute.widgetType == 'multiSelectable') {
+    if (attribute.filterWidgetType == 'multiSelectable') {
       final selectedValues = state.selectedValues[attribute.attributeKey]
               as List<AttributeValueModel>? ??
           [];
@@ -195,7 +198,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
 
       final dynamicAttributesToAdd = selectedValues
           .where((value) =>
-              attribute.subWidgetsType != 'null' &&
+              attribute.subFilterWidgetType != 'null' &&
               value.list.isNotEmpty &&
               value.list.any((subModel) =>
                   subModel.name != null && subModel.name!.isNotEmpty))
@@ -206,6 +209,10 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
                 subHelperText: 'null',
                 widgetType: attribute.subWidgetsType,
                 subWidgetsType: 'null',
+                filterText: attribute.filterText,
+                subFilterText: 'null',
+                filterWidgetType: attribute.filterWidgetType,
+                subFilterWidgetType: 'null',
                 dataType: 'string',
                 values: value.list
                     .where((subModel) =>
@@ -312,8 +319,8 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     Set<String> processedCombinations = {};
 
     state.selectedAttributeValues.forEach((attribute, value) {
-      if (attribute.widgetType == 'oneSelectable' ||
-          attribute.widgetType == 'colorSelectable') {
+      if (attribute.filterText == 'oneSelectable' ||
+          attribute.filterText == 'colorSelectable') {
         String combinationKey =
             '${value.attributeKeyId}_${value.attributeValueId}';
 
@@ -399,10 +406,10 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
 
   bool isValueSelected(AttributeModel attribute, AttributeValueModel value) {
     final selectedValue = state.selectedValues[attribute.attributeKey];
-    if (attribute.widgetType == 'oneSelectable' ||
-        attribute.widgetType == 'colorSelectable') {
+    if (attribute.filterText == 'oneSelectable' ||
+        attribute.filterText == 'colorSelectable') {
       return selectedValue == value;
-    } else if (attribute.widgetType == 'multiSelectable') {
+    } else if (attribute.filterText == 'multiSelectable') {
       final selectedList = selectedValue as List<AttributeValueModel>?;
       return selectedList?.contains(value) ?? false;
     }
@@ -448,7 +455,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
   }
 
   List<AttributeValueModel> getSelectedValues(AttributeModel attribute) {
-    if (attribute.widgetType == 'multiSelectable') {
+    if (attribute.filterWidgetType == 'multiSelectable') {
       return (state.selectedValues[attribute.attributeKey]
               as List<AttributeValueModel>?) ??
           [];
@@ -457,7 +464,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
   }
 
   void clearSelection(AttributeModel attribute) {
-    if (attribute.widgetType == 'multiSelectable') {
+    if (attribute.filterWidgetType == 'multiSelectable') {
       Map<String, dynamic> newSelectedValues = Map.from(state.selectedValues);
       newSelectedValues[attribute.attributeKey] = <AttributeValueModel>[];
       emit(state.copyWith(selectedValues: newSelectedValues));
@@ -576,6 +583,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
       dynamicAttributes: newDynamicAttributes,
     ));
   }
+
 //
 // Optional helper method to clear attributes for specific widget types
   void clearAttributesByType(String widgetType) {
@@ -630,11 +638,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
       dynamicAttributes: newDynamicAttributes,
     ));
   }
-
-
 }
-
-
 
 extension PostStateGetters on HomeTreeState {
   bool get isLoading => status == PostCreationStatus.loading;
@@ -669,4 +673,4 @@ extension PostStateGetters on HomeTreeState {
     return orderedAttributes;
   }
 }
-//
+
