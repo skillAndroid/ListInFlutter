@@ -141,8 +141,9 @@ class _SignupPageState extends State<SignupPage> {
                               height: 20,
                               width: 20,
                               child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
+                                strokeWidth:  2.5,
+                                strokeCap: StrokeCap.round,
+                                color: Colors.black,
                               ),
                             )
                           : const Text(
@@ -315,7 +316,7 @@ class _SignupPageState extends State<SignupPage> {
                           child: const Text(
                             'Log In',
                             style: TextStyle(
-                              color: AppColors.secondaryColor,
+                              color: AppColors.primary,
                               fontSize: 16,
                               fontFamily: 'Syne',
                               fontWeight: FontWeight.bold,

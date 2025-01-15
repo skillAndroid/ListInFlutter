@@ -173,7 +173,7 @@ class _WelcomePageState extends State<WelcomePage> {
           TextSpan(
             text: 'ListIn',
             style: TextStyle(
-              color: Color.fromARGB(255, 11, 100, 54),
+              color: AppColors.primary,
             ),
           ),
           TextSpan(text: ' World'),

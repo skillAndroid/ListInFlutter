@@ -21,6 +21,24 @@ class _VerificationPageState extends State<VerificationPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   String? _errorMessage;
+  String? _storedEmail;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchStoredEmail();
+  }
+
+  void _fetchStoredEmail() async {
+    final storedEmailResult =
+        await context.read<AuthBloc>().getStoredEmailUsecase();
+    if (storedEmailResult?.email != null) {
+      setState(() {
+        _storedEmail = storedEmailResult!.email;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,12 +50,7 @@ class _VerificationPageState extends State<VerificationPage> {
               _errorMessage = state.message;
             });
             _formKey.currentState?.validate();
-            ScaffoldMessenger.of(context)
-                .showSnackBar(SnackBar(content: Text(state.message)));
           } else if (state is VerificationSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Email Verified!')),
-            );
             context.push(Routes.userRegisterDetails);
           }
         },
@@ -91,24 +104,24 @@ class _VerificationPageState extends State<VerificationPage> {
                     ),
                     const SizedBox(height: 8),
                     RichText(
-                      text: const TextSpan(
+                      text: TextSpan(
                         style: TextStyle(
                             fontFamily: "Poppins",
-                            fontSize: 16,
+                            fontSize: 15,
                             fontWeight: FontWeight.w400,
-                            color: AppColors.lightText // Default text color
+                            color: AppColors.grey // Default text color
                             ),
                         children: [
                           TextSpan(
                             text: 'We send verification code to your ',
                           ),
                           TextSpan(
-                            text: 'sweetfoxnew@gmail.com',
+                            text: _storedEmail ?? 'email', // Use the stored email here
                             style: TextStyle(
                               fontFamily: 'Poppins',
-                              fontSize: 16,
+                              fontSize: 14,
                               fontWeight: FontWeight.w500,
-                              color: AppColors.grey,
+                              color: AppColors.primary,
                             ),
                           ),
                         ],
@@ -173,7 +186,8 @@ class _VerificationPageState extends State<VerificationPage> {
                         ),
                         decoration: BoxDecoration(
                           color: AppColors.bgColor,
-                          border: Border.all(color: AppColors.primary),
+                          border:
+                              Border.all(color: AppColors.primary, width: 2),
                           borderRadius: BorderRadius.circular(16),
                         ),
                       ),
@@ -189,7 +203,7 @@ class _VerificationPageState extends State<VerificationPage> {
                         decoration: BoxDecoration(
                           // ignore: deprecated_member_use
                           color: AppColors.error.withOpacity(0.1),
-                          border: Border.all(color: Colors.red),
+                          border: Border.all(color: Colors.red, width: 2),
                           borderRadius: BorderRadius.circular(16),
                         ),
                       ),
@@ -218,8 +232,9 @@ class _VerificationPageState extends State<VerificationPage> {
                               height: 20,
                               width: 20,
                               child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
+                                strokeWidth: 2.5,
+                                strokeCap: StrokeCap.round,
+                                color: AppColors.black,
                               ),
                             )
                           : const Text(
@@ -251,7 +266,7 @@ class _VerificationPageState extends State<VerificationPage> {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontFamily: "Syne",
-                                color: AppColors.secondaryColor,
+                                color: AppColors.primary,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),

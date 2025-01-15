@@ -153,7 +153,7 @@ class _LoginPageState extends State<LoginPage> {
                               height: 20,
                               width: 20,
                               child: CircularProgressIndicator(
-                                strokeWidth: 3,
+                                strokeWidth: 2.5,
                                 strokeCap: StrokeCap.round,
                                 color: Colors.black,
                               ),
