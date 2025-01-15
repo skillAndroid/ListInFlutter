@@ -198,17 +198,17 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                             'Black': Colors.black,
                           };
 
-                          String chipLabel = attribute.helperText;
-                          if (attribute.widgetType == 'multiSelectable' &&
+                          String chipLabel = attribute.filterText;
+                          if (attribute.filterWidgetType == 'multiSelectable' &&
                               selectedValues.isNotEmpty) {
                             chipLabel =
-                                '${attribute.helperText} (${selectedValues.length})';
+                                '${attribute.filterText} (${selectedValues.length})';
                           } else if (selectedValue != null) {
                             chipLabel = selectedValue.value;
                           }
 
                           Widget? colorIndicator;
-                          if (attribute.widgetType == 'colorSelectable') {
+                          if (attribute.filterWidgetType == 'colorSelectable') {
                             if (selectedValues.isNotEmpty) {
                               colorIndicator = SizedBox(
                                 width: 40,
@@ -776,7 +776,8 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
     Map<String, dynamic> temporarySelections = {};
     final cubit = context.read<HomeTreeCubit>();
 
-    if (attribute.widgetType == 'multiSelectable') {
+    if (attribute.filterWidgetType == 'multiSelectable') {
+      // Create a deep copy of current selections to avoid modifying the original state
       final currentSelections = cubit.getSelectedValues(attribute);
       temporarySelections[attribute.attributeKey] =
           List<AttributeValueModel>.from(currentSelections);
@@ -832,7 +833,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                           Positioned.fill(
                             child: Center(
                               child: Text(
-                                attribute.helperText,
+                                attribute.filterText,
                                 style: const TextStyle(
                                   fontSize: 17,
                                   fontWeight: FontWeight.w600,
@@ -854,7 +855,8 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                   onPressed: () => Navigator.pop(context),
                                   color: AppColors.black,
                                 ),
-                                if (attribute.widgetType == 'multiSelectable' &&
+                                if (attribute.filterWidgetType ==
+                                        'multiSelectable' &&
                                     cubit.getSelectedAttributeValue(
                                             attribute) !=
                                         null)
@@ -908,7 +910,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                       color: AppColors.containerColor,
                     ),
                     Expanded(
-                      child: attribute.widgetType == 'multiSelectable'
+                      child: attribute.filterWidgetType == 'multiSelectable'
                           ? _buildMultiSelectList(
                               context,
                               attribute,
@@ -949,9 +951,9 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
             itemBuilder: (context, index) {
               final value = attribute.values[index];
               final selections = temporarySelections[attribute.attributeKey]
-                  as List<AttributeValueModel>;
+                      as List<AttributeValueModel>? ??
+                  [];
               final isSelected = selections.contains(value);
-
               return Material(
                 color: Colors.transparent,
                 child: InkWell(
@@ -1020,7 +1022,8 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
               onPressed: () {
                 final cubit = context.read<HomeTreeCubit>();
                 final selections = temporarySelections[attribute.attributeKey]
-                    as List<AttributeValueModel>;
+                        as List<AttributeValueModel> ??
+                    [];
 
                 if (selections.isEmpty) {
                   cubit.clearSelectedAttribute(attribute);
@@ -1182,7 +1185,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                           Positioned.fill(
                             child: Center(
                               child: Text(
-                                attribute.helperText,
+                                attribute.filterText,
                                 style: const TextStyle(
                                   fontSize: 17,
                                   fontWeight: FontWeight.w600,
@@ -1318,7 +1321,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
 
   void _showAttributeSelectionUI(
       BuildContext context, AttributeModel attribute) {
-    switch (attribute.widgetType) {
+    switch (attribute.filterWidgetType) {
       case 'colorSelectable':
         _showColorSelectDialog(context, attribute);
         break;

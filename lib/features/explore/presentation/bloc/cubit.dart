@@ -1,4 +1,5 @@
 // post_cubit.dart
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/core/error/failure.dart';
 import 'package:list_in/core/usecases/usecases.dart';
@@ -128,107 +129,152 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
 
   void _handleDynamicAttributeCreation(
       AttributeModel attribute, AttributeValueModel value) {
-    if (attribute.subWidgetsType != 'null' &&
+    if (attribute.subFilterWidgetType != 'null' &&
         value.list.isNotEmpty &&
         value.list[0].name != null) {
-      List<AttributeModel> newDynamicAttributes =
-          List.from(state.dynamicAttributes);
+      try {
+        List<AttributeModel> newDynamicAttributes =
+            List<AttributeModel>.from(state.dynamicAttributes);
 
-      bool alreadyExists = newDynamicAttributes.any((attr) =>
-          attr.attributeKey == attribute.attributeKey &&
-          attr.subFilterWidgetType == 'null' &&
-          attr.values.length == value.list.length &&
-          attr.values.every((existingValue) => value.list
-              .any((newValue) => existingValue.value == newValue.name)));
+        // Check if attribute already exists to prevent duplicates
+        bool alreadyExists = newDynamicAttributes.any((attr) =>
+            attr.attributeKey ==
+            '${attribute.attributeKey} Model - ${value.value}');
 
-      if (!alreadyExists) {
-        final newAttribute = AttributeModel(
-          attributeKey: attribute.attributeKey,
-          helperText: attribute.subHelperText,
-          subHelperText: 'null',
-          widgetType: attribute.subWidgetsType,
-          subWidgetsType: 'null',
-          filterText: attribute.filterText,
-          subFilterText: 'null',
-          filterWidgetType: attribute.filterWidgetType,
-          subFilterWidgetType: 'null',
-          dataType: 'string',
-          values: value.list.map((subModel) {
-            return AttributeValueModel(
-              attributeValueId: subModel.modelId ?? '',
-              attributeKeyId: '',
-              value: subModel.name ?? '',
-              list: [],
+        if (!alreadyExists) {
+          // Remove any existing dynamic attributes for this key first
+          newDynamicAttributes.removeWhere((attr) =>
+              attr.attributeKey.startsWith('${attribute.attributeKey} Model'));
+
+          // Create new attribute with proper null checks
+          final List<AttributeValueModel> validValues = value.list
+              .where((subModel) =>
+                  subModel.name != null &&
+                  subModel.name!.isNotEmpty &&
+                  subModel.modelId != null)
+              .map((subModel) => AttributeValueModel(
+                    attributeValueId: subModel.modelId ?? '',
+                    attributeKeyId: attribute.attributeKey,
+                    value: subModel.name ?? '',
+                    list: [], // Empty list for sub-values
+                  ))
+              .toList();
+
+          if (validValues.isNotEmpty) {
+            final newAttribute = AttributeModel(
+              attributeKey: '${attribute.attributeKey} Model - ${value.value}',
+              helperText: attribute.subHelperText ?? '',
+              subHelperText: 'null',
+              widgetType: attribute.subWidgetsType ?? '',
+              subWidgetsType: 'null',
+              filterText: attribute.subFilterText ?? '',
+              subFilterText: 'null',
+              filterWidgetType: attribute.subFilterWidgetType ?? '',
+              subFilterWidgetType: 'null',
+              dataType: 'string',
+              values: validValues,
             );
-          }).toList(),
-        );
 
-        newDynamicAttributes.removeWhere(
-          (attr) =>
-              attr.attributeKey == attribute.attributeKey &&
-              attr.subFilterWidgetType == 'null',
-        );
+            // Insert at the beginning of the list
+            newDynamicAttributes.insert(0, newAttribute);
 
-        newDynamicAttributes.insert(0, newAttribute);
-
-        emit(state.copyWith(dynamicAttributes: newDynamicAttributes));
+            // Emit new state with updated dynamic attributes
+            emit(state.copyWith(
+              dynamicAttributes: newDynamicAttributes,
+            ));
+          }
+        }
+      } catch (e, stackTrace) {
+        debugPrint('Error creating dynamic attribute: $e');
+        debugPrint('Stack trace: $stackTrace');
+        // Optionally handle the error or show a user message
       }
     }
   }
 
-  void toggleAttributeOptionsVisibility(AttributeModel attribute) {
-    Map<AttributeModel, bool> newVisibility =
-        Map.from(state.attributeOptionsVisibility);
-    newVisibility[attribute] = !(newVisibility[attribute] ?? false);
-
-    emit(state.copyWith(attributeOptionsVisibility: newVisibility));
-  }
-
   void confirmMultiSelection(AttributeModel attribute) {
     if (attribute.filterWidgetType == 'multiSelectable') {
-      final selectedValues = state.selectedValues[attribute.attributeKey]
-              as List<AttributeValueModel>? ??
-          [];
-      if (selectedValues.isEmpty) return;
+      try {
+        final selectedValues = state.selectedValues[attribute.attributeKey]
+                as List<AttributeValueModel>? ??
+            [];
 
-      List<AttributeModel> newDynamicAttributes =
-          List.from(state.dynamicAttributes);
-      newDynamicAttributes.removeWhere((attr) =>
-          attr.attributeKey.startsWith('${attribute.attributeKey} Model'));
+        List<AttributeModel> newDynamicAttributes =
+            List<AttributeModel>.from(state.dynamicAttributes);
 
-      final dynamicAttributesToAdd = selectedValues
-          .where((value) =>
-              attribute.subFilterWidgetType != 'null' &&
-              value.list.isNotEmpty &&
-              value.list.any((subModel) =>
-                  subModel.name != null && subModel.name!.isNotEmpty))
-          .map((value) => AttributeModel(
-                attributeKey:
-                    '${attribute.attributeKey} Model - ${value.value}',
-                helperText: attribute.subHelperText,
-                subHelperText: 'null',
-                widgetType: attribute.subWidgetsType,
-                subWidgetsType: 'null',
-                filterText: attribute.filterText,
-                subFilterText: 'null',
-                filterWidgetType: attribute.filterWidgetType,
-                subFilterWidgetType: 'null',
-                dataType: 'string',
-                values: value.list
-                    .where((subModel) =>
-                        subModel.name != null && subModel.name!.isNotEmpty)
-                    .map((subModel) => AttributeValueModel(
-                          attributeValueId: subModel.modelId ?? '',
-                          attributeKeyId: '',
-                          value: subModel.name ?? '',
-                          list: [],
-                        ))
-                    .toList(),
-              ))
-          .toList();
+        // Clear existing dynamic attributes for this attribute
+        newDynamicAttributes.removeWhere((attr) =>
+            attr.attributeKey.startsWith('${attribute.attributeKey} Model'));
 
-      newDynamicAttributes.insertAll(0, dynamicAttributesToAdd);
-      emit(state.copyWith(dynamicAttributes: newDynamicAttributes));
+        if (selectedValues.isNotEmpty) {
+          final dynamicAttributesToAdd = selectedValues
+              .where((value) =>
+                  value.list.isNotEmpty &&
+                  value.list.any((subModel) =>
+                      subModel.name != null &&
+                      subModel.name!.isNotEmpty &&
+                      subModel.modelId != null))
+              .map((value) {
+            final validSubModels = value.list
+                .where((subModel) =>
+                    subModel.name != null &&
+                    subModel.name!.isNotEmpty &&
+                    subModel.modelId != null)
+                .map((subModel) => AttributeValueModel(
+                      attributeValueId: subModel.modelId ?? '',
+                      attributeKeyId: attribute.attributeKey,
+                      value: subModel.name ?? '',
+                      list: [],
+                    ))
+                .toList();
+
+            return AttributeModel(
+              attributeKey: '${attribute.attributeKey} Model - ${value.value}',
+              helperText: attribute.subHelperText,
+              subHelperText: 'null',
+              widgetType: attribute.subWidgetsType,
+              subWidgetsType: 'null',
+              filterText: attribute.subFilterText,
+              subFilterText: 'null',
+              filterWidgetType: attribute.subFilterWidgetType,
+              subFilterWidgetType: 'null',
+              dataType: 'string',
+              values: validSubModels,
+            );
+          }).toList();
+
+          if (dynamicAttributesToAdd.isNotEmpty) {
+            newDynamicAttributes.insertAll(0, dynamicAttributesToAdd);
+          }
+        }
+
+        emit(state.copyWith(
+          dynamicAttributes: newDynamicAttributes,
+        ));
+      } catch (e, stackTrace) {
+        debugPrint('Error in confirmMultiSelection: $e');
+        debugPrint('Stack trace: $stackTrace');
+        // Optionally handle the error or show a user message
+      }
+    }
+  }
+
+  bool isValueSelected(AttributeModel attribute, AttributeValueModel value) {
+    final selectedValue = state.selectedValues[attribute.attributeKey];
+
+    if (selectedValue == null) return false;
+
+    if (attribute.filterWidgetType == 'multiSelectable') {
+      if (selectedValue is List<AttributeValueModel>) {
+        return selectedValue.contains(value);
+      }
+      return false;
+    } else {
+      // For single select cases (oneSelectable, colorSelectable, etc.)
+      if (selectedValue is AttributeValueModel) {
+        return selectedValue == value;
+      }
+      return false;
     }
   }
 
@@ -404,18 +450,6 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     return state.selectedAttributeValues[attribute];
   }
 
-  bool isValueSelected(AttributeModel attribute, AttributeValueModel value) {
-    final selectedValue = state.selectedValues[attribute.attributeKey];
-    if (attribute.filterText == 'oneSelectable' ||
-        attribute.filterText == 'colorSelectable') {
-      return selectedValue == value;
-    } else if (attribute.filterText == 'multiSelectable') {
-      final selectedList = selectedValue as List<AttributeValueModel>?;
-      return selectedList?.contains(value) ?? false;
-    }
-    return false;
-  }
-
   List<AttributeModel> getOrderedAttributes() {
     if (state.dynamicAttributes.isEmpty) return state.currentAttributes;
 
@@ -455,12 +489,19 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
   }
 
   List<AttributeValueModel> getSelectedValues(AttributeModel attribute) {
+    final value = state.selectedValues[attribute.attributeKey];
+
     if (attribute.filterWidgetType == 'multiSelectable') {
-      return (state.selectedValues[attribute.attributeKey]
-              as List<AttributeValueModel>?) ??
-          [];
+      if (value is List<AttributeValueModel>) {
+        return value;
+      } else if (value is AttributeValueModel) {
+        return [value]; // Convert single value to list
+      }
+    } else if (value is AttributeValueModel) {
+      return [value]; // Return single value as list
     }
-    return [];
+
+    return []; // Return empty list if no value or invalid type
   }
 
   void clearSelection(AttributeModel attribute) {
@@ -596,8 +637,8 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
         List.from(state.dynamicAttributes);
 
     // Get all attributes of the specified type
-    final attributesToClear =
-        state.currentAttributes.where((attr) => attr.widgetType == widgetType);
+    final attributesToClear = state.currentAttributes
+        .where((attr) => attr.filterWidgetType == widgetType);
 
     for (var attribute in attributesToClear) {
       // Clear the selected value
@@ -673,4 +714,3 @@ extension PostStateGetters on HomeTreeState {
     return orderedAttributes;
   }
 }
-
