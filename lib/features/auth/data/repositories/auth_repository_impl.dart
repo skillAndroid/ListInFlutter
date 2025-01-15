@@ -1,7 +1,9 @@
+// ignore_for_file: unused_catch_clause
+
 import 'package:dartz/dartz.dart';
+import 'package:list_in/core/error/exeptions.dart';
 import 'package:list_in/core/error/failure.dart';
 import 'package:list_in/core/network/network_info.dart';
-import 'package:list_in/features/auth/data/models/auth_token_model.dart';
 import 'package:list_in/features/auth/data/sources/auth_local_data_source.dart';
 import 'package:list_in/features/auth/data/sources/auth_remote_data_source.dart';
 import 'package:list_in/features/auth/domain/entities/auth_tokens.dart';
@@ -24,30 +26,36 @@ class AuthRepositoryImpl implements AuthRepository {
   });
 
   @override
-  Future<Either<Failure, AuthToken>> login(Login login) async {
-    if (await networkInfo.isConnected) {
-      try {
-        final result = await authRemoteDataSource.login(login);
-        return result.fold(
-          (error) {
+Future<Either<Failure, AuthToken>> login(Login login) async {
+  if (await networkInfo.isConnected) {
+    try {
+      final result = await authRemoteDataSource.login(login);
+      return result.fold(
+        (error) {
+          // Check the error message to determine the correct Failure type
+          if (error.contains('Invalid credentials') || 
+              error.contains('Invalid email or password')) {
+            return Left(ValidationFailure());
+          } else if (error.contains('timeout') || 
+                    error.contains('Network error')) {
+            return Left(NetworkFailure());
+          } else if (error.contains('Server')) {
             return Left(ServerFailure());
-          },
-          (authToken) async {
-            if (authToken is AuthTokenModel) {
-              await authLocalDataSource.cacheAuthToken(authToken);
-              return Right(authToken);
-            } else {
-              return Left(ServerFailure());
-            }
-          },
-        );
-      } catch (e) {
-        return Left(ServerFailure());
-      }
-    } else {
-      return Left(NetworkFailure());
+          }
+          return Left(UnexpectedFailure());
+        },
+        (authToken) async {
+          await authLocalDataSource.cacheAuthToken(authToken);
+          return Right(authToken);
+        },
+      );
+    } catch (e) {
+      return Left(UnexpectedFailure());
     }
+  } else {
+    return Left(NetworkFailure());
   }
+}
 
   @override
   Future<Either<Failure, AuthToken>> registerUserData(User user) async {

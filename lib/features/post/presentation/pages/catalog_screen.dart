@@ -55,6 +55,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
 
   void _handleNextPage() {
     if (_currentPage < _pageCount - 1) {
+      FocusScope.of(context).unfocus();
       _pageController.nextPage(
         duration: const Duration(milliseconds: 400),
         curve: Curves.easeInOut,

@@ -1,4 +1,4 @@
-///[ServerExeption] To handle server Exeption
+
 class ServerExeption implements Exception {
   final String message;
   ServerExeption({required this.message});
@@ -9,7 +9,6 @@ class ServerExeption implements Exception {
   }
 }
 
-///[BadResponse] To handle bad request exeption
 class BadResponse implements Exception {
   final String message;
   BadResponse({required this.message});
@@ -20,7 +19,6 @@ class BadResponse implements Exception {
   }
 }
 
-///[BadRequestExeption] To handle bad request exeption
 class BadRequestExeption implements Exception {
   final String message;
   BadRequestExeption({required this.message});
@@ -31,7 +29,6 @@ class BadRequestExeption implements Exception {
   }
 }
 
-///[ConnectionExeption] To handle connection error Exeption
 class ConnectionExeption implements Exception {
   final String message;
   ConnectionExeption({required this.message});
@@ -42,27 +39,27 @@ class ConnectionExeption implements Exception {
   }
 }
 
-///[ConnectiontTimeOutExeption] To handle connection time out Exeption
+
 class ConnectiontTimeOutExeption implements Exception {
   ConnectiontTimeOutExeption();
 }
 
-///[UknownExeption] To handle bad request exeption
+
 class UknownExeption implements Exception {
   UknownExeption();
 }
 
-///[NotFoundExeption] To handle bad request exeption
+
 class NotFoundExeption implements Exception {
   NotFoundExeption();
 }
 
-///[AuthExeption] To handle Auth exeption
+
 class AuthExeption implements Exception {
   AuthExeption();
 }
 
-///
+
 class CacheExeption implements Exception {
   final String message;
   CacheExeption({required this.message});
@@ -73,7 +70,7 @@ class CacheExeption implements Exception {
   }
 }
 
-///[UnImplementedExeption] To handle server Exeption
+
 class UnImplementedExeption implements Exception {
   final String message;
   UnImplementedExeption({required this.message});

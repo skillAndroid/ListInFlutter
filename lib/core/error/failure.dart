@@ -2,12 +2,42 @@ abstract class Failure {
   List<dynamic> properties = const <dynamic>[];
 }
 
-class ServerFailure extends Failure {}
+class ServerFailure extends Failure {
+  @override
+  List<Object> get properties => [];
 
-class NetworkFailure extends Failure {}
+  @override
+  String toString() => 'Server Error occurred';
+}
 
-class CacheFailure extends Failure {}
+class NetworkFailure extends Failure {
+  @override
+  List<Object> get properties => [];
 
-class ValidationFailure extends Failure{}
+  @override
+  String toString() => 'Network Error occurred';
+}
 
-class UnexpectedFailure extends Failure{}
+class CacheFailure extends Failure {
+  @override
+  List<Object> get properties => [];
+
+  @override
+  String toString() => 'Cache Error occurred';
+}
+
+class ValidationFailure extends Failure {
+  @override
+  List<Object> get properties => [];
+
+  @override
+  String toString() => 'Validation Error occurred';
+}
+
+class UnexpectedFailure extends Failure {
+  @override
+  List<Object> get properties => [];
+
+  @override
+  String toString() => 'Unexpected Error occurred';
+}

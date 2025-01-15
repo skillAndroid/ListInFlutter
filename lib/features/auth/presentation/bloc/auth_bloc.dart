@@ -133,14 +133,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthInitial());
   }
 
-  String _mapFailureToMessage(Failure failure) {
+ String _mapFailureToMessage(Failure failure) {
     switch (failure.runtimeType) {
-      case ServerFailure _:
-        return 'Server Error';
-      case NetworkFailure _:
-        return 'Network Error';
+      case ServerFailure error:
+        return '$error';
+      case NetworkFailure error:
+        return '$error';
+      case CacheFailure error:
+        return '$error';
+      case ValidationFailure error:
+       return '$error';
+      case UnexpectedFailure _:
+        return 'An unexpected error occurred. Please try again.';
       default:
-        return 'Unexpected Error';
+        return 'Something went wrong. Please try again.';
     }
   }
 }
