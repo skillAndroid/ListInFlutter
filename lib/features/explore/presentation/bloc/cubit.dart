@@ -99,14 +99,14 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     Map<AttributeModel, AttributeValueModel> newSelectedAttributeValues =
         Map.from(state.selectedAttributeValues);
 
-    if (attribute.filterWidgetType == 'oneSelectable' ||
-        attribute.filterWidgetType == 'colorSelectable') {
+    if (attribute.filterWidgetType == 'oneSelectable') {
       final currentValue = newSelectedValues[attribute.attributeKey];
       if (currentValue == value) return;
 
       newSelectedValues[attribute.attributeKey] = value;
       _handleDynamicAttributeCreation(attribute, value);
-    } else if (attribute.filterWidgetType == 'multiSelectable') {
+    } else if (attribute.filterWidgetType == 'multiSelectable' ||
+        attribute.filterWidgetType == 'colorMultiSelectable') {
       newSelectedValues.putIfAbsent(
           attribute.attributeKey, () => <AttributeValueModel>[]);
 
@@ -193,7 +193,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
   }
 
   void confirmMultiSelection(AttributeModel attribute) {
-    if (attribute.filterWidgetType == 'multiSelectable') {
+    if (attribute.filterWidgetType != 'oneSelectable') {
       try {
         final selectedValues = state.selectedValues[attribute.attributeKey]
                 as List<AttributeValueModel>? ??
@@ -264,13 +264,14 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
 
     if (selectedValue == null) return false;
 
-    if (attribute.filterWidgetType == 'multiSelectable') {
+    if (attribute.filterWidgetType == 'multiSelectable' ||
+        attribute.filterWidgetType == 'colorMultiSelectable') {
       if (selectedValue is List<AttributeValueModel>) {
         return selectedValue.contains(value);
       }
       return false;
     } else {
-      // For single select cases (oneSelectable, colorSelectable, etc.)
+      // For single select cases (oneSelectable)
       if (selectedValue is AttributeValueModel) {
         return selectedValue == value;
       }
@@ -365,8 +366,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     Set<String> processedCombinations = {};
 
     state.selectedAttributeValues.forEach((attribute, value) {
-      if (attribute.filterText == 'oneSelectable' ||
-          attribute.filterText == 'colorSelectable') {
+      if (attribute.filterText == 'oneSelectable') {
         String combinationKey =
             '${value.attributeKeyId}_${value.attributeValueId}';
 
@@ -491,7 +491,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
   List<AttributeValueModel> getSelectedValues(AttributeModel attribute) {
     final value = state.selectedValues[attribute.attributeKey];
 
-    if (attribute.filterWidgetType == 'multiSelectable') {
+    if (attribute.filterWidgetType != 'oneSelectable') {
       if (value is List<AttributeValueModel>) {
         return value;
       } else if (value is AttributeValueModel) {
@@ -505,7 +505,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
   }
 
   void clearSelection(AttributeModel attribute) {
-    if (attribute.filterWidgetType == 'multiSelectable') {
+    if (attribute.filterWidgetType != 'oneSelectable') {
       Map<String, dynamic> newSelectedValues = Map.from(state.selectedValues);
       newSelectedValues[attribute.attributeKey] = <AttributeValueModel>[];
       emit(state.copyWith(selectedValues: newSelectedValues));
