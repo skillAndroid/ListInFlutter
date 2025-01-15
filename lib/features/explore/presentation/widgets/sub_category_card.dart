@@ -1,6 +1,6 @@
-
 // ignore_for_file: deprecated_member_use
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -11,10 +11,14 @@ import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class SubcategoryCard extends StatefulWidget {
   final ChildCategoryModel category;
+  final int categoryIndex;
+  final int itemIndex;
 
   const SubcategoryCard({
     super.key,
     required this.category,
+    required this.categoryIndex,
+    required this.itemIndex,
   });
 
   @override
@@ -89,14 +93,18 @@ class _SubcategoryCardState extends State<SubcategoryCard>
                     child: SizedBox(
                       width: 54,
                       height: 54,
-                      child: SmoothClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Image.network(
-                          "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=200",
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Icon(Icons.error, size: 16);
-                          },
+                      child: Padding(
+                        padding: EdgeInsets.all(
+                            ((widget.itemIndex != 7 ) &&
+                                    widget.categoryIndex == 1)
+                                ? 0
+                                : 5),
+                        child: SmoothClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: CachedNetworkImage(
+                            imageUrl: widget.category.logoUrl,
+                            fit: BoxFit.contain,
+                          ),
                         ),
                       ),
                     ),
@@ -114,15 +122,6 @@ class _SubcategoryCardState extends State<SubcategoryCard>
                           fontFamily: 'Poppins',
                         ),
                       ),
-                      if (widget.category.attributes.isNotEmpty)
-                        Text(
-                          '${widget.category.attributes.length} items',
-                          style: TextStyle(
-                            fontSize: 9,
-                            color: Colors.grey[600],
-                            fontFamily: 'Poppins',
-                          ),
-                        ),
                     ],
                   ),
                   const SizedBox(width: 12),

@@ -8,26 +8,31 @@ import 'package:list_in/features/post/data/models/child_category_model.dart';
 class SubcategoriesList extends StatefulWidget {
   final List<ChildCategoryModel> subcategories;
   final String title;
+  final int? categoryIndex; // Added category index
 
   const SubcategoriesList({
     super.key,
     required this.subcategories,
     required this.title,
+    required this.categoryIndex, // New required parameter
   });
 
   @override
-  // ignore: library_private_types_in_public_api
   _SubcategoriesListState createState() => _SubcategoriesListState();
 }
 
 class _SubcategoriesListState extends State<SubcategoriesList> {
-  bool _showAll = false; // To toggle between showing limited and full list.
-
   @override
   Widget build(BuildContext context) {
-    // Determine the subcategories to display based on the toggle state.
-    final displayedSubcategories =
-        _showAll ? widget.subcategories : widget.subcategories.take(7).toList();
+    final itemsPerRow = (widget.subcategories.length / 3).ceil();
+
+    List<List<ChildCategoryModel>> rows = [];
+    for (int i = 0; i < widget.subcategories.length; i += itemsPerRow) {
+      final end = (i + itemsPerRow < widget.subcategories.length)
+          ? i + itemsPerRow
+          : widget.subcategories.length;
+      rows.add(widget.subcategories.sublist(i, end));
+    }
 
     return Container(
       decoration: BoxDecoration(
@@ -40,45 +45,43 @@ class _SubcategoriesListState extends State<SubcategoriesList> {
         children: [
           Padding(
             padding: const EdgeInsets.only(left: 16, bottom: 8),
-            child: Text(
-              widget.title,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Poppins',
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Wrap(
-              spacing: 8, // Horizontal spacing between cards.
-              runSpacing: 8, // Vertical spacing between lines.
-              children: displayedSubcategories
-                  .map((category) => SubcategoryCard(
-                        category: category,
-                      ))
-                  .toList(),
-            ),
-          ),
-          if (widget.subcategories.length > 7)
-            Center(
-              child: TextButton(
-                onPressed: () {
-                  setState(() {
-                    _showAll = !_showAll; // Toggle the state.
-                  });
-                },
-                child: Text(
-                  _showAll ? "Show Less" : "Show All",
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w900,
-                    color: AppColors.green,
+            child: Row(
+              children: [
+                Text(
+                  widget.title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Poppins',
                   ),
                 ),
-              ),
+              ],
             ),
+          ),
+          ...rows
+              .map((rowItems) => SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      child: Row(
+                        children: rowItems
+                            .asMap()
+                            .entries
+                            .map((entry) => Padding(
+                                  padding: const EdgeInsets.only(right: 8),
+                                  child: SubcategoryCard(
+                                    category: entry.value,
+                                    categoryIndex: widget.categoryIndex!,
+                                    itemIndex: entry.key +
+                                        (rows.indexOf(rowItems) * itemsPerRow),
+                                  ),
+                                ))
+                            .toList(),
+                      ),
+                    ),
+                  ))
+              ,
         ],
       ),
     );

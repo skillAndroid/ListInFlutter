@@ -62,7 +62,7 @@ class _CategoryCardState extends State<CategoryCard>
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(right: 12),
+      padding: const EdgeInsets.only(right: 8),
       child: GestureDetector(
         onTap: () {
           context.read<HomeTreeCubit>().selectCatalog(widget.category);
@@ -89,10 +89,10 @@ class _CategoryCardState extends State<CategoryCard>
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 0),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.containerColor2,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(_isPressed ? 0.1 : 0.2),
+                        color: Colors.black.withOpacity(_isPressed ? 0.0 : 0.0),
                         offset: Offset(0, _isPressed ? 1 : 2),
                         blurRadius: _isPressed ? 2 : 4,
                       ),

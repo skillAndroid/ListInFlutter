@@ -146,7 +146,7 @@ class CategoriesList extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.only(left: 16, bottom: 8),
+            padding: const EdgeInsets.only(left: 16, bottom: 4),
             child: Text(
               title,
               style: const TextStyle(

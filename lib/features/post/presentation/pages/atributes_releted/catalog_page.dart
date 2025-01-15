@@ -40,7 +40,7 @@ class CatalogListPage extends StatelessWidget {
                       width: 60,
                       height: 56,
                       child: Card(
-                         color: AppColors.containerColor,
+                        color: AppColors.containerColor,
                         shape: SmoothRectangleBorder(
                           smoothness: 1,
                           borderRadius: BorderRadius.circular(0),

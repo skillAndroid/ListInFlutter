@@ -55,7 +55,7 @@ class ChildCategoryListPage extends StatelessWidget {
                           borderRadius: BorderRadius.circular(0),
                           child: CachedNetworkImage(
                             imageUrl: childCategory.logoUrl,
-                            fit: BoxFit.cover,
+                            fit: BoxFit.contain,
                           ),
                         ),
                       ),
