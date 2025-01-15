@@ -204,7 +204,8 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                   attribute.filterWidgetType ==
                                       'colorMultiSelectable') &&
                               selectedValues.isNotEmpty) {
-                            chipLabel = '${attribute.filterText}(${selectedValues.length})';
+                            chipLabel =
+                                '${attribute.filterText}(${selectedValues.length})';
                           }
 
                           Widget? colorIndicator;
@@ -293,16 +294,6 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                 backgroundColor: AppColors.bgColor,
               ),
               SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) => _buildAdvertisedProduct(
-                        widget.advertisedProducts[index]),
-                    childCount: widget.advertisedProducts.length,
-                  ),
-                ),
-              ),
-              SliverPadding(
                 padding: const EdgeInsets.symmetric(horizontal: 4),
                 sliver: SliverGrid(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -315,6 +306,16 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                     (context, index) => RegularProductCard(
                         product: widget.regularProducts[index]),
                     childCount: widget.regularProducts.length,
+                  ),
+                ),
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) => _buildAdvertisedProduct(
+                        widget.advertisedProducts[index]),
+                    childCount: widget.advertisedProducts.length,
                   ),
                 ),
               ),
@@ -725,7 +726,6 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
     );
   }
 
-//
   Widget _buildMediaContent(
     AdvertisedProductEntity product,
     int pageIndex,

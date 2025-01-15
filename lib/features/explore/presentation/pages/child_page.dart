@@ -37,7 +37,8 @@ class ChildHomeTreePage extends StatefulWidget {
 class _InitialHomeTreePageState extends State<ChildHomeTreePage> {
   final ScrollController _scrollController = ScrollController();
   final SearchController _searchController = SearchController();
-  final ValueNotifier<String?> _currentlyPlayingId = ValueNotifier<String?>(null);
+  final ValueNotifier<String?> _currentlyPlayingId =
+      ValueNotifier<String?>(null);
   final ValueNotifier<Set<int>> _selectedFilters = ValueNotifier<Set<int>>({});
   bool _isSliverAppBarVisible = false;
   final double _scrollThreshold = 800.0;
@@ -56,14 +57,14 @@ class _InitialHomeTreePageState extends State<ChildHomeTreePage> {
         context.read<HomeTreeCubit>().fetchCatalogs();
       }
     });
-    
+
     _initializeVideoTracking();
     _scrollController.addListener(_handleScroll);
   }
 
   void _handleScroll() {
     if (!mounted) return;
-    
+
     final currentPosition = _scrollController.position.pixels;
     if (currentPosition > _scrollThreshold && !_hasPassedThreshold) {
       _hasPassedThreshold = true;
@@ -94,19 +95,19 @@ class _InitialHomeTreePageState extends State<ChildHomeTreePage> {
   @override
   void dispose() {
     _isDisposed = true;
-    
+
     // Remove listeners first
     _scrollController.removeListener(_handleScroll);
-    
+
     // Dispose controllers
     _scrollController.dispose();
     _searchController.dispose();
-    
+
     // Safely dispose notifiers
     if (_currentlyPlayingId.hasListeners) {
       _currentlyPlayingId.dispose();
     }
-    
+
     if (_selectedFilters.hasListeners) {
       _selectedFilters.dispose();
     }
@@ -125,7 +126,7 @@ class _InitialHomeTreePageState extends State<ChildHomeTreePage> {
       }
     }
     _pageNotifiers.clear();
-    
+
     super.dispose();
   }
 
@@ -133,7 +134,9 @@ class _InitialHomeTreePageState extends State<ChildHomeTreePage> {
     if (_isDisposed || !mounted) return;
 
     final notifier = _visibilityNotifiers[id];
-    if (notifier != null && notifier.hasListeners && notifier.value != visibilityFraction) {
+    if (notifier != null &&
+        notifier.hasListeners &&
+        notifier.value != visibilityFraction) {
       notifier.value = visibilityFraction;
       if (mounted) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -153,11 +156,11 @@ class _InitialHomeTreePageState extends State<ChildHomeTreePage> {
 
     for (var entry in _visibilityNotifiers.entries) {
       if (!entry.value.hasListeners) continue;
-      
+
       final visibility = entry.value.value;
       final pageNotifier = _pageNotifiers[entry.key];
       if (pageNotifier == null || !pageNotifier.hasListeners) continue;
-      
+
       final currentPage = pageNotifier.value;
 
       if (visibility > maxVisibility && currentPage == 0 && visibility > 0.7) {
@@ -166,7 +169,8 @@ class _InitialHomeTreePageState extends State<ChildHomeTreePage> {
       }
     }
 
-    if (mostVisibleId != _currentlyPlayingId.value && _currentlyPlayingId.hasListeners) {
+    if (mostVisibleId != _currentlyPlayingId.value &&
+        _currentlyPlayingId.hasListeners) {
       _currentlyPlayingId.value = mostVisibleId;
     }
   }
@@ -213,16 +217,6 @@ class _InitialHomeTreePageState extends State<ChildHomeTreePage> {
                   backgroundColor: AppColors.bgColor,
                 ),
               SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) => _buildAdvertisedProduct(
-                        widget.advertisedProducts[index]),
-                    childCount: widget.advertisedProducts.length,
-                  ),
-                ),
-              ),
-              SliverPadding(
                 padding: const EdgeInsets.symmetric(horizontal: 4),
                 sliver: SliverGrid(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -235,6 +229,16 @@ class _InitialHomeTreePageState extends State<ChildHomeTreePage> {
                     (context, index) => RegularProductCard(
                         product: widget.regularProducts[index]),
                     childCount: widget.regularProducts.length,
+                  ),
+                ),
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) => _buildAdvertisedProduct(
+                        widget.advertisedProducts[index]),
+                    childCount: widget.advertisedProducts.length,
                   ),
                 ),
               ),
