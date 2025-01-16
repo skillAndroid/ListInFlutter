@@ -13,4 +13,9 @@ class AttributeRequestValue {
       'attributeValueIds': attributeValueIds,
     };
   }
+
+  @override
+  String toString() {
+    return 'AttributeRequestValue(attributeId: $attributeId, attributeValueIds: $attributeValueIds)';
+  }
 }

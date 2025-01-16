@@ -149,77 +149,98 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<HomeTreeCubit, HomeTreeState>(
-      builder: (context, state) {
-        final attributes = state.allAttributes;
-        return Scaffold(
-          appBar: _buildAppBar(),
-          body: CustomScrollView(
-            controller: _scrollController,
-            physics: const BouncingScrollPhysics(),
-            slivers: [
-              SliverAppBar(
-                floating: true,
-                snap: true,
-                pinned: false,
-                automaticallyImplyLeading: false,
-                toolbarHeight: 50,
-                flexibleSpace: Column(
-                  children: [
-                    Container(
-                      color: AppColors.bgColor,
-                      height: 50,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        itemCount: attributes.length,
-                        itemBuilder: (context, index) {
-                          final attribute = attributes[index];
-                          final cubit = context.read<HomeTreeCubit>();
-                          final selectedValue =
-                              cubit.getSelectedAttributeValue(attribute);
-                          final selectedValues =
-                              cubit.getSelectedValues(attribute);
+ @override
+Widget build(BuildContext context) {
+  return BlocBuilder<HomeTreeCubit, HomeTreeState>(
+    builder: (context, state) {
+      final attributes = state.allAttributes;
+      return Scaffold(
+        appBar: _buildAppBar(),
+        body: CustomScrollView(
+          controller: _scrollController,
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            SliverAppBar(
+              floating: true,
+              snap: true,
+              pinned: false,
+              automaticallyImplyLeading: false,
+              toolbarHeight: 50,
+              flexibleSpace: Column(
+                children: [
+                  Container(
+                    color: AppColors.bgColor,
+                    height: 50,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      itemCount: attributes.length,
+                      itemBuilder: (context, index) {
+                        final attribute = attributes[index];
+                        final cubit = context.read<HomeTreeCubit>();
+                        final selectedValue = cubit.getSelectedAttributeValue(attribute);
+                        final selectedValues = cubit.getSelectedValues(attribute);
 
-                          // Color mapping
-                          final Map<String, Color> colorMap = {
-                            'Silver': Colors.grey[300]!,
-                            'Pink': Colors.pink,
-                            'Rose Gold': Color(0xFFB76E79),
-                            'Space Gray': Color(0xFF4A4A4A),
-                            'Blue': Colors.blue,
-                            'Yellow': Colors.yellow,
-                            'Green': Colors.green,
-                            'Purple': Colors.purple,
-                            'White': Colors.white,
-                            'Red': Colors.red,
-                            'Black': Colors.black,
-                          };
+                        // Color mapping
+                        final Map<String, Color> colorMap = {
+                          'Silver': Colors.grey[300]!,
+                          'Pink': Colors.pink,
+                          'Rose Gold': Color(0xFFB76E79),
+                          'Space Gray': Color(0xFF4A4A4A),
+                          'Blue': Colors.blue,
+                          'Yellow': Colors.yellow,
+                          'Green': Colors.green,
+                          'Purple': Colors.purple,
+                          'White': Colors.white,
+                          'Red': Colors.red,
+                          'Black': Colors.black,
+                        };
 
-                          String chipLabel = attribute.filterText;
-                          if ((attribute.filterWidgetType ==
-                                      'multiSelectable' ||
-                                  attribute.filterWidgetType ==
-                                      'colorMultiSelectable') &&
-                              selectedValues.isNotEmpty) {
-                            chipLabel =
-                                '${attribute.filterText}(${selectedValues.length})';
+                        // Determine chip label based on selection type and count
+                        String chipLabel;
+                        if (attribute.filterWidgetType == 'oneSelectable') {
+                          // For single select, show selected value name if selected
+                          chipLabel = selectedValue?.value ?? attribute.filterText;
+                        } else {
+                          // For multi-select types
+                          if (selectedValues.isEmpty) {
+                            chipLabel = attribute.filterText;
+                          } else if (selectedValues.length == 1) {
+                            // Show single selected value name
+                            chipLabel = selectedValues.first.value;
+                          } else {
+                            // Show count for multiple selections
+                            chipLabel = '${attribute.filterText}(${selectedValues.length})';
                           }
+                        }
 
-                          Widget? colorIndicator;
-                          if (attribute.filterWidgetType ==
-                                  'colorMultiSelectable' &&
-                              selectedValues.isNotEmpty) {
+                        Widget? colorIndicator;
+                        if (attribute.filterWidgetType == 'colorMultiSelectable' && 
+                            selectedValues.isNotEmpty) {
+                          if (selectedValues.length == 1) {
+                            // Single color indicator
+                            colorIndicator = Container(
+                              width: 16,
+                              height: 16,
+                              decoration: BoxDecoration(
+                                color: colorMap[selectedValues.first.value] ?? Colors.grey,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: (colorMap[selectedValues.first.value] == Colors.white)
+                                      ? Colors.grey
+                                      : Colors.transparent,
+                                  width: 1,
+                                ),
+                              ),
+                            );
+                          } else {
+                            // Stacked color indicators
                             colorIndicator = SizedBox(
-                              width: selectedValues.length > 1 ? 40 : 20,
+                              width: 40,
                               height: 20,
                               child: Stack(
                                 children: [
-                                  for (int i = 0;
-                                      i < selectedValues.length;
-                                      i++)
+                                  for (int i = 0; i < selectedValues.length; i++)
                                     Positioned(
                                       top: 0,
                                       bottom: 0,
@@ -228,14 +249,10 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                         width: 16,
                                         height: 16,
                                         decoration: BoxDecoration(
-                                          color: colorMap[
-                                                  selectedValues[i].value] ??
-                                              Colors.grey,
+                                          color: colorMap[selectedValues[i].value] ?? Colors.grey,
                                           shape: BoxShape.circle,
                                           border: Border.all(
-                                            color: (colorMap[selectedValues[i]
-                                                        .value] ==
-                                                    Colors.white)
+                                            color: (colorMap[selectedValues[i].value] == Colors.white)
                                                 ? Colors.grey
                                                 : Colors.transparent,
                                             width: 1,
@@ -247,52 +264,50 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                               ),
                             );
                           }
+                        }
 
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
-                            child: FilterChip(
-                              showCheckmark: false,
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 4, vertical: 10),
-                              label: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  if (colorIndicator != null) ...[
-                                    colorIndicator,
-                                    const SizedBox(width: 4),
-                                  ],
-                                  Text(
-                                    chipLabel,
-                                    style: TextStyle(
-                                      color: AppColors.black,
-                                    ),
-                                  ),
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: FilterChip(
+                            showCheckmark: false,
+                            padding: EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+                            label: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (colorIndicator != null) ...[
+                                  colorIndicator,
+                                  const SizedBox(width: 4),
                                 ],
-                              ),
-                              side: BorderSide(
-                                  width: 1, color: AppColors.lightGray),
-                              shape: SmoothRectangleBorder(
-                                smoothness: 0.8,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              selected: selectedValue != null ||
-                                  selectedValues.isNotEmpty,
-                              backgroundColor: AppColors.white,
-                              selectedColor: AppColors.white,
-                              onSelected: (_) {
-                                if (attribute.values.isNotEmpty && mounted) {
-                                  _showAttributeSelectionUI(context, attribute);
-                                }
-                              },
+                                Text(
+                                  chipLabel,
+                                  style: TextStyle(
+                                    color: AppColors.black,
+                                  ),
+                                ),
+                              ],
                             ),
-                          );
-                        },
-                      ),
+                            side: BorderSide(width: 1, color: AppColors.lightGray),
+                            shape: SmoothRectangleBorder(
+                              smoothness: 0.8,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            selected: selectedValue != null || selectedValues.isNotEmpty,
+                            backgroundColor: AppColors.white,
+                            selectedColor: AppColors.white,
+                            onSelected: (_) {
+                              if (attribute.values.isNotEmpty && mounted) {
+                                _showAttributeSelectionUI(context, attribute);
+                              }
+                            },
+                          ),
+                        );
+                      },
                     ),
-                  ],
-                ),
-                backgroundColor: AppColors.bgColor,
+                  ),
+                ],
               ),
+              backgroundColor: AppColors.bgColor,
+            ),
               SliverPadding(
                 padding: const EdgeInsets.symmetric(horizontal: 4),
                 sliver: SliverGrid(

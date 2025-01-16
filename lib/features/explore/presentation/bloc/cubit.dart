@@ -38,6 +38,25 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     );
   }
 
+  void printSelectedAttributes() {
+    final selectedValues = state.selectedValues;
+
+    selectedValues.forEach((attributeKey, value) {
+      if (value is List<AttributeValueModel>) {
+        // Print the list of attribute value IDs
+        final valueIds = value.map((v) => v.attributeValueId).join(', ');
+        debugPrint('Attribute Value IDs: $valueIds');
+      } else if (value is AttributeValueModel) {
+        // Print a single attribute value ID
+        debugPrint('Attribute Value IDs: ${value.attributeValueId}');
+      } else {
+        debugPrint('No values');
+      }
+
+      debugPrint('------------');
+    });
+  }
+
   void selectCatalog(CategoryModel catalog) {
     if (state.selectedCatalog == null ||
         state.selectedCatalog?.id != catalog.id) {
@@ -98,13 +117,65 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     Map<String, dynamic> newSelectedValues = Map.from(state.selectedValues);
     Map<AttributeModel, AttributeValueModel> newSelectedAttributeValues =
         Map.from(state.selectedAttributeValues);
+    List<AttributeModel> newDynamicAttributes =
+        List.from(state.dynamicAttributes);
 
     if (attribute.filterWidgetType == 'oneSelectable') {
       final currentValue = newSelectedValues[attribute.attributeKey];
       if (currentValue == value) return;
 
+      // Clear existing dynamic attributes and selections for this parent
+      newDynamicAttributes.removeWhere((attr) =>
+          attr.attributeKey.startsWith('${attribute.attributeKey} Model'));
+      newSelectedValues.removeWhere(
+          (key, _) => key.startsWith('${attribute.attributeKey} Model'));
+      newSelectedAttributeValues.removeWhere((attr, _) =>
+          attr.attributeKey.startsWith('${attribute.attributeKey} Model'));
+
+      // Set the new value
       newSelectedValues[attribute.attributeKey] = value;
-      _handleDynamicAttributeCreation(attribute, value);
+      newSelectedAttributeValues[attribute] = value;
+
+      // Create new dynamic attribute if needed
+      if (attribute.subFilterWidgetType != 'null' &&
+          value.list.isNotEmpty &&
+          value.list[0].name != null) {
+        try {
+          final List<AttributeValueModel> validValues = value.list
+              .where((subModel) =>
+                  subModel.name != null &&
+                  subModel.name!.isNotEmpty &&
+                  subModel.modelId != null)
+              .map((subModel) => AttributeValueModel(
+                    attributeValueId: subModel.modelId ?? '',
+                    attributeKeyId: subModel.attributeId ?? '',
+                    value: subModel.name ?? '',
+                    list: [],
+                  ))
+              .toList();
+
+          if (validValues.isNotEmpty) {
+            final newAttribute = AttributeModel(
+              attributeKey: '${attribute.attributeKey} Model - ${value.value}',
+              helperText: attribute.subHelperText,
+              subHelperText: 'null',
+              widgetType: attribute.subWidgetsType,
+              subWidgetsType: 'null',
+              filterText: attribute.subFilterText,
+              subFilterText: 'null',
+              filterWidgetType: attribute.subFilterWidgetType,
+              subFilterWidgetType: 'null',
+              dataType: 'string',
+              values: validValues,
+            );
+
+            newDynamicAttributes.insert(0, newAttribute);
+          }
+        } catch (e, stackTrace) {
+          debugPrint('Error creating dynamic attribute: $e');
+          debugPrint('Stack trace: $stackTrace');
+        }
+      }
     } else if (attribute.filterWidgetType == 'multiSelectable' ||
         attribute.filterWidgetType == 'colorMultiSelectable') {
       newSelectedValues.putIfAbsent(
@@ -114,82 +185,25 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
           as List<AttributeValueModel>;
       if (list.contains(value)) {
         list.remove(value);
+
+        // Remove dynamic attributes related to the removed value
+        newDynamicAttributes
+            .removeWhere((attr) => attr.attributeKey.contains(value.value));
+
+        // Clear selections for removed dynamic attributes
+        newSelectedValues.removeWhere((key, _) => key.contains(value.value));
+        newSelectedAttributeValues
+            .removeWhere((attr, _) => attr.attributeKey.contains(value.value));
       } else {
         list.add(value);
       }
     }
 
-    newSelectedAttributeValues[attribute] = value;
-
     emit(state.copyWith(
       selectedValues: newSelectedValues,
       selectedAttributeValues: newSelectedAttributeValues,
+      dynamicAttributes: newDynamicAttributes,
     ));
-  }
-
-  void _handleDynamicAttributeCreation(
-      AttributeModel attribute, AttributeValueModel value) {
-    if (attribute.subFilterWidgetType != 'null' &&
-        value.list.isNotEmpty &&
-        value.list[0].name != null) {
-      try {
-        List<AttributeModel> newDynamicAttributes =
-            List<AttributeModel>.from(state.dynamicAttributes);
-
-        // Check if attribute already exists to prevent duplicates
-        bool alreadyExists = newDynamicAttributes.any((attr) =>
-            attr.attributeKey ==
-            '${attribute.attributeKey} Model - ${value.value}');
-
-        if (!alreadyExists) {
-          // Remove any existing dynamic attributes for this key first
-          newDynamicAttributes.removeWhere((attr) =>
-              attr.attributeKey.startsWith('${attribute.attributeKey} Model'));
-
-          // Create new attribute with proper null checks
-          final List<AttributeValueModel> validValues = value.list
-              .where((subModel) =>
-                  subModel.name != null &&
-                  subModel.name!.isNotEmpty &&
-                  subModel.modelId != null)
-              .map((subModel) => AttributeValueModel(
-                    attributeValueId: subModel.modelId ?? '',
-                    attributeKeyId: attribute.attributeKey,
-                    value: subModel.name ?? '',
-                    list: [], // Empty list for sub-values
-                  ))
-              .toList();
-
-          if (validValues.isNotEmpty) {
-            final newAttribute = AttributeModel(
-              attributeKey: '${attribute.attributeKey} Model - ${value.value}',
-              helperText: attribute.subHelperText ?? '',
-              subHelperText: 'null',
-              widgetType: attribute.subWidgetsType ?? '',
-              subWidgetsType: 'null',
-              filterText: attribute.subFilterText ?? '',
-              subFilterText: 'null',
-              filterWidgetType: attribute.subFilterWidgetType ?? '',
-              subFilterWidgetType: 'null',
-              dataType: 'string',
-              values: validValues,
-            );
-
-            // Insert at the beginning of the list
-            newDynamicAttributes.insert(0, newAttribute);
-
-            // Emit new state with updated dynamic attributes
-            emit(state.copyWith(
-              dynamicAttributes: newDynamicAttributes,
-            ));
-          }
-        }
-      } catch (e, stackTrace) {
-        debugPrint('Error creating dynamic attribute: $e');
-        debugPrint('Stack trace: $stackTrace');
-        // Optionally handle the error or show a user message
-      }
-    }
   }
 
   void confirmMultiSelection(AttributeModel attribute) {
@@ -199,10 +213,12 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
                 as List<AttributeValueModel>? ??
             [];
 
+        // Print final selection for multi-select after confirmation
+
         List<AttributeModel> newDynamicAttributes =
             List<AttributeModel>.from(state.dynamicAttributes);
 
-        // Clear existing dynamic attributes for this attribute
+        // Rest of your existing confirmMultiSelection logic...
         newDynamicAttributes.removeWhere((attr) =>
             attr.attributeKey.startsWith('${attribute.attributeKey} Model'));
 
@@ -247,14 +263,13 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
             newDynamicAttributes.insertAll(0, dynamicAttributesToAdd);
           }
         }
-
+        printSelectedAttributes();
         emit(state.copyWith(
           dynamicAttributes: newDynamicAttributes,
         ));
       } catch (e, stackTrace) {
         debugPrint('Error in confirmMultiSelection: $e');
         debugPrint('Stack trace: $stackTrace');
-        // Optionally handle the error or show a user message
       }
     }
   }
@@ -359,87 +374,6 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
       catalogHistory: [],
       childCategoryHistory: [],
     ));
-  }
-
-  List<AttributeRequestValue> getAttributeRequestsForPost() {
-    List<AttributeRequestValue> requests = [];
-    Set<String> processedCombinations = {};
-
-    state.selectedAttributeValues.forEach((attribute, value) {
-      if (attribute.filterText == 'oneSelectable') {
-        String combinationKey =
-            '${value.attributeKeyId}_${value.attributeValueId}';
-
-        if (!processedCombinations.contains(combinationKey)) {
-          processedCombinations.add(combinationKey);
-
-          if (value.attributeKeyId.isNotEmpty &&
-              value.attributeValueId.isNotEmpty) {
-            requests.add(AttributeRequestValue(
-              attributeId: value.attributeKeyId,
-              attributeValueIds: [value.attributeValueId],
-            ));
-          }
-
-          // Handle child attributes
-          if (value.list.isNotEmpty &&
-              value.list.first.attributeId != null &&
-              value.list.first.modelId != null) {
-            String childKey =
-                '${value.list.first.attributeId}_${value.list.first.modelId}';
-
-            if (!processedCombinations.contains(childKey) &&
-                value.list.first.attributeId!.isNotEmpty &&
-                value.list.first.modelId!.isNotEmpty) {
-              processedCombinations.add(childKey);
-              requests.add(AttributeRequestValue(
-                attributeId: value.list.first.attributeId!,
-                attributeValueIds: [value.list.first.modelId!],
-              ));
-            }
-          }
-        }
-      }
-    });
-
-    state.selectedValues.forEach((key, value) {
-      if (value is List<AttributeValueModel>) {
-        List<AttributeValueModel> values = value;
-        if (values.isNotEmpty) {
-          String attributeId = values.first.attributeKeyId;
-          List<String> valueIds =
-              values.map((v) => v.attributeValueId).toList();
-
-          if (attributeId.isNotEmpty && valueIds.isNotEmpty) {
-            requests.add(AttributeRequestValue(
-              attributeId: attributeId,
-              attributeValueIds: valueIds,
-            ));
-
-            for (var value in values) {
-              if (value.list.isNotEmpty &&
-                  value.list.first.attributeId != null &&
-                  value.list.first.modelId != null) {
-                String childKey =
-                    '${value.list.first.attributeId}_${value.list.first.modelId}';
-
-                if (!processedCombinations.contains(childKey) &&
-                    value.list.first.attributeId!.isNotEmpty &&
-                    value.list.first.modelId!.isNotEmpty) {
-                  processedCombinations.add(childKey);
-                  requests.add(AttributeRequestValue(
-                    attributeId: value.list.first.attributeId!,
-                    attributeValueIds: [value.list.first.modelId!],
-                  ));
-                }
-              }
-            }
-          }
-        }
-      }
-    });
-
-    return requests;
   }
 
   bool isAttributeOptionsVisible(AttributeModel attribute) {
@@ -625,8 +559,6 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     ));
   }
 
-//
-// Optional helper method to clear attributes for specific widget types
   void clearAttributesByType(String widgetType) {
     Map<String, dynamic> newSelectedValues = Map.from(state.selectedValues);
     Map<AttributeModel, bool> newVisibility =
