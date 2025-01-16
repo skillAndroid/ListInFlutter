@@ -19,6 +19,21 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
   HomeTreeCubit({
     required this.getCatalogsUseCase,
   }) : super(HomeTreeState());
+
+  void setPriceRange(double? from, double? to) {
+    emit(state.copyWith(
+      priceFrom: from,
+      priceTo: to,
+    ));
+  }
+
+  void clearPriceRange() {
+    emit(state.copyWith(
+      priceFrom: null,
+      priceTo: null,
+    ));
+  }
+
   void getAtributesForPost() {
     final List<AttributeRequestValue> attributeRequests = [];
     final Set<String> processedCombinations = {};

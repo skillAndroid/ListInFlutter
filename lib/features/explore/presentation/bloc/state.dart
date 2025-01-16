@@ -24,6 +24,8 @@ class HomeTreeState {
   final List<AttributeRequestValue> attributeRequests;
   final PostCreationStatus postCreationState;
   final String? postCreationError;
+  final double? priceFrom;
+  final double? priceTo;
 
   HomeTreeState({
     this.catalogs,
@@ -43,6 +45,8 @@ class HomeTreeState {
     List<AttributeRequestValue>? attributeRequests,
     this.postCreationState = PostCreationStatus.initial,
     this.postCreationError,
+    this.priceFrom,
+    this.priceTo,
   })  : currentAttributes = currentAttributes ?? [],
         dynamicAttributes = dynamicAttributes ?? [],
         selectedValues = selectedValues ?? {},
@@ -72,6 +76,8 @@ class HomeTreeState {
     List<AttributeRequestValue>? attributeRequests,
     PostCreationStatus? postCreationState,
     String? postCreationError,
+    double? priceFrom,
+    double? priceTo,
   }) {
     return HomeTreeState(
       catalogs: catalogs ?? this.catalogs,
@@ -96,6 +102,8 @@ class HomeTreeState {
       attributeRequests: attributeRequests ?? this.attributeRequests,
       postCreationState: postCreationState ?? this.postCreationState,
       postCreationError: postCreationError ?? this.postCreationError,
+      priceFrom: priceFrom ?? this.priceFrom,
+      priceTo: priceTo ?? this.priceTo,
     );
   }
 

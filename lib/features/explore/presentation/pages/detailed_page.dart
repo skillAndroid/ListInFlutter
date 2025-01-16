@@ -174,9 +174,48 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
                         padding: const EdgeInsets.symmetric(horizontal: 8),
-                        itemCount: attributes.length,
+                        itemCount: attributes.length + 1,
                         itemBuilder: (context, index) {
-                          final attribute = attributes[index];
+                          if (index == 0) {
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 2.5),
+                              child: FilterChip(
+                                showCheckmark: false,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 2,
+                                  vertical: 10,
+                                ),
+                                label: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      "Price",
+                                      style: TextStyle(
+                                        color: AppColors.black,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                side: BorderSide(
+                                  width: 1,
+                                  color: AppColors.lightGray,
+                                ),
+                                shape: SmoothRectangleBorder(
+                                  smoothness: 0.8,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                selected: state.priceFrom != null ||
+                                    state.priceTo != null,
+                                backgroundColor: AppColors.white,
+                                selectedColor: AppColors.white,
+                                onSelected: (_) =>
+                                    _showPriceRangeBottomSheet(context),
+                              ),
+                            );
+                          }
+
+                          final attribute = attributes[index - 1];
                           final cubit = context.read<HomeTreeCubit>();
                           final selectedValue =
                               cubit.getSelectedAttributeValue(attribute);
@@ -281,7 +320,8 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                           }
 
                           return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 2.5),
                             child: FilterChip(
                               showCheckmark: false,
                               padding: EdgeInsets.symmetric(
@@ -802,8 +842,8 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
       context: context,
       useRootNavigator: true,
       shape: SmoothRectangleBorder(
-        smoothness: 1,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        smoothness: 0.8,
+        borderRadius: BorderRadius.circular(20),
       ),
       backgroundColor: Colors.white,
       isScrollControlled: true,
@@ -830,11 +870,11 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                   children: [
                     // Drag handle
                     Container(
-                      margin: const EdgeInsets.only(top: 8),
+                      margin: EdgeInsets.only(top: 8),
                       width: 40,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: AppColors.lightGray,
+                        color: Colors.grey[300],
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -849,10 +889,9 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                             child: Center(
                               child: Text(
                                 attribute.filterText,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 18,
-                                  fontWeight: FontWeight.w600,
-                                  color: CupertinoColors.black,
+                                  fontWeight: FontWeight.bold,
                                 ),
                                 textAlign: TextAlign.center,
                                 overflow: TextOverflow.ellipsis,
@@ -866,9 +905,8 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 IconButton(
-                                  icon: const Icon(Ionicons.close),
+                                  icon: const Icon(Icons.close_rounded),
                                   onPressed: () => Navigator.pop(context),
-                                  color: AppColors.black,
                                 ),
                                 if (attribute.filterWidgetType ==
                                         'multiSelectable' &&
@@ -886,12 +924,11 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                           horizontal: 8, vertical: 3),
                                       foregroundColor: AppColors.black,
                                     ),
-                                    child: const Text(
-                                      'Clear All',
+                                    child: Text(
+                                      'Clear',
                                       style: TextStyle(
-                                        fontSize: 14,
-                                        color: AppColors.error,
-                                        fontWeight: FontWeight.w600,
+                                        color: Colors.grey[600],
+                                        fontSize: 16,
                                       ),
                                     ),
                                   )
@@ -908,15 +945,14 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                       padding: EdgeInsets.symmetric(
                                           horizontal: 4, vertical: 0),
                                       foregroundColor: AppColors.black,
-                                      backgroundColor: AppColors.containerColor,
                                     ),
-                                    child: const Text('clear',
-                                        style: TextStyle(
-                                          fontSize: 15,
-                                          letterSpacing: 0.4,
-                                          color: AppColors.green,
-                                          fontWeight: FontWeight.w600,
-                                        )),
+                                    child: Text(
+                                      'clear',
+                                      style: TextStyle(
+                                        color: Colors.grey[600],
+                                        fontSize: 16,
+                                      ),
+                                    ),
                                   )
                                 else
                                   const SizedBox(width: 48),
@@ -1060,6 +1096,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                 Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
                 padding:
                     const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                 shape: SmoothRectangleBorder(
@@ -1070,9 +1107,10 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
               child: Text(
                 'Apply (${(temporarySelections[attribute.attributeKey] as List).length})',
                 style: const TextStyle(
-                  fontSize: 17,
-                  fontFamily: "Syne",
-                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                  color: AppColors.white,
+                  fontFamily: "Poppins",
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
@@ -1185,8 +1223,8 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
       context: context,
       useRootNavigator: true,
       shape: SmoothRectangleBorder(
-        smoothness: 1,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+        smoothness: 0.8,
+        borderRadius: BorderRadius.circular(20),
       ),
       backgroundColor: Colors.white,
       isScrollControlled: true,
@@ -1212,13 +1250,16 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                 return Column(
                   children: [
                     Container(
-                      margin: const EdgeInsets.only(top: 8),
+                      margin: EdgeInsets.only(top: 8),
                       width: 40,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: AppColors.lightGray,
+                        color: Colors.grey[300],
                         borderRadius: BorderRadius.circular(2),
                       ),
+                    ),
+                    SizedBox(
+                      height: 4,
                     ),
                     SizedBox(
                       height: 48,
@@ -1230,9 +1271,8 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                               child: Text(
                                 attribute.filterText,
                                 style: const TextStyle(
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.w600,
-                                  color: CupertinoColors.black,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
                                 ),
                                 textAlign: TextAlign.center,
                                 overflow: TextOverflow.ellipsis,
@@ -1249,7 +1289,9 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                   onPressed: () => Navigator.pop(context),
                                   color: AppColors.black,
                                 ),
-                                if (cubit.getSelectedValues(attribute).isNotEmpty)
+                                if (cubit
+                                    .getSelectedValues(attribute)
+                                    .isNotEmpty)
                                   TextButton(
                                     onPressed: () {
                                       cubit.clearAllSelectedAttributes();
@@ -1261,11 +1303,11 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                           horizontal: 8, vertical: 3),
                                       foregroundColor: AppColors.black,
                                     ),
-                                    child: const Text(
-                                      'Clear All',
+                                    child: Text(
+                                      'Clear',
                                       style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
+                                        color: Colors.grey[600],
+                                        fontSize: 16,
                                       ),
                                     ),
                                   )
@@ -1399,6 +1441,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                             Navigator.pop(context);
                           },
                           style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
                             padding: const EdgeInsets.symmetric(
                                 vertical: 16, horizontal: 16),
                             shape: SmoothRectangleBorder(
@@ -1409,8 +1452,9 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                           child: Text(
                             'Apply (${(temporarySelections[attribute.attributeKey] as List).length})',
                             style: const TextStyle(
-                              fontSize: 17,
-                              fontFamily: "Syne",
+                              fontSize: 16,
+                              color: AppColors.white,
+                              fontFamily: "Poppins",
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -1438,5 +1482,282 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
         _showSelectionBottomSheet(context, attribute);
         break;
     }
+  }
+
+  void _showPriceRangeBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useRootNavigator: true,
+      backgroundColor: Colors.white,
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: PriceRangeBottomSheet(),
+      ),
+    );
+  }
+}
+
+// Price formatter utility
+String formatPrice(String value) {
+  if (value.isEmpty) return '';
+
+  // Convert to number and back to string to remove any non-numeric characters
+  final number = double.tryParse(value.replaceAll(' ', ''));
+  if (number == null) return value;
+
+  // Convert to int to remove decimal places and format with spaces
+  final parts = number.toInt().toString().split('').reversed.toList();
+
+  String formatted = '';
+  for (var i = 0; i < parts.length; i++) {
+    if (i > 0 && i % 3 == 0) {
+      formatted = ' $formatted';
+    }
+    formatted = parts[i] + formatted;
+  }
+
+  return formatted;
+}
+
+class PriceRangeBottomSheet extends StatefulWidget {
+  const PriceRangeBottomSheet({super.key});
+
+  @override
+  _PriceRangeBottomSheetState createState() => _PriceRangeBottomSheetState();
+}
+
+class _PriceRangeBottomSheetState extends State<PriceRangeBottomSheet> {
+  late TextEditingController _fromController;
+  late TextEditingController _toController;
+  late HomeTreeState currentState;
+
+  @override
+  void initState() {
+    super.initState();
+    currentState = context.read<HomeTreeCubit>().state;
+    _fromController = TextEditingController(
+      text: currentState.priceFrom?.toInt().toString() ?? '',
+    );
+    _toController = TextEditingController(
+      text: currentState.priceTo?.toInt().toString() ?? '',
+    );
+  }
+
+  @override
+  void dispose() {
+    _fromController.dispose();
+    _toController.dispose();
+    super.dispose();
+  }
+
+  void _onFromChanged(String value) {
+    final formatted = formatPrice(value);
+    if (formatted != value) {
+      _fromController.value = TextEditingValue(
+        text: formatted,
+        selection: TextSelection.collapsed(offset: formatted.length),
+      );
+    }
+  }
+
+  void _onToChanged(String value) {
+    final formatted = formatPrice(value);
+    if (formatted != value) {
+      _toController.value = TextEditingValue(
+        text: formatted,
+        selection: TextSelection.collapsed(offset: formatted.length),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SmoothClipRRect(
+      smoothness: 0.8,
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        color: Colors.white,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Drag handle
+            Container(
+              margin: EdgeInsets.only(top: 8),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+
+            // Header with close button and title
+            Container(
+              padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Transform.translate(
+                      offset: Offset(-4, 0),
+                      child: IconButton(
+                        icon: Icon(Icons.close_rounded),
+                        onPressed: () => Navigator.pop(context),
+                        padding: EdgeInsets.only(),
+                        constraints: BoxConstraints(),
+                        splashRadius: 24,
+                      ),
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () {
+                        context.read<HomeTreeCubit>().clearPriceRange();
+                        Navigator.pop(context);
+                      },
+                      child: Text(
+                        'Clear',
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Centered title
+                  Text(
+                    'Price Range',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Price range inputs
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _fromController,
+                          keyboardType: TextInputType.number,
+                          onChanged: _onFromChanged,
+                          decoration: InputDecoration(
+                            labelText: 'From',
+                            prefixText: '\$ ',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: Theme.of(context).primaryColor,
+                                width: 2,
+                              ),
+                            ),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 16,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 6),
+                        child: Container(
+                          width: 8,
+                          height: 2,
+                          color: Colors.grey[300],
+                        ),
+                      ),
+                      Expanded(
+                        child: TextField(
+                          controller: _toController,
+                          keyboardType: TextInputType.number,
+                          onChanged: _onToChanged,
+                          decoration: InputDecoration(
+                            labelText: 'To',
+                            prefixText: '\$ ',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: Theme.of(context).primaryColor,
+                                width: 2,
+                              ),
+                            ),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 16,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            // Apply button at the bottom
+            Container(
+              padding: EdgeInsets.symmetric(vertical: 0, horizontal: 24),
+              width: double.infinity,
+              child: Column(
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      final from = double.tryParse(
+                          _fromController.text.replaceAll(' ', ''));
+                      final to = double.tryParse(
+                          _toController.text.replaceAll(' ', ''));
+                      context.read<HomeTreeCubit>().setPriceRange(from, to);
+                      Navigator.pop(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                      shape: SmoothRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Container(
+                      width: double.infinity,
+                      alignment: Alignment.center,
+                      child: Text(
+                        'Apply',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: AppColors.white,
+                          fontFamily: "Poppins",
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 24,
+            )
+          ],
+        ),
+      ),
+    );
   }
 }
