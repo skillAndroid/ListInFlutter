@@ -211,7 +211,6 @@ class PostProvider extends ChangeNotifier {
       }
     }
 
-   
     for (var entry in _selectedValues.entries) {
       if (entry.value is List<AttributeValueModel>) {
         List<AttributeValueModel> values =
@@ -260,6 +259,7 @@ class PostProvider extends ChangeNotifier {
       print("------------");
     }
   }
+
 //
   bool _validatePost() {
     return _postTitle.isNotEmpty &&
