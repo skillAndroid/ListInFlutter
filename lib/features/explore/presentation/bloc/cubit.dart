@@ -1,4 +1,5 @@
 // post_cubit.dart
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/core/error/failure.dart';
@@ -11,267 +12,56 @@ import 'package:list_in/features/post/data/models/category_model.dart';
 import 'package:list_in/features/post/data/models/child_category_model.dart';
 import 'package:list_in/features/post/domain/usecases/get_catalogs_usecase.dart';
 
+// Now, let's create the Cubit
 class HomeTreeCubit extends Cubit<HomeTreeState> {
   final GetGategoriesUsecase getCatalogsUseCase;
-  final Map<String, Map<String, dynamic>> _childCategorySelections = {};
-  final Map<String, List<AttributeModel>> _childCategoryDynamicAttributes = {};
 
   HomeTreeCubit({
     required this.getCatalogsUseCase,
-  }) : super(const HomeTreeState());
+  }) : super(HomeTreeState());
+  void getAtributesForPost() {
+    final List<AttributeRequestValue> attributeRequests = [];
+    final Set<String> processedCombinations = {};
 
-  Future<void> fetchCatalogs() async {
-    emit(state.copyWith(status: PostCreationStatus.loading));
+    // Handle single-selection attributes
+    for (var entry in state.selectedAttributeValues.entries) {
+      AttributeModel attribute = entry.key;
+      AttributeValueModel value = entry.value;
 
-    final result = await getCatalogsUseCase(params: NoParams());
-    result.fold(
-      (failure) => emit(state.copyWith(
-        status: PostCreationStatus.error,
-        error: _mapFailureToMessage(failure),
-        catalogs: null,
-      )),
-      (catalogs) => emit(state.copyWith(
-        status: PostCreationStatus.initial,
-        error: null,
-        catalogs: catalogs,
-      )),
-    );
-  }
+      String combinationKey =
+          '${value.attributeKeyId}_${value.attributeValueId}';
 
-  void printSelectedAttributes() {
-    final selectedValues = state.selectedValues;
-
-    selectedValues.forEach((attributeKey, value) {
-      if (value is List<AttributeValueModel>) {
-        // Print the list of attribute value IDs
-        final valueIds = value.map((v) => v.attributeValueId).join(', ');
-        debugPrint('Attribute Value IDs: $valueIds');
-      } else if (value is AttributeValueModel) {
-        // Print a single attribute value ID
-        debugPrint('Attribute Value IDs: ${value.attributeValueId}');
-      } else {
-        debugPrint('No values');
-      }
-
-      debugPrint('------------');
-    });
-  }
-
-  void selectCatalog(CategoryModel catalog) {
-    if (state.selectedCatalog == null ||
-        state.selectedCatalog?.id != catalog.id) {
-      _childCategorySelections.clear();
-      _childCategoryDynamicAttributes.clear();
-    }
-
-    List<CategoryModel> newHistory = List.from(state.catalogHistory);
-    if (state.selectedCatalog != null &&
-        !newHistory.contains(state.selectedCatalog)) {
-      newHistory.add(state.selectedCatalog!);
-    }
-
-    emit(state.copyWith(
-      selectedCatalog: catalog,
-      selectedChildCategory: null,
-      currentAttributes: [],
-      dynamicAttributes: [],
-      selectedValues: {},
-      catalogHistory: newHistory,
-    ));
-  }
-
-  void selectChildCategory(ChildCategoryModel childCategory) {
-    final previousChildCategoryId = state.selectedChildCategory?.id;
-
-    if (previousChildCategoryId != null &&
-        previousChildCategoryId != childCategory.id) {
-      resetSelectionForChildCategory(childCategory);
-    }
-
-    List<ChildCategoryModel> newHistory = List.from(state.childCategoryHistory);
-    if (state.selectedChildCategory != null &&
-        !newHistory.contains(state.selectedChildCategory)) {
-      newHistory.add(state.selectedChildCategory!);
-    }
-
-    Map<String, dynamic> newSelectedValues = {};
-    List<AttributeModel> newDynamicAttributes = [];
-
-    if (_childCategorySelections.containsKey(childCategory.id)) {
-      newSelectedValues = Map.from(_childCategorySelections[childCategory.id]!);
-      newDynamicAttributes =
-          _childCategoryDynamicAttributes[childCategory.id] ?? [];
-    }
-
-    emit(state.copyWith(
-      selectedChildCategory: childCategory,
-      currentAttributes: childCategory.attributes,
-      selectedValues: newSelectedValues,
-      dynamicAttributes: newDynamicAttributes,
-      childCategoryHistory: newHistory,
-    ));
-  }
-void selectAttributeValue(AttributeModel attribute, AttributeValueModel value) {
-  Map<String, dynamic> newSelectedValues = Map.from(state.selectedValues);
-  Map<AttributeModel, AttributeValueModel> newSelectedAttributeValues =
-      Map.from(state.selectedAttributeValues);
-  List<AttributeModel> newDynamicAttributes = List.from(state.dynamicAttributes);
-
-  if (attribute.filterWidgetType == 'oneSelectable') {
-    final currentValue = newSelectedValues[attribute.attributeKey];
-    if (currentValue == value) return;
-
-    // Clear existing dynamic attributes and selections for this parent
-    newDynamicAttributes.removeWhere(
-        (attr) => attr.attributeKey.startsWith('${attribute.attributeKey} Model'));
-    newSelectedValues.removeWhere(
-        (key, _) => key.startsWith('${attribute.attributeKey} Model'));
-    newSelectedAttributeValues.removeWhere((attr, _) =>
-        attr.attributeKey.startsWith('${attribute.attributeKey} Model'));
-
-    // Set the new value
-    newSelectedValues[attribute.attributeKey] = value;
-    newSelectedAttributeValues[attribute] = value;
-
-    // Handle dynamic attributes creation if needed
-    if (attribute.subFilterWidgetType != 'null' &&
-        value.list.isNotEmpty &&
-        value.list[0].name != null) {
-      try {
-        final List<AttributeValueModel> validValues = value.list
-            .where((subModel) =>
-                subModel.name != null &&
-                subModel.name!.isNotEmpty &&
-                subModel.modelId != null)
-            .map((subModel) => AttributeValueModel(
-                  attributeValueId: subModel.modelId ?? '',
-                  attributeKeyId: subModel.attributeId ?? '',
-                  value: subModel.name ?? '',
-                  list: [],
-                ))
-            .toList();
-
-        if (validValues.isNotEmpty) {
-          final newAttribute = AttributeModel(
-            attributeKey: '${attribute.attributeKey} Model - ${value.value}',
-            helperText: attribute.subHelperText,
-            subHelperText: 'null',
-            widgetType: attribute.subWidgetsType,
-            subWidgetsType: 'null',
-            filterText: attribute.subFilterText,
-            subFilterText: 'null',
-            filterWidgetType: attribute.subFilterWidgetType,
-            subFilterWidgetType: 'null',
-            dataType: 'string',
-            values: validValues,
-          );
-          newDynamicAttributes.insert(0, newAttribute);
-        }
-      } catch (e, stackTrace) {
-        debugPrint('Error creating dynamic attribute: $e');
-        debugPrint('Stack trace: $stackTrace');
-      }
-    }
-  } else if (attribute.filterWidgetType == 'multiSelectable' ||
-      attribute.filterWidgetType == 'colorMultiSelectable') {
-    newSelectedValues.putIfAbsent(
-        attribute.attributeKey, () => <AttributeValueModel>[]);
-
-    final list =
-        newSelectedValues[attribute.attributeKey] as List<AttributeValueModel>;
-    if (list.contains(value)) {
-      list.remove(value);
-      newDynamicAttributes
-          .removeWhere((attr) => attr.attributeKey.contains(value.value));
-    } else {
-      list.add(value);
-    }
-  }
-
-  emit(state.copyWith(
-    selectedValues: newSelectedValues,
-    selectedAttributeValues: newSelectedAttributeValues,
-    dynamicAttributes: newDynamicAttributes,
-  ));
-
-  // Update attribute requests after state change
-  _updateAttributeRequests();
-}
-
-void _updateAttributeRequests() {
-  final List<AttributeRequestValue> attributeRequests = [];
-  final Set<String> processedCombinations = {};
-
-  // Handle single-selection attributes
-  for (var entry in state.selectedAttributeValues.entries) {
-    AttributeModel attribute = entry.key;
-    AttributeValueModel value = entry.value;
-
-    if (attribute.filterWidgetType == 'oneSelectable') {
-      String combinationKey = '${value.attributeKeyId}_${value.attributeValueId}';
-      
       if (!processedCombinations.contains(combinationKey)) {
         processedCombinations.add(combinationKey);
-        
-        if (value.attributeKeyId.isNotEmpty && value.attributeValueId.isNotEmpty) {
+
+        if (value.attributeKeyId.isNotEmpty &&
+            value.attributeValueId.isNotEmpty) {
           attributeRequests.add(AttributeRequestValue(
             attributeId: value.attributeKeyId,
             attributeValueIds: [value.attributeValueId],
           ));
-        }
 
-        // Handle child attributes
-        if (attribute.subHelperText != 'null' &&
-            value.list.isNotEmpty &&
-            value.list.first.attributeId != null &&
-            value.list.first.modelId != null) {
-          String childCombinationKey =
-              '${value.list.first.attributeId}_${value.list.first.modelId}';
-              
-          if (!processedCombinations.contains(childCombinationKey) &&
-              value.list.first.attributeId!.isNotEmpty &&
-              value.list.first.modelId!.isNotEmpty) {
-            processedCombinations.add(childCombinationKey);
-            attributeRequests.add(AttributeRequestValue(
-              attributeId: value.list.first.attributeId!,
-              attributeValueIds: [value.list.first.modelId!],
-            ));
-          }
-        }
-      }
-    }
-  }
+          // If this value has a list (sub-values) and they are actually selected
+          if (value.list.isNotEmpty) {
+            // Find the corresponding child attribute in dynamicAttributes
+            final childAttribute = state.dynamicAttributes.firstWhere(
+              (attr) => attr.attributeKey == '${attribute.attributeKey}_child',
+              orElse: () => attribute,
+            );
 
-  // Handle multi-selection attributes
-  for (var entry in state.selectedValues.entries) {
-    if (entry.value is List<AttributeValueModel>) {
-      List<AttributeValueModel> values = entry.value as List<AttributeValueModel>;
-      
-      if (values.isNotEmpty) {
-        String attributeId = values.first.attributeKeyId;
-        List<String> valueIds = values.map((v) => v.attributeValueId).toList();
-        
-        if (attributeId.isNotEmpty && valueIds.isNotEmpty) {
-          attributeRequests.add(AttributeRequestValue(
-            attributeId: attributeId,
-            attributeValueIds: valueIds,
-          ));
-
-          // Handle child attributes for multi-selection
-          for (var value in values) {
-            if (value.list.isNotEmpty &&
-                value.list.first.attributeId != null &&
-                value.list.first.modelId != null) {
+            // Check if there's a selected value for this child attribute
+            final childValue = state.selectedAttributeValues[childAttribute];
+            if (childValue != null) {
               String childCombinationKey =
-                  '${value.list.first.attributeId}_${value.list.first.modelId}';
-                  
+                  '${childValue.attributeKeyId}_${childValue.attributeValueId}';
+
               if (!processedCombinations.contains(childCombinationKey) &&
-                  value.list.first.attributeId!.isNotEmpty &&
-                  value.list.first.modelId!.isNotEmpty) {
+                  childValue.attributeKeyId.isNotEmpty &&
+                  childValue.attributeValueId.isNotEmpty) {
                 processedCombinations.add(childCombinationKey);
                 attributeRequests.add(AttributeRequestValue(
-                  attributeId: value.list.first.attributeId!,
-                  attributeValueIds: [value.list.first.modelId!],
+                  attributeId: childValue.attributeKeyId,
+                  attributeValueIds: [childValue.attributeValueId],
                 ));
               }
             }
@@ -279,256 +69,78 @@ void _updateAttributeRequests() {
         }
       }
     }
-  }
 
-  // Debug printing
-  debugPrint("Attribute requests:");
-  for (var request in attributeRequests) {
-    debugPrint("Attribute ID: ${request.attributeId}");
-    debugPrint("Attribute Value IDs: ${request.attributeValueIds.join(', ')}");
-    debugPrint("------------");
-  }
+    // Handle multi-selection attributes
+    for (var entry in state.selectedValues.entries) {
+      if (entry.value is List<AttributeValueModel>) {
+        List<AttributeValueModel> values =
+            entry.value as List<AttributeValueModel>;
+        if (values.isNotEmpty) {
+          String attributeId = values.first.attributeKeyId;
+          List<String> valueIds =
+              values.map((v) => v.attributeValueId).toList();
 
-  emit(state.copyWith(attributeRequests: attributeRequests));
-}
-  void confirmMultiSelection(AttributeModel attribute) {
-    if (attribute.filterWidgetType != 'oneSelectable') {
-      try {
-        final selectedValues = state.selectedValues[attribute.attributeKey]
-                as List<AttributeValueModel>? ??
-            [];
+          if (attributeId.isNotEmpty && valueIds.isNotEmpty) {
+            attributeRequests.add(AttributeRequestValue(
+              attributeId: attributeId,
+              attributeValueIds: valueIds,
+            ));
 
-        // Print final selection for multi-select after confirmation
+            // Handle child attributes for multi-select
+            for (var value in values) {
+              if (value.list.isNotEmpty) {
+                final childKey = '${entry.key}_child';
+                final childValues = state.selectedValues[childKey];
 
-        List<AttributeModel> newDynamicAttributes =
-            List<AttributeModel>.from(state.dynamicAttributes);
+                if (childValues is List<AttributeValueModel> &&
+                    childValues.isNotEmpty) {
+                  String childAttributeId = childValues.first.attributeKeyId;
+                  List<String> childValueIds =
+                      childValues.map((v) => v.attributeValueId).toList();
 
-        // Rest of your existing confirmMultiSelection logic...
-        newDynamicAttributes.removeWhere((attr) =>
-            attr.attributeKey.startsWith('${attribute.attributeKey} Model'));
-
-        if (selectedValues.isNotEmpty) {
-          final dynamicAttributesToAdd = selectedValues
-              .where((value) =>
-                  value.list.isNotEmpty &&
-                  value.list.any((subModel) =>
-                      subModel.name != null &&
-                      subModel.name!.isNotEmpty &&
-                      subModel.modelId != null))
-              .map((value) {
-            final validSubModels = value.list
-                .where((subModel) =>
-                    subModel.name != null &&
-                    subModel.name!.isNotEmpty &&
-                    subModel.modelId != null)
-                .map((subModel) => AttributeValueModel(
-                      attributeValueId: subModel.modelId ?? '',
-                      attributeKeyId: attribute.attributeKey,
-                      value: subModel.name ?? '',
-                      list: [],
-                    ))
-                .toList();
-
-            return AttributeModel(
-              attributeKey: '${attribute.attributeKey} Model - ${value.value}',
-              helperText: attribute.subHelperText,
-              subHelperText: 'null',
-              widgetType: attribute.subWidgetsType,
-              subWidgetsType: 'null',
-              filterText: attribute.subFilterText,
-              subFilterText: 'null',
-              filterWidgetType: attribute.subFilterWidgetType,
-              subFilterWidgetType: 'null',
-              dataType: 'string',
-              values: validSubModels,
-            );
-          }).toList();
-
-          if (dynamicAttributesToAdd.isNotEmpty) {
-            newDynamicAttributes.insertAll(0, dynamicAttributesToAdd);
+                  if (childAttributeId.isNotEmpty && childValueIds.isNotEmpty) {
+                    attributeRequests.add(AttributeRequestValue(
+                      attributeId: childAttributeId,
+                      attributeValueIds: childValueIds,
+                    ));
+                  }
+                }
+              }
+            }
           }
         }
-        printSelectedAttributes();
-        emit(state.copyWith(
-          dynamicAttributes: newDynamicAttributes,
-        ));
-      } catch (e, stackTrace) {
-        debugPrint('Error in confirmMultiSelection: $e');
-        debugPrint('Stack trace: $stackTrace');
       }
     }
-  }
 
-  bool isValueSelected(AttributeModel attribute, AttributeValueModel value) {
-    final selectedValue = state.selectedValues[attribute.attributeKey];
+    emit(state.copyWith(attributeRequests: attributeRequests));
 
-    if (selectedValue == null) return false;
+    // Debug print
+    debugPrint("Attribute requests:");
+    for (var request in attributeRequests) {
+      debugPrint("Attribute ID: ${request.attributeId}");
 
-    if (attribute.filterWidgetType == 'multiSelectable' ||
-        attribute.filterWidgetType == 'colorMultiSelectable') {
-      if (selectedValue is List<AttributeValueModel>) {
-        return selectedValue.contains(value);
-      }
-      return false;
-    } else {
-      // For single select cases (oneSelectable)
-      if (selectedValue is AttributeValueModel) {
-        return selectedValue == value;
-      }
-      return false;
+      debugPrint(
+          "Attribute Value IDs: ${request.attributeValueIds.join(', ')}");
+      debugPrint("------------");
     }
   }
 
-  void goBack() {
-    if (state.selectedChildCategory != null) {
-      _saveCurrentSelections();
+  Future<void> fetchCatalogs() async {
+    emit(state.copyWith(isLoading: true, error: null));
 
-      if (state.childCategoryHistory.isNotEmpty) {
-        List<ChildCategoryModel> newHistory =
-            List.from(state.childCategoryHistory);
-        final previousChildCategory = newHistory.removeLast();
-        _restorePreviousSelections(previousChildCategory);
-
-        emit(state.copyWith(
-          selectedChildCategory: previousChildCategory,
-          currentAttributes: previousChildCategory.attributes,
-          childCategoryHistory: newHistory,
-        ));
-      } else {
-        emit(state.copyWith(
-          selectedChildCategory: null,
-          currentAttributes: [],
-          selectedValues: {},
-        ));
-      }
-    } else if (state.selectedCatalog != null) {
-      if (state.catalogHistory.isNotEmpty) {
-        List<CategoryModel> newHistory = List.from(state.catalogHistory);
-        final previousCatalog = newHistory.removeLast();
-
-        emit(state.copyWith(
-          selectedCatalog: previousCatalog,
-          catalogHistory: newHistory,
-        ));
-      } else {
-        emit(state.copyWith(selectedCatalog: null));
-      }
-    }
-  }
-
-  void _saveCurrentSelections() {
-    if (state.selectedChildCategory != null) {
-      _childCategorySelections[state.selectedChildCategory!.id] =
-          Map<String, dynamic>.from(state.selectedValues);
-      _childCategoryDynamicAttributes[state.selectedChildCategory!.id] =
-          List<AttributeModel>.from(state.dynamicAttributes);
-    }
-  }
-
-  void _restorePreviousSelections(ChildCategoryModel childCategory) {
-    emit(state.copyWith(
-      selectedValues: _childCategorySelections[childCategory.id] ?? {},
-      dynamicAttributes:
-          _childCategoryDynamicAttributes[childCategory.id] ?? [],
-      currentAttributes: childCategory.attributes,
-    ));
-  }
-
-  void resetSelectionForChildCategory(ChildCategoryModel childCategory) {
-    _childCategorySelections.remove(childCategory.id);
-    _childCategoryDynamicAttributes.remove(childCategory.id);
-
-    emit(state.copyWith(
-      attributeOptionsVisibility: {},
-      selectedAttributeValues: {},
-      selectedValues: {},
-      dynamicAttributes: [],
-    ));
-  }
-
-  void resetSelection() {
-    _childCategorySelections.clear();
-    _childCategoryDynamicAttributes.clear();
-
-    emit(state.copyWith(
-      selectedCatalog: null,
-      selectedChildCategory: null,
-      currentAttributes: [],
-      dynamicAttributes: [],
-      selectedValues: {},
-      catalogHistory: [],
-      childCategoryHistory: [],
-    ));
-  }
-
-  bool isAttributeOptionsVisible(AttributeModel attribute) {
-    return state.attributeOptionsVisibility[attribute] ?? false;
-  }
-
-  AttributeValueModel? getSelectedAttributeValue(AttributeModel attribute) {
-    return state.selectedAttributeValues[attribute];
-  }
-
-  List<AttributeModel> getOrderedAttributes() {
-    if (state.dynamicAttributes.isEmpty) return state.currentAttributes;
-
-    final List<AttributeModel> orderedAttributes = [];
-    for (var attr in state.currentAttributes) {
-      orderedAttributes.add(attr);
-      final relatedDynamicAttrs = state.dynamicAttributes
-          .where((dynamicAttr) =>
-              dynamicAttr.attributeKey.startsWith(attr.attributeKey))
-          .toList();
-      orderedAttributes.addAll(relatedDynamicAttrs);
-    }
-    return orderedAttributes;
-  }
-
-  void preserveAttributeState(
-      AttributeModel oldAttribute, AttributeModel newAttribute) {
-    Map<AttributeModel, bool> newVisibility =
-        Map.from(state.attributeOptionsVisibility);
-    Map<AttributeModel, AttributeValueModel> newSelectedValues =
-        Map.from(state.selectedAttributeValues);
-
-    if (state.attributeOptionsVisibility.containsKey(oldAttribute)) {
-      newVisibility[newAttribute] =
-          state.attributeOptionsVisibility[oldAttribute]!;
-    }
-
-    if (state.selectedAttributeValues.containsKey(oldAttribute)) {
-      newSelectedValues[newAttribute] =
-          state.selectedAttributeValues[oldAttribute]!;
-    }
-
-    emit(state.copyWith(
-      attributeOptionsVisibility: newVisibility,
-      selectedAttributeValues: newSelectedValues,
-    ));
-  }
-
-  List<AttributeValueModel> getSelectedValues(AttributeModel attribute) {
-    final value = state.selectedValues[attribute.attributeKey];
-
-    if (attribute.filterWidgetType != 'oneSelectable') {
-      if (value is List<AttributeValueModel>) {
-        return value;
-      } else if (value is AttributeValueModel) {
-        return [value]; // Convert single value to list
-      }
-    } else if (value is AttributeValueModel) {
-      return [value]; // Return single value as list
-    }
-
-    return []; // Return empty list if no value or invalid type
-  }
-
-  void clearSelection(AttributeModel attribute) {
-    if (attribute.filterWidgetType != 'oneSelectable') {
-      Map<String, dynamic> newSelectedValues = Map.from(state.selectedValues);
-      newSelectedValues[attribute.attributeKey] = <AttributeValueModel>[];
-      emit(state.copyWith(selectedValues: newSelectedValues));
-    }
+    final result = await getCatalogsUseCase(params: NoParams());
+    result.fold(
+      (failure) => emit(state.copyWith(
+        error: _mapFailureToMessage(failure),
+        catalogs: null,
+        isLoading: false,
+      )),
+      (catalogs) => emit(state.copyWith(
+        catalogs: catalogs,
+        error: null,
+        isLoading: false,
+      )),
+    );
   }
 
   String _mapFailureToMessage(Failure failure) {
@@ -542,192 +154,365 @@ void _updateAttributeRequests() {
     }
   }
 
-  void clearSelectedAttribute(AttributeModel attribute) {
-    Map<String, dynamic> newSelectedValues = Map.from(state.selectedValues);
-    Map<AttributeModel, bool> newVisibility =
-        Map.from(state.attributeOptionsVisibility);
-    Map<AttributeModel, AttributeValueModel> newSelectedAttributeValues =
-        Map.from(state.selectedAttributeValues);
-    List<AttributeModel> newDynamicAttributes =
-        List.from(state.dynamicAttributes);
+  void selectCatalog(CategoryModel catalog) {
+    final List<CategoryModel> catalogHistory = List.from(state.catalogHistory);
 
-    // Check if this is a dynamic attribute
-    bool isDynamicAttribute = state.dynamicAttributes.contains(attribute);
-
-    if (isDynamicAttribute) {
-      // For dynamic attributes, only clear the selection and visibility
-      newSelectedValues.remove(attribute.attributeKey);
-      newVisibility.remove(attribute);
-      newSelectedAttributeValues.remove(attribute);
-
-      // Find parent attribute
-      String parentAttributeKey = attribute.attributeKey.split(' Model')[0];
-      state.currentAttributes.firstWhere(
-          (attr) => attr.attributeKey == parentAttributeKey,
-          orElse: () =>
-              attribute // fallback to current attribute if parent not found
-          );
-
-      // Check if parent attribute still has any selection
-      var parentValue = state.selectedValues[parentAttributeKey];
-      bool hasParentSelection = false;
-
-      if (parentValue != null) {
-        if (parentValue is List<AttributeValueModel>) {
-          hasParentSelection = parentValue.isNotEmpty;
-        } else if (parentValue is AttributeValueModel) {
-          hasParentSelection = true;
-        }
-      }
-
-      // Only remove dynamic attribute if parent has no selection
-      if (!hasParentSelection) {
-        newDynamicAttributes.removeWhere(
-            (attr) => attr.attributeKey.startsWith(parentAttributeKey));
-      }
-    } else {
-      // For regular attributes, clear everything including related dynamic attributes
-      newSelectedValues.remove(attribute.attributeKey);
-      newVisibility.remove(attribute);
-      newSelectedAttributeValues.remove(attribute);
-      newDynamicAttributes.removeWhere(
-          (attr) => attr.attributeKey.startsWith(attribute.attributeKey));
+    // Always add current catalog to history before changing
+    if (state.selectedCatalog != null &&
+        !catalogHistory.contains(state.selectedCatalog)) {
+      catalogHistory.add(state.selectedCatalog!);
     }
 
-    // Update child category selections if needed
-    if (state.selectedChildCategory != null) {
-      final childCategoryId = state.selectedChildCategory!.id;
-      if (_childCategorySelections.containsKey(childCategoryId)) {
-        if (isDynamicAttribute) {
-          // For dynamic attributes, only clear the specific value
-          _childCategorySelections[childCategoryId]
-              ?.remove(attribute.attributeKey);
-        } else {
-          // For regular attributes, clear all related values
-          _childCategorySelections[childCategoryId]
-              ?.remove(attribute.attributeKey);
-          _childCategoryDynamicAttributes[childCategoryId]?.removeWhere(
-              (attr) => attr.attributeKey.startsWith(attribute.attributeKey));
-        }
+    // Always clear previous selections when selecting a catalog
+    emit(state.copyWith(
+      selectedCatalog: catalog,
+      selectedChildCategory: null,
+      currentAttributes: [],
+      dynamicAttributes: [],
+      selectedValues: {},
+      catalogHistory: catalogHistory,
+      childCategorySelections: {}, // Clear all child category selections
+      childCategoryDynamicAttributes: {}, // Clear all dynamic attributes
+      selectedAttributeValues: {}, // Clear selected attribute values
+      attributeOptionsVisibility: {}, // Reset visibility states
+    ));
+  }
+
+  void selectChildCategory(ChildCategoryModel childCategory) {
+    final List<ChildCategoryModel> childCategoryHistory =
+        List.from(state.childCategoryHistory);
+
+    // Always add current child category to history before changing
+    if (state.selectedChildCategory != null &&
+        !childCategoryHistory.contains(state.selectedChildCategory)) {
+      childCategoryHistory.add(state.selectedChildCategory!);
+    }
+
+    // Always clear previous selections when selecting a child category
+    emit(state.copyWith(
+      selectedChildCategory: childCategory,
+      currentAttributes: childCategory.attributes,
+      selectedValues: {}, // Clear all selected values
+      dynamicAttributes: [], // Clear dynamic attributes
+      selectedAttributeValues: {}, // Clear selected attribute values
+      childCategoryHistory: childCategoryHistory,
+      attributeOptionsVisibility: {}, // Reset visibility states
+    ));
+  }
+
+// Add a helper method to completely reset selections
+  void resetAllSelections() {
+    emit(state.copyWith(
+      selectedValues: {},
+      selectedAttributeValues: {},
+      dynamicAttributes: [],
+      attributeOptionsVisibility: {},
+      childCategorySelections: {},
+      childCategoryDynamicAttributes: {},
+    ));
+  }
+
+  void _handleDynamicAttributeCreation(
+    AttributeModel attribute,
+    AttributeValueModel value,
+    List<AttributeModel> dynamicAttributes,
+  ) {
+    if (attribute.subFilterWidgetType != 'null' &&
+        value.list.isNotEmpty &&
+        value.list[0].name != null) {
+      // Generate a unique key for the child attribute to prevent conflicts
+      final childAttributeKey = '${attribute.attributeKey}_child';
+
+      // Remove any existing dynamic attributes for this parent attribute
+      dynamicAttributes.removeWhere(
+        (attr) => attr.attributeKey == childAttributeKey,
+      );
+
+      // Create new dynamic attribute without any selected values
+      final newAttribute = AttributeModel(
+        attributeKey: childAttributeKey, // Use unique key
+        helperText: attribute.subHelperText,
+        subHelperText: 'null',
+        widgetType: attribute.subWidgetsType,
+        subWidgetsType: 'null',
+        filterText: attribute.subFilterText,
+        subFilterText: 'null',
+        filterWidgetType: attribute.subFilterWidgetType,
+        subFilterWidgetType: 'null',
+        dataType: 'string',
+        values: value.list.map((subModel) {
+          return AttributeValueModel(
+            attributeValueId: subModel.modelId ?? '',
+            attributeKeyId: subModel.attributeId ?? '',
+            value: subModel.name ?? '',
+            list: [],
+          );
+        }).toList(),
+      );
+
+      dynamicAttributes.insert(0, newAttribute);
+    }
+  }
+
+  void selectAttributeValue(
+      AttributeModel attribute, AttributeValueModel value) {
+    final Map<String, dynamic> newSelectedValues =
+        Map<String, dynamic>.from(state.selectedValues);
+    final Map<AttributeModel, AttributeValueModel> newSelectedAttributeValues =
+        Map<AttributeModel, AttributeValueModel>.from(
+            state.selectedAttributeValues);
+    List<AttributeModel> newDynamicAttributes =
+        List<AttributeModel>.from(state.dynamicAttributes);
+
+    if (attribute.filterWidgetType == 'oneSelectable') {
+      final currentValue = newSelectedValues[attribute.attributeKey];
+      if (currentValue == value) return;
+
+      // Clear child-related data when parent value changes
+      if (attribute.subFilterWidgetType != 'null') {
+        // Clear selected values for child attributes
+        final childKey = '${attribute.attributeKey}_child';
+        newSelectedValues.remove(childKey);
+
+        // Remove child-related entries from selectedAttributeValues
+        newSelectedAttributeValues
+            .removeWhere((attr, _) => attr.attributeKey == childKey);
+
+        // Update dynamic attributes without selecting values
+        _handleDynamicAttributeCreation(
+          attribute,
+          value,
+          newDynamicAttributes,
+        );
+      }
+
+      // Only update the parent attribute's value
+      newSelectedValues[attribute.attributeKey] = value;
+      newSelectedAttributeValues[attribute] = value;
+    } else {
+      // Handle multi-select case
+      newSelectedValues.putIfAbsent(
+          attribute.attributeKey, () => <AttributeValueModel>[]);
+      final list = newSelectedValues[attribute.attributeKey]
+          as List<AttributeValueModel>;
+      if (list.contains(value)) {
+        list.remove(value);
+      } else {
+        list.add(value);
       }
     }
 
     emit(state.copyWith(
       selectedValues: newSelectedValues,
-      attributeOptionsVisibility: newVisibility,
+      selectedAttributeValues: newSelectedAttributeValues,
+      dynamicAttributes: newDynamicAttributes,
+    ));
+  }
+
+  AttributeValueModel? getSelectedAttributeValue(AttributeModel attribute) {
+    return state.selectedAttributeValues[attribute];
+  }
+
+  dynamic getSelectedValues(AttributeModel attribute) {
+    final selectedValue = state.selectedValues[attribute.attributeKey];
+    if (attribute.filterWidgetType == 'oneSelectable') {
+      return selectedValue;
+    } else {
+      if (selectedValue == null) {
+        return <AttributeValueModel>[];
+      }
+      if (selectedValue is List<AttributeValueModel>) {
+        return selectedValue;
+      }
+      if (selectedValue is AttributeValueModel) {
+        return <AttributeValueModel>[selectedValue];
+      }
+      return <AttributeValueModel>[];
+    }
+  }
+
+  void clearSelectedAttribute(AttributeModel attribute) {
+    final Map<String, dynamic> newSelectedValues =
+        Map<String, dynamic>.from(state.selectedValues);
+    final Map<AttributeModel, AttributeValueModel> newSelectedAttributeValues =
+        Map<AttributeModel, AttributeValueModel>.from(
+            state.selectedAttributeValues);
+    List<AttributeModel> newDynamicAttributes =
+        List<AttributeModel>.from(state.dynamicAttributes);
+
+    // Remove the attribute value
+    newSelectedValues.remove(attribute.attributeKey);
+    newSelectedAttributeValues.remove(attribute);
+
+    // If this is a parent attribute, remove all related dynamic attributes and their values
+    if (attribute.subFilterWidgetType != 'null') {
+      final childKey = '${attribute.attributeKey}_child';
+
+      // Remove dynamic attributes
+      newDynamicAttributes.removeWhere((attr) => attr.attributeKey == childKey);
+
+      // Remove values for child attributes
+      newSelectedValues.remove(childKey);
+
+      // Remove from selectedAttributeValues
+      newSelectedAttributeValues
+          .removeWhere((attr, _) => attr.attributeKey == childKey);
+    }
+
+    emit(state.copyWith(
+      selectedValues: newSelectedValues,
       selectedAttributeValues: newSelectedAttributeValues,
       dynamicAttributes: newDynamicAttributes,
     ));
   }
 
   void clearAllSelectedAttributes() {
-    // Clear all current selections
-    final newSelectedValues = <String, dynamic>{};
-    final newVisibility = <AttributeModel, bool>{};
-    final newSelectedAttributeValues = <AttributeModel, AttributeValueModel>{};
-
-    // Clear dynamic attributes
-    final newDynamicAttributes = <AttributeModel>[];
-
-    // If we have a selected child category, clear its stored selections
-    if (state.selectedChildCategory != null) {
-      final childCategoryId = state.selectedChildCategory!.id;
-      _childCategorySelections.remove(childCategoryId);
-      _childCategoryDynamicAttributes.remove(childCategoryId);
-    }
-
     emit(state.copyWith(
-      selectedValues: newSelectedValues,
-      attributeOptionsVisibility: newVisibility,
-      selectedAttributeValues: newSelectedAttributeValues,
-      dynamicAttributes: newDynamicAttributes,
+      selectedValues: {},
+      selectedAttributeValues: {},
+      dynamicAttributes: [],
+      attributeOptionsVisibility: {},
     ));
   }
 
-  void clearAttributesByType(String widgetType) {
-    Map<String, dynamic> newSelectedValues = Map.from(state.selectedValues);
-    Map<AttributeModel, bool> newVisibility =
-        Map.from(state.attributeOptionsVisibility);
-    Map<AttributeModel, AttributeValueModel> newSelectedAttributeValues =
-        Map.from(state.selectedAttributeValues);
-    List<AttributeModel> newDynamicAttributes =
-        List.from(state.dynamicAttributes);
+  void confirmMultiSelection(AttributeModel attribute) {
+    if (attribute.filterWidgetType != 'oneSelectable') {
+      final selectedValues = state.selectedValues[attribute.attributeKey]
+              as List<AttributeValueModel>? ??
+          [];
+      if (selectedValues.isEmpty) return;
 
-    // Get all attributes of the specified type
-    final attributesToClear = state.currentAttributes
-        .where((attr) => attr.filterWidgetType == widgetType);
+      List<AttributeModel> newDynamicAttributes =
+          List<AttributeModel>.from(state.dynamicAttributes);
 
-    for (var attribute in attributesToClear) {
-      // Clear the selected value
-      newSelectedValues.remove(attribute.attributeKey);
+      newDynamicAttributes.removeWhere((attr) =>
+          attr.attributeKey.startsWith('${attribute.attributeKey} Model'));
 
-      // Clear visibility state
-      newVisibility.remove(attribute);
-
-      // Clear from selectedAttributeValues
-      newSelectedAttributeValues.remove(attribute);
-
-      // Remove associated dynamic attributes
-      newDynamicAttributes.removeWhere(
-          (attr) => attr.attributeKey.startsWith(attribute.attributeKey));
-    }
-
-    // Update child category selections if needed
-    if (state.selectedChildCategory != null) {
-      final childCategoryId = state.selectedChildCategory!.id;
-      if (_childCategorySelections.containsKey(childCategoryId)) {
-        for (var attribute in attributesToClear) {
-          _childCategorySelections[childCategoryId]
-              ?.remove(attribute.attributeKey);
-        }
-      }
-      if (_childCategoryDynamicAttributes.containsKey(childCategoryId)) {
-        for (var attribute in attributesToClear) {
-          _childCategoryDynamicAttributes[childCategoryId]?.removeWhere(
-              (attr) => attr.attributeKey.startsWith(attribute.attributeKey));
-        }
-      }
-    }
-
-    emit(state.copyWith(
-      selectedValues: newSelectedValues,
-      attributeOptionsVisibility: newVisibility,
-      selectedAttributeValues: newSelectedAttributeValues,
-      dynamicAttributes: newDynamicAttributes,
-    ));
-  }
-}
-
-extension PostStateGetters on HomeTreeState {
-  bool get isLoading => status == PostCreationStatus.loading;
-
-  bool get hasError => status == PostCreationStatus.error;
-
-  bool get isSuccess => status == PostCreationStatus.success;
-
-  bool get canGoBack =>
-      selectedChildCategory != null || selectedCatalog != null;
-
-  bool get hasSelectedCatalog => selectedCatalog != null;
-
-  bool get hasSelectedChildCategory => selectedChildCategory != null;
-
-  bool get hasAttributes => currentAttributes.isNotEmpty;
-
-  bool get hasDynamicAttributes => dynamicAttributes.isNotEmpty;
-
-  List<AttributeModel> get allAttributes {
-    if (!hasDynamicAttributes) return currentAttributes;
-
-    final List<AttributeModel> orderedAttributes = [];
-    for (var attr in currentAttributes) {
-      orderedAttributes.add(attr);
-      final relatedDynamicAttrs = dynamicAttributes
-          .where((dynamicAttr) =>
-              dynamicAttr.attributeKey.startsWith(attr.attributeKey))
+      final dynamicAttributesToAdd = selectedValues
+          .where((value) =>
+              attribute.subFilterWidgetType != 'null' &&
+              value.list.isNotEmpty &&
+              value.list.any((subModel) =>
+                  subModel.name != null && subModel.name!.isNotEmpty))
+          .map((value) => AttributeModel(
+                attributeKey:
+                    '${attribute.attributeKey} Model - ${value.value}',
+                helperText: attribute.subHelperText,
+                subHelperText: 'null',
+                widgetType: attribute.subWidgetsType,
+                subWidgetsType: 'null',
+                filterText: attribute.filterText,
+                subFilterText: 'null',
+                filterWidgetType: attribute.filterWidgetType,
+                subFilterWidgetType: 'null',
+                dataType: 'string',
+                values: value.list
+                    .where((subModel) =>
+                        subModel.name != null && subModel.name!.isNotEmpty)
+                    .map((subModel) => AttributeValueModel(
+                          attributeValueId: subModel.modelId ?? '',
+                          attributeKeyId: '',
+                          value: subModel.name ?? '',
+                          list: [],
+                        ))
+                    .toList(),
+              ))
           .toList();
-      orderedAttributes.addAll(relatedDynamicAttrs);
+
+      newDynamicAttributes.insertAll(0, dynamicAttributesToAdd);
+
+      emit(state.copyWith(
+        dynamicAttributes: newDynamicAttributes,
+      ));
     }
-    return orderedAttributes;
+  }
+
+  void resetSelection() {
+    emit(HomeTreeState());
+  }
+
+  void resetCatalogSelection() {
+    emit(state.copyWith(
+      selectedCatalog: null,
+      selectedChildCategory: null,
+      childCategorySelections: {},
+      childCategoryDynamicAttributes: {},
+    ));
+  }
+
+  void resetChildCategorySelection() {
+    if (state.selectedCatalog != null) {
+      final Map<String, Map<String, dynamic>> newSelections =
+          Map.from(state.childCategorySelections);
+      final Map<String, List<AttributeModel>> newDynamicAttributes =
+          Map.from(state.childCategoryDynamicAttributes);
+
+      if (state.selectedChildCategory != null) {
+        newSelections.remove(state.selectedChildCategory!.id);
+        newDynamicAttributes.remove(state.selectedChildCategory!.id);
+      }
+
+      emit(state.copyWith(
+        selectedChildCategory: null,
+        childCategorySelections: newSelections,
+        childCategoryDynamicAttributes: newDynamicAttributes,
+        selectedAttributeValues: {},
+        attributeOptionsVisibility: {},
+      ));
+    }
+  }
+
+  void resetSelectionForChildCategory(ChildCategoryModel newChildCategory) {
+    final Map<String, Map<String, dynamic>> newSelections =
+        Map.from(state.childCategorySelections);
+    final Map<String, List<AttributeModel>> newDynamicAttributes =
+        Map.from(state.childCategoryDynamicAttributes);
+
+    newSelections.remove(newChildCategory.id);
+    newDynamicAttributes.remove(newChildCategory.id);
+
+    emit(state.copyWith(
+      attributeOptionsVisibility: {},
+      selectedAttributeValues: {},
+      childCategorySelections: newSelections,
+      childCategoryDynamicAttributes: newDynamicAttributes,
+      selectedValues: {},
+      dynamicAttributes: [],
+    ));
+  }
+
+  void clear() {
+    emit(HomeTreeState());
+  }
+
+  bool isValueSelected(AttributeModel attribute, AttributeValueModel value) {
+    final selectedValue = state.selectedValues[attribute.attributeKey];
+    if (attribute.filterWidgetType == 'oneSelectable') {
+      return selectedValue == value;
+    } else if (attribute.filterWidgetType != 'oneSelectable') {
+      final selectedList = selectedValue as List<AttributeValueModel>?;
+      return selectedList?.contains(value) ?? false;
+    }
+    return false;
+  }
+
+  void preserveAttributeState(
+      AttributeModel oldAttribute, AttributeModel newAttribute) {
+    final Map<AttributeModel, bool> newVisibility =
+        Map.from(state.attributeOptionsVisibility);
+    final Map<AttributeModel, AttributeValueModel> newSelectedValues =
+        Map.from(state.selectedAttributeValues);
+
+    if (newVisibility.containsKey(oldAttribute)) {
+      newVisibility[newAttribute] = newVisibility[oldAttribute]!;
+    }
+    if (newSelectedValues.containsKey(oldAttribute)) {
+      newSelectedValues[newAttribute] = newSelectedValues[oldAttribute]!;
+    }
+
+    emit(state.copyWith(
+      attributeOptionsVisibility: newVisibility,
+      selectedAttributeValues: newSelectedValues,
+    ));
   }
 }

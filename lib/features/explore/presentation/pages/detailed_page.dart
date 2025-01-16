@@ -153,7 +153,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
   Widget build(BuildContext context) {
     return BlocBuilder<HomeTreeCubit, HomeTreeState>(
       builder: (context, state) {
-        final attributes = state.allAttributes;
+        final attributes = state.orderedAttributes;
         return Scaffold(
           appBar: _buildAppBar(),
           body: CustomScrollView(
@@ -307,8 +307,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                 smoothness: 0.8,
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              selected: selectedValue != null ||
-                                  selectedValues.isNotEmpty,
+                              selected: selectedValue != null,
                               backgroundColor: AppColors.white,
                               selectedColor: AppColors.white,
                               onSelected: (_) {
@@ -873,10 +872,13 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                 ),
                                 if (attribute.filterWidgetType ==
                                         'multiSelectable' &&
-                                    cubit.getSelectedValues(attribute).isNotEmpty)
+                                    cubit
+                                        .getSelectedValues(attribute)
+                                        .isNotEmpty)
                                   TextButton(
                                     onPressed: () {
                                       cubit.clearSelectedAttribute(attribute);
+                                      cubit.getAtributesForPost();
                                       Navigator.pop(context);
                                     },
                                     style: TextButton.styleFrom(
@@ -899,6 +901,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                   TextButton(
                                     onPressed: () {
                                       cubit.clearSelectedAttribute(attribute);
+                                      cubit.getAtributesForPost();
                                       Navigator.pop(context);
                                     },
                                     style: TextButton.styleFrom(
@@ -1045,12 +1048,14 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
 
                 if (selections.isEmpty) {
                   cubit.clearSelectedAttribute(attribute);
+                  cubit.getAtributesForPost();
                 } else {
                   cubit.clearSelectedAttribute(attribute);
                   for (var value in selections) {
                     cubit.selectAttributeValue(attribute, value);
                   }
                   cubit.confirmMultiSelection(attribute);
+                  cubit.getAtributesForPost();
                 }
                 Navigator.pop(context);
               },
@@ -1103,6 +1108,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                 cubit.selectAttributeValue(attribute, value);
               }
               Navigator.pop(context);
+              cubit.getAtributesForPost();
             },
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -1243,14 +1249,11 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                   onPressed: () => Navigator.pop(context),
                                   color: AppColors.black,
                                 ),
-                                if (attribute.filterWidgetType !=
-                                        'oneSelectable' &&
-                                    cubit.getSelectedAttributeValue(
-                                            attribute) !=
-                                        null)
+                                if (cubit.getSelectedValues(attribute).isNotEmpty)
                                   TextButton(
                                     onPressed: () {
                                       cubit.clearAllSelectedAttributes();
+                                      cubit.getAtributesForPost();
                                       Navigator.pop(context);
                                     },
                                     style: TextButton.styleFrom(
@@ -1390,8 +1393,8 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                               for (var value in selections) {
                                 cubit.selectAttributeValue(attribute, value);
                               }
-                              cubit.confirmMultiSelection(
-                                  attribute); // Add this line
+                              cubit.confirmMultiSelection(attribute);
+                              cubit.getAtributesForPost(); // Add this line
                             }
                             Navigator.pop(context);
                           },

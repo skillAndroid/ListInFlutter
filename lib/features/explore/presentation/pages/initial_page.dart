@@ -142,7 +142,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
           );
         }
 
-        if (state.hasError) {
+        if (state.error!=null) {
           return Scaffold(
             body: Center(
                 child: Column(

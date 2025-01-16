@@ -181,7 +181,7 @@ class _InitialHomeTreePageState extends State<ChildHomeTreePage> {
       buildWhen: (previous, current) =>
           previous.catalogs != current.catalogs ||
           previous.isLoading != current.isLoading ||
-          previous.hasError != current.hasError,
+          previous.error != current.error,
       builder: (context, state) {
         if (state.isLoading) {
           return const Scaffold(
@@ -189,7 +189,7 @@ class _InitialHomeTreePageState extends State<ChildHomeTreePage> {
           );
         }
 
-        if (state.hasError) {
+        if (state.error != null) {
           return Scaffold(
             body: Center(child: Text(state.error!)),
           );

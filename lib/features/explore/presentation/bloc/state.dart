@@ -1,4 +1,3 @@
-import 'package:equatable/equatable.dart';
 import 'package:list_in/features/post/data/models/attribute_model.dart';
 import 'package:list_in/features/post/data/models/attribute_value_model.dart';
 import 'package:list_in/features/post/data/models/blabla.dart';
@@ -7,59 +6,80 @@ import 'package:list_in/features/post/data/models/child_category_model.dart';
 
 enum PostCreationStatus { initial, loading, success, error }
 
-class HomeTreeState extends Equatable {
-  final PostCreationStatus status;
-  final String? error;
+class HomeTreeState {
   final List<CategoryModel>? catalogs;
   final CategoryModel? selectedCatalog;
   final ChildCategoryModel? selectedChildCategory;
+  final bool isLoading;
+  final String? error;
   final List<AttributeModel> currentAttributes;
   final List<AttributeModel> dynamicAttributes;
   final Map<String, dynamic> selectedValues;
   final Map<AttributeModel, bool> attributeOptionsVisibility;
   final Map<AttributeModel, AttributeValueModel> selectedAttributeValues;
-  final List<AttributeRequestValue> attributeRequests;
   final List<CategoryModel> catalogHistory;
   final List<ChildCategoryModel> childCategoryHistory;
+  final Map<String, Map<String, dynamic>> childCategorySelections;
+  final Map<String, List<AttributeModel>> childCategoryDynamicAttributes;
+  final List<AttributeRequestValue> attributeRequests;
+  final PostCreationStatus postCreationState;
+  final String? postCreationError;
 
-  const HomeTreeState({
-    this.status = PostCreationStatus.initial,
-    this.error,
+  HomeTreeState({
     this.catalogs,
     this.selectedCatalog,
     this.selectedChildCategory,
-    this.currentAttributes = const [],
-    this.dynamicAttributes = const [],
-    this.selectedValues = const {},
-    this.attributeOptionsVisibility = const {},
-    this.selectedAttributeValues = const {},
-    this.attributeRequests = const [],
-    this.catalogHistory = const [],
-    this.childCategoryHistory = const [],
-  });
-
-  HomeTreeState copyWith({
-    PostCreationStatus? status,
-    String? error,
-    List<CategoryModel>? catalogs,
-    CategoryModel? selectedCatalog,
-    ChildCategoryModel? selectedChildCategory,
+    this.isLoading = false,
+    this.error,
     List<AttributeModel>? currentAttributes,
     List<AttributeModel>? dynamicAttributes,
     Map<String, dynamic>? selectedValues,
     Map<AttributeModel, bool>? attributeOptionsVisibility,
     Map<AttributeModel, AttributeValueModel>? selectedAttributeValues,
-    List<AttributeRequestValue>? attributeRequests,
     List<CategoryModel>? catalogHistory,
     List<ChildCategoryModel>? childCategoryHistory,
+    Map<String, Map<String, dynamic>>? childCategorySelections,
+    Map<String, List<AttributeModel>>? childCategoryDynamicAttributes,
+    List<AttributeRequestValue>? attributeRequests,
+    this.postCreationState = PostCreationStatus.initial,
+    this.postCreationError,
+  })  : currentAttributes = currentAttributes ?? [],
+        dynamicAttributes = dynamicAttributes ?? [],
+        selectedValues = selectedValues ?? {},
+        attributeOptionsVisibility = attributeOptionsVisibility ?? {},
+        selectedAttributeValues = selectedAttributeValues ?? {},
+        catalogHistory = catalogHistory ?? [],
+        childCategoryHistory = childCategoryHistory ?? [],
+        childCategorySelections = childCategorySelections ?? {},
+        childCategoryDynamicAttributes = childCategoryDynamicAttributes ?? {},
+        attributeRequests = attributeRequests ?? [];
+
+  HomeTreeState copyWith({
+    List<CategoryModel>? catalogs,
+    CategoryModel? selectedCatalog,
+    ChildCategoryModel? selectedChildCategory,
+    bool? isLoading,
+    String? error,
+    List<AttributeModel>? currentAttributes,
+    List<AttributeModel>? dynamicAttributes,
+    Map<String, dynamic>? selectedValues,
+    Map<AttributeModel, bool>? attributeOptionsVisibility,
+    Map<AttributeModel, AttributeValueModel>? selectedAttributeValues,
+    List<CategoryModel>? catalogHistory,
+    List<ChildCategoryModel>? childCategoryHistory,
+    Map<String, Map<String, dynamic>>? childCategorySelections,
+    Map<String, List<AttributeModel>>? childCategoryDynamicAttributes,
+    List<AttributeRequestValue>? attributeRequests,
+    PostCreationStatus? postCreationState,
+    String? postCreationError,
   }) {
     return HomeTreeState(
-      status: status ?? this.status,
-      error: error ?? this.error,
       catalogs: catalogs ?? this.catalogs,
       selectedCatalog: selectedCatalog ?? this.selectedCatalog,
       selectedChildCategory:
           selectedChildCategory ?? this.selectedChildCategory,
+      isLoading: isLoading ?? this.isLoading,
+      error: error ?? this.error,
       currentAttributes: currentAttributes ?? this.currentAttributes,
       dynamicAttributes: dynamicAttributes ?? this.dynamicAttributes,
       selectedValues: selectedValues ?? this.selectedValues,
@@ -67,26 +87,29 @@ class HomeTreeState extends Equatable {
           attributeOptionsVisibility ?? this.attributeOptionsVisibility,
       selectedAttributeValues:
           selectedAttributeValues ?? this.selectedAttributeValues,
-      attributeRequests: attributeRequests ?? this.attributeRequests,
       catalogHistory: catalogHistory ?? this.catalogHistory,
       childCategoryHistory: childCategoryHistory ?? this.childCategoryHistory,
+      childCategorySelections:
+          childCategorySelections ?? this.childCategorySelections,
+      childCategoryDynamicAttributes:
+          childCategoryDynamicAttributes ?? this.childCategoryDynamicAttributes,
+      attributeRequests: attributeRequests ?? this.attributeRequests,
+      postCreationState: postCreationState ?? this.postCreationState,
+      postCreationError: postCreationError ?? this.postCreationError,
     );
   }
 
-  @override
-  List<Object?> get props => [
-        status,
-        error,
-        catalogs,
-        selectedCatalog,
-        selectedChildCategory,
-        currentAttributes,
-        dynamicAttributes,
-        selectedValues,
-        attributeOptionsVisibility,
-        selectedAttributeValues,
-        attributeRequests,
-        catalogHistory,
-        childCategoryHistory,
-      ];
+  List<AttributeModel> get orderedAttributes {
+    if (dynamicAttributes.isEmpty) return currentAttributes;
+    final List<AttributeModel> orderedAttributes = [];
+    for (var attr in currentAttributes) {
+      orderedAttributes.add(attr);
+      final relatedDynamicAttrs = dynamicAttributes
+          .where((dynamicAttr) =>
+              dynamicAttr.attributeKey.startsWith(attr.attributeKey))
+          .toList();
+      orderedAttributes.addAll(relatedDynamicAttrs);
+    }
+    return orderedAttributes;
+  }
 }
