@@ -55,6 +55,11 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
   void initState() {
     super.initState();
     context.read<HomeTreeCubit>().fetchCatalogs();
+    Future.delayed(
+      const Duration(seconds: 10),
+      () => context.read<HomeTreeCubit>().fetchInitialPublications(),
+    );
+
     _initializeVideoTracking();
 
     _scrollController.addListener(() {
@@ -142,7 +147,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
           );
         }
 
-        if (state.error!=null) {
+        if (state.error != null) {
           return Scaffold(
             body: Center(
                 child: Column(

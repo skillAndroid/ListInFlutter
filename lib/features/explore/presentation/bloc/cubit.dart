@@ -17,45 +17,94 @@ import 'package:list_in/features/post/domain/usecases/get_catalogs_usecase.dart'
 class HomeTreeCubit extends Cubit<HomeTreeState> {
   final GetGategoriesUsecase getCatalogsUseCase;
   final GetPublicationsUsecase getPublicationsUseCase;
+  static const int pageSize = 20;
 
   HomeTreeCubit({
     required this.getCatalogsUseCase,
     required this.getPublicationsUseCase,
   }) : super(HomeTreeState());
 
-  void fetchPublications({
+  Future<void> fetchInitialPublications({
     String? query,
-    int? page,
-    int? size,
     bool? bargain,
     String? condition,
   }) async {
-    emit(state.copyWith(isLoading: true));
+    emit(state.copyWith(
+      isLoading: true,
+      error: null,
+      hasReachedMax: false,
+      currentPage: 0,
+    ));
 
-    final params = GetPublicationsParams(
-      query: query,
-      page: page,
-      size: size,
-      bargain: bargain,
-      condition: condition,
-      priceFrom: state.priceFrom,
-      priceTo: state.priceTo,
+    final result = await getPublicationsUseCase(
+      params: GetPublicationsParams(
+        query: query ?? '',
+        page: 0,
+        size: pageSize,
+        bargain: bargain,
+        condition: condition,
+        priceFrom: state.priceFrom,
+        priceTo: state.priceTo,
+      ),
     );
-
-    final result = await getPublicationsUseCase(params: params);
 
     result.fold(
       (failure) => emit(state.copyWith(
         isLoading: false,
         error: _mapFailureToMessage(failure),
-        postCreationState: PostCreationStatus.error,
       )),
       (publications) => emit(state.copyWith(
         isLoading: false,
-        error: null,
-        postCreationState: PostCreationStatus.success,
-        // Add publications to state if needed
+        publications: publications,
+        hasReachedMax: publications.length < pageSize,
+        currentPage: 0,
       )),
+    );
+  }
+
+  Future<void> fetchMorePublications({
+    String? query,
+    bool? bargain,
+    String? condition,
+  }) async {
+    if (state.isLoadingMore || state.hasReachedMax) return;
+
+    emit(state.copyWith(isLoadingMore: true));
+
+    final nextPage = state.currentPage + 1;
+
+    final result = await getPublicationsUseCase(
+      params: GetPublicationsParams(
+        query: query,
+        page: nextPage,
+        size: pageSize,
+        bargain: bargain,
+        condition: condition,
+        priceFrom: state.priceFrom,
+        priceTo: state.priceTo,
+      ),
+    );
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isLoadingMore: false,
+        error: _mapFailureToMessage(failure),
+      )),
+      (newPublications) {
+        if (newPublications.isEmpty) {
+          emit(state.copyWith(
+            isLoadingMore: false,
+            hasReachedMax: true,
+          ));
+        } else {
+          emit(state.copyWith(
+            isLoadingMore: false,
+            publications: [...state.publications, ...newPublications],
+            currentPage: nextPage,
+            hasReachedMax: newPublications.length < pageSize,
+          ));
+        }
+      },
     );
   }
 
