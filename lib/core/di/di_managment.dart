@@ -16,6 +16,10 @@ import 'package:list_in/features/auth/domain/usecases/register_user_data.dart';
 import 'package:list_in/features/auth/domain/usecases/signup_usecase.dart';
 import 'package:list_in/features/auth/domain/usecases/verify_email_signup.dart';
 import 'package:list_in/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:list_in/features/explore/data/repository/get_publications_rep_impl.dart';
+import 'package:list_in/features/explore/data/source/get_publications_remoute.dart';
+import 'package:list_in/features/explore/domain/get_publications_usecase.dart';
+import 'package:list_in/features/explore/domain/repository/get_publications_repository.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/map/data/repositories/location_repository_impl.dart';
 import 'package:list_in/features/map/data/sources/location_remote_datasource.dart';
@@ -142,8 +146,10 @@ Future<void> init() async {
     ),
   );
 
-  sl.registerFactory(() => HomeTreeCubit(getCatalogsUseCase: sl()));
+  sl.registerFactory(() =>
+      HomeTreeCubit(getCatalogsUseCase: sl(), getPublicationsUseCase: sl()));
 
+  sl.registerLazySingleton(() => GetPublicationsUsecase(sl()));
   sl.registerLazySingleton(() => GetLocationUseCase(sl()));
   sl.registerLazySingleton(() => SearchLocationsUseCase(sl()));
   sl.registerLazySingleton<LocationRepository>(
@@ -164,6 +170,18 @@ Future<void> init() async {
   sl.registerLazySingleton<CatalogLocalDataSource>(
     () => CatalogLocalDataSourceImpl(categoryBox: catalogBox),
   );
+
+  sl.registerLazySingleton<PublicationsRepository>(
+    () => PublicationsRepositoryImpl(
+      remoteDataSource: sl(),
+      networkInfo: sl(),
+    ),
+  );
+
+  sl.registerLazySingleton<PublicationsRemoteDataSource>(
+    () => PublicationsRemoteDataSourceImpl(dio: sl(), authService: sl()),
+  );
+
   sl.registerFactory(() => PostProvider(
         getCatalogsUseCase: sl<GetGategoriesUsecase>(),
         uploadImagesUseCase: sl<UploadImagesUseCase>(),

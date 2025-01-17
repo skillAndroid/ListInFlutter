@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/core/error/failure.dart';
 import 'package:list_in/core/usecases/usecases.dart';
+import 'package:list_in/features/explore/domain/get_publications_usecase.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/post/data/models/attribute_model.dart';
 import 'package:list_in/features/post/data/models/attribute_value_model.dart';
@@ -15,10 +16,48 @@ import 'package:list_in/features/post/domain/usecases/get_catalogs_usecase.dart'
 // Now, let's create the Cubit
 class HomeTreeCubit extends Cubit<HomeTreeState> {
   final GetGategoriesUsecase getCatalogsUseCase;
+  final GetPublicationsUsecase getPublicationsUseCase;
 
   HomeTreeCubit({
     required this.getCatalogsUseCase,
+    required this.getPublicationsUseCase,
   }) : super(HomeTreeState());
+
+  void fetchPublications({
+    String? query,
+    int? page,
+    int? size,
+    bool? bargain,
+    String? condition,
+  }) async {
+    emit(state.copyWith(isLoading: true));
+
+    final params = GetPublicationsParams(
+      query: query,
+      page: page,
+      size: size,
+      bargain: bargain,
+      condition: condition,
+      priceFrom: state.priceFrom,
+      priceTo: state.priceTo,
+    );
+
+    final result = await getPublicationsUseCase(params: params);
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isLoading: false,
+        error: _mapFailureToMessage(failure),
+        postCreationState: PostCreationStatus.error,
+      )),
+      (publications) => emit(state.copyWith(
+        isLoading: false,
+        error: null,
+        postCreationState: PostCreationStatus.success,
+        // Add publications to state if needed
+      )),
+    );
+  }
 
   void setPriceRange(double? from, double? to) {
     emit(state.copyWith(
@@ -33,6 +72,8 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
       priceTo: null,
     ));
   }
+
+  // publications get border ************************************
 
   void getAtributesForPost() {
     final List<AttributeRequestValue> attributeRequests = [];
