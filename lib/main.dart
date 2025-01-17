@@ -93,17 +93,17 @@ final List<AdvertisedProductEntity> sampleVideos = [
 ];
 final List<ProductEntity> sampleProducts = [
   ProductEntity(
-    name: "iPhone 4 Pro Max stoladi srochno narx kelishilgan",
+    name: "iPhone 14 Pro Max for sale",
     images: [
       "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg"
     ],
     location: "Tashkent, Yashnobod",
-    price: 205,
+    price: 905,
     isNew: true,
     id: "1",
   ),
   ProductEntity(
-    name: "Car",
+    name: "Cow Available for Purchase",
     images: [
       "https://cdn.pixabay.com/photo/2024/09/03/08/56/dairy-cattle-9018750_640.jpg",
       "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg",
@@ -111,12 +111,12 @@ final List<ProductEntity> sampleProducts = [
       "https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_640.jpg"
     ],
     location: "Tashkent, Yashnobod",
-    price: 205,
+    price: 1999,
     isNew: true,
     id: "2",
   ),
   ProductEntity(
-    name: "Green iPhone",
+    name: "Your New Home Awaits – For Sale",
     images: [
       "https://cdn.pixabay.com/photo/2017/03/27/15/17/apartment-2179337_640.jpg"
     ],
@@ -126,7 +126,7 @@ final List<ProductEntity> sampleProducts = [
     id: "3",
   ),
   ProductEntity(
-    name: "Apartments",
+    name: "Own a Piece of History – Retro Car for Sale",
     images: [
       "https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_640.jpg"
     ],
@@ -134,19 +134,18 @@ final List<ProductEntity> sampleProducts = [
     price: 205,
     isNew: true,
     id: "4",
-  ),
-  ProductEntity(
-    name: "iPhone 4 Pro Max",
+  ), ProductEntity(
+    name: "iPhone 14 Pro Max for sale",
     images: [
       "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg"
     ],
     location: "Tashkent, Yashnobod",
-    price: 205,
+    price: 905,
     isNew: true,
     id: "1",
   ),
   ProductEntity(
-    name: "Car",
+    name: "Cow Available for Purchase",
     images: [
       "https://cdn.pixabay.com/photo/2024/09/03/08/56/dairy-cattle-9018750_640.jpg",
       "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg",
@@ -154,12 +153,12 @@ final List<ProductEntity> sampleProducts = [
       "https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_640.jpg"
     ],
     location: "Tashkent, Yashnobod",
-    price: 205,
+    price: 1999,
     isNew: true,
     id: "2",
   ),
   ProductEntity(
-    name: "Green iPhone 15 pro max sotiladi narxi kelishilgan",
+    name: "Your New Home Awaits – For Sale",
     images: [
       "https://cdn.pixabay.com/photo/2017/03/27/15/17/apartment-2179337_640.jpg"
     ],
@@ -169,7 +168,7 @@ final List<ProductEntity> sampleProducts = [
     id: "3",
   ),
   ProductEntity(
-    name: "Apartments",
+    name: "Own a Piece of History – Retro Car for Sale",
     images: [
       "https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_640.jpg"
     ],
@@ -177,16 +176,6 @@ final List<ProductEntity> sampleProducts = [
     price: 205,
     isNew: true,
     id: "4",
-  ),
-  ProductEntity(
-    name: "iPhone 4 Pro Max",
-    images: [
-      "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 205,
-    isNew: true,
-    id: "1",
   ),
   ProductEntity(
     name: "Car",

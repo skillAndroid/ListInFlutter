@@ -125,11 +125,14 @@ class AppRouter {
                 path: Routes.home,
                 name: "Home",
                 builder: (context, state) {
-                  return InitialHomeTreePage(
+                  return 
+                  
+                  InitialHomeTreePage(
                     key: state.pageKey,
                     regularProducts: sampleProducts,
                     advertisedProducts: sampleVideos,
-                  );
+                  )
+                  ;
                 },
                 routes: [
                   GoRoute(

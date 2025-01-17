@@ -126,7 +126,7 @@ Future<void> init() async {
   sl.registerLazySingleton(
     () {
       final dio = Dio();
-      dio.options.baseUrl = 'https://2bff-195-158-20-242.ngrok-free.app';
+      dio.options.baseUrl = 'http://listin.uz';
       dio.options.connectTimeout = const Duration(seconds: 5);
       dio.options.receiveTimeout = const Duration(seconds: 3);
       return dio;
