@@ -5,6 +5,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:list_in/config/assets/app_images.dart';
+import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/profile/domain/entity/publication/publication_entity.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
@@ -476,6 +478,222 @@ class RegularProductCard extends StatelessWidget {
                           children: [
                             Text(
                               '\$${product.price}',
+                              style: const TextStyle(
+                                color: AppColors.primary,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SmoothClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Container(
+                                color: AppColors.containerColor,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: Image.asset(
+                                      AppIcons.favorite,
+                                      color: AppColors.darkGray,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class RemouteRegularProductCard extends StatelessWidget {
+  final GetPublicationEntity product;
+
+  const RemouteRegularProductCard({super.key, required this.product});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        context.push(
+          Routes.productDetails.replaceAll(':id', product.id),
+          extra: getRecommendedProducts(product.id),
+        );
+      },
+      child: Card(
+        shape: SmoothRectangleBorder(
+          smoothness: 1,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        elevation: 5,
+        shadowColor: Colors.black.withOpacity(0.2),
+        color: AppColors.white,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Image section with fixed aspect ratio
+            AspectRatio(
+              aspectRatio: 1.1, // Adjust this value to control image height
+              child: Padding(
+                padding: const EdgeInsets.all(3),
+                child: Stack(
+                  children: [
+                    SmoothClipRRect(
+                      smoothness: 1,
+                      borderRadius: BorderRadius.circular(10),
+                      child: SizedBox.expand(
+                        child: product.productImages.isNotEmpty
+                            ? CachedNetworkImage(
+                                imageUrl:
+                                    'https://${product.productImages[0].url}',
+                                fit: BoxFit.cover,
+
+                                // Show a loading spinner while the image is loading
+                                placeholder: (context, url) => const Center(
+                                  child: CircularProgressIndicator(
+                                    color: AppColors.transparent,
+                                  ),
+                                ),
+                                // Handle errors with a custom error widget
+                                errorWidget: (context, url, error) => Container(
+                                  color:
+                                      Colors.grey[200], // Light grey background
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.error_outline,
+                                        color: Colors.grey[400],
+                                        size: 32,
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'Image not available',
+                                        style: TextStyle(
+                                          color: Colors.grey[600],
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )
+                            : Image.asset(
+                                AppImages.appLogo,
+                                fit: BoxFit.cover,
+                                // Error handling for asset image
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Container(
+                                  color: Colors.grey[200],
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.broken_image,
+                                        color: Colors.grey[400],
+                                        size: 32,
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'Logo not found',
+                                        style: TextStyle(
+                                          color: Colors.grey[600],
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 8,
+                      left: 8,
+                      child: SmoothCard(
+                        margin: const EdgeInsets.all(0),
+                        elevation: 0,
+                        color: AppColors.primary,
+                        borderRadius: BorderRadius.circular(6),
+                        child: const Padding(
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          child: Text(
+                            'New',
+                            style: TextStyle(
+                              color: AppColors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ),
+            // Content section with flexible height
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title with flexible height
+                    Expanded(
+                      child: Text(
+                        product.title,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        maxLines: 2, // Allow multiple lines
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    // Location with single line
+                    Text(
+                      product.locationName,
+                      style: const TextStyle(
+                        color: AppColors.lightText,
+                        fontSize: 13,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    //  const SizedBox(height: 8),
+                    // Price section with fixed height
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Transform.translate(
+                          offset: Offset(0, 6),
+                          child: const Text(
+                            'Price',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.lightText,
+                            ),
+                          ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              '200',
                               style: const TextStyle(
                                 color: AppColors.primary,
                                 fontSize: 18,

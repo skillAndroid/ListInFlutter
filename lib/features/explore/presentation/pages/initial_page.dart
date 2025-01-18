@@ -7,14 +7,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/domain/enties/advertised_product_entity.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
+import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
+import 'package:list_in/features/explore/presentation/widgets/adaptive_grid.dart';
 import 'package:list_in/features/explore/presentation/widgets/recomendation_widget.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/top_app_recomendation.dart';
@@ -39,6 +42,8 @@ class InitialHomeTreePage extends StatefulWidget {
 class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
   final ScrollController _scrollController = ScrollController();
   final SearchController _searchController = SearchController();
+  final PagingController<int, GetPublicationEntity> _pagingController =
+      PagingController(firstPageKey: 0);
 
   bool _isSliverAppBarVisible = false;
   final double _scrollThreshold = 800.0;
@@ -54,27 +59,25 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
   @override
   void initState() {
     super.initState();
+
+    _pagingController.addPageRequestListener((pageKey) {
+      context.read<HomeTreeCubit>().fetchPage(pageKey);
+    });
+
+    _initializeScrollListener();
     context.read<HomeTreeCubit>().fetchCatalogs();
-    Future.delayed(
-      const Duration(seconds: 10),
-      () => context.read<HomeTreeCubit>().fetchInitialPublications(),
-    );
+  }
 
-    _initializeVideoTracking();
-
+  void _initializeScrollListener() {
     _scrollController.addListener(() {
       final currentPosition = _scrollController.position.pixels;
 
       if (currentPosition > _scrollThreshold && !_hasPassedThreshold) {
         _hasPassedThreshold = true;
-        setState(() {
-          _isSliverAppBarVisible = true;
-        });
+        setState(() => _isSliverAppBarVisible = true);
       } else if (currentPosition < _scrollThreshold && _hasPassedThreshold) {
         _hasPassedThreshold = false;
-        setState(() {
-          _isSliverAppBarVisible = false;
-        });
+        setState(() => _isSliverAppBarVisible = false);
       }
     });
   }
@@ -89,6 +92,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
   @override
   void dispose() {
     _scrollController.dispose();
+    _pagingController.dispose();
     _searchController.dispose();
     _currentlyPlayingId.dispose();
     _selectedFilters.dispose();
@@ -130,7 +134,25 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
 //
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<HomeTreeCubit, HomeTreeState>(
+    return BlocConsumer<HomeTreeCubit, HomeTreeState>(
+      listener: (context, state) {
+        final error = state.errorPublicationsFetch;
+        if (error != null) {
+          _pagingController.error = error;
+        } else {
+          final isLastPage = state.hasReachedMax;
+          final currentPage = state.currentPage;
+
+          if (isLastPage) {
+            _pagingController.appendLastPage(state.publications);
+          } else {
+            _pagingController.appendPage(
+              state.publications,
+              currentPage + 1,
+            );
+          }
+        }
+      },
       builder: (context, state) {
         if (state.isLoading) {
           return Scaffold(
@@ -162,83 +184,90 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
           backgroundColor: AppColors.bgColor,
           extendBody: true,
           appBar: _buildAppBar(),
-          body: CustomScrollView(
-            controller: _scrollController,
-            physics: const BouncingScrollPhysics(),
-            slivers: [
-              SliverToBoxAdapter(
-                child: _buildCategories(),
-              ),
-              if (_isSliverAppBarVisible)
-                SliverAppBar(
-                  floating: true,
-                  snap: false,
-                  pinned: false,
-                  automaticallyImplyLeading: false,
-                  toolbarHeight: 50,
-                  flexibleSpace: _buildFiltersBar(state),
-                  backgroundColor: AppColors.bgColor,
+          body: RefreshIndicator(
+            onRefresh: () => Future.sync(() => _pagingController.refresh()),
+            child: CustomScrollView(
+              controller: _scrollController,
+              physics: const BouncingScrollPhysics(),
+              slivers: [
+                SliverToBoxAdapter(
+                  child: _buildCategories(),
                 ),
-              SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                sliver: SliverToBoxAdapter(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Video Posts",
-                        style: TextStyle(
-                          color: AppColors.black,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
+                if (_isSliverAppBarVisible)
+                  SliverAppBar(
+                    floating: true,
+                    snap: false,
+                    pinned: false,
+                    automaticallyImplyLeading: false,
+                    toolbarHeight: 50,
+                    flexibleSpace: _buildFiltersBar(state),
+                    backgroundColor: AppColors.bgColor,
+                  ),
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  sliver: SliverToBoxAdapter(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Video Posts",
+                          style: TextStyle(
+                            color: AppColors.black,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                      ),
-                      SizedBox(
-                        height: 8,
-                      ),
-                      VideoCarousel(
-                        items: widget.advertisedProducts,
-                      ),
-                      SizedBox(
-                        height: 16,
-                      )
-                    ],
-                  ),
-                ),
-              ),
-              SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                sliver: SliverGrid(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 0.65,
-                    crossAxisSpacing: 4,
-                    mainAxisSpacing: 4,
-                  ),
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) => RegularProductCard(
-                      product: widget.regularProducts[index],
+                        SizedBox(
+                          height: 8,
+                        ),
+                        VideoCarousel(
+                          items: widget.advertisedProducts,
+                        ),
+                        SizedBox(
+                          height: 16,
+                        )
+                      ],
                     ),
-                    childCount: widget.regularProducts.length,
                   ),
                 ),
-              ),
-              SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) => _buildAdvertisedProduct(
-                        widget.advertisedProducts[index]),
-                    childCount: widget.advertisedProducts.length,
-                  ),
-                ),
-              ),
-            ],
+                _buildProductGrid()
+              ],
+            ),
           ),
         );
       },
     );
   }
+
+  Widget _buildProductGrid() {
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      sliver: PagedSliverGrid<int, GetPublicationEntity>(
+        pagingController: _pagingController,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          mainAxisSpacing: 8,
+          crossAxisSpacing: 8,
+          childAspectRatio: 0.7,
+        ),
+        builderDelegate: PagedChildBuilderDelegate<GetPublicationEntity>(
+          itemBuilder: (context, publication, index) =>
+              RemouteRegularProductCard(
+            key: ValueKey(publication.id),
+            product: publication,
+          ),
+
+          firstPageErrorIndicatorBuilder: (context) => ErrorIndicator(
+            error: _pagingController.error,
+            onTryAgain: () => _pagingController.refresh(),
+          ),
+          //    noItemsFoundIndicatorBuilder: (context) => const NoItemsFound(),
+        ),
+      ),
+    );
+  }
+
+// other functions :
 
   Widget _buildFiltersBar(HomeTreeState state) {
     return ValueListenableBuilder<Set<int>>(
@@ -776,4 +805,42 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
     );
   }
 }
+
 //
+class ErrorIndicator extends StatelessWidget {
+  final dynamic error;
+  final VoidCallback onTryAgain;
+
+  const ErrorIndicator({
+    super.key,
+    required this.error,
+    required this.onTryAgain,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(error.toString()),
+          ElevatedButton(
+            onPressed: onTryAgain,
+            child: const Text('Try Again'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class NoItemsFound extends StatelessWidget {
+  const NoItemsFound({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Text('No items found'),
+    );
+  }
+}

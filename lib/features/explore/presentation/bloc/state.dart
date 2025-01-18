@@ -21,10 +21,12 @@ class HomeTreeState {
   final List<AttributeRequestValue> attributeRequests;
   final double? priceFrom;
   final double? priceTo;
-  final List<PublicationEntity> publications;
+  final List<GetPublicationEntity> publications;
   final bool isLoading;
+  final bool isPublicationsLoading;
   final bool isLoadingMore;
   final String? error;
+  final String? errorPublicationsFetch;
   final bool hasReachedMax;
   final int currentPage;
 
@@ -45,8 +47,10 @@ class HomeTreeState {
     this.priceFrom,
     this.priceTo,
     this.isLoading = false,
+    this.isPublicationsLoading = false,
     this.error,
-    List<PublicationEntity>? publications,
+    this.errorPublicationsFetch,
+    List<GetPublicationEntity>? publications,
     this.isLoadingMore = false,
     this.hasReachedMax = false,
     this.currentPage = 0,
@@ -77,10 +81,12 @@ class HomeTreeState {
     List<AttributeRequestValue>? attributeRequests,
     double? priceFrom,
     double? priceTo,
-    List<PublicationEntity>? publications,
+    List<GetPublicationEntity>? publications,
     bool? isLoading,
+    bool? isPublicationsLoading,
     bool? isLoadingMore,
     String? error,
+    String? errorPublicationsFetch,
     bool? hasReachedMax,
     int? currentPage,
   }) {

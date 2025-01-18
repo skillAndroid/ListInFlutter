@@ -13,7 +13,6 @@ import 'package:list_in/features/post/data/models/category_model.dart';
 import 'package:list_in/features/post/data/models/child_category_model.dart';
 import 'package:list_in/features/post/domain/usecases/get_catalogs_usecase.dart';
 
-// Now, let's create the Cubit
 class HomeTreeCubit extends Cubit<HomeTreeState> {
   final GetGategoriesUsecase getCatalogsUseCase;
   final GetPublicationsUsecase getPublicationsUseCase;
@@ -24,88 +23,56 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     required this.getPublicationsUseCase,
   }) : super(HomeTreeState());
 
-  Future<void> fetchInitialPublications({
-    String? query,
-    bool? bargain,
-    String? condition,
-  }) async {
-    emit(state.copyWith(
-      isLoading: true,
-      error: null,
-      hasReachedMax: false,
-      currentPage: 0,
-    ));
-
-    final result = await getPublicationsUseCase(
-      params: GetPublicationsParams(
-        query: query ?? '',
-        page: 0,
-        size: pageSize,
-        bargain: bargain,
-        condition: condition,
-        priceFrom: state.priceFrom,
-        priceTo: state.priceTo,
-      ),
-    );
-
-    result.fold(
-      (failure) => emit(state.copyWith(
-        isLoading: false,
-        error: _mapFailureToMessage(failure),
-      )),
-      (publications) => emit(state.copyWith(
-        isLoading: false,
-        publications: publications,
-        hasReachedMax: publications.length < pageSize,
+  Future<void> fetchPage(int pageKey) async {
+    debugPrint("🥹🥹Fetching called : $pageKey");
+    if (pageKey == 0) {
+      emit(state.copyWith(
+        isPublicationsLoading: true,
+        errorPublicationsFetch: null,
+        publications: [],
+        hasReachedMax: false,
         currentPage: 0,
-      )),
-    );
-  }
+      ));
+    }
 
-  Future<void> fetchMorePublications({
-    String? query,
-    bool? bargain,
-    String? condition,
-  }) async {
-    if (state.isLoadingMore || state.hasReachedMax) return;
+    try {
+      final result = await getPublicationsUseCase(
+        params: GetPublicationsParams(
+          page: pageKey,
+          size: pageSize,
+          priceFrom: state.priceFrom,
+          priceTo: state.priceTo,
+        ),
+      );
 
-    emit(state.copyWith(isLoadingMore: true));
-
-    final nextPage = state.currentPage + 1;
-
-    final result = await getPublicationsUseCase(
-      params: GetPublicationsParams(
-        query: query,
-        page: nextPage,
-        size: pageSize,
-        bargain: bargain,
-        condition: condition,
-        priceFrom: state.priceFrom,
-        priceTo: state.priceTo,
-      ),
-    );
-
-    result.fold(
-      (failure) => emit(state.copyWith(
-        isLoadingMore: false,
-        error: _mapFailureToMessage(failure),
-      )),
-      (newPublications) {
-        if (newPublications.isEmpty) {
+      result.fold(
+        (failure) {
           emit(state.copyWith(
-            isLoadingMore: false,
-            hasReachedMax: true,
+            isPublicationsLoading: false,
+            errorPublicationsFetch: _mapFailureToMessage(failure),
           ));
-        } else {
+        },
+        (newPublications) {
+          final isLastPage = newPublications.length < pageSize;
+          final updatedPublications = pageKey == 0
+              ? newPublications
+              : [...state.publications, ...newPublications];
+
           emit(state.copyWith(
-            isLoadingMore: false,
-            publications: [...state.publications, ...newPublications],
-            currentPage: nextPage,
-            hasReachedMax: newPublications.length < pageSize,
+            isPublicationsLoading: false,
+            errorPublicationsFetch: null,
+            publications: updatedPublications,
+            hasReachedMax: isLastPage,
+            currentPage: pageKey,
           ));
-        }
-      },
-    );
+        },
+      );
+    } catch (e) {
+      emit(state.copyWith(
+        isPublicationsLoading: false,
+        errorPublicationsFetch: 'An unexpected error occurred',
+      ));
+    }
   }
 
   void setPriceRange(double? from, double? to) {
@@ -228,6 +195,10 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
           "Attribute Value IDs: ${request.attributeValueIds.join(', ')}");
       debugPrint("------------");
     }
+  }
+
+  void clearError() {
+    emit(state.copyWith(error: null));
   }
 
   Future<void> fetchCatalogs() async {

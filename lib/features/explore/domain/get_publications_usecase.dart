@@ -25,13 +25,13 @@ class GetPublicationsParams {
 }
 
 class GetPublicationsUsecase
-    extends UseCase2<List<PublicationEntity>, GetPublicationsParams> {
+    extends UseCase2<List<GetPublicationEntity>, GetPublicationsParams> {
   final PublicationsRepository repository;
 
   GetPublicationsUsecase(this.repository);
 
   @override
-  Future<Either<Failure, List<PublicationEntity>>> call(
+  Future<Either<Failure, List<GetPublicationEntity>>> call(
       {GetPublicationsParams? params}) {
     return repository.getPublications(
       query: params?.query,

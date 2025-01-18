@@ -25,10 +25,13 @@ class CategoriesList extends StatelessWidget {
               if (state.catalogs != null)
                 _buildCategoryRow(
                     state.catalogs!.sublist(0, 3), "Popular Categories"),
-              const SizedBox(height: 4), // Increased spacing between sections
-              _buildCategoryRow(
-                  state.catalogs!.sublist(3, 6), "Featured Categories"),
               const SizedBox(height: 4),
+              if (state.catalogs != null) // Increased spacing between sections
+                _buildCategoryRow(
+                    state.catalogs!.sublist(3, 6), "Featured Categories"),
+              if (state.catalogs != null) 
+              const SizedBox(height: 4),
+               if (state.catalogs != null) 
               _buildCategoryRow(
                   state.catalogs!.sublist(6, 9), "More Categories"),
             ],

@@ -138,8 +138,8 @@ class _SignupPageState extends State<SignupPage> {
                             },
                       child: state is AuthLoading
                           ? const SizedBox(
-                              height: 20,
-                              width: 20,
+                              height: 18,
+                              width: 18,
                               child: CircularProgressIndicator(
                                 strokeWidth:  2.5,
                                 strokeCap: StrokeCap.round,

@@ -133,8 +133,8 @@ class _LoginPageState extends State<LoginPage> {
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 20),
-                        foregroundColor: AppColors.black,
-                        backgroundColor: AppColors.littleGreen,
+                        foregroundColor: AppColors.white,
+                        backgroundColor: AppColors.primary,
                       ),
                       onPressed: state is AuthLoading
                           ? null
@@ -150,8 +150,8 @@ class _LoginPageState extends State<LoginPage> {
                             },
                       child: state is AuthLoading
                           ? const SizedBox(
-                              height: 20,
-                              width: 20,
+                              height: 18,
+                              width: 18,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2.5,
                                 strokeCap: StrokeCap.round,

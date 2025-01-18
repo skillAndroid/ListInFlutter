@@ -16,7 +16,7 @@ class PublicationsRepositoryImpl implements PublicationsRepository {
   });
 
   @override
-  Future<Either<Failure, List<PublicationEntity>>> getPublications({
+  Future<Either<Failure, List<GetPublicationEntity>>> getPublications({
     String? query,
     int? page,
     int? size,

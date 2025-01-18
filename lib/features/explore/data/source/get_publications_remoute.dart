@@ -4,7 +4,7 @@ import 'package:list_in/core/services/auth_service.dart';
 import 'package:list_in/features/explore/data/models/publication_model.dart';
 
 abstract class PublicationsRemoteDataSource {
-  Future<List<PublicationModel>> getPublications({
+  Future<List<GetPublicationModel>> getPublications({
     String? query,
     int? page,
     int? size,
@@ -25,7 +25,7 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
   });
 
   @override
-  Future<List<PublicationModel>> getPublications({
+  Future<List<GetPublicationModel>> getPublications({
     String? query,
     int? page,
     int? size,
@@ -56,7 +56,7 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonResponse = response.data;
         final List<dynamic> content = jsonResponse['content'];
-        return content.map((item) => PublicationModel.fromJson(item)).toList();
+        return content.map((item) => GetPublicationModel.fromJson(item)).toList();
       } else if (response.statusCode == 404) {
         throw NotFoundExeption();
       } else if (response.statusCode == 401) {
