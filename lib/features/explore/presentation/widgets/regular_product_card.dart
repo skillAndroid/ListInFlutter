@@ -535,8 +535,8 @@ class RemouteRegularProductCard extends StatelessWidget {
           smoothness: 1,
           borderRadius: BorderRadius.circular(10),
         ),
-        elevation: 5,
-        shadowColor: Colors.black.withOpacity(0.2),
+        elevation: 4,
+        shadowColor: Colors.black.withOpacity(0.4),
         color: AppColors.white,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -693,7 +693,7 @@ class RemouteRegularProductCard extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Text(
-                              '200',
+                              product.price.toString(),
                               style: const TextStyle(
                                 color: AppColors.primary,
                                 fontSize: 18,

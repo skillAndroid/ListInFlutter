@@ -17,7 +17,6 @@ import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
-import 'package:list_in/features/explore/presentation/widgets/adaptive_grid.dart';
 import 'package:list_in/features/explore/presentation/widgets/recomendation_widget.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/top_app_recomendation.dart';
@@ -59,10 +58,17 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
   @override
   void initState() {
     super.initState();
-
+    _initializeVideoTracking();
+    // Add page request listener
     _pagingController.addPageRequestListener((pageKey) {
-      context.read<HomeTreeCubit>().fetchPage(pageKey);
+      // Prevent duplicate requests for the same page
+      if (!context.read<HomeTreeCubit>().state.isPublicationsLoading) {
+        context.read<HomeTreeCubit>().fetchPage(pageKey);
+      }
     });
+
+    // Trigger initial load
+    Future.microtask(() => _pagingController.refresh());
 
     _initializeScrollListener();
     context.read<HomeTreeCubit>().fetchCatalogs();
@@ -82,10 +88,16 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
     });
   }
 
-  void _initializeVideoTracking() {
+   void _initializeVideoTracking() {
+    if (!mounted) return;
+
     for (var product in widget.advertisedProducts) {
-      _visibilityNotifiers[product.id] = ValueNotifier<double>(0.0);
-      _pageNotifiers[product.id] = ValueNotifier<int>(0);
+      if (!_visibilityNotifiers.containsKey(product.id)) {
+        _visibilityNotifiers[product.id] = ValueNotifier<double>(0.0);
+      }
+      if (!_pageNotifiers.containsKey(product.id)) {
+        _pageNotifiers[product.id] = ValueNotifier<int>(0);
+      }
     }
   }
 
@@ -135,6 +147,10 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<HomeTreeCubit, HomeTreeState>(
+      listenWhen: (previous, current) =>
+          previous.errorPublicationsFetch != current.errorPublicationsFetch ||
+          previous.publications != current.publications ||
+          previous.hasReachedMax != current.hasReachedMax,
       listener: (context, state) {
         final error = state.errorPublicationsFetch;
         if (error != null) {
@@ -142,14 +158,23 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
         } else {
           final isLastPage = state.hasReachedMax;
           final currentPage = state.currentPage;
+          final newItems = state.publications;
 
-          if (isLastPage) {
-            _pagingController.appendLastPage(state.publications);
+          if (currentPage == 0) {
+            if (isLastPage) {
+              _pagingController.appendLastPage(newItems);
+            } else {
+              _pagingController.appendPage(newItems, currentPage + 1);
+            }
           } else {
-            _pagingController.appendPage(
-              state.publications,
-              currentPage + 1,
-            );
+            final startIndex = currentPage * HomeTreeCubit.pageSize;
+            final newPageItems = newItems.skip(startIndex).toList();
+
+            if (isLastPage) {
+              _pagingController.appendLastPage(newPageItems);
+            } else {
+              _pagingController.appendPage(newPageItems, currentPage + 1);
+            }
           }
         }
       },
@@ -246,9 +271,9 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
         pagingController: _pagingController,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          mainAxisSpacing: 8,
-          crossAxisSpacing: 8,
-          childAspectRatio: 0.7,
+          mainAxisSpacing: 0,
+          crossAxisSpacing: 0,
+          childAspectRatio: 0.66,
         ),
         builderDelegate: PagedChildBuilderDelegate<GetPublicationEntity>(
           itemBuilder: (context, publication, index) =>
@@ -844,3 +869,5 @@ class NoItemsFound extends StatelessWidget {
     );
   }
 }
+
+

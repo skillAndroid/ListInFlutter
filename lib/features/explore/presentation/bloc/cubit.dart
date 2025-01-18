@@ -24,14 +24,22 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
   }) : super(HomeTreeState());
 
   Future<void> fetchPage(int pageKey) async {
+    if (state.isPublicationsLoading) return;
+
     debugPrint("🥹🥹Fetching called : $pageKey");
+
     if (pageKey == 0) {
       emit(state.copyWith(
         isPublicationsLoading: true,
         errorPublicationsFetch: null,
-        publications: [],
+        publications: [], // Clear existing publications for page 0
         hasReachedMax: false,
         currentPage: 0,
+      ));
+    } else {
+      emit(state.copyWith(
+        isPublicationsLoading: true,
+        errorPublicationsFetch: null,
       ));
     }
 

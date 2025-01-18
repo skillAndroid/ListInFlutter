@@ -2,7 +2,7 @@ class GetPublicationEntity {
   final String id;
   final String title;
   final String description;
-  // final double price;
+  final double price;
   final bool bargain;
   final String locationName;
   // final double? latitude;
@@ -20,7 +20,7 @@ class GetPublicationEntity {
     required this.id,
     required this.title,
     required this.description,
-    // required this.price,
+    required this.price,
     required this.bargain,
     required this.locationName,
     // required this.latitude,

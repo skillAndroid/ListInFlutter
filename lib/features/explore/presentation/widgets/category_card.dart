@@ -89,7 +89,7 @@ class _CategoryCardState extends State<CategoryCard>
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 0),
                   decoration: BoxDecoration(
-                    color: AppColors.containerColor2,
+                    color: AppColors.containerColor,
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withOpacity(_isPressed ? 0.0 : 0.0),

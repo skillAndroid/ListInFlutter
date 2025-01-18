@@ -7,7 +7,7 @@ class GetPublicationModel {
   final String id;
   final String title;
   final String description;
-  // final double price;
+  final double price;
   final bool bargain;
   final String locationName;
   // final double? latitude;
@@ -25,7 +25,7 @@ class GetPublicationModel {
     required this.id,
     required this.title,
     required this.description,
-    // required this.price,
+    required this.price,
     required this.bargain,
     required this.locationName,
     // this.latitude,
@@ -81,7 +81,7 @@ class GetPublicationModel {
         id: json['id']?.toString() ?? '',
         title: json['title']?.toString() ?? '',
         description: json['description']?.toString() ?? '',
-        // price: price,
+        price: price,
         bargain: json['bargain'] ?? false,
         locationName: json['locationName']?.toString() ?? '',
         // latitude: _safeParseDouble(json['latitude']),
@@ -106,7 +106,7 @@ class GetPublicationModel {
       id: id,
       title: title,
       description: description,
-      // price: price,
+      price: price,
       bargain: bargain,
       locationName: locationName,
       // latitude: latitude,

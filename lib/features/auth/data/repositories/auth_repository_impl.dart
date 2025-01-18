@@ -1,7 +1,6 @@
 // ignore_for_file: unused_catch_clause
 
 import 'package:dartz/dartz.dart';
-import 'package:list_in/core/error/exeptions.dart';
 import 'package:list_in/core/error/failure.dart';
 import 'package:list_in/core/network/network_info.dart';
 import 'package:list_in/features/auth/data/sources/auth_local_data_source.dart';

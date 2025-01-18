@@ -132,7 +132,7 @@ Future<void> init() async {
       final dio = Dio();
       dio.options.baseUrl = 'http://listin.uz';
       dio.options.connectTimeout = const Duration(seconds: 10);
-      dio.options.receiveTimeout = const Duration(seconds: 3);
+      dio.options.receiveTimeout = const Duration(seconds: 10);
       return dio;
     },
   );
