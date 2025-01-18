@@ -6,10 +6,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/assets/app_icons.dart';
+import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/domain/enties/advertised_product_entity.dart';
@@ -88,7 +90,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
     });
   }
 
-   void _initializeVideoTracking() {
+  void _initializeVideoTracking() {
     if (!mounted) return;
 
     for (var product in widget.advertisedProducts) {
@@ -266,32 +268,121 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
 
   Widget _buildProductGrid() {
     return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      sliver: PagedSliverGrid<int, GetPublicationEntity>(
-        pagingController: _pagingController,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          mainAxisSpacing: 0,
-          crossAxisSpacing: 0,
-          childAspectRatio: 0.66,
-        ),
-        builderDelegate: PagedChildBuilderDelegate<GetPublicationEntity>(
-          itemBuilder: (context, publication, index) =>
-              RemouteRegularProductCard(
-            key: ValueKey(publication.id),
-            product: publication,
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        sliver: PagedSliverMasonryGrid<int, GetPublicationEntity>(
+          pagingController: _pagingController,
+          gridDelegateBuilder: (context) =>
+              SliverSimpleGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2, // Number of columns in the grid
           ),
-
-          firstPageErrorIndicatorBuilder: (context) => ErrorIndicator(
-            error: _pagingController.error,
-            onTryAgain: () => _pagingController.refresh(),
+          builderDelegate: PagedChildBuilderDelegate<GetPublicationEntity>(
+            itemBuilder: (context, publication, index) {
+              return _buildDynamicTile(publication);
+            },
+            firstPageErrorIndicatorBuilder: (context) => ErrorIndicator(
+              error: _pagingController.error,
+              onTryAgain: () => _pagingController.refresh(),
+            ),
+            noItemsFoundIndicatorBuilder: (context) =>
+                const Center(child: Text("No items found")),
           ),
-          //    noItemsFoundIndicatorBuilder: (context) => const NoItemsFound(),
-        ),
-      ),
-    );
+        ));
   }
 
+  Widget _buildDynamicTile(GetPublicationEntity publication) {
+    if (publication.videoUrl == null) {
+      // Regular item (smaller size)
+      return Card(
+        child: ListTile(
+          title: Text(publication.title),
+          subtitle: Text(publication.description),
+        ),
+      );
+    } else {
+      // Large item (spans full width)
+      return Card(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SmoothClipRRect(
+              smoothness: 1,
+              borderRadius: BorderRadius.circular(10),
+              child: SizedBox(
+                child: publication.productImages.isNotEmpty
+                    ? CachedNetworkImage(
+                        imageUrl: 'https://${publication.productImages[0].url}',
+                        fit: BoxFit.cover,
+
+                        // Show a loading spinner while the image is loading
+                        placeholder: (context, url) => const Center(
+                          child: CircularProgressIndicator(
+                            color: AppColors.transparent,
+                          ),
+                        ),
+                        // Handle errors with a custom error widget
+                        errorWidget: (context, url, error) => Container(
+                          color: Colors.grey[200], // Light grey background
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.error_outline,
+                                color: Colors.grey[400],
+                                size: 32,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Image not available',
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    : Image.asset(
+                        AppImages.appLogo,
+                        fit: BoxFit.cover,
+                        // Error handling for asset image
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          color: Colors.grey[200],
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.broken_image,
+                                color: Colors.grey[400],
+                                size: 32,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Logo not found',
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+              ),
+            ),
+            Text(
+              publication.title,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text(publication.description),
+            const SizedBox(height: 8),
+            const Icon(Icons.play_circle_fill, size: 32),
+          ],
+        ),
+      );
+    }
+  }
 // other functions :
 
   Widget _buildFiltersBar(HomeTreeState state) {
@@ -869,5 +960,3 @@ class NoItemsFound extends StatelessWidget {
     );
   }
 }
-
-
