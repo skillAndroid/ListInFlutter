@@ -551,7 +551,9 @@ class RemouteRegularProductCard extends StatelessWidget {
                     SmoothClipRRect(
                       smoothness: 1,
                       borderRadius: BorderRadius.circular(10),
-                      child: SizedBox.expand(
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: double.infinity,
                         child: product.productImages.isNotEmpty
                             ? CachedNetworkImage(
                                 imageUrl:
@@ -644,14 +646,18 @@ class RemouteRegularProductCard extends StatelessWidget {
               ),
             ),
             // Content section with flexible height
-            Expanded(
+            SizedBox(
+              width: double.infinity,
+              height: 115,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     // Title with flexible height
-                    Expanded(
+                    SizedBox(
+                      width: double.infinity,
                       child: Text(
                         product.title,
                         style: const TextStyle(
@@ -663,21 +669,21 @@ class RemouteRegularProductCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 2),
-                    // Location with single line
-                    Text(
-                      product.locationName,
-                      style: const TextStyle(
-                        color: AppColors.lightText,
-                        fontSize: 13,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+
                     //  const SizedBox(height: 8),
                     // Price section with fixed height
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        Text(
+                          product.locationName,
+                          style: const TextStyle(
+                            color: AppColors.lightText,
+                            fontSize: 13,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                         Transform.translate(
                           offset: Offset(0, 6),
                           child: const Text(

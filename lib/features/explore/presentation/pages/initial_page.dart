@@ -11,7 +11,6 @@ import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/assets/app_icons.dart';
-import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/domain/enties/advertised_product_entity.dart';
@@ -265,125 +264,47 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
       },
     );
   }
-
-  Widget _buildProductGrid() {
+ Widget _buildProductGrid() {
     return SliverPadding(
-        padding: const EdgeInsets.symmetric(horizontal: 4),
-        sliver: PagedSliverMasonryGrid<int, GetPublicationEntity>(
-          pagingController: _pagingController,
-          gridDelegateBuilder: (context) =>
-              SliverSimpleGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2, // Number of columns in the grid
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      sliver: PagedSliverGrid<int, GetPublicationEntity>(
+        pagingController: _pagingController,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          mainAxisSpacing: 0,
+          crossAxisSpacing: 0,
+          childAspectRatio: 0.66,
+        ),
+        builderDelegate: PagedChildBuilderDelegate<GetPublicationEntity>(
+          itemBuilder: (context, publication, index) =>
+              RemouteRegularProductCard(
+            key: ValueKey(publication.id),
+            product: publication,
           ),
-          builderDelegate: PagedChildBuilderDelegate<GetPublicationEntity>(
-            itemBuilder: (context, publication, index) {
-              return _buildDynamicTile(publication);
-            },
-            firstPageErrorIndicatorBuilder: (context) => ErrorIndicator(
-              error: _pagingController.error,
-              onTryAgain: () => _pagingController.refresh(),
-            ),
-            noItemsFoundIndicatorBuilder: (context) =>
-                const Center(child: Text("No items found")),
+
+          firstPageErrorIndicatorBuilder: (context) => ErrorIndicator(
+            error: _pagingController.error,
+            onTryAgain: () => _pagingController.refresh(),
           ),
-        ));
+          //    noItemsFoundIndicatorBuilder: (context) => const NoItemsFound(),
+        ),
+      ),
+    );
   }
 
-  Widget _buildDynamicTile(GetPublicationEntity publication) {
-    if (publication.videoUrl == null) {
-      // Regular item (smaller size)
-      return Card(
-        child: ListTile(
-          title: Text(publication.title),
-          subtitle: Text(publication.description),
-        ),
-      );
-    } else {
-      // Large item (spans full width)
-      return Card(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SmoothClipRRect(
-              smoothness: 1,
-              borderRadius: BorderRadius.circular(10),
-              child: SizedBox(
-                child: publication.productImages.isNotEmpty
-                    ? CachedNetworkImage(
-                        imageUrl: 'https://${publication.productImages[0].url}',
-                        fit: BoxFit.cover,
+Widget _buildProductCard2(BuildContext context, GetPublicationEntity product) {
+  return RemouteRegularProductCard(
+    key: ValueKey(product.id),
+    product: product,
+  );
+}
 
-                        // Show a loading spinner while the image is loading
-                        placeholder: (context, url) => const Center(
-                          child: CircularProgressIndicator(
-                            color: AppColors.transparent,
-                          ),
-                        ),
-                        // Handle errors with a custom error widget
-                        errorWidget: (context, url, error) => Container(
-                          color: Colors.grey[200], // Light grey background
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.error_outline,
-                                color: Colors.grey[400],
-                                size: 32,
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Image not available',
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
-                    : Image.asset(
-                        AppImages.appLogo,
-                        fit: BoxFit.cover,
-                        // Error handling for asset image
-                        errorBuilder: (context, error, stackTrace) => Container(
-                          color: Colors.grey[200],
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.broken_image,
-                                color: Colors.grey[400],
-                                size: 32,
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Logo not found',
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-              ),
-            ),
-            Text(
-              publication.title,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text(publication.description),
-            const SizedBox(height: 8),
-            const Icon(Icons.play_circle_fill, size: 32),
-          ],
-        ),
-      );
-    }
-  }
-// other functions :
+Widget _buildLargeProductCard(BuildContext context, GetPublicationEntity product) {
+  return _buildAdvertisedProduct(
+    product,
+  );
+}
+
 
   Widget _buildFiltersBar(HomeTreeState state) {
     return ValueListenableBuilder<Set<int>>(
@@ -558,9 +479,14 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
     );
   }
 
-  Widget _buildAdvertisedProduct(AdvertisedProductEntity product) {
+  Widget _buildAdvertisedProduct(GetPublicationEntity product) {
+    // Add null check and initialization if needed
+    if (!_visibilityNotifiers.containsKey(product.id)) {
+      _visibilityNotifiers[product.id] = ValueNotifier<double>(0.0);
+    }
+
     return ValueListenableBuilder<double>(
-      valueListenable: _visibilityNotifiers[product.id]!,
+      valueListenable: _visibilityNotifiers[product.id]!, // Now safe to use !
       builder: (context, visibility, _) {
         return VisibilityDetector(
           key: Key('detector_${product.id}'),
@@ -574,7 +500,10 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
     );
   }
 
-  Widget _buildProductCard(AdvertisedProductEntity product) {
+  Widget _buildProductCard(GetPublicationEntity product) {
+    if (!_pageNotifiers.containsKey(product.id)) {
+      _pageNotifiers[product.id] = ValueNotifier<int>(0);
+    }
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Card(
@@ -598,7 +527,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                       return Stack(
                         children: [
                           PageView.builder(
-                            itemCount: product.images.length,
+                            itemCount: product.productImages.length,
                             onPageChanged: (page) =>
                                 _pageNotifiers[product.id]?.value = page,
                             itemBuilder: (context, index) => _buildMediaContent(
@@ -641,7 +570,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                                     horizontal: 10,
                                   ),
                                   child: Text(
-                                    '${currentPage + 1}/${product.images.length}',
+                                    '${currentPage + 1}/${product.productImages.length}',
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 13,
@@ -702,7 +631,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                             40,
                           ), // Adjust radius for desired roundness
                           child: CachedNetworkImage(
-                            imageUrl: product.thumbnailUrl,
+                            imageUrl: "https://${product.seller.profileImagePath}",
                             fit: BoxFit.cover,
                             errorWidget: (context, url, error) =>
                                 const Center(child: Icon(Icons.error)),
@@ -713,7 +642,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                         width: 8,
                       ),
                       Text(
-                        product.userName,
+                        product.seller.nickName,
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 14,
@@ -732,7 +661,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                         width: 8,
                       ),
                       Text(
-                        product.userRating.toString(),
+                        " 4",
                         style: TextStyle(
                           fontWeight: FontWeight.w500,
                           fontSize: 14,
@@ -740,7 +669,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                         ),
                       ),
                       Text(
-                        "(${product.reviewsCount})",
+                        "5",
                         style: TextStyle(
                           color: AppColors.lightText,
                           fontWeight: FontWeight.w400,
@@ -766,7 +695,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                         width: 8,
                       ),
                       Text(
-                        product.location,
+                        product.locationName,
                         style: TextStyle(
                           color: AppColors.darkGray.withOpacity(0.7),
                           fontSize: 13,
@@ -778,7 +707,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                     height: 8,
                   ),
                   Text(
-                    "Experience the pinnacle of innovation with the iPhone 15 Pro Max. Featuring a stunning titanium design, advanced A17 Pro chip for unmatched performance, an incredible 48MP camera with 5x zoom, and all-day battery life. ",
+                    product.description,
                     style: TextStyle(
                       fontSize: 12,
                       color: AppColors.darkGray.withOpacity(0.7),
@@ -801,7 +730,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                        product.price,
+                        product.price.toString(),
                         style: const TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 17,
@@ -862,7 +791,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
 
 //
   Widget _buildMediaContent(
-    AdvertisedProductEntity product,
+    GetPublicationEntity product,
     int pageIndex,
     int currentPage,
     bool isPlaying,
@@ -870,8 +799,8 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
     if (pageIndex == 0 && isPlaying) {
       return VideoPlayerWidget(
         key: Key('video_${product.id}'),
-        videoUrl: product.videoUrl,
-        thumbnailUrl: product.thumbnailUrl,
+        videoUrl: "https://${product.videoUrl!}",
+        thumbnailUrl: product.productImages[0].url,
         isPlaying: true,
         onPlay: () {},
         onPause: () {},
@@ -879,8 +808,9 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
     }
 
     return CachedNetworkImage(
-      imageUrl:
-          pageIndex == 0 ? product.thumbnailUrl : product.images[pageIndex],
+      imageUrl: pageIndex == 0
+          ? "https://${product.productImages[0].url}"
+          : "https://${product.productImages[pageIndex].url}",
       fit: BoxFit.cover,
       placeholder: (context, url) => const Center(
           child: CircularProgressIndicator(
