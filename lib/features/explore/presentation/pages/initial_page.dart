@@ -6,7 +6,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:ionicons/ionicons.dart';
@@ -264,47 +263,93 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
       },
     );
   }
- Widget _buildProductGrid() {
+
+  Widget _buildProductGrid() {
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
-      sliver: PagedSliverGrid<int, GetPublicationEntity>(
+      sliver: PagedSliverList<int, GetPublicationEntity>(
         pagingController: _pagingController,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          mainAxisSpacing: 0,
-          crossAxisSpacing: 0,
-          childAspectRatio: 0.66,
-        ),
         builderDelegate: PagedChildBuilderDelegate<GetPublicationEntity>(
-          itemBuilder: (context, publication, index) =>
-              RemouteRegularProductCard(
-            key: ValueKey(publication.id),
-            product: publication,
-          ),
+          itemBuilder: (context, item, index) {
+            final items = _pagingController.itemList;
+            if (items == null) return const SizedBox.shrink();
 
+            final screenWidth = MediaQuery.of(context).size.width;
+
+            // Early return for video items
+            if (item.videoUrl?.isNotEmpty ?? false) {
+              return SizedBox(
+                width: screenWidth,
+                child: _buildAdvertisedProduct(item),
+              );
+            }
+
+            // Only process even indices to create pairs efficiently
+            if (index.isEven) {
+              final hasNextItem = index + 1 < items.length;
+              if (hasNextItem) {
+                final nextItem = items[index + 1];
+                final nextIsRegular = nextItem.videoUrl?.isEmpty ?? true;
+
+                if (nextIsRegular) {
+                  // Both items are regular, create a pair
+                  return _buildProductRow(
+                    leftItem: item,
+                    rightItem: nextItem,
+                    screenWidth: screenWidth,
+                  );
+                }
+              }
+              // Single item on even index
+              return _buildProductRow(
+                leftItem: item,
+                screenWidth: screenWidth,
+              );
+            }
+
+            // Skip odd indices as they're handled with even indices
+            return const SizedBox.shrink();
+          },
           firstPageErrorIndicatorBuilder: (context) => ErrorIndicator(
             error: _pagingController.error,
             onTryAgain: () => _pagingController.refresh(),
           ),
-          //    noItemsFoundIndicatorBuilder: (context) => const NoItemsFound(),
+          noItemsFoundIndicatorBuilder: (context) =>
+              const Center(child: Text('No items found')),
         ),
       ),
     );
   }
 
-Widget _buildProductCard2(BuildContext context, GetPublicationEntity product) {
-  return RemouteRegularProductCard(
-    key: ValueKey(product.id),
-    product: product,
-  );
-}
-
-Widget _buildLargeProductCard(BuildContext context, GetPublicationEntity product) {
-  return _buildAdvertisedProduct(
-    product,
-  );
-}
-
+  Widget _buildProductRow({
+    required GetPublicationEntity leftItem,
+    GetPublicationEntity? rightItem,
+    required double screenWidth,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Expanded(
+            child: RemouteRegularProductCard(
+              key: ValueKey('regular_${leftItem.id}'),
+              product: leftItem,
+            ),
+          ),
+          const SizedBox(width: 4), // Add small gap between items
+          Expanded(
+            child: rightItem != null
+                ? RemouteRegularProductCard(
+                    key: ValueKey('regular_${rightItem.id}'),
+                    product: rightItem,
+                  )
+                : const SizedBox(), // Empty space for single items
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildFiltersBar(HomeTreeState state) {
     return ValueListenableBuilder<Set<int>>(
@@ -331,12 +376,12 @@ Widget _buildLargeProductCard(BuildContext context, GetPublicationEntity product
       HomeTreeState state, int index, Set<int> selectedFilters) {
     return Padding(
       padding: const EdgeInsets.symmetric(
-        horizontal: 4,
+        horizontal: 2.5,
       ),
       child: FilterChip(
-        padding: EdgeInsets.symmetric(horizontal: 7, vertical: 12),
-        label:
-            Text(state.catalogs![index].name, style: TextStyle(fontSize: 12)),
+        padding: EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+        label: Text(state.catalogs![index].name,
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
         shape: SmoothRectangleBorder(
             smoothness: 0.8, borderRadius: BorderRadius.circular(10)),
         selected: selectedFilters.contains(index),
@@ -391,20 +436,27 @@ Widget _buildLargeProductCard(BuildContext context, GetPublicationEntity product
                                 AppIcons.searchIcon,
                                 width: 24,
                                 height: 24,
-                                color: AppColors.grey,
+                                color:AppColors.darkGray.withOpacity(0.8)
                               ),
                             ),
                             Expanded(
                               child: TextField(
                                 controller: _searchController,
                                 cursorRadius: Radius.circular(2),
-                                decoration: const InputDecoration(
-                                  hintStyle:
-                                      TextStyle(color: AppColors.darkGray),
+                                decoration: InputDecoration(
+                                  hintStyle: TextStyle(
+                                    color: AppColors.darkGray.withOpacity(0.8),
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                   contentPadding: EdgeInsets.zero,
                                   hintText: "Search...",
                                   border: InputBorder.none,
                                 ),
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors
+                                        .black // Set font weight for entered text
+                                    ),
                               ),
                             ),
                             const VerticalDivider(
@@ -604,7 +656,7 @@ Widget _buildLargeProductCard(BuildContext context, GetPublicationEntity product
                     children: [
                       Expanded(
                         child: Text(
-                          "${product.title} sotiladi yandgi ishlatilmagan",
+                          product.title,
                           style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 16,
@@ -631,7 +683,8 @@ Widget _buildLargeProductCard(BuildContext context, GetPublicationEntity product
                             40,
                           ), // Adjust radius for desired roundness
                           child: CachedNetworkImage(
-                            imageUrl: "https://${product.seller.profileImagePath}",
+                            imageUrl:
+                                "https://${product.seller.profileImagePath}",
                             fit: BoxFit.cover,
                             errorWidget: (context, url, error) =>
                                 const Center(child: Icon(Icons.error)),
@@ -800,7 +853,7 @@ Widget _buildLargeProductCard(BuildContext context, GetPublicationEntity product
       return VideoPlayerWidget(
         key: Key('video_${product.id}'),
         videoUrl: "https://${product.videoUrl!}",
-        thumbnailUrl: product.productImages[0].url,
+        thumbnailUrl: 'https://${product.productImages[0].url}',
         isPlaying: true,
         onPlay: () {},
         onPause: () {},
