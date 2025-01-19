@@ -442,16 +442,17 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                                 controller: _searchController,
                                 cursorRadius: Radius.circular(2),
                                 decoration: InputDecoration(
+                                  fillColor: AppColors.transparent,
                                   hintStyle: TextStyle(
                                     color: AppColors.darkGray.withOpacity(0.8),
-                                    fontWeight: FontWeight.w600,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                   contentPadding: EdgeInsets.zero,
                                   hintText: "Search...",
                                   border: InputBorder.none,
                                 ),
                                 style: TextStyle(
-                                    fontWeight: FontWeight.w600,
+                                    fontWeight: FontWeight.w500,
                                     color: AppColors
                                         .black // Set font weight for entered text
                                     ),
@@ -783,7 +784,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                       Text(
                         product.price.toString(),
                         style: const TextStyle(
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.bold,
                           fontSize: 17,
                           color: AppColors.primary,
                         ),

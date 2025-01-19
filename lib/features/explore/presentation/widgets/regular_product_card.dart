@@ -5,16 +5,14 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/assets/app_images.dart';
+import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/router/routes.dart';
+import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/profile/domain/entity/publication/publication_entity.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
-
-import 'package:list_in/config/assets/app_icons.dart';
-import 'package:list_in/config/theme/app_colors.dart';
-import 'package:list_in/core/router/routes.dart';
-import 'package:list_in/features/details/presentation/pages/details.dart';
-import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 
 class HorizontalProfileProductCard extends StatelessWidget {
   final PublicationEntity product;
@@ -31,23 +29,24 @@ class HorizontalProfileProductCard extends StatelessWidget {
 
     return Card(
       color: AppColors.white,
-      elevation: 8,
-      shadowColor: Colors.black.withOpacity(0.15),
+      margin: EdgeInsets.symmetric(vertical:  5, horizontal: 4),
+      elevation: 2,
+      shadowColor: Colors.black.withOpacity(0.5),
       shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: SizedBox(
-        height: 120,
+        height: 100,
         child: Row(
           children: [
             SizedBox(
-              width: 120,
               child: Stack(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.all(4),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
                     child: SmoothClipRRect(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(10),
                       child: AspectRatio(
-                        aspectRatio: 1,
+                        aspectRatio: 0.9,
                         child: CachedNetworkImage(
                           imageUrl: displayImage,
                           fit: BoxFit.cover,
@@ -60,7 +59,7 @@ class HorizontalProfileProductCard extends StatelessWidget {
                     top: 8,
                     right: 8,
                     child: SmoothClipRRect(
-                      borderRadius: BorderRadius.circular(6),
+                      borderRadius: BorderRadius.circular(8),
                       child: Container(
                         padding:
                             EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -88,7 +87,7 @@ class HorizontalProfileProductCard extends StatelessWidget {
             ),
             Expanded(
               child: Padding(
-                padding: EdgeInsets.all(12),
+                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -199,7 +198,7 @@ class HorizontalProfileProductCard extends StatelessWidget {
 }
 
 class ProfileProductCard extends StatelessWidget {
-  final ProductEntity product;
+  final PublicationEntity product;
   const ProfileProductCard({
     super.key,
     required this.product,
@@ -209,8 +208,8 @@ class ProfileProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       color: AppColors.white,
-      elevation: 10,
-      shadowColor: Colors.black.withOpacity(0.2),
+      elevation: 5,
+      shadowColor: Colors.black.withOpacity(0.3),
       shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -224,7 +223,7 @@ class ProfileProductCard extends StatelessWidget {
                   child: AspectRatio(
                     aspectRatio: 1.1,
                     child: CachedNetworkImage(
-                      imageUrl: product.images[0],
+                      imageUrl: "https://${product.productImages[0].url}",
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -370,7 +369,7 @@ class RegularProductCard extends StatelessWidget {
       onTap: () {
         context.push(
           Routes.productDetails.replaceAll(':id', product.id),
-          extra: getRecommendedProducts(product.id),
+          //extra: getRecommendedProducts(product.id),
         );
       },
       child: Card(
@@ -526,8 +525,8 @@ class RemouteRegularProductCard extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         context.push(
-          Routes.productDetails.replaceAll(':id', product.id),
-          extra: getRecommendedProducts(product.id),
+          Routes.productDetails,
+          extra: product, // Pass the entire product object directly
         );
       },
       child: Card(

@@ -122,13 +122,14 @@ class _SignupPageState extends State<SignupPage> {
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 20),
-                        foregroundColor: AppColors.black,
-                        backgroundColor: AppColors.littleGreen,
+                        foregroundColor: AppColors.white,
+                        backgroundColor: AppColors.primary,
                       ),
                       onPressed: state is AuthLoading
                           ? null
                           : () {
                               if (_formKey.currentState!.validate()) {
+                                FocusScope.of(context).unfocus();
                                 context.read<AuthBloc>().add(
                                       SignupSubmitted(
                                         email: _emailController.text,
@@ -141,7 +142,7 @@ class _SignupPageState extends State<SignupPage> {
                               height: 18,
                               width: 18,
                               child: CircularProgressIndicator(
-                                strokeWidth:  2.5,
+                                strokeWidth: 2.5,
                                 strokeCap: StrokeCap.round,
                                 color: Colors.black,
                               ),

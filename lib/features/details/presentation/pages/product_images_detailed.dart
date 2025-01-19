@@ -3,10 +3,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class ProductImagesDetailed extends StatefulWidget {
-  final List<String> images;
+  final List<ProductImageEntity> images;
   final int initialIndex;
   final String heroTag;
 
@@ -106,7 +107,7 @@ class _ProductImagesDetailedState extends State<ProductImagesDetailed> {
                         maxScale: 4.0,
                         child: Center(
                           child: CachedNetworkImage(
-                            imageUrl: widget.images[index],
+                            imageUrl: "https://${widget.images[index].url}",
                             fit: BoxFit.contain,
                             placeholder: (context, url) => const Center(
                               child: CircularProgressIndicator(

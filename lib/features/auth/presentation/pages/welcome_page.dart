@@ -143,7 +143,8 @@ class _WelcomePageState extends State<WelcomePage> {
           _buildElevatedButton(
             context,
             label: 'Create an Account',
-            color: AppColors.littleGreen,
+            color: AppColors.primary,
+            textColor: AppColors.white,
             onPressed: () => context.push(Routes.signup),
           ),
           const SizedBox(height: 8),
@@ -151,6 +152,7 @@ class _WelcomePageState extends State<WelcomePage> {
             context,
             label: 'Log In',
             color: AppColors.transparent,
+            textColor: AppColors.black,
             onPressed: () => context.push(Routes.login),
           ),
           const SizedBox(height: 20),
@@ -186,6 +188,7 @@ class _WelcomePageState extends State<WelcomePage> {
     BuildContext context, {
     required String label,
     required Color color,
+    required Color textColor,
     required VoidCallback onPressed,
   }) {
     return ElevatedButton(
@@ -197,11 +200,11 @@ class _WelcomePageState extends State<WelcomePage> {
       child: Center(
         child: Text(
           label,
-          style: const TextStyle(
-            fontSize: 17,
-            fontWeight: FontWeight.w700,
-            fontFamily: 'Syne',
-          ),
+          style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+              fontFamily: 'Syne',
+              color: textColor),
         ),
       ),
     );

@@ -212,8 +212,8 @@ class _VerificationPageState extends State<VerificationPage> {
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 20),
-                        foregroundColor: AppColors.black,
-                        backgroundColor: AppColors.littleGreen,
+                        foregroundColor: AppColors.white,
+                        backgroundColor: AppColors.primary,
                       ),
                       onPressed: state is AuthLoading
                           ? null

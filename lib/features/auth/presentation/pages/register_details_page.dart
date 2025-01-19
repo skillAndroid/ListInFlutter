@@ -251,7 +251,7 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                 style: ElevatedButton.styleFrom(
                                   padding:
                                       const EdgeInsets.symmetric(vertical: 20),
-                                  backgroundColor: AppColors.littleGreen,
+                                  backgroundColor: AppColors.primary,
                                 ),
                                 child: state is AuthLoading
                                     ? const SizedBox(
@@ -259,7 +259,7 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                         width: 20,
                                         child: CircularProgressIndicator(
                                           strokeWidth: 2,
-                                          color: Colors.white,
+                                          color: Colors.black,
                                         ),
                                       )
                                     : Text(
@@ -267,7 +267,7 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                             ? 'Continue'
                                             : 'Submit',
                                         style:
-                                            const TextStyle(fontFamily: 'Syne'),
+                                            const TextStyle(fontFamily: 'Syne', color: AppColors.white),
                                       ),
                               ),
                             ),

@@ -9,6 +9,7 @@ import 'package:list_in/features/auth/presentation/pages/verification_page.dart'
 import 'package:list_in/features/auth/presentation/pages/welcome_page.dart';
 import 'package:list_in/features/details/presentation/pages/details.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
+import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/pages/child_page.dart';
 import 'package:list_in/features/explore/presentation/pages/detailed_page.dart';
 import 'package:list_in/features/explore/presentation/pages/initial_page.dart';
@@ -85,23 +86,11 @@ class AppRouter {
       GoRoute(
         path: Routes.productDetails,
         builder: (context, state) {
-          final productId = state.pathParameters['id']!;
-          final extraProducts = state.extra;
-
-          final List<ProductEntity> recommendedProducts;
-          if (extraProducts is List<ProductEntity>) {
-            recommendedProducts = extraProducts;
-          } else {
-            recommendedProducts = getRecommendedProducts(productId);
-          }
-
-          final productDetails = findProductById(productId);
-
+          final product = state.extra as GetPublicationEntity;
           return ProductDetailsScreen(
             key: state.pageKey,
-            productId: productId,
-            recommendedProducts: recommendedProducts,
-            productDetails: productDetails,
+            product: product,
+            recommendedProducts:sampleProducts ,
           );
         },
       ),
@@ -125,14 +114,11 @@ class AppRouter {
                 path: Routes.home,
                 name: "Home",
                 builder: (context, state) {
-                  return 
-                  
-                  InitialHomeTreePage(
+                  return InitialHomeTreePage(
                     key: state.pageKey,
                     regularProducts: sampleProducts,
                     advertisedProducts: sampleVideos,
-                  )
-                  ;
+                  );
                 },
                 routes: [
                   GoRoute(

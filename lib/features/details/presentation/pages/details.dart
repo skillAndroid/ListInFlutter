@@ -13,20 +13,19 @@ import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/details/presentation/pages/product_images_detailed.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
+import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
 import 'package:list_in/main.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
-  final String productId;
+  final GetPublicationEntity product;
   final List<ProductEntity> recommendedProducts;
-  final ProductEntity productDetails;
 
   const ProductDetailsScreen({
     super.key,
-    required this.productId,
+    required this.product,
     required this.recommendedProducts,
-    required this.productDetails,
   });
 
   @override
@@ -60,11 +59,6 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
     }
   }
 
-  void _jumpToPage(int page) {
-    _currentPage = page;
-    _pageController.jumpToPage(page);
-  }
-
   Widget _buildFeatureChip(String text) {
     return SmoothClipRRect(
       borderRadius: BorderRadius.circular(8),
@@ -85,7 +79,7 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.bgColor,
+      backgroundColor: Color.fromARGB(255, 252, 252, 252),
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(
           parent: AlwaysScrollableScrollPhysics(),
@@ -171,17 +165,21 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
               Icon(
                 CupertinoIcons
                     .location, // Using solid variant for better visibility
-                color: AppColors.secondaryColor,
+                color: AppColors.black,
                 size: 20,
               ),
               const SizedBox(width: 10),
-              Text(
-                'Tashkent, Quyliq Bozor',
-                style: const TextStyle(
-                  fontSize: 15,
-                  color: Color(0xFF2F2F2F),
-                  fontWeight: FontWeight.w500,
-                  height: 1.2,
+              SizedBox(
+                width: 250,
+                child: Text(
+                  widget.product.seller.locationName,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    overflow: TextOverflow.ellipsis,
+                    color: Color(0xFF2F2F2F),
+                    fontWeight: FontWeight.w500,
+                    height: 1.2,
+                  ),
                 ),
               ),
             ],
@@ -209,7 +207,11 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
                 const SizedBox(width: 8),
                 IconButton(
                   onPressed: () {},
-                  icon: const Icon(Ionicons.person_add, size: 34),
+                  icon: const Icon(
+                    Ionicons.person_add,
+                    size: 30,
+                    color: AppColors.black,
+                  ),
                 ),
               ],
             ),
@@ -244,8 +246,8 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Axel',
+                    Text(
+                      widget.product.seller.nickName,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -285,7 +287,7 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
         Positioned(
           left: 0,
           child: Container(
-            padding: const EdgeInsets.all(4),
+            padding: const EdgeInsets.all(2),
             decoration: BoxDecoration(
               color: AppColors.bgColor,
               shape: BoxShape.circle,
@@ -293,7 +295,7 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
             child: CircleAvatar(
               radius: 28,
               backgroundImage: CachedNetworkImageProvider(
-                widget.productDetails.images[0],
+                "https://${widget.product.seller.profileImagePath}",
               ),
             ),
           ),
@@ -307,21 +309,21 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Transform.translate(
-          offset: const Offset(-16, -12),
+          offset: const Offset(-50, -8),
           child: Container(
             padding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 6,
+              horizontal: 8,
+              vertical: 4,
             ),
             decoration: BoxDecoration(
-              color: Colors.amber.shade400,
-              borderRadius: BorderRadius.circular(8),
+              color: AppColors.containerColor,
+              borderRadius: BorderRadius.circular(24),
             ),
             child: const Text(
               "Price",
               style: TextStyle(
-                fontSize: 14,
-                color: Colors.white,
+                fontSize: 12,
+                color: Colors.black,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -330,10 +332,10 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
         Transform.translate(
           offset: const Offset(0, -4),
           child: Text(
-            '\$${widget.productDetails.price}',
+            '\$${widget.product.price}',
             style: TextStyle(
               fontSize: 24,
-              color: AppColors.secondaryColor,
+              color: AppColors.primary,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -357,7 +359,7 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'I will send the Iphone 14pro Max 8/256. The color is white, It is absolutely...',
+            widget.product.description,
             style: TextStyle(
               color: AppColors.darkGray.withOpacity(0.6),
               fontSize: 14,
@@ -374,7 +376,7 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
             child: Text(
               'Read more',
               style: TextStyle(
-                color: AppColors.secondaryColor,
+                color: AppColors.primary,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -405,7 +407,7 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
                 child: Text(
                   'View All',
                   style: TextStyle(
-                    color: AppColors.secondaryColor,
+                    color: AppColors.primary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -458,12 +460,15 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
       flexibleSpace: FlexibleSpaceBar(
         title: _isCollapsed
             ? Padding(
-                padding: const EdgeInsets.only(left: 16),
+                padding: const EdgeInsets.only(left: 16, bottom: 4),
                 child: Text(
-                  widget.productDetails.name,
+                  widget.product.title,
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
                   style: const TextStyle(
                     color: Color(0xFF1A1A1A),
                     fontSize: 16,
+                    overflow: TextOverflow.ellipsis,
                     fontWeight: FontWeight.w600,
                     letterSpacing: -0.5,
                   ),
@@ -553,9 +558,9 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
         PageView.builder(
           controller: _pageController,
           onPageChanged: (index) => setState(() => _currentPage = index),
-          itemCount: widget.productDetails.images.length,
+          itemCount: widget.product.productImages.length,
           itemBuilder: (context, index) => _buildImageSlide(
-            widget.productDetails.images[index],
+            widget.product.productImages[index].url,
           ),
         ),
         _buildImageCounter(),
@@ -563,32 +568,32 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
- Widget _buildImageSlide(String imageUrl) {
-  return GestureDetector(
-    onTap: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ProductImagesDetailed(
-            images: widget.productDetails.images,
-            initialIndex: _currentPage,
-            heroTag: widget.productId,
+  Widget _buildImageSlide(String imageUrl) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProductImagesDetailed(
+              images: widget.product.productImages,
+              initialIndex: _currentPage,
+              heroTag: widget.product.id,
+            ),
           ),
+        );
+      },
+      child: SmoothClipRRect(
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(16),
+          bottomRight: Radius.circular(16),
         ),
-      );
-    },
-    child: SmoothClipRRect(
-      borderRadius: const BorderRadius.only(
-        bottomLeft: Radius.circular(16),
-        bottomRight: Radius.circular(16),
+        child: CachedNetworkImage(
+          imageUrl: 'https://$imageUrl',
+          fit: BoxFit.cover,
+        ),
       ),
-      child: CachedNetworkImage(
-        imageUrl: imageUrl,
-        fit: BoxFit.cover,
-      ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildImageCounter() {
     return Positioned(
@@ -602,7 +607,7 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             color: Colors.black54,
             child: Text(
-              '${_currentPage + 1}/${widget.productDetails.images.length}',
+              '${_currentPage + 1}/${widget.product.productImages.length}',
               style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w600,
@@ -623,7 +628,7 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
     ];
 
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 8),
       child: Wrap(
         spacing: 4,
         runSpacing: 4,
@@ -636,9 +641,9 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Text(
-        widget.productDetails.name,
+        widget.product.title,
         style: const TextStyle(
-          fontSize: 24,
+          fontSize: 22,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -655,7 +660,7 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
 
   Widget _buildBottomButtons() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.only(right: 16, left: 16, bottom: 22, top: 10),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
@@ -741,7 +746,7 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
 //
   Widget _buildReviewItem() {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.containerColor,
@@ -755,7 +760,7 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
               CircleAvatar(
                 radius: 20,
                 backgroundImage: CachedNetworkImageProvider(
-                  widget.productDetails.images[0],
+                  "https://${widget.product.productImages[0].url}",
                 ),
               ),
               const SizedBox(width: 12),

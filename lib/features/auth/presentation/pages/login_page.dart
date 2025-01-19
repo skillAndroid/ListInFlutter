@@ -140,6 +140,7 @@ class _LoginPageState extends State<LoginPage> {
                           ? null
                           : () {
                               if (_formKey.currentState!.validate()) {
+                                  FocusScope.of(context).unfocus();
                                 context.read<AuthBloc>().add(
                                       LoginSubmitted(
                                         email: _emailController.text,
