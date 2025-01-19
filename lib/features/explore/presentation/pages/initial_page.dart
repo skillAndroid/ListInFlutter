@@ -263,93 +263,135 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
       },
     );
   }
-
-  Widget _buildProductGrid() {
-    return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      sliver: PagedSliverList<int, GetPublicationEntity>(
-        pagingController: _pagingController,
-        builderDelegate: PagedChildBuilderDelegate<GetPublicationEntity>(
-          itemBuilder: (context, item, index) {
-            final items = _pagingController.itemList;
-            if (items == null) return const SizedBox.shrink();
-
-            final screenWidth = MediaQuery.of(context).size.width;
-
-            // Early return for video items
-            if (item.videoUrl?.isNotEmpty ?? false) {
-              return SizedBox(
-                width: screenWidth,
-                child: _buildAdvertisedProduct(item),
-              );
-            }
-
-            // Only process even indices to create pairs efficiently
-            if (index.isEven) {
-              final hasNextItem = index + 1 < items.length;
-              if (hasNextItem) {
-                final nextItem = items[index + 1];
-                final nextIsRegular = nextItem.videoUrl?.isEmpty ?? true;
-
-                if (nextIsRegular) {
-                  // Both items are regular, create a pair
-                  return _buildProductRow(
-                    leftItem: item,
-                    rightItem: nextItem,
-                    screenWidth: screenWidth,
-                  );
-                }
-              }
-              // Single item on even index
-              return _buildProductRow(
-                leftItem: item,
-                screenWidth: screenWidth,
-              );
-            }
-
-            // Skip odd indices as they're handled with even indices
-            return const SizedBox.shrink();
-          },
-          firstPageErrorIndicatorBuilder: (context) => ErrorIndicator(
-            error: _pagingController.error,
-            onTryAgain: () => _pagingController.refresh(),
-          ),
-          noItemsFoundIndicatorBuilder: (context) =>
-              const Center(child: Text('No items found')),
+Widget _buildProductGrid() {
+  return SliverPadding(
+    padding: const EdgeInsets.symmetric(horizontal: 4),
+    sliver: PagedSliverList<int, GetPublicationEntity>(
+      pagingController: _pagingController,
+      builderDelegate: PagedChildBuilderDelegate<GetPublicationEntity>(
+        itemBuilder: (context, item, index) {
+          final items = _pagingController.itemList;
+          if (items == null) return const SizedBox.shrink();
+          
+          final screenWidth = MediaQuery.of(context).size.width;
+          
+          if (index == 0) {
+            _processItems(items);
+          }
+          
+          return _buildProcessedItem(index, items, screenWidth);
+        },
+        firstPageErrorIndicatorBuilder: (context) => ErrorIndicator(
+          error: _pagingController.error,
+          onTryAgain: () => _pagingController.refresh(),
         ),
+        noItemsFoundIndicatorBuilder: (context) =>
+            const Center(child: Text('No items found')),
       ),
-    );
-  }
+    ),
+  );
+}
 
-  Widget _buildProductRow({
-    required GetPublicationEntity leftItem,
-    GetPublicationEntity? rightItem,
-    required double screenWidth,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 1),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Expanded(
-            child: RemouteRegularProductCard(
-              key: ValueKey('regular_${leftItem.id}'),
-              product: leftItem,
-            ),
-          ),
-          const SizedBox(width: 1), // Add small gap between items
-          Expanded(
-            child: rightItem != null
-                ? RemouteRegularProductCard(
-                    key: ValueKey('regular_${rightItem.id}'),
-                    product: rightItem,
-                  )
-                : const SizedBox(), // Empty space for single items
-          ),
-        ],
+late final List<_ProcessedItem> _processedItems = [];
+
+void _processItems(List<GetPublicationEntity> items) {
+  _processedItems.clear();
+  
+  // Separate regular and video items
+  final regularItems = <GetPublicationEntity>[];
+  final videoItems = <GetPublicationEntity>[];
+  
+  for (final item in items) {
+    if (item.videoUrl?.isNotEmpty ?? false) {
+      videoItems.add(item);
+    } else {
+      regularItems.add(item);
+    }
+  }
+  
+  // Process regular items in pairs
+  for (int i = 0; i < regularItems.length; i += 2) {
+    if (i + 1 < regularItems.length) {
+      // Create pair
+      _processedItems.add(
+        _ProcessedItem(
+          type: ItemType.regularPair,
+          leftItem: regularItems[i],
+          rightItem: regularItems[i + 1],
+        ),
+      );
+    } else {
+      // Last single regular item - keep it as a regular row item
+      _processedItems.add(
+        _ProcessedItem(
+          type: ItemType.regularPair,  // Using regularPair type but with no rightItem
+          leftItem: regularItems[i],
+        ),
+      );
+    }
+  }
+  
+  // Add video items
+  for (final videoItem in videoItems) {
+    _processedItems.add(
+      _ProcessedItem(
+        type: ItemType.advertisedProduct,
+        leftItem: videoItem,
       ),
     );
   }
+}
+
+Widget _buildProcessedItem(int index, List<GetPublicationEntity> items, double screenWidth) {
+  if (index >= _processedItems.length) return const SizedBox.shrink();
+  
+  final processedItem = _processedItems[index];
+  
+  switch (processedItem.type) {
+    case ItemType.regularPair:
+      return _buildProductRow(
+        leftItem: processedItem.leftItem,
+        rightItem: processedItem.rightItem,
+        screenWidth: screenWidth,
+      );
+    
+    case ItemType.advertisedProduct:
+      return SizedBox(
+        width: screenWidth,
+        child: _buildAdvertisedProduct(processedItem.leftItem),
+      );
+  }
+}
+
+Widget _buildProductRow({
+  required GetPublicationEntity leftItem,
+  GetPublicationEntity? rightItem,
+  required double screenWidth,
+}) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 1),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Expanded(
+          child: RemouteRegularProductCard(
+            key: ValueKey('regular_${leftItem.id}'),
+            product: leftItem,
+          ),
+        ),
+        const SizedBox(width: 1),
+        Expanded(
+          child: rightItem != null
+              ? RemouteRegularProductCard(
+                  key: ValueKey('regular_${rightItem.id}'),
+                  product: rightItem,
+                )
+              : const SizedBox(), // Empty space for single items
+        ),
+      ],
+    ),
+  );
+}
 
   Widget _buildFiltersBar(HomeTreeState state) {
     return ValueListenableBuilder<Set<int>>(
@@ -941,4 +983,20 @@ class NoItemsFound extends StatelessWidget {
       child: Text('No items found'),
     );
   }
+}
+enum ItemType {
+  regularPair,
+  advertisedProduct,
+}
+
+class _ProcessedItem {
+  final ItemType type;
+  final GetPublicationEntity leftItem;
+  final GetPublicationEntity? rightItem;
+  
+  _ProcessedItem({
+    required this.type,
+    required this.leftItem,
+    this.rightItem,
+  });
 }
