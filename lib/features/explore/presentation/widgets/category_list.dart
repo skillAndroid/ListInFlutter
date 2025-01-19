@@ -140,7 +140,7 @@ class CategoriesList extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.containerColor.withOpacity(0.5),
+        color: AppColors.containerColor.withOpacity(0.3),
         borderRadius: BorderRadius.circular(12),
       ),
       padding: const EdgeInsets.symmetric(vertical: 8),

@@ -327,7 +327,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
     required double screenWidth,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
+      padding: const EdgeInsets.symmetric(vertical: 1),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
@@ -337,7 +337,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
               product: leftItem,
             ),
           ),
-          const SizedBox(width: 4), // Add small gap between items
+          const SizedBox(width: 1), // Add small gap between items
           Expanded(
             child: rightItem != null
                 ? RemouteRegularProductCard(
@@ -432,12 +432,10 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                           children: [
                             Padding(
                               padding: const EdgeInsets.all(12),
-                              child: Image.asset(
-                                AppIcons.searchIcon,
-                                width: 24,
-                                height: 24,
-                                color:AppColors.darkGray.withOpacity(0.8)
-                              ),
+                              child: Image.asset(AppIcons.searchIcon,
+                                  width: 24,
+                                  height: 24,
+                                  color: AppColors.darkGray.withOpacity(0.8)),
                             ),
                             Expanded(
                               child: TextField(
@@ -562,7 +560,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
         shadowColor: AppColors.black.withOpacity(0.2),
         color: AppColors.white,
         shape: SmoothRectangleBorder(
-            smoothness: 1, borderRadius: BorderRadius.circular(4)),
+            smoothness: 0.8, borderRadius: BorderRadius.circular(4)),
         clipBehavior: Clip.hardEdge,
         elevation: 5,
         child: Column(
