@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/core/error/failure.dart';
 import 'package:list_in/core/usecases/usecases.dart';
+import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/domain/get_publications_usecase.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/post/data/models/attribute_model.dart';
@@ -25,18 +26,19 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
 
   Future<void> fetchPage(int pageKey) async {
     if (state.isPublicationsLoading) return;
-
-    debugPrint("🥹🥹Fetching called : $pageKey");
+    debugPrint("🔍 Fetching page: $pageKey with search: ${state.searchText}");
 
     if (pageKey == 0) {
+      // For first page, we clear everything
       emit(state.copyWith(
         isPublicationsLoading: true,
         errorPublicationsFetch: null,
-        publications: [], // Clear existing publications for page 0
+        publications: [], // Clear existing publications
         hasReachedMax: false,
         currentPage: 0,
       ));
     } else {
+      // For subsequent pages, keep existing data but show loading
       emit(state.copyWith(
         isPublicationsLoading: true,
         errorPublicationsFetch: null,
@@ -46,6 +48,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     try {
       final result = await getPublicationsUseCase(
         params: GetPublicationsParams(
+          query: state.searchText,
           page: pageKey,
           size: pageSize,
           priceFrom: state.priceFrom,
@@ -62,9 +65,14 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
         },
         (newPublications) {
           final isLastPage = newPublications.length < pageSize;
-          final updatedPublications = pageKey == 0
-              ? newPublications
-              : [...state.publications, ...newPublications];
+
+          // Only append for pagination, replace for new search
+          final List<GetPublicationEntity> updatedPublications;
+          if (pageKey == 0) {
+            updatedPublications = newPublications;
+          } else {
+            updatedPublications = [...state.publications, ...newPublications];
+          }
 
           emit(state.copyWith(
             isPublicationsLoading: false,
@@ -82,6 +90,28 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
       ));
     }
   }
+
+  bool isHandlingSearch = false;
+// Add this new method for search handling
+  Future<void> handleSearch(String? searchText) async {
+    isHandlingSearch = true;
+    // First clear everything and set new search text
+    emit(state.copyWith(
+      searchText: searchText,
+      publications: [], // Clear existing publications
+      currentPage: 0,
+      hasReachedMax: false,
+      isPublicationsLoading: false,
+      errorPublicationsFetch: null,
+    ));
+
+    // Then fetch the first page with new search text
+    await fetchPage(0);
+     isHandlingSearch = false;
+  }
+
+
+  
 
   void setPriceRange(double? from, double? to) {
     emit(state.copyWith(

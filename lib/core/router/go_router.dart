@@ -13,6 +13,7 @@ import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/pages/child_page.dart';
 import 'package:list_in/features/explore/presentation/pages/detailed_page.dart';
 import 'package:list_in/features/explore/presentation/pages/initial_page.dart';
+import 'package:list_in/features/explore/presentation/pages/search_page.dart';
 import 'package:list_in/features/post/presentation/pages/post_screen.dart';
 import 'package:list_in/features/profile/domain/entity/user/user_profile_entity.dart';
 import 'package:list_in/features/profile/presentation/pages/profile_editor_page.dart';
@@ -83,6 +84,12 @@ class AppRouter {
         name: RoutesByName.videosFeed,
         builder: (context, state) => ListInShorts(data: sampleVideos),
       ),
+
+      GoRoute(
+        path: Routes.search,
+        name: RoutesByName.search,
+        builder: (context, state) => SearchPage(),
+      ),
       GoRoute(
         path: Routes.productDetails,
         builder: (context, state) {
@@ -90,7 +97,7 @@ class AppRouter {
           return ProductDetailsScreen(
             key: state.pageKey,
             product: product,
-            recommendedProducts:sampleProducts ,
+            recommendedProducts: sampleProducts,
           );
         },
       ),

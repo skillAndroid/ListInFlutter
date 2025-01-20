@@ -59,6 +59,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
   void initState() {
     super.initState();
     _initializeVideoTracking();
+
     // Add page request listener
     _pagingController.addPageRequestListener((pageKey) {
       // Prevent duplicate requests for the same page
@@ -66,9 +67,6 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
         context.read<HomeTreeCubit>().fetchPage(pageKey);
       }
     });
-
-    // Trigger initial load
-    Future.microtask(() => _pagingController.refresh());
 
     _initializeScrollListener();
     context.read<HomeTreeCubit>().fetchCatalogs();
@@ -156,6 +154,13 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
         if (error != null) {
           _pagingController.error = error;
         } else {
+          // Add this check for empty publications
+          if (state.publications.isEmpty &&
+              !context.read<HomeTreeCubit>().isHandlingSearch) {
+            _pagingController.refresh();
+            return;
+          }
+
           final isLastPage = state.hasReachedMax;
           final currentPage = state.currentPage;
           final newItems = state.publications;
@@ -208,7 +213,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
         return Scaffold(
           backgroundColor: AppColors.bgColor,
           extendBody: true,
-          appBar: _buildAppBar(),
+          appBar: _buildAppBar(state),
           body: RefreshIndicator(
             onRefresh: () => Future.sync(() => _pagingController.refresh()),
             child: CustomScrollView(
@@ -263,135 +268,138 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
       },
     );
   }
-Widget _buildProductGrid() {
-  return SliverPadding(
-    padding: const EdgeInsets.symmetric(horizontal: 4),
-    sliver: PagedSliverList<int, GetPublicationEntity>(
-      pagingController: _pagingController,
-      builderDelegate: PagedChildBuilderDelegate<GetPublicationEntity>(
-        itemBuilder: (context, item, index) {
-          final items = _pagingController.itemList;
-          if (items == null) return const SizedBox.shrink();
-          
-          final screenWidth = MediaQuery.of(context).size.width;
-          
-          if (index == 0) {
-            _processItems(items);
-          }
-          
-          return _buildProcessedItem(index, items, screenWidth);
-        },
-        firstPageErrorIndicatorBuilder: (context) => ErrorIndicator(
-          error: _pagingController.error,
-          onTryAgain: () => _pagingController.refresh(),
-        ),
-        noItemsFoundIndicatorBuilder: (context) =>
-            const Center(child: Text('No items found')),
-      ),
-    ),
-  );
-}
 
-late final List<_ProcessedItem> _processedItems = [];
+  Widget _buildProductGrid() {
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      sliver: PagedSliverList<int, GetPublicationEntity>(
+        pagingController: _pagingController,
+        builderDelegate: PagedChildBuilderDelegate<GetPublicationEntity>(
+          itemBuilder: (context, item, index) {
+            final items = _pagingController.itemList;
+            if (items == null) return const SizedBox.shrink();
 
-void _processItems(List<GetPublicationEntity> items) {
-  _processedItems.clear();
-  
-  // Separate regular and video items
-  final regularItems = <GetPublicationEntity>[];
-  final videoItems = <GetPublicationEntity>[];
-  
-  for (final item in items) {
-    if (item.videoUrl?.isNotEmpty ?? false) {
-      videoItems.add(item);
-    } else {
-      regularItems.add(item);
-    }
-  }
-  
-  // Process regular items in pairs
-  for (int i = 0; i < regularItems.length; i += 2) {
-    if (i + 1 < regularItems.length) {
-      // Create pair
-      _processedItems.add(
-        _ProcessedItem(
-          type: ItemType.regularPair,
-          leftItem: regularItems[i],
-          rightItem: regularItems[i + 1],
+            final screenWidth = MediaQuery.of(context).size.width;
+
+            if (index == 0) {
+              _processItems(items);
+            }
+
+            return _buildProcessedItem(index, items, screenWidth);
+          },
+          firstPageErrorIndicatorBuilder: (context) => ErrorIndicator(
+            error: _pagingController.error,
+            onTryAgain: () => _pagingController.refresh(),
+          ),
+          noItemsFoundIndicatorBuilder: (context) =>
+              const Center(child: Text('No items found')),
         ),
-      );
-    } else {
-      // Last single regular item - keep it as a regular row item
-      _processedItems.add(
-        _ProcessedItem(
-          type: ItemType.regularPair,  // Using regularPair type but with no rightItem
-          leftItem: regularItems[i],
-        ),
-      );
-    }
-  }
-  
-  // Add video items
-  for (final videoItem in videoItems) {
-    _processedItems.add(
-      _ProcessedItem(
-        type: ItemType.advertisedProduct,
-        leftItem: videoItem,
       ),
     );
   }
-}
 
-Widget _buildProcessedItem(int index, List<GetPublicationEntity> items, double screenWidth) {
-  if (index >= _processedItems.length) return const SizedBox.shrink();
-  
-  final processedItem = _processedItems[index];
-  
-  switch (processedItem.type) {
-    case ItemType.regularPair:
-      return _buildProductRow(
-        leftItem: processedItem.leftItem,
-        rightItem: processedItem.rightItem,
-        screenWidth: screenWidth,
-      );
-    
-    case ItemType.advertisedProduct:
-      return SizedBox(
-        width: screenWidth,
-        child: _buildAdvertisedProduct(processedItem.leftItem),
-      );
-  }
-}
+  late final List<_ProcessedItem> _processedItems = [];
 
-Widget _buildProductRow({
-  required GetPublicationEntity leftItem,
-  GetPublicationEntity? rightItem,
-  required double screenWidth,
-}) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 1),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        Expanded(
-          child: RemouteRegularProductCard(
-            key: ValueKey('regular_${leftItem.id}'),
-            product: leftItem,
+  void _processItems(List<GetPublicationEntity> items) {
+    _processedItems.clear();
+
+    // Separate regular and video items
+    final regularItems = <GetPublicationEntity>[];
+    final videoItems = <GetPublicationEntity>[];
+
+    for (final item in items) {
+      if (item.videoUrl?.isNotEmpty ?? false) {
+        videoItems.add(item);
+      } else {
+        regularItems.add(item);
+      }
+    }
+
+    // Process regular items in pairs
+    for (int i = 0; i < regularItems.length; i += 2) {
+      if (i + 1 < regularItems.length) {
+        // Create pair
+        _processedItems.add(
+          _ProcessedItem(
+            type: ItemType.regularPair,
+            leftItem: regularItems[i],
+            rightItem: regularItems[i + 1],
           ),
+        );
+      } else {
+        // Last single regular item - keep it as a regular row item
+        _processedItems.add(
+          _ProcessedItem(
+            type: ItemType
+                .regularPair, // Using regularPair type but with no rightItem
+            leftItem: regularItems[i],
+          ),
+        );
+      }
+    }
+
+    // Add video items
+    for (final videoItem in videoItems) {
+      _processedItems.add(
+        _ProcessedItem(
+          type: ItemType.advertisedProduct,
+          leftItem: videoItem,
         ),
-        const SizedBox(width: 1),
-        Expanded(
-          child: rightItem != null
-              ? RemouteRegularProductCard(
-                  key: ValueKey('regular_${rightItem.id}'),
-                  product: rightItem,
-                )
-              : const SizedBox(), // Empty space for single items
-        ),
-      ],
-    ),
-  );
-}
+      );
+    }
+  }
+
+  Widget _buildProcessedItem(
+      int index, List<GetPublicationEntity> items, double screenWidth) {
+    if (index >= _processedItems.length) return const SizedBox.shrink();
+
+    final processedItem = _processedItems[index];
+
+    switch (processedItem.type) {
+      case ItemType.regularPair:
+        return _buildProductRow(
+          leftItem: processedItem.leftItem,
+          rightItem: processedItem.rightItem,
+          screenWidth: screenWidth,
+        );
+
+      case ItemType.advertisedProduct:
+        return SizedBox(
+          width: screenWidth,
+          child: _buildAdvertisedProduct(processedItem.leftItem),
+        );
+    }
+  }
+
+  Widget _buildProductRow({
+    required GetPublicationEntity leftItem,
+    GetPublicationEntity? rightItem,
+    required double screenWidth,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 1),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Expanded(
+            child: RemouteRegularProductCard(
+              key: ValueKey('regular_${leftItem.id}'),
+              product: leftItem,
+            ),
+          ),
+          const SizedBox(width: 1),
+          Expanded(
+            child: rightItem != null
+                ? RemouteRegularProductCard(
+                    key: ValueKey('regular_${rightItem.id}'),
+                    product: rightItem,
+                  )
+                : const SizedBox(), // Empty space for single items
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildFiltersBar(HomeTreeState state) {
     return ValueListenableBuilder<Set<int>>(
@@ -444,7 +452,7 @@ Widget _buildProductRow({
   }
 //
 
-  PreferredSizeWidget _buildAppBar() {
+  PreferredSizeWidget _buildAppBar(HomeTreeState state) {
     return PreferredSize(
       preferredSize: const Size.fromHeight(65),
       child: AppBar(
@@ -462,65 +470,61 @@ Widget _buildProductRow({
               child: Row(
                 children: [
                   Expanded(
-                    child: SmoothClipRRect(
-                      smoothness: 1,
-                      borderRadius: BorderRadius.circular(12),
-                      child: Container(
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: AppColors.containerColor,
-                        ),
-                        child: Row(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(12),
-                              child: Image.asset(AppIcons.searchIcon,
-                                  width: 24,
-                                  height: 24,
-                                  color: AppColors.darkGray.withOpacity(0.8)),
-                            ),
-                            Expanded(
-                              child: TextField(
-                                controller: _searchController,
-                                cursorRadius: Radius.circular(2),
-                                decoration: InputDecoration(
-                                  fillColor: AppColors.transparent,
-                                  hintStyle: TextStyle(
-                                    color: AppColors.darkGray.withOpacity(0.8),
+                    child: GestureDetector(
+                      onTap: () {
+                        context.push(Routes.search);
+                      },
+                      child: SmoothClipRRect(
+                        smoothness: 1,
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: AppColors.containerColor,
+                          ),
+                          child: Row(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(12),
+                                child: Image.asset(AppIcons.searchIcon,
+                                    width: 24,
+                                    height: 24,
+                                    color: AppColors.darkGray.withOpacity(0.8)),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  state.searchText ??
+                                      "What are you looking for?", // Show current search text or default
+                                  style: TextStyle(
+                                    color: state.searchText != null
+                                        ? AppColors.black
+                                        : AppColors.darkGray.withOpacity(0.8),
                                     fontWeight: FontWeight.w500,
                                   ),
-                                  contentPadding: EdgeInsets.zero,
-                                  hintText: "Search...",
-                                  border: InputBorder.none,
                                 ),
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w500,
-                                    color: AppColors
-                                        .black // Set font weight for entered text
-                                    ),
                               ),
-                            ),
-                            const VerticalDivider(
-                              color: AppColors.lightGray,
-                              width: 1,
-                              indent: 12,
-                              endIndent: 12,
-                            ),
-                            SizedBox(
-                              width: 2,
-                            ),
-                            IconButton(
-                              icon: Image.asset(
-                                AppIcons.filterIc,
-                                width: 24,
-                                height: 24,
+                              const VerticalDivider(
+                                color: AppColors.lightGray,
+                                width: 1,
+                                indent: 12,
+                                endIndent: 12,
                               ),
-                              onPressed: () {},
-                            ),
-                            SizedBox(
-                              width: 2,
-                            ),
-                          ],
+                              SizedBox(
+                                width: 2,
+                              ),
+                              IconButton(
+                                icon: Image.asset(
+                                  AppIcons.filterIc,
+                                  width: 24,
+                                  height: 24,
+                                ),
+                                onPressed: () {},
+                              ),
+                              SizedBox(
+                                width: 2,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -984,6 +988,7 @@ class NoItemsFound extends StatelessWidget {
     );
   }
 }
+
 enum ItemType {
   regularPair,
   advertisedProduct,
@@ -993,7 +998,7 @@ class _ProcessedItem {
   final ItemType type;
   final GetPublicationEntity leftItem;
   final GetPublicationEntity? rightItem;
-  
+
   _ProcessedItem({
     required this.type,
     required this.leftItem,

@@ -29,6 +29,7 @@ class HomeTreeState {
   final String? errorPublicationsFetch;
   final bool hasReachedMax;
   final int currentPage;
+  final String? searchText;
 
   HomeTreeState({
     this.catalogs,
@@ -54,6 +55,7 @@ class HomeTreeState {
     this.isLoadingMore = false,
     this.hasReachedMax = false,
     this.currentPage = 0,
+    this.searchText
   })  : currentAttributes = currentAttributes ?? [],
         dynamicAttributes = dynamicAttributes ?? [],
         selectedValues = selectedValues ?? {},
@@ -89,6 +91,7 @@ class HomeTreeState {
     String? errorPublicationsFetch,
     bool? hasReachedMax,
     int? currentPage,
+    String? searchText
   }) {
     return HomeTreeState(
       catalogs: catalogs ?? this.catalogs,
@@ -114,6 +117,7 @@ class HomeTreeState {
       publications: publications ?? this.publications,
       hasReachedMax: hasReachedMax ?? this.hasReachedMax,
       currentPage: currentPage ?? this.currentPage,
+      searchText: searchText?? this.searchText
     );
   }
 
