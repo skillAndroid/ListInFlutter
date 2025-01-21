@@ -60,11 +60,10 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
     super.initState();
     _initializeVideoTracking();
 
-    // Add page request listener
     _pagingController.addPageRequestListener((pageKey) {
-      // Prevent duplicate requests for the same page
-      if (!context.read<HomeTreeCubit>().state.isPublicationsLoading) {
-        context.read<HomeTreeCubit>().fetchPage(pageKey);
+      if (context.read<HomeTreeCubit>().state.publicationsRequestState !=
+          RequestState.inProgress) {
+        context.read<HomeTreeCubit>().fetchInitialPage(pageKey);
       }
     });
 
@@ -141,29 +140,28 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
     }
   }
 
-//
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<HomeTreeCubit, HomeTreeState>(
-      listenWhen: (previous, current) =>
-          previous.errorPublicationsFetch != current.errorPublicationsFetch ||
-          previous.publications != current.publications ||
-          previous.hasReachedMax != current.hasReachedMax,
+       listenWhen: (previous, current) =>
+          previous.publicationsRequestState != current.publicationsRequestState ||
+          previous.initialPublications != current.initialPublications ||
+          previous.initialHasReachedMax != current.initialHasReachedMax,
       listener: (context, state) {
-        final error = state.errorPublicationsFetch;
-        if (error != null) {
-          _pagingController.error = error;
-        } else {
-          // Add this check for empty publications
-          if (state.publications.isEmpty &&
-              !context.read<HomeTreeCubit>().isHandlingSearch) {
+        if (state.publicationsRequestState == RequestState.error) {
+          _pagingController.error = state.error?? 
+              'An unknown error occurred';
+        } else if (state.publicationsRequestState == RequestState.completed) {
+          // Handle empty search results
+          if (state.initialPublications.isEmpty && 
+              state.searchRequestState == RequestState.inProgress) {
             _pagingController.refresh();
             return;
           }
 
-          final isLastPage = state.hasReachedMax;
-          final currentPage = state.currentPage;
-          final newItems = state.publications;
+          final isLastPage = state.initialHasReachedMax;
+          final currentPage = state.initialCurrentPage;
+          final newItems = state.initialPublications;
 
           if (currentPage == 0) {
             if (isLastPage) {
@@ -172,6 +170,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
               _pagingController.appendPage(newItems, currentPage + 1);
             }
           } else {
+            // Calculate items for the current page
             final startIndex = currentPage * HomeTreeCubit.pageSize;
             final newPageItems = newItems.skip(startIndex).toList();
 
@@ -493,10 +492,10 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                               ),
                               Expanded(
                                 child: Text(
-                                  state.searchText ??
+                                  state.initialSearchText ??
                                       "What are you looking for?", // Show current search text or default
                                   style: TextStyle(
-                                    color: state.searchText != null
+                                    color: state.initialSearchText != null
                                         ? AppColors.black
                                         : AppColors.darkGray.withOpacity(0.8),
                                     fontWeight: FontWeight.w500,

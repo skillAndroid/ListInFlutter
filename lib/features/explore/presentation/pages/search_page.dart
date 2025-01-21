@@ -32,7 +32,8 @@ class _SearchPageState extends State<SearchPage> {
   @override
   void initState() {
     super.initState();
-    final currentSearchText = context.read<HomeTreeCubit>().state.searchText;
+    final currentSearchText =
+        context.read<HomeTreeCubit>().state.initialSearchText;
     if (currentSearchText != null) {
       _searchController.text = currentSearchText;
     }
@@ -103,7 +104,7 @@ class _SearchPageState extends State<SearchPage> {
                                     if (value.isNotEmpty) {
                                       context
                                           .read<HomeTreeCubit>()
-                                          .handleSearch(value);
+                                          .handleInitialSearch(value);
                                       context.pop();
                                     }
                                   },

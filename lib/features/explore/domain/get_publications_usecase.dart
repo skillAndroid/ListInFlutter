@@ -12,16 +12,21 @@ class GetPublicationsParams {
   final String? condition;
   final double? priceFrom;
   final double? priceTo;
+  final String? categoryId;
+  final String? subcategoryId;
+  final List<String>? filters;
 
-  GetPublicationsParams({
-    this.query,
-    this.page,
-    this.size,
-    this.bargain,
-    this.condition,
-    this.priceFrom,
-    this.priceTo,
-  });
+  GetPublicationsParams(
+      {this.query,
+      this.page,
+      this.size,
+      this.bargain,
+      this.condition,
+      this.priceFrom,
+      this.priceTo,
+      this.categoryId,
+      this.subcategoryId,
+      this.filters});
 }
 
 class GetPublicationsUsecase
@@ -41,6 +46,9 @@ class GetPublicationsUsecase
       condition: params?.condition,
       priceFrom: params?.priceFrom,
       priceTo: params?.priceTo,
+      categoryId: params?.categoryId,
+      subcategoryId: params?.subcategoryId,
+      filters: params?.filters,
     );
   }
 }

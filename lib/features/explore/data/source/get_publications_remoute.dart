@@ -13,6 +13,19 @@ abstract class PublicationsRemoteDataSource {
     double? priceFrom,
     double? priceTo,
   });
+
+  Future<List<GetPublicationModel>> getPublicationsFiltered({
+    String? categoryId,
+    String? subcategoryId,
+    String? query,
+    int? page,
+    int? size,
+    bool? bargain,
+    String? condition,
+    double? priceFrom,
+    double? priceTo,
+    List<String>? filters,
+  });
 }
 
 class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
@@ -56,7 +69,9 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonResponse = response.data;
         final List<dynamic> content = jsonResponse['content'];
-        return content.map((item) => GetPublicationModel.fromJson(item)).toList();
+        return content
+            .map((item) => GetPublicationModel.fromJson(item))
+            .toList();
       } else if (response.statusCode == 404) {
         throw NotFoundExeption();
       } else if (response.statusCode == 401) {
@@ -79,6 +94,93 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
       }
     } catch (e) {
       throw UknownExeption();
+    }
+  }
+
+  @override
+  Future<List<GetPublicationModel>> getPublicationsFiltered({
+    String? categoryId,
+    String? subcategoryId,
+    String? query,
+    int? page,
+    int? size,
+    bool? bargain,
+    String? condition,
+    double? priceFrom,
+    double? priceTo,
+    List<String>? filters,
+  }) async {
+    try {
+      final options = await authService.getAuthOptions();
+
+      final queryParams = <String, dynamic>{
+        'query': query ?? '',
+        if (page != null) 'page': page.toString(),
+        if (size != null) 'size': size.toString(),
+        if (bargain != null) 'bargain': bargain.toString(),
+        if (condition != null) 'condition': condition,
+        if (priceFrom != null) 'from': priceFrom.toString(),
+        if (priceTo != null) 'to': priceTo.toString(),
+        if (filters != null && filters.isNotEmpty) 'filter': filters,
+      };
+
+      String url = '/api/v1/publications/search/all';
+      if (categoryId != null) {
+        url += '/$categoryId';
+        if (subcategoryId != null) {
+          url += '/$subcategoryId';
+        }
+      }
+
+      final response = await dio.get(
+        url,
+        queryParameters: queryParams,
+        options: options,
+      );
+
+      return _handleResponse(response);
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw UknownExeption();
+    }
+  }
+
+  List<GetPublicationModel> _handleResponse(Response response) {
+    switch (response.statusCode) {
+      case 200:
+        final jsonResponse = response.data as Map<String, dynamic>;
+        final content = jsonResponse['content'] as List<dynamic>;
+        return content
+            .map((item) => GetPublicationModel.fromJson(item))
+            .toList();
+      case 404:
+        throw NotFoundExeption();
+      case 401:
+        throw UnauthorizedException('Unauthorized access');
+      case 500:
+        throw ServerExeption(message: 'Server error occurred');
+      default:
+        throw BadRequestExeption(
+          message: 'Unexpected response: ${response.statusCode}',
+        );
+    }
+  }
+
+  Exception _handleDioException(DioException e) {
+    switch (e.type) {
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.receiveTimeout:
+      case DioExceptionType.sendTimeout:
+        return ConnectiontTimeOutExeption();
+      case DioExceptionType.connectionError:
+        return ConnectionExeption(
+          message: 'No internet connection',
+        );
+      default:
+        return ServerExeption(
+          message: e.message ?? 'Server error occurred',
+        );
     }
   }
 }

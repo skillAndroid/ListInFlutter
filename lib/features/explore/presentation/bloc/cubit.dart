@@ -24,31 +24,34 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     required this.getPublicationsUseCase,
   }) : super(HomeTreeState());
 
-  Future<void> fetchPage(int pageKey) async {
-    if (state.isPublicationsLoading) return;
-    debugPrint("🔍 Fetching page: $pageKey with search: ${state.searchText}");
+ Future<void> fetchInitialPage(int pageKey) async {
+    // Prevent duplicate requests
+    if (state.publicationsRequestState == RequestState.inProgress) {
+      debugPrint('🚫 Preventing duplicate publications request for page: $pageKey');
+      return;
+    }
+
+    debugPrint('🔍 Fetching page: $pageKey with search: ${state.initialSearchText}');
 
     if (pageKey == 0) {
-      // For first page, we clear everything
       emit(state.copyWith(
-        isPublicationsLoading: true,
-        errorPublicationsFetch: null,
-        publications: [], // Clear existing publications
-        hasReachedMax: false,
-        currentPage: 0,
+        publicationsRequestState: RequestState.inProgress,
+        errorInitialPublicationsFetch: null,
+        initialPublications: [],
+        initialHasReachedMax: false,
+        initialCurrentPage: 0,
       ));
     } else {
-      // For subsequent pages, keep existing data but show loading
       emit(state.copyWith(
-        isPublicationsLoading: true,
-        errorPublicationsFetch: null,
+        publicationsRequestState: RequestState.inProgress,
+        errorInitialPublicationsFetch: null,
       ));
     }
 
     try {
       final result = await getPublicationsUseCase(
         params: GetPublicationsParams(
-          query: state.searchText,
+          query: state.initialSearchText,
           page: pageKey,
           size: pageSize,
           priceFrom: state.priceFrom,
@@ -59,8 +62,95 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
       result.fold(
         (failure) {
           emit(state.copyWith(
-            isPublicationsLoading: false,
-            errorPublicationsFetch: _mapFailureToMessage(failure),
+            publicationsRequestState: RequestState.error,
+            errorInitialPublicationsFetch: _mapFailureToMessage(failure),
+          ));
+        },
+        (newPublications) {
+          final isLastPage = newPublications.length < pageSize;
+          final updatedPublications = pageKey == 0 
+            ? newPublications 
+            : [...state.initialPublications, ...newPublications];
+
+          emit(state.copyWith(
+            publicationsRequestState: RequestState.completed,
+            errorInitialPublicationsFetch: null,
+            initialPublications: updatedPublications,
+            initialHasReachedMax: isLastPage,
+            initialCurrentPage: pageKey,
+          ));
+        },
+      );
+    } catch (e) {
+      emit(state.copyWith(
+        publicationsRequestState: RequestState.error,
+        errorInitialPublicationsFetch: 'An unexpected error occurred',
+      ));
+    }
+  }
+
+  Future<void> handleInitialSearch(String? searchText) async {
+    // Prevent duplicate search requests
+    if (state.searchRequestState == RequestState.inProgress) {
+      debugPrint('🚫 Preventing duplicate search request for: $searchText');
+      return;
+    }
+
+    emit(state.copyWith(
+      searchRequestState: RequestState.inProgress,
+      initialSearchText: searchText,
+      initialPublications: [],
+      initialCurrentPage: 0,
+      initialHasReachedMax: false,
+      errorInitialPublicationsFetch: null,
+    ));
+
+    try {
+      await fetchInitialPage(0);
+      emit(state.copyWith(searchRequestState: RequestState.completed));
+    } catch (e) {
+      emit(state.copyWith(searchRequestState: RequestState.error));
+      rethrow;
+    }
+  }
+
+  Future<void> fetchSecondaryPage(int pageKey) async {
+    if (state.secondaryIsPublicationsLoading) return;
+    debugPrint(
+        "🔍 Fetching page: $pageKey with search: ${state.initialSearchText}");
+
+    if (pageKey == 0) {
+      emit(state.copyWith(
+        secondaryIsPublicationsLoading: true,
+        errorSecondaryPublicationsFetch: null,
+        secondaryPublications: [],
+        secondaryHasReachedMax: false,
+        secondaryCurrentPage: 0,
+      ));
+    } else {
+      emit(state.copyWith(
+        secondaryIsPublicationsLoading: true,
+        errorSecondaryPublicationsFetch: null,
+      ));
+    }
+
+    try {
+      final result = await getPublicationsUseCase(
+        params: GetPublicationsParams(
+          query: state.secondarySearchText,
+          page: pageKey,
+          size: pageSize,
+          priceFrom: state.priceFrom,
+          priceTo: state.priceTo,
+          categoryId: state.selectedCatalog?.id,
+        ),
+      );
+
+      result.fold(
+        (failure) {
+          emit(state.copyWith(
+            secondaryIsPublicationsLoading: false,
+            errorSecondaryPublicationsFetch: _mapFailureToMessage(failure),
           ));
         },
         (newPublications) {
@@ -71,47 +161,43 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
           if (pageKey == 0) {
             updatedPublications = newPublications;
           } else {
-            updatedPublications = [...state.publications, ...newPublications];
+            updatedPublications = [
+              ...state.secondaryPublications,
+              ...newPublications
+            ];
           }
 
           emit(state.copyWith(
-            isPublicationsLoading: false,
-            errorPublicationsFetch: null,
-            publications: updatedPublications,
-            hasReachedMax: isLastPage,
-            currentPage: pageKey,
+            secondaryIsPublicationsLoading: false,
+            errorSecondaryPublicationsFetch: null,
+            secondaryPublications: updatedPublications,
+            secondaryHasReachedMax: isLastPage,
+            secondaryCurrentPage: pageKey,
           ));
         },
       );
     } catch (e) {
       emit(state.copyWith(
-        isPublicationsLoading: false,
-        errorPublicationsFetch: 'An unexpected error occurred',
+        secondaryIsPublicationsLoading: false,
+        errorSecondaryPublicationsFetch: 'An unexpected error occurred',
       ));
     }
   }
 
-  bool isHandlingSearch = false;
-// Add this new method for search handling
-  Future<void> handleSearch(String? searchText) async {
-    isHandlingSearch = true;
-    // First clear everything and set new search text
-    emit(state.copyWith(
-      searchText: searchText,
-      publications: [], // Clear existing publications
-      currentPage: 0,
-      hasReachedMax: false,
-      isPublicationsLoading: false,
-      errorPublicationsFetch: null,
-    ));
+  // Future<void> handleSecondarySearch(String? searchText) async {
+  //   isHandlingSecondarySearch = true;
+  //   emit(state.copyWith(
+  //     secondarySearchText: searchText,
+  //     secondaryPublications: [],
+  //     secondaryCurrentPage: 0,
+  //     secondaryHasReachedMax: false,
+  //     secondaryIsPublicationsLoading: false,
+  //     errorSecondaryPublicationsFetch: null,
+  //   ));
 
-    // Then fetch the first page with new search text
-    await fetchPage(0);
-     isHandlingSearch = false;
-  }
-
-
-  
+  //   await fetchSecondaryPage(0);
+  //   isHandlingSecondarySearch = false;
+  // }
 
   void setPriceRange(double? from, double? to) {
     emit(state.copyWith(

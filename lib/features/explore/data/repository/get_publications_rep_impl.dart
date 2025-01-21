@@ -17,6 +17,8 @@ class PublicationsRepositoryImpl implements PublicationsRepository {
 
   @override
   Future<Either<Failure, List<GetPublicationEntity>>> getPublications({
+    String? categoryId,
+    String? subcategoryId,
     String? query,
     int? page,
     int? size,
@@ -24,10 +26,11 @@ class PublicationsRepositoryImpl implements PublicationsRepository {
     String? condition,
     double? priceFrom,
     double? priceTo,
+    List<String>? filters,
   }) async {
     if (await networkInfo.isConnected) {
       try {
-        final publications = await remoteDataSource.getPublications(
+        final publications = await remoteDataSource.getPublicationsFiltered(
           query: query,
           page: page,
           size: size,
@@ -35,6 +38,9 @@ class PublicationsRepositoryImpl implements PublicationsRepository {
           condition: condition,
           priceFrom: priceFrom,
           priceTo: priceTo,
+          categoryId: categoryId,
+          subcategoryId: subcategoryId,
+          filters: filters,
         );
         return Right(publications.map((model) => model.toEntity()).toList());
       } on ServerExeption {
@@ -47,5 +53,21 @@ class PublicationsRepositoryImpl implements PublicationsRepository {
     } else {
       return Left(NetworkFailure());
     }
+  }
+
+  @override
+  Future<Either<Failure, List<GetPublicationEntity>>> getPublicationsFiltered({
+    String? categoryId,
+    String? subcategoryId,
+    String? query,
+    int? page,
+    int? size,
+    bool? bargain,
+    String? condition,
+    double? priceFrom,
+    double? priceTo,
+    List<String>? filters,
+  }) {
+    throw UnimplementedError();
   }
 }
