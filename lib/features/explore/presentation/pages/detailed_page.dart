@@ -57,8 +57,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
     _pagingController.addPageRequestListener((pageKey) {
       final currentState = context.read<HomeTreeCubit>().state;
       if (currentState.childPublicationsRequestState !=
-              RequestState.inProgress &&
-          !currentState.childHasReachedMax) {
+              RequestState.inProgress) {
         context.read<HomeTreeCubit>().fetchChildPage(pageKey);
       }
     });
