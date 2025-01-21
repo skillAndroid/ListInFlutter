@@ -16,6 +16,7 @@ class AuthService {
       headers: {
         'Authorization': 'Bearer ${authToken.accessToken}',
         'Content-Type': 'application/json',
+        'Connection': 'keep-alive',
       },
     );
   }

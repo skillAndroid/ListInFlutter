@@ -24,18 +24,19 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     required this.getPublicationsUseCase,
   }) : super(HomeTreeState());
 
- Future<void> fetchInitialPage(int pageKey) async {
-    // Prevent duplicate requests
-    if (state.publicationsRequestState == RequestState.inProgress) {
-      debugPrint('🚫 Preventing duplicate publications request for page: $pageKey');
+  Future<void> fetchInitialPage(int pageKey) async {
+    if (state.initialPublicationsRequestState == RequestState.inProgress) {
+      debugPrint(
+          '🚫 Preventing duplicate publications request for page: $pageKey');
       return;
     }
 
-    debugPrint('🔍 Fetching page: $pageKey with search: ${state.initialSearchText}');
+    debugPrint(
+        '🔍 Fetching page: $pageKey with search: ${state.initialSearchText}');
 
     if (pageKey == 0) {
       emit(state.copyWith(
-        publicationsRequestState: RequestState.inProgress,
+        initialPublicationsRequestState: RequestState.inProgress,
         errorInitialPublicationsFetch: null,
         initialPublications: [],
         initialHasReachedMax: false,
@@ -43,7 +44,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
       ));
     } else {
       emit(state.copyWith(
-        publicationsRequestState: RequestState.inProgress,
+        initialPublicationsRequestState: RequestState.inProgress,
         errorInitialPublicationsFetch: null,
       ));
     }
@@ -62,18 +63,18 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
       result.fold(
         (failure) {
           emit(state.copyWith(
-            publicationsRequestState: RequestState.error,
+            initialPublicationsRequestState: RequestState.error,
             errorInitialPublicationsFetch: _mapFailureToMessage(failure),
           ));
         },
         (newPublications) {
           final isLastPage = newPublications.length < pageSize;
-          final updatedPublications = pageKey == 0 
-            ? newPublications 
-            : [...state.initialPublications, ...newPublications];
+          final updatedPublications = pageKey == 0
+              ? newPublications
+              : [...state.initialPublications, ...newPublications];
 
           emit(state.copyWith(
-            publicationsRequestState: RequestState.completed,
+            initialPublicationsRequestState: RequestState.completed,
             errorInitialPublicationsFetch: null,
             initialPublications: updatedPublications,
             initialHasReachedMax: isLastPage,
@@ -83,7 +84,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
       );
     } catch (e) {
       emit(state.copyWith(
-        publicationsRequestState: RequestState.error,
+        initialPublicationsRequestState: RequestState.error,
         errorInitialPublicationsFetch: 'An unexpected error occurred',
       ));
     }
@@ -91,13 +92,13 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
 
   Future<void> handleInitialSearch(String? searchText) async {
     // Prevent duplicate search requests
-    if (state.searchRequestState == RequestState.inProgress) {
+    if (state.initialSearchRequestState == RequestState.inProgress) {
       debugPrint('🚫 Preventing duplicate search request for: $searchText');
       return;
     }
 
     emit(state.copyWith(
-      searchRequestState: RequestState.inProgress,
+      initialSearchRequestState: RequestState.inProgress,
       initialSearchText: searchText,
       initialPublications: [],
       initialCurrentPage: 0,
@@ -107,21 +108,27 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
 
     try {
       await fetchInitialPage(0);
-      emit(state.copyWith(searchRequestState: RequestState.completed));
+      emit(state.copyWith(
+          initialPublicationsRequestState: RequestState.completed));
     } catch (e) {
-      emit(state.copyWith(searchRequestState: RequestState.error));
+      emit(state.copyWith(initialPublicationsRequestState: RequestState.error));
       rethrow;
     }
   }
 
   Future<void> fetchSecondaryPage(int pageKey) async {
-    if (state.secondaryIsPublicationsLoading) return;
+    if (state.secondaryPublicationsRequestState == RequestState.inProgress) {
+      debugPrint(
+          '🚫 Preventing duplicate publications request for page: $pageKey');
+      return;
+    }
+
     debugPrint(
-        "🔍 Fetching page: $pageKey with search: ${state.initialSearchText}");
+        '🔍 Fetching page: $pageKey with search: ${state.secondarySearchText}');
 
     if (pageKey == 0) {
       emit(state.copyWith(
-        secondaryIsPublicationsLoading: true,
+        secondaryPublicationsRequestState: RequestState.inProgress,
         errorSecondaryPublicationsFetch: null,
         secondaryPublications: [],
         secondaryHasReachedMax: false,
@@ -129,7 +136,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
       ));
     } else {
       emit(state.copyWith(
-        secondaryIsPublicationsLoading: true,
+        secondaryPublicationsRequestState: RequestState.inProgress,
         errorSecondaryPublicationsFetch: null,
       ));
     }
@@ -142,33 +149,25 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
           size: pageSize,
           priceFrom: state.priceFrom,
           priceTo: state.priceTo,
-          categoryId: state.selectedCatalog?.id,
+          categoryId: state.selectedCatalog != null ? "{${state.selectedCatalog?.id}}" : null,
         ),
       );
 
       result.fold(
         (failure) {
           emit(state.copyWith(
-            secondaryIsPublicationsLoading: false,
+            secondaryPublicationsRequestState: RequestState.error,
             errorSecondaryPublicationsFetch: _mapFailureToMessage(failure),
           ));
         },
         (newPublications) {
           final isLastPage = newPublications.length < pageSize;
-
-          // Only append for pagination, replace for new search
-          final List<GetPublicationEntity> updatedPublications;
-          if (pageKey == 0) {
-            updatedPublications = newPublications;
-          } else {
-            updatedPublications = [
-              ...state.secondaryPublications,
-              ...newPublications
-            ];
-          }
+          final updatedPublications = pageKey == 0
+              ? newPublications
+              : [...state.secondaryPublications, ...newPublications];
 
           emit(state.copyWith(
-            secondaryIsPublicationsLoading: false,
+            secondaryPublicationsRequestState: RequestState.completed,
             errorSecondaryPublicationsFetch: null,
             secondaryPublications: updatedPublications,
             secondaryHasReachedMax: isLastPage,
@@ -178,7 +177,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
       );
     } catch (e) {
       emit(state.copyWith(
-        secondaryIsPublicationsLoading: false,
+        secondaryPublicationsRequestState: RequestState.error,
         errorSecondaryPublicationsFetch: 'An unexpected error occurred',
       ));
     }

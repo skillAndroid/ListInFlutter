@@ -8,8 +8,10 @@ import 'package:list_in/features/post/data/models/child_category_model.dart';
 enum RequestState { idle, inProgress, completed, error }
 
 class HomeTreeState {
-  final RequestState searchRequestState;
-  final RequestState publicationsRequestState;
+  final RequestState initialSearchRequestState;
+  final RequestState initialPublicationsRequestState;
+  final RequestState secondarySearchRequestState;
+  final RequestState secondaryPublicationsRequestState;
   final List<CategoryModel>? catalogs;
   final CategoryModel? selectedCatalog;
   final ChildCategoryModel? selectedChildCategory;
@@ -44,8 +46,10 @@ class HomeTreeState {
   final String? secondarySearchText;
 
   HomeTreeState({
-    this.searchRequestState = RequestState.idle,
-    this.publicationsRequestState = RequestState.idle,
+    this.initialSearchRequestState = RequestState.idle,
+    this.initialPublicationsRequestState = RequestState.idle,
+    this.secondarySearchRequestState = RequestState.idle,
+    this.secondaryPublicationsRequestState = RequestState.idle,
     this.catalogs,
     this.selectedCatalog,
     this.selectedChildCategory,
@@ -91,8 +95,10 @@ class HomeTreeState {
         secondaryPublications = secondaryPublications ?? [];
 
   HomeTreeState copyWith({
-    RequestState? searchRequestState,
-    RequestState? publicationsRequestState,
+    RequestState? initialSearchRequestState,
+    RequestState? initialPublicationsRequestState,
+    RequestState? secondarySearchRequestState,
+    RequestState? secondaryPublicationsRequestState,
     List<CategoryModel>? catalogs,
     CategoryModel? selectedCatalog,
     ChildCategoryModel? selectedChildCategory,
@@ -126,9 +132,14 @@ class HomeTreeState {
     String? secondarySearchText,
   }) {
     return HomeTreeState(
-        searchRequestState: searchRequestState ?? this.searchRequestState,
-        publicationsRequestState:
-            publicationsRequestState ?? this.publicationsRequestState,
+        initialSearchRequestState:
+            initialSearchRequestState ?? this.initialSearchRequestState,
+        initialPublicationsRequestState: initialPublicationsRequestState ??
+            this.initialPublicationsRequestState,
+        secondarySearchRequestState:
+            secondarySearchRequestState ?? this.secondarySearchRequestState,
+        secondaryPublicationsRequestState: secondaryPublicationsRequestState ??
+            this.secondaryPublicationsRequestState,
         catalogs: catalogs ?? this.catalogs,
         selectedCatalog: selectedCatalog ?? this.selectedCatalog,
         selectedChildCategory:

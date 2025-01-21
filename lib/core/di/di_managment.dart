@@ -1,6 +1,12 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
+import 'package:dio_smart_retry/dio_smart_retry.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/retry.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:list_in/core/network/network_info.dart';
 import 'package:list_in/core/network/network_info_impl.dart';
@@ -55,11 +61,59 @@ import 'package:list_in/features/profile/presentation/bloc/publication/user_publ
 import 'package:list_in/features/profile/presentation/bloc/user/user_profile_bloc.dart';
 import 'package:path_provider/path_provider.dart' as path_provider;
 import 'package:shared_preferences/shared_preferences.dart';
-
 final sl = GetIt.instance;
 
 Future<void> init() async {
   final sharedPreferences = await SharedPreferences.getInstance();
+
+  sl.registerLazySingleton<Dio>(() {
+    final dio = Dio();
+
+    dio.options
+      ..baseUrl = 'http://listin.uz'
+      ..connectTimeout = const Duration(seconds: 5)
+      ..receiveTimeout = const Duration(seconds: 8)
+      ..sendTimeout = const Duration(seconds: 5);
+
+    if (dio.httpClientAdapter is IOHttpClientAdapter) {
+      // ignore: deprecated_member_use
+      (dio.httpClientAdapter as IOHttpClientAdapter).onHttpClientCreate =
+          (client) {
+        client
+          ..idleTimeout = const Duration(seconds: 10)
+          ..connectionTimeout = const Duration(seconds: 7)
+          ..maxConnectionsPerHost = 7
+          ..autoUncompress = true;
+
+        return client;
+      };
+    }
+    dio.interceptors.add(
+      RetryInterceptor(
+        dio: dio,
+        logPrint: print,
+        retries: 3,
+        retryDelays: const [
+          Duration(seconds: 1),
+          Duration(seconds: 2),
+          Duration(seconds: 3),
+        ],
+      ),
+    );
+
+    return dio;
+  });
+
+  sl.registerLazySingleton<http.Client>(() {
+    return RetryClient(
+      http.Client(),
+      retries: 3,
+      when: (response) => response.statusCode >= 500,
+      onRetry: (req, res, retryCount) {
+        return Future.delayed(Duration(seconds: retryCount));
+      },
+    );
+  });
 
   sl.registerLazySingleton(() => AppRouter(sl<SharedPreferences>()));
 
@@ -127,15 +181,6 @@ Future<void> init() async {
   //! External
   sl.registerLazySingleton(() => sharedPreferences);
   sl.registerLazySingleton(() => InternetConnectionChecker.createInstance());
-  sl.registerLazySingleton(
-    () {
-      final dio = Dio();
-      dio.options.baseUrl = 'http://listin.uz';
-      dio.options.connectTimeout = const Duration(seconds: 10);
-      dio.options.receiveTimeout = const Duration(seconds: 10);
-      return dio;
-    },
-  );
 
   sl.registerLazySingleton(() => AuthService(authLocalDataSource: sl()));
 

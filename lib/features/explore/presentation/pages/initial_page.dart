@@ -61,7 +61,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
     _initializeVideoTracking();
 
     _pagingController.addPageRequestListener((pageKey) {
-      if (context.read<HomeTreeCubit>().state.publicationsRequestState !=
+      if (context.read<HomeTreeCubit>().state.initialPublicationsRequestState !=
           RequestState.inProgress) {
         context.read<HomeTreeCubit>().fetchInitialPage(pageKey);
       }
@@ -143,18 +143,19 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<HomeTreeCubit, HomeTreeState>(
-       listenWhen: (previous, current) =>
-          previous.publicationsRequestState != current.publicationsRequestState ||
+      listenWhen: (previous, current) =>
+          previous.initialPublicationsRequestState !=
+              current.initialPublicationsRequestState ||
           previous.initialPublications != current.initialPublications ||
           previous.initialHasReachedMax != current.initialHasReachedMax,
       listener: (context, state) {
-        if (state.publicationsRequestState == RequestState.error) {
-          _pagingController.error = state.error?? 
-              'An unknown error occurred';
-        } else if (state.publicationsRequestState == RequestState.completed) {
+        if (state.initialPublicationsRequestState == RequestState.error) {
+          _pagingController.error = state.errorInitialPublicationsFetch ?? 'An unknown error occurred';
+        } else if (state.initialPublicationsRequestState ==
+            RequestState.completed) {
           // Handle empty search results
-          if (state.initialPublications.isEmpty && 
-              state.searchRequestState == RequestState.inProgress) {
+          if (state.initialPublications.isEmpty &&
+              state.initialSearchRequestState == RequestState.inProgress) {
             _pagingController.refresh();
             return;
           }

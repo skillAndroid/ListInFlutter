@@ -56,7 +56,8 @@ class _InitialHomeTreePageState extends State<ChildHomeTreePage> {
   void initState() {
     super.initState();
     _pagingController.addPageRequestListener((pageKey) {
-      if (!context.read<HomeTreeCubit>().state.secondaryIsPublicationsLoading) {
+      if (context.read<HomeTreeCubit>().state.secondaryPublicationsRequestState !=
+          RequestState.inProgress) {
         context.read<HomeTreeCubit>().fetchSecondaryPage(pageKey);
       }
     });
@@ -177,21 +178,21 @@ class _InitialHomeTreePageState extends State<ChildHomeTreePage> {
   Widget build(BuildContext context) {
     return BlocConsumer<HomeTreeCubit, HomeTreeState>(
       listenWhen: (previous, current) =>
-          previous.errorSecondaryPublicationsFetch !=
-              current.errorSecondaryPublicationsFetch ||
+          previous.secondaryPublicationsRequestState !=
+              current.secondaryPublicationsRequestState ||
           previous.secondaryPublications != current.secondaryPublications ||
           previous.secondaryHasReachedMax != current.secondaryHasReachedMax,
-      listener: (context, state) {
-        final error = state.errorSecondaryPublicationsFetch;
-        if (error != null) {
-          _pagingController.error = error;
-        } else {
-          // Add this check for empty publications
-          // if (state.secondaryPublications.isEmpty &&
-          //     !context.read<HomeTreeCubit>().isHandlingSecondarySearch) {
-          //   _pagingController.refresh();
-          //   return;
-          // }
+       listener: (context, state) {
+        if (state.secondaryPublicationsRequestState == RequestState.error) {
+          _pagingController.error = state.errorSecondaryPublicationsFetch ?? 'An unknown error occurred';
+        } else if (state.secondaryPublicationsRequestState ==
+            RequestState.completed) {
+          // Handle empty search results
+          if (state.secondaryPublications.isEmpty &&
+              state.secondarySearchRequestState == RequestState.inProgress) {
+            _pagingController.refresh();
+            return;
+          }
 
           final isLastPage = state.secondaryHasReachedMax;
           final currentPage = state.secondaryCurrentPage;
@@ -204,6 +205,7 @@ class _InitialHomeTreePageState extends State<ChildHomeTreePage> {
               _pagingController.appendPage(newItems, currentPage + 1);
             }
           } else {
+            // Calculate items for the current page
             final startIndex = currentPage * HomeTreeCubit.pageSize;
             final newPageItems = newItems.skip(startIndex).toList();
 
