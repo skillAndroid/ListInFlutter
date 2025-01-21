@@ -10,10 +10,16 @@ enum RequestState { idle, inProgress, completed, error }
 class HomeTreeState {
   final RequestState initialSearchRequestState;
   final RequestState initialPublicationsRequestState;
+
   final RequestState secondarySearchRequestState;
   final RequestState secondaryPublicationsRequestState;
+
+  final RequestState childSearchRequestState;
+  final RequestState childPublicationsRequestState;
+
   final RequestState searchRequestState;
   final RequestState searchPublicationsRequestState;
+
   final List<CategoryModel>? catalogs;
   final CategoryModel? selectedCatalog;
   final ChildCategoryModel? selectedChildCategory;
@@ -31,21 +37,37 @@ class HomeTreeState {
   final double? priceTo;
   final bool isLoading;
   final String? error;
+
   final bool initialIsPublicationsLoading;
   final bool initialIsLoadingMore;
+
   final bool searchIsPublicationsLoading;
   final bool searchIsLoadingMore;
+
+  final bool childIsPublicationsLoading;
+  final bool childIsLoadingMore;
+
   final List<GetPublicationEntity> initialPublications;
+  final bool secondaryIsPublicationsLoading;
+  final List<GetPublicationEntity> childPublications;
+
   final List<GetPublicationEntity> searchPublications;
+
   final String? errorInitialPublicationsFetch;
+  final String? errorSearchPublicationsFetch;
+  final String? errorChildPublicationsFetch;
+
   final bool initialHasReachedMax;
   final int initialCurrentPage;
-  final String? errorSearchPublicationsFetch;
-  final bool searchHasReachedMax;
   final int searchCurrentPage;
+
+  final bool childHasReachedMax;
+  final int childCurrentPage;
+  final bool searchHasReachedMax;
+
   final String? searchText;
   // sec0ndary
-  final bool secondaryIsPublicationsLoading;
+
   final bool secondaryIsLoadingMore;
   final List<GetPublicationEntity> secondaryPublications;
   final String? errorSecondaryPublicationsFetch;
@@ -59,6 +81,8 @@ class HomeTreeState {
     this.initialPublicationsRequestState = RequestState.idle,
     this.secondarySearchRequestState = RequestState.idle,
     this.secondaryPublicationsRequestState = RequestState.idle,
+    this.childSearchRequestState = RequestState.idle,
+    this.childPublicationsRequestState = RequestState.idle,
     this.catalogs,
     this.selectedCatalog,
     this.selectedChildCategory,
@@ -76,18 +100,24 @@ class HomeTreeState {
     this.priceTo,
     this.isLoading = false,
     this.error,
+    this.errorChildPublicationsFetch,
     this.errorInitialPublicationsFetch,
     this.errorSearchPublicationsFetch,
     List<GetPublicationEntity>? initialPublications,
     List<GetPublicationEntity>? searchPublications,
+    List<GetPublicationEntity>? childPublications,
     this.initialIsLoadingMore = false,
     this.initialHasReachedMax = false,
     this.initialCurrentPage = 0,
     this.searchIsLoadingMore = false,
     this.searchHasReachedMax = false,
     this.searchCurrentPage = 0,
+    this.childIsLoadingMore = false,
+    this.childHasReachedMax = false,
+    this.childCurrentPage = 0,
     this.searchText,
     this.initialIsPublicationsLoading = false,
+    this.childIsPublicationsLoading = false,
     this.searchIsPublicationsLoading = false,
     this.errorSecondaryPublicationsFetch,
     List<GetPublicationEntity>? secondaryPublications,
@@ -107,7 +137,8 @@ class HomeTreeState {
         attributeRequests = attributeRequests ?? [],
         initialPublications = initialPublications ?? [],
         searchPublications = searchPublications ?? [],
-        secondaryPublications = secondaryPublications ?? [];
+        secondaryPublications = secondaryPublications ?? [],
+        childPublications = childPublications ?? [];
 
   HomeTreeState copyWith({
     RequestState? searchRequestState,
@@ -116,6 +147,8 @@ class HomeTreeState {
     RequestState? initialPublicationsRequestState,
     RequestState? secondarySearchRequestState,
     RequestState? secondaryPublicationsRequestState,
+    RequestState? childSearchRequestState,
+    RequestState? childPublicationsRequestState,
     List<CategoryModel>? catalogs,
     CategoryModel? selectedCatalog,
     ChildCategoryModel? selectedChildCategory,
@@ -129,30 +162,36 @@ class HomeTreeState {
     Map<String, Map<String, dynamic>>? childCategorySelections,
     Map<String, List<AttributeModel>>? childCategoryDynamicAttributes,
     List<AttributeRequestValue>? attributeRequests,
-    double? priceFrom,
-    double? priceTo,
+    double? priceFrom = double.nan,
+    double? priceTo = double.nan,
     String? error,
     List<GetPublicationEntity>? searchPublications,
     List<GetPublicationEntity>? initialPublications,
     List<GetPublicationEntity>? secondaryPublications,
+    List<GetPublicationEntity>? childPublications,
     bool? isLoading,
     bool? searchIsPublicationsLoading,
     bool? initialIsPublicationsLoading,
     bool? secondaryIsPublicationsLoading,
+    bool? childIsPublicationsLoading,
     bool? searchIsLoadingMore,
     bool? initialIsLoadingMore,
     bool? secondaryIsLoadingMore,
+    bool? childIsLoadingMore,
     String? errorSearchPublicationsFetch,
     String? errorInitialPublicationsFetch,
     String? errorSecondaryPublicationsFetch,
+    String? errorChildPublicationsFetch,
     bool? searchHasReachedMax,
     bool? initialHasReachedMax,
     bool? secondaryHasReachedMax,
+    bool? childHasReachedMax,
     int? searchCurrentPage,
     int? initialCurrentPage,
     int? secondaryCurrentPage,
+    int? childCurrentPage,
     String? searchText,
-  }) {
+}) {
     return HomeTreeState(
       searchRequestState: searchRequestState ?? this.searchRequestState,
       searchPublicationsRequestState:
@@ -165,6 +204,10 @@ class HomeTreeState {
           secondarySearchRequestState ?? this.secondarySearchRequestState,
       secondaryPublicationsRequestState: secondaryPublicationsRequestState ??
           this.secondaryPublicationsRequestState,
+      childSearchRequestState:
+          childSearchRequestState ?? this.childSearchRequestState,
+      childPublicationsRequestState:
+          childPublicationsRequestState ?? this.childPublicationsRequestState,
       catalogs: catalogs ?? this.catalogs,
       selectedCatalog: selectedCatalog ?? this.selectedCatalog,
       selectedChildCategory:
@@ -183,8 +226,8 @@ class HomeTreeState {
       childCategoryDynamicAttributes:
           childCategoryDynamicAttributes ?? this.childCategoryDynamicAttributes,
       attributeRequests: attributeRequests ?? this.attributeRequests,
-      priceFrom: priceFrom ?? this.priceFrom,
-      priceTo: priceTo ?? this.priceTo,
+      priceFrom: priceFrom == null ? null : (priceFrom.isNaN ? this.priceFrom : priceFrom),
+      priceTo: priceTo == null ? null : (priceTo.isNaN ? this.priceTo : priceTo),
       searchPublications: searchPublications ?? this.searchPublications,
       searchHasReachedMax: searchHasReachedMax ?? this.searchHasReachedMax,
       searchCurrentPage: searchCurrentPage ?? this.searchCurrentPage,
@@ -197,8 +240,13 @@ class HomeTreeState {
       secondaryHasReachedMax:
           secondaryHasReachedMax ?? this.secondaryHasReachedMax,
       secondaryCurrentPage: secondaryCurrentPage ?? this.secondaryCurrentPage,
+      childPublications:
+          childPublications ?? this.childPublications,
+      childHasReachedMax:
+          childHasReachedMax ?? this.childHasReachedMax,
+      childCurrentPage: childCurrentPage ?? this.childCurrentPage,
     );
-  }
+}
 
   List<AttributeModel> get orderedAttributes {
     if (dynamicAttributes.isEmpty) return currentAttributes;

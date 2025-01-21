@@ -2,7 +2,6 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/core/error/failure.dart';
 import 'package:list_in/core/usecases/usecases.dart';
@@ -35,25 +34,33 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     ));
   }
 
-void clearSearchText() {
-  // Log before state change
-  debugPrint("Before clear: 😆😆😆😆${state.searchText}");
-  
-  // Use bloc observer or add a delay to properly see state changes
-  emit(state.copyWith(
-    searchText: '',  // Make sure null is handled in your copyWith method
-    searchPublications: [],
-    searchPublicationsRequestState: RequestState.idle,
-    searchCurrentPage: 0,
-    searchHasReachedMax: false,
-    errorSearchPublicationsFetch: null,
-  ));
+  void resetRequestState() {
+    emit(state.copyWith(
+      childPublicationsRequestState: RequestState.idle,
+      errorChildPublicationsFetch: null,
+    ));
+  }
 
-  // Add this to see the state change in the next frame
-  Future.microtask(() {
-    debugPrint("After clear: 😆😆😆😆${state.searchText}");
-  });
-}
+  void clearSearchText() {
+    // Log before state change
+    debugPrint("Before clear: 😆😆😆😆${state.searchText}");
+
+    // Use bloc observer or add a delay to properly see state changes
+    emit(state.copyWith(
+      searchText: '', // Make sure null is handled in your copyWith method
+      searchPublications: [],
+      searchPublicationsRequestState: RequestState.idle,
+      searchCurrentPage: 0,
+      searchHasReachedMax: false,
+      errorSearchPublicationsFetch: null,
+    ));
+
+    // Add this to see the state change in the next frame
+    Future.microtask(() {
+      debugPrint("After clear: 😆😆😆😆${state.searchText}");
+    });
+  }
+
   Future<void> searchPage(int pageKey) async {
     if (state.searchPublicationsRequestState == RequestState.inProgress) {
       debugPrint(
@@ -245,9 +252,7 @@ void clearSearchText() {
           size: pageSize,
           priceFrom: state.priceFrom,
           priceTo: state.priceTo,
-          categoryId: state.selectedCatalog != null
-              ? "{${state.selectedCatalog?.id}}"
-              : null,
+          categoryId: state.selectedCatalog?.id,
         ),
       );
 
@@ -281,11 +286,82 @@ void clearSearchText() {
     }
   }
 
+  Future<void> fetchChildPage(int pageKey) async {
+    if (state.childPublicationsRequestState == RequestState.inProgress) {
+      debugPrint(
+          '🚫 Preventing duplicate publications request for page: $pageKey');
+      return;
+    }
+
+    final filters = state.generateFilterParameters();
+    debugPrint('🔍 Fetching page: $pageKey with filters: $filters');
+
+    // If it's first page or filters changed, reset state
+    if (pageKey == 0) {
+      emit(state.copyWith(
+        childPublicationsRequestState: RequestState.inProgress,
+        errorChildPublicationsFetch: null,
+        childPublications: [], // Clear previous data
+        childHasReachedMax: false,
+        childCurrentPage: 0,
+      ));
+    } else {
+      emit(state.copyWith(
+        childPublicationsRequestState: RequestState.inProgress,
+        errorChildPublicationsFetch: null,
+      ));
+    }
+
+    try {
+      final result = await getPublicationsUseCase(
+        params: GetPublicationsParams(
+          query: state.searchText,
+          page: pageKey,
+          size: pageSize,
+          priceFrom: state.priceFrom,
+          priceTo: state.priceTo,
+          categoryId: state.selectedCatalog?.id,
+          subcategoryId: state.selectedChildCategory?.id,
+          filters: state.generateFilterParameters(),
+        ),
+      );
+
+      result.fold(
+        (failure) {
+          emit(state.copyWith(
+            childPublicationsRequestState: RequestState.error,
+            errorChildPublicationsFetch: _mapFailureToMessage(failure),
+          ));
+        },
+        (newPublications) {
+          final isLastPage = newPublications.length < pageSize;
+          final updatedPublications = pageKey == 0
+              ? newPublications
+              : [...state.secondaryPublications, ...newPublications];
+
+          emit(state.copyWith(
+            childPublicationsRequestState: RequestState.completed,
+            errorChildPublicationsFetch: null,
+            childPublications: updatedPublications,
+            childHasReachedMax: isLastPage,
+            childCurrentPage: pageKey,
+          ));
+        },
+      );
+    } catch (e) {
+      emit(state.copyWith(
+        childPublicationsRequestState: RequestState.error,
+        errorChildPublicationsFetch: 'An unexpected error occurred',
+      ));
+    }
+  }
+
   void setPriceRange(double? from, double? to) {
     emit(state.copyWith(
       priceFrom: from,
       priceTo: to,
     ));
+    fetchChildPage(0);
   }
 
   void clearPriceRange() {
@@ -293,6 +369,7 @@ void clearSearchText() {
       priceFrom: null,
       priceTo: null,
     ));
+    fetchChildPage(0);
   }
 
   // publications get border ************************************
@@ -327,7 +404,6 @@ void clearSearchText() {
               orElse: () => attribute,
             );
 
-            // Check if there's a selected value for this child attribute
             final childValue = state.selectedAttributeValues[childAttribute];
             if (childValue != null) {
               String childCombinationKey =
@@ -589,6 +665,8 @@ void clearSearchText() {
       selectedAttributeValues: newSelectedAttributeValues,
       dynamicAttributes: newDynamicAttributes,
     ));
+
+    fetchChildPage(0);
   }
 
   AttributeValueModel? getSelectedAttributeValue(AttributeModel attribute) {
@@ -646,6 +724,7 @@ void clearSearchText() {
       selectedAttributeValues: newSelectedAttributeValues,
       dynamicAttributes: newDynamicAttributes,
     ));
+    fetchChildPage(0);
   }
 
   void clearAllSelectedAttributes() {
@@ -655,6 +734,7 @@ void clearSearchText() {
       dynamicAttributes: [],
       attributeOptionsVisibility: {},
     ));
+    fetchChildPage(0);
   }
 
   void confirmMultiSelection(AttributeModel attribute) {
@@ -802,5 +882,78 @@ void clearSearchText() {
   Future<void> close() {
     _debounceTimer?.cancel();
     return super.close();
+  }
+}
+
+extension AttributeFilterHelper on HomeTreeState {
+  List<String> generateFilterParameters() {
+    final List<String> filters = [];
+
+    // Handle single-selection attributes
+    selectedAttributeValues.forEach((attribute, value) {
+      if (value.attributeKeyId.isNotEmpty &&
+          value.attributeValueId.isNotEmpty) {
+        filters.add('${value.attributeKeyId}:${value.attributeValueId}');
+
+        // Handle child attributes if they exist
+        final childAttribute = dynamicAttributes.firstWhere(
+          (attr) => attr.attributeKey == '${attribute.attributeKey}_child',
+          orElse: () => attribute,
+        );
+
+        final childValue = selectedAttributeValues[childAttribute];
+        if (childValue != null &&
+            childValue.attributeKeyId.isNotEmpty &&
+            childValue.attributeValueId.isNotEmpty) {
+          filters.add(
+              '${childValue.attributeKeyId}:${childValue.attributeValueId}');
+        }
+      }
+    });
+
+    // Handle multi-selection attributes
+    selectedValues.forEach((key, value) {
+      if (value is List<AttributeValueModel>) {
+        for (var attrValue in value) {
+          if (attrValue.attributeKeyId.isNotEmpty &&
+              attrValue.attributeValueId.isNotEmpty) {
+            filters.add(
+                '${attrValue.attributeKeyId}:${attrValue.attributeValueId}');
+          }
+        }
+
+        // Handle child attributes for multi-select
+        if (value.isNotEmpty && value.first.list.isNotEmpty) {
+          final childKey = '${key}_child';
+          final childValues = selectedValues[childKey];
+
+          if (childValues is List<AttributeValueModel>) {
+            for (var childValue in childValues) {
+              if (childValue.attributeKeyId.isNotEmpty &&
+                  childValue.attributeValueId.isNotEmpty) {
+                filters.add(
+                    '${childValue.attributeKeyId}:${childValue.attributeValueId}');
+              }
+            }
+          }
+        }
+      }
+    });
+
+    // Debug print all filters
+    debugPrint('🔍 Generated Filters:');
+    for (var filter in filters) {
+      debugPrint('  → $filter');
+    }
+
+    return filters;
+  }
+}
+
+extension HomeTreeStateFilterTracking on HomeTreeState {
+  bool hasFilterChanges(HomeTreeState previous) {
+    final previousFilters = Set.from(previous.generateFilterParameters());
+    final currentFilters = Set.from(generateFilterParameters());
+    return !setEquals(previousFilters, currentFilters);
   }
 }

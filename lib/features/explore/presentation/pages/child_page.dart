@@ -341,53 +341,60 @@ class _InitialHomeTreePageState extends State<ChildHomeTreePage> {
                       ),
                     ),
                     Expanded(
-                      child: SmoothClipRRect(
-                        smoothness: 1,
-                        borderRadius: BorderRadius.circular(10),
-                        child: Container(
-                          height: 48,
-                          decoration: BoxDecoration(
-                            color: AppColors.containerColor,
-                          ),
-                          child: Row(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(12),
-                                child: Image.asset(AppIcons.searchIcon,
-                                    width: 24,
-                                    height: 24,
-                                    color: AppColors.darkGray.withOpacity(0.8)),
-                              ),
-                              Expanded(
-                                child: Text(
-                                  "What are you looking for?", // Show current search text or default
-                                  style: TextStyle(
-                                    color: AppColors.darkGray.withOpacity(0.8),
-                                    fontWeight: FontWeight.w500,
+                      child: GestureDetector(
+                        onTap: () {
+                          context.push(Routes.search);
+                        },
+                        child: SmoothClipRRect(
+                          smoothness: 1,
+                          borderRadius: BorderRadius.circular(10),
+                          child: Container(
+                            height: 48,
+                            decoration: BoxDecoration(
+                              color: AppColors.containerColor,
+                            ),
+                            child: Row(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(12),
+                                  child: Image.asset(AppIcons.searchIcon,
+                                      width: 24,
+                                      height: 24,
+                                      color:
+                                          AppColors.darkGray.withOpacity(0.8)),
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    "What are you looking for?", // Show current search text or default
+                                    style: TextStyle(
+                                      color:
+                                          AppColors.darkGray.withOpacity(0.8),
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              const VerticalDivider(
-                                color: AppColors.lightGray,
-                                width: 1,
-                                indent: 12,
-                                endIndent: 12,
-                              ),
-                              SizedBox(
-                                width: 2,
-                              ),
-                              IconButton(
-                                icon: Image.asset(
-                                  AppIcons.filterIc,
-                                  width: 24,
-                                  height: 24,
+                                const VerticalDivider(
+                                  color: AppColors.lightGray,
+                                  width: 1,
+                                  indent: 12,
+                                  endIndent: 12,
                                 ),
-                                onPressed: () {},
-                              ),
-                              SizedBox(
-                                width: 2,
-                              ),
-                            ],
+                                SizedBox(
+                                  width: 2,
+                                ),
+                                IconButton(
+                                  icon: Image.asset(
+                                    AppIcons.filterIc,
+                                    width: 24,
+                                    height: 24,
+                                  ),
+                                  onPressed: () {},
+                                ),
+                                SizedBox(
+                                  width: 2,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),

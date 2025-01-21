@@ -2,15 +2,19 @@
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/domain/enties/advertised_product_entity.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
+import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
@@ -36,6 +40,9 @@ class DetailedHomeTreePage extends StatefulWidget {
 class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
   final ScrollController _scrollController = ScrollController();
   final SearchController _searchController = SearchController();
+  final PagingController<int, GetPublicationEntity> _pagingController =
+      PagingController(firstPageKey: 0);
+
   final ValueNotifier<String?> _currentlyPlayingId =
       ValueNotifier<String?>(null);
   final ValueNotifier<Set<int>> _selectedFilters = ValueNotifier<Set<int>>({});
@@ -46,9 +53,13 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        context.read<HomeTreeCubit>().fetchCatalogs();
+    context.read<HomeTreeCubit>().resetRequestState();
+    _pagingController.addPageRequestListener((pageKey) {
+      final currentState = context.read<HomeTreeCubit>().state;
+      if (currentState.childPublicationsRequestState !=
+              RequestState.inProgress &&
+          !currentState.childHasReachedMax) {
+        context.read<HomeTreeCubit>().fetchChildPage(pageKey);
       }
     });
     _initializeVideoTracking();
@@ -76,7 +87,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
     // Dispose controllers
     _scrollController.dispose();
     _searchController.dispose();
-
+    _pagingController.dispose();
     // Safely dispose notifiers
     if (_currentlyPlayingId.hasListeners) {
       _currentlyPlayingId.dispose();
@@ -151,46 +162,223 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<HomeTreeCubit, HomeTreeState>(
+    return BlocConsumer<HomeTreeCubit, HomeTreeState>(
+      listenWhen: (previous, current) {
+        final previousFilters = Set.from(previous.generateFilterParameters());
+        final currentFilters = Set.from(current.generateFilterParameters());
+        return !setEquals(previousFilters, currentFilters) || // Filter changes
+            previous.childPublicationsRequestState !=
+                current.childPublicationsRequestState;
+      },
+      listener: (context, state) {
+        // If this is a new filter request (page 0), clear the paging controller
+        if (state.childCurrentPage == 0 &&
+            state.childPublicationsRequestState == RequestState.inProgress) {
+          _pagingController.itemList = null; // Clear existing items
+        }
+
+        if (state.childPublicationsRequestState == RequestState.error) {
+          _pagingController.error =
+              state.errorChildPublicationsFetch ?? 'An unknown error occurred';
+        } else if (state.childPublicationsRequestState ==
+            RequestState.completed) {
+          final isLastPage = state.childHasReachedMax;
+          final newItems = state.childPublications;
+
+          if (isLastPage) {
+            _pagingController.appendLastPage(newItems);
+          } else {
+            _pagingController.appendPage(newItems, state.childCurrentPage + 1);
+          }
+        }
+      },
       builder: (context, state) {
         final attributes = state.orderedAttributes;
         return Scaffold(
-          appBar: _buildAppBar(),
-          body: CustomScrollView(
-            controller: _scrollController,
-            physics: const BouncingScrollPhysics(),
-            slivers: [
-              SliverAppBar(
-                floating: true,
-                snap: true,
-                pinned: false,
-                automaticallyImplyLeading: false,
-                toolbarHeight: 50,
-                flexibleSpace: Column(
-                  children: [
-                    Container(
-                      color: AppColors.bgColor,
-                      height: 50,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        itemCount: attributes.length + 1,
-                        itemBuilder: (context, index) {
-                          if (index == 0) {
+          appBar: _buildAppBar(state),
+          body: RefreshIndicator(
+            onRefresh: () => Future.sync(() => _pagingController.refresh()),
+            child: CustomScrollView(
+              controller: _scrollController,
+              physics: const BouncingScrollPhysics(),
+              slivers: [
+                SliverAppBar(
+                  floating: true,
+                  snap: true,
+                  pinned: false,
+                  automaticallyImplyLeading: false,
+                  toolbarHeight: 50,
+                  flexibleSpace: Column(
+                    children: [
+                      Container(
+                        color: AppColors.bgColor,
+                        height: 50,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          itemCount: attributes.length + 1,
+                          itemBuilder: (context, index) {
+                            if (index == 0) {
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 2.5),
+                                child: FilterChip(
+                                  showCheckmark: false,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 2,
+                                    vertical: 10,
+                                  ),
+                                  label: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        "Price",
+                                        style: TextStyle(
+                                          color: AppColors.black,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  side: BorderSide(
+                                    width: 1,
+                                    color: AppColors.lightGray,
+                                  ),
+                                  shape: SmoothRectangleBorder(
+                                    smoothness: 0.8,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  selected: state.priceFrom != null ||
+                                      state.priceTo != null,
+                                  backgroundColor: AppColors.white,
+                                  selectedColor: AppColors.white,
+                                  onSelected: (_) =>
+                                      _showPriceRangeBottomSheet(context),
+                                ),
+                              );
+                            }
+
+                            final attribute = attributes[index - 1];
+                            final cubit = context.read<HomeTreeCubit>();
+                            final selectedValue =
+                                cubit.getSelectedAttributeValue(attribute);
+                            final selectedValues =
+                                cubit.getSelectedValues(attribute);
+
+                            // Color mapping
+                            final Map<String, Color> colorMap = {
+                              'Silver': Colors.grey[300]!,
+                              'Pink': Colors.pink,
+                              'Rose Gold': Color(0xFFB76E79),
+                              'Space Gray': Color(0xFF4A4A4A),
+                              'Blue': Colors.blue,
+                              'Yellow': Colors.yellow,
+                              'Green': Colors.green,
+                              'Purple': Colors.purple,
+                              'White': Colors.white,
+                              'Red': Colors.red,
+                              'Black': Colors.black,
+                            };
+
+                            // Determine chip label based on selection type and count
+                            String chipLabel;
+                            if (attribute.filterWidgetType == 'oneSelectable') {
+                              // For single select, show selected value name if selected
+                              chipLabel =
+                                  selectedValue?.value ?? attribute.filterText;
+                            } else {
+                              // For multi-select types
+                              if (selectedValues.isEmpty) {
+                                chipLabel = attribute.filterText;
+                              } else if (selectedValues.length == 1) {
+                                // Show single selected value name
+                                chipLabel = selectedValues.first.value;
+                              } else {
+                                // Show count for multiple selections
+                                chipLabel =
+                                    '${attribute.filterText}(${selectedValues.length})';
+                              }
+                            }
+
+                            Widget? colorIndicator;
+                            if (attribute.filterWidgetType ==
+                                    'colorMultiSelectable' &&
+                                selectedValues.isNotEmpty) {
+                              if (selectedValues.length == 1) {
+                                // Single color indicator
+                                colorIndicator = Container(
+                                  width: 16,
+                                  height: 16,
+                                  decoration: BoxDecoration(
+                                    color:
+                                        colorMap[selectedValues.first.value] ??
+                                            Colors.grey,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: (colorMap[
+                                                  selectedValues.first.value] ==
+                                              Colors.white)
+                                          ? Colors.grey
+                                          : Colors.transparent,
+                                      width: 1,
+                                    ),
+                                  ),
+                                );
+                              } else {
+                                // Stacked color indicators
+                                colorIndicator = SizedBox(
+                                  width: 40,
+                                  height: 20,
+                                  child: Stack(
+                                    children: [
+                                      for (int i = 0;
+                                          i < selectedValues.length;
+                                          i++)
+                                        Positioned(
+                                          top: 0,
+                                          bottom: 0,
+                                          left: i * 7.0,
+                                          child: Container(
+                                            width: 16,
+                                            height: 16,
+                                            decoration: BoxDecoration(
+                                              color: colorMap[selectedValues[i]
+                                                      .value] ??
+                                                  Colors.grey,
+                                              shape: BoxShape.circle,
+                                              border: Border.all(
+                                                color: (colorMap[
+                                                            selectedValues[i]
+                                                                .value] ==
+                                                        Colors.white)
+                                                    ? Colors.grey
+                                                    : Colors.transparent,
+                                                width: 1,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                );
+                              }
+                            }
+
                             return Padding(
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 2.5),
                               child: FilterChip(
                                 showCheckmark: false,
                                 padding: EdgeInsets.symmetric(
-                                  horizontal: 2,
-                                  vertical: 10,
-                                ),
+                                    horizontal: 4, vertical: 10),
                                 label: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
+                                    if (colorIndicator != null) ...[
+                                      colorIndicator,
+                                      const SizedBox(width: 4),
+                                    ],
                                     Text(
-                                      "Price",
+                                      chipLabel,
                                       style: TextStyle(
                                         color: AppColors.black,
                                       ),
@@ -198,206 +386,39 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                   ],
                                 ),
                                 side: BorderSide(
-                                  width: 1,
-                                  color: AppColors.lightGray,
-                                ),
+                                    width: 1, color: AppColors.lightGray),
                                 shape: SmoothRectangleBorder(
                                   smoothness: 0.8,
                                   borderRadius: BorderRadius.circular(10),
                                 ),
-                                selected: state.priceFrom != null ||
-                                    state.priceTo != null,
+                                selected: selectedValue != null,
                                 backgroundColor: AppColors.white,
                                 selectedColor: AppColors.white,
-                                onSelected: (_) =>
-                                    _showPriceRangeBottomSheet(context),
+                                onSelected: (_) {
+                                  if (attribute.values.isNotEmpty && mounted) {
+                                    _showAttributeSelectionUI(
+                                        context, attribute);
+                                  }
+                                },
                               ),
                             );
-                          }
-
-                          final attribute = attributes[index - 1];
-                          final cubit = context.read<HomeTreeCubit>();
-                          final selectedValue =
-                              cubit.getSelectedAttributeValue(attribute);
-                          final selectedValues =
-                              cubit.getSelectedValues(attribute);
-
-                          // Color mapping
-                          final Map<String, Color> colorMap = {
-                            'Silver': Colors.grey[300]!,
-                            'Pink': Colors.pink,
-                            'Rose Gold': Color(0xFFB76E79),
-                            'Space Gray': Color(0xFF4A4A4A),
-                            'Blue': Colors.blue,
-                            'Yellow': Colors.yellow,
-                            'Green': Colors.green,
-                            'Purple': Colors.purple,
-                            'White': Colors.white,
-                            'Red': Colors.red,
-                            'Black': Colors.black,
-                          };
-
-                          // Determine chip label based on selection type and count
-                          String chipLabel;
-                          if (attribute.filterWidgetType == 'oneSelectable') {
-                            // For single select, show selected value name if selected
-                            chipLabel =
-                                selectedValue?.value ?? attribute.filterText;
-                          } else {
-                            // For multi-select types
-                            if (selectedValues.isEmpty) {
-                              chipLabel = attribute.filterText;
-                            } else if (selectedValues.length == 1) {
-                              // Show single selected value name
-                              chipLabel = selectedValues.first.value;
-                            } else {
-                              // Show count for multiple selections
-                              chipLabel =
-                                  '${attribute.filterText}(${selectedValues.length})';
-                            }
-                          }
-
-                          Widget? colorIndicator;
-                          if (attribute.filterWidgetType ==
-                                  'colorMultiSelectable' &&
-                              selectedValues.isNotEmpty) {
-                            if (selectedValues.length == 1) {
-                              // Single color indicator
-                              colorIndicator = Container(
-                                width: 16,
-                                height: 16,
-                                decoration: BoxDecoration(
-                                  color: colorMap[selectedValues.first.value] ??
-                                      Colors.grey,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color:
-                                        (colorMap[selectedValues.first.value] ==
-                                                Colors.white)
-                                            ? Colors.grey
-                                            : Colors.transparent,
-                                    width: 1,
-                                  ),
-                                ),
-                              );
-                            } else {
-                              // Stacked color indicators
-                              colorIndicator = SizedBox(
-                                width: 40,
-                                height: 20,
-                                child: Stack(
-                                  children: [
-                                    for (int i = 0;
-                                        i < selectedValues.length;
-                                        i++)
-                                      Positioned(
-                                        top: 0,
-                                        bottom: 0,
-                                        left: i * 7.0,
-                                        child: Container(
-                                          width: 16,
-                                          height: 16,
-                                          decoration: BoxDecoration(
-                                            color: colorMap[
-                                                    selectedValues[i].value] ??
-                                                Colors.grey,
-                                            shape: BoxShape.circle,
-                                            border: Border.all(
-                                              color: (colorMap[selectedValues[i]
-                                                          .value] ==
-                                                      Colors.white)
-                                                  ? Colors.grey
-                                                  : Colors.transparent,
-                                              width: 1,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              );
-                            }
-                          }
-
-                          return Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 2.5),
-                            child: FilterChip(
-                              showCheckmark: false,
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 4, vertical: 10),
-                              label: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  if (colorIndicator != null) ...[
-                                    colorIndicator,
-                                    const SizedBox(width: 4),
-                                  ],
-                                  Text(
-                                    chipLabel,
-                                    style: TextStyle(
-                                      color: AppColors.black,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              side: BorderSide(
-                                  width: 1, color: AppColors.lightGray),
-                              shape: SmoothRectangleBorder(
-                                smoothness: 0.8,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              selected: selectedValue != null,
-                              backgroundColor: AppColors.white,
-                              selectedColor: AppColors.white,
-                              onSelected: (_) {
-                                if (attribute.values.isNotEmpty && mounted) {
-                                  _showAttributeSelectionUI(context, attribute);
-                                }
-                              },
-                            ),
-                          );
-                        },
+                          },
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                backgroundColor: AppColors.bgColor,
-              ),
-              SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                sliver: SliverGrid(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 0.65,
-                    crossAxisSpacing: 1,
-                    mainAxisSpacing: 1,
+                    ],
                   ),
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) => RegularProductCard(
-                        product: widget.regularProducts[index]),
-                    childCount: widget.regularProducts.length,
-                  ),
+                  backgroundColor: AppColors.bgColor,
                 ),
-              ),
-              SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) => _buildAdvertisedProduct(
-                        widget.advertisedProducts[index]),
-                    childCount: widget.advertisedProducts.length,
-                  ),
-                ),
-              ),
-            ],
+                _buildProductGrid(),
+              ],
+            ),
           ),
         );
       },
     );
   }
 
-  PreferredSizeWidget _buildAppBar() {
+  PreferredSizeWidget _buildAppBar(HomeTreeState state) {
     return PreferredSize(
       preferredSize: const Size.fromHeight(65),
       child: AppBar(
@@ -428,59 +449,60 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                       ),
                     ),
                     Expanded(
-                      child: SmoothClipRRect(
-                        smoothness: 1,
-                        borderRadius: BorderRadius.circular(10),
-                        child: Container(
-                          height: 48,
-                          decoration: BoxDecoration(
-                            color: AppColors.containerColor,
-                          ),
-                          child: Row(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(12),
-                                child: Image.asset(
-                                  AppIcons.searchIcon,
-                                  width: 24,
-                                  height: 24,
-                                  color: AppColors.grey,
+                      child: GestureDetector(
+                        onTap: () {
+                          context.push(Routes.search);
+                        },
+                        child: SmoothClipRRect(
+                          smoothness: 1,
+                          borderRadius: BorderRadius.circular(10),
+                          child: Container(
+                            height: 48,
+                            decoration: BoxDecoration(
+                              color: AppColors.containerColor,
+                            ),
+                            child: Row(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(12),
+                                  child: Image.asset(AppIcons.searchIcon,
+                                      width: 24,
+                                      height: 24,
+                                      color:
+                                          AppColors.darkGray.withOpacity(0.8)),
                                 ),
-                              ),
-                              Expanded(
-                                child: TextField(
-                                  controller: _searchController,
-                                  cursorRadius: Radius.circular(2),
-                                  decoration: const InputDecoration(
-                                    hintStyle:
-                                        TextStyle(color: AppColors.darkGray),
-                                    contentPadding: EdgeInsets.zero,
-                                    hintText: "Search...",
-                                    border: InputBorder.none,
+                                Expanded(
+                                  child: Text(
+                                    "What are you looking for?", // Show current search text or default
+                                    style: TextStyle(
+                                      color:
+                                          AppColors.darkGray.withOpacity(0.8),
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              const VerticalDivider(
-                                color: AppColors.lightGray,
-                                width: 1,
-                                indent: 12,
-                                endIndent: 12,
-                              ),
-                              SizedBox(
-                                width: 2,
-                              ),
-                              IconButton(
-                                icon: Image.asset(
-                                  AppIcons.filterIc,
-                                  width: 24,
-                                  height: 24,
+                                const VerticalDivider(
+                                  color: AppColors.lightGray,
+                                  width: 1,
+                                  indent: 12,
+                                  endIndent: 12,
                                 ),
-                                onPressed: () {},
-                              ),
-                              SizedBox(
-                                width: 2,
-                              ),
-                            ],
+                                SizedBox(
+                                  width: 2,
+                                ),
+                                IconButton(
+                                  icon: Image.asset(
+                                    AppIcons.filterIc,
+                                    width: 24,
+                                    height: 24,
+                                  ),
+                                  onPressed: () {},
+                                ),
+                                SizedBox(
+                                  width: 2,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -495,9 +517,146 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
     );
   }
 
-  Widget _buildAdvertisedProduct(AdvertisedProductEntity product) {
+  Widget _buildProductGrid() {
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      sliver: PagedSliverList<int, GetPublicationEntity>(
+        pagingController: _pagingController,
+        builderDelegate: PagedChildBuilderDelegate<GetPublicationEntity>(
+          itemBuilder: (context, item, index) {
+            final items = _pagingController.itemList;
+            if (items == null) return const SizedBox.shrink();
+
+            final screenWidth = MediaQuery.of(context).size.width;
+
+            if (index == 0) {
+              _processItems(items);
+            }
+
+            return _buildProcessedItem(index, items, screenWidth);
+          },
+          firstPageErrorIndicatorBuilder: (context) => ErrorIndicator(
+            error: _pagingController.error,
+            onTryAgain: () => _pagingController.refresh(),
+          ),
+          noItemsFoundIndicatorBuilder: (context) =>
+              const Center(child: Text('No items found')),
+        ),
+      ),
+    );
+  }
+
+  late final List<_ProcessedItem> _processedItems = [];
+
+  void _processItems(List<GetPublicationEntity> items) {
+    _processedItems.clear();
+
+    // Separate regular and video items
+    final regularItems = <GetPublicationEntity>[];
+    final videoItems = <GetPublicationEntity>[];
+
+    for (final item in items) {
+      if (item.videoUrl?.isNotEmpty ?? false) {
+        videoItems.add(item);
+      } else {
+        regularItems.add(item);
+      }
+    }
+
+    // Process regular items in pairs
+    for (int i = 0; i < regularItems.length; i += 2) {
+      if (i + 1 < regularItems.length) {
+        // Create pair
+        _processedItems.add(
+          _ProcessedItem(
+            type: ItemType.regularPair,
+            leftItem: regularItems[i],
+            rightItem: regularItems[i + 1],
+          ),
+        );
+      } else {
+        // Last single regular item - keep it as a regular row item
+        _processedItems.add(
+          _ProcessedItem(
+            type: ItemType
+                .regularPair, // Using regularPair type but with no rightItem
+            leftItem: regularItems[i],
+          ),
+        );
+      }
+    }
+
+    // Add video items
+    for (final videoItem in videoItems) {
+      _processedItems.add(
+        _ProcessedItem(
+          type: ItemType.advertisedProduct,
+          leftItem: videoItem,
+        ),
+      );
+    }
+  }
+
+  Widget _buildProcessedItem(
+      int index, List<GetPublicationEntity> items, double screenWidth) {
+    if (index >= _processedItems.length) return const SizedBox.shrink();
+
+    final processedItem = _processedItems[index];
+
+    switch (processedItem.type) {
+      case ItemType.regularPair:
+        return _buildProductRow(
+          leftItem: processedItem.leftItem,
+          rightItem: processedItem.rightItem,
+          screenWidth: screenWidth,
+        );
+
+      case ItemType.advertisedProduct:
+        return SizedBox(
+          width: screenWidth,
+          child: _buildAdvertisedProduct(processedItem.leftItem),
+        );
+    }
+  }
+
+  Widget _buildProductRow({
+    required GetPublicationEntity leftItem,
+    GetPublicationEntity? rightItem,
+    required double screenWidth,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 1),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Expanded(
+            child: RemouteRegularProductCard(
+              key: ValueKey('regular_${leftItem.id}'),
+              product: leftItem,
+            ),
+          ),
+          const SizedBox(width: 1),
+          Expanded(
+            child: rightItem != null
+                ? RemouteRegularProductCard(
+                    key: ValueKey('regular_${rightItem.id}'),
+                    product: rightItem,
+                  )
+                : const SizedBox(), // Empty space for single items
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAdvertisedProduct(GetPublicationEntity product) {
+    // Add null check and initialization if needed
+    if (!_visibilityNotifiers.containsKey(product.id)) {
+      _visibilityNotifiers[product.id] = ValueNotifier<double>(0.0);
+    }
+
     return ValueListenableBuilder<double>(
-      valueListenable: _visibilityNotifiers[product.id]!,
+      valueListenable: _visibilityNotifiers[product.id]!, // Now safe to use !
       builder: (context, visibility, _) {
         return VisibilityDetector(
           key: Key('detector_${product.id}'),
@@ -511,14 +670,17 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
     );
   }
 
-  Widget _buildProductCard(AdvertisedProductEntity product) {
+  Widget _buildProductCard(GetPublicationEntity product) {
+    if (!_pageNotifiers.containsKey(product.id)) {
+      _pageNotifiers[product.id] = ValueNotifier<int>(0);
+    }
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Card(
         shadowColor: AppColors.black.withOpacity(0.2),
         color: AppColors.white,
         shape: SmoothRectangleBorder(
-            smoothness: 1, borderRadius: BorderRadius.circular(4)),
+            smoothness: 0.8, borderRadius: BorderRadius.circular(4)),
         clipBehavior: Clip.hardEdge,
         elevation: 5,
         child: Column(
@@ -535,7 +697,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                       return Stack(
                         children: [
                           PageView.builder(
-                            itemCount: product.images.length,
+                            itemCount: product.productImages.length,
                             onPageChanged: (page) =>
                                 _pageNotifiers[product.id]?.value = page,
                             itemBuilder: (context, index) => _buildMediaContent(
@@ -578,7 +740,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                     horizontal: 10,
                                   ),
                                   child: Text(
-                                    '${currentPage + 1}/${product.images.length}',
+                                    '${currentPage + 1}/${product.productImages.length}',
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 13,
@@ -612,7 +774,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                     children: [
                       Expanded(
                         child: Text(
-                          "${product.title} sotiladi yandgi ishlatilmagan",
+                          product.title,
                           style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 16,
@@ -639,7 +801,8 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                             40,
                           ), // Adjust radius for desired roundness
                           child: CachedNetworkImage(
-                            imageUrl: product.thumbnailUrl,
+                            imageUrl:
+                                "https://${product.seller.profileImagePath}",
                             fit: BoxFit.cover,
                             errorWidget: (context, url, error) =>
                                 const Center(child: Icon(Icons.error)),
@@ -650,7 +813,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                         width: 8,
                       ),
                       Text(
-                        product.userName,
+                        product.seller.nickName,
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 14,
@@ -669,7 +832,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                         width: 8,
                       ),
                       Text(
-                        product.userRating.toString(),
+                        " 4",
                         style: TextStyle(
                           fontWeight: FontWeight.w500,
                           fontSize: 14,
@@ -677,7 +840,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                         ),
                       ),
                       Text(
-                        "(${product.reviewsCount})",
+                        "5",
                         style: TextStyle(
                           color: AppColors.lightText,
                           fontWeight: FontWeight.w400,
@@ -703,7 +866,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                         width: 8,
                       ),
                       Text(
-                        product.location,
+                        product.locationName,
                         style: TextStyle(
                           color: AppColors.darkGray.withOpacity(0.7),
                           fontSize: 13,
@@ -715,7 +878,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                     height: 8,
                   ),
                   Text(
-                    "Experience the pinnacle of innovation with the iPhone 15 Pro Max. Featuring a stunning titanium design, advanced A17 Pro chip for unmatched performance, an incredible 48MP camera with 5x zoom, and all-day battery life. ",
+                    product.description,
                     style: TextStyle(
                       fontSize: 12,
                       color: AppColors.darkGray.withOpacity(0.7),
@@ -738,9 +901,9 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                        product.price,
+                        product.price.toString(),
                         style: const TextStyle(
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.bold,
                           fontSize: 17,
                           color: AppColors.primary,
                         ),
@@ -797,8 +960,9 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
     );
   }
 
+//
   Widget _buildMediaContent(
-    AdvertisedProductEntity product,
+    GetPublicationEntity product,
     int pageIndex,
     int currentPage,
     bool isPlaying,
@@ -806,16 +970,18 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
     if (pageIndex == 0 && isPlaying) {
       return VideoPlayerWidget(
         key: Key('video_${product.id}'),
-        videoUrl: product.videoUrl,
-        thumbnailUrl: product.thumbnailUrl,
+        videoUrl: "https://${product.videoUrl!}",
+        thumbnailUrl: 'https://${product.productImages[0].url}',
         isPlaying: true,
         onPlay: () {},
         onPause: () {},
       );
     }
+
     return CachedNetworkImage(
-      imageUrl:
-          pageIndex == 0 ? product.thumbnailUrl : product.images[pageIndex],
+      imageUrl: pageIndex == 0
+          ? "https://${product.productImages[0].url}"
+          : "https://${product.productImages[pageIndex].url}",
       fit: BoxFit.cover,
       placeholder: (context, url) => const Center(
           child: CircularProgressIndicator(
@@ -1760,4 +1926,59 @@ class _PriceRangeBottomSheetState extends State<PriceRangeBottomSheet> {
       ),
     );
   }
+}
+
+class ErrorIndicator extends StatelessWidget {
+  final dynamic error;
+  final VoidCallback onTryAgain;
+
+  const ErrorIndicator({
+    super.key,
+    required this.error,
+    required this.onTryAgain,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(error.toString()),
+          ElevatedButton(
+            onPressed: onTryAgain,
+            child: const Text('Try Again'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class NoItemsFound extends StatelessWidget {
+  const NoItemsFound({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Text('No items found'),
+    );
+  }
+}
+
+enum ItemType {
+  regularPair,
+  advertisedProduct,
+}
+
+class _ProcessedItem {
+  final ItemType type;
+  final GetPublicationEntity leftItem;
+  final GetPublicationEntity? rightItem;
+
+  _ProcessedItem({
+    required this.type,
+    required this.leftItem,
+    this.rightItem,
+  });
 }
