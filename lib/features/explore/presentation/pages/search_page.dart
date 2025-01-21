@@ -1,9 +1,12 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
@@ -16,24 +19,33 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
+  Future<void> _onPop() async {
+    context.read<HomeTreeCubit>().clearSearchText();
+  }
+
   final TextEditingController _searchController = TextEditingController();
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<HomeTreeCubit, HomeTreeState>(
-      listener: (context, state) {},
-      builder: (context, state) {
-        return Scaffold(
-          appBar: _buildAppBar(state),
-        );
+    return WillPopScope(
+      onWillPop: () async {
+        await _onPop();
+        return true; // Allow pop to proceed
       },
+      child: BlocConsumer<HomeTreeCubit, HomeTreeState>(
+        listener: (context, state) {},
+        builder: (context, state) {
+          return Scaffold(
+            appBar: _buildAppBar(state),
+          );
+        },
+      ),
     );
   }
 
   @override
   void initState() {
     super.initState();
-    final currentSearchText =
-        context.read<HomeTreeCubit>().state.initialSearchText;
+    final currentSearchText = context.read<HomeTreeCubit>().state.searchText;
     if (currentSearchText != null) {
       _searchController.text = currentSearchText;
     }
@@ -96,25 +108,50 @@ class _SearchPageState extends State<SearchPage> {
                                 ),
                               ),
                               Expanded(
-                                child: TextField(
-                                  controller: _searchController,
-                                  cursorRadius: const Radius.circular(2),
-                                  textInputAction: TextInputAction.search,
-                                  onSubmitted: (value) async {
-                                    if (value.isNotEmpty) {
-                                      context
-                                          .read<HomeTreeCubit>()
-                                          .handleInitialSearch(value);
-                                      context.pop();
-                                    }
-                                  },
-                                  decoration: const InputDecoration(
-                                    hintStyle:
-                                        TextStyle(color: AppColors.darkGray),
-                                    contentPadding: EdgeInsets.zero,
-                                    hintText: "Search...",
-                                    border: InputBorder.none,
-                                  ),
+                                child: Stack(
+                                  alignment: Alignment.centerRight,
+                                  children: [
+                                    TextField(
+                                      controller: _searchController,
+                                      cursorRadius: const Radius.circular(2),
+                                      textInputAction: TextInputAction.search,
+                                      onChanged: (value) {
+                                        context
+                                            .read<HomeTreeCubit>()
+                                            .updateSearchText(value);
+                                      },
+                                      onSubmitted: (value) async {
+                                        if (value.isNotEmpty) {
+                                          context
+                                              .read<HomeTreeCubit>()
+                                              .handleSearch(value);
+                                          context.replace(Routes.searchResult);
+                                        }
+                                      },
+                                      decoration: const InputDecoration(
+                                        hintStyle: TextStyle(
+                                            color: AppColors.darkGray),
+                                        contentPadding: EdgeInsets.zero,
+                                        hintText: "Search...",
+                                        border: InputBorder.none,
+                                      ),
+                                    ),
+                                    if (state.searchPublicationsRequestState ==
+                                        RequestState.inProgress)
+                                      const Padding(
+                                        padding: EdgeInsets.only(right: 8.0),
+                                        child: SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                    AppColors.grey),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
                                 ),
                               ),
                               const VerticalDivider(

@@ -56,7 +56,10 @@ class _InitialHomeTreePageState extends State<ChildHomeTreePage> {
   void initState() {
     super.initState();
     _pagingController.addPageRequestListener((pageKey) {
-      if (context.read<HomeTreeCubit>().state.secondaryPublicationsRequestState !=
+      if (context
+              .read<HomeTreeCubit>()
+              .state
+              .secondaryPublicationsRequestState !=
           RequestState.inProgress) {
         context.read<HomeTreeCubit>().fetchSecondaryPage(pageKey);
       }
@@ -182,9 +185,10 @@ class _InitialHomeTreePageState extends State<ChildHomeTreePage> {
               current.secondaryPublicationsRequestState ||
           previous.secondaryPublications != current.secondaryPublications ||
           previous.secondaryHasReachedMax != current.secondaryHasReachedMax,
-       listener: (context, state) {
+      listener: (context, state) {
         if (state.secondaryPublicationsRequestState == RequestState.error) {
-          _pagingController.error = state.errorSecondaryPublicationsFetch ?? 'An unknown error occurred';
+          _pagingController.error = state.errorSecondaryPublicationsFetch ??
+              'An unknown error occurred';
         } else if (state.secondaryPublicationsRequestState ==
             RequestState.completed) {
           // Handle empty search results
@@ -356,12 +360,9 @@ class _InitialHomeTreePageState extends State<ChildHomeTreePage> {
                               ),
                               Expanded(
                                 child: Text(
-                                  state.initialSearchText ??
-                                      "What are you looking for?", // Show current search text or default
+                                  "What are you looking for?", // Show current search text or default
                                   style: TextStyle(
-                                    color: state.initialSearchText != null
-                                        ? AppColors.black
-                                        : AppColors.darkGray.withOpacity(0.8),
+                                    color: AppColors.darkGray.withOpacity(0.8),
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),

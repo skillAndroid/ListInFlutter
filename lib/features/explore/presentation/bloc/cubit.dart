@@ -1,10 +1,11 @@
 // post_cubit.dart
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/core/error/failure.dart';
 import 'package:list_in/core/usecases/usecases.dart';
-import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/domain/get_publications_usecase.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/post/data/models/attribute_model.dart';
@@ -18,11 +19,134 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
   final GetGategoriesUsecase getCatalogsUseCase;
   final GetPublicationsUsecase getPublicationsUseCase;
   static const int pageSize = 20;
-
+  Timer? _debounceTimer;
   HomeTreeCubit({
     required this.getCatalogsUseCase,
     required this.getPublicationsUseCase,
   }) : super(HomeTreeState());
+
+  void updateSearchText(String? text) {
+    // Cancel any previous timer
+    _debounceTimer?.cancel();
+
+    emit(state.copyWith(
+      searchText: text,
+      searchPublicationsRequestState: RequestState.idle,
+    ));
+  }
+
+void clearSearchText() {
+  // Log before state change
+  debugPrint("Before clear: 😆😆😆😆${state.searchText}");
+  
+  // Use bloc observer or add a delay to properly see state changes
+  emit(state.copyWith(
+    searchText: '',  // Make sure null is handled in your copyWith method
+    searchPublications: [],
+    searchPublicationsRequestState: RequestState.idle,
+    searchCurrentPage: 0,
+    searchHasReachedMax: false,
+    errorSearchPublicationsFetch: null,
+  ));
+
+  // Add this to see the state change in the next frame
+  Future.microtask(() {
+    debugPrint("After clear: 😆😆😆😆${state.searchText}");
+  });
+}
+  Future<void> searchPage(int pageKey) async {
+    if (state.searchPublicationsRequestState == RequestState.inProgress) {
+      debugPrint(
+          '🚫 Preventing duplicate publications request for page: $pageKey');
+      return;
+    }
+
+    debugPrint('🔍 Fetching page: $pageKey with search: ${state.searchText}');
+
+    if (pageKey == 0) {
+      emit(state.copyWith(
+        searchPublicationsRequestState: RequestState.inProgress,
+        errorSearchPublicationsFetch: null,
+        searchPublications: [],
+        searchHasReachedMax: false,
+        searchCurrentPage: 0,
+      ));
+    } else {
+      emit(state.copyWith(
+        searchPublicationsRequestState: RequestState.inProgress,
+        errorSearchPublicationsFetch: null,
+      ));
+    }
+
+    try {
+      final result = await getPublicationsUseCase(
+        params: GetPublicationsParams(
+          query: state.searchText,
+          page: pageKey,
+          size: pageSize,
+          priceFrom: state.priceFrom,
+          priceTo: state.priceTo,
+        ),
+      );
+
+      result.fold(
+        (failure) {
+          emit(state.copyWith(
+            searchPublicationsRequestState: RequestState.error,
+            errorSearchPublicationsFetch: _mapFailureToMessage(failure),
+          ));
+        },
+        (newPublications) {
+          final isLastPage = newPublications.length < pageSize;
+          final updatedPublications = pageKey == 0
+              ? newPublications
+              : [...state.searchPublications, ...newPublications];
+
+          emit(state.copyWith(
+            searchPublicationsRequestState: RequestState.completed,
+            errorSearchPublicationsFetch: null,
+            searchPublications: updatedPublications,
+            searchHasReachedMax: isLastPage,
+            searchCurrentPage: pageKey,
+          ));
+        },
+      );
+    } catch (e) {
+      emit(state.copyWith(
+        searchPublicationsRequestState: RequestState.error,
+        errorSearchPublicationsFetch: 'An unexpected error occurred',
+      ));
+    }
+  }
+
+  Future<void> handleSearch(String? searchText) async {
+    // Cancel any previous timer
+    _debounceTimer?.cancel();
+
+    // Start a new timer
+    _debounceTimer = Timer(const Duration(milliseconds: 300), () async {
+      if (searchText == null || searchText.isEmpty) return;
+
+      emit(state.copyWith(
+        searchPublicationsRequestState: RequestState.inProgress,
+        searchText: searchText.isEmpty ? null : searchText,
+        searchPublications: [],
+        searchCurrentPage: 0,
+        searchHasReachedMax: false,
+        errorSearchPublicationsFetch: null,
+      ));
+
+      try {
+        await searchPage(0);
+        emit(state.copyWith(
+            searchPublicationsRequestState: RequestState.completed));
+      } catch (e) {
+        emit(
+            state.copyWith(searchPublicationsRequestState: RequestState.error));
+        rethrow;
+      }
+    });
+  }
 
   Future<void> fetchInitialPage(int pageKey) async {
     if (state.initialPublicationsRequestState == RequestState.inProgress) {
@@ -31,8 +155,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
       return;
     }
 
-    debugPrint(
-        '🔍 Fetching page: $pageKey with search: ${state.initialSearchText}');
+    debugPrint('🔍 Fetching page: $pageKey with search: ${state.searchText}');
 
     if (pageKey == 0) {
       emit(state.copyWith(
@@ -52,7 +175,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     try {
       final result = await getPublicationsUseCase(
         params: GetPublicationsParams(
-          query: state.initialSearchText,
+          query: state.searchText,
           page: pageKey,
           size: pageSize,
           priceFrom: state.priceFrom,
@@ -90,32 +213,6 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     }
   }
 
-  Future<void> handleInitialSearch(String? searchText) async {
-    // Prevent duplicate search requests
-    if (state.initialSearchRequestState == RequestState.inProgress) {
-      debugPrint('🚫 Preventing duplicate search request for: $searchText');
-      return;
-    }
-
-    emit(state.copyWith(
-      initialSearchRequestState: RequestState.inProgress,
-      initialSearchText: searchText,
-      initialPublications: [],
-      initialCurrentPage: 0,
-      initialHasReachedMax: false,
-      errorInitialPublicationsFetch: null,
-    ));
-
-    try {
-      await fetchInitialPage(0);
-      emit(state.copyWith(
-          initialPublicationsRequestState: RequestState.completed));
-    } catch (e) {
-      emit(state.copyWith(initialPublicationsRequestState: RequestState.error));
-      rethrow;
-    }
-  }
-
   Future<void> fetchSecondaryPage(int pageKey) async {
     if (state.secondaryPublicationsRequestState == RequestState.inProgress) {
       debugPrint(
@@ -123,8 +220,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
       return;
     }
 
-    debugPrint(
-        '🔍 Fetching page: $pageKey with search: ${state.secondarySearchText}');
+    debugPrint('🔍 Fetching page: $pageKey with search: ${state.searchText}');
 
     if (pageKey == 0) {
       emit(state.copyWith(
@@ -144,12 +240,14 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     try {
       final result = await getPublicationsUseCase(
         params: GetPublicationsParams(
-          query: state.secondarySearchText,
+          query: state.searchText,
           page: pageKey,
           size: pageSize,
           priceFrom: state.priceFrom,
           priceTo: state.priceTo,
-          categoryId: state.selectedCatalog != null ? "{${state.selectedCatalog?.id}}" : null,
+          categoryId: state.selectedCatalog != null
+              ? "{${state.selectedCatalog?.id}}"
+              : null,
         ),
       );
 
@@ -182,21 +280,6 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
       ));
     }
   }
-
-  // Future<void> handleSecondarySearch(String? searchText) async {
-  //   isHandlingSecondarySearch = true;
-  //   emit(state.copyWith(
-  //     secondarySearchText: searchText,
-  //     secondaryPublications: [],
-  //     secondaryCurrentPage: 0,
-  //     secondaryHasReachedMax: false,
-  //     secondaryIsPublicationsLoading: false,
-  //     errorSecondaryPublicationsFetch: null,
-  //   ));
-
-  //   await fetchSecondaryPage(0);
-  //   isHandlingSecondarySearch = false;
-  // }
 
   void setPriceRange(double? from, double? to) {
     emit(state.copyWith(
@@ -713,5 +796,11 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
       attributeOptionsVisibility: newVisibility,
       selectedAttributeValues: newSelectedValues,
     ));
+  }
+
+  @override
+  Future<void> close() {
+    _debounceTimer?.cancel();
+    return super.close();
   }
 }

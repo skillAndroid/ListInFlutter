@@ -20,6 +20,7 @@ class Routes {
 
   static const videosFeed = '/video_feed';
   static const search = '/search';
+  static const searchResult = '/searchResult';
 }
 
 class RoutesByName {
@@ -42,5 +43,6 @@ class RoutesByName {
   static const anotherUserProfile = 'a_u_profile';
 
   static const videosFeed = 'video_feed';
-   static const search = 'search';
+  static const search = 'search';
+  static const searchResult = 'searchResult';
 }

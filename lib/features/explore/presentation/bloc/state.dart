@@ -12,6 +12,8 @@ class HomeTreeState {
   final RequestState initialPublicationsRequestState;
   final RequestState secondarySearchRequestState;
   final RequestState secondaryPublicationsRequestState;
+  final RequestState searchRequestState;
+  final RequestState searchPublicationsRequestState;
   final List<CategoryModel>? catalogs;
   final CategoryModel? selectedCatalog;
   final ChildCategoryModel? selectedChildCategory;
@@ -31,11 +33,17 @@ class HomeTreeState {
   final String? error;
   final bool initialIsPublicationsLoading;
   final bool initialIsLoadingMore;
+  final bool searchIsPublicationsLoading;
+  final bool searchIsLoadingMore;
   final List<GetPublicationEntity> initialPublications;
+  final List<GetPublicationEntity> searchPublications;
   final String? errorInitialPublicationsFetch;
   final bool initialHasReachedMax;
   final int initialCurrentPage;
-  final String? initialSearchText;
+  final String? errorSearchPublicationsFetch;
+  final bool searchHasReachedMax;
+  final int searchCurrentPage;
+  final String? searchText;
   // sec0ndary
   final bool secondaryIsPublicationsLoading;
   final bool secondaryIsLoadingMore;
@@ -43,9 +51,10 @@ class HomeTreeState {
   final String? errorSecondaryPublicationsFetch;
   final bool secondaryHasReachedMax;
   final int secondaryCurrentPage;
-  final String? secondarySearchText;
 
   HomeTreeState({
+    this.searchRequestState = RequestState.idle,
+    this.searchPublicationsRequestState = RequestState.idle,
     this.initialSearchRequestState = RequestState.idle,
     this.initialPublicationsRequestState = RequestState.idle,
     this.secondarySearchRequestState = RequestState.idle,
@@ -68,18 +77,23 @@ class HomeTreeState {
     this.isLoading = false,
     this.error,
     this.errorInitialPublicationsFetch,
+    this.errorSearchPublicationsFetch,
     List<GetPublicationEntity>? initialPublications,
+    List<GetPublicationEntity>? searchPublications,
     this.initialIsLoadingMore = false,
     this.initialHasReachedMax = false,
     this.initialCurrentPage = 0,
-    this.initialSearchText,
+    this.searchIsLoadingMore = false,
+    this.searchHasReachedMax = false,
+    this.searchCurrentPage = 0,
+    this.searchText,
     this.initialIsPublicationsLoading = false,
+    this.searchIsPublicationsLoading = false,
     this.errorSecondaryPublicationsFetch,
     List<GetPublicationEntity>? secondaryPublications,
     this.secondaryIsLoadingMore = false,
     this.secondaryHasReachedMax = false,
     this.secondaryCurrentPage = 0,
-    this.secondarySearchText,
     this.secondaryIsPublicationsLoading = false,
   })  : currentAttributes = currentAttributes ?? [],
         dynamicAttributes = dynamicAttributes ?? [],
@@ -92,9 +106,12 @@ class HomeTreeState {
         childCategoryDynamicAttributes = childCategoryDynamicAttributes ?? {},
         attributeRequests = attributeRequests ?? [],
         initialPublications = initialPublications ?? [],
+        searchPublications = searchPublications ?? [],
         secondaryPublications = secondaryPublications ?? [];
 
   HomeTreeState copyWith({
+    RequestState? searchRequestState,
+    RequestState? searchPublicationsRequestState,
     RequestState? initialSearchRequestState,
     RequestState? initialPublicationsRequestState,
     RequestState? secondarySearchRequestState,
@@ -115,61 +132,72 @@ class HomeTreeState {
     double? priceFrom,
     double? priceTo,
     String? error,
+    List<GetPublicationEntity>? searchPublications,
     List<GetPublicationEntity>? initialPublications,
     List<GetPublicationEntity>? secondaryPublications,
     bool? isLoading,
+    bool? searchIsPublicationsLoading,
     bool? initialIsPublicationsLoading,
     bool? secondaryIsPublicationsLoading,
+    bool? searchIsLoadingMore,
     bool? initialIsLoadingMore,
     bool? secondaryIsLoadingMore,
+    String? errorSearchPublicationsFetch,
     String? errorInitialPublicationsFetch,
     String? errorSecondaryPublicationsFetch,
+    bool? searchHasReachedMax,
     bool? initialHasReachedMax,
     bool? secondaryHasReachedMax,
+    int? searchCurrentPage,
     int? initialCurrentPage,
     int? secondaryCurrentPage,
-    String? initialSearchText,
-    String? secondarySearchText,
+    String? searchText,
   }) {
     return HomeTreeState(
-        initialSearchRequestState:
-            initialSearchRequestState ?? this.initialSearchRequestState,
-        initialPublicationsRequestState: initialPublicationsRequestState ??
-            this.initialPublicationsRequestState,
-        secondarySearchRequestState:
-            secondarySearchRequestState ?? this.secondarySearchRequestState,
-        secondaryPublicationsRequestState: secondaryPublicationsRequestState ??
-            this.secondaryPublicationsRequestState,
-        catalogs: catalogs ?? this.catalogs,
-        selectedCatalog: selectedCatalog ?? this.selectedCatalog,
-        selectedChildCategory:
-            selectedChildCategory ?? this.selectedChildCategory,
-        currentAttributes: currentAttributes ?? this.currentAttributes,
-        dynamicAttributes: dynamicAttributes ?? this.dynamicAttributes,
-        selectedValues: selectedValues ?? this.selectedValues,
-        attributeOptionsVisibility:
-            attributeOptionsVisibility ?? this.attributeOptionsVisibility,
-        selectedAttributeValues:
-            selectedAttributeValues ?? this.selectedAttributeValues,
-        catalogHistory: catalogHistory ?? this.catalogHistory,
-        childCategoryHistory: childCategoryHistory ?? this.childCategoryHistory,
-        childCategorySelections:
-            childCategorySelections ?? this.childCategorySelections,
-        childCategoryDynamicAttributes: childCategoryDynamicAttributes ??
-            this.childCategoryDynamicAttributes,
-        attributeRequests: attributeRequests ?? this.attributeRequests,
-        priceFrom: priceFrom ?? this.priceFrom,
-        priceTo: priceTo ?? this.priceTo,
-        initialPublications: initialPublications ?? this.initialPublications,
-        initialHasReachedMax: initialHasReachedMax ?? this.initialHasReachedMax,
-        initialCurrentPage: initialCurrentPage ?? this.initialCurrentPage,
-        initialSearchText: initialSearchText ?? this.initialSearchText,
-        secondaryPublications:
-            secondaryPublications ?? this.secondaryPublications,
-        secondaryHasReachedMax:
-            secondaryHasReachedMax ?? this.secondaryHasReachedMax,
-        secondaryCurrentPage: secondaryCurrentPage ?? this.secondaryCurrentPage,
-        secondarySearchText: secondarySearchText ?? this.secondarySearchText);
+      searchRequestState: searchRequestState ?? this.searchRequestState,
+      searchPublicationsRequestState:
+          searchPublicationsRequestState ?? this.searchPublicationsRequestState,
+      initialSearchRequestState:
+          initialSearchRequestState ?? this.initialSearchRequestState,
+      initialPublicationsRequestState: initialPublicationsRequestState ??
+          this.initialPublicationsRequestState,
+      secondarySearchRequestState:
+          secondarySearchRequestState ?? this.secondarySearchRequestState,
+      secondaryPublicationsRequestState: secondaryPublicationsRequestState ??
+          this.secondaryPublicationsRequestState,
+      catalogs: catalogs ?? this.catalogs,
+      selectedCatalog: selectedCatalog ?? this.selectedCatalog,
+      selectedChildCategory:
+          selectedChildCategory ?? this.selectedChildCategory,
+      currentAttributes: currentAttributes ?? this.currentAttributes,
+      dynamicAttributes: dynamicAttributes ?? this.dynamicAttributes,
+      selectedValues: selectedValues ?? this.selectedValues,
+      attributeOptionsVisibility:
+          attributeOptionsVisibility ?? this.attributeOptionsVisibility,
+      selectedAttributeValues:
+          selectedAttributeValues ?? this.selectedAttributeValues,
+      catalogHistory: catalogHistory ?? this.catalogHistory,
+      childCategoryHistory: childCategoryHistory ?? this.childCategoryHistory,
+      childCategorySelections:
+          childCategorySelections ?? this.childCategorySelections,
+      childCategoryDynamicAttributes:
+          childCategoryDynamicAttributes ?? this.childCategoryDynamicAttributes,
+      attributeRequests: attributeRequests ?? this.attributeRequests,
+      priceFrom: priceFrom ?? this.priceFrom,
+      priceTo: priceTo ?? this.priceTo,
+      searchPublications: searchPublications ?? this.searchPublications,
+      searchHasReachedMax: searchHasReachedMax ?? this.searchHasReachedMax,
+      searchCurrentPage: searchCurrentPage ?? this.searchCurrentPage,
+      initialPublications: initialPublications ?? this.initialPublications,
+      initialHasReachedMax: initialHasReachedMax ?? this.initialHasReachedMax,
+      initialCurrentPage: initialCurrentPage ?? this.initialCurrentPage,
+      searchText: searchText ?? this.searchText,
+      secondaryPublications:
+          secondaryPublications ?? this.secondaryPublications,
+      secondaryHasReachedMax:
+          secondaryHasReachedMax ?? this.secondaryHasReachedMax,
+      secondaryCurrentPage: secondaryCurrentPage ?? this.secondaryCurrentPage,
+    );
   }
 
   List<AttributeModel> get orderedAttributes {
