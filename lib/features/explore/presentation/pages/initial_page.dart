@@ -80,7 +80,7 @@ class ScrollState {
 
 class PagingState {
   final pagingController =
-      PagingController<int, GetPublicationEntity>(firstPageKey: 0);
+      PagingController<int, PublicationPairEntity>(firstPageKey: 0);
 
   void dispose() {
     pagingController.dispose();
@@ -261,7 +261,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
     }
   }
 
-  List<GetPublicationEntity> _getNewItems(
+  List<PublicationPairEntity> _getNewItems(
       HomeTreeState state, int currentPage) {
     if (currentPage == 0) return state.initialPublications;
 
@@ -303,7 +303,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
             Future.sync(() => _pagingState.pagingController.refresh()),
         child: CustomScrollView(
           controller: _scrollState.scrollController,
-          physics: const BouncingScrollPhysics(),
+          //   physics: const BouncingScrollPhysics(),
           slivers: [
             SliverToBoxAdapter(child: _buildCategories()),
             if (_uiState.isSliverAppBarVisible)
@@ -351,14 +351,37 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
   Widget _buildProductGrid() {
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
-      sliver: PagedSliverList<int, GetPublicationEntity>(
+      sliver: PagedSliverList(
         pagingController: _pagingState.pagingController,
-        builderDelegate: PagedChildBuilderDelegate<GetPublicationEntity>(
+        builderDelegate: PagedChildBuilderDelegate(
           itemBuilder: (context, item, index) {
-            final items = _pagingState.pagingController.itemList;
-            if (items == null) return const SizedBox.shrink();
-            final screenWidth = MediaQuery.of(context).size.width;
-            return _buildDynamicItem(index, items, screenWidth);
+            final currentItem = item as PublicationPairEntity;
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 1),
+              child: currentItem.isSponsored
+                  ? _buildAdvertisedProduct(currentItem.firstPublication)
+                  : Row(
+                      children: [
+                        Expanded(
+                          child: RemouteRegularProductCard2(
+                            key: ValueKey(
+                                'regular_${currentItem.firstPublication.id}'),
+                            product: currentItem.firstPublication,
+                          ),
+                        ),
+                        const SizedBox(width: 1),
+                        Expanded(
+                          child: currentItem.secondPublication != null
+                              ? RemouteRegularProductCard2(
+                                  key: ValueKey(
+                                      'regular_${currentItem.secondPublication!.id}'),
+                                  product: currentItem.secondPublication!,
+                                )
+                              : const SizedBox.shrink(),
+                        ),
+                      ],
+                    ),
+            );
           },
           firstPageErrorIndicatorBuilder: (context) => ErrorIndicator(
             error: _pagingState.pagingController.error,
@@ -367,82 +390,6 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
           noItemsFoundIndicatorBuilder: (context) =>
               const Center(child: Text('No items found')),
         ),
-      ),
-    );
-  }
-
-  Widget _buildDynamicItem(
-    int currentIndex,
-    List<GetPublicationEntity> items,
-    double screenWidth,
-  ) {
-    final currentItem = items[currentIndex];
-    final hasVideo = currentItem.videoUrl?.isNotEmpty ?? false;
-
-    if (hasVideo) {
-      return SizedBox(
-        width: screenWidth,
-        child: _buildAdvertisedProduct(currentItem),
-      );
-    }
-
-    int nextNonVideoIndex = -1;
-    if (currentIndex < items.length - 1) {
-      for (int i = currentIndex + 1; i < items.length; i++) {
-        if (!(items[i].videoUrl?.isNotEmpty ?? false)) {
-          nextNonVideoIndex = i;
-          break;
-        }
-      }
-    }
-
-    if (currentIndex > 0 &&
-        !(items[currentIndex - 1].videoUrl?.isNotEmpty ?? false) &&
-        currentIndex % 2 == 1) {
-      return const SizedBox.shrink();
-    }
-
-    if (nextNonVideoIndex != -1 && currentIndex % 2 == 0) {
-      return _buildProductRow(
-        leftItem: currentItem,
-        rightItem: items[nextNonVideoIndex],
-        screenWidth: screenWidth,
-      );
-    }
-
-    return _buildProductRow(
-      leftItem: currentItem,
-      rightItem: null,
-      screenWidth: screenWidth,
-    );
-  }
-
-  Widget _buildProductRow({
-    required GetPublicationEntity leftItem,
-    GetPublicationEntity? rightItem,
-    required double screenWidth,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 1),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Expanded(
-            child: RemouteRegularProductCard(
-              key: ValueKey('regular_${leftItem.id}'),
-              product: leftItem,
-            ),
-          ),
-          const SizedBox(width: 1),
-          Expanded(
-            child: rightItem != null
-                ? RemouteRegularProductCard(
-                    key: ValueKey('regular_${rightItem.id}'),
-                    product: rightItem,
-                  )
-                : const SizedBox(),
-          ),
-        ],
       ),
     );
   }
@@ -701,5 +648,3 @@ class ErrorIndicator extends StatelessWidget {
     );
   }
 }
-
-

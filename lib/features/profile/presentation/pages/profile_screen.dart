@@ -90,15 +90,13 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
             backgroundColor: AppColors.bgColor,
             body: NestedScrollView(
               controller: _scrollController,
-              physics: const BouncingScrollPhysics(
-                parent: AlwaysScrollableScrollPhysics(),
-              ),
+              physics: BouncingScrollPhysics(),
               headerSliverBuilder: (context, innerBoxIsScrolled) {
                 return [
                   SliverAppBar(
                     floating: true,
-                    pinned: false,
-                    snap: true,
+                    pinned: true,
+                    snap: false,
                     elevation: 0,
                     scrolledUnderElevation: 0.3,
                     shadowColor: AppColors.black,
@@ -735,8 +733,8 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
         }
 
         return SliverPadding(
-          padding: EdgeInsets.only(top: 8, bottom: 16), // Added padding
-          sliver: SliverGrid(
+          padding: const EdgeInsets.only(top: 8, bottom: 16), // Added padding
+          sliver: SliverList(
             delegate: SliverChildBuilderDelegate(
               (context, index) {
                 if (index == state.publications.length) {
@@ -751,20 +749,11 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                 }
 
                 final publication = state.publications[index];
-                return Padding(
-                  padding: const EdgeInsets.all(0),
-                  child: HorizontalProfileProductCard(
-                    product: publication,
-                  ),
+                return HorizontalProfileProductCard(
+                  product: publication,
                 );
               },
               childCount: state.publications.length + (state.isLoading ? 1 : 0),
-            ),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 1,
-              crossAxisSpacing: 0,
-              mainAxisSpacing: 0,
-              childAspectRatio: 2.65,
             ),
           ),
         );

@@ -26,6 +26,19 @@ abstract class PublicationsRemoteDataSource {
     double? priceTo,
     List<String>? filters,
   });
+
+  Future<List<PublicationPairModel>> getPublicationsFiltered2({
+    String? categoryId,
+    String? subcategoryId,
+    String? query,
+    int? page,
+    int? size,
+    bool? bargain,
+    String? condition,
+    double? priceFrom,
+    double? priceTo,
+    List<String>? filters,
+  });
 }
 
 class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
@@ -139,6 +152,57 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
       );
 
       return _handleResponse(response);
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      throw UknownExeption();
+    }
+  }
+
+  @override
+  Future<List<PublicationPairModel>> getPublicationsFiltered2({
+    String? categoryId,
+    String? subcategoryId,
+    String? query,
+    int? page,
+    int? size,
+    bool? bargain,
+    String? condition,
+    double? priceFrom,
+    double? priceTo,
+    List<String>? filters,
+  }) async {
+    try {
+      final options = await authService.getAuthOptions();
+      final queryParams = <String, dynamic>{
+        'query': query ?? '',
+        if (page != null) 'page': page.toString(),
+        if (size != null) 'size': size.toString(),
+        if (bargain != null) 'bargain': bargain.toString(),
+        if (condition != null) 'condition': condition,
+        if (priceFrom != null) 'from': priceFrom.toString(),
+        if (priceTo != null) 'to': priceTo.toString(),
+        if (filters != null && filters.isNotEmpty) 'filter': filters,
+      };
+
+      String url = '/api/v1/publications';
+      if (categoryId != null) {
+        url += '/$categoryId';
+        if (subcategoryId != null) {
+          url += '/$subcategoryId';
+        }
+      }
+
+      final response = await dio.get(
+        url,
+        queryParameters: queryParams,
+        options: options,
+      );
+
+      final paginatedResponse =
+          PaginatedPublicationResponseModel.fromJson(response.data);
+
+      return paginatedResponse.content;
     } on DioException catch (e) {
       throw _handleDioException(e);
     } catch (e) {

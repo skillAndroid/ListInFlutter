@@ -28,13 +28,13 @@ class HorizontalProfileProductCard extends StatelessWidget {
         : ''; // You might want to add a default image URL here
 
     return Card(
-      color: AppColors.white,
-      margin: EdgeInsets.symmetric(vertical:  5, horizontal: 4),
-      elevation: 2,
-      shadowColor: Colors.black.withOpacity(0.5),
-      shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      color: AppColors.containerColor.withOpacity(0.5),
+      margin: EdgeInsets.symmetric(vertical: 5, horizontal: 4),
+      elevation: 0,
+      //  shadowColor: Colors.black.withOpacity(0.5),
+      shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: SizedBox(
-        height: 100,
+        height: 115,
         child: Row(
           children: [
             SizedBox(
@@ -42,16 +42,16 @@ class HorizontalProfileProductCard extends StatelessWidget {
                 children: [
                   Padding(
                     padding:
-                        const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+                        const EdgeInsets.symmetric(vertical: 3, horizontal: 3),
                     child: SmoothClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: AspectRatio(
-                        aspectRatio: 0.9,
-                        child: CachedNetworkImage(
-                          imageUrl: displayImage,
-                          fit: BoxFit.cover,
-                          // You might want to add error and placeholder widgets
-                        ),
+                      smoothness: 1,
+                      borderRadius: BorderRadius.circular(14),
+                      child: CachedNetworkImage(
+                        width: 105,
+                        height: 105,
+                        imageUrl: displayImage,
+                        fit: BoxFit.cover,
+                        // You might want to add error and placeholder widgets
                       ),
                     ),
                   ),
@@ -519,6 +519,230 @@ class RemouteRegularProductCard extends StatelessWidget {
   final GetPublicationEntity product;
 
   const RemouteRegularProductCard({super.key, required this.product});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        context.push(
+          Routes.productDetails,
+          extra: product, // Pass the entire product object directly
+        );
+      },
+      child: Card(
+        shape: SmoothRectangleBorder(
+          smoothness: 1,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        elevation: 4,
+        shadowColor: Colors.black.withOpacity(0.4),
+        color: AppColors.white,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Image section with fixed aspect ratio
+            AspectRatio(
+              aspectRatio: 1.1, // Adjust this value to control image height
+              child: Padding(
+                padding: const EdgeInsets.all(3),
+                child: Stack(
+                  children: [
+                    SmoothClipRRect(
+                      smoothness: 1,
+                      borderRadius: BorderRadius.circular(10),
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: double.infinity,
+                        child: product.productImages.isNotEmpty
+                            ? CachedNetworkImage(
+                                imageUrl:
+                                    'https://${product.productImages[0].url}',
+                                fit: BoxFit.cover,
+
+                                // Show a loading spinner while the image is loading
+                                placeholder: (context, url) => const Center(
+                                  child: CircularProgressIndicator(
+                                    color: AppColors.transparent,
+                                  ),
+                                ),
+                                // Handle errors with a custom error widget
+                                errorWidget: (context, url, error) => Container(
+                                  color:
+                                      Colors.grey[200], // Light grey background
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.error_outline,
+                                        color: Colors.grey[400],
+                                        size: 32,
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'Image not available',
+                                        style: TextStyle(
+                                          color: Colors.grey[600],
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )
+                            : Image.asset(
+                                AppImages.appLogo,
+                                fit: BoxFit.cover,
+                                // Error handling for asset image
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Container(
+                                  color: Colors.grey[200],
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.broken_image,
+                                        color: Colors.grey[400],
+                                        size: 32,
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'Logo not found',
+                                        style: TextStyle(
+                                          color: Colors.grey[600],
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 8,
+                      left: 8,
+                      child: SmoothCard(
+                        margin: const EdgeInsets.all(0),
+                        elevation: 0,
+                        color: AppColors.primary,
+                        borderRadius: BorderRadius.circular(6),
+                        child: const Padding(
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          child: Text(
+                            'New',
+                            style: TextStyle(
+                              color: AppColors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ),
+            // Content section with flexible height
+            SizedBox(
+              width: double.infinity,
+              height: 115,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Title with flexible height
+                    SizedBox(
+                      width: double.infinity,
+                      child: Text(
+                        product.title,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        maxLines: 2, // Allow multiple lines
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+
+                    //  const SizedBox(height: 8),
+                    // Price section with fixed height
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          product.locationName,
+                          style: const TextStyle(
+                            color: AppColors.lightText,
+                            fontSize: 13,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Transform.translate(
+                          offset: Offset(0, 6),
+                          child: const Text(
+                            'Price',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.lightText,
+                            ),
+                          ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              product.price.toString(),
+                              style: const TextStyle(
+                                color: AppColors.primary,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SmoothClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Container(
+                                color: AppColors.containerColor,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: Image.asset(
+                                      AppIcons.favorite,
+                                      color: AppColors.darkGray,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+
+class RemouteRegularProductCard2 extends StatelessWidget {
+  final GetPublicationEntity product;
+
+  const RemouteRegularProductCard2({super.key, required this.product});
 
   @override
   Widget build(BuildContext context) {

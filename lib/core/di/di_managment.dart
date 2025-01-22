@@ -61,6 +61,7 @@ import 'package:list_in/features/profile/presentation/bloc/publication/user_publ
 import 'package:list_in/features/profile/presentation/bloc/user/user_profile_bloc.dart';
 import 'package:path_provider/path_provider.dart' as path_provider;
 import 'package:shared_preferences/shared_preferences.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -191,10 +192,14 @@ Future<void> init() async {
     ),
   );
 
-  sl.registerFactory(() =>
-      HomeTreeCubit(getCatalogsUseCase: sl(), getPublicationsUseCase: sl()));
+  sl.registerFactory(() => HomeTreeCubit(
+        getCatalogsUseCase: sl(),
+        getPublicationsUseCase: sl(),
+        getPublicationsUseCase2: sl(),
+      ));
 
   sl.registerLazySingleton(() => GetPublicationsUsecase(sl()));
+  sl.registerLazySingleton(() => GetPublicationsUsecase2(sl()));
   sl.registerLazySingleton(() => GetLocationUseCase(sl()));
   sl.registerLazySingleton(() => SearchLocationsUseCase(sl()));
   sl.registerLazySingleton<LocationRepository>(

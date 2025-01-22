@@ -56,6 +56,46 @@ class PublicationsRepositoryImpl implements PublicationsRepository {
   }
 
   @override
+  Future<Either<Failure, List<PublicationPairEntity>>> getPublicationsFiltered2({
+    String? categoryId,
+    String? subcategoryId,
+    String? query,
+    int? page,
+    int? size,
+    bool? bargain,
+    String? condition,
+    double? priceFrom,
+    double? priceTo,
+    List<String>? filters,
+  }) async {
+    if (await networkInfo.isConnected) {
+      try {
+        final publications = await remoteDataSource.getPublicationsFiltered2(
+          query: query,
+          page: page,
+          size: size,
+          bargain: bargain,
+          condition: condition,
+          priceFrom: priceFrom,
+          priceTo: priceTo,
+          categoryId: categoryId,
+          subcategoryId: subcategoryId,
+          filters: filters,
+        );
+        return Right(publications.map((model) => model.toEntity()).toList());
+      } on ServerExeption {
+        return Left(ServerFailure());
+      } on ConnectionExeption {
+        return Left(NetworkFailure());
+      } catch (e) {
+        return Left(UnexpectedFailure());
+      }
+    } else {
+      return Left(NetworkFailure());
+    }
+  }
+
+  @override
   Future<Either<Failure, List<GetPublicationEntity>>> getPublicationsFiltered({
     String? categoryId,
     String? subcategoryId,

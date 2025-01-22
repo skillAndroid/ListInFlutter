@@ -52,3 +52,28 @@ class GetPublicationsUsecase
     );
   }
 }
+
+class GetPublicationsUsecase2
+    extends UseCase2<List<PublicationPairEntity>, GetPublicationsParams> {
+  final PublicationsRepository repository;
+
+  GetPublicationsUsecase2(this.repository);
+
+  @override
+  Future<Either<Failure, List<PublicationPairEntity>>> call(
+      {GetPublicationsParams? params}) {
+    return repository.getPublicationsFiltered2(
+      query: params?.query,
+      page: params?.page,
+      size: params?.size,
+      bargain: params?.bargain,
+      condition: params?.condition,
+      priceFrom: params?.priceFrom,
+      priceTo: params?.priceTo,
+      categoryId: params?.categoryId,
+      subcategoryId: params?.subcategoryId,
+      filters: params?.filters,
+    );
+  }
+}
+

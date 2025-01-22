@@ -28,4 +28,18 @@ abstract class PublicationsRepository {
     double? priceTo,
     List<String>? filters,
   });
+
+  Future<Either<Failure, List<PublicationPairEntity>>>
+      getPublicationsFiltered2({
+    String? categoryId,
+    String? subcategoryId,
+    String? query,
+    int? page,
+    int? size,
+    bool? bargain,
+    String? condition,
+    double? priceFrom,
+    double? priceTo,
+    List<String>? filters,
+  });
 }

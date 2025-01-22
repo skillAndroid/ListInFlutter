@@ -1,7 +1,82 @@
-import 'package:dartz/dartz.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
-import 'package:dartz/dartz.dart';
-import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
+
+class PaginatedPublicationResponseModel {
+  final List<PublicationPairModel> content;
+  final int number;
+  final int size;
+  final int totalElements;
+  final int totalPages;
+  final bool first;
+  final bool last;
+
+  PaginatedPublicationResponseModel({
+    required this.content,
+    required this.number,
+    required this.size,
+    required this.totalElements,
+    required this.totalPages,
+    required this.first,
+    required this.last,
+  });
+
+  factory PaginatedPublicationResponseModel.fromJson(
+      Map<String, dynamic> json) {
+    return PaginatedPublicationResponseModel(
+      content: (json['content'] as List? ?? [])
+          .map((item) => PublicationPairModel.fromJson(item))
+          .toList(),
+      number: json['number'] ?? 0,
+      size: json['size'] ?? 0,
+      totalElements: json['totalElements'] ?? 0,
+      totalPages: json['totalPages'] ?? 0,
+      first: json['first'] ?? true,
+      last: json['last'] ?? true,
+    );
+  }
+
+  PaginatedPublicationEntity toEntity() {
+    return PaginatedPublicationEntity(
+      content: content.map((pair) => pair.toEntity()).toList(),
+      number: number,
+      size: size,
+      totalElements: totalElements,
+      totalPages: totalPages,
+      first: first,
+      last: last,
+    );
+  }
+}
+
+
+class PublicationPairModel {
+  final bool isSponsored;
+  final GetPublicationModel firstPublication;
+  final GetPublicationModel? secondPublication;
+
+  PublicationPairModel({
+    required this.isSponsored,
+    required this.firstPublication,
+    this.secondPublication,
+  });
+
+  factory PublicationPairModel.fromJson(Map<String, dynamic> json) {
+    return PublicationPairModel(
+      isSponsored: json['isSponsored'] ?? false,
+      firstPublication:
+          GetPublicationModel.fromJson(json['firstPublication'] ?? {}),
+      secondPublication: json['secondPublication'] != null
+          ? GetPublicationModel.fromJson(json['secondPublication'])
+          : null,
+    );
+  }
+  PublicationPairEntity toEntity() {
+    return PublicationPairEntity(
+      isSponsored: isSponsored,
+      firstPublication: firstPublication.toEntity(),
+      secondPublication: secondPublication?.toEntity(),
+    );
+  }
+}
 
 class GetPublicationModel {
   final String id;
@@ -39,16 +114,6 @@ class GetPublicationModel {
     required this.category,
     required this.seller,
   });
-
-  static double? _safeParseDouble(dynamic value) {
-    if (value == null) return null;
-    if (value is int) return value.toDouble();
-    if (value is double) return value;
-    if (value is String) {
-      return double.tryParse(value);
-    }
-    return null;
-  }
 
   factory GetPublicationModel.fromJson(Map<String, dynamic> json) {
     try {
@@ -96,7 +161,6 @@ class GetPublicationModel {
         seller: SellerModel.fromJson(json['seller'] ?? {}),
       );
     } catch (e) {
-     
       rethrow;
     }
   }
@@ -224,7 +288,8 @@ class SellerModel {
         email: json['email']?.toString() ?? '',
         profileImagePath: json['profileImagePath']?.toString(),
         // rating: GetPublicationModel._safeParseDouble(json['rating']),
-        isGrantedForPreciseLocation: json['isGrantedForPreciseLocation'] ?? false,
+        isGrantedForPreciseLocation:
+            json['isGrantedForPreciseLocation'] ?? false,
         locationName: json['locationName']?.toString() ?? '',
         // longitude: GetPublicationModel._safeParseDouble(json['longitude']),
         // latitude: GetPublicationModel._safeParseDouble(json['latitude']),

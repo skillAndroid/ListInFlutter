@@ -17,11 +17,13 @@ import 'package:list_in/features/post/domain/usecases/get_catalogs_usecase.dart'
 class HomeTreeCubit extends Cubit<HomeTreeState> {
   final GetGategoriesUsecase getCatalogsUseCase;
   final GetPublicationsUsecase getPublicationsUseCase;
+  final GetPublicationsUsecase2 getPublicationsUseCase2;
   static const int pageSize = 20;
   Timer? _debounceTimer;
   HomeTreeCubit({
     required this.getCatalogsUseCase,
     required this.getPublicationsUseCase,
+    required this.getPublicationsUseCase2,
   }) : super(HomeTreeState());
 
   void updateSearchText(String? text) {
@@ -180,7 +182,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     }
 
     try {
-      final result = await getPublicationsUseCase(
+      final result = await getPublicationsUseCase2(
         params: GetPublicationsParams(
           query: state.searchText,
           page: pageKey,

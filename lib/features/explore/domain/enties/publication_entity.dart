@@ -1,3 +1,37 @@
+
+class PaginatedPublicationEntity {
+  final List<PublicationPairEntity> content;
+  final int number;
+  final int size;
+  final int totalElements;
+  final int totalPages;
+  final bool first;
+  final bool last;
+
+  PaginatedPublicationEntity({
+    required this.content,
+    required this.number,
+    required this.size,
+    required this.totalElements,
+    required this.totalPages,
+    required this.first,
+    required this.last,
+  });
+}
+
+class PublicationPairEntity {
+  final bool isSponsored;
+  final GetPublicationEntity firstPublication;
+  final GetPublicationEntity? secondPublication;
+
+  PublicationPairEntity({
+    required this.isSponsored,
+    required this.firstPublication,
+    this.secondPublication,
+  });
+}
+
+
 class GetPublicationEntity {
   final String id;
   final String title;
