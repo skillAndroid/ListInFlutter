@@ -54,13 +54,13 @@ class GetPublicationsUsecase
 }
 
 class GetPublicationsUsecase2
-    extends UseCase2<List<PublicationPairEntity>, GetPublicationsParams> {
+    extends UseCase2<PaginatedPublicationEntity, GetPublicationsParams> {
   final PublicationsRepository repository;
 
   GetPublicationsUsecase2(this.repository);
 
   @override
-  Future<Either<Failure, List<PublicationPairEntity>>> call(
+  Future<Either<Failure, PaginatedPublicationEntity>> call(
       {GetPublicationsParams? params}) {
     return repository.getPublicationsFiltered2(
       query: params?.query,
@@ -76,4 +76,3 @@ class GetPublicationsUsecase2
     );
   }
 }
-

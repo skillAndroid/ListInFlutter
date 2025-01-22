@@ -27,7 +27,7 @@ abstract class PublicationsRemoteDataSource {
     List<String>? filters,
   });
 
-  Future<List<PublicationPairModel>> getPublicationsFiltered2({
+  Future<PaginatedPublicationResponseModel> getPublicationsFiltered2({
     String? categoryId,
     String? subcategoryId,
     String? query,
@@ -160,7 +160,7 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
   }
 
   @override
-  Future<List<PublicationPairModel>> getPublicationsFiltered2({
+  Future<PaginatedPublicationResponseModel> getPublicationsFiltered2({
     String? categoryId,
     String? subcategoryId,
     String? query,
@@ -202,7 +202,7 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
       final paginatedResponse =
           PaginatedPublicationResponseModel.fromJson(response.data);
 
-      return paginatedResponse.content;
+      return paginatedResponse;
     } on DioException catch (e) {
       throw _handleDioException(e);
     } catch (e) {

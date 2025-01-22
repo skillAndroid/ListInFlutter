@@ -29,7 +29,7 @@ abstract class PublicationsRepository {
     List<String>? filters,
   });
 
-  Future<Either<Failure, List<PublicationPairEntity>>>
+  Future<Either<Failure, PaginatedPublicationEntity>>
       getPublicationsFiltered2({
     String? categoryId,
     String? subcategoryId,

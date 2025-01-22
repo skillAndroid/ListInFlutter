@@ -156,71 +156,68 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
       }
     });
   }
-
-  Future<void> fetchInitialPage(int pageKey) async {
-    if (state.initialPublicationsRequestState == RequestState.inProgress) {
-      debugPrint(
-          '🚫 Preventing duplicate publications request for page: $pageKey');
-      return;
-    }
-
-    debugPrint('🔍 Fetching page: $pageKey with search: ${state.searchText}');
-
-    if (pageKey == 0) {
-      emit(state.copyWith(
-        initialPublicationsRequestState: RequestState.inProgress,
-        errorInitialPublicationsFetch: null,
-        initialPublications: [],
-        initialHasReachedMax: false,
-        initialCurrentPage: 0,
-      ));
-    } else {
-      emit(state.copyWith(
-        initialPublicationsRequestState: RequestState.inProgress,
-        errorInitialPublicationsFetch: null,
-      ));
-    }
-
-    try {
-      final result = await getPublicationsUseCase2(
-        params: GetPublicationsParams(
-          query: state.searchText,
-          page: pageKey,
-          size: pageSize,
-          priceFrom: state.priceFrom,
-          priceTo: state.priceTo,
-        ),
-      );
-
-      result.fold(
-        (failure) {
-          emit(state.copyWith(
-            initialPublicationsRequestState: RequestState.error,
-            errorInitialPublicationsFetch: _mapFailureToMessage(failure),
-          ));
-        },
-        (newPublications) {
-          final isLastPage = newPublications.length < pageSize;
-          final updatedPublications = pageKey == 0
-              ? newPublications
-              : [...state.initialPublications, ...newPublications];
-
-          emit(state.copyWith(
-            initialPublicationsRequestState: RequestState.completed,
-            errorInitialPublicationsFetch: null,
-            initialPublications: updatedPublications,
-            initialHasReachedMax: isLastPage,
-            initialCurrentPage: pageKey,
-          ));
-        },
-      );
-    } catch (e) {
-      emit(state.copyWith(
-        initialPublicationsRequestState: RequestState.error,
-        errorInitialPublicationsFetch: 'An unexpected error occurred',
-      ));
-    }
+Future<void> fetchInitialPage(int pageKey) async {
+  if (state.initialPublicationsRequestState == RequestState.inProgress) {
+    debugPrint('🚫 Preventing duplicate publications request for page: $pageKey');
+    return;
   }
+
+  debugPrint('🔍 Fetching page: $pageKey with search: ${state.searchText}');
+
+  if (pageKey == 0) {
+    emit(state.copyWith(
+      initialPublicationsRequestState: RequestState.inProgress,
+      errorInitialPublicationsFetch: null,
+      initialPublications: [],
+      initialHasReachedMax: false,
+      initialCurrentPage: 0,
+    ));
+  } else {
+    emit(state.copyWith(
+      initialPublicationsRequestState: RequestState.inProgress,
+      errorInitialPublicationsFetch: null,
+    ));
+  }
+
+  try {
+    final result = await getPublicationsUseCase2(
+      params: GetPublicationsParams(
+        query: state.searchText,
+        page: pageKey,
+        size: pageSize,
+        priceFrom: state.priceFrom,
+        priceTo: state.priceTo,
+      ),
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(
+          initialPublicationsRequestState: RequestState.error,
+          errorInitialPublicationsFetch: _mapFailureToMessage(failure),
+        ));
+      },
+      (paginatedData) {
+        final updatedPublications = pageKey == 0
+            ? paginatedData.content
+            : [...state.initialPublications, ...paginatedData.content];
+
+        emit(state.copyWith(
+          initialPublicationsRequestState: RequestState.completed,
+          errorInitialPublicationsFetch: null,
+          initialPublications: updatedPublications,
+          initialHasReachedMax: paginatedData.last,
+          initialCurrentPage: paginatedData.number,
+        ));
+      },
+    );
+  } catch (e) {
+    emit(state.copyWith(
+      initialPublicationsRequestState: RequestState.error,
+      errorInitialPublicationsFetch: 'An unexpected error occurred',
+    ));
+  }
+}
 
   Future<void> fetchSecondaryPage(int pageKey) async {
     if (state.secondaryPublicationsRequestState == RequestState.inProgress) {
