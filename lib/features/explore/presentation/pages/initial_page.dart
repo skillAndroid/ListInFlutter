@@ -1,11 +1,13 @@
 // catalog_list_screen.dart
 // ignore_for_file: deprecated_member_use
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
@@ -303,7 +305,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
             Future.sync(() => _pagingState.pagingController.refresh()),
         child: CustomScrollView(
           controller: _scrollState.scrollController,
-          //   physics: const BouncingScrollPhysics(),
+          physics: const BouncingScrollPhysics(),
           slivers: [
             SliverToBoxAdapter(child: _buildCategories()),
             if (_uiState.isSliverAppBarVisible)
@@ -341,7 +343,22 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
             ),
             SizedBox(height: 8),
             VideoCarousel(items: widget.advertisedProducts),
-            SizedBox(height: 16)
+            SizedBox(height: 16),
+            // SizedBox(height: 8),
+            // Row(
+            //   children: [
+            //     Text(
+            //       "Recomended",
+            //       style: TextStyle(
+            //         color: AppColors.black,
+            //         fontSize: 20,
+            //         fontWeight: FontWeight.w600,
+            //       ),
+            //     ),
+                
+            //   ],
+            // ),
+            // SizedBox(height: 8),
           ],
         ),
       ),
@@ -585,7 +602,6 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
           child: AdvertisedProductCard(
             product: product,
             currentlyPlayingId: _uiState.currentlyPlayingId,
-            pageNotifier: _uiState.pageNotifiers[product.id]!,
           ),
         );
       },

@@ -10,17 +10,35 @@ import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/undefined_screens_yet/video_player.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
-class AdvertisedProductCard extends StatelessWidget {
+class AdvertisedProductCard extends StatefulWidget {
   final GetPublicationEntity product;
   final ValueNotifier<String?> currentlyPlayingId;
-  final ValueNotifier<int> pageNotifier;
 
   const AdvertisedProductCard({
     super.key,
     required this.product,
     required this.currentlyPlayingId,
-    required this.pageNotifier,
   });
+
+  @override
+  _AdvertisedProductCardState createState() => _AdvertisedProductCardState();
+}
+
+class _AdvertisedProductCardState extends State<AdvertisedProductCard> {
+  late PageController _pageController;
+  int _currentPage = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,61 +56,41 @@ class AdvertisedProductCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ProductImageCarousel(
-              product: product,
-              currentlyPlayingId: currentlyPlayingId,
-              pageNotifier: pageNotifier,
-            ),
-            ProductDetails(product: product),
+            _buildProductImageCarousel(),
+            ProductDetails(product: widget.product),
           ],
         ),
       ),
     );
   }
-}
 
-class ProductImageCarousel extends StatelessWidget {
-  final GetPublicationEntity product;
-  final ValueNotifier<String?> currentlyPlayingId;
-  final ValueNotifier<int> pageNotifier;
-
-  const ProductImageCarousel({
-    super.key,
-    required this.product,
-    required this.currentlyPlayingId,
-    required this.pageNotifier,
-  });
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildProductImageCarousel() {
     return AspectRatio(
       aspectRatio: 16 / 11,
       child: ValueListenableBuilder<String?>(
-        valueListenable: currentlyPlayingId,
+        valueListenable: widget.currentlyPlayingId,
         builder: (context, currentlyPlayingId, _) {
-          return ValueListenableBuilder<int>(
-            valueListenable: pageNotifier,
-            builder: (context, currentPage, _) {
-              return Stack(
-                children: [
-                  PageView.builder(
-                    itemCount: product.productImages.length,
-                    onPageChanged: (page) => pageNotifier.value = page,
-                    itemBuilder: (context, index) => ProductMediaContent(
-                      product: product,
-                      index: index,
-                      currentPage: currentPage,
-                      isPlaying: currentlyPlayingId == product.id,
-                    ),
-                  ),
-                  const _NewBadge(),
-                  PageIndicator(
-                    currentPage: currentPage,
-                    totalPages: product.productImages.length,
-                  ),
-                ],
-              );
-            },
+          return Stack(
+            children: [
+              PageView.builder(
+                controller: _pageController,
+                itemCount: widget.product.productImages.length,
+                onPageChanged: (page) => setState(() {
+                  _currentPage = page;
+                }),
+                itemBuilder: (context, index) => ProductMediaContent(
+                  product: widget.product,
+                  index: index,
+                  currentPage: _currentPage,
+                  isPlaying: currentlyPlayingId == widget.product.id,
+                ),
+              ),
+              const _NewBadge(),
+              PageIndicator(
+                currentPage: _currentPage,
+                totalPages: widget.product.productImages.length,
+              ),
+            ],
           );
         },
       ),
@@ -105,23 +103,20 @@ class _NewBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Positioned(
+    return Positioned(
       top: 8,
       left: 8,
-      child: Card(
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(6)),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: AppColors.primary,
+          borderRadius: BorderRadius.circular(6),
         ),
-        color: AppColors.primary,
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-          child: Text(
-            'New',
-            style: TextStyle(
-              fontWeight: FontWeight.w600,
-              color: AppColors.white,
-            ),
+        child: Text(
+          'New',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),
@@ -134,7 +129,6 @@ class PageIndicator extends StatelessWidget {
   final int totalPages;
 
   const PageIndicator({
-    super.key,
     required this.currentPage,
     required this.totalPages,
   });
@@ -147,14 +141,14 @@ class PageIndicator extends StatelessWidget {
       right: 0,
       child: Center(
         child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(
-            color: AppColors.black.withOpacity(0.4),
+            color: Colors.black.withOpacity(0.4),
             borderRadius: BorderRadius.circular(6),
           ),
-          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
           child: Text(
             '${currentPage + 1}/$totalPages',
-            style: const TextStyle(
+            style: TextStyle(
               color: Colors.white,
               fontSize: 13,
               fontWeight: FontWeight.bold,
@@ -187,11 +181,11 @@ class ProductDetails extends StatelessWidget {
           const SizedBox(height: 8),
           _LocationInfo(location: product.locationName),
           const SizedBox(height: 8),
-          _ProductDescription(description: product.description),
+          ProductDescription(description: product.description),
           const SizedBox(height: 8),
           _PriceSection(price: product.price),
           const SizedBox(height: 4),
-          const _CallButton(),
+          const CallButton(),
         ],
       ),
     );
@@ -306,10 +300,10 @@ class _LocationInfo extends StatelessWidget {
   }
 }
 
-class _ProductDescription extends StatelessWidget {
+class ProductDescription extends StatelessWidget {
   final String description;
 
-  const _ProductDescription({required this.description});
+  const ProductDescription({super.key, required this.description});
 
   @override
   Widget build(BuildContext context) {
@@ -317,7 +311,7 @@ class _ProductDescription extends StatelessWidget {
       description,
       style: TextStyle(
         fontSize: 12,
-        color: AppColors.darkGray.withOpacity(0.7),
+        color: AppColors.lightText,
       ),
       maxLines: 2,
       overflow: TextOverflow.ellipsis,
@@ -384,8 +378,8 @@ class _FavoriteButton extends StatelessWidget {
   }
 }
 
-class _CallButton extends StatelessWidget {
-  const _CallButton();
+class CallButton extends StatelessWidget {
+  const CallButton({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -448,6 +442,8 @@ class ProductMediaContent extends StatelessWidget {
       key: ValueKey('image_${product.id}_$index'),
       imageUrl: _getFormattedUrl(product.productImages[index].url),
       fit: BoxFit.cover,
+      memCacheWidth: 700,
+      maxWidthDiskCache: 700,
       placeholder: (context, url) => const _LoadingIndicator(),
       errorWidget: (context, url, error) => const _ErrorWidget(),
     );

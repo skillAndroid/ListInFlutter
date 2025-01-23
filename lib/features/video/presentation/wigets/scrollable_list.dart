@@ -147,7 +147,7 @@ class _VideoCarouselState extends State<VideoCarousel> {
     }
   }
 
- void _startVideoTimer() {
+  void _startVideoTimer() {
     _videoTimer?.cancel();
     _videoTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
       if (mounted && _isVisible && !_isScrolling) {
@@ -176,7 +176,6 @@ class _VideoCarouselState extends State<VideoCarousel> {
       );
     }
   }
-
 
   void _checkVideoProgress() {
     if (_videoController == null || !mounted || !_isVisible) return;
@@ -260,7 +259,7 @@ class _VideoCarouselState extends State<VideoCarousel> {
                 padding: const EdgeInsets.only(right: 2),
                 child: SmoothClipRRect(
                   side: BorderSide(width: 2, color: AppColors.white),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(12),
                   child: GestureDetector(
                     onTap: () {
                       context.push(Routes.videosFeed);
@@ -300,7 +299,7 @@ class _VideoCarouselState extends State<VideoCarousel> {
               padding: const EdgeInsets.only(right: 2),
               child: SmoothClipRRect(
                 side: BorderSide(width: 2, color: AppColors.white),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(12),
                 child: GestureDetector(
                   onTap: () {
                     context.push(Routes.videosFeed);

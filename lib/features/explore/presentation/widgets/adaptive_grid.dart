@@ -83,3 +83,30 @@ class DynamicSliverGridDelegate extends SliverGridDelegate {
            crossAxisSpacing != oldDelegate.crossAxisSpacing;
   }
 }
+
+class ErrorIndicator extends StatelessWidget {
+  final dynamic error;
+  final VoidCallback onTryAgain;
+
+  const ErrorIndicator({
+    super.key,
+    required this.error,
+    required this.onTryAgain,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(error.toString()),
+          ElevatedButton(
+            onPressed: onTryAgain,
+            child: const Text('Try Again'),
+          ),
+        ],
+      ),
+    );
+  }
+}

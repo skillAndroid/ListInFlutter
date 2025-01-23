@@ -589,6 +589,7 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
         ),
         child: CachedNetworkImage(
           imageUrl: 'https://$imageUrl',
+          filterQuality: FilterQuality.high,
           fit: BoxFit.cover,
         ),
       ),

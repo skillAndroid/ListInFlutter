@@ -109,6 +109,7 @@ class _ProductImagesDetailedState extends State<ProductImagesDetailed> {
                           child: CachedNetworkImage(
                             imageUrl: "https://${widget.images[index].url}",
                             fit: BoxFit.contain,
+                            filterQuality: FilterQuality.high,
                             placeholder: (context, url) => const Center(
                               child: CircularProgressIndicator(
                                 color: Colors.white,

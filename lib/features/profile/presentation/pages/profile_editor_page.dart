@@ -1,7 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 // ignore_for_file: deprecated_member_use, library_private_types_in_public_api
 
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -10,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/map/domain/entities/location_entity.dart';
 import 'package:list_in/features/map/presentation/map/map.dart';
 import 'package:list_in/features/profile/domain/entity/user/user_profile_entity.dart';
@@ -18,8 +18,6 @@ import 'package:list_in/features/profile/presentation/bloc/user/user_profile_eve
 import 'package:list_in/features/profile/presentation/bloc/user/user_profile_state.dart';
 import 'package:list_in/features/profile/presentation/widgets/cutom_time_picker.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
-
-import 'package:list_in/config/theme/app_colors.dart';
 
 class ProfileEditor extends StatefulWidget {
   final UserProfileEntity userData;
@@ -218,9 +216,13 @@ class _ProfileEditorState extends State<ProfileEditor> {
                 backgroundColor: AppColors.bgColor,
                 navigationBar: CupertinoNavigationBar(
                   backgroundColor: AppColors.white,
-                  middle: Text('Edit Profile',
-                      style: TextStyle(
-                          color: AppColors.black, fontWeight: FontWeight.w600)),
+                  middle: Text(
+                    'Edit Profile',
+                    style: TextStyle(
+                      color: AppColors.black,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   trailing: state.status == UserProfileStatus.loading
                       ? Text(
                           "Updating...",
@@ -261,7 +263,7 @@ class _ProfileEditorState extends State<ProfileEditor> {
                                     shape: BoxShape.circle,
                                     color: AppColors.containerColor,
                                     border: Border.all(
-                                      color: AppColors.primary,
+                                      color: AppColors.black,
                                       width: 3,
                                     ),
                                   ),
@@ -302,7 +304,7 @@ class _ProfileEditorState extends State<ProfileEditor> {
                                   child: Container(
                                     padding: EdgeInsets.all(8),
                                     decoration: BoxDecoration(
-                                      color: AppColors.primary,
+                                      color: AppColors.black,
                                       shape: BoxShape.circle,
                                       border: Border.all(
                                         color: AppColors.white,
@@ -465,7 +467,7 @@ class _ProfileEditorState extends State<ProfileEditor> {
     final controller = isPhone ? _phoneController : _nameController;
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: Row(
         children: [
           SizedBox(
@@ -525,7 +527,7 @@ class _ProfileEditorState extends State<ProfileEditor> {
   Widget _buildSwitchRow(
       String label, bool value, ValueChanged<bool> onChanged) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -536,10 +538,13 @@ class _ProfileEditorState extends State<ProfileEditor> {
                 fontSize: 16,
                 fontWeight: FontWeight.w500),
           ),
-          CupertinoSwitch(
-            value: value,
-            onChanged: onChanged,
-            activeColor: AppColors.primary,
+          Transform.scale(
+            scale: 0.9,
+            child: CupertinoSwitch(
+              value: value,
+              onChanged: onChanged,
+              activeColor: AppColors.primary,
+            ),
           ),
         ],
       ),

@@ -156,6 +156,8 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
       }
     });
   }
+
+
 Future<void> fetchInitialPage(int pageKey) async {
   if (state.initialPublicationsRequestState == RequestState.inProgress) {
     debugPrint('🚫 Preventing duplicate publications request for page: $pageKey');
@@ -219,7 +221,7 @@ Future<void> fetchInitialPage(int pageKey) async {
   }
 }
 
-  Future<void> fetchSecondaryPage(int pageKey) async {
+Future<void> fetchSecondaryPage(int pageKey) async {
     if (state.secondaryPublicationsRequestState == RequestState.inProgress) {
       debugPrint(
           '🚫 Preventing duplicate publications request for page: $pageKey');
