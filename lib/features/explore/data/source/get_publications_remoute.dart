@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:list_in/core/error/exeptions.dart';
 import 'package:list_in/core/services/auth_service.dart';
 import 'package:list_in/features/explore/data/models/publication_model.dart';
@@ -27,7 +28,7 @@ abstract class PublicationsRemoteDataSource {
     List<String>? filters,
   });
 
-  Future<PaginatedPublicationResponseModel> getPublicationsFiltered2({
+  Future<List<PublicationPairModel>> getPublicationsFiltered2({
     String? categoryId,
     String? subcategoryId,
     String? query,
@@ -160,7 +161,7 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
   }
 
   @override
-  Future<PaginatedPublicationResponseModel> getPublicationsFiltered2({
+  Future<List<PublicationPairModel>> getPublicationsFiltered2({
     String? categoryId,
     String? subcategoryId,
     String? query,
@@ -199,13 +200,16 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
         options: options,
       );
 
-      final paginatedResponse =
-          PaginatedPublicationResponseModel.fromJson(response.data);
-
+      final paginatedResponse = (response.data as List)
+          .map((item) => PublicationPairModel.fromJson(item))
+          .toList();
+      debugPrint("😇😇Success");
       return paginatedResponse;
     } on DioException catch (e) {
+      debugPrint("😇😇Exeption in fetching data remout DIO EXCEPTION $e");
       throw _handleDioException(e);
     } catch (e) {
+      debugPrint("😇😇Exeption in fetching data remout $e");
       throw UknownExeption();
     }
   }

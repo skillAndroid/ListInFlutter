@@ -2,7 +2,6 @@ import 'package:dartz/dartz.dart';
 import 'package:list_in/core/error/exeptions.dart';
 import 'package:list_in/core/error/failure.dart';
 import 'package:list_in/core/network/network_info.dart';
-import 'package:list_in/features/explore/data/models/publication_model.dart';
 import 'package:list_in/features/explore/data/source/get_publications_remoute.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/domain/repository/get_publications_repository.dart';
@@ -57,7 +56,8 @@ class PublicationsRepositoryImpl implements PublicationsRepository {
   }
 
   @override
-  Future<Either<Failure, PaginatedPublicationEntity>> getPublicationsFiltered2({
+  Future<Either<Failure, List<PublicationPairEntity>>>
+      getPublicationsFiltered2({
     String? categoryId,
     String? subcategoryId,
     String? query,
@@ -83,7 +83,7 @@ class PublicationsRepositoryImpl implements PublicationsRepository {
           subcategoryId: subcategoryId,
           filters: filters,
         );
-        return Right(publications.toEntity());
+        return Right(publications.map((pair) => pair.toEntity()).toList(),);
       } on ServerExeption {
         return Left(ServerFailure());
       } on ConnectionExeption {

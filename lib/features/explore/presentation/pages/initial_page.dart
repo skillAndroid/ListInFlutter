@@ -219,7 +219,8 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
   bool _shouldRebuildForState(HomeTreeState previous, HomeTreeState current) {
     return previous.initialPublicationsRequestState !=
             current.initialPublicationsRequestState ||
-        previous.initialPublications != current.initialPublications ||
+        previous.initialPublications.length !=
+            current.initialPublications.length ||
         previous.initialHasReachedMax != current.initialHasReachedMax;
   }
 
@@ -238,40 +239,28 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
   }
 
   void _handleCompletedState(HomeTreeState state) {
-    if (_shouldRefreshPaging(state)) {
-      _pagingState.pagingController.refresh();
+    final items = state.initialPublications;
+
+    if (items.isEmpty) {
+      _pagingState.pagingController.appendPage([], 0);
       return;
     }
 
     _updatePagingControllerItems(state);
   }
 
-  bool _shouldRefreshPaging(HomeTreeState state) {
-    return state.initialPublications.isEmpty &&
-        state.initialSearchRequestState == RequestState.inProgress;
-  }
-
   void _updatePagingControllerItems(HomeTreeState state) {
+    final items = state.initialPublications;
     final isLastPage = state.initialHasReachedMax;
     final currentPage = state.initialCurrentPage;
-    final newItems = _getNewItems(state, currentPage);
 
     if (isLastPage) {
-      _pagingState.pagingController.appendLastPage(newItems);
+      _pagingState.pagingController.appendLastPage(items);
     } else {
-      _pagingState.pagingController.appendPage(newItems, currentPage + 1);
+      _pagingState.pagingController.appendPage(items, currentPage + 1);
     }
   }
 
-  List<PublicationPairEntity> _getNewItems(
-      HomeTreeState state, int currentPage) {
-    if (currentPage == 0) return state.initialPublications;
-
-    final startIndex = currentPage * HomeTreeCubit.pageSize;
-    return state.initialPublications.skip(startIndex).toList();
-  }
-
-  // UI Building Methods
   Widget _buildLoadingScreen() {
     return const Scaffold(
       body: Center(
@@ -355,7 +344,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
             //         fontWeight: FontWeight.w600,
             //       ),
             //     ),
-                
+
             //   ],
             // ),
             // SizedBox(height: 8),

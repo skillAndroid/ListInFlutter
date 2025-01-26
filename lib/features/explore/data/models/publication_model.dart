@@ -1,59 +1,14 @@
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 
-class PaginatedPublicationResponseModel {
-  final List<PublicationPairModel> content;
-  final int number;
-  final int size;
-  final int totalElements;
-  final int totalPages;
-  final bool first;
-  final bool last;
-
-  PaginatedPublicationResponseModel({
-    required this.content,
-    required this.number,
-    required this.size,
-    required this.totalElements,
-    required this.totalPages,
-    required this.first,
-    required this.last,
-  });
-
-  factory PaginatedPublicationResponseModel.fromJson(
-      Map<String, dynamic> json) {
-    return PaginatedPublicationResponseModel(
-      content: (json['content'] as List? ?? [])
-          .map((item) => PublicationPairModel.fromJson(item))
-          .toList(),
-      number: json['number'] ?? 0,
-      size: json['size'] ?? 0,
-      totalElements: json['totalElements'] ?? 0,
-      totalPages: json['totalPages'] ?? 0,
-      first: json['first'] ?? true,
-      last: json['last'] ?? true,
-    );
-  }
-
-  PaginatedPublicationEntity toEntity() {
-    return PaginatedPublicationEntity(
-      content: content.map((pair) => pair.toEntity()).toList(),
-      number: number,
-      size: size,
-      totalElements: totalElements,
-      totalPages: totalPages,
-      first: first,
-      last: last,
-    );
-  }
-}
-
 
 class PublicationPairModel {
   final bool isSponsored;
+  final bool isLast;
   final GetPublicationModel firstPublication;
   final GetPublicationModel? secondPublication;
 
   PublicationPairModel({
+    required this.isLast,
     required this.isSponsored,
     required this.firstPublication,
     this.secondPublication,
@@ -61,6 +16,7 @@ class PublicationPairModel {
 
   factory PublicationPairModel.fromJson(Map<String, dynamic> json) {
     return PublicationPairModel(
+      isLast: json['isLast'] ?? false,
       isSponsored: json['isSponsored'] ?? false,
       firstPublication:
           GetPublicationModel.fromJson(json['firstPublication'] ?? {}),
@@ -71,6 +27,7 @@ class PublicationPairModel {
   }
   PublicationPairEntity toEntity() {
     return PublicationPairEntity(
+      isLast: isLast,
       isSponsored: isSponsored,
       firstPublication: firstPublication.toEntity(),
       secondPublication: secondPublication?.toEntity(),

@@ -157,72 +157,77 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     });
   }
 
+  Future<void> fetchInitialPage(int pageKey) async {
+    if (state.initialPublicationsRequestState == RequestState.inProgress) {
+      debugPrint(
+          '🚫 Preventing duplicate publications request for page: $pageKey');
+      return;
+    }
+    debugPrint('🔍 Fetching page: $pageKey with search: ${state.searchText}');
 
-Future<void> fetchInitialPage(int pageKey) async {
-  if (state.initialPublicationsRequestState == RequestState.inProgress) {
-    debugPrint('🚫 Preventing duplicate publications request for page: $pageKey');
-    return;
+    if (pageKey == 0) {
+      emit(state.copyWith(
+        initialPublicationsRequestState: RequestState.inProgress,
+        errorInitialPublicationsFetch: null,
+        initialPublications: [],
+        initialHasReachedMax: false,
+        initialCurrentPage: 0,
+      ));
+    } else {
+      emit(state.copyWith(
+        initialPublicationsRequestState: RequestState.inProgress,
+        errorInitialPublicationsFetch: null,
+      ));
+    }
+
+    try {
+      final result = await getPublicationsUseCase2(
+        params: GetPublicationsParams(
+          query: state.searchText,
+          page: pageKey,
+          size: pageSize,
+          priceFrom: state.priceFrom,
+          priceTo: state.priceTo,
+        ),
+      );
+
+      result.fold(
+        (failure) {
+          emit(state.copyWith(
+            initialPublicationsRequestState: RequestState.error,
+            errorInitialPublicationsFetch: _mapFailureToMessage(failure),
+          ));
+        },
+        (paginatedData) {
+          // Determine isLast by checking the last item's isLast property
+          final updatedPublications = pageKey == 0
+              ? paginatedData
+              : [...state.initialPublications, ...paginatedData];
+
+          final isLastPage =
+              paginatedData.isNotEmpty ? paginatedData.last.isLast : true;
+
+          emit(
+            state.copyWith(
+              initialPublicationsRequestState: RequestState.completed,
+              errorInitialPublicationsFetch: null,
+              initialPublications: updatedPublications,
+              initialHasReachedMax: isLastPage,
+              initialCurrentPage: pageKey + 1,
+            ),
+          );
+        },
+      );
+    } catch (e) {
+      emit(state.copyWith(
+        initialPublicationsRequestState: RequestState.error,
+        errorInitialPublicationsFetch: 'An unexpected error occurred',
+      ));
+    }
   }
 
-  debugPrint('🔍 Fetching page: $pageKey with search: ${state.searchText}');
-
-  if (pageKey == 0) {
-    emit(state.copyWith(
-      initialPublicationsRequestState: RequestState.inProgress,
-      errorInitialPublicationsFetch: null,
-      initialPublications: [],
-      initialHasReachedMax: false,
-      initialCurrentPage: 0,
-    ));
-  } else {
-    emit(state.copyWith(
-      initialPublicationsRequestState: RequestState.inProgress,
-      errorInitialPublicationsFetch: null,
-    ));
-  }
-
-  try {
-    final result = await getPublicationsUseCase2(
-      params: GetPublicationsParams(
-        query: state.searchText,
-        page: pageKey,
-        size: pageSize,
-        priceFrom: state.priceFrom,
-        priceTo: state.priceTo,
-      ),
-    );
-
-    result.fold(
-      (failure) {
-        emit(state.copyWith(
-          initialPublicationsRequestState: RequestState.error,
-          errorInitialPublicationsFetch: _mapFailureToMessage(failure),
-        ));
-      },
-      (paginatedData) {
-        final updatedPublications = pageKey == 0
-            ? paginatedData.content
-            : [...state.initialPublications, ...paginatedData.content];
-
-        emit(state.copyWith(
-          initialPublicationsRequestState: RequestState.completed,
-          errorInitialPublicationsFetch: null,
-          initialPublications: updatedPublications,
-          initialHasReachedMax: paginatedData.last,
-          initialCurrentPage: paginatedData.number,
-        ));
-      },
-    );
-  } catch (e) {
-    emit(state.copyWith(
-      initialPublicationsRequestState: RequestState.error,
-      errorInitialPublicationsFetch: 'An unexpected error occurred',
-    ));
-  }
-}
-
-Future<void> fetchSecondaryPage(int pageKey) async {
-    if (state.secondaryPublicationsRequestState == RequestState.inProgress) {
+  Future<void> fetchSecondaryPage(int pageKey) async {
+    if (state.initialPublicationsRequestState == RequestState.inProgress) {
       debugPrint(
           '🚫 Preventing duplicate publications request for page: $pageKey');
       return;
@@ -246,7 +251,7 @@ Future<void> fetchSecondaryPage(int pageKey) async {
     }
 
     try {
-      final result = await getPublicationsUseCase(
+      final result = await getPublicationsUseCase2(
         params: GetPublicationsParams(
           query: state.searchText,
           page: pageKey,
@@ -264,18 +269,17 @@ Future<void> fetchSecondaryPage(int pageKey) async {
             errorSecondaryPublicationsFetch: _mapFailureToMessage(failure),
           ));
         },
-        (newPublications) {
-          final isLastPage = newPublications.length < pageSize;
+        (paginatedData) {
           final updatedPublications = pageKey == 0
-              ? newPublications
-              : [...state.secondaryPublications, ...newPublications];
+              ? paginatedData
+              : [...state.secondaryPublications, ...paginatedData];
 
           emit(state.copyWith(
             secondaryPublicationsRequestState: RequestState.completed,
             errorSecondaryPublicationsFetch: null,
-            secondaryPublications: updatedPublications,
-            secondaryHasReachedMax: isLastPage,
-            secondaryCurrentPage: pageKey,
+            // secondaryPublications: updatedPublications,
+            // secondaryHasReachedMax: paginatedData.last,
+            // secondaryCurrentPage: paginatedData.number,
           ));
         },
       );
@@ -294,15 +298,13 @@ Future<void> fetchSecondaryPage(int pageKey) async {
       return;
     }
 
-    final filters = state.generateFilterParameters();
-    debugPrint('🔍 Fetching page: $pageKey with filters: $filters');
+    debugPrint('🔍 Fetching page: $pageKey with search: ${state.searchText}');
 
-    // If it's first page or filters changed, reset state
     if (pageKey == 0) {
       emit(state.copyWith(
         childPublicationsRequestState: RequestState.inProgress,
         errorChildPublicationsFetch: null,
-        childPublications: [], // Clear previous data
+        childPublications: [],
         childHasReachedMax: false,
         childCurrentPage: 0,
       ));
@@ -314,7 +316,7 @@ Future<void> fetchSecondaryPage(int pageKey) async {
     }
 
     try {
-      final result = await getPublicationsUseCase(
+      final result = await getPublicationsUseCase2(
         params: GetPublicationsParams(
           query: state.searchText,
           page: pageKey,
@@ -334,18 +336,17 @@ Future<void> fetchSecondaryPage(int pageKey) async {
             errorChildPublicationsFetch: _mapFailureToMessage(failure),
           ));
         },
-        (newPublications) {
-          final isLastPage = newPublications.length < pageSize;
-          final updatedPublications = pageKey == 0
-              ? newPublications
-              : [...state.secondaryPublications, ...newPublications];
+        (paginatedData) {
+          // final updatedPublications = pageKey == 0
+          //     ? paginatedData.content
+          //     : [...state.initialPublications, ...paginatedData.content];
 
           emit(state.copyWith(
             childPublicationsRequestState: RequestState.completed,
             errorChildPublicationsFetch: null,
-            childPublications: updatedPublications,
-            childHasReachedMax: isLastPage,
-            childCurrentPage: pageKey,
+            // childPublications: updatedPublications,
+            // childHasReachedMax: paginatedData.last,
+            // childCurrentPage: paginatedData.number,
           ));
         },
       );
