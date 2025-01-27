@@ -1,13 +1,11 @@
 // catalog_list_screen.dart
 // ignore_for_file: deprecated_member_use
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
@@ -109,7 +107,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
   late final ScrollState _scrollState;
   late final PagingState _pagingState;
 
-  static const double _videoVisibilityThreshold = 0.7;
+  static const double _videoVisibilityThreshold = 1;
 
   @override
   void initState() {
@@ -260,7 +258,6 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
       _pagingState.pagingController.appendPage(items, currentPage + 1);
     }
   }
-//sa
   Widget _buildLoadingScreen() {
     return const Scaffold(
       body: Center(

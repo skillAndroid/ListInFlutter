@@ -1,6 +1,5 @@
 // ignore_for_file: deprecated_member_use, invalid_use_of_protected_member
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -17,12 +16,74 @@ import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
+import 'package:list_in/features/explore/presentation/widgets/advertised_product_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
 import 'package:list_in/features/post/data/models/attribute_model.dart';
 import 'package:list_in/features/post/data/models/attribute_value_model.dart';
-import 'package:list_in/features/undefined_screens_yet/video_player.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:visibility_detector/visibility_detector.dart';
+
+class DetailedPageUIState {
+  final currentlyPlayingId = ValueNotifier<String?>(null);
+  final selectedFilters = ValueNotifier<Set<int>>({});
+
+  final Map<String, ValueNotifier<double>> visibilityNotifiers = {};
+  final Map<String, ValueNotifier<int>> pageNotifiers = {};
+
+  void ensureProductTrackers(String productId) {
+    visibilityNotifiers.putIfAbsent(productId, () => ValueNotifier(0.0));
+    pageNotifiers.putIfAbsent(productId, () => ValueNotifier(0));
+  }
+
+  double getVisibility(String id) => visibilityNotifiers[id]?.value ?? 0.0;
+  int getPage(String id) => pageNotifiers[id]?.value ?? 0;
+  void updateVisibility(String id, double value) {
+    visibilityNotifiers[id]?.value = value;
+  }
+
+  void dispose() {
+    currentlyPlayingId.dispose();
+    selectedFilters.dispose();
+
+    for (final notifier in visibilityNotifiers.values) {
+      notifier.dispose();
+    }
+    for (final notifier in pageNotifiers.values) {
+      notifier.dispose();
+    }
+  }
+}
+
+class DetailedSearchBarState {
+  final isSearching = ValueNotifier<bool>(false);
+  final searchText = ValueNotifier<String>('');
+  final searchController = SearchController();
+
+  void dispose() {
+    isSearching.dispose();
+    searchText.dispose();
+    searchController.dispose();
+  }
+}
+
+class DetailedScrollState {
+  final scrollController = ScrollController();
+  static const double scrollThreshold = 800.0;
+  bool hasPassedThreshold = false;
+
+  void dispose() {
+    scrollController.dispose();
+  }
+}
+
+class DetailedPagingState {
+  final pagingController =
+      PagingController<int, PublicationPairEntity>(firstPageKey: 0);
+
+  void dispose() {
+    pagingController.dispose();
+  }
+}
 
 class DetailedHomeTreePage extends StatefulWidget {
   final List<AdvertisedProductEntity> advertisedProducts;
@@ -38,167 +99,168 @@ class DetailedHomeTreePage extends StatefulWidget {
 }
 
 class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
-  final ScrollController _scrollController = ScrollController();
-  final SearchController _searchController = SearchController();
-  final PagingController<int, GetPublicationEntity> _pagingController =
-      PagingController(firstPageKey: 0);
-
-  final ValueNotifier<String?> _currentlyPlayingId =
-      ValueNotifier<String?>(null);
-  final ValueNotifier<Set<int>> _selectedFilters = ValueNotifier<Set<int>>({});
-  final Map<String, ValueNotifier<double>> _visibilityNotifiers = {};
-  final Map<String, ValueNotifier<int>> _pageNotifiers = {};
-  bool _isDisposed = false;
+  late final DetailedPageUIState _uiState;
+  late final DetailedSearchBarState _searchState;
+  late final DetailedScrollState _scrollState;
+  late final DetailedPagingState _pagingState;
+  static const double _videoVisibilityThreshold = 1;
 
   @override
   void initState() {
     super.initState();
     context.read<HomeTreeCubit>().resetRequestState();
-    _pagingController.addPageRequestListener((pageKey) {
-      final currentState = context.read<HomeTreeCubit>().state;
-      if (currentState.childPublicationsRequestState !=
-              RequestState.inProgress) {
-        context.read<HomeTreeCubit>().fetchChildPage(pageKey);
-      }
-    });
+    _initializeStates();
+    _setupPagingListener();
+  }
+
+  void _initializeStates() {
+    _uiState = DetailedPageUIState();
+    _searchState = DetailedSearchBarState();
+    _scrollState = DetailedScrollState();
+    _pagingState = DetailedPagingState();
     _initializeVideoTracking();
   }
 
   void _initializeVideoTracking() {
     if (!mounted) return;
 
-    for (var product in widget.advertisedProducts) {
-      if (!_visibilityNotifiers.containsKey(product.id)) {
-        _visibilityNotifiers[product.id] = ValueNotifier<double>(0.0);
-      }
-      if (!_pageNotifiers.containsKey(product.id)) {
-        _pageNotifiers[product.id] = ValueNotifier<int>(0);
-      }
+    for (final product in widget.advertisedProducts) {
+      _uiState.ensureProductTrackers(product.id);
     }
   }
 
   @override
   void dispose() {
-    _isDisposed = true;
-
-    // Remove any listeners if needed
-
-    // Dispose controllers
-    _scrollController.dispose();
-    _searchController.dispose();
-    _pagingController.dispose();
-    // Safely dispose notifiers
-    if (_currentlyPlayingId.hasListeners) {
-      _currentlyPlayingId.dispose();
-    }
-
-    if (_selectedFilters.hasListeners) {
-      _selectedFilters.dispose();
-    }
-
-    // Dispose map notifiers
-    for (var notifier in _visibilityNotifiers.values) {
-      if (notifier.hasListeners) {
-        notifier.dispose();
-      }
-    }
-    _visibilityNotifiers.clear();
-
-    for (var notifier in _pageNotifiers.values) {
-      if (notifier.hasListeners) {
-        notifier.dispose();
-      }
-    }
-    _pageNotifiers.clear();
-
+    _uiState.dispose();
+    _searchState.dispose();
+    _scrollState.dispose();
+    _pagingState.dispose();
     super.dispose();
   }
 
   void _handleVisibilityChanged(String id, double visibilityFraction) {
-    if (_isDisposed || !mounted) return;
-
-    final notifier = _visibilityNotifiers[id];
-    if (notifier != null &&
-        notifier.hasListeners &&
-        notifier.value != visibilityFraction) {
-      notifier.value = visibilityFraction;
-      if (mounted) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
-            _updateMostVisibleVideo();
-          }
-        });
-      }
+    if (_uiState.getVisibility(id) != visibilityFraction) {
+      _uiState.updateVisibility(id, visibilityFraction);
+      _updateMostVisibleVideo();
     }
   }
 
   void _updateMostVisibleVideo() {
-    if (_isDisposed || !mounted) return;
-
     String? mostVisibleId;
     double maxVisibility = 0.0;
 
-    for (var entry in _visibilityNotifiers.entries) {
-      if (!entry.value.hasListeners) continue;
+    _uiState.visibilityNotifiers.forEach((id, notifier) {
+      final visibility = notifier.value;
+      final currentPage = _uiState.getPage(id);
 
-      final visibility = entry.value.value;
-      final pageNotifier = _pageNotifiers[entry.key];
-      if (pageNotifier == null || !pageNotifier.hasListeners) continue;
-
-      final currentPage = pageNotifier.value;
-
-      if (visibility > maxVisibility && currentPage == 0 && visibility > 0.7) {
+      if (visibility > maxVisibility &&
+          currentPage == 0 &&
+          visibility > _videoVisibilityThreshold) {
         maxVisibility = visibility;
-        mostVisibleId = entry.key;
+        mostVisibleId = id;
       }
+    });
+
+    if (mostVisibleId != _uiState.currentlyPlayingId.value) {
+      _uiState.currentlyPlayingId.value = mostVisibleId;
+    }
+  }
+
+  bool _shouldRebuildForState(HomeTreeState previous, HomeTreeState current) {
+    final previousFilters = Set.from(previous.generateFilterParameters());
+    final currentFilters = Set.from(current.generateFilterParameters());
+    return !setEquals(previousFilters, currentFilters) || // Filter changes
+        previous.childPublicationsRequestState !=
+            current.childPublicationsRequestState;
+  }
+
+  void _handleStateChanges(BuildContext context, HomeTreeState state) {
+    if (state.childPublicationsRequestState == RequestState.error) {
+      _handleError(state);
+    } else if (state.childPublicationsRequestState == RequestState.completed) {
+      _handleCompletedState(state);
+    }
+  }
+
+  void _handleError(HomeTreeState state) {
+    _pagingState.pagingController.error =
+        state.errorChildPublicationsFetch ?? 'An unknown error occurred';
+  }
+
+  void _handleCompletedState(HomeTreeState state) {
+    final items = state.childPublications;
+
+    if (items.isEmpty) {
+      _pagingState.pagingController.appendPage([], 0);
+      return;
     }
 
-    if (mostVisibleId != _currentlyPlayingId.value &&
-        _currentlyPlayingId.hasListeners) {
-      _currentlyPlayingId.value = mostVisibleId;
+    _updatePagingControllerItems(state);
+  }
+
+  void _updatePagingControllerItems(HomeTreeState state) {
+    final items = state.childPublications;
+    final isLastPage = state.childHasReachedMax;
+    final currentPage = state.childCurrentPage;
+
+    if (isLastPage) {
+      _pagingState.pagingController.appendLastPage(items);
+    } else {
+      _pagingState.pagingController.appendPage(items, currentPage + 1);
     }
+  }
+
+  void _setupPagingListener() {
+    _pagingState.pagingController.addPageRequestListener((pageKey) {
+      if (context
+              .read<HomeTreeCubit>()
+              .state
+              .childPublicationsRequestState !=
+          RequestState.inProgress) {
+        context.read<HomeTreeCubit>().fetchChildPage(pageKey);
+      }
+    });
+  }
+
+  Widget _buildLoadingScreen() {
+    return const Scaffold(
+      body: Center(
+        child: CircularProgressIndicator(
+          strokeWidth: 6,
+          color: AppColors.black,
+          strokeCap: StrokeCap.round,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorScreen(String error) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [Text(error)],
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<HomeTreeCubit, HomeTreeState>(
-      listenWhen: (previous, current) {
-        final previousFilters = Set.from(previous.generateFilterParameters());
-        final currentFilters = Set.from(current.generateFilterParameters());
-        return !setEquals(previousFilters, currentFilters) || // Filter changes
-            previous.childPublicationsRequestState !=
-                current.childPublicationsRequestState;
-      },
-      listener: (context, state) {
-        // If this is a new filter request (page 0), clear the paging controller
-        if (state.childCurrentPage == 0 &&
-            state.childPublicationsRequestState == RequestState.inProgress) {
-          _pagingController.itemList = null; // Clear existing items
-        }
-
-        if (state.childPublicationsRequestState == RequestState.error) {
-          _pagingController.error =
-              state.errorChildPublicationsFetch ?? 'An unknown error occurred';
-        } else if (state.childPublicationsRequestState ==
-            RequestState.completed) {
-          final isLastPage = state.childHasReachedMax;
-          final newItems = state.childPublications;
-
-          if (isLastPage) {
-            _pagingController.appendLastPage(newItems);
-          } else {
-            _pagingController.appendPage(newItems, state.childCurrentPage + 1);
-          }
-        }
-      },
+      listenWhen: _shouldRebuildForState,
+      listener: _handleStateChanges,
       builder: (context, state) {
         final attributes = state.orderedAttributes;
+        if (state.isLoading) return _buildLoadingScreen();
+        if (state.error != null) return _buildErrorScreen(state.error!);
         return Scaffold(
           appBar: _buildAppBar(state),
           body: RefreshIndicator(
-            onRefresh: () => Future.sync(() => _pagingController.refresh()),
+            onRefresh: () =>
+                Future.sync(() => _pagingState.pagingController.refresh()),
             child: CustomScrollView(
-              controller: _scrollController,
+              controller: _scrollState.scrollController,
               physics: const BouncingScrollPhysics(),
               slivers: [
                 SliverAppBar(
@@ -519,24 +581,41 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
   Widget _buildProductGrid() {
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
-      sliver: PagedSliverList<int, GetPublicationEntity>(
-        pagingController: _pagingController,
-        builderDelegate: PagedChildBuilderDelegate<GetPublicationEntity>(
+      sliver: PagedSliverList(
+        pagingController: _pagingState.pagingController,
+        builderDelegate: PagedChildBuilderDelegate(
           itemBuilder: (context, item, index) {
-            final items = _pagingController.itemList;
-            if (items == null) return const SizedBox.shrink();
-
-            final screenWidth = MediaQuery.of(context).size.width;
-
-            if (index == 0) {
-              _processItems(items);
-            }
-
-            return _buildProcessedItem(index, items, screenWidth);
+            final currentItem = item as PublicationPairEntity;
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 1),
+              child: currentItem.isSponsored
+                  ? _buildAdvertisedProduct(currentItem.firstPublication)
+                  : Row(
+                      children: [
+                        Expanded(
+                          child: RemouteRegularProductCard2(
+                            key: ValueKey(
+                                'regular_${currentItem.firstPublication.id}'),
+                            product: currentItem.firstPublication,
+                          ),
+                        ),
+                        const SizedBox(width: 1),
+                        Expanded(
+                          child: currentItem.secondPublication != null
+                              ? RemouteRegularProductCard2(
+                                  key: ValueKey(
+                                      'regular_${currentItem.secondPublication!.id}'),
+                                  product: currentItem.secondPublication!,
+                                )
+                              : const SizedBox.shrink(),
+                        ),
+                      ],
+                    ),
+            );
           },
           firstPageErrorIndicatorBuilder: (context) => ErrorIndicator(
-            error: _pagingController.error,
-            onTryAgain: () => _pagingController.refresh(),
+            error: _pagingState.pagingController.error,
+            onTryAgain: () => _pagingState.pagingController.refresh(),
           ),
           noItemsFoundIndicatorBuilder: (context) =>
               const Center(child: Text('No items found')),
@@ -545,117 +624,11 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
     );
   }
 
-  late final List<_ProcessedItem> _processedItems = [];
-
-  void _processItems(List<GetPublicationEntity> items) {
-    _processedItems.clear();
-
-    // Separate regular and video items
-    final regularItems = <GetPublicationEntity>[];
-    final videoItems = <GetPublicationEntity>[];
-
-    for (final item in items) {
-      if (item.videoUrl?.isNotEmpty ?? false) {
-        videoItems.add(item);
-      } else {
-        regularItems.add(item);
-      }
-    }
-
-    // Process regular items in pairs
-    for (int i = 0; i < regularItems.length; i += 2) {
-      if (i + 1 < regularItems.length) {
-        // Create pair
-        _processedItems.add(
-          _ProcessedItem(
-            type: ItemType.regularPair,
-            leftItem: regularItems[i],
-            rightItem: regularItems[i + 1],
-          ),
-        );
-      } else {
-        // Last single regular item - keep it as a regular row item
-        _processedItems.add(
-          _ProcessedItem(
-            type: ItemType
-                .regularPair, // Using regularPair type but with no rightItem
-            leftItem: regularItems[i],
-          ),
-        );
-      }
-    }
-
-    // Add video items
-    for (final videoItem in videoItems) {
-      _processedItems.add(
-        _ProcessedItem(
-          type: ItemType.advertisedProduct,
-          leftItem: videoItem,
-        ),
-      );
-    }
-  }
-
-  Widget _buildProcessedItem(
-      int index, List<GetPublicationEntity> items, double screenWidth) {
-    if (index >= _processedItems.length) return const SizedBox.shrink();
-
-    final processedItem = _processedItems[index];
-
-    switch (processedItem.type) {
-      case ItemType.regularPair:
-        return _buildProductRow(
-          leftItem: processedItem.leftItem,
-          rightItem: processedItem.rightItem,
-          screenWidth: screenWidth,
-        );
-
-      case ItemType.advertisedProduct:
-        return SizedBox(
-          width: screenWidth,
-          child: _buildAdvertisedProduct(processedItem.leftItem),
-        );
-    }
-  }
-
-  Widget _buildProductRow({
-    required GetPublicationEntity leftItem,
-    GetPublicationEntity? rightItem,
-    required double screenWidth,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 1),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Expanded(
-            child: RemouteRegularProductCard(
-              key: ValueKey('regular_${leftItem.id}'),
-              product: leftItem,
-            ),
-          ),
-          const SizedBox(width: 1),
-          Expanded(
-            child: rightItem != null
-                ? RemouteRegularProductCard(
-                    key: ValueKey('regular_${rightItem.id}'),
-                    product: rightItem,
-                  )
-                : const SizedBox(), // Empty space for single items
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildAdvertisedProduct(GetPublicationEntity product) {
-    // Add null check and initialization if needed
-    if (!_visibilityNotifiers.containsKey(product.id)) {
-      _visibilityNotifiers[product.id] = ValueNotifier<double>(0.0);
-    }
+    _uiState.ensureProductTrackers(product.id);
 
     return ValueListenableBuilder<double>(
-      valueListenable: _visibilityNotifiers[product.id]!, // Now safe to use !
+      valueListenable: _uiState.visibilityNotifiers[product.id]!,
       builder: (context, visibility, _) {
         return VisibilityDetector(
           key: Key('detector_${product.id}'),
@@ -663,331 +636,12 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
             product.id,
             info.visibleFraction,
           ),
-          child: _buildProductCard(product),
+          child: AdvertisedProductCard(
+            product: product,
+            currentlyPlayingId: _uiState.currentlyPlayingId,
+          ),
         );
       },
-    );
-  }
-
-  Widget _buildProductCard(GetPublicationEntity product) {
-    if (!_pageNotifiers.containsKey(product.id)) {
-      _pageNotifiers[product.id] = ValueNotifier<int>(0);
-    }
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Card(
-        shadowColor: AppColors.black.withOpacity(0.2),
-        color: AppColors.white,
-        shape: SmoothRectangleBorder(
-            smoothness: 0.8, borderRadius: BorderRadius.circular(4)),
-        clipBehavior: Clip.hardEdge,
-        elevation: 5,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            AspectRatio(
-              aspectRatio: 16 / 11,
-              child: ValueListenableBuilder<String?>(
-                valueListenable: _currentlyPlayingId,
-                builder: (context, currentlyPlayingId, _) {
-                  return ValueListenableBuilder<int>(
-                    valueListenable: _pageNotifiers[product.id]!,
-                    builder: (context, currentPage, _) {
-                      return Stack(
-                        children: [
-                          PageView.builder(
-                            itemCount: product.productImages.length,
-                            onPageChanged: (page) =>
-                                _pageNotifiers[product.id]?.value = page,
-                            itemBuilder: (context, index) => _buildMediaContent(
-                              product,
-                              index,
-                              currentPage,
-                              currentlyPlayingId == product.id,
-                            ),
-                          ),
-                          Card(
-                            margin: const EdgeInsets.only(top: 8, left: 8),
-                            elevation: 0,
-                            shape: SmoothRectangleBorder(
-                                smoothness: 1,
-                                borderRadius: BorderRadius.circular(6)),
-                            color: AppColors.primary,
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 4, horizontal: 8),
-                              child: Text(
-                                'New',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Align(
-                              alignment: Alignment.bottomCenter,
-                              child: SmoothClipRRect(
-                                smoothness: 1,
-                                borderRadius: BorderRadius.circular(6),
-                                child: Container(
-                                  color: AppColors.black.withOpacity(0.4),
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 6,
-                                    horizontal: 10,
-                                  ),
-                                  child: Text(
-                                    '${currentPage + 1}/${product.productImages.length}',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(
-                left: 8,
-                right: 8,
-                top: 6,
-                bottom: 4,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          product.title,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                            // color: AppColors.primary,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      SizedBox(
-                          width: 8), // Optional spacing between Text and Card
-                    ],
-                  ),
-                  SizedBox(
-                    height: 8,
-                  ),
-                  Row(
-                    children: [
-                      SizedBox(
-                        width: 28,
-                        height: 28,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(
-                            40,
-                          ), // Adjust radius for desired roundness
-                          child: CachedNetworkImage(
-                            imageUrl:
-                                "https://${product.seller.profileImagePath}",
-                            fit: BoxFit.cover,
-                            errorWidget: (context, url, error) =>
-                                const Center(child: Icon(Icons.error)),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 8,
-                      ),
-                      Text(
-                        product.seller.nickName,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                          color: AppColors.green,
-                        ),
-                      ),
-                      SizedBox(
-                        width: 8,
-                      ),
-                      Icon(
-                        CupertinoIcons.star_fill,
-                        color: CupertinoColors.systemYellow,
-                        size: 22,
-                      ),
-                      SizedBox(
-                        width: 8,
-                      ),
-                      Text(
-                        " 4",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 14,
-                          color: AppColors.green,
-                        ),
-                      ),
-                      Text(
-                        "5",
-                        style: TextStyle(
-                          color: AppColors.lightText,
-                          fontWeight: FontWeight.w400,
-                          fontSize: 14,
-                        ),
-                      )
-                    ],
-                  ),
-                  SizedBox(
-                    height: 8,
-                  ),
-                  Row(
-                    children: [
-                      SizedBox(
-                        width: 5,
-                      ),
-                      Icon(
-                        Ionicons.location,
-                        size: 20,
-                        color: AppColors.primary,
-                      ),
-                      SizedBox(
-                        width: 8,
-                      ),
-                      Text(
-                        product.locationName,
-                        style: TextStyle(
-                          color: AppColors.darkGray.withOpacity(0.7),
-                          fontSize: 13,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 8,
-                  ),
-                  Text(
-                    product.description,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.darkGray.withOpacity(0.7),
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  SizedBox(
-                    height: 8,
-                  ),
-                  Text(
-                    'Price',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.darkGray.withOpacity(0.7),
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        product.price.toString(),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 17,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                      SmoothClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Container(
-                          color: AppColors.containerColor,
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: SizedBox(
-                              width: 18,
-                              height: 18,
-                              child: Image.asset(
-                                AppIcons.favorite,
-                                color: AppColors.darkGray,
-                              ),
-                            ),
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                  SizedBox(
-                    height: 4,
-                  ),
-                  ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      shape: SmoothRectangleBorder(
-                        smoothness: 1,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: Center(
-                        child: Text(
-                          'Call Now',
-                          style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.error),
-                        ),
-                      ),
-                    ),
-                  )
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-//
-  Widget _buildMediaContent(
-    GetPublicationEntity product,
-    int pageIndex,
-    int currentPage,
-    bool isPlaying,
-  ) {
-    if (pageIndex == 0 && isPlaying) {
-      return VideoPlayerWidget(
-        key: Key('video_${product.id}'),
-        videoUrl: "https://${product.videoUrl!}",
-        thumbnailUrl: 'https://${product.productImages[0].url}',
-        isPlaying: true,
-        onPlay: () {},
-        onPause: () {},
-      );
-    }
-
-    return CachedNetworkImage(
-      imageUrl: pageIndex == 0
-          ? "https://${product.productImages[0].url}"
-          : "https://${product.productImages[pageIndex].url}",
-      fit: BoxFit.cover,
-      placeholder: (context, url) => const Center(
-          child: CircularProgressIndicator(
-        color: AppColors.white,
-      )),
-      errorWidget: (context, url, error) =>
-          const Center(child: Icon(Icons.error)),
     );
   }
 
@@ -1665,7 +1319,6 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
   }
 }
 
-// Price formatter utility
 String formatPrice(String value) {
   if (value.isEmpty) return '';
 
@@ -1963,21 +1616,4 @@ class NoItemsFound extends StatelessWidget {
       child: Text('No items found'),
     );
   }
-}
-
-enum ItemType {
-  regularPair,
-  advertisedProduct,
-}
-
-class _ProcessedItem {
-  final ItemType type;
-  final GetPublicationEntity leftItem;
-  final GetPublicationEntity? rightItem;
-
-  _ProcessedItem({
-    required this.type,
-    required this.leftItem,
-    this.rightItem,
-  });
 }

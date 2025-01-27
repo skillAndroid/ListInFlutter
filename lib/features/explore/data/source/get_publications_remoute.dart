@@ -188,7 +188,7 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
 
       String url = '/api/v1/publications';
       if (categoryId != null) {
-        url += '/$categoryId';
+        url += "/p/$categoryId";
         if (subcategoryId != null) {
           url += '/$subcategoryId';
         }

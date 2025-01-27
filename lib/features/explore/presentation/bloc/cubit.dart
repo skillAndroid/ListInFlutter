@@ -227,12 +227,11 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
   }
 
   Future<void> fetchSecondaryPage(int pageKey) async {
-    if (state.initialPublicationsRequestState == RequestState.inProgress) {
+    if (state.secondaryPublicationsRequestState == RequestState.inProgress) {
       debugPrint(
           '🚫 Preventing duplicate publications request for page: $pageKey');
       return;
     }
-
     debugPrint('🔍 Fetching page: $pageKey with search: ${state.searchText}');
 
     if (pageKey == 0) {
@@ -251,6 +250,8 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     }
 
     try {
+      debugPrint("🐁🐁${state.selectedCatalog}");
+      debugPrint("🐁🐁${state.selectedCatalog?.id}");
       final result = await getPublicationsUseCase2(
         params: GetPublicationsParams(
           query: state.searchText,
@@ -274,13 +275,18 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
               ? paginatedData
               : [...state.secondaryPublications, ...paginatedData];
 
-          emit(state.copyWith(
-            secondaryPublicationsRequestState: RequestState.completed,
-            errorSecondaryPublicationsFetch: null,
-            // secondaryPublications: updatedPublications,
-            // secondaryHasReachedMax: paginatedData.last,
-            // secondaryCurrentPage: paginatedData.number,
-          ));
+          final isLastPage =
+              paginatedData.isNotEmpty ? paginatedData.last.isLast : true;
+
+          emit(
+            state.copyWith(
+              secondaryPublicationsRequestState: RequestState.completed,
+              errorSecondaryPublicationsFetch: null,
+              secondaryPublications: updatedPublications,
+              secondaryHasReachedMax: isLastPage,
+              secondaryCurrentPage: pageKey + 1,
+            ),
+          );
         },
       );
     } catch (e) {
@@ -297,7 +303,6 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
           '🚫 Preventing duplicate publications request for page: $pageKey');
       return;
     }
-
     debugPrint('🔍 Fetching page: $pageKey with search: ${state.searchText}');
 
     if (pageKey == 0) {
@@ -337,17 +342,22 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
           ));
         },
         (paginatedData) {
-          // final updatedPublications = pageKey == 0
-          //     ? paginatedData.content
-          //     : [...state.initialPublications, ...paginatedData.content];
+          final updatedPublications = pageKey == 0
+              ? paginatedData
+              : [...state.childPublications, ...paginatedData];
 
-          emit(state.copyWith(
-            childPublicationsRequestState: RequestState.completed,
-            errorChildPublicationsFetch: null,
-            // childPublications: updatedPublications,
-            // childHasReachedMax: paginatedData.last,
-            // childCurrentPage: paginatedData.number,
-          ));
+          final isLastPage =
+              paginatedData.isNotEmpty ? paginatedData.last.isLast : true;
+
+          emit(
+            state.copyWith(
+              childPublicationsRequestState: RequestState.completed,
+              errorChildPublicationsFetch: null,
+              childPublications: updatedPublications,
+              childHasReachedMax: isLastPage,
+              childCurrentPage: pageKey + 1,
+            ),
+          );
         },
       );
     } catch (e) {
