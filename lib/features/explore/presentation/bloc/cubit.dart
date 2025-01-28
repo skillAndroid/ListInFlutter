@@ -69,7 +69,6 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
           '🚫 Preventing duplicate publications request for page: $pageKey');
       return;
     }
-
     debugPrint('🔍 Fetching page: $pageKey with search: ${state.searchText}');
 
     if (pageKey == 0) {
@@ -88,13 +87,16 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     }
 
     try {
-      final result = await getPublicationsUseCase(
+      final result = await getPublicationsUseCase2(
         params: GetPublicationsParams(
           query: state.searchText,
           page: pageKey,
           size: pageSize,
           priceFrom: state.priceFrom,
           priceTo: state.priceTo,
+          categoryId: state.selectedCatalog?.id,
+          subcategoryId: state.selectedChildCategory?.id,
+          filters: state.generateFilterParameters(),
         ),
       );
 
@@ -105,19 +107,24 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
             errorSearchPublicationsFetch: _mapFailureToMessage(failure),
           ));
         },
-        (newPublications) {
-          final isLastPage = newPublications.length < pageSize;
+        (paginatedData) {
+          // Determine isLast by checking the last item's isLast property
           final updatedPublications = pageKey == 0
-              ? newPublications
-              : [...state.searchPublications, ...newPublications];
+              ? paginatedData
+              : [...state.searchPublications, ...paginatedData];
 
-          emit(state.copyWith(
-            searchPublicationsRequestState: RequestState.completed,
-            errorSearchPublicationsFetch: null,
-            searchPublications: updatedPublications,
-            searchHasReachedMax: isLastPage,
-            searchCurrentPage: pageKey,
-          ));
+          final isLastPage =
+              paginatedData.isNotEmpty ? paginatedData.last.isLast : true;
+
+          emit(
+            state.copyWith(
+              searchPublicationsRequestState: RequestState.completed,
+              errorSearchPublicationsFetch: null,
+              searchPublications: updatedPublications,
+              searchHasReachedMax: isLastPage,
+              searchCurrentPage: pageKey + 1,
+            ),
+          );
         },
       );
     } catch (e) {
@@ -133,7 +140,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     _debounceTimer?.cancel();
 
     // Start a new timer
-    _debounceTimer = Timer(const Duration(milliseconds: 300), () async {
+    _debounceTimer = Timer(const Duration(milliseconds: 200), () async {
       if (searchText == null || searchText.isEmpty) return;
 
       emit(state.copyWith(
@@ -374,6 +381,13 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
       priceTo: to,
     ));
     fetchChildPage(0);
+  }
+
+  void clearPriceRange2() {
+    emit(state.copyWith(
+      priceFrom: null,
+      priceTo: null,
+    ));
   }
 
   void clearPriceRange() {
@@ -737,6 +751,15 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
       dynamicAttributes: newDynamicAttributes,
     ));
     fetchChildPage(0);
+  }
+
+  void clearAllSelectedAttributes2() {
+    emit(state.copyWith(
+      selectedValues: {},
+      selectedAttributeValues: {},
+      dynamicAttributes: [],
+      attributeOptionsVisibility: {},
+    ));
   }
 
   void clearAllSelectedAttributes() {

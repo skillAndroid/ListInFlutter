@@ -161,59 +161,65 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
   }
 
   @override
-  Future<List<PublicationPairModel>> getPublicationsFiltered2({
-    String? categoryId,
-    String? subcategoryId,
-    String? query,
-    int? page,
-    int? size,
-    bool? bargain,
-    String? condition,
-    double? priceFrom,
-    double? priceTo,
-    List<String>? filters,
-  }) async {
-    try {
-      final options = await authService.getAuthOptions();
-      final queryParams = <String, dynamic>{
-        'query': query ?? '',
-        if (page != null) 'page': page.toString(),
-        if (size != null) 'size': size.toString(),
-        if (bargain != null) 'bargain': bargain.toString(),
-        if (condition != null) 'condition': condition,
-        if (priceFrom != null) 'from': priceFrom.toString(),
-        if (priceTo != null) 'to': priceTo.toString(),
-        if (filters != null && filters.isNotEmpty) 'filter': filters,
-      };
+Future<List<PublicationPairModel>> getPublicationsFiltered2({
+  String? categoryId,
+  String? subcategoryId,
+  String? query,
+  int? page,
+  int? size,
+  bool? bargain,
+  String? condition,
+  double? priceFrom,
+  double? priceTo,
+  List? filters,
+}) async {
+  try {
+    final options = await authService.getAuthOptions();
+    final queryParams = {
+      'query': query ?? '',
+      if (page != null) 'page': page.toString(),
+      if (size != null) 'size': size.toString(),
+      if (bargain != null) 'bargain': bargain.toString(),
+      if (condition != null) 'condition': condition,
+      if (priceFrom != null) 'from': priceFrom.toString(),
+      if (priceTo != null) 'to': priceTo.toString(),
+      if (filters != null && filters.isNotEmpty) 'filter': filters,
+    };
 
-      String url = '/api/v1/publications';
-      if (categoryId != null) {
-        url += "/p/$categoryId";
-        if (subcategoryId != null) {
-          url += '/$subcategoryId';
-        }
+    String url = '/api/v1/publications';
+
+    // Если query не null, используем путь '/search/all/'
+    if (query != null && query.isNotEmpty) {
+      url += '/search/all';
+    } else if (categoryId != null) {
+      // Иначе формируем путь в зависимости от categoryId и subcategoryId
+      if (subcategoryId != null) {
+        url += '/search/all/$categoryId/$subcategoryId';
+      } else {
+        url += '/p/$categoryId';
       }
-
-      final response = await dio.get(
-        url,
-        queryParameters: queryParams,
-        options: options,
-      );
-
-      final paginatedResponse = (response.data as List)
-          .map((item) => PublicationPairModel.fromJson(item))
-          .toList();
-      debugPrint("😇😇Success");
-      return paginatedResponse;
-    } on DioException catch (e) {
-      debugPrint("😇😇Exeption in fetching data remout DIO EXCEPTION $e");
-      throw _handleDioException(e);
-    } catch (e) {
-      debugPrint("😇😇Exeption in fetching data remout $e");
-      throw UknownExeption();
     }
-  }
 
+    final response = await dio.get(
+      url,
+      queryParameters: queryParams,
+      options: options,
+    );
+
+    final paginatedResponse = (response.data as List)
+        .map((item) => PublicationPairModel.fromJson(item))
+        .toList();
+
+    debugPrint("😇😇Success");
+    return paginatedResponse;
+  } on DioException catch (e) {
+    debugPrint("😇😇Exeption in fetching data remout DIO EXCEPTION $e");
+    throw _handleDioException(e);
+  } catch (e) {
+    debugPrint("😇😇Exeption in fetching data remout $e");
+    throw UknownExeption();
+  }
+}
   List<GetPublicationModel> _handleResponse(Response response) {
     switch (response.statusCode) {
       case 200:

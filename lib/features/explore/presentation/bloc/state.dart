@@ -51,7 +51,7 @@ class HomeTreeState {
   final bool secondaryIsPublicationsLoading;
   final List<PublicationPairEntity> childPublications;
 
-  final List<GetPublicationEntity> searchPublications;
+  final List<PublicationPairEntity> searchPublications;
 
   final String? errorInitialPublicationsFetch;
   final String? errorSearchPublicationsFetch;
@@ -104,7 +104,7 @@ class HomeTreeState {
     this.errorInitialPublicationsFetch,
     this.errorSearchPublicationsFetch,
     List<PublicationPairEntity>? initialPublications,
-    List<GetPublicationEntity>? searchPublications,
+    List<PublicationPairEntity>? searchPublications,
     List<PublicationPairEntity>? childPublications,
     this.initialIsLoadingMore = false,
     this.initialHasReachedMax = false,
@@ -165,7 +165,7 @@ class HomeTreeState {
     double? priceFrom = double.nan,
     double? priceTo = double.nan,
     String? error,
-    List<GetPublicationEntity>? searchPublications,
+    List<PublicationPairEntity>? searchPublications,
     List<PublicationPairEntity>? initialPublications,
     List<PublicationPairEntity>? secondaryPublications,
     List<PublicationPairEntity>? childPublications,

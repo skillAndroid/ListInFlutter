@@ -169,12 +169,17 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
   bool _shouldRebuildForState(HomeTreeState previous, HomeTreeState current) {
     final previousFilters = Set.from(previous.generateFilterParameters());
     final currentFilters = Set.from(current.generateFilterParameters());
-    return !setEquals(previousFilters, currentFilters) || // Filter changes
+    return !setEquals(previousFilters, currentFilters) ||
+        previous.childCurrentPage != current.childCurrentPage ||
         previous.childPublicationsRequestState !=
             current.childPublicationsRequestState;
   }
 
   void _handleStateChanges(BuildContext context, HomeTreeState state) {
+    if (state.childCurrentPage == 0 &&
+        state.childPublicationsRequestState == RequestState.inProgress) {
+      _pagingState.pagingController.itemList = null;
+    }
     if (state.childPublicationsRequestState == RequestState.error) {
       _handleError(state);
     } else if (state.childPublicationsRequestState == RequestState.completed) {
@@ -212,10 +217,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
 
   void _setupPagingListener() {
     _pagingState.pagingController.addPageRequestListener((pageKey) {
-      if (context
-              .read<HomeTreeCubit>()
-              .state
-              .childPublicationsRequestState !=
+      if (context.read<HomeTreeCubit>().state.childPublicationsRequestState !=
           RequestState.inProgress) {
         context.read<HomeTreeCubit>().fetchChildPage(pageKey);
       }
