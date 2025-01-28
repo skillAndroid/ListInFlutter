@@ -122,9 +122,6 @@ class _SearchPageState extends State<SearchPage> {
                                       },
                                       onSubmitted: (value) async {
                                         if (value.isNotEmpty) {
-                                          context
-                                              .read<HomeTreeCubit>()
-                                              .handleSearch(value);
                                           context.replace(Routes.searchResult);
                                         }
                                       },

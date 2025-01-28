@@ -107,7 +107,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
   late final ScrollState _scrollState;
   late final PagingState _pagingState;
 
-  static const double _videoVisibilityThreshold = 1;
+  static const double _videoVisibilityThreshold = 0.7;
 
   @override
   void initState() {

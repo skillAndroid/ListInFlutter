@@ -102,7 +102,8 @@ class _SearchResultPageState extends State<SearchResultPage> {
   @override
   void initState() {
     super.initState();
-    context.read<HomeTreeCubit>().resetRequestState();
+    context.read<HomeTreeCubit>().clearPriceRange2();
+    context.read<HomeTreeCubit>().clearAllSelectedAttributes2();
     _initializeStates();
     _setupPagingListener();
   }
@@ -157,7 +158,8 @@ class _SearchResultPageState extends State<SearchResultPage> {
     return !setEquals(previousFilters, currentFilters) ||
         previous.searchCurrentPage != current.searchCurrentPage ||
         previous.searchPublicationsRequestState !=
-            current.searchPublicationsRequestState;
+            current.searchPublicationsRequestState ||
+        previous.searchHasReachedMax != current.searchHasReachedMax;
   }
 
   void _handleStateChanges(BuildContext context, HomeTreeState state) {
@@ -1318,5 +1320,3 @@ class _SearchResultPageState extends State<SearchResultPage> {
     );
   }
 }
-
-

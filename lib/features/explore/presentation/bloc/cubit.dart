@@ -380,7 +380,11 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
       priceFrom: from,
       priceTo: to,
     ));
-    fetchChildPage(0);
+    if (state.searchText != null) {
+      searchPage(0);
+    } else {
+      fetchChildPage(0);
+    }
   }
 
   void clearPriceRange2() {
@@ -395,7 +399,11 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
       priceFrom: null,
       priceTo: null,
     ));
-    fetchChildPage(0);
+    if (state.searchText != null) {
+      searchPage(0);
+    } else {
+      fetchChildPage(0);
+    }
   }
 
   // publications get border ************************************
@@ -692,7 +700,11 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
       dynamicAttributes: newDynamicAttributes,
     ));
 
-    fetchChildPage(0);
+    if (state.searchText != null) {
+      searchPage(0);
+    } else {
+      fetchChildPage(0);
+    }
   }
 
   AttributeValueModel? getSelectedAttributeValue(AttributeModel attribute) {
@@ -750,7 +762,11 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
       selectedAttributeValues: newSelectedAttributeValues,
       dynamicAttributes: newDynamicAttributes,
     ));
-    fetchChildPage(0);
+    if (state.searchText != null) {
+      searchPage(0);
+    } else {
+      fetchChildPage(0);
+    }
   }
 
   void clearAllSelectedAttributes2() {
@@ -769,7 +785,11 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
       dynamicAttributes: [],
       attributeOptionsVisibility: {},
     ));
-    fetchChildPage(0);
+    if (state.searchText != null) {
+      searchPage(0);
+    } else {
+      fetchChildPage(0);
+    }
   }
 
   void confirmMultiSelection(AttributeModel attribute) {
