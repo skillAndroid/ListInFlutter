@@ -87,16 +87,6 @@ class AppRouter {
       ),
 
       GoRoute(
-        path: Routes.search,
-        name: RoutesByName.search,
-        builder: (context, state) => SearchPage(),
-      ),
-      GoRoute(
-        path: Routes.searchResult,
-        name: RoutesByName.searchResult,
-        builder: (context, state) => SearchResultPage(),
-      ),
-      GoRoute(
         path: Routes.productDetails,
         builder: (context, state) {
           final product = state.extra as GetPublicationEntity;
@@ -134,6 +124,20 @@ class AppRouter {
                   );
                 },
                 routes: [
+                  GoRoute(
+                    path: Routes.searchResult,
+                    name: RoutesByName.searchResult,
+                    builder: (context, state) => SearchResultPage(
+                      key: state.pageKey,
+                    ),
+                  ),
+                  GoRoute(
+                    path: Routes.search,
+                    name: RoutesByName.search,
+                    builder: (context, state) => SearchPage(
+                      key: state.pageKey,
+                    ),
+                  ),
                   GoRoute(
                     name: RoutesByName.subcategories,
                     path: Routes.subcategories,

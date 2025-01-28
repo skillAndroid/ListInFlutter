@@ -10,6 +10,7 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
@@ -517,55 +518,62 @@ class _SearchResultPageState extends State<SearchResultPage> {
                       ),
                     ),
                     Expanded(
-                      child: SmoothClipRRect(
-                        smoothness: 1,
-                        borderRadius: BorderRadius.circular(10),
-                        child: Container(
-                          height: 48,
-                          decoration: BoxDecoration(
-                            color: AppColors.containerColor,
-                          ),
-                          child: Row(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(12),
-                                child: Image.asset(AppIcons.searchIcon,
-                                    width: 24,
-                                    height: 24,
-                                    color: AppColors.darkGray.withOpacity(0.8)),
-                              ),
-                              Expanded(
-                                child: Text(
-                                  state.searchText != null
-                                      ? state.searchText.toString()
-                                      : "What are you looking for?", // Show current search text or default
-                                  style: TextStyle(
-                                    color: AppColors.darkGray.withOpacity(0.8),
-                                    fontWeight: FontWeight.w500,
+                      child: GestureDetector(
+                        onTap: () {
+                          context.pushNamed(RoutesByName.search);
+                        },
+                        child: SmoothClipRRect(
+                          smoothness: 1,
+                          borderRadius: BorderRadius.circular(10),
+                          child: Container(
+                            height: 48,
+                            decoration: BoxDecoration(
+                              color: AppColors.containerColor,
+                            ),
+                            child: Row(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(12),
+                                  child: Image.asset(AppIcons.searchIcon,
+                                      width: 24,
+                                      height: 24,
+                                      color:
+                                          AppColors.darkGray.withOpacity(0.8)),
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    state.searchText != null
+                                        ? state.searchText.toString()
+                                        : "What are you looking for?", // Show current search text or default
+                                    style: TextStyle(
+                                      color:
+                                          AppColors.darkGray.withOpacity(0.8),
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              const VerticalDivider(
-                                color: AppColors.lightGray,
-                                width: 1,
-                                indent: 12,
-                                endIndent: 12,
-                              ),
-                              SizedBox(
-                                width: 2,
-                              ),
-                              IconButton(
-                                icon: Image.asset(
-                                  AppIcons.filterIc,
-                                  width: 24,
-                                  height: 24,
+                                const VerticalDivider(
+                                  color: AppColors.lightGray,
+                                  width: 1,
+                                  indent: 12,
+                                  endIndent: 12,
                                 ),
-                                onPressed: () {},
-                              ),
-                              SizedBox(
-                                width: 2,
-                              ),
-                            ],
+                                SizedBox(
+                                  width: 2,
+                                ),
+                                IconButton(
+                                  icon: Image.asset(
+                                    AppIcons.filterIc,
+                                    width: 24,
+                                    height: 24,
+                                  ),
+                                  onPressed: () {},
+                                ),
+                                SizedBox(
+                                  width: 2,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),

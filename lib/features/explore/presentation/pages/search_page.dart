@@ -122,7 +122,7 @@ class _SearchPageState extends State<SearchPage> {
                                       },
                                       onSubmitted: (value) async {
                                         if (value.isNotEmpty) {
-                                          context.replace(Routes.searchResult);
+                                          context.replaceNamed(RoutesByName.searchResult);
                                         }
                                       },
                                       decoration: const InputDecoration(

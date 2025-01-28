@@ -472,7 +472,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
-                        context.push(Routes.search);
+                        context.pushNamed(RoutesByName.search);
                       },
                       child: SmoothClipRRect(
                         smoothness: 1,
