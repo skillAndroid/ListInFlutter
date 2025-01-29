@@ -59,11 +59,7 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
 
       String url = '/api/v1/publications';
 
-      // Если query не null, используем путь '/search/all/'
-      if (query != null && query.isNotEmpty) {
-        url += '/search/all';
-      } else if (categoryId != null) {
-        // Иначе формируем путь в зависимости от categoryId и subcategoryId
+      if (categoryId != null) {
         if (subcategoryId != null) {
           url += '/search/all/$categoryId/$subcategoryId';
         } else {

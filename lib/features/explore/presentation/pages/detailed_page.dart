@@ -541,7 +541,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                 ),
                                 Expanded(
                                   child: Text(
-                                    "What are you looking for?", // Show current search text or default
+                                    "What are you looking for?",
                                     style: TextStyle(
                                       color:
                                           AppColors.darkGray.withOpacity(0.8),
