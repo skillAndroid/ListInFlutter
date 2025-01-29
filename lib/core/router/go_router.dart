@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/core/utils/const.dart';
@@ -10,11 +11,17 @@ import 'package:list_in/features/auth/presentation/pages/welcome_page.dart';
 import 'package:list_in/features/details/presentation/pages/details.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
+import 'package:list_in/features/explore/domain/usecase/get_prediction_usecase.dart';
+import 'package:list_in/features/explore/domain/usecase/get_publications_usecase.dart';
+import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/pages/child_page.dart';
 import 'package:list_in/features/explore/presentation/pages/detailed_page.dart';
 import 'package:list_in/features/explore/presentation/pages/initial_page.dart';
 import 'package:list_in/features/explore/presentation/pages/search_page.dart';
 import 'package:list_in/features/explore/presentation/pages/search_result_page.dart';
+import 'package:list_in/features/post/data/models/category_model.dart';
+import 'package:list_in/features/post/data/models/child_category_model.dart';
+import 'package:list_in/features/post/domain/usecases/get_catalogs_usecase.dart';
 import 'package:list_in/features/post/presentation/pages/post_screen.dart';
 import 'package:list_in/features/profile/domain/entity/user/user_profile_entity.dart';
 import 'package:list_in/features/profile/presentation/pages/profile_editor_page.dart';
@@ -27,7 +34,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class AppRouter {
   final SharedPreferences sharedPreferences;
-  AppRouter(this.sharedPreferences);
+  final GetGategoriesUsecase getGategoriesUsecase;
+  final GetPublicationsUsecase getPublicationsUsecase;
+  final GetPredictionsUseCase getPredictionsUseCase;
+
+  AppRouter({
+    required this.sharedPreferences,
+    required this.getGategoriesUsecase,
+    required this.getPublicationsUsecase,
+    required this.getPredictionsUseCase,
+  });
 
   static final _rootNavigatorKey = GlobalKey<NavigatorState>();
   static final _shellNavigatorHome =
@@ -117,45 +133,145 @@ class AppRouter {
                 path: Routes.home,
                 name: "Home",
                 builder: (context, state) {
-                  return InitialHomeTreePage(
-                    key: state.pageKey,
-                    regularProducts: sampleProducts,
-                    advertisedProducts: sampleVideos,
+                  return BlocProvider(
+                    create: (_) => HomeTreeCubit(
+                      getCatalogsUseCase: getGategoriesUsecase,
+                      getPublicationsUseCase: getPublicationsUsecase,
+                      getPredictionsUseCase: getPredictionsUseCase,
+                    ),
+                    child: InitialHomeTreePage(
+                      key: state.pageKey,
+                      regularProducts: sampleProducts,
+                      advertisedProducts: sampleVideos,
+                    ),
                   );
                 },
                 routes: [
                   GoRoute(
                     path: Routes.searchResult,
                     name: RoutesByName.searchResult,
-                    builder: (context, state) => SearchResultPage(
-                      key: state.pageKey,
-                    ),
+                    builder: (context, state) {
+                      return BlocProvider(
+                        create: (_) => HomeTreeCubit(
+                          getCatalogsUseCase: getGategoriesUsecase,
+                          getPublicationsUseCase: getPublicationsUsecase,
+                          getPredictionsUseCase: getPredictionsUseCase,
+                        ),
+                        child: SearchResultPage(
+                          key: state.pageKey,
+                        ),
+                      );
+                    },
                   ),
                   GoRoute(
-                    path: Routes.search,
-                    name: RoutesByName.search,
-                    builder: (context, state) => SearchPage(
-                      key: state.pageKey,
-                    ),
-                  ),
+                      path: Routes.search,
+                      name: RoutesByName.search,
+                      builder: (context, state) {
+                        return BlocProvider(
+                          create: (_) => HomeTreeCubit(
+                            getCatalogsUseCase: getGategoriesUsecase,
+                            getPublicationsUseCase: getPublicationsUsecase,
+                            getPredictionsUseCase: getPredictionsUseCase,
+                          ),
+                          child: SearchPage(
+                            key: state.pageKey,
+                          ),
+                        );
+                      }),
                   GoRoute(
                     name: RoutesByName.subcategories,
                     path: Routes.subcategories,
-                    builder: (context, state) => ChildHomeTreePage(
-                      key: state.pageKey,
-                      regularProducts: sampleProducts,
-                      advertisedProducts: sampleVideos,
-                    ),
-                    routes: [
-                      GoRoute(
-                        name: RoutesByName.attributes,
-                        path: Routes.attributes,
-                        builder: (context, state) => DetailedHomeTreePage(
+                    builder: (context, state) {
+                      // Safely handle the category from extra
+                      final categoryExtra = state.extra;
+                      if (categoryExtra == null ||
+                          categoryExtra is! Map ||
+                          !categoryExtra.containsKey('category')) {
+                        return const Scaffold(
+                          body: Center(
+                            child:
+                                Text('Error: Category information is missing'),
+                          ),
+                        );
+                      }
+                      final CategoryModel? category =
+                          categoryExtra['category'] as CategoryModel?;
+                      if (category == null) {
+                        // Handle null category specifically
+                        return const Scaffold(
+                          body: Center(
+                            child: Text('Error: Invalid category data'),
+                          ),
+                        );
+                      }
+                      return BlocProvider(
+                        create: (_) {
+                          final cubit = HomeTreeCubit(
+                            getCatalogsUseCase: getGategoriesUsecase,
+                            getPublicationsUseCase: getPublicationsUsecase,
+                            getPredictionsUseCase: getPredictionsUseCase,
+                          );
+                          cubit.selectCatalog(category);
+                          return cubit;
+                        },
+                        child: ChildHomeTreePage(
                           key: state.pageKey,
                           regularProducts: sampleProducts,
                           advertisedProducts: sampleVideos,
                         ),
-                      ),
+                      );
+                    },
+                    routes: [
+                      GoRoute(
+                          name: RoutesByName.attributes,
+                          path: Routes.attributes,
+                          builder: (context, state) {
+                            final extraData = state.extra;
+                            if (extraData == null || extraData is! Map) {
+                              return const Scaffold(
+                                body: Center(
+                                  child: Text(
+                                      'Error: Category information is missing'),
+                                ),
+                              );
+                            }
+
+                            final CategoryModel? parentCategory =
+                                extraData['category'] as CategoryModel?;
+                            final ChildCategoryModel? childCategory =
+                                extraData['childCategory']
+                                    as ChildCategoryModel?;
+
+                            if (parentCategory == null ||
+                                childCategory == null) {
+                              return const Scaffold(
+                                body: Center(
+                                  child: Text('Error: Invalid category data'),
+                                ),
+                              );
+                            }
+
+                            return BlocProvider(
+                              create: (_) {
+                                final cubit = HomeTreeCubit(
+                                  getCatalogsUseCase: getGategoriesUsecase,
+                                  getPublicationsUseCase:
+                                      getPublicationsUsecase,
+                                  getPredictionsUseCase: getPredictionsUseCase,
+                                );
+                                // Set both parent and child categories
+                                cubit.selectCatalog(parentCategory);
+                                cubit.selectChildCategory(
+                                    childCategory); // Assuming you have this method
+                                return cubit;
+                              },
+                              child: DetailedHomeTreePage(
+                                key: state.pageKey,
+                                regularProducts: sampleProducts,
+                                advertisedProducts: sampleVideos,
+                              ),
+                            );
+                          }),
                     ],
                   ),
                 ],

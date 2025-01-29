@@ -3,10 +3,12 @@
 import 'package:flutter/material.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/explore/presentation/widgets/sub_category_card.dart';
+import 'package:list_in/features/post/data/models/category_model.dart';
 import 'package:list_in/features/post/data/models/child_category_model.dart';
 
 class SubcategoriesList extends StatefulWidget {
   final List<ChildCategoryModel> subcategories;
+  final CategoryModel categoryModel;
   final String title;
   final int? categoryIndex; // Added category index
 
@@ -14,7 +16,8 @@ class SubcategoriesList extends StatefulWidget {
     super.key,
     required this.subcategories,
     required this.title,
-    required this.categoryIndex, // New required parameter
+    required this.categoryIndex, 
+    required this.categoryModel, // New required parameter
   });
 
   @override
@@ -71,6 +74,7 @@ class _SubcategoriesListState extends State<SubcategoriesList> {
                             .map((entry) => Padding(
                                   padding: const EdgeInsets.only(right: 8),
                                   child: SubcategoryCard(
+                                    categoryM: widget.categoryModel,
                                     category: entry.value,
                                     categoryIndex: widget.categoryIndex!,
                                     itemIndex: entry.key +

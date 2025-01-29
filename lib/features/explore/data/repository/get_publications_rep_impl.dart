@@ -3,6 +3,7 @@ import 'package:list_in/core/error/exeptions.dart';
 import 'package:list_in/core/error/failure.dart';
 import 'package:list_in/core/network/network_info.dart';
 import 'package:list_in/features/explore/data/source/get_publications_remoute.dart';
+import 'package:list_in/features/explore/domain/enties/prediction_entity.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/domain/repository/get_publications_repository.dart';
 
@@ -14,46 +15,6 @@ class PublicationsRepositoryImpl implements PublicationsRepository {
     required this.remoteDataSource,
     required this.networkInfo,
   });
-
-  @override
-  Future<Either<Failure, List<GetPublicationEntity>>> getPublications({
-    String? categoryId,
-    String? subcategoryId,
-    String? query,
-    int? page,
-    int? size,
-    bool? bargain,
-    String? condition,
-    double? priceFrom,
-    double? priceTo,
-    List<String>? filters,
-  }) async {
-    if (await networkInfo.isConnected) {
-      try {
-        final publications = await remoteDataSource.getPublicationsFiltered(
-          query: query,
-          page: page,
-          size: size,
-          bargain: bargain,
-          condition: condition,
-          priceFrom: priceFrom,
-          priceTo: priceTo,
-          categoryId: categoryId,
-          subcategoryId: subcategoryId,
-          filters: filters,
-        );
-        return Right(publications.map((model) => model.toEntity()).toList());
-      } on ServerExeption {
-        return Left(ServerFailure());
-      } on ConnectionExeption {
-        return Left(NetworkFailure());
-      } catch (e) {
-        return Left(UnexpectedFailure());
-      }
-    } else {
-      return Left(NetworkFailure());
-    }
-  }
 
   @override
   Future<Either<Failure, List<PublicationPairEntity>>>
@@ -71,7 +32,7 @@ class PublicationsRepositoryImpl implements PublicationsRepository {
   }) async {
     if (await networkInfo.isConnected) {
       try {
-        final publications = await remoteDataSource.getPublicationsFiltered2(
+        final publications = await remoteDataSource.getPublications(
           query: query,
           page: page,
           size: size,
@@ -83,7 +44,9 @@ class PublicationsRepositoryImpl implements PublicationsRepository {
           subcategoryId: subcategoryId,
           filters: filters,
         );
-        return Right(publications.map((pair) => pair.toEntity()).toList(),);
+        return Right(
+          publications.map((pair) => pair.toEntity()).toList(),
+        );
       } on ServerExeption {
         return Left(ServerFailure());
       } on ConnectionExeption {
@@ -97,18 +60,23 @@ class PublicationsRepositoryImpl implements PublicationsRepository {
   }
 
   @override
-  Future<Either<Failure, List<GetPublicationEntity>>> getPublicationsFiltered({
-    String? categoryId,
-    String? subcategoryId,
-    String? query,
-    int? page,
-    int? size,
-    bool? bargain,
-    String? condition,
-    double? priceFrom,
-    double? priceTo,
-    List<String>? filters,
-  }) {
-    throw UnimplementedError();
+  Future<Either<Failure, List<PredictionEntity>>> getPredictions(
+      String? query) async {
+    if (await networkInfo.isConnected) {
+      try {
+        final publications = await remoteDataSource.getPredictions(query);
+        return Right(
+          publications.map((model) => model.toEntity()).toList(),
+        );
+      } on ServerExeption {
+        return Left(ServerFailure());
+      } on ConnectionExeption {
+        return Left(NetworkFailure());
+      } catch (e) {
+        return Left(UnexpectedFailure());
+      }
+    } else {
+      return Left(NetworkFailure());
+    }
   }
 }

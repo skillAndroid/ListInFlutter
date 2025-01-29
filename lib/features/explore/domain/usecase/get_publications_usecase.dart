@@ -30,34 +30,10 @@ class GetPublicationsParams {
 }
 
 class GetPublicationsUsecase
-    extends UseCase2<List<GetPublicationEntity>, GetPublicationsParams> {
-  final PublicationsRepository repository;
-
-  GetPublicationsUsecase(this.repository);
-
-  @override
-  Future<Either<Failure, List<GetPublicationEntity>>> call(
-      {GetPublicationsParams? params}) {
-    return repository.getPublications(
-      query: params?.query,
-      page: params?.page,
-      size: params?.size,
-      bargain: params?.bargain,
-      condition: params?.condition,
-      priceFrom: params?.priceFrom,
-      priceTo: params?.priceTo,
-      categoryId: params?.categoryId,
-      subcategoryId: params?.subcategoryId,
-      filters: params?.filters,
-    );
-  }
-}
-
-class GetPublicationsUsecase2
     extends UseCase2<List<PublicationPairEntity>, GetPublicationsParams> {
   final PublicationsRepository repository;
 
-  GetPublicationsUsecase2(this.repository);
+  GetPublicationsUsecase(this.repository);
 
   @override
   Future<Either<Failure, List<PublicationPairEntity>>> call(

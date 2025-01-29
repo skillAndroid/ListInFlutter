@@ -2,20 +2,11 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:list_in/core/error/exeptions.dart';
 import 'package:list_in/core/services/auth_service.dart';
+import 'package:list_in/features/explore/data/models/prediction_model.dart';
 import 'package:list_in/features/explore/data/models/publication_model.dart';
 
 abstract class PublicationsRemoteDataSource {
-  Future<List<GetPublicationModel>> getPublications({
-    String? query,
-    int? page,
-    int? size,
-    bool? bargain,
-    String? condition,
-    double? priceFrom,
-    double? priceTo,
-  });
-
-  Future<List<GetPublicationModel>> getPublicationsFiltered({
+  Future<List<PublicationPairModel>> getPublications({
     String? categoryId,
     String? subcategoryId,
     String? query,
@@ -28,18 +19,7 @@ abstract class PublicationsRemoteDataSource {
     List<String>? filters,
   });
 
-  Future<List<PublicationPairModel>> getPublicationsFiltered2({
-    String? categoryId,
-    String? subcategoryId,
-    String? query,
-    int? page,
-    int? size,
-    bool? bargain,
-    String? condition,
-    double? priceFrom,
-    double? priceTo,
-    List<String>? filters,
-  });
+  Future<List<PredictionModel>> getPredictions(String? query);
 }
 
 class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
@@ -52,67 +32,7 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
   });
 
   @override
-  Future<List<GetPublicationModel>> getPublications({
-    String? query,
-    int? page,
-    int? size,
-    bool? bargain,
-    String? condition,
-    double? priceFrom,
-    double? priceTo,
-  }) async {
-    try {
-      final options = await authService.getAuthOptions();
-
-      final queryParams = {
-        'query': query ?? '',
-        if (page != null) 'page': page.toString(),
-        if (size != null) 'size': size.toString(),
-        if (bargain != null) 'bargain': bargain.toString(),
-        if (condition != null) 'condition': condition,
-        if (priceFrom != null) 'from': priceFrom.toString(),
-        if (priceTo != null) 'to': priceTo.toString(),
-      };
-
-      final response = await dio.get(
-        '/api/v1/publications/search/all',
-        queryParameters: queryParams,
-        options: options,
-      );
-
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> jsonResponse = response.data;
-        final List<dynamic> content = jsonResponse['content'];
-        return content
-            .map((item) => GetPublicationModel.fromJson(item))
-            .toList();
-      } else if (response.statusCode == 404) {
-        throw NotFoundExeption();
-      } else if (response.statusCode == 401) {
-        throw UnauthorizedException('Unauthorized access');
-      } else if (response.statusCode! >= 500) {
-        throw ServerExeption(message: 'Server error occurred');
-      } else {
-        throw BadResponse(
-            message: 'Unexpected response: ${response.statusCode}');
-      }
-    } on DioException catch (e) {
-      if (e.type == DioExceptionType.connectionTimeout ||
-          e.type == DioExceptionType.receiveTimeout ||
-          e.type == DioExceptionType.sendTimeout) {
-        throw ConnectiontTimeOutExeption();
-      } else if (e.type == DioExceptionType.connectionError) {
-        throw ConnectionExeption(message: 'No internet connection');
-      } else {
-        throw ServerExeption(message: e.message ?? 'Server error occurred');
-      }
-    } catch (e) {
-      throw UknownExeption();
-    }
-  }
-
-  @override
-  Future<List<GetPublicationModel>> getPublicationsFiltered({
+  Future<List<PublicationPairModel>> getPublications({
     String? categoryId,
     String? subcategoryId,
     String? query,
@@ -122,12 +42,11 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
     String? condition,
     double? priceFrom,
     double? priceTo,
-    List<String>? filters,
+    List? filters,
   }) async {
     try {
       final options = await authService.getAuthOptions();
-
-      final queryParams = <String, dynamic>{
+      final queryParams = {
         'query': query ?? '',
         if (page != null) 'page': page.toString(),
         if (size != null) 'size': size.toString(),
@@ -138,11 +57,17 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
         if (filters != null && filters.isNotEmpty) 'filter': filters,
       };
 
-      String url = '/api/v1/publications/search/all';
-      if (categoryId != null) {
-        url += '/$categoryId';
+      String url = '/api/v1/publications';
+
+      // Если query не null, используем путь '/search/all/'
+      if (query != null && query.isNotEmpty) {
+        url += '/search/all';
+      } else if (categoryId != null) {
+        // Иначе формируем путь в зависимости от categoryId и subcategoryId
         if (subcategoryId != null) {
-          url += '/$subcategoryId';
+          url += '/search/all/$categoryId/$subcategoryId';
+        } else {
+          url += '/p/$categoryId';
         }
       }
 
@@ -152,92 +77,47 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
         options: options,
       );
 
-      return _handleResponse(response);
+      final paginatedResponse = (response.data as List)
+          .map((item) => PublicationPairModel.fromJson(item))
+          .toList();
+
+      debugPrint("😇😇Success");
+      return paginatedResponse;
     } on DioException catch (e) {
+      debugPrint("😇😇Exeption in fetching data remout DIO EXCEPTION $e");
       throw _handleDioException(e);
     } catch (e) {
+      debugPrint("😇😇Exeption in fetching data remout $e");
       throw UknownExeption();
     }
   }
 
   @override
-Future<List<PublicationPairModel>> getPublicationsFiltered2({
-  String? categoryId,
-  String? subcategoryId,
-  String? query,
-  int? page,
-  int? size,
-  bool? bargain,
-  String? condition,
-  double? priceFrom,
-  double? priceTo,
-  List? filters,
-}) async {
-  try {
-    final options = await authService.getAuthOptions();
-    final queryParams = {
-      'query': query ?? '',
-      if (page != null) 'page': page.toString(),
-      if (size != null) 'size': size.toString(),
-      if (bargain != null) 'bargain': bargain.toString(),
-      if (condition != null) 'condition': condition,
-      if (priceFrom != null) 'from': priceFrom.toString(),
-      if (priceTo != null) 'to': priceTo.toString(),
-      if (filters != null && filters.isNotEmpty) 'filter': filters,
-    };
+  Future<List<PredictionModel>> getPredictions(String? query) async {
+    try {
+      final options = await authService.getAuthOptions();
+      final queryParams = {
+        'query': query ?? '',
+      };
 
-    String url = '/api/v1/publications';
+      String url = '/api/v1/publications/search/input-predict';
+      final response = await dio.get(
+        url,
+        queryParameters: queryParams,
+        options: options,
+      );
+      final paginatedResponse = (response.data as List)
+          .map((item) => PredictionModel.fromJson(item))
+          .toList();
 
-    // Если query не null, используем путь '/search/all/'
-    if (query != null && query.isNotEmpty) {
-      url += '/search/all';
-    } else if (categoryId != null) {
-      // Иначе формируем путь в зависимости от categoryId и subcategoryId
-      if (subcategoryId != null) {
-        url += '/search/all/$categoryId/$subcategoryId';
-      } else {
-        url += '/p/$categoryId';
-      }
-    }
-
-    final response = await dio.get(
-      url,
-      queryParameters: queryParams,
-      options: options,
-    );
-
-    final paginatedResponse = (response.data as List)
-        .map((item) => PublicationPairModel.fromJson(item))
-        .toList();
-
-    debugPrint("😇😇Success");
-    return paginatedResponse;
-  } on DioException catch (e) {
-    debugPrint("😇😇Exeption in fetching data remout DIO EXCEPTION $e");
-    throw _handleDioException(e);
-  } catch (e) {
-    debugPrint("😇😇Exeption in fetching data remout $e");
-    throw UknownExeption();
-  }
-}
-  List<GetPublicationModel> _handleResponse(Response response) {
-    switch (response.statusCode) {
-      case 200:
-        final jsonResponse = response.data as Map<String, dynamic>;
-        final content = jsonResponse['content'] as List<dynamic>;
-        return content
-            .map((item) => GetPublicationModel.fromJson(item))
-            .toList();
-      case 404:
-        throw NotFoundExeption();
-      case 401:
-        throw UnauthorizedException('Unauthorized access');
-      case 500:
-        throw ServerExeption(message: 'Server error occurred');
-      default:
-        throw BadRequestExeption(
-          message: 'Unexpected response: ${response.statusCode}',
-        );
+      debugPrint("😇😇Success");
+      return paginatedResponse;
+    } on DioException catch (e) {
+      debugPrint("😇😇Exeption in fetching data remout DIO EXCEPTION $e");
+      throw _handleDioException(e);
+    } catch (e) {
+      debugPrint("😇😇Exeption in fetching data remout $e");
+      throw UknownExeption();
     }
   }
 

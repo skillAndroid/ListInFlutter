@@ -5,7 +5,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/core/error/failure.dart';
 import 'package:list_in/core/usecases/usecases.dart';
-import 'package:list_in/features/explore/domain/get_publications_usecase.dart';
+import 'package:list_in/features/explore/domain/usecase/get_prediction_usecase.dart';
+import 'package:list_in/features/explore/domain/usecase/get_publications_usecase.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/post/data/models/attribute_model.dart';
 import 'package:list_in/features/post/data/models/attribute_value_model.dart';
@@ -17,13 +18,13 @@ import 'package:list_in/features/post/domain/usecases/get_catalogs_usecase.dart'
 class HomeTreeCubit extends Cubit<HomeTreeState> {
   final GetGategoriesUsecase getCatalogsUseCase;
   final GetPublicationsUsecase getPublicationsUseCase;
-  final GetPublicationsUsecase2 getPublicationsUseCase2;
+  final GetPredictionsUseCase getPredictionsUseCase;
   static const int pageSize = 20;
   Timer? _debounceTimer;
   HomeTreeCubit({
     required this.getCatalogsUseCase,
     required this.getPublicationsUseCase,
-    required this.getPublicationsUseCase2,
+    required this.getPredictionsUseCase,
   }) : super(HomeTreeState());
 
   void updateSearchText(String? text) {
@@ -87,7 +88,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     }
 
     try {
-      final result = await getPublicationsUseCase2(
+      final result = await getPublicationsUseCase(
         params: GetPublicationsParams(
           query: state.searchText,
           page: pageKey,
@@ -188,7 +189,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     }
 
     try {
-      final result = await getPublicationsUseCase2(
+      final result = await getPublicationsUseCase(
         params: GetPublicationsParams(
           query: state.searchText,
           page: pageKey,
@@ -259,7 +260,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     try {
       debugPrint("🐁🐁${state.selectedCatalog}");
       debugPrint("🐁🐁${state.selectedCatalog?.id}");
-      final result = await getPublicationsUseCase2(
+      final result = await getPublicationsUseCase(
         params: GetPublicationsParams(
           query: state.searchText,
           page: pageKey,
@@ -328,7 +329,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     }
 
     try {
-      final result = await getPublicationsUseCase2(
+      final result = await getPublicationsUseCase(
         params: GetPublicationsParams(
           query: state.searchText,
           page: pageKey,
@@ -387,23 +388,13 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     }
   }
 
-  void clearPriceRange2() {
-    emit(state.copyWith(
-      priceFrom: null,
-      priceTo: null,
-    ));
-  }
-
   void clearPriceRange() {
     emit(state.copyWith(
       priceFrom: null,
       priceTo: null,
     ));
-    if (state.searchText != null) {
-      searchPage(0);
-    } else {
-      fetchChildPage(0);
-    }
+
+    fetchChildPage(0);
   }
 
   // publications get border ************************************
@@ -767,15 +758,6 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     } else {
       fetchChildPage(0);
     }
-  }
-
-  void clearAllSelectedAttributes2() {
-    emit(state.copyWith(
-      selectedValues: {},
-      selectedAttributeValues: {},
-      dynamicAttributes: [],
-      attributeOptionsVisibility: {},
-    ));
   }
 
   void clearAllSelectedAttributes() {

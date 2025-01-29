@@ -107,11 +107,12 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
   late final ChildScrollState _scrollState;
   late final ChildPagingState _pagingState;
 
-  static const double _videoVisibilityThreshold = 1;
+  static const double _videoVisibilityThreshold = 0.7;
 
   @override
   void initState() {
     super.initState();
+    _fetchInitialData();
     _initializeStates();
     _setupListeners();
   }
@@ -244,6 +245,10 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
     }
 
     _updatePagingControllerItems(state);
+  }
+
+  void _fetchInitialData() {
+    context.read<HomeTreeCubit>().fetchCatalogs();
   }
 
   void _updatePagingControllerItems(HomeTreeState state) {

@@ -6,11 +6,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
+import 'package:list_in/features/post/data/models/category_model.dart';
 import 'package:list_in/features/post/data/models/child_category_model.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class SubcategoryCard extends StatefulWidget {
   final ChildCategoryModel category;
+  final CategoryModel categoryM;
   final int categoryIndex;
   final int itemIndex;
 
@@ -19,6 +21,7 @@ class SubcategoryCard extends StatefulWidget {
     required this.category,
     required this.categoryIndex,
     required this.itemIndex,
+    required this.categoryM,
   });
 
   @override
@@ -55,7 +58,10 @@ class _SubcategoryCardState extends State<SubcategoryCard>
       child: GestureDetector(
         onTap: () {
           context.read<HomeTreeCubit>().selectChildCategory(widget.category);
-          context.goNamed(RoutesByName.attributes);
+          context.goNamed(RoutesByName.attributes, extra: {
+            'category': widget.categoryM,
+            'childCategory': widget.category,
+          });
         },
         onTapDown: (_) {
           setState(() => _isPressed = true);
@@ -94,11 +100,10 @@ class _SubcategoryCardState extends State<SubcategoryCard>
                       width: 54,
                       height: 54,
                       child: Padding(
-                        padding: EdgeInsets.all(
-                            ((widget.itemIndex != 7 ) &&
-                                    widget.categoryIndex == 1)
-                                ? 0
-                                : 5),
+                        padding: EdgeInsets.all(((widget.itemIndex != 7) &&
+                                widget.categoryIndex == 1)
+                            ? 0
+                            : 5),
                         child: SmoothClipRRect(
                           borderRadius: BorderRadius.circular(10),
                           child: CachedNetworkImage(

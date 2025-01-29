@@ -574,9 +574,7 @@ void main() async {
           BlocProvider<MapBloc>(
             create: (_) => di.sl<MapBloc>(),
           ),
-          BlocProvider<HomeTreeCubit>(
-            create: (_) => di.sl<HomeTreeCubit>(),
-          ),
+          
           BlocProvider<UserProfileBloc>(
             create: (_) => di.sl<UserProfileBloc>(),
           ),

@@ -30,6 +30,7 @@ class TopAppRecomendationSubCategory extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               SubcategoriesList(
+                categoryModel: state.selectedCatalog!,
                 subcategories: state.selectedCatalog!.childCategories,
                 title: state.selectedCatalog!.name,
                 categoryIndex: selectedCatalogIndex != -1 ? selectedCatalogIndex : 0,
