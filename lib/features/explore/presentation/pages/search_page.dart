@@ -23,6 +23,58 @@ class _SearchPageState extends State<SearchPage> {
     context.read<HomeTreeCubit>().clearSearchText();
   }
 
+  void _fetchInitialData() {
+    context.read<HomeTreeCubit>().fetchCatalogs();
+  }
+
+  Widget _buildPredictionsList() {
+    return BlocBuilder<HomeTreeCubit, HomeTreeState>(
+      builder: (context, state) {
+        if (state.predictionsRequestState == RequestState.inProgress) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(16.0),
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        if (state.predictions.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        return Expanded(
+          child: ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: state.predictions.length,
+            separatorBuilder: (context, index) => const Divider(),
+            itemBuilder: (context, index) {
+              final prediction = state.predictions[index];
+              return ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(prediction.name ?? ''),
+                subtitle: Text(prediction.categoryId ?? ''),
+                onTap: () {
+                  _searchController.text = prediction.name ?? '';
+                  _searchController.selection = TextSelection.fromPosition(
+                    TextPosition(offset: _searchController.text.length),
+                  );
+
+                  // Handle the prediction selection and navigation
+                  context
+                      .read<HomeTreeCubit>()
+                      .handlePredictionSelection(prediction, context);
+
+                  FocusScope.of(context).unfocus();
+                },
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
   final TextEditingController _searchController = TextEditingController();
   @override
   Widget build(BuildContext context) {
@@ -36,6 +88,7 @@ class _SearchPageState extends State<SearchPage> {
         builder: (context, state) {
           return Scaffold(
             appBar: _buildAppBar(state),
+            body: _buildPredictionsList(),
           );
         },
       ),
@@ -45,6 +98,7 @@ class _SearchPageState extends State<SearchPage> {
   @override
   void initState() {
     super.initState();
+    _fetchInitialData();
     final currentSearchText = context.read<HomeTreeCubit>().state.searchText;
     if (currentSearchText != null) {
       _searchController.text = currentSearchText;
@@ -116,13 +170,14 @@ class _SearchPageState extends State<SearchPage> {
                                       cursorRadius: const Radius.circular(2),
                                       textInputAction: TextInputAction.search,
                                       onChanged: (value) {
-                                        context
-                                            .read<HomeTreeCubit>()
-                                            .updateSearchText(value);
+                                        context.read<HomeTreeCubit>()
+                                          ..updateSearchText(value)
+                                          ..getPredictions();
                                       },
                                       onSubmitted: (value) async {
                                         if (value.isNotEmpty) {
-                                          context.replaceNamed(RoutesByName.searchResult);
+                                          context.replaceNamed(
+                                              RoutesByName.searchResult);
                                         }
                                       },
                                       decoration: const InputDecoration(

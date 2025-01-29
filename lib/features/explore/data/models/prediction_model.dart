@@ -15,7 +15,7 @@ class PredictionModel {
     return PredictionModel(
       categoryId: json["parentCategoryId"],
       childCategoryId: json["categoryId"],
-      name: "model",
+      name: json["model"],
     );
   }
 

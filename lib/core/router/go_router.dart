@@ -182,28 +182,17 @@ class AppRouter {
                     name: RoutesByName.subcategories,
                     path: Routes.subcategories,
                     builder: (context, state) {
-                      // Safely handle the category from extra
-                      final categoryExtra = state.extra;
-                      if (categoryExtra == null ||
-                          categoryExtra is! Map ||
-                          !categoryExtra.containsKey('category')) {
-                        return const Scaffold(
-                          body: Center(
-                            child:
-                                Text('Error: Category information is missing'),
-                          ),
-                        );
-                      }
-                      final CategoryModel? category =
-                          categoryExtra['category'] as CategoryModel?;
+                      final extraData = state.extra as Map<String, dynamic>;
+                      final category = extraData['category'] as CategoryModel?;
+                      final searchText = extraData['searchText'] as String?;
+
                       if (category == null) {
-                        // Handle null category specifically
                         return const Scaffold(
                           body: Center(
-                            child: Text('Error: Invalid category data'),
-                          ),
+                              child: Text('Error: Invalid category data')),
                         );
                       }
+
                       return BlocProvider(
                         create: (_) {
                           final cubit = HomeTreeCubit(
@@ -212,6 +201,9 @@ class AppRouter {
                             getPredictionsUseCase: getPredictionsUseCase,
                           );
                           cubit.selectCatalog(category);
+                          if (searchText != null) {
+                            cubit.updateSearchText(searchText);
+                          }
                           return cubit;
                         },
                         child: ChildHomeTreePage(
@@ -226,28 +218,21 @@ class AppRouter {
                           name: RoutesByName.attributes,
                           path: Routes.attributes,
                           builder: (context, state) {
-                            final extraData = state.extra;
-                            if (extraData == null || extraData is! Map) {
-                              return const Scaffold(
-                                body: Center(
-                                  child: Text(
-                                      'Error: Category information is missing'),
-                                ),
-                              );
-                            }
-
-                            final CategoryModel? parentCategory =
+                            final extraData =
+                                state.extra as Map<String, dynamic>;
+                            final parentCategory =
                                 extraData['category'] as CategoryModel?;
-                            final ChildCategoryModel? childCategory =
-                                extraData['childCategory']
-                                    as ChildCategoryModel?;
+                            final childCategory = extraData['childCategory']
+                                as ChildCategoryModel?;
+                            final searchText =
+                                extraData['searchText'] as String?;
 
                             if (parentCategory == null ||
                                 childCategory == null) {
                               return const Scaffold(
                                 body: Center(
-                                  child: Text('Error: Invalid category data'),
-                                ),
+                                    child:
+                                        Text('Error: Invalid category data')),
                               );
                             }
 
@@ -259,10 +244,12 @@ class AppRouter {
                                       getPublicationsUsecase,
                                   getPredictionsUseCase: getPredictionsUseCase,
                                 );
-                                // Set both parent and child categories
-                                cubit.selectCatalog(parentCategory);
-                                cubit.selectChildCategory(
-                                    childCategory); // Assuming you have this method
+                                cubit
+                                  ..selectCatalog(parentCategory)
+                                  ..selectChildCategory(childCategory);
+                                if (searchText != null) {
+                                  cubit.updateSearchText(searchText);
+                                }
                                 return cubit;
                               },
                               child: DetailedHomeTreePage(

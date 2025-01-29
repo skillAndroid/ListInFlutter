@@ -1,3 +1,4 @@
+import 'package:list_in/features/explore/domain/enties/prediction_entity.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/post/data/models/attribute_model.dart';
 import 'package:list_in/features/post/data/models/attribute_value_model.dart';
@@ -74,6 +75,10 @@ class HomeTreeState {
   final bool secondaryHasReachedMax;
   final int secondaryCurrentPage;
 
+  final List<PredictionEntity> predictions;
+  final RequestState predictionsRequestState;
+  final String? errorPredictionsFetch;
+
   HomeTreeState({
     this.searchRequestState = RequestState.idle,
     this.searchPublicationsRequestState = RequestState.idle,
@@ -125,6 +130,9 @@ class HomeTreeState {
     this.secondaryHasReachedMax = false,
     this.secondaryCurrentPage = 0,
     this.secondaryIsPublicationsLoading = false,
+    this.predictions = const [],
+    this.predictionsRequestState = RequestState.idle,
+    this.errorPredictionsFetch,
   })  : currentAttributes = currentAttributes ?? [],
         dynamicAttributes = dynamicAttributes ?? [],
         selectedValues = selectedValues ?? {},
@@ -191,7 +199,10 @@ class HomeTreeState {
     int? secondaryCurrentPage,
     int? childCurrentPage,
     String? searchText,
-}) {
+    List<PredictionEntity>? predictions,
+    RequestState? predictionsRequestState,
+    String? errorPredictionsFetch,
+  }) {
     return HomeTreeState(
       searchRequestState: searchRequestState ?? this.searchRequestState,
       searchPublicationsRequestState:
@@ -226,8 +237,11 @@ class HomeTreeState {
       childCategoryDynamicAttributes:
           childCategoryDynamicAttributes ?? this.childCategoryDynamicAttributes,
       attributeRequests: attributeRequests ?? this.attributeRequests,
-      priceFrom: priceFrom == null ? null : (priceFrom.isNaN ? this.priceFrom : priceFrom),
-      priceTo: priceTo == null ? null : (priceTo.isNaN ? this.priceTo : priceTo),
+      priceFrom: priceFrom == null
+          ? null
+          : (priceFrom.isNaN ? this.priceFrom : priceFrom),
+      priceTo:
+          priceTo == null ? null : (priceTo.isNaN ? this.priceTo : priceTo),
       searchPublications: searchPublications ?? this.searchPublications,
       searchHasReachedMax: searchHasReachedMax ?? this.searchHasReachedMax,
       searchCurrentPage: searchCurrentPage ?? this.searchCurrentPage,
@@ -240,13 +254,15 @@ class HomeTreeState {
       secondaryHasReachedMax:
           secondaryHasReachedMax ?? this.secondaryHasReachedMax,
       secondaryCurrentPage: secondaryCurrentPage ?? this.secondaryCurrentPage,
-      childPublications:
-          childPublications ?? this.childPublications,
-      childHasReachedMax:
-          childHasReachedMax ?? this.childHasReachedMax,
+      childPublications: childPublications ?? this.childPublications,
+      childHasReachedMax: childHasReachedMax ?? this.childHasReachedMax,
       childCurrentPage: childCurrentPage ?? this.childCurrentPage,
+      predictions: predictions ?? this.predictions,
+      predictionsRequestState:
+          predictionsRequestState ?? this.predictionsRequestState,
+      errorPredictionsFetch: errorPredictionsFetch,
     );
-}
+  }
 
   List<AttributeModel> get orderedAttributes {
     if (dynamicAttributes.isEmpty) return currentAttributes;

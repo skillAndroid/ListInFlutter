@@ -2,9 +2,13 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:list_in/core/error/failure.dart';
+import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/core/usecases/usecases.dart';
+import 'package:list_in/features/explore/domain/enties/prediction_entity.dart';
 import 'package:list_in/features/explore/domain/usecase/get_prediction_usecase.dart';
 import 'package:list_in/features/explore/domain/usecase/get_publications_usecase.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
@@ -26,6 +30,97 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     required this.getPublicationsUseCase,
     required this.getPredictionsUseCase,
   }) : super(HomeTreeState());
+
+  Future<void> getPredictions() async {
+    // Cancel any previous timer
+    _debounceTimer?.cancel();
+
+    final query = state.searchText;
+
+    if (query == null || query.isEmpty) {
+      emit(state.copyWith(
+        predictions: [],
+        predictionsRequestState: RequestState.completed,
+      ));
+      return;
+    }
+
+    // Start a new timer
+    _debounceTimer = Timer(const Duration(milliseconds: 100), () async {
+      emit(state.copyWith(
+        predictionsRequestState: RequestState.inProgress,
+      ));
+
+      final result = await getPredictionsUseCase(
+        params: GetPredictionParams(query: query),
+      );
+
+      result.fold(
+        (failure) => emit(state.copyWith(
+          predictionsRequestState: RequestState.error,
+          errorPredictionsFetch: _mapFailureToMessage(failure),
+        )),
+        (predictions) => emit(state.copyWith(
+          predictions: predictions,
+          predictionsRequestState: RequestState.completed,
+        )),
+      );
+    });
+  }
+
+  Future<void> handlePredictionSelection(
+    PredictionEntity prediction,
+    BuildContext context,
+  ) async {
+    // Update search text with prediction name
+    updateSearchText(prediction.name ?? '');
+
+    CategoryModel? selectedCategory;
+    ChildCategoryModel? selectedChildCategory;
+
+    // If we have a category ID, find the category
+    if (prediction.categoryId != null && state.catalogs != null) {
+      selectedCategory = state.catalogs!.firstWhere(
+        (category) => category.id == prediction.categoryId,
+        orElse: () => throw Exception('Category not found'),
+      );
+
+      // If we have a child category ID, find it within the selected category
+      if (prediction.childCategoryId != null) {
+        selectedChildCategory = selectedCategory.childCategories.firstWhere(
+          (child) => child.id == prediction.childCategoryId,
+          orElse: () => throw Exception('Child category not found'),
+        );
+      }
+    }
+
+    // Navigate based on what was found, passing necessary data
+    if (selectedChildCategory != null && selectedCategory != null) {
+      // Navigate to detailed page with both category and child category
+      context.pushReplacementNamed(
+        RoutesByName.attributes,
+        extra: {
+          'category': selectedCategory,
+          'childCategory': selectedChildCategory,
+          'searchText': prediction.name,
+        },
+      );
+    } else if (selectedCategory != null) {
+      // Navigate to subcategories with just category
+      context.pushReplacementNamed(
+        RoutesByName.post,
+        extra: {
+          'category': selectedCategory,
+          'searchText': prediction.name,
+        },
+      );
+    } else {
+      context.pushReplacementNamed(
+        RoutesByName.post,
+        extra: {'searchText': prediction.name},
+      );
+    }
+  }
 
   void updateSearchText(String? text) {
     // Cancel any previous timer
