@@ -3,6 +3,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -348,23 +349,55 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
 
   Widget _buildContentSection() {
     return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
       sliver: SliverToBoxAdapter(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Video Posts",
-              style: TextStyle(
-                  color: AppColors.black,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  fontFamily: "Poppins"),
+        child: SmoothClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            color: CupertinoColors.systemCyan.withOpacity(0.1),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(100),
+                        child: Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: AppColors.white,
+                          ),
+                          child: Center(
+                            child: Icon(
+                              Icons.play_arrow_rounded,
+                              size: 28,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 8,
+                      ),
+                      Text(
+                        "Video Posts",
+                        style: TextStyle(
+                            color: AppColors.darkBackground,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: "Poppins"),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 8),
+                VideoCarousel(items: widget.advertisedProducts),
+                SizedBox(height: 16),
+              ],
             ),
-            SizedBox(height: 8),
-            VideoCarousel(items: widget.advertisedProducts),
-            SizedBox(height: 16),
-          ],
+          ),
         ),
       ),
     );

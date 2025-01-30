@@ -473,7 +473,7 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
               state.selectedCatalog!.childCategories[index]);
           context.goNamed(RoutesByName.attributes, extra: {
             'category': state.selectedCatalog,
-            'childCategory': state.selectedChildCategory,
+            'childCategory': state.selectedCatalog?.childCategories[index],
           });
         },
         side: BorderSide(width: 1, color: AppColors.lightGray),

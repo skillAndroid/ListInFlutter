@@ -16,7 +16,7 @@ class SubcategoriesList extends StatefulWidget {
     super.key,
     required this.subcategories,
     required this.title,
-    required this.categoryIndex, 
+    required this.categoryIndex,
     required this.categoryModel, // New required parameter
   });
 
@@ -47,7 +47,7 @@ class _SubcategoriesListState extends State<SubcategoriesList> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.only(left: 16, bottom: 8),
+            padding: const EdgeInsets.only(left: 4, bottom: 4),
             child: Row(
               children: [
                 Text(
@@ -61,31 +61,29 @@ class _SubcategoriesListState extends State<SubcategoriesList> {
               ],
             ),
           ),
-          ...rows
-              .map((rowItems) => SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
-                      child: Row(
-                        children: rowItems
-                            .asMap()
-                            .entries
-                            .map((entry) => Padding(
-                                  padding: const EdgeInsets.only(right: 8),
-                                  child: SubcategoryCard(
-                                    categoryM: widget.categoryModel,
-                                    category: entry.value,
-                                    categoryIndex: widget.categoryIndex!,
-                                    itemIndex: entry.key +
-                                        (rows.indexOf(rowItems) * itemsPerRow),
-                                  ),
-                                ))
-                            .toList(),
-                      ),
-                    ),
-                  ))
-              ,
+          ...rows.map((rowItems) => SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  child: Row(
+                    children: rowItems
+                        .asMap()
+                        .entries
+                        .map((entry) => Padding(
+                              padding: const EdgeInsets.only(right: 2),
+                              child: SubcategoryCard(
+                                categoryM: widget.categoryModel,
+                                category: entry.value,
+                                categoryIndex: widget.categoryIndex!,
+                                itemIndex: entry.key +
+                                    (rows.indexOf(rowItems) * itemsPerRow),
+                              ),
+                            ))
+                        .toList(),
+                  ),
+                ),
+              )),
         ],
       ),
     );
