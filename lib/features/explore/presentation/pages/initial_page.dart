@@ -295,16 +295,16 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
           physics: const BouncingScrollPhysics(),
           slivers: [
             SliverToBoxAdapter(child: _buildCategories()),
-          //  if (_uiState.isSliverAppBarVisible)
-              SliverAppBar(
-                floating: true,
-                snap: false,
-                pinned: false,
-                automaticallyImplyLeading: false,
-                toolbarHeight: 50,
-                flexibleSpace: _buildFiltersBar(state),
-                backgroundColor: AppColors.bgColor,
-              ),
+            //  if (_uiState.isSliverAppBarVisible)
+            SliverAppBar(
+              floating: true,
+              snap: false,
+              pinned: false,
+              automaticallyImplyLeading: false,
+              toolbarHeight: 50,
+              flexibleSpace: _buildFiltersBar(state),
+              backgroundColor: AppColors.bgColor,
+            ),
             _buildContentSection(),
             _buildProductGrid(),
           ],
@@ -315,7 +315,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
 
   Widget _buildContentSection() {
     return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       sliver: SliverToBoxAdapter(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -323,10 +323,10 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
             Text(
               "Video Posts",
               style: TextStyle(
-                color: AppColors.black,
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-              ),
+                  color: AppColors.black,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: "Poppins"),
             ),
             SizedBox(height: 8),
             VideoCarousel(items: widget.advertisedProducts),
@@ -431,7 +431,8 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
         ),
         onSelected: (selected) {
           context.read<HomeTreeCubit>().selectCatalog(state.catalogs![index]);
-          context.goNamed(RoutesByName.subcategories);
+          context.goNamed(RoutesByName.subcategories,
+              extra: {'category': state.catalogs![index]});
         },
         side: BorderSide(width: 1, color: AppColors.lightGray),
       ),
@@ -636,4 +637,3 @@ class ErrorIndicator extends StatelessWidget {
     );
   }
 }
-

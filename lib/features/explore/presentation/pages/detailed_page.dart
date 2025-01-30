@@ -17,6 +17,7 @@ import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/explore/presentation/widgets/advertised_product_card.dart';
+import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
 import 'package:list_in/features/post/data/models/attribute_model.dart';
 import 'package:list_in/features/post/data/models/attribute_value_model.dart';
@@ -231,13 +232,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
 
   Widget _buildLoadingScreen() {
     return const Scaffold(
-      body: Center(
-        child: CircularProgressIndicator(
-          strokeWidth: 6,
-          color: AppColors.black,
-          strokeCap: StrokeCap.round,
-        ),
-      ),
+      body: Progress()
     );
   }
 
