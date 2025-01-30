@@ -159,6 +159,13 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     });
   }
 
+  void clearPrediction() {
+    emit(state.copyWith(
+      predictions: [],
+      predictionsRequestState: RequestState.idle,
+    ));
+  }
+
   Future<void> searchPage(int pageKey) async {
     if (state.searchPublicationsRequestState == RequestState.inProgress) {
       debugPrint(

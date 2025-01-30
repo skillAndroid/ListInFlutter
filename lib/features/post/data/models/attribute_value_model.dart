@@ -13,7 +13,7 @@ class AttributeValueModel {
   @HiveField(3)
   List<SubModel> list;
   @HiveField(4)
-  bool isMarkedForRemoval = false; // New property
+  bool isMarkedForRemoval = false; 
 
   AttributeValueModel({
     required this.attributeValueId,

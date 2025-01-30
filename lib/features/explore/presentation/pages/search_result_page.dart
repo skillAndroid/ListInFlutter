@@ -363,10 +363,10 @@ class _SearchResultPageState extends State<SearchResultPage> {
                           context.pushNamed(RoutesByName.search);
                         },
                         child: SmoothClipRRect(
-                          smoothness: 1,
-                          borderRadius: BorderRadius.circular(10),
+                          smoothness: 0.8,
+                          borderRadius: BorderRadius.circular(16),
                           child: Container(
-                            height: 48,
+                            height: 52,
                             decoration: BoxDecoration(
                               color: AppColors.containerColor,
                             ),

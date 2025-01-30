@@ -29,11 +29,11 @@ class HorizontalProfileProductCard extends StatelessWidget {
         : '';
 
     return Card(
-      color: AppColors.containerColor.withOpacity(0.5),
-      margin: EdgeInsets.symmetric(vertical: 5, horizontal: 4),
+      color: AppColors.white,
+      margin: EdgeInsets.symmetric(vertical: 3, horizontal: 4),
       elevation: 0,
-      //  shadowColor: Colors.black.withOpacity(0.5),
-      shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      shape: SmoothRectangleBorder(
+          borderRadius: BorderRadius.circular(14), smoothness: 0.8),
       child: SizedBox(
         height: 115,
         child: Row(
@@ -45,9 +45,11 @@ class HorizontalProfileProductCard extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(vertical: 3, horizontal: 3),
                     child: SmoothClipRRect(
-                      smoothness: 1,
+                      smoothness: 0.8,
                       borderRadius: BorderRadius.circular(14),
                       child: CachedNetworkImage(
+                        width: 100,
+                        height: 110,
                         imageUrl: displayImage,
                         fit: BoxFit.cover,
                         placeholder: (context, url) => Container(
@@ -58,13 +60,6 @@ class HorizontalProfileProductCard extends StatelessWidget {
                           color: Colors.grey[200],
                           child: const Icon(Icons.error),
                         ),
-                        fadeInDuration: const Duration(milliseconds: 100),
-                        fadeOutDuration: const Duration(milliseconds: 100),
-                        memCacheWidth:
-                            150, // Resize image in memory to reduce load
-                        memCacheHeight: 150,
-                        maxWidthDiskCache: 200, // Limit disk cache size
-                        maxHeightDiskCache: 200,
                       ),
                     ),
                   ),
@@ -997,7 +992,7 @@ class RemouteRegularProductCard3 extends StatelessWidget {
                         ),
                         fadeInDuration: const Duration(milliseconds: 100),
                         fadeOutDuration: const Duration(milliseconds: 100),
-                         filterQuality: FilterQuality.none,
+                        filterQuality: FilterQuality.none,
                       ),
                     ),
                   ),

@@ -95,7 +95,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                 return [
                   SliverAppBar(
                     floating: true,
-                    pinned: true,
+                    pinned: false,
                     snap: false,
                     elevation: 0,
                     scrolledUnderElevation: 0.3,
@@ -106,7 +106,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                         Text(
                           '${userData?.nickName ?? "User empty"} Store',
                           style: const TextStyle(
-                            color: Colors.black87,
+                            color: AppColors.black,
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
                           ),
@@ -114,14 +114,17 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                         SizedBox(
                           width: 4,
                         ),
-                        Icon(Icons.store),
+                        Icon(
+                          Icons.store,
+                          color: AppColors.primary,
+                        ),
                       ],
                     ),
                     actions: [
                       IconButton(
                         icon: const Icon(
                           Icons.info,
-                          color: Colors.black87,
+                          color: Colors.black,
                           size: 24,
                         ),
                         onPressed: () {},
@@ -182,7 +185,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                                             child: Container(
                                               width: 24,
                                               height: 24,
-                                              color: AppColors.black,
+                                              color: AppColors.blue,
                                               child: Center(
                                                 child: Icon(
                                                   size: 16,
@@ -501,7 +504,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
             CupertinoIcons.plus,
             'Create',
             AppColors.primaryLight,
-            AppColors.black,
+            AppColors.blue,
             onTap: () {
               // Handle create action
             },
@@ -584,7 +587,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                 side: BorderSide(
                     width: index == 0 ? 1.5 : 0,
                     color: index == 0
-                        ? AppColors.black.withOpacity(0.7)
+                        ? AppColors.blue.withOpacity(0.7)
                         : AppColors.transparent),
                 borderRadius: index != 0
                     ? BorderRadius.circular(24)
@@ -599,7 +602,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                 children: [
                   Icon(
                     icon,
-                    color: AppColors.black,
+                    color: AppColors.blue,
                     size: 24,
                   ),
                 ],

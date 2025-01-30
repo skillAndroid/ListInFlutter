@@ -44,33 +44,49 @@ class _SearchPageState extends State<SearchPage> {
         }
 
         return Expanded(
-          child: ListView.separated(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: state.predictions.length,
-            separatorBuilder: (context, index) => const Divider(),
-            itemBuilder: (context, index) {
-              final prediction = state.predictions[index];
-              return ListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(prediction.name ?? ''),
-                subtitle: Text(prediction.categoryId ?? ''),
-                onTap: () {
-                  _searchController.text = prediction.name ?? '';
-                  _searchController.selection = TextSelection.fromPosition(
-                    TextPosition(offset: _searchController.text.length),
-                  );
-
-                  // Handle the prediction selection and navigation
-                  context
-                      .read<HomeTreeCubit>()
-                      .handlePredictionSelection(prediction, context);
-
-                  FocusScope.of(context).unfocus();
-                },
-              );
-            },
-          ),
-        );
+            child: ListView.separated(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          itemCount: state.predictions.length,
+          separatorBuilder: (context, index) => Padding(
+            padding:
+                const EdgeInsets.only(top: 4), // Add some space above divider
+            child: Divider(
+              height: 1,
+              thickness: 1, // Make divider thicker
+              color: Colors.grey.withOpacity(0.2), // Subtle grey color
+            ),
+          ), // Make divider more compact
+          itemBuilder: (context, index) {
+            final prediction = state.predictions[index];
+            return ListTile(
+              contentPadding: EdgeInsets.zero,
+              visualDensity:
+                  VisualDensity(vertical: -4), // Reduce vertical padding
+              minLeadingWidth: 0, // Minimize leading width
+              title: Text(
+                prediction.name ?? '',
+                style: TextStyle(fontSize: 14), // Adjust font size if needed
+              ),
+              subtitle: Text(
+                'Мобильные телефоны', // Add subtitle as shown in image
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey,
+                ),
+              ),
+              onTap: () {
+                _searchController.text = prediction.name ?? '';
+                _searchController.selection = TextSelection.fromPosition(
+                  TextPosition(offset: _searchController.text.length),
+                );
+                context
+                    .read<HomeTreeCubit>()
+                    .handlePredictionSelection(prediction, context);
+                FocusScope.of(context).unfocus();
+              },
+            );
+          },
+        ));
       },
     );
   }
@@ -131,22 +147,12 @@ class _SearchPageState extends State<SearchPage> {
                 padding: const EdgeInsets.only(left: 16, right: 16),
                 child: Row(
                   children: [
-                    Transform.translate(
-                      offset: const Offset(-10, 0),
-                      child: IconButton(
-                        onPressed: () => context.pop(),
-                        icon: const Icon(
-                          Icons.arrow_back_rounded,
-                          color: AppColors.black,
-                        ),
-                      ),
-                    ),
                     Expanded(
                       child: SmoothClipRRect(
-                        smoothness: 1,
-                        borderRadius: BorderRadius.circular(10),
+                        smoothness: 0.8,
+                        borderRadius: BorderRadius.circular(16),
                         child: Container(
-                          height: 48,
+                          height: 52,
                           decoration: const BoxDecoration(
                             color: AppColors.containerColor,
                           ),
@@ -206,25 +212,37 @@ class _SearchPageState extends State<SearchPage> {
                                   ],
                                 ),
                               ),
-                              const VerticalDivider(
-                                color: AppColors.lightGray,
-                                width: 1,
-                                indent: 12,
-                                endIndent: 12,
-                              ),
                               const SizedBox(width: 2),
-                              IconButton(
-                                icon: Image.asset(
-                                  AppIcons.filterIc,
-                                  width: 24,
-                                  height: 24,
+                              if (state.searchText != null)
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.close_rounded,
+                                    size: 24,
+                                  ),
+                                  onPressed: () {
+                                    _searchController.clear();
+                                    context
+                                        .read<HomeTreeCubit>()
+                                        .clearSearchText();
+                                    context.read<HomeTreeCubit>();
+                                    context
+                                        .read<HomeTreeCubit>()
+                                        .clearPrediction();
+                                    context.read<HomeTreeCubit>();
+                                  },
                                 ),
-                                onPressed: () {},
-                              ),
                               const SizedBox(width: 2),
                             ],
                           ),
                         ),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () => context.pop(),
+                      child: const Text(
+                        'Cansel',
+                        style: TextStyle(
+                            fontFamily: "Poppins", color: Colors.blue),
                       ),
                     ),
                   ],
