@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
+import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
 import 'package:list_in/features/profile/domain/entity/user/user_data_entity.dart';
 import 'package:list_in/features/profile/domain/entity/user/user_profile_entity.dart';
@@ -72,16 +73,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
         if (state.status == UserProfileStatus.loading &&
             state.userData == null) {
           return Scaffold(
-            body: Center(
-              child: Transform.scale(
-                scale: 0.75,
-                child: CircularProgressIndicator(
-                  color: AppColors.black,
-                  strokeCap: StrokeCap.round,
-                  strokeWidth: 7.5,
-                ),
-              ),
-            ),
+            body: Progress()
           );
         }
         final userData = state.userData;
@@ -687,11 +679,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
             child: Center(
               child: Transform.scale(
                 scale: 0.75,
-                child: CircularProgressIndicator(
-                  strokeWidth: 6,
-                  color: AppColors.green,
-                  strokeCap: StrokeCap.round,
-                ),
+                child: Progress()
               ),
             ),
           );

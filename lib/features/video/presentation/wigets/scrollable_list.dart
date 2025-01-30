@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/domain/enties/advertised_product_entity.dart';
+import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:video_player/video_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -314,7 +315,7 @@ class _VideoCarouselState extends State<VideoCarousel> {
                           imageUrl: item.thumbnailUrl,
                           fit: BoxFit.cover,
                           placeholder: (context, url) => const Center(
-                            child: CircularProgressIndicator(),
+                            child: Progress(),
                           ),
                         ),
                         if (index == _currentIndex &&

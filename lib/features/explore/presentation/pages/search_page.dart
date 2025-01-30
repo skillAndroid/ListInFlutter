@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,6 +10,7 @@ import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
+import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class SearchPage extends StatefulWidget {
@@ -31,12 +33,7 @@ class _SearchPageState extends State<SearchPage> {
     return BlocBuilder<HomeTreeCubit, HomeTreeState>(
       builder: (context, state) {
         if (state.predictionsRequestState == RequestState.inProgress) {
-          return const Center(
-            child: Padding(
-              padding: EdgeInsets.all(16.0),
-              child: CircularProgressIndicator(),
-            ),
-          );
+          return const Progress();
         }
 
         if (state.predictions.isEmpty) {
@@ -175,7 +172,7 @@ class _SearchPageState extends State<SearchPage> {
                                   AppIcons.searchIcon,
                                   width: 24,
                                   height: 24,
-                                  color: AppColors.grey,
+                                  color: AppColors.black,
                                 ),
                               ),
                               Expanded(
@@ -206,27 +203,13 @@ class _SearchPageState extends State<SearchPage> {
                                         border: InputBorder.none,
                                       ),
                                     ),
-                                    if (state.searchPublicationsRequestState ==
-                                        RequestState.inProgress)
-                                      const Padding(
-                                        padding: EdgeInsets.only(right: 8.0),
-                                        child: SizedBox(
-                                          width: 20,
-                                          height: 20,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            valueColor:
-                                                AlwaysStoppedAnimation<Color>(
-                                                    AppColors.grey),
-                                          ),
-                                        ),
-                                      ),
                                   ],
                                 ),
                               ),
                               const SizedBox(width: 2),
                               if (state.searchText != null)
                                 IconButton(
+                                  color: AppColors.black,
                                   icon: Icon(
                                     Icons.close_rounded,
                                     size: 24,
