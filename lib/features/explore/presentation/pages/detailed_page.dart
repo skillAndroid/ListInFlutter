@@ -104,7 +104,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
   late final DetailedSearchBarState _searchState;
   late final DetailedScrollState _scrollState;
   late final DetailedPagingState _pagingState;
-  static const double _videoVisibilityThreshold = 1;
+  static const double _videoVisibilityThreshold = 0.9;
 
   @override
   void initState() {
@@ -231,9 +231,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
   }
 
   Widget _buildLoadingScreen() {
-    return const Scaffold(
-      body: Progress()
-    );
+    return const Scaffold(body: Progress());
   }
 
   Widget _buildErrorScreen(String error) {
@@ -259,6 +257,13 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
         return Scaffold(
           appBar: _buildAppBar(state),
           body: RefreshIndicator(
+            color: Colors.blue,
+            backgroundColor: AppColors.white,
+            elevation: 1,
+            strokeWidth: 3,
+            displacement: 40,
+            edgeOffset: 10,
+            triggerMode: RefreshIndicatorTriggerMode.anywhere,
             onRefresh: () =>
                 Future.sync(() => _pagingState.pagingController.refresh()),
             child: CustomScrollView(
@@ -586,6 +591,8 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
       sliver: PagedSliverList(
         pagingController: _pagingState.pagingController,
         builderDelegate: PagedChildBuilderDelegate(
+          firstPageProgressIndicatorBuilder: (_) => const Progress(),
+          newPageProgressIndicatorBuilder: (_) => const Progress(),
           itemBuilder: (context, item, index) {
             final currentItem = item as PublicationPairEntity;
             return Padding(
@@ -680,7 +687,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                 if (values.length >= 5) return 0.53;
                 return values.length * 0.12;
               }
-          
+
               return DraggableScrollableSheet(
                 initialChildSize: calculateInitialSize(attribute.values),
                 maxChildSize: attribute.values.length >= 20
@@ -723,9 +730,11 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                             ),
                             // Left and right buttons
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 4),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 4),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   IconButton(
                                     icon: const Icon(Icons.close_rounded),
@@ -755,8 +764,8 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                         ),
                                       ),
                                     )
-                                  else if (cubit
-                                          .getSelectedAttributeValue(attribute) !=
+                                  else if (cubit.getSelectedAttributeValue(
+                                          attribute) !=
                                       null)
                                     TextButton(
                                       onPressed: () {
@@ -1064,7 +1073,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                 if (values.length >= 5) return 0.5;
                 return values.length * 0.08;
               }
-          
+
               return DraggableScrollableSheet(
                 initialChildSize: calculateInitialSize(attribute.values),
                 maxChildSize: attribute.values.length >= 20
@@ -1106,9 +1115,11 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 4),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 4),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   IconButton(
                                     icon: const Icon(Ionicons.close),
@@ -1162,7 +1173,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                     [];
                             final isSelected = selections.contains(value);
                             final color = colorMap[value.value] ?? Colors.grey;
-          
+
                             return Material(
                               color: Colors.transparent,
                               child: InkWell(
@@ -1215,7 +1226,8 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                         width: 24,
                                         height: 24,
                                         decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(12),
+                                          borderRadius:
+                                              BorderRadius.circular(12),
                                           border: Border.all(
                                             color: isSelected
                                                 ? AppColors.primary
@@ -1253,7 +1265,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                               final selections =
                                   temporarySelections[attribute.attributeKey]
                                       as List<AttributeValueModel>;
-          
+
                               if (selections.isEmpty) {
                                 cubit.clearSelectedAttribute(attribute);
                               } else {

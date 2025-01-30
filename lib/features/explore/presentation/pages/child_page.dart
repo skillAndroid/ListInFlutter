@@ -1,6 +1,8 @@
 // ignore_for_file: deprecated_member_use, invalid_use_of_protected_member
 // catalog_list_screen.dart
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,6 +17,7 @@ import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/explore/presentation/widgets/advertised_product_card.dart';
+import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/explore/presentation/widgets/recomendation_widget.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/top_app_bar_recomendation_sub.dart';
@@ -69,12 +72,41 @@ class ChildSearchBarState {
 }
 
 class ChildScrollState {
+  // First, modify the ScrollState class to include a ValueNotifier:
+
   final scrollController = ScrollController();
+  // Using ValueNotifier<bool> for minimal state updates
+  final isAppBarVisible = ValueNotifier<bool>(false);
   static const double scrollThreshold = 800.0;
-  bool hasPassedThreshold = false;
+
+  // Add debouncing to prevent rapid consecutive updates
+  Timer? _scrollTimer;
+
+  void setupScrollListener() {
+    scrollController.addListener(_handleScroll);
+  }
+
+  void _handleScroll() {
+    // Cancel any pending timer
+    _scrollTimer?.cancel();
+
+    // Debounce the scroll updates
+    _scrollTimer = Timer(const Duration(milliseconds: 32), () {
+      final currentPosition = scrollController.position.pixels;
+      final shouldShowAppBar = currentPosition > scrollThreshold;
+
+      // Only update if the value actually changed
+      if (isAppBarVisible.value != shouldShowAppBar) {
+        isAppBarVisible.value = shouldShowAppBar;
+      }
+    });
+  }
 
   void dispose() {
+    _scrollTimer?.cancel();
+    scrollController.removeListener(_handleScroll);
     scrollController.dispose();
+    isAppBarVisible.dispose();
   }
 }
 
@@ -107,7 +139,7 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
   late final ChildScrollState _scrollState;
   late final ChildPagingState _pagingState;
 
-  static const double _videoVisibilityThreshold = 0.7;
+  static const double _videoVisibilityThreshold = 0.9;
 
   @override
   void initState() {
@@ -126,21 +158,8 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
   }
 
   void _setupListeners() {
-    _setupScrollListener();
+    _scrollState.setupScrollListener();
     _setupPagingListener();
-  }
-
-  void _setupScrollListener() {
-    _scrollState.scrollController.addListener(() {
-      final currentPosition = _scrollState.scrollController.position.pixels;
-      final shouldShowAppBar =
-          currentPosition > ChildScrollState.scrollThreshold;
-
-      if (_scrollState.hasPassedThreshold != shouldShowAppBar) {
-        _scrollState.hasPassedThreshold = shouldShowAppBar;
-        _uiState.isSliverAppBarVisible = shouldShowAppBar;
-      }
-    });
   }
 
   void _setupPagingListener() {
@@ -292,6 +311,13 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
       extendBody: true,
       appBar: _buildAppBar(state),
       body: RefreshIndicator(
+        color: Colors.blue,
+        backgroundColor: AppColors.white,
+        elevation: 1,
+        strokeWidth: 3,
+        displacement: 40,
+        edgeOffset: 10,
+        triggerMode: RefreshIndicatorTriggerMode.anywhere,
         onRefresh: () =>
             Future.sync(() => _pagingState.pagingController.refresh()),
         child: CustomScrollView(
@@ -299,16 +325,23 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
           physics: const BouncingScrollPhysics(),
           slivers: [
             SliverToBoxAdapter(child: _buildCategories()),
-            if (_uiState.isSliverAppBarVisible)
-              SliverAppBar(
-                floating: true,
-                snap: false,
-                pinned: false,
-                automaticallyImplyLeading: false,
-                toolbarHeight: 50,
-                flexibleSpace: _buildFiltersBar(state),
-                backgroundColor: AppColors.bgColor,
+            ValueListenableBuilder<bool>(
+              valueListenable: _scrollState.isAppBarVisible,
+              builder: (context, isVisible, child) => SliverVisibility(
+                visible: isVisible,
+                maintainState: true, // Keep the state when hidden
+                maintainAnimation: true,
+                sliver: SliverAppBar(
+                  floating: true,
+                  snap: false,
+                  pinned: false,
+                  automaticallyImplyLeading: false,
+                  toolbarHeight: 50,
+                  flexibleSpace: _buildFiltersBar(state),
+                  backgroundColor: AppColors.bgColor,
+                ),
               ),
+            ),
             _buildContentSection(),
             _buildProductGrid(),
           ],
@@ -347,6 +380,8 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
       sliver: PagedSliverList(
         pagingController: _pagingState.pagingController,
         builderDelegate: PagedChildBuilderDelegate(
+          firstPageProgressIndicatorBuilder: (_) => const Progress(),
+          newPageProgressIndicatorBuilder: (_) => const Progress(),
           itemBuilder: (context, item, index) {
             final currentItem = item as PublicationPairEntity;
             return Padding(
