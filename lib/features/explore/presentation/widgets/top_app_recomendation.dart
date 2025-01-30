@@ -19,12 +19,11 @@ class TopAppRecomendationCategory extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          CategoriesList(),
-          const SizedBox(height: 8),
-          const LocationBar(),
-          const SizedBox(height: 8),
+          const SizedBox(height: 2),
           RecommendationsRow(recommendations: recommendations),
-          const SizedBox(height: 12),
+          const SizedBox(height: 2),
+          CategoriesList(),
+          const LocationBar(),
         ],
       ),
     );

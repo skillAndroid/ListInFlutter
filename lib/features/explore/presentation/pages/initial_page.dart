@@ -295,7 +295,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
           physics: const BouncingScrollPhysics(),
           slivers: [
             SliverToBoxAdapter(child: _buildCategories()),
-            if (_uiState.isSliverAppBarVisible)
+          //  if (_uiState.isSliverAppBarVisible)
               SliverAppBar(
                 floating: true,
                 snap: false,
@@ -331,21 +331,6 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
             SizedBox(height: 8),
             VideoCarousel(items: widget.advertisedProducts),
             SizedBox(height: 16),
-            // SizedBox(height: 8),
-            // Row(
-            //   children: [
-            //     Text(
-            //       "Recomended",
-            //       style: TextStyle(
-            //         color: AppColors.black,
-            //         fontSize: 20,
-            //         fontWeight: FontWeight.w600,
-            //       ),
-            //     ),
-
-            //   ],
-            // ),
-            // SizedBox(height: 8),
           ],
         ),
       ),
@@ -651,3 +636,4 @@ class ErrorIndicator extends StatelessWidget {
     );
   }
 }
+

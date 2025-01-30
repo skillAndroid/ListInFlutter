@@ -224,8 +224,14 @@ class AppRouter {
                                 extraData['category'] as CategoryModel?;
                             final childCategory = extraData['childCategory']
                                 as ChildCategoryModel?;
-                            final searchText =
-                                extraData['searchText'] as String?;
+                            final parentAttributeKeyId =
+                                extraData['parentAttributeKeyId'] as String?;
+                            final parentAttributeValueId =
+                                extraData['parentAttributeValueId'] as String?;
+                            final childAttributeKeyId =
+                                extraData['childAttributeKeyId'] as String?;
+                            final childAttributeValueId =
+                                extraData['childAttributeValueId'] as String?;
 
                             if (parentCategory == null ||
                                 childCategory == null) {
@@ -244,11 +250,25 @@ class AppRouter {
                                       getPublicationsUsecase,
                                   getPredictionsUseCase: getPredictionsUseCase,
                                 );
+
                                 cubit
                                   ..selectCatalog(parentCategory)
                                   ..selectChildCategory(childCategory);
-                                if (searchText != null) {
-                                  cubit.updateSearchText(searchText);
+
+                                if (parentAttributeKeyId != null &&
+                                    parentAttributeValueId != null) {
+                                  cubit.selectAttributeById(
+                                    parentAttributeKeyId,
+                                    parentAttributeValueId,
+                                  );
+                                }
+
+                                if (childAttributeKeyId != null &&
+                                    childAttributeValueId != null) {
+                                  cubit.selectAttributeById(
+                                    childAttributeKeyId,
+                                    childAttributeValueId,
+                                  );
                                 }
                                 return cubit;
                               },

@@ -45,7 +45,7 @@ class _SearchPageState extends State<SearchPage> {
 
         return Expanded(
             child: ListView.separated(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           itemCount: state.predictions.length,
           separatorBuilder: (context, index) => Padding(
             padding:
@@ -53,29 +53,32 @@ class _SearchPageState extends State<SearchPage> {
             child: Divider(
               height: 1,
               thickness: 1, // Make divider thicker
-              color: Colors.grey.withOpacity(0.2), // Subtle grey color
+              color: AppColors.containerColor, // Subtle grey color
             ),
           ), // Make divider more compact
           itemBuilder: (context, index) {
             final prediction = state.predictions[index];
             return ListTile(
               contentPadding: EdgeInsets.zero,
+              trailing: const Icon(Icons.arrow_forward_ios_rounded,
+                  size: 16, color: Colors.black),
               visualDensity:
                   VisualDensity(vertical: -4), // Reduce vertical padding
               minLeadingWidth: 0, // Minimize leading width
               title: Text(
-                prediction.name ?? '',
+                prediction.childAttributeValue ?? '',
                 style: TextStyle(fontSize: 14), // Adjust font size if needed
               ),
               subtitle: Text(
-                'Мобильные телефоны', // Add subtitle as shown in image
+                state.predictions[index].categoryName
+                    .toString(), // Add subtitle as shown in image
                 style: TextStyle(
                   fontSize: 12,
-                  color: Colors.grey,
+                  color: Colors.blue,
                 ),
               ),
               onTap: () {
-                _searchController.text = prediction.name ?? '';
+                _searchController.text = prediction.childAttributeValue ?? '';
                 _searchController.selection = TextSelection.fromPosition(
                   TextPosition(offset: _searchController.text.length),
                 );
@@ -92,6 +95,7 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -103,6 +107,7 @@ class _SearchPageState extends State<SearchPage> {
         listener: (context, state) {},
         builder: (context, state) {
           return Scaffold(
+            backgroundColor: AppColors.white,
             appBar: _buildAppBar(state),
             body: _buildPredictionsList(),
           );
@@ -115,6 +120,11 @@ class _SearchPageState extends State<SearchPage> {
   void initState() {
     super.initState();
     _fetchInitialData();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(Duration(milliseconds: 50), () {
+        _searchFocusNode.requestFocus();
+      });
+    });
     final currentSearchText = context.read<HomeTreeCubit>().state.searchText;
     if (currentSearchText != null) {
       _searchController.text = currentSearchText;
@@ -124,6 +134,7 @@ class _SearchPageState extends State<SearchPage> {
   @override
   void dispose() {
     _searchController.dispose();
+    _searchFocusNode.dispose();
     super.dispose();
   }
 
@@ -172,6 +183,7 @@ class _SearchPageState extends State<SearchPage> {
                                   alignment: Alignment.centerRight,
                                   children: [
                                     TextField(
+                                      focusNode: _searchFocusNode,
                                       controller: _searchController,
                                       cursorRadius: const Radius.circular(2),
                                       textInputAction: TextInputAction.search,

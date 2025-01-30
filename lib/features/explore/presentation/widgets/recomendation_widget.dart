@@ -42,44 +42,36 @@ class RecommendationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4), // Add bottom padding here
-      child: SmoothClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: AppColors.containerColor,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SmoothClipRRect(
-                borderRadius: BorderRadius.circular(6),
-                child: Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: item.color.withOpacity(0.1),
-                  ),
-                  child: Icon(
-                    item.icon,
-                    size: 16,
-                    color: item.color,
-                  ),
-                ),
+      padding:
+          const EdgeInsets.only(bottom: 4, right: 8), // Add bottom padding here
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SmoothClipRRect(
+            borderRadius: BorderRadius.circular(6),
+            child: Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: item.color.withOpacity(0.1),
               ),
-              const SizedBox(width: 8),
-              Text(
-                item.title,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.black,
-                  fontFamily: 'SF Pro Text',
-                ),
+              child: Icon(
+                item.icon,
+                size: 16,
+                color: item.color,
               ),
-            ],
+            ),
           ),
-        ),
+          const SizedBox(width: 8),
+          Text(
+            item.title,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: AppColors.black,
+              fontFamily: 'Poppins',
+            ),
+          ),
+        ],
       ),
     );
   }

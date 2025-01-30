@@ -9,7 +9,7 @@ class LocationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -63,29 +63,48 @@ class LocationBar extends StatelessWidget {
               ),
             ],
           ),
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: AppColors.containerColor,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.edit_location_alt_rounded,
-                  color: AppColors.black,
-                  size: 20,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  'Change',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: AppColors.black,
-                    fontWeight: FontWeight.w500,
+          IntrinsicWidth(
+            // Added this to ensure proper width calculation
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisSize:
+                        MainAxisSize.min, // Added this to ensure proper width
+                    children: [
+                      Icon(
+                        Icons.edit_location_alt_rounded,
+                        color: AppColors.black,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Change',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppColors.black,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
+                  const SizedBox(height: 2), // Added spacing before underline
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: ClipOval(
+                      child: Container(
+                        height: 2, // Made line slightly thicker
+                        color: AppColors
+                            .containerColor, // Made line slightly visible
+                        width: double
+                            .infinity, // Makes the line take full width of parent
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],

@@ -46,7 +46,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     }
 
     // Start a new timer
-    _debounceTimer = Timer(const Duration(milliseconds: 100), () async {
+    _debounceTimer = Timer(const Duration(milliseconds: 200), () async {
       emit(state.copyWith(
         predictionsRequestState: RequestState.inProgress,
       ));
@@ -72,23 +72,20 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     PredictionEntity prediction,
     BuildContext context,
   ) async {
-    // Update search text with prediction name
-    updateSearchText(prediction.name ?? '');
-
     CategoryModel? selectedCategory;
     ChildCategoryModel? selectedChildCategory;
 
     // If we have a category ID, find the category
-    if (prediction.categoryId != null && state.catalogs != null) {
+    if (prediction.parentCategoryId != null && state.catalogs != null) {
       selectedCategory = state.catalogs!.firstWhere(
-        (category) => category.id == prediction.categoryId,
+        (category) => category.id == prediction.parentCategoryId,
         orElse: () => throw Exception('Category not found'),
       );
 
       // If we have a child category ID, find it within the selected category
-      if (prediction.childCategoryId != null) {
+      if (prediction.categoryId != null) {
         selectedChildCategory = selectedCategory.childCategories.firstWhere(
-          (child) => child.id == prediction.childCategoryId,
+          (child) => child.id == prediction.categoryId,
           orElse: () => throw Exception('Child category not found'),
         );
       }
@@ -96,32 +93,112 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
 
     // Navigate based on what was found, passing necessary data
     if (selectedChildCategory != null && selectedCategory != null) {
-      // Navigate to detailed page with both category and child category
-      context.pushReplacementNamed(
-        RoutesByName.attributes,
-        extra: {
-          'category': selectedCategory,
-          'childCategory': selectedChildCategory,
-          'searchText': prediction.name,
-        },
-      );
-    } else if (selectedCategory != null) {
-      // Navigate to subcategories with just category
-      context.pushReplacementNamed(
-        RoutesByName.post,
-        extra: {
-          'category': selectedCategory,
-          'searchText': prediction.name,
-        },
-      );
-    } else {
-      context.pushReplacementNamed(
-        RoutesByName.post,
-        extra: {'searchText': prediction.name},
-      );
+      // Prepare the extra data map with all prediction data
+      final Map<String, dynamic> extraData = {
+        'category': selectedCategory,
+        'childCategory': selectedChildCategory,
+        'parentAttributeKeyId': prediction.parentAttributeKeyId,
+        'parentAttributeValueId': prediction.parentAttributeValueId,
+        'childAttributeKeyId': prediction.childAttributeKeyId,
+        'childAttributeValueId': prediction.childAttributeValueId,
+      };
+      context.pushReplacementNamed(RoutesByName.attributes, extra: extraData);
     }
   }
 
+  void selectAttributeById(String attributeKeyId, String attributeValueId) {
+  // Search for attribute by checking values in both current and dynamic attributes
+  AttributeModel? attribute;
+  
+  // Helper function to find attribute by checking values
+  AttributeModel? findAttribute(List<AttributeModel> attributes) {
+    for (var attr in attributes) {
+      for (var value in attr.values) {
+        if (value.attributeValueId == attributeValueId) {
+          return attr;
+        }
+      }
+    }
+    return null;
+  }
+
+  // First try current attributes
+  attribute = findAttribute(state.selectedChildCategory!.attributes);
+  debugPrint(state.currentAttributes.length.toString());
+  debugPrint("😤😤😤 ${attribute?.attributeKey}");
+  
+  attribute ??= findAttribute(state.dynamicAttributes);
+
+  if (attribute == null) {
+    throw Exception('Attribute not found for keyId: $attributeKeyId');
+  }
+
+  // Find the value in the attribute's values
+  final value = attribute.values.firstWhere(
+    (val) => val.attributeValueId == attributeValueId,
+    orElse: () => throw Exception('Value not found: $attributeValueId'),
+  );
+
+  final Map<String, dynamic> newSelectedValues =
+      Map<String, dynamic>.from(state.selectedValues);
+  final Map<AttributeModel, AttributeValueModel> newSelectedAttributeValues =
+      Map<AttributeModel, AttributeValueModel>.from(state.selectedAttributeValues);
+  List<AttributeModel> newDynamicAttributes =
+      List<AttributeModel>.from(state.dynamicAttributes);
+
+  if (attribute.filterWidgetType == 'oneSelectable') {
+    final currentValue = newSelectedValues[attribute.attributeKey];
+    if (currentValue?.attributeValueId == attributeValueId) return;
+
+    // Clear child-related data when parent value changes
+    if (attribute.subFilterWidgetType != 'null') {
+      final childKey = '${attribute.attributeKey}_child';
+      newSelectedValues.remove(childKey);
+      newSelectedAttributeValues
+          .removeWhere((attr, _) => attr.attributeKey == childKey);
+
+      // Update dynamic attributes
+      _handleDynamicAttributeCreation(
+        attribute,
+        value,
+        newDynamicAttributes,
+      );
+    }
+
+    // Update the parent attribute's value
+    newSelectedValues[attribute.attributeKey] = value;
+    newSelectedAttributeValues[attribute] = value;
+  } else {
+    // Handle multi-select case
+    newSelectedValues.putIfAbsent(
+        attribute.attributeKey, () => <AttributeValueModel>[]);
+    final list = newSelectedValues[attribute.attributeKey]
+        as List<AttributeValueModel>;
+    
+    final existingValue = list.firstWhere(
+      (v) => v.attributeValueId == attributeValueId,
+      orElse: () => value,
+    );
+    
+    if (list.contains(existingValue)) {
+      list.remove(existingValue);
+    } else {
+      list.add(value);
+    }
+  }
+
+  emit(state.copyWith(
+    selectedValues: newSelectedValues,
+    selectedAttributeValues: newSelectedAttributeValues,
+    dynamicAttributes: newDynamicAttributes,
+  ));
+
+  if (state.searchText != null) {
+    searchPage(0);
+  } else {
+    fetchChildPage(0);
+  }
+}
   void updateSearchText(String? text) {
     // Cancel any previous timer
     _debounceTimer?.cancel();
@@ -433,7 +510,6 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     try {
       final result = await getPublicationsUseCase(
         params: GetPublicationsParams(
-          query: state.searchText,
           page: pageKey,
           size: pageSize,
           priceFrom: state.priceFrom,
