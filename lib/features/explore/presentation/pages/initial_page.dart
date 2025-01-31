@@ -225,6 +225,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
     }
   }
 
+  // in initial page :
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<HomeTreeCubit, HomeTreeState>(
@@ -344,7 +345,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                 ),
               ),
             ),
-            _buildContentSection(),
+            _buildContentSection(state),
             _buildProductGrid(),
           ],
         ),
@@ -352,7 +353,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
     );
   }
 
-  Widget _buildContentSection() {
+  Widget _buildContentSection(HomeTreeState state) {
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
       sliver: SliverToBoxAdapter(
@@ -397,9 +398,14 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                     ],
                   ),
                 ),
-                SizedBox(height: 8),
-                VideoCarousel(items: widget.advertisedProducts),
+                if (state.videoPublications.isNotEmpty)
+                ...[
+                   SizedBox(height: 8),
+                VideoCarousel(
+                  items: state.videoPublications.sublist(0, 4),
+                ),
                 SizedBox(height: 16),
+                ]
               ],
             ),
           ),
@@ -683,7 +689,6 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
   }
 }
 
-//
 class ErrorIndicator extends StatelessWidget {
   final dynamic error;
   final VoidCallback onTryAgain;

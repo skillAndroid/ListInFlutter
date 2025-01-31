@@ -15,6 +15,7 @@ import 'package:list_in/features/explore/domain/usecase/get_prediction_usecase.d
 import 'package:list_in/features/explore/domain/usecase/get_publications_usecase.dart';
 import 'package:list_in/features/explore/domain/usecase/get_video_publications_usecase.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
+import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/explore/presentation/pages/child_page.dart';
 import 'package:list_in/features/explore/presentation/pages/detailed_page.dart';
 import 'package:list_in/features/explore/presentation/pages/initial_page.dart';
@@ -102,7 +103,29 @@ class AppRouter {
       GoRoute(
         path: Routes.videosFeed,
         name: RoutesByName.videosFeed,
-        builder: (context, state) => ListInShorts(data: sampleVideos),
+        builder: (context, state) {
+          // Safely handle potential null extra data
+          final extraData = state.extra as Map<String, dynamic>?;
+
+          final initialVideos =
+              extraData?['videos'] as List<GetPublicationEntity>? ?? [];
+          final initialPage = extraData?['video_current_page'] as int? ?? 0;
+          final selectedIndex = extraData?['index'] as int? ?? 0;
+
+          return BlocProvider.value(
+            value: HomeTreeCubit(
+              getCatalogsUseCase: getGategoriesUsecase,
+              getPublicationsUseCase: getPublicationsUsecase,
+              getPredictionsUseCase: getPredictionsUseCase,
+              getVideoPublicationsUsecase: getVideoPublicationsUsecase,
+            ),
+            child: ListInShorts(
+              initialVideos: initialVideos,
+              initialPage: initialPage,
+              initialIndex: selectedIndex,
+            ),
+          );
+        },
       ),
 
       GoRoute(

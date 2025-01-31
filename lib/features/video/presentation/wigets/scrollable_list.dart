@@ -4,17 +4,17 @@ import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/config/theme/app_colors.dart';
-import 'package:list_in/core/router/routes.dart';
-import 'package:list_in/features/explore/domain/enties/advertised_product_entity.dart';
+import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
+import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:video_player/video_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 class VideoCarousel extends StatefulWidget {
-  final List<AdvertisedProductEntity> items;
+  final List<GetPublicationEntity> items;
 
   const VideoCarousel({super.key, required this.items});
 
@@ -80,13 +80,13 @@ class _VideoCarouselState extends State<VideoCarousel> {
       await _clearVideo();
 
       final videoUrl = widget.items[index].videoUrl;
-      if (!await _isValidVideoUrl(videoUrl)) {
+      if (!await _isValidVideoUrl("https://$videoUrl")) {
         debugPrint('Invalid video URL: $videoUrl');
         return;
       }
 
       _videoController = VideoPlayerController.network(
-        videoUrl,
+        "https://$videoUrl",
         videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
         httpHeaders: const {
           'Connection': 'keep-alive',
@@ -230,6 +230,11 @@ class _VideoCarouselState extends State<VideoCarousel> {
     super.dispose();
   }
 
+  void _onVideoTap(int index) {
+    final homeTreeCubit = context.read<HomeTreeCubit>();
+    homeTreeCubit.handleVideoFeedNavigation(context, index);
+  }
+
   @override
   Widget build(BuildContext context) {
     return VisibilityDetector(
@@ -261,9 +266,9 @@ class _VideoCarouselState extends State<VideoCarousel> {
                   side: BorderSide(width: 2, color: AppColors.white),
                   borderRadius: BorderRadius.circular(12),
                   child: GestureDetector(
-                    onTap: () {
-                      context.push(Routes.videosFeed);
-                    },
+                    onTap: () => context
+                        .read<HomeTreeCubit>()
+                        .handleVideoFeedNavigation(context, 0),
                     child: Container(
                       height: 160,
                       width: 90,
@@ -301,9 +306,7 @@ class _VideoCarouselState extends State<VideoCarousel> {
                 side: BorderSide(width: 2, color: AppColors.white),
                 borderRadius: BorderRadius.circular(12),
                 child: GestureDetector(
-                  onTap: () {
-                    context.push(Routes.videosFeed);
-                  },
+                  onTap: () => _onVideoTap(index),
                   child: SizedBox(
                     height: 160,
                     width: 90,
@@ -311,7 +314,7 @@ class _VideoCarouselState extends State<VideoCarousel> {
                       fit: StackFit.expand,
                       children: [
                         CachedNetworkImage(
-                          imageUrl: item.thumbnailUrl,
+                          imageUrl: "https://${item.productImages[0].url}",
                           fit: BoxFit.cover,
                           placeholder: (context, url) => const Center(
                             child: Progress(),

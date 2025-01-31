@@ -109,6 +109,24 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     }
   }
 
+ void handleVideoFeedNavigation(BuildContext context, int selectedIndex) {
+    if (state.videoPublications.isNotEmpty) {
+      final limitedVideos = state.videoPublications.length > 20
+          ? state.videoPublications.sublist(0, 20)
+          : state.videoPublications;
+          
+      if (state.videoPublications.length > 20) {
+        emit(state.copyWith(videoPublications: limitedVideos));
+      }
+
+      context.push(Routes.videosFeed, extra: {
+        'videos': limitedVideos,
+        'video_current_page': state.videoCurrentPage,
+        'index': selectedIndex,
+      });
+    }
+  }
+
   void selectAttributeById(String attributeKeyId, String attributeValueId) {
     // Search for attribute by checking values in both current and dynamic attributes
     AttributeModel? attribute;
@@ -294,9 +312,8 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
         },
         (paginatedData) {
           // Determine isLast by checking the last item's isLast property
-          final updatedPublications = pageKey == 0
-              ? paginatedData
-              : [...state.searchPublications, ...paginatedData];
+          final updatedPublications =
+              pageKey == 0 ? paginatedData : paginatedData;
 
           final isLastPage =
               paginatedData.isNotEmpty ? paginatedData.last.isLast : true;
@@ -307,7 +324,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
               errorSearchPublicationsFetch: null,
               searchPublications: updatedPublications,
               searchHasReachedMax: isLastPage,
-              searchCurrentPage: pageKey + 1,
+              searchCurrentPage: pageKey,
             ),
           );
         },
@@ -392,10 +409,8 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
         },
         (paginatedData) {
           // Determine isLast by checking the last item's isLast property
-          final updatedPublications = pageKey == 0
-              ? paginatedData
-              : [...state.initialPublications, ...paginatedData];
-
+          final updatedPublications =
+              pageKey == 0 ? paginatedData : paginatedData;
           final isLastPage =
               paginatedData.isNotEmpty ? paginatedData.last.isLast : true;
 
@@ -405,7 +420,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
               errorInitialPublicationsFetch: null,
               initialPublications: updatedPublications,
               initialHasReachedMax: isLastPage,
-              initialCurrentPage: pageKey + 1,
+              initialCurrentPage: pageKey,
             ),
           );
         },
@@ -463,9 +478,8 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
           ));
         },
         (paginatedData) {
-          final updatedPublications = pageKey == 0
-              ? paginatedData
-              : [...state.secondaryPublications, ...paginatedData];
+          final updatedPublications =
+              pageKey == 0 ? paginatedData : paginatedData;
 
           final isLastPage =
               paginatedData.isNotEmpty ? paginatedData.last.isLast : true;
@@ -476,7 +490,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
               errorSecondaryPublicationsFetch: null,
               secondaryPublications: updatedPublications,
               secondaryHasReachedMax: isLastPage,
-              secondaryCurrentPage: pageKey + 1,
+              secondaryCurrentPage: pageKey,
             ),
           );
         },
@@ -533,9 +547,8 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
           ));
         },
         (paginatedData) {
-          final updatedPublications = pageKey == 0
-              ? paginatedData
-              : [...state.childPublications, ...paginatedData];
+          final updatedPublications =
+              pageKey == 0 ? paginatedData : paginatedData;
 
           final isLastPage =
               paginatedData.isNotEmpty ? paginatedData.last.isLast : true;
@@ -546,7 +559,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
               errorChildPublicationsFetch: null,
               childPublications: updatedPublications,
               childHasReachedMax: isLastPage,
-              childCurrentPage: pageKey + 1,
+              childCurrentPage: pageKey,
             ),
           );
         },
@@ -559,77 +572,81 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     }
   }
 
- Future<void> fetchVideoFeeds(int pageKey) async {
-  if (state.videoPublicationsRequestState == RequestState.inProgress) {
-    debugPrint('🚫 Preventing duplicate video publications request for page: $pageKey');
-    return;
+  Future<void> fetchVideoFeeds(int pageKey) async {
+    if (state.videoPublicationsRequestState == RequestState.inProgress) {
+      debugPrint(
+          '🚫 Preventing duplicate video publications request for page: $pageKey');
+      return;
+    }
+
+    debugPrint(
+        '🔍 Fetching video page: $pageKey with search: ${state.searchText}');
+
+    if (pageKey == 0) {
+      emit(state.copyWith(
+        videoPublicationsRequestState: RequestState.inProgress,
+        errorVideoPublicationsFetch: null,
+        videoPublications: [],
+        videoHasReachedMax: false,
+        videoCurrentPage: 0,
+      ));
+    } else {
+      emit(state.copyWith(
+        videoPublicationsRequestState: RequestState.inProgress,
+        errorVideoPublicationsFetch: null,
+      ));
+    }
+
+    try {
+      debugPrint("🐁🐁${state.selectedCatalog}");
+      debugPrint("🐁🐁${state.selectedCatalog?.id}");
+
+      final result = await getVideoPublicationsUsecase(
+        params: GetPublicationsParams(
+          query: state.searchText,
+          page: pageKey,
+          size: pageSize,
+          priceFrom: state.priceFrom,
+          priceTo: state.priceTo,
+          categoryId: state.selectedCatalog?.id,
+        ),
+      );
+
+      result.fold(
+        (failure) {
+          debugPrint("🐁🐁FAAAAAAAAAAAAAILLLL");
+          debugPrint("🐁🐁🐁🐁FAAAAAAAAAAAAAILLLL");
+
+          emit(state.copyWith(
+            videoPublicationsRequestState: RequestState.error,
+            errorVideoPublicationsFetch: _mapFailureToMessage(failure),
+          ));
+        },
+        (videoPublicationsEntity) {
+          final updatedPublications = pageKey == 0
+              ? videoPublicationsEntity.content
+              : videoPublicationsEntity.content;
+
+          emit(
+            state.copyWith(
+              videoPublicationsRequestState: RequestState.completed,
+              errorVideoPublicationsFetch: null,
+              videoPublications: updatedPublications,
+              videoHasReachedMax: videoPublicationsEntity.isLast,
+              videoCurrentPage: videoPublicationsEntity.number,
+            ),
+          );
+        },
+      );
+    } catch (e) {
+      debugPrint("🐁🐁FAAAAAAAAAAAAAILLLL REASON : $e");
+      emit(state.copyWith(
+        videoPublicationsRequestState: RequestState.error,
+        errorVideoPublicationsFetch: 'An unexpected error occurred',
+      ));
+    }
   }
-  
-  debugPrint('🔍 Fetching video page: $pageKey with search: ${state.searchText}');
 
-  if (pageKey == 0) {
-    emit(state.copyWith(
-      videoPublicationsRequestState: RequestState.inProgress,
-      errorVideoPublicationsFetch: null,
-      videoPublications: [],
-      videoHasReachedMax: false,
-      videoCurrentPage: 0,
-    ));
-  } else {
-    emit(state.copyWith(
-      videoPublicationsRequestState: RequestState.inProgress,
-      errorVideoPublicationsFetch: null,
-    ));
-  }
-
-  try {
-    debugPrint("🐁🐁${state.selectedCatalog}");
-    debugPrint("🐁🐁${state.selectedCatalog?.id}");
-    
-    final result = await getVideoPublicationsUsecase(
-      params: GetPublicationsParams(
-        query: state.searchText,
-        page: pageKey,
-        size: pageSize,
-        priceFrom: state.priceFrom,
-        priceTo: state.priceTo,
-        categoryId: state.selectedCatalog?.id,
-      ),
-    );
-
-    result.fold(
-      (failure) {
-        emit(state.copyWith(
-          videoPublicationsRequestState: RequestState.error,
-          errorVideoPublicationsFetch: _mapFailureToMessage(failure),
-        ));
-      },
-      (videoPublicationsEntity) {
-        final updatedPublications = pageKey == 0
-            ? videoPublicationsEntity.content
-            : [...state.videoPublications, ...videoPublicationsEntity.content];
-
-        emit(
-          state.copyWith(
-            videoPublicationsRequestState: RequestState.completed,
-            errorVideoPublicationsFetch: null,
-            videoPublications: updatedPublications,
-            videoHasReachedMax: videoPublicationsEntity.isLast,
-            videoCurrentPage: pageKey + 1,
-          ),
-        );
-      },
-    );
-  } catch (e) {
-    emit(state.copyWith(
-      videoPublicationsRequestState: RequestState.error,
-      errorVideoPublicationsFetch: 'An unexpected error occurred',
-    ));
-  }
-}
- 
- 
- 
   void setPriceRange(double? from, double? to) {
     emit(state.copyWith(
       priceFrom: from,
@@ -640,6 +657,16 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     } else {
       fetchChildPage(0);
     }
+  }
+
+  void clearVideos() {
+    emit(HomeTreeState(
+      videoPublications: [],
+      videoPublicationsRequestState: RequestState.idle,
+      videoHasReachedMax: false,
+      videoCurrentPage: 0,
+      errorVideoPublicationsFetch: null,
+    ));
   }
 
   void clearPriceRange() {

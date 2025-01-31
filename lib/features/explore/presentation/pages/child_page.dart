@@ -366,7 +366,7 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
               ),
             ),
             SizedBox(height: 8),
-            VideoCarousel(items: widget.advertisedProducts),
+         //   VideoCarousel(items: widget.advertisedProducts),
             SizedBox(height: 16),
           ],
         ),
