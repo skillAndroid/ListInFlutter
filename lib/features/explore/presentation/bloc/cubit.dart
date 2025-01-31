@@ -559,6 +559,77 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     }
   }
 
+ Future<void> fetchVideoFeeds(int pageKey) async {
+  if (state.videoPublicationsRequestState == RequestState.inProgress) {
+    debugPrint('🚫 Preventing duplicate video publications request for page: $pageKey');
+    return;
+  }
+  
+  debugPrint('🔍 Fetching video page: $pageKey with search: ${state.searchText}');
+
+  if (pageKey == 0) {
+    emit(state.copyWith(
+      videoPublicationsRequestState: RequestState.inProgress,
+      errorVideoPublicationsFetch: null,
+      videoPublications: [],
+      videoHasReachedMax: false,
+      videoCurrentPage: 0,
+    ));
+  } else {
+    emit(state.copyWith(
+      videoPublicationsRequestState: RequestState.inProgress,
+      errorVideoPublicationsFetch: null,
+    ));
+  }
+
+  try {
+    debugPrint("🐁🐁${state.selectedCatalog}");
+    debugPrint("🐁🐁${state.selectedCatalog?.id}");
+    
+    final result = await getVideoPublicationsUsecase(
+      params: GetPublicationsParams(
+        query: state.searchText,
+        page: pageKey,
+        size: pageSize,
+        priceFrom: state.priceFrom,
+        priceTo: state.priceTo,
+        categoryId: state.selectedCatalog?.id,
+      ),
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(
+          videoPublicationsRequestState: RequestState.error,
+          errorVideoPublicationsFetch: _mapFailureToMessage(failure),
+        ));
+      },
+      (videoPublicationsEntity) {
+        final updatedPublications = pageKey == 0
+            ? videoPublicationsEntity.content
+            : [...state.videoPublications, ...videoPublicationsEntity.content];
+
+        emit(
+          state.copyWith(
+            videoPublicationsRequestState: RequestState.completed,
+            errorVideoPublicationsFetch: null,
+            videoPublications: updatedPublications,
+            videoHasReachedMax: videoPublicationsEntity.isLast,
+            videoCurrentPage: pageKey + 1,
+          ),
+        );
+      },
+    );
+  } catch (e) {
+    emit(state.copyWith(
+      videoPublicationsRequestState: RequestState.error,
+      errorVideoPublicationsFetch: 'An unexpected error occurred',
+    ));
+  }
+}
+ 
+ 
+ 
   void setPriceRange(double? from, double? to) {
     emit(state.copyWith(
       priceFrom: from,

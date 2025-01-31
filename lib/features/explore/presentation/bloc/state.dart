@@ -15,6 +15,9 @@ class HomeTreeState {
   final RequestState secondarySearchRequestState;
   final RequestState secondaryPublicationsRequestState;
 
+  final RequestState videoSearchRequestState;
+  final RequestState videoPublicationsRequestState;
+
   final RequestState childSearchRequestState;
   final RequestState childPublicationsRequestState;
 
@@ -50,6 +53,7 @@ class HomeTreeState {
 
   final List<PublicationPairEntity> initialPublications;
   final bool secondaryIsPublicationsLoading;
+  final bool videoIsPublicationsLoading;
   final List<PublicationPairEntity> childPublications;
 
   final List<PublicationPairEntity> searchPublications;
@@ -71,9 +75,17 @@ class HomeTreeState {
 
   final bool secondaryIsLoadingMore;
   final List<PublicationPairEntity> secondaryPublications;
+
+  final bool videoIsLoadingMore;
+  final List<GetPublicationEntity> videoPublications;
+
   final String? errorSecondaryPublicationsFetch;
   final bool secondaryHasReachedMax;
   final int secondaryCurrentPage;
+
+  final String? errorVideoPublicationsFetch;
+  final bool videoHasReachedMax;
+  final int videoCurrentPage;
 
   final List<PredictionEntity> predictions;
   final RequestState predictionsRequestState;
@@ -86,6 +98,8 @@ class HomeTreeState {
     this.initialPublicationsRequestState = RequestState.idle,
     this.secondarySearchRequestState = RequestState.idle,
     this.secondaryPublicationsRequestState = RequestState.idle,
+    this.videoSearchRequestState = RequestState.idle,
+    this.videoPublicationsRequestState = RequestState.idle,
     this.childSearchRequestState = RequestState.idle,
     this.childPublicationsRequestState = RequestState.idle,
     this.catalogs,
@@ -125,11 +139,17 @@ class HomeTreeState {
     this.childIsPublicationsLoading = false,
     this.searchIsPublicationsLoading = false,
     this.errorSecondaryPublicationsFetch,
+    this.errorVideoPublicationsFetch,
     List<PublicationPairEntity>? secondaryPublications,
     this.secondaryIsLoadingMore = false,
     this.secondaryHasReachedMax = false,
     this.secondaryCurrentPage = 0,
     this.secondaryIsPublicationsLoading = false,
+    List<GetPublicationEntity>? videoPublications,
+    this.videoIsLoadingMore = false,
+    this.videoHasReachedMax = false,
+    this.videoCurrentPage = 0,
+    this.videoIsPublicationsLoading = false,
     this.predictions = const [],
     this.predictionsRequestState = RequestState.idle,
     this.errorPredictionsFetch,
@@ -146,6 +166,7 @@ class HomeTreeState {
         initialPublications = initialPublications ?? [],
         searchPublications = searchPublications ?? [],
         secondaryPublications = secondaryPublications ?? [],
+        videoPublications = videoPublications ?? [],
         childPublications = childPublications ?? [];
 
   HomeTreeState copyWith({
@@ -155,6 +176,8 @@ class HomeTreeState {
     RequestState? initialPublicationsRequestState,
     RequestState? secondarySearchRequestState,
     RequestState? secondaryPublicationsRequestState,
+    RequestState? videoSearchRequestState,
+    RequestState? videoPublicationsRequestState,
     RequestState? childSearchRequestState,
     RequestState? childPublicationsRequestState,
     List<CategoryModel>? catalogs,
@@ -176,27 +199,33 @@ class HomeTreeState {
     List<PublicationPairEntity>? searchPublications,
     List<PublicationPairEntity>? initialPublications,
     List<PublicationPairEntity>? secondaryPublications,
+    List<GetPublicationEntity>? videoPublications,
     List<PublicationPairEntity>? childPublications,
     bool? isLoading,
     bool? searchIsPublicationsLoading,
     bool? initialIsPublicationsLoading,
     bool? secondaryIsPublicationsLoading,
+    bool? videoIsPublicationsLoading,
     bool? childIsPublicationsLoading,
     bool? searchIsLoadingMore,
     bool? initialIsLoadingMore,
     bool? secondaryIsLoadingMore,
+    bool? videoIsLoadingMore,
     bool? childIsLoadingMore,
     String? errorSearchPublicationsFetch,
     String? errorInitialPublicationsFetch,
     String? errorSecondaryPublicationsFetch,
+    String? errorVideoPublicationsFetch,
     String? errorChildPublicationsFetch,
     bool? searchHasReachedMax,
     bool? initialHasReachedMax,
     bool? secondaryHasReachedMax,
+    bool? videoHasReachedMax,
     bool? childHasReachedMax,
     int? searchCurrentPage,
     int? initialCurrentPage,
     int? secondaryCurrentPage,
+    int? videoCurrentPage,
     int? childCurrentPage,
     String? searchText,
     List<PredictionEntity>? predictions,
@@ -215,6 +244,10 @@ class HomeTreeState {
           secondarySearchRequestState ?? this.secondarySearchRequestState,
       secondaryPublicationsRequestState: secondaryPublicationsRequestState ??
           this.secondaryPublicationsRequestState,
+      videoSearchRequestState:
+          videoSearchRequestState ?? this.videoSearchRequestState,
+      videoPublicationsRequestState: videoPublicationsRequestState ??
+          this.videoPublicationsRequestState,
       childSearchRequestState:
           childSearchRequestState ?? this.childSearchRequestState,
       childPublicationsRequestState:
@@ -254,6 +287,11 @@ class HomeTreeState {
       secondaryHasReachedMax:
           secondaryHasReachedMax ?? this.secondaryHasReachedMax,
       secondaryCurrentPage: secondaryCurrentPage ?? this.secondaryCurrentPage,
+      videoPublications:
+          videoPublications ?? this.videoPublications,
+      videoHasReachedMax:
+          videoHasReachedMax ?? this.videoHasReachedMax,
+      videoCurrentPage: videoCurrentPage ?? this.videoCurrentPage,
       childPublications: childPublications ?? this.childPublications,
       childHasReachedMax: childHasReachedMax ?? this.childHasReachedMax,
       childCurrentPage: childCurrentPage ?? this.childCurrentPage,
