@@ -27,6 +27,7 @@ import 'package:list_in/features/explore/data/source/get_publications_remoute.da
 import 'package:list_in/features/explore/domain/usecase/get_prediction_usecase.dart';
 import 'package:list_in/features/explore/domain/usecase/get_publications_usecase.dart';
 import 'package:list_in/features/explore/domain/repository/get_publications_repository.dart';
+import 'package:list_in/features/explore/domain/usecase/get_video_publications_usecase.dart';
 import 'package:list_in/features/map/data/repositories/location_repository_impl.dart';
 import 'package:list_in/features/map/data/sources/location_remote_datasource.dart';
 import 'package:list_in/features/map/domain/repositories/location_repository.dart';
@@ -122,6 +123,7 @@ Future<void> init() async {
       getGategoriesUsecase: sl<GetGategoriesUsecase>(),
       getPublicationsUsecase: sl<GetPublicationsUsecase>(),
       getPredictionsUseCase: sl<GetPredictionsUseCase>(),
+      getVideoPublicationsUsecase: sl<GetVideoPublicationsUsecase>(),
     ),
   );
 
@@ -199,13 +201,9 @@ Future<void> init() async {
     ),
   );
 
-  // sl.registerFactory(() => HomeTreeCubit(
-  //       getCatalogsUseCase: sl(),
-  //       getPublicationsUseCase2: sl(),
-  //     ));
-
   sl.registerLazySingleton(() => GetPublicationsUsecase(sl()));
   sl.registerLazySingleton(() => GetPredictionsUseCase(sl()));
+  sl.registerLazySingleton(() => GetVideoPublicationsUsecase(sl()));
   sl.registerLazySingleton(() => GetLocationUseCase(sl()));
   sl.registerLazySingleton(() => SearchLocationsUseCase(sl()));
   sl.registerLazySingleton<LocationRepository>(

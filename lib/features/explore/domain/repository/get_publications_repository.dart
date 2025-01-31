@@ -17,5 +17,19 @@ abstract class PublicationsRepository {
     double? priceTo,
     List<String>? filters,
   });
+
   Future<Either<Failure, List<PredictionEntity>>> getPredictions(String? query);
+
+  Future<Either<Failure, VideoPublicationsEntity>> getVideoPublications({
+    String? categoryId,
+    String? subcategoryId,
+    String? query,
+    int? page,
+    int? size,
+    bool? bargain,
+    String? condition,
+    double? priceFrom,
+    double? priceTo,
+    List<String>? filters,
+  });
 }

@@ -20,6 +20,19 @@ abstract class PublicationsRemoteDataSource {
   });
 
   Future<List<PredictionModel>> getPredictions(String? query);
+
+  Future<VideoPublicationsModel> getVideoPublications({
+    String? categoryId,
+    String? subcategoryId,
+    String? query,
+    int? page,
+    int? size,
+    bool? bargain,
+    String? condition,
+    double? priceFrom,
+    double? priceTo,
+    List<String>? filters,
+  });
 }
 
 class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
@@ -135,6 +148,62 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
         return ServerExeption(
           message: e.message ?? 'Server error occurred',
         );
+    }
+  }
+
+  @override
+  Future<VideoPublicationsModel> getVideoPublications({
+    String? categoryId,
+    String? subcategoryId,
+    String? query,
+    int? page,
+    int? size,
+    bool? bargain,
+    String? condition,
+    double? priceFrom,
+    double? priceTo,
+    List<String>? filters,
+  }) async {
+    try {
+      final options = await authService.getAuthOptions();
+      final queryParams = {
+        'query': query ?? '',
+        if (page != null) 'page': page.toString(),
+        if (size != null) 'size': size.toString(),
+        if (bargain != null) 'bargain': bargain.toString(),
+        if (condition != null) 'condition': condition,
+        if (priceFrom != null) 'from': priceFrom.toString(),
+        if (priceTo != null) 'to': priceTo.toString(),
+        if (filters != null && filters.isNotEmpty) 'filter': filters,
+      };
+
+      String url = '/api/v1/publications/videos';
+
+      if (query != null && query.isNotEmpty && query != "") {
+        url += '/search/all';
+      } else {
+        if (categoryId != null) {
+          if (subcategoryId != null) {
+            url += '/search/all/$categoryId/$subcategoryId';
+          } else {
+            url += '/p/$categoryId';
+          }
+        }
+      }
+
+      final response = await dio.get(
+        url,
+        queryParameters: queryParams,
+        options: options,
+      );
+
+      return VideoPublicationsModel.fromJson(response.data);
+    } on DioException catch (e) {
+      debugPrint("😇😇Exception in fetching data remote DIO EXCEPTION $e");
+      throw _handleDioException(e);
+    } catch (e) {
+      debugPrint("😇😇Exception in fetching data remote $e");
+      throw UknownExeption();
     }
   }
 }

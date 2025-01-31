@@ -13,6 +13,7 @@ import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/domain/usecase/get_prediction_usecase.dart';
 import 'package:list_in/features/explore/domain/usecase/get_publications_usecase.dart';
+import 'package:list_in/features/explore/domain/usecase/get_video_publications_usecase.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/pages/child_page.dart';
 import 'package:list_in/features/explore/presentation/pages/detailed_page.dart';
@@ -36,6 +37,7 @@ class AppRouter {
   final SharedPreferences sharedPreferences;
   final GetGategoriesUsecase getGategoriesUsecase;
   final GetPublicationsUsecase getPublicationsUsecase;
+  final GetVideoPublicationsUsecase getVideoPublicationsUsecase;
   final GetPredictionsUseCase getPredictionsUseCase;
 
   AppRouter({
@@ -43,6 +45,7 @@ class AppRouter {
     required this.getGategoriesUsecase,
     required this.getPublicationsUsecase,
     required this.getPredictionsUseCase,
+    required this.getVideoPublicationsUsecase,
   });
 
   static final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -138,6 +141,7 @@ class AppRouter {
                       getCatalogsUseCase: getGategoriesUsecase,
                       getPublicationsUseCase: getPublicationsUsecase,
                       getPredictionsUseCase: getPredictionsUseCase,
+                      getVideoPublicationsUsecase: getVideoPublicationsUsecase,
                     ),
                     child: InitialHomeTreePage(
                       key: state.pageKey,
@@ -156,6 +160,8 @@ class AppRouter {
                           getCatalogsUseCase: getGategoriesUsecase,
                           getPublicationsUseCase: getPublicationsUsecase,
                           getPredictionsUseCase: getPredictionsUseCase,
+                          getVideoPublicationsUsecase:
+                              getVideoPublicationsUsecase,
                         ),
                         child: SearchResultPage(
                           key: state.pageKey,
@@ -172,6 +178,8 @@ class AppRouter {
                             getCatalogsUseCase: getGategoriesUsecase,
                             getPublicationsUseCase: getPublicationsUsecase,
                             getPredictionsUseCase: getPredictionsUseCase,
+                            getVideoPublicationsUsecase:
+                                getVideoPublicationsUsecase,
                           ),
                           child: SearchPage(
                             key: state.pageKey,
@@ -199,6 +207,8 @@ class AppRouter {
                             getCatalogsUseCase: getGategoriesUsecase,
                             getPublicationsUseCase: getPublicationsUsecase,
                             getPredictionsUseCase: getPredictionsUseCase,
+                            getVideoPublicationsUsecase:
+                                getVideoPublicationsUsecase,
                           );
                           cubit.selectCatalog(category);
                           if (searchText != null) {
@@ -249,6 +259,8 @@ class AppRouter {
                                   getPublicationsUseCase:
                                       getPublicationsUsecase,
                                   getPredictionsUseCase: getPredictionsUseCase,
+                                  getVideoPublicationsUsecase:
+                                      getVideoPublicationsUsecase,
                                 );
 
                                 cubit

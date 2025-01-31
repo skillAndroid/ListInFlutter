@@ -79,4 +79,45 @@ class PublicationsRepositoryImpl implements PublicationsRepository {
       return Left(NetworkFailure());
     }
   }
+
+  @override
+  Future<Either<Failure, VideoPublicationsEntity>> getVideoPublications(
+      {String? categoryId,
+      String? subcategoryId,
+      String? query,
+      int? page,
+      int? size,
+      bool? bargain,
+      String? condition,
+      double? priceFrom,
+      double? priceTo,
+      List<String>? filters}) async {
+    if (await networkInfo.isConnected) {
+      try {
+        final publications = await remoteDataSource.getVideoPublications(
+          query: query,
+          page: page,
+          size: size,
+          bargain: bargain,
+          condition: condition,
+          priceFrom: priceFrom,
+          priceTo: priceTo,
+          categoryId: categoryId,
+          subcategoryId: subcategoryId,
+          filters: filters,
+        );
+        return Right(
+          publications.toEntity(),
+        );
+      } on ServerExeption {
+        return Left(ServerFailure());
+      } on ConnectionExeption {
+        return Left(NetworkFailure());
+      } catch (e) {
+        return Left(UnexpectedFailure());
+      }
+    } else {
+      return Left(NetworkFailure());
+    }
+  }
 }

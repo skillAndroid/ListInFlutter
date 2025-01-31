@@ -1,5 +1,5 @@
+import 'package:flutter/foundation.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
-
 
 class PublicationPairModel {
   final bool isSponsored;
@@ -35,6 +35,49 @@ class PublicationPairModel {
   }
 }
 
+class VideoPublicationsModel {
+  final bool isLast;
+  final int number;
+  final bool first;
+  final List<GetPublicationModel> content;
+  final int size;
+  final int totalElements;
+  final int totalPages;
+
+  VideoPublicationsModel({
+    required this.isLast,
+    required this.content,
+    required this.first,
+    required this.number,
+    required this.size,
+    required this.totalElements,
+    required this.totalPages,
+  });
+
+  factory VideoPublicationsModel.fromJson(Map<String, dynamic> json) {
+    return VideoPublicationsModel(
+      isLast: json['last'] ?? false,
+      first: json['first'] ?? false,
+      number: json['number'] ?? 0,
+      size: json['size'] ?? 0,
+      totalElements: json['totalElements'] ?? 0,
+      totalPages: json['totalPages'] ?? 0,
+      content: (json['content'] as List?)
+              ?.map((item) => GetPublicationModel.fromJson(item))
+              .toList() ??
+          [],
+    );
+  }
+  VideoPublicationsEntity toEntity() {
+    return VideoPublicationsEntity(
+      isLast: isLast,
+      first: first,
+      number: number,
+      content: content.map((model) => model.toEntity()).toList(),
+    );
+  }
+}
+
 class GetPublicationModel {
   final String id;
   final String title;
@@ -42,14 +85,14 @@ class GetPublicationModel {
   final double price;
   final bool bargain;
   final String locationName;
-  // final double? latitude;
-  // final double? longitude;
+  final double? latitude;
+  final double? longitude;
   final List<ProductImageModel> productImages;
   final String? videoUrl;
   final String publicationType;
   final String productCondition;
-  // final DateTime createdAt;
-  // final DateTime updatedAt;
+  final DateTime createdAt;
+  final DateTime updatedAt;
   final CategoryModel category;
   final SellerModel seller;
 
@@ -60,21 +103,23 @@ class GetPublicationModel {
     required this.price,
     required this.bargain,
     required this.locationName,
-    // this.latitude,
-    // this.longitude,
+    this.latitude,
+    this.longitude,
     required this.productImages,
     this.videoUrl,
     required this.publicationType,
     required this.productCondition,
-    // required this.createdAt,
-    // required this.updatedAt,
+    required this.createdAt,
+    required this.updatedAt,
     required this.category,
     required this.seller,
   });
 
   factory GetPublicationModel.fromJson(Map<String, dynamic> json) {
     try {
-      print('📌 Starting to parse publication with ID: ${json['id']}');
+      if (kDebugMode) {
+        print('📌 Starting to parse publication with ID: ${json['id']}');
+      }
 
       // Safe price parsing
       final dynamic priceValue = json['price'];
@@ -95,7 +140,9 @@ class GetPublicationModel {
               .map((img) => ProductImageModel.fromJson(img))
               .toList();
         } catch (e) {
-          print('⚠️ Error parsing product images: $e');
+          if (kDebugMode) {
+            print('⚠️ Error parsing product images: $e');
+          }
         }
       }
 
@@ -106,14 +153,16 @@ class GetPublicationModel {
         price: price,
         bargain: json['bargain'] ?? false,
         locationName: json['locationName']?.toString() ?? '',
-        // latitude: _safeParseDouble(json['latitude']),
-        // longitude: _safeParseDouble(json['longitude']),
+        latitude: json['latitude'] ?? '',
+        longitude: json['longitude'] ?? '',
         productImages: images,
         videoUrl: json['videoUrl']?.toString(),
         publicationType: json['publicationType']?.toString() ?? '',
         productCondition: json['productCondition']?.toString() ?? '',
-        // createdAt: DateTime.tryParse(json['createdAt']?.toString() ?? '') ?? DateTime.now(),
-        // updatedAt: DateTime.tryParse(json['updatedAt']?.toString() ?? '') ?? DateTime.now(),
+        createdAt: DateTime.tryParse(json['createdAt']?.toString() ?? '') ??
+            DateTime.now(),
+        updatedAt: DateTime.tryParse(json['updatedAt']?.toString() ?? '') ??
+            DateTime.now(),
         category: CategoryModel.fromJson(json['category'] ?? {}),
         seller: SellerModel.fromJson(json['seller'] ?? {}),
       );
@@ -130,14 +179,14 @@ class GetPublicationModel {
       price: price,
       bargain: bargain,
       locationName: locationName,
-      // latitude: latitude,
-      // longitude: longitude,
+      latitude: latitude,
+      longitude: longitude,
       productImages: productImages.map((image) => image.toEntity()).toList(),
       videoUrl: videoUrl,
       publicationType: publicationType,
       productCondition: productCondition,
-      // createdAt: createdAt,
-      // updatedAt: updatedAt,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
       category: category.toEntity(),
       seller: seller.toEntity(),
     );
@@ -200,37 +249,37 @@ class SellerModel {
   final String id;
   final String nickName;
   final bool enableCalling;
-  // final String phoneNumber;
-  // final String fromTime;
-  // final String toTime;
+  final String phoneNumber;
+  final String fromTime;
+  final String toTime;
   final String email;
   final String? profileImagePath;
-  // final double? rating;
+  final double? rating;
   final bool isGrantedForPreciseLocation;
   final String locationName;
-  // final double? longitude;
-  // final double? latitude;
+  final double? longitude;
+  final double? latitude;
   final String role;
-  // final DateTime dateCreated;
-  // final DateTime dateUpdated;
+  final DateTime dateCreated;
+  final DateTime dateUpdated;
 
   SellerModel({
     required this.id,
     required this.nickName,
     required this.enableCalling,
-    // required this.phoneNumber,
-    // required this.fromTime,
-    // required this.toTime,
+    required this.phoneNumber,
+    required this.fromTime,
+    required this.toTime,
     required this.email,
     this.profileImagePath,
-    // this.rating,
+    this.rating,
     required this.isGrantedForPreciseLocation,
     required this.locationName,
-    // this.longitude,
-    // this.latitude,
+    this.longitude,
+    this.latitude,
     required this.role,
-    // required this.dateCreated,
-    // required this.dateUpdated,
+    required this.dateCreated,
+    required this.dateUpdated,
   });
 
   factory SellerModel.fromJson(Map<String, dynamic> json) {
@@ -239,23 +288,27 @@ class SellerModel {
         id: json['id']?.toString() ?? '',
         nickName: json['nickName']?.toString() ?? '',
         enableCalling: json['enableCalling'] ?? false,
-        // phoneNumber: json['phoneNumber']?.toString() ?? '',
-        // fromTime: json['fromTime']?.toString() ?? '00:00',
-        // toTime: json['toTime']?.toString() ?? '23:59',
+        phoneNumber: json['phoneNumber']?.toString() ?? '',
+        fromTime: json['fromTime']?.toString() ?? '00:00',
+        toTime: json['toTime']?.toString() ?? '23:59',
         email: json['email']?.toString() ?? '',
         profileImagePath: json['profileImagePath']?.toString(),
-        // rating: GetPublicationModel._safeParseDouble(json['rating']),
+        rating: json['rating'] ?? 0,
         isGrantedForPreciseLocation:
             json['isGrantedForPreciseLocation'] ?? false,
         locationName: json['locationName']?.toString() ?? '',
-        // longitude: GetPublicationModel._safeParseDouble(json['longitude']),
-        // latitude: GetPublicationModel._safeParseDouble(json['latitude']),
+        longitude: json['longitude'] ?? "",
+        latitude: json['latitude'] ?? "",
         role: json['role']?.toString() ?? '',
-        // dateCreated: DateTime.tryParse(json['dateCreated']?.toString() ?? '') ?? DateTime.now(),
-        // dateUpdated: DateTime.tryParse(json['dateUpdated']?.toString() ?? '') ?? DateTime.now(),
+        dateCreated: DateTime.tryParse(json['dateCreated']?.toString() ?? '') ??
+            DateTime.now(),
+        dateUpdated: DateTime.tryParse(json['dateUpdated']?.toString() ?? '') ??
+            DateTime.now(),
       );
     } catch (e) {
-      print('❌ Error in SellerModel.fromJson: $e');
+      if (kDebugMode) {
+        print('❌ Error in SellerModel.fromJson: $e');
+      }
       rethrow;
     }
   }
@@ -265,19 +318,19 @@ class SellerModel {
       id: id,
       nickName: nickName,
       enableCalling: enableCalling,
-      // phoneNumber: phoneNumber,
-      // fromTime: fromTime,
-      // toTime: toTime,
+      phoneNumber: phoneNumber,
+      fromTime: fromTime,
+      toTime: toTime,
       email: email,
       profileImagePath: profileImagePath,
-      // rating: rating,
+      rating: rating,
       isGrantedForPreciseLocation: isGrantedForPreciseLocation,
       locationName: locationName,
-      // longitude: longitude,
-      // latitude: latitude,
+      longitude: longitude,
+      latitude: latitude,
       role: role,
-      // dateCreated: dateCreated,
-      // dateUpdated: dateUpdated,
+      dateCreated: dateCreated,
+      dateUpdated: dateUpdated,
     );
   }
 }
