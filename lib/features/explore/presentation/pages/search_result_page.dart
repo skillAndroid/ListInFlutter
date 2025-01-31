@@ -382,11 +382,12 @@ class _SearchResultPageState extends State<SearchResultPage> {
                               children: [
                                 Padding(
                                   padding: const EdgeInsets.all(12),
-                                  child: Image.asset(AppIcons.searchIcon,
-                                      width: 24,
-                                      height: 24,
-                                      color:
-                                          AppColors.darkGray.withOpacity(0.8)),
+                                  child: Image.asset(
+                                    AppIcons.searchIcon,
+                                    width: 24,
+                                    height: 24,
+                                    color: AppColors.darkGray.withOpacity(0.8),
+                                  ),
                                 ),
                                 Expanded(
                                   child: Text(

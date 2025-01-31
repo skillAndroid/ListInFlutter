@@ -748,6 +748,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                     TextButton(
                                       onPressed: () {
                                         cubit.clearSelectedAttribute(attribute);
+                                        cubit.fetchChildPage(0);
                                         cubit.getAtributesForPost();
                                         Navigator.pop(context);
                                       },
@@ -770,6 +771,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                     TextButton(
                                       onPressed: () {
                                         cubit.clearSelectedAttribute(attribute);
+                                        cubit.fetchChildPage(0);
                                         cubit.getAtributesForPost();
                                         Navigator.pop(context);
                                       },
@@ -917,13 +919,14 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
 
                 if (selections.isEmpty) {
                   cubit.clearSelectedAttribute(attribute);
+                  cubit.fetchChildPage(0);
                   cubit.getAtributesForPost();
                 } else {
                   cubit.clearSelectedAttribute(attribute);
                   for (var value in selections) {
                     cubit.selectAttributeValue(attribute, value);
                   }
-                  cubit.confirmMultiSelection(attribute);
+                  cubit.fetchChildPage(0);
                   cubit.getAtributesForPost();
                 }
                 Navigator.pop(context);
@@ -975,8 +978,10 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
             onTap: () {
               if (isSelected) {
                 cubit.clearSelectedAttribute(attribute);
+                cubit.fetchChildPage(0);
               } else {
                 cubit.selectAttributeValue(attribute, value);
+                cubit.fetchChildPage(0);
               }
               Navigator.pop(context);
               cubit.getAtributesForPost();
@@ -1268,12 +1273,13 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
 
                               if (selections.isEmpty) {
                                 cubit.clearSelectedAttribute(attribute);
+                                cubit.fetchChildPage(0);
                               } else {
                                 cubit.clearSelectedAttribute(attribute);
                                 for (var value in selections) {
                                   cubit.selectAttributeValue(attribute, value);
                                 }
-                                cubit.confirmMultiSelection(attribute);
+                                cubit.fetchChildPage(0);
                                 cubit.getAtributesForPost(); // Add this line
                               }
                               Navigator.pop(context);
