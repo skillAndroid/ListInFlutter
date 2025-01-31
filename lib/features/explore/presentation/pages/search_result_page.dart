@@ -14,6 +14,7 @@ import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/explore/presentation/pages/detailed_page.dart';
 import 'package:list_in/features/explore/presentation/widgets/advertised_product_card.dart';
+import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -249,6 +250,13 @@ class _SearchResultPageState extends State<SearchResultPage> {
           return Scaffold(
             appBar: _buildAppBar(state),
             body: RefreshIndicator(
+              color: Colors.blue,
+              backgroundColor: AppColors.white,
+              elevation: 1,
+              strokeWidth: 3,
+              displacement: 40,
+              edgeOffset: 10,
+              triggerMode: RefreshIndicatorTriggerMode.anywhere,
               onRefresh: () =>
                   Future.sync(() => _pagingState.pagingController.refresh()),
               child: CustomScrollView(
@@ -386,8 +394,7 @@ class _SearchResultPageState extends State<SearchResultPage> {
                                         ? state.searchText.toString()
                                         : "What are you looking for?", // Show current search text or default
                                     style: TextStyle(
-                                      color:
-                                          AppColors.darkGray.withOpacity(0.8),
+                                      color: AppColors.black,
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
@@ -434,6 +441,8 @@ class _SearchResultPageState extends State<SearchResultPage> {
       sliver: PagedSliverList(
         pagingController: _pagingState.pagingController,
         builderDelegate: PagedChildBuilderDelegate(
+          firstPageProgressIndicatorBuilder: (_) => const Progress(),
+          newPageProgressIndicatorBuilder: (_) => const Progress(),
           itemBuilder: (context, item, index) {
             final currentItem = item as PublicationPairEntity;
             return Padding(

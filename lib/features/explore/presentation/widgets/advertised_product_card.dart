@@ -7,6 +7,7 @@ import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
+import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/undefined_screens_yet/video_player.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
@@ -49,7 +50,7 @@ class _AdvertisedProductCardState extends State<AdvertisedProductCard> {
         color: AppColors.white,
         shape: SmoothRectangleBorder(
           smoothness: 0.8,
-          borderRadius: BorderRadius.all(Radius.circular(4)),
+          borderRadius: BorderRadius.all(Radius.circular(2)),
         ),
         clipBehavior: Clip.hardEdge,
         elevation: 5,
@@ -66,7 +67,7 @@ class _AdvertisedProductCardState extends State<AdvertisedProductCard> {
 
   Widget _buildProductImageCarousel() {
     return AspectRatio(
-      aspectRatio: 16 / 11,
+      aspectRatio: 16 / 10.5,
       child: ValueListenableBuilder<String?>(
         valueListenable: widget.currentlyPlayingId,
         builder: (context, currentlyPlayingId, _) {
@@ -175,16 +176,41 @@ class ProductDetails extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _ProductTitle(title: product.title),
-          const SizedBox(height: 8),
-          _SellerInfo(seller: product.seller),
-          const SizedBox(height: 8),
-          _LocationInfo(location: product.locationName),
-          const SizedBox(height: 8),
-          ProductDescription(description: product.description),
-          const SizedBox(height: 8),
-          _PriceSection(price: product.price),
           const SizedBox(height: 4),
+          _SellerInfo(seller: product.seller),
+          const SizedBox(height: 6),
+          _ProductTitle(title: product.title),
+          ProductDescription(description: product.description),
+          const SizedBox(height: 6),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _LocationInfo(location: product.locationName),
+                  const SizedBox(height: 2),
+                  _PriceSection(price: product.price),
+                ],
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  color: AppColors.containerColor,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.all(8),
+                child: SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: Image.asset(
+                    AppIcons.favorite,
+                    color: AppColors.darkGray,
+                  ),
+                ),
+              )
+            ],
+          ),
+          const SizedBox(height: 2),
           const CallButton(),
         ],
       ),
@@ -202,7 +228,7 @@ class _ProductTitle extends StatelessWidget {
     return Text(
       title,
       style: const TextStyle(
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w500,
         fontSize: 16,
       ),
       maxLines: 1,
@@ -227,7 +253,7 @@ class _SellerInfo extends StatelessWidget {
           style: const TextStyle(
             fontWeight: FontWeight.w600,
             fontSize: 14,
-            color: AppColors.green,
+            color: AppColors.black,
           ),
         ),
         const SizedBox(width: 8),
@@ -242,7 +268,7 @@ class _SellerInfo extends StatelessWidget {
           style: TextStyle(
             fontWeight: FontWeight.w500,
             fontSize: 14,
-            color: AppColors.green,
+            color: AppColors.black,
           ),
         ),
       ],
@@ -282,16 +308,10 @@ class _LocationInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const Icon(
-          Ionicons.location,
-          size: 20,
-          color: AppColors.primary,
-        ),
-        const SizedBox(width: 8),
         Text(
           location,
           style: TextStyle(
-            color: AppColors.darkGray.withOpacity(0.7),
+            color: AppColors.darkGray.withOpacity(0.5),
             fontSize: 13,
           ),
         ),
@@ -310,8 +330,8 @@ class ProductDescription extends StatelessWidget {
     return Text(
       description,
       style: TextStyle(
-        fontSize: 12,
-        color: AppColors.lightText,
+        fontSize: 13,
+        color: AppColors.darkGray.withOpacity(0.7),
       ),
       maxLines: 2,
       overflow: TextOverflow.ellipsis,
@@ -326,53 +346,12 @@ class _PriceSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Price',
-          style: TextStyle(
-            fontSize: 12,
-            color: AppColors.darkGray,
-          ),
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              price.toString(),
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 17,
-                color: AppColors.primary,
-              ),
-            ),
-            const _FavoriteButton(),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _FavoriteButton extends StatelessWidget {
-  const _FavoriteButton();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.containerColor,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      padding: const EdgeInsets.all(8.0),
-      child: SizedBox(
-        width: 18,
-        height: 18,
-        child: Image.asset(
-          AppIcons.favorite,
-          color: AppColors.darkGray,
-        ),
+    return Text(
+      price.toString(),
+      style: const TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: 18,
+        color: AppColors.primary,
       ),
     );
   }
@@ -397,9 +376,10 @@ class CallButton extends StatelessWidget {
           child: Text(
             'Call Now',
             style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: AppColors.error,
+              fontSize: 14,
+              fontFamily: "Poppins",
+              fontWeight: FontWeight.w700,
+              color: AppColors.darkGray,
             ),
           ),
         ),
@@ -444,6 +424,7 @@ class ProductMediaContent extends StatelessWidget {
       fit: BoxFit.cover,
       memCacheWidth: 700,
       maxWidthDiskCache: 700,
+      
       placeholder: (context, url) => const _LoadingIndicator(),
       errorWidget: (context, url, error) => const _ErrorWidget(),
     );
@@ -456,11 +437,7 @@ class _LoadingIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: CircularProgressIndicator(
-        color: AppColors.white,
-      ),
-    );
+    return Progress();
   }
 }
 

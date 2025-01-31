@@ -59,13 +59,18 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
 
       String url = '/api/v1/publications';
 
-      if (categoryId != null) {
+     if(query!=null){
+       url += '/search/all';
+     }else{
+if (categoryId != null) {
         if (subcategoryId != null) {
           url += '/search/all/$categoryId/$subcategoryId';
         } else {
           url += '/p/$categoryId';
         }
       }
+     }
+      
 
       final response = await dio.get(
         url,

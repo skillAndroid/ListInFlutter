@@ -4,8 +4,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:video_player/video_player.dart';
+
 class VideoPlayerWidget extends StatefulWidget {
   final String videoUrl;
   final String thumbnailUrl;
@@ -43,6 +45,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   }
 
   Future<void> _initializeVideo() async {
+    // ignore: deprecated_member_use
     _controller = VideoPlayerController.network(
       widget.videoUrl,
       videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
@@ -51,7 +54,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
     try {
       await _controller?.initialize();
       _controller?.addListener(_videoListener);
-      
+
       if (mounted) {
         setState(() {
           _isInitialized = true;
@@ -67,11 +70,11 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
 
   void _videoListener() {
     if (!mounted) return;
-    
+
     setState(() {
       _isBuffering = _controller?.value.isBuffering ?? false;
       _position = _controller?.value.position ?? Duration.zero;
-      
+
       if (_duration != _controller?.value.duration) {
         _duration = _controller?.value.duration ?? Duration.zero;
       }
@@ -104,11 +107,11 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   @override
   void didUpdateWidget(VideoPlayerWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
+
     if (widget.isPlaying != oldWidget.isPlaying && _isInitialized) {
       widget.isPlaying ? _controller?.play() : _controller?.pause();
     }
-    
+
     if (widget.videoUrl != oldWidget.videoUrl) {
       setState(() {
         _isInitialized = false;
@@ -141,7 +144,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
     return SliderTheme(
       data: SliderThemeData(
         trackHeight: 4,
-        activeTrackColor: AppColors.primary,
+        activeTrackColor: Colors.grey,
         inactiveTrackColor: AppColors.containerColor,
         thumbColor: AppColors.primaryLight,
         trackShape: const _CustomTrackShape(),
@@ -198,8 +201,13 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
       return CachedNetworkImage(
         imageUrl: widget.thumbnailUrl,
         fit: BoxFit.cover,
-        placeholder: (context, url) => const Center(
-          child: CircularProgressIndicator(),
+        memCacheWidth: 700,
+        maxWidthDiskCache: 700,
+        fadeInDuration: Duration.zero,
+        fadeOutDuration: Duration.zero,
+        placeholder: (context, url) => Container(
+          color:
+              Colors.grey[200], // Static placeholder color instead of animation
         ),
         errorWidget: (context, url, error) => const Center(
           child: Icon(Icons.error),
@@ -229,7 +237,8 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
                   left: 0,
                   right: 0,
                   bottom: 0,
-                  child: _buildProgressBar(),
+                  child: Transform.translate(
+                      offset: Offset(0, 3), child: _buildProgressBar()),
                 ),
                 Positioned(
                   bottom: 8,

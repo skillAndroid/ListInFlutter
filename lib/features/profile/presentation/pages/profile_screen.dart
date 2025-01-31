@@ -72,9 +72,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
       builder: (context, state) {
         if (state.status == UserProfileStatus.loading &&
             state.userData == null) {
-          return Scaffold(
-            body: Progress()
-          );
+          return Scaffold(body: Progress());
         }
         final userData = state.userData;
         return SafeArea(
@@ -95,11 +93,12 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                     backgroundColor: Colors.white,
                     title: Row(
                       children: [
+                        const SizedBox(width: 2),
                         Text(
                           '${userData?.nickName ?? "User empty"} Store',
                           style: const TextStyle(
                             color: AppColors.black,
-                            fontSize: 18,
+                            fontSize: 17,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -108,7 +107,8 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                         ),
                         Icon(
                           Icons.store,
-                          color: AppColors.primary,
+                          color: AppColors.blue,
+                          size: 22,
                         ),
                       ],
                     ),
@@ -142,7 +142,8 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                                 child: Stack(
                                   children: [
                                     SmoothClipRRect(
-                                      borderRadius: BorderRadius.circular(24),
+                                      smoothness: 0.8,
+                                      borderRadius: BorderRadius.circular(22),
                                       child: userData?.profileImagePath != null
                                           ? CachedNetworkImage(
                                               width: double.infinity,
@@ -220,26 +221,26 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                               Text(
                                 userData?.nickName ?? 'User',
                                 style: const TextStyle(
-                                  fontSize: 20,
+                                  fontSize: 17,
                                   fontWeight: FontWeight.w600,
                                   color: Colors.black87,
                                 ),
                               ),
-                              const SizedBox(width: 16),
+                              const SizedBox(width: 12),
                               Container(
                                 decoration: BoxDecoration(
-                                  color: Colors.grey,
+                                  color: Colors.grey.withOpacity(0.3),
                                   borderRadius: BorderRadius.circular(2),
                                 ),
                                 width: 2,
-                                height: 16,
+                                height: 14,
                               ),
-                              const SizedBox(width: 16),
+                              const SizedBox(width: 12),
                               Text(
                                 userData?.role ?? 'User Type',
                                 style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
                                   color: Colors.black87,
                                 ),
                               ),
@@ -283,19 +284,20 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                               children: [
                                 Icon(
                                   Icons.inventory_rounded,
-                                  size: 26,
+                                  size: 22,
                                 ),
                                 SizedBox(
-                                  width: 6,
+                                  width: 4,
                                 ),
                                 Text(
                                   '13',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
+                                    fontSize: 13,
                                   ),
                                 ),
                                 SizedBox(
-                                  width: 6,
+                                  width: 4,
                                 ),
                               ],
                             ),
@@ -306,19 +308,20 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                               children: [
                                 Icon(
                                   CupertinoIcons.camera,
-                                  size: 26,
+                                  size: 22,
                                 ),
                                 SizedBox(
-                                  width: 6,
+                                  width: 4,
                                 ),
                                 Text(
                                   '13',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
+                                    fontSize: 13,
                                   ),
                                 ),
                                 SizedBox(
-                                  width: 6,
+                                  width: 4,
                                 ),
                               ],
                             ),
@@ -329,19 +332,20 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                               children: [
                                 Icon(
                                   CupertinoIcons.play_circle,
-                                  size: 26,
+                                  size: 22,
                                 ),
                                 SizedBox(
-                                  width: 6,
+                                  width: 4,
                                 ),
                                 Text(
                                   '13',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
+                                    fontSize: 13,
                                   ),
                                 ),
                                 SizedBox(
-                                  width: 6,
+                                  width: 4,
                                 ),
                               ],
                             ),
@@ -353,19 +357,20 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                               children: [
                                 Icon(
                                   Icons.reviews_outlined,
-                                  size: 26,
+                                  size: 22,
                                 ),
                                 SizedBox(
-                                  width: 6,
+                                  width: 4,
                                 ),
                                 Text(
                                   '13',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
+                                    fontSize: 13,
                                   ),
                                 ),
                                 SizedBox(
-                                  width: 6,
+                                  width: 4,
                                 ),
                               ],
                             ),
@@ -376,24 +381,32 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                               children: [
                                 Icon(
                                   CupertinoIcons.heart_circle,
-                                  size: 26,
+                                  size: 22,
                                 ),
                                 SizedBox(
-                                  width: 6,
+                                  width: 4,
                                 ),
                                 Text(
                                   '13',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
+                                    fontSize: 13,
                                   ),
                                 ),
                                 SizedBox(
-                                  width: 6,
+                                  width: 4,
                                 ),
                               ],
                             ),
                           ),
                         ],
+                        labelColor: AppColors.black,
+                        unselectedLabelColor: AppColors.grey,
+                        indicator: const CustomLineIndicator(
+                          lineHeight: 3,
+                          lineWidth: 18, // Reduced from 20
+                          color: AppColors.black,
+                        ),
                       ),
                       backgroundColor: AppColors.bgColor,
                     ),
@@ -466,15 +479,15 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
         Text(
           value,
           style: const TextStyle(
-            fontSize: 22,
+            fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: Colors.black87,
+            color: Colors.black,
           ),
         ),
         Text(
           label,
           style: TextStyle(
-            fontSize: 13,
+            fontSize: 12,
             fontWeight: FontWeight.w500,
             color: AppColors.grey,
           ),
@@ -577,12 +590,13 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
             shadowColor: Colors.white.withOpacity(0.5),
             shape: SmoothRectangleBorder(
                 side: BorderSide(
-                    width: index == 0 ? 1.5 : 0,
-                    color: index == 0
-                        ? AppColors.blue.withOpacity(0.7)
-                        : AppColors.transparent),
+                  width: index == 0 ? 1.5 : 0,
+                  color: index == 0
+                      ? AppColors.blue.withOpacity(0.7)
+                      : AppColors.transparent,
+                ),
                 borderRadius: index != 0
-                    ? BorderRadius.circular(24)
+                    ? BorderRadius.circular(20)
                     : BorderRadius.circular(20)),
             color: AppColors.containerColor,
             child: Container(
@@ -595,17 +609,17 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                   Icon(
                     icon,
                     color: AppColors.blue,
-                    size: 24,
+                    size: 22,
                   ),
                 ],
               ),
             ),
           ),
-          SizedBox(height: index != 0 ? 4 : 7),
+          SizedBox(height: index != 0 ? 4 : 6),
           Text(
             label,
             style: TextStyle(
-              fontSize: 11,
+              fontSize: 10.5,
               color: AppColors.black,
               fontWeight: FontWeight.w700,
             ),
@@ -619,7 +633,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
     return SliverToBoxAdapter(
       child: Container(
         height: 40,
-        margin: const EdgeInsets.only(bottom: 0, left: 0, top: 4),
+        margin: const EdgeInsets.only(bottom: 0, left: 0, top: 0),
         child: ListView(
           scrollDirection: Axis.horizontal,
           children: [
@@ -640,14 +654,19 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
         elevation: 0,
         shadowColor: AppColors.primary.withOpacity(0.01),
         shape: SmoothRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: BorderSide(color: AppColors.white, width: 2)),
+          borderRadius: BorderRadius.circular(10),
+          side: BorderSide(
+            color: AppColors.white,
+            width: 1.5,
+          ),
+        ),
         label: Text(
           label,
           style: TextStyle(
-              color: isSelected ? AppColors.black : Colors.grey,
-              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w700,
-              fontSize: 12),
+            color: isSelected ? AppColors.black : Colors.grey,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w600,
+            fontSize: 11,
+          ),
         ),
         selected: isSelected,
         onSelected: (bool selected) {
@@ -656,9 +675,9 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
           });
         },
         backgroundColor: AppColors.containerColor.withOpacity(0.75),
-        selectedColor: AppColors.containerColor.withOpacity(0.75),
+        selectedColor: AppColors.containerColor,
         showCheckmark: false,
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       ),
     );
   }
@@ -677,10 +696,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
             state.publications.isEmpty) {
           return SliverToBoxAdapter(
             child: Center(
-              child: Transform.scale(
-                scale: 0.75,
-                child: Progress()
-              ),
+              child: Transform.scale(scale: 0.75, child: Progress()),
             ),
           );
         }
