@@ -152,13 +152,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                                                   'https://${userData!.profileImagePath!}',
                                               fit: BoxFit.cover,
                                               placeholder: (context, url) =>
-                                                  const Center(
-                                                child:
-                                                    CircularProgressIndicator(
-                                                  color: Colors.lightGreen,
-                                                  strokeWidth: 2,
-                                                ),
-                                              ),
+                                                  const Progress(),
                                               errorWidget:
                                                   (context, url, error) =>
                                                       Image.asset(

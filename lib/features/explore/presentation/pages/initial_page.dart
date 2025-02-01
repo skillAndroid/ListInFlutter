@@ -321,8 +321,10 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
         displacement: 40,
         edgeOffset: 10,
         triggerMode: RefreshIndicatorTriggerMode.anywhere,
-        onRefresh: () =>
-            Future.sync(() => _pagingState.pagingController.refresh()),
+        onRefresh: () {
+          context.read<HomeTreeCubit>().fetchVideoFeeds(0);
+          return Future.sync(() => _pagingState.pagingController.refresh());
+        },
         child: CustomScrollView(
           controller: _scrollState.scrollController,
           physics: const BouncingScrollPhysics(),
@@ -398,13 +400,12 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                     ],
                   ),
                 ),
-                if (state.videoPublications.isNotEmpty)
-                ...[
-                   SizedBox(height: 8),
-                VideoCarousel(
-                  items: state.videoPublications.sublist(0, 4),
-                ),
-                SizedBox(height: 16),
+                if (state.videoPublications.isNotEmpty) ...[
+                  SizedBox(height: 8),
+                  VideoCarousel(
+                    items: state.videoPublications.sublist(0, 4),
+                  ),
+                  SizedBox(height: 16),
                 ]
               ],
             ),

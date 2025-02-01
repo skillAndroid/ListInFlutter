@@ -46,7 +46,7 @@ class _CategoryCardState extends State<CategoryCard>
     super.initState();
     _scaleController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 150),
+      duration: const Duration(milliseconds: 150),  
       lowerBound: 0.95,
       upperBound: 1.0,
     );

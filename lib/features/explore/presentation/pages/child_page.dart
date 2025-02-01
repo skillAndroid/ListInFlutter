@@ -342,32 +342,7 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
                 ),
               ),
             ),
-            _buildContentSection(),
             _buildProductGrid(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildContentSection() {
-    return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      sliver: SliverToBoxAdapter(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Video Posts",
-              style: TextStyle(
-                color: AppColors.black,
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            SizedBox(height: 8),
-         //   VideoCarousel(items: widget.advertisedProducts),
-            SizedBox(height: 16),
           ],
         ),
       ),
@@ -602,31 +577,7 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
   }
 
   Widget _buildCategories() {
-    final recommendations = [
-      RecommendationItem(
-        title: "Recent",
-        icon: Icons.access_time_rounded,
-        color: Colors.blue,
-      ),
-      RecommendationItem(
-        title: "Season Fashion",
-        icon: Icons.checkroom_rounded,
-        color: Colors.purple,
-      ),
-      RecommendationItem(
-        title: "For Free",
-        icon: Icons.card_giftcard_rounded,
-        color: Colors.red,
-      ),
-      RecommendationItem(
-        title: "Gift Ideas",
-        icon: Icons.redeem_rounded,
-        color: Colors.orange,
-      ),
-    ];
-    return TopAppRecomendationSubCategory(
-      recommendations: recommendations,
-    );
+    return TopAppRecomendationSubCategory();
   }
 }
 
