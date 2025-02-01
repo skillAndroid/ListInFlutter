@@ -1,5 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -63,8 +65,15 @@ class _ListInShortsState extends State<ListInShorts> {
 
   void _loadMoreVideos() {
     if (_isLoading || _homeTreeCubit.state.videoHasReachedMax) {
+      print('⚠️ Skip loading more videos:\n'
+          '└─ Is loading: $_isLoading\n'
+          '└─ Has reached max: ${_homeTreeCubit.state.videoHasReachedMax}');
       return;
     }
+
+    print('📥 Loading more videos:\n'
+        '└─ Current count: ${_videos.length}\n'
+        '└─ Loading page: ${_videos.length ~/ 20}');
 
     setState(() {
       _isLoading = true;
@@ -99,6 +108,9 @@ class _ListInShortsState extends State<ListInShorts> {
   void _initializeController(int position, int index,
       {required bool fullLoad}) {
     if (_controllers[position] == null) {
+      print(
+          '🎬 Starting video initialization for position: $position, index: $index');
+
       final controller = VideoPlayerController.network(
         'https://${widget.initialVideos[index].videoUrl}',
         httpHeaders: {
@@ -107,9 +119,24 @@ class _ListInShortsState extends State<ListInShorts> {
       );
 
       _controllers[position] = controller;
-      controller.initialize().then((_) {
+      controller.initialize().then((_) async {
+        print('✅ Video initialized successfully:\n'
+            '└─ Position: $position\n'
+            '└─ Index: $index\n'
+            '└─ Duration: ${controller.value.duration}\n'
+            '└─ Size: ${controller.value.size}\n'
+            '└─ Video URL Size: ${await _getVideoSize("https://${widget.initialVideos[index].videoUrl}")}');
+
         if (mounted) setState(() {});
-        if (fullLoad) controller.play();
+        if (fullLoad) {
+          controller.play();
+          print('▶️ Starting playback for index: $index');
+        }
+      }).catchError((error) {
+        print('❌ Video initialization failed:\n'
+            '└─ Position: $position\n'
+            '└─ Index: $index\n'
+            '└─ Error: $error');
       });
     }
   }
@@ -117,9 +144,16 @@ class _ListInShortsState extends State<ListInShorts> {
   void _handlePageChange(int newIndex) {
     if (newIndex == _currentIndex) return;
 
+    print('🔄 Page change triggered:\n'
+        '└─ Current index: $_currentIndex\n'
+        '└─ New index: $newIndex');
+
     final currentController = _controllers[2];
     if (currentController != null && currentController.value.isInitialized) {
       _videoPositions[_currentIndex] = currentController.value.position;
+      print('💾 Saved video position:\n'
+          '└─ Index: $_currentIndex\n'
+          '└─ Position: ${currentController.value.position}');
     }
 
     final previousIndex = _currentIndex;
@@ -128,8 +162,9 @@ class _ListInShortsState extends State<ListInShorts> {
     });
 
     if (newIndex > previousIndex) {
-      // Moving forward
-      _disposeController(1); // Dispose of previous video
+      print('⏩ Moving forward in playlist:\n'
+          '└─ Disposing controller at position 1');
+      _disposeController(1);
       _controllers[1] = _controllers[2];
       _controllers[2] = _controllers[3];
       _controllers[3] = _controllers[4];
@@ -137,11 +172,14 @@ class _ListInShortsState extends State<ListInShorts> {
       _controllers[0] = null;
 
       if (newIndex + 3 < widget.initialVideos.length) {
+        print('🔄 Preloading next video:\n'
+            '└─ Index: ${newIndex + 3}');
         _initializeController(0, newIndex + 3, fullLoad: false);
       }
     } else {
-      // Moving backward
-      _disposeController(4); // Dispose of after after next video
+      print('⏪ Moving backward in playlist:\n'
+          '└─ Disposing controller at position 4');
+      _disposeController(4);
       _controllers[4] = _controllers[3];
       _controllers[3] = _controllers[2];
       _controllers[2] = _controllers[1];
@@ -149,24 +187,39 @@ class _ListInShortsState extends State<ListInShorts> {
       _controllers[0] = null;
 
       if (newIndex > 0) {
+        print('🔄 Preloading previous video:\n'
+            '└─ Index: ${newIndex - 1}');
         _initializeController(0, newIndex - 1, fullLoad: false);
       }
-    } // Play current video and pause others
+    }
+
     if (_controllers[2] != null) {
       _controllers[2]?.play().then((_) {
         if (_videoPositions.containsKey(newIndex)) {
           _controllers[2]?.seekTo(_videoPositions[newIndex]!);
+          print('⏱️ Restored video position:\n'
+              '└─ Index: $newIndex\n'
+              '└─ Position: ${_videoPositions[newIndex]}');
         }
       });
     }
+
     for (int i = 0; i < _controllers.length; i++) {
-      if (i != 2) _controllers[i]?.pause();
+      if (i != 2) {
+        _controllers[i]?.pause();
+        print('⏸️ Paused video at position: $i');
+      }
     }
   }
 
   void _disposeController(int index) {
-    _controllers[index]?.dispose();
-    _controllers[index] = null;
+    if (_controllers[index] != null) {
+      print('🗑️ Disposing controller:\n'
+          '└─ Position: $index\n'
+          '└─ Was initialized: ${_controllers[index]?.value.isInitialized}');
+      _controllers[index]?.dispose();
+      _controllers[index] = null;
+    }
   }
 
   @override
@@ -265,6 +318,18 @@ class _ListInShortsState extends State<ListInShorts> {
                       ValueListenableBuilder<VideoPlayerValue>(
                         valueListenable: videoController,
                         builder: (context, value, child) {
+                          if (value.hasError) {
+                            print('⚠️ Video playback error:\n'
+                                '└─ Index: $index\n'
+                                '└─ Error: ${value.errorDescription}');
+                          }
+
+                          if (value.isBuffering) {
+                            print('🔄 Video buffering:\n'
+                                '└─ Index: $index\n'
+                                '└─ Position: ${value.position}\n'
+                                '└─ Buffered: ${value.buffered}');
+                          }
                           return Stack(
                             fit: StackFit.expand,
                             children: [
@@ -522,5 +587,21 @@ class _ListInShortsState extends State<ListInShorts> {
         ),
       ),
     );
+  }
+
+  Future<String> _getVideoSize(String url) async {
+    try {
+      final uri = Uri.parse('https://$url');
+      final request = await HttpClient().headUrl(uri);
+      final response = await request.close();
+      final size = response.headers.value('content-length');
+      if (size != null) {
+        final sizeInMB = (int.parse(size) / (1024 * 1024)).toStringAsFixed(2);
+        return '$sizeInMB MB';
+      }
+      return 'Unknown';
+    } catch (e) {
+      return 'Error getting size';
+    }
   }
 }
