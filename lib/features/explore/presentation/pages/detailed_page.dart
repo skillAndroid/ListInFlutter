@@ -181,10 +181,15 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
             current.childPublicationsRequestState;
   }
 
+  bool isFiltersRefresh = false;
   void _handleStateChanges(BuildContext context, HomeTreeState state) {
-    if (state.childCurrentPage == 0 &&
-        state.childPublicationsRequestState == RequestState.inProgress) {
+    if (isFiltersRefresh &&
+            state.childPublicationsRequestState == RequestState.inProgress ||
+        state.filtersTrigered) {
       _pagingState.pagingController.itemList = null;
+      setState(() {
+        isFiltersRefresh = false;
+      });
     }
     if (state.childPublicationsRequestState == RequestState.error) {
       _handleError(state);
@@ -748,7 +753,11 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                     TextButton(
                                       onPressed: () {
                                         cubit.clearSelectedAttribute(attribute);
+
                                         cubit.fetchChildPage(0);
+                                        setState(() {
+                                          isFiltersRefresh = true;
+                                        });
                                         cubit.getAtributesForPost();
                                         Navigator.pop(context);
                                       },
@@ -772,6 +781,9 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                       onPressed: () {
                                         cubit.clearSelectedAttribute(attribute);
                                         cubit.fetchChildPage(0);
+                                        setState(() {
+                                          isFiltersRefresh = true;
+                                        });
                                         cubit.getAtributesForPost();
                                         Navigator.pop(context);
                                       },
@@ -919,14 +931,22 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
 
                 if (selections.isEmpty) {
                   cubit.clearSelectedAttribute(attribute);
+
                   cubit.fetchChildPage(0);
+                  setState(() {
+                    isFiltersRefresh = true;
+                  });
                   cubit.getAtributesForPost();
                 } else {
                   cubit.clearSelectedAttribute(attribute);
                   for (var value in selections) {
                     cubit.selectAttributeValue(attribute, value);
                   }
+
                   cubit.fetchChildPage(0);
+                  setState(() {
+                    isFiltersRefresh = true;
+                  });
                   cubit.getAtributesForPost();
                 }
                 Navigator.pop(context);
@@ -978,10 +998,18 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
             onTap: () {
               if (isSelected) {
                 cubit.clearSelectedAttribute(attribute);
+
                 cubit.fetchChildPage(0);
+                setState(() {
+                  isFiltersRefresh = true;
+                });
               } else {
                 cubit.selectAttributeValue(attribute, value);
+
                 cubit.fetchChildPage(0);
+                setState(() {
+                  isFiltersRefresh = true;
+                });
               }
               Navigator.pop(context);
               cubit.getAtributesForPost();
@@ -1273,13 +1301,21 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
 
                               if (selections.isEmpty) {
                                 cubit.clearSelectedAttribute(attribute);
+
                                 cubit.fetchChildPage(0);
+                                setState(() {
+                                  isFiltersRefresh = true;
+                                });
                               } else {
                                 cubit.clearSelectedAttribute(attribute);
                                 for (var value in selections) {
                                   cubit.selectAttributeValue(attribute, value);
                                 }
+
                                 cubit.fetchChildPage(0);
+                                setState(() {
+                                  isFiltersRefresh = true;
+                                });
                                 cubit.getAtributesForPost(); // Add this line
                               }
                               Navigator.pop(context);

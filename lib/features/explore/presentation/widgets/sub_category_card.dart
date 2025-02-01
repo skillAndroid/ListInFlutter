@@ -16,7 +16,6 @@ class SubcategoryCard extends StatefulWidget {
   final CategoryModel categoryM;
   final int categoryIndex;
   final int itemIndex;
-  final Map<String, dynamic> config;
 
   const SubcategoryCard({
     super.key,
@@ -24,7 +23,6 @@ class SubcategoryCard extends StatefulWidget {
     required this.categoryIndex,
     required this.itemIndex,
     required this.categoryM,
-    required this.config,
   });
 
   @override
@@ -101,7 +99,7 @@ class _SubcategoryCardState extends State<SubcategoryCard>
                     const SizedBox(width: 6),
                     ConstrainedBox(
                       constraints: BoxConstraints(
-                        maxWidth: widget.config['maxWidth'],
+                        maxWidth: 75,
                       ),
                       child: Text(
                         widget.category.name,
@@ -119,8 +117,8 @@ class _SubcategoryCardState extends State<SubcategoryCard>
                     SmoothClipRRect(
                       borderRadius: BorderRadius.circular(0),
                       child: SizedBox(
-                        width: widget.config['maxWidth'],
-                        height: widget.config['height'],
+                        width: 70,
+                        height: 70,
                         child: const SizedBox(),
                       ),
                     ),
@@ -132,7 +130,7 @@ class _SubcategoryCardState extends State<SubcategoryCard>
               top: 8,
               left: 8,
               child: SizedBox(
-                width: widget.config['maxWidth'],
+                width: 75,
                 child: Text(
                   widget.category.name,
                   maxLines: 2,
@@ -153,13 +151,12 @@ class _SubcategoryCardState extends State<SubcategoryCard>
               child: Transform.translate(
                 offset: Offset(-4, 4),
                 child: SmoothClipRRect(
-                  borderRadius: BorderRadius.circular(widget.config['radius']),
+                  borderRadius: BorderRadius.circular(16),
                   child: SizedBox(
                     width: 64,
                     height: 64,
                     child: ClipRRect(
-                      borderRadius:
-                          BorderRadius.circular(widget.config['radius']),
+                      borderRadius: BorderRadius.circular(16),
                       child: CachedNetworkImage(
                         imageUrl: widget.category.logoUrl,
                         fit: BoxFit.contain,

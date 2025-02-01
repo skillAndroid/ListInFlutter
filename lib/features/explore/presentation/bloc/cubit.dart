@@ -109,12 +109,12 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     }
   }
 
- void handleVideoFeedNavigation(BuildContext context, int selectedIndex) {
+  void handleVideoFeedNavigation(BuildContext context, int selectedIndex) {
     if (state.videoPublications.isNotEmpty) {
       final limitedVideos = state.videoPublications.length > 20
           ? state.videoPublications.sublist(0, 20)
           : state.videoPublications;
-          
+
       if (state.videoPublications.length > 20) {
         emit(state.copyWith(videoPublications: limitedVideos));
       }
@@ -503,21 +503,28 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     }
   }
 
+  void filtersTrigered() {
+    emit(state.copyWith(
+      filtersTrigered: true,
+    ));
+  }
+
   Future<void> fetchChildPage(int pageKey) async {
+    // If we're already fetching, don't start another fetch
     if (state.childPublicationsRequestState == RequestState.inProgress) {
       debugPrint(
           '🚫 Preventing duplicate publications request for page: $pageKey');
       return;
     }
-    debugPrint('🔍 Fetching page: $pageKey with search: ${state.searchText}');
 
+    // If this is page 0, we want to ensure we're starting fresh
     if (pageKey == 0) {
       emit(state.copyWith(
         childPublicationsRequestState: RequestState.inProgress,
-        errorChildPublicationsFetch: null,
-        childPublications: [],
+        childPublications: [], // Ensure we clear existing publications
         childHasReachedMax: false,
         childCurrentPage: 0,
+        errorChildPublicationsFetch: null,
       ));
     } else {
       emit(state.copyWith(
@@ -539,6 +546,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
         ),
       );
 
+      // Handle the result only if we're still mounted and the request is still relevant
       result.fold(
         (failure) {
           emit(state.copyWith(
@@ -547,21 +555,20 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
           ));
         },
         (paginatedData) {
+          // For page 0, we always want to replace existing data
           final updatedPublications =
               pageKey == 0 ? paginatedData : paginatedData;
-
           final isLastPage =
               paginatedData.isNotEmpty ? paginatedData.last.isLast : true;
 
-          emit(
-            state.copyWith(
-              childPublicationsRequestState: RequestState.completed,
-              errorChildPublicationsFetch: null,
-              childPublications: updatedPublications,
-              childHasReachedMax: isLastPage,
-              childCurrentPage: pageKey,
-            ),
-          );
+          emit(state.copyWith(
+            childPublicationsRequestState: RequestState.completed,
+            childPublications: updatedPublications,
+            childHasReachedMax: isLastPage,
+            childCurrentPage: pageKey,
+            errorChildPublicationsFetch: null,
+            filtersTrigered: false
+          ));
         },
       );
     } catch (e) {
@@ -651,6 +658,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     emit(state.copyWith(
       priceFrom: from,
       priceTo: to,
+      filtersTrigered: true,
     ));
     if (state.searchText != null) {
       searchPage(0);
@@ -673,6 +681,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     emit(state.copyWith(
       priceFrom: null,
       priceTo: null,
+      filtersTrigered: true,
     ));
 
     fetchChildPage(0);

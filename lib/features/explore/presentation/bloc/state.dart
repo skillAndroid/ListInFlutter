@@ -67,6 +67,7 @@ class HomeTreeState {
   final int searchCurrentPage;
 
   final bool childHasReachedMax;
+  final bool filtersTrigered;
   final int childCurrentPage;
   final bool searchHasReachedMax;
 
@@ -133,6 +134,7 @@ class HomeTreeState {
     this.searchCurrentPage = 0,
     this.childIsLoadingMore = false,
     this.childHasReachedMax = false,
+    this.filtersTrigered = false,
     this.childCurrentPage = 0,
     this.searchText,
     this.initialIsPublicationsLoading = false,
@@ -222,6 +224,7 @@ class HomeTreeState {
     bool? secondaryHasReachedMax,
     bool? videoHasReachedMax,
     bool? childHasReachedMax,
+    bool? filtersTrigered,
     int? searchCurrentPage,
     int? initialCurrentPage,
     int? secondaryCurrentPage,
@@ -246,8 +249,8 @@ class HomeTreeState {
           this.secondaryPublicationsRequestState,
       videoSearchRequestState:
           videoSearchRequestState ?? this.videoSearchRequestState,
-      videoPublicationsRequestState: videoPublicationsRequestState ??
-          this.videoPublicationsRequestState,
+      videoPublicationsRequestState:
+          videoPublicationsRequestState ?? this.videoPublicationsRequestState,
       childSearchRequestState:
           childSearchRequestState ?? this.childSearchRequestState,
       childPublicationsRequestState:
@@ -287,13 +290,12 @@ class HomeTreeState {
       secondaryHasReachedMax:
           secondaryHasReachedMax ?? this.secondaryHasReachedMax,
       secondaryCurrentPage: secondaryCurrentPage ?? this.secondaryCurrentPage,
-      videoPublications:
-          videoPublications ?? this.videoPublications,
-      videoHasReachedMax:
-          videoHasReachedMax ?? this.videoHasReachedMax,
+      videoPublications: videoPublications ?? this.videoPublications,
+      videoHasReachedMax: videoHasReachedMax ?? this.videoHasReachedMax,
       videoCurrentPage: videoCurrentPage ?? this.videoCurrentPage,
       childPublications: childPublications ?? this.childPublications,
       childHasReachedMax: childHasReachedMax ?? this.childHasReachedMax,
+      filtersTrigered: filtersTrigered ?? this.filtersTrigered,
       childCurrentPage: childCurrentPage ?? this.childCurrentPage,
       predictions: predictions ?? this.predictions,
       predictionsRequestState:
