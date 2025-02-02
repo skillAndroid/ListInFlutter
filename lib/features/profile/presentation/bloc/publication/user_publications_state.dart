@@ -101,26 +101,16 @@ class PublicationUpdateState extends Equatable {
     this.hasDeletedVideo = false, // Initialize this
   });
 
-  factory PublicationUpdateState.initial() {
-    return PublicationUpdateState(
-      id: "",
-      title: '',
-      description: '',
-      price: 0,
-      canBargain: false,
-      condition: '',
-      imageUrls: [],
-      newImages: [],
-      videoUrl: null,
-      newVideo: null,
-      hasDeletedVideo: false,
-      isVideoPlaying: false,
-      isSubmitting: false,
-      isSuccess: false,
-      error: null,
-      updatingState: PublicationUpdatingState.initial,
-    );
-  }
+  factory PublicationUpdateState.initial() => const PublicationUpdateState(
+        id: '',
+        title: '',
+        description: '',
+        price: 0.0,
+        canBargain: false,
+        condition: 'NEW_PRODUCT',
+        newImages: [],
+        imageUrls: [],
+      );
 
   PublicationUpdateState copyWith({
     String? id,

@@ -98,6 +98,9 @@ class _PublicationsEditorPageState extends State<PublicationsEditorPage> {
               actions: [
                 TextButton(
                   onPressed: () {
+                    context
+                        .read<PublicationUpdateBloc>()
+                        .add(ClearPublicationState());
                     Navigator.of(context).pop();
                     context.pop();
                   },
