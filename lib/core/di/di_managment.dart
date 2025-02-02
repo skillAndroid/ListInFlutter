@@ -150,7 +150,12 @@ Future<void> init() async {
   );
 
   sl.registerFactory(
-      () => PublicationUpdateBloc(updatePublicationUseCase: sl()));
+    () => PublicationUpdateBloc(
+      updatePublicationUseCase: sl(),
+      uploadImagesUseCase: sl(),
+      uploadVideoUseCase: sl(),
+    ),
+  );
 
   // Use cases
   sl.registerLazySingleton(() => LoginUseCase(sl()));

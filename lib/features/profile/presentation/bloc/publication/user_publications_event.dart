@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:list_in/features/profile/domain/entity/publication/publication_entity.dart';
 
 abstract class UserPublicationsEvent extends Equatable {
@@ -79,4 +80,45 @@ class SubmitPublicationUpdate extends PublicationUpdateEvent {
 class ClearPublicationState extends PublicationUpdateEvent {
   @override
   List<Object?> get props => [];
+}
+
+class UpdateImages extends PublicationUpdateEvent {
+  final List<XFile> images;
+  UpdateImages(this.images);
+  @override
+  List<Object?> get props => [images];
+}
+
+class ReorderImages extends PublicationUpdateEvent {
+  final int oldIndex;
+  final int newIndex;
+  ReorderImages(this.oldIndex, this.newIndex);
+  @override
+  List<Object?> get props => [oldIndex, newIndex];
+}
+
+class RemoveImage extends PublicationUpdateEvent {
+  final int index;
+  RemoveImage(this.index);
+  @override
+  List<Object?> get props => [index];
+}
+
+class ClearVideo extends PublicationUpdateEvent {
+  @override
+  List<Object?> get props => [];
+}
+
+class UpdateVideo extends PublicationUpdateEvent {
+  final XFile? video;
+  UpdateVideo(this.video);
+  @override
+  List<Object?> get props => [video];
+}
+
+class ToggleVideoPlayback extends PublicationUpdateEvent {
+  final bool isPlaying;
+  ToggleVideoPlayback(this.isPlaying);
+  @override
+  List<Object?> get props => [isPlaying];
 }

@@ -1,11 +1,16 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:io';
+
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
-import 'package:list_in/features/post/presentation/provider/post_provider.dart';
-import 'package:provider/provider.dart';
+import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
+import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_event.dart';
+import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_state.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:video_player/video_player.dart';
 
@@ -13,23 +18,20 @@ class MediaWidget extends StatefulWidget {
   const MediaWidget({super.key});
 
   @override
-  MediaPageState createState() => MediaPageState();
+  MediaWidgetState createState() => MediaWidgetState();
 }
 
-class MediaPageState extends State<MediaWidget> {
+class MediaWidgetState extends State<MediaWidget> {
   final ImagePicker _picker = ImagePicker();
   VideoPlayerController? _videoController;
-  bool _isPlaying = false;
-  final bool _autoReplay = false;
 
   @override
   void initState() {
     super.initState();
-    // Initialize video controller if there's a saved video
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = Provider.of<PostProvider>(context, listen: false);
-      if (provider.video != null) {
-        _initializeVideoPlayer(provider.video!.path);
+      final state = context.read<PublicationUpdateBloc>().state;
+      if (state.videoUrl != null) {
+        _initializeVideoPlayer('https://${state.videoUrl!}');
       }
     });
   }
@@ -40,7 +42,7 @@ class MediaPageState extends State<MediaWidget> {
     super.dispose();
   }
 
-  Future<void> _pickImagesFromGallery(PostProvider provider) async {
+  Future<void> _pickImagesFromGallery() async {
     try {
       final List<XFile> pickedFiles = await _picker.pickMultiImage(
         maxWidth: 1800,
@@ -49,14 +51,14 @@ class MediaPageState extends State<MediaWidget> {
       );
 
       if (pickedFiles.isNotEmpty) {
-        provider.setImages(pickedFiles);
+        context.read<PublicationUpdateBloc>().add(UpdateImages(pickedFiles));
       }
     } catch (e) {
       debugPrint('Error picking images: $e');
     }
   }
 
-  Future<void> _pickVideo(PostProvider provider) async {
+  Future<void> _pickVideo() async {
     try {
       final XFile? video = await _picker.pickVideo(
         source: ImageSource.gallery,
@@ -64,7 +66,7 @@ class MediaPageState extends State<MediaWidget> {
       );
 
       if (video != null) {
-        provider.setVideo(video);
+        context.read<PublicationUpdateBloc>().add(UpdateVideo(video));
         await _initializeVideoPlayer(video.path);
       }
     } catch (e) {
@@ -72,49 +74,34 @@ class MediaPageState extends State<MediaWidget> {
     }
   }
 
-  Future<void> _initializeVideoPlayer(String videoPath) async {
+  Future<void> _initializeVideoPlayer(String videoSource) async {
     _videoController?.dispose();
-    _videoController = VideoPlayerController.file(File(videoPath));
+
+    if (videoSource.startsWith('http')) {
+      _videoController = VideoPlayerController.network(videoSource);
+    } else {
+      _videoController = VideoPlayerController.file(File(videoSource));
+    }
 
     try {
       await _videoController!.initialize();
       _videoController!.addListener(_videoListener);
-      if (mounted) {
-        setState(() {
-          _isPlaying = false;
-        });
-      }
+      setState(() {});
     } catch (e) {
       debugPrint('Error initializing video player: $e');
     }
   }
 
   void _videoListener() {
+    final bloc = context.read<PublicationUpdateBloc>();
     if (_videoController!.value.position >= _videoController!.value.duration) {
-      if (mounted) {
-        setState(() {
-          _isPlaying = false;
-        });
-      }
-
-      if (_autoReplay) {
-        _restartVideo();
-      }
+      bloc.add(ToggleVideoPlayback(false));
     }
   }
 
-  void _restartVideo() {
-    _videoController!.seekTo(Duration.zero);
-    _videoController!.play();
-    if (mounted) {
-      setState(() {
-        _isPlaying = true;
-      });
-    }
-  }
-
-  Widget _buildVideoPreview(XFile? video) {
-    if (video == null || _videoController == null) {
+  Widget _buildVideoPreview(
+      BuildContext context, PublicationUpdateState state) {
+    if (state.videoUrl == null && state.newVideo == null) {
       return const SizedBox.shrink();
     }
 
@@ -134,25 +121,28 @@ class MediaPageState extends State<MediaWidget> {
                   alignment: Alignment.center,
                   fit: StackFit.expand,
                   children: [
-                    AspectRatio(
-                      aspectRatio: 9 / 16,
-                      child: VideoPlayer(_videoController!),
-                    ),
+                    if (_videoController?.value.isInitialized ?? false)
+                      AspectRatio(
+                        aspectRatio: 9 / 16,
+                        child: VideoPlayer(_videoController!),
+                      ),
                     IconButton(
                       icon: Icon(
-                        _isPlaying ? Icons.pause_outlined : Icons.play_arrow,
+                        state.isVideoPlaying
+                            ? Icons.pause_outlined
+                            : Icons.play_arrow,
                         size: 40,
                         color: Colors.white,
                       ),
                       onPressed: () {
-                        setState(() {
-                          if (_isPlaying) {
-                            _videoController!.pause();
-                          } else {
-                            _videoController!.play();
-                          }
-                          _isPlaying = !_isPlaying;
-                        });
+                        if (state.isVideoPlaying) {
+                          _videoController?.pause();
+                        } else {
+                          _videoController?.play();
+                        }
+                        context
+                            .read<PublicationUpdateBloc>()
+                            .add(ToggleVideoPlayback(!state.isVideoPlaying));
                       },
                     ),
                   ],
@@ -168,9 +158,8 @@ class MediaPageState extends State<MediaWidget> {
                   width: 24,
                   height: 24,
                   decoration: const BoxDecoration(
-                    color: AppColors.error, // Set your background color here
-                    shape: BoxShape
-                        .circle, // Optional: make it circular like the IconButton
+                    color: AppColors.error,
+                    shape: BoxShape.circle,
                   ),
                   child: IconButton(
                     padding: EdgeInsets.zero,
@@ -180,8 +169,7 @@ class MediaPageState extends State<MediaWidget> {
                       size: 18,
                     ),
                     onPressed: () {
-                      Provider.of<PostProvider>(context, listen: false)
-                          .clearVideo();
+                      context.read<PublicationUpdateBloc>().add(ClearVideo());
                       _videoController?.dispose();
                       setState(() {
                         _videoController = null;
@@ -197,7 +185,15 @@ class MediaPageState extends State<MediaWidget> {
     );
   }
 
-  Widget _buildDraggableImageList(List<XFile> images, PostProvider provider) {
+  Widget _buildDraggableImageList(
+      BuildContext context, PublicationUpdateState state) {
+    // Combine existing URLs and new images into a single list
+    final List<ImageItem> allImages = [
+      ...state.imageUrls.map((url) => ImageItem(path: url, isUrl: true)),
+      ...state.newImages
+          .map((file) => ImageItem(path: file.path, isUrl: false)),
+    ];
+
     return SizedBox(
       height: 80,
       child: ReorderableListView(
@@ -211,7 +207,6 @@ class MediaPageState extends State<MediaWidget> {
                   borderRadius: BorderRadius.circular(8),
                   boxShadow: [
                     BoxShadow(
-                      // ignore: deprecated_member_use
                       color: AppColors.black.withOpacity(0.3),
                       blurRadius: elevationValue,
                       spreadRadius: 1,
@@ -225,11 +220,13 @@ class MediaPageState extends State<MediaWidget> {
           );
         },
         onReorder: (oldIndex, newIndex) {
-          provider.reorderImages(oldIndex, newIndex);
+          context.read<PublicationUpdateBloc>().add(
+                ReorderImages(oldIndex, newIndex),
+              );
         },
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.only(right: 6),
-        children: images.asMap().entries.map((entry) {
+        children: allImages.asMap().entries.map((entry) {
           final index = entry.key;
           final image = entry.value;
           return Container(
@@ -245,12 +242,19 @@ class MediaPageState extends State<MediaWidget> {
                     color: AppColors.white,
                   ),
                   borderRadius: BorderRadius.circular(16),
-                  child: Image.file(
-                    File(image.path),
-                    width: double.infinity,
-                    height: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
+                  child: image.isUrl
+                      ? Image.network(
+                          'https://${image.path}',
+                          width: double.infinity,
+                          height: double.infinity,
+                          fit: BoxFit.cover,
+                        )
+                      : Image.file(
+                          File(image.path),
+                          width: double.infinity,
+                          height: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
                 ),
                 if (index == 0)
                   Positioned(
@@ -281,10 +285,8 @@ class MediaPageState extends State<MediaWidget> {
                       width: 20,
                       height: 20,
                       decoration: const BoxDecoration(
-                        color:
-                            AppColors.error, // Set your background color here
-                        shape: BoxShape
-                            .circle, // Optional: make it circular like the IconButton
+                        color: AppColors.error,
+                        shape: BoxShape.circle,
                       ),
                       child: IconButton(
                         padding: EdgeInsets.zero,
@@ -294,7 +296,9 @@ class MediaPageState extends State<MediaWidget> {
                           size: 16,
                         ),
                         onPressed: () {
-                          provider.removeImageAt(index);
+                          context
+                              .read<PublicationUpdateBloc>()
+                              .add(RemoveImage(index));
                         },
                       ),
                     ),
@@ -310,8 +314,8 @@ class MediaPageState extends State<MediaWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<PostProvider>(
-      builder: (context, provider, child) {
+    return BlocBuilder<PublicationUpdateBloc, PublicationUpdateState>(
+      builder: (context, state) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -319,14 +323,15 @@ class MediaPageState extends State<MediaWidget> {
             const Text(
               'Upload Images',
               style: TextStyle(
-                  fontSize: 18,
-                  fontFamily: "Syne",
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w500),
+                fontSize: 18,
+                fontFamily: "Syne",
+                color: AppColors.primary,
+                fontWeight: FontWeight.w500,
+              ),
             ),
-            if (provider.images.isNotEmpty) ...[
+            if (state.imageUrls.isNotEmpty) ...[
               const SizedBox(height: 8),
-              _buildDraggableImageList(provider.images, provider),
+              _buildDraggableImageList(context, state),
             ],
             const SizedBox(height: 8),
             const Text(
@@ -349,7 +354,7 @@ class MediaPageState extends State<MediaWidget> {
                   width: 76,
                   height: 76,
                   child: ElevatedButton(
-                    onPressed: () => _pickImagesFromGallery(provider),
+                    onPressed: _pickImagesFromGallery,
                     child: const Icon(
                       EvaIcons.image,
                       color: AppColors.black,
@@ -357,9 +362,7 @@ class MediaPageState extends State<MediaWidget> {
                     ),
                   ),
                 ),
-                const SizedBox(
-                  width: 16,
-                ),
+                const SizedBox(width: 16),
                 const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -372,9 +375,7 @@ class MediaPageState extends State<MediaWidget> {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    SizedBox(
-                      height: 4,
-                    ),
+                    SizedBox(height: 4),
                     Text(
                       'Format JPG or PNG',
                       style: TextStyle(
@@ -397,16 +398,14 @@ class MediaPageState extends State<MediaWidget> {
                 fontWeight: FontWeight.w500,
               ),
             ),
-            if (provider.video != null) const SizedBox(height: 8),
+            if (state.videoUrl != null || state.newVideo != null)
+              const SizedBox(height: 8),
             Row(
               children: [
-                if (provider.video != null) ...[
-                  _buildVideoPreview(provider.video),
-                  const SizedBox(
-                  width: 8,
-                ),
+                if (state.videoUrl != null || state.newVideo != null) ...[
+                  _buildVideoPreview(context, state),
+                  const SizedBox(width: 8),
                 ],
-                
                 SmoothClipRRect(
                   smoothness: 1,
                   borderRadius: BorderRadius.circular(16),
@@ -420,11 +419,10 @@ class MediaPageState extends State<MediaWidget> {
                     ),
                   ),
                 ),
-                const SizedBox(
-                  width: 8,
-                ),
+                const SizedBox(width: 8),
               ],
             ),
+            // Rest of the UI remains the same but with bloc state
             const SizedBox(height: 8),
             const Text(
               'Attract more buyers with quick show case',
@@ -454,7 +452,7 @@ class MediaPageState extends State<MediaWidget> {
                   width: 76,
                   height: 76,
                   child: ElevatedButton(
-                    onPressed: () => _pickVideo(provider),
+                    onPressed: _pickVideo,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.lightGray,
                     ),
@@ -465,9 +463,7 @@ class MediaPageState extends State<MediaWidget> {
                     ),
                   ),
                 ),
-                const SizedBox(
-                  width: 16,
-                ),
+                const SizedBox(width: 16),
                 const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -492,10 +488,17 @@ class MediaPageState extends State<MediaWidget> {
                   ],
                 ),
               ],
-            )
+            ),
           ],
         );
       },
     );
   }
+}
+
+class ImageItem {
+  final String path;
+  final bool isUrl;
+
+  ImageItem({required this.path, required this.isUrl});
 }
