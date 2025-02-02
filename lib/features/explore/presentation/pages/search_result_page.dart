@@ -159,8 +159,7 @@ class _SearchResultPageState extends State<SearchResultPage> {
   }
 
   void _handleStateChanges(BuildContext context, HomeTreeState state) {
-    if (state.searchCurrentPage == 0 &&
-        state.searchPublicationsRequestState == RequestState.inProgress) {
+    if (state.filtersTrigered) {
       _pagingState.pagingController.itemList = null;
     }
     if (state.searchPublicationsRequestState == RequestState.error) {

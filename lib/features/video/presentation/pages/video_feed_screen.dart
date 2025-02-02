@@ -13,7 +13,6 @@ import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
-import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/video/presentation/wigets/video_controlls.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:video_player/video_player.dart';

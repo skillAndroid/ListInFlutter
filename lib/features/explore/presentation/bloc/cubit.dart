@@ -552,6 +552,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
           emit(state.copyWith(
             childPublicationsRequestState: RequestState.error,
             errorChildPublicationsFetch: _mapFailureToMessage(failure),
+            filtersTrigered: false
           ));
         },
         (paginatedData) {
