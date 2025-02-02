@@ -24,60 +24,6 @@ class PublicationsEditorPage extends StatefulWidget {
 }
 
 class _PublicationsEditorPageState extends State<PublicationsEditorPage> {
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocListener<PublicationUpdateBloc, PublicationUpdateState>(
-      listenWhen: (previous, current) =>
-          previous.isSuccess != current.isSuccess ||
-          previous.error != current.error,
-      listener: (context, state) {
-        if (state.isSuccess) {
-          context.read<UserPublicationsBloc>().add(RefreshUserPublications());
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (context) => AlertDialog(
-              title: const Text('Success'),
-              content: const Text('Your publication updated successfully!'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    context.pop();
-                  },
-                  child: const Text('OK'),
-                ),
-              ],
-            ),
-          );
-        } else if (state.error != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.error!),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      },
-      child: Scaffold(
-        body: CatalogPagerScreen(),
-      ),
-    );
-  }
-}
-class CatalogPagerScreen extends StatefulWidget {
-  const CatalogPagerScreen({super.key});
-
-  @override
-  State<CatalogPagerScreen> createState() => _CatalogPagerScreenState();
-}
-
-class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
   late final PageController _pageController;
   late int _currentPage;
   late double _progressValue;
@@ -136,9 +82,39 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<PublicationUpdateBloc, PublicationUpdateState>(
-      buildWhen: (previous, current) =>
-          previous.isSubmitting != current.isSubmitting,
+    return BlocConsumer<PublicationUpdateBloc, PublicationUpdateState>(
+      listenWhen: (previous, current) =>
+          previous.isSuccess != current.isSuccess ||
+          previous.error != current.error,
+      listener: (context, state) {
+        if (state.isSuccess) {
+          context.read<UserPublicationsBloc>().add(RefreshUserPublications());
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => AlertDialog(
+              title: const Text('Success'),
+              content: const Text('Your publication updated successfully!'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    context.pop();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            ),
+          );
+        } else if (state.error != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.error!),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      },
       builder: (context, state) {
         return WillPopScope(
           onWillPop: _onWillPop,
@@ -228,7 +204,8 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
     );
   }
 
-  Widget _buildBottomButton(BuildContext context, PublicationUpdateState state) {
+  Widget _buildBottomButton(
+      BuildContext context, PublicationUpdateState state) {
     final isLastPage = _currentPage == _pageCount - 1;
     final isLoading = state.isSubmitting;
 
