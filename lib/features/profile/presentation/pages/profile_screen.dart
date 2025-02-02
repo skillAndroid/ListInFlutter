@@ -743,7 +743,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                     return const Padding(
                       padding:
                           EdgeInsets.symmetric(horizontal: 16.0, vertical: 0),
-                      child: Center(child: CircularProgressIndicator()),
+                      child: Progress(),
                     );
                   }
                   return null;

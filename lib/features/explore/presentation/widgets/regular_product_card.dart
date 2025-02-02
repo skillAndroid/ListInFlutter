@@ -2,6 +2,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ionicons/ionicons.dart';
@@ -28,7 +29,7 @@ class HorizontalProfileProductCard extends StatelessWidget {
         : '';
 
     return Card(
-      color: AppColors.white,
+      color: Colors.white,
       margin: EdgeInsets.symmetric(vertical: 3, horizontal: 4),
       elevation: 0,
       shape: SmoothRectangleBorder(
@@ -94,7 +95,7 @@ class HorizontalProfileProductCard extends StatelessWidget {
             ),
             Expanded(
               child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -112,13 +113,24 @@ class HorizontalProfileProductCard extends StatelessWidget {
                                 decoration: BoxDecoration(
                                   color: AppColors.containerColor,
                                 ),
-                                child: Text(
-                                  'Boosted', // Keeping default value
-                                  style: TextStyle(
-                                    color: AppColors.darkGray,
-                                    fontSize: 9.5,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      CupertinoIcons.bolt_fill,
+                                      size: 15,
+                                    ),
+                                    SizedBox(
+                                      width: 4,
+                                    ),
+                                    Text(
+                                      'Boosted', // Keeping default value
+                                      style: TextStyle(
+                                        color: AppColors.darkGray,
+                                        fontSize: 9.5,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
@@ -127,10 +139,12 @@ class HorizontalProfileProductCard extends StatelessWidget {
                         SizedBox(height: 6),
                         Text(
                           product.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.darkBackground,
+                            color: AppColors.black,
                           ),
                         ),
                         SizedBox(height: 2),
