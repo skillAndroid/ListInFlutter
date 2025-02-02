@@ -35,6 +35,8 @@ class PublicationUpdateBloc
     on<ClearVideo>(_onClearVideo);
   }
 
+
+
   void _onClearState(
     ClearPublicationState event,
     Emitter<PublicationUpdateState> emit,
@@ -58,38 +60,89 @@ class PublicationUpdateBloc
     ));
   }
 
-  void _onUpdateImages(
-    UpdateImages event,
-    Emitter<PublicationUpdateState> emit,
-  ) {
-    // Replace existing images with new ones
-    emit(state.copyWith(newImages: event.images));
+ void _onReorderImages(
+  ReorderImages event,
+  Emitter<PublicationUpdateState> emit,
+) {
+  final List<String> urls = List.from(state.imageUrls ?? []);
+  final List<XFile> newFiles = List.from(state.newImages);
+  
+  // Calculate indices
+  final oldIndex = event.oldIndex;
+  int newIndex = event.newIndex;
+  if (newIndex > oldIndex) {
+    newIndex -= 1;
   }
 
-  void _onReorderImages(
-    ReorderImages event,
-    Emitter<PublicationUpdateState> emit,
-  ) {
-    int oldIndex = event.oldIndex;
-    int newIndex = event.newIndex;
-
-    // Only reorder new images
-    List<XFile> updatedImages = List.from(state.newImages);
-    final item = updatedImages.removeAt(oldIndex);
-    if (newIndex > oldIndex) newIndex--;
-    updatedImages.insert(newIndex, item);
-
-    emit(state.copyWith(newImages: updatedImages));
+  if (oldIndex < urls.length) {
+    // Moving a URL image
+    if (newIndex < urls.length) {
+      // Moving within URL list
+      final item = urls.removeAt(oldIndex);
+      urls.insert(newIndex, item);
+    } else {
+      // Moving URL to XFile section - this case should be prevented
+      final item = urls.removeAt(oldIndex);
+      urls.insert(urls.length, item);
+    }
+  } else {
+    // Moving an XFile image
+    final xFileIndex = oldIndex - urls.length;
+    final newXFileIndex = newIndex - urls.length;
+    
+    if (xFileIndex < newFiles.length) {
+      final item = newFiles.removeAt(xFileIndex);
+      final insertIndex = newXFileIndex.clamp(0, newFiles.length);
+      newFiles.insert(insertIndex, item);
+    }
   }
 
-  void _onRemoveImage(
-    RemoveImage event,
-    Emitter<PublicationUpdateState> emit,
-  ) {
-    List<XFile> updatedImages = List.from(state.newImages);
-    updatedImages.removeAt(event.index);
-    emit(state.copyWith(newImages: updatedImages));
+  emit(state.copyWith(
+    imageUrls: urls,
+    newImages: newFiles,
+  ));
+}
+
+void _onRemoveImage(
+  RemoveImage event,
+  Emitter<PublicationUpdateState> emit,
+) {
+  final List<String> urls = List.from(state.imageUrls ?? []);
+  final List<XFile> newFiles = List.from(state.newImages);
+
+  if (event.index < urls.length) {
+    urls.removeAt(event.index);
+  } else {
+    final newIndex = event.index - urls.length;
+    if (newIndex < newFiles.length) {
+      newFiles.removeAt(newIndex);
+    }
   }
+
+  emit(state.copyWith(
+    imageUrls: urls.isEmpty ? [] : urls,  // Explicitly set empty list if no URLs
+    newImages: newFiles,
+  ));
+}
+
+void _onUpdateImages(
+  UpdateImages event,
+  Emitter<PublicationUpdateState> emit,
+) {
+  // If keepExisting is false, clear existing URLs
+  if (!event.keepExisting) {
+    emit(state.copyWith(
+      imageUrls: [], // Clear existing URLs
+      newImages: event.images,
+    ));
+  } else {
+    // Keep existing URLs and add new images
+    emit(state.copyWith(
+      imageUrls: state.imageUrls,
+      newImages: event.images,
+    ));
+  }
+}
 
   void _onClearVideo(
     ClearVideo event,
@@ -108,7 +161,7 @@ class PublicationUpdateBloc
   ) {
     emit(state.copyWith(
       newVideo: event.video,
-      videoUrl: null, // Clear previous video URL
+      videoUrl: null,
     ));
   }
 
@@ -238,7 +291,7 @@ class PublicationUpdateBloc
         ),
       ),
     );
-   result.fold(
+    result.fold(
       (failure) => emit(state.copyWith(
         isSubmitting: false,
         error: _mapFailureToMessage(failure),

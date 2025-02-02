@@ -84,10 +84,15 @@ class ClearPublicationState extends PublicationUpdateEvent {
 
 class UpdateImages extends PublicationUpdateEvent {
   final List<XFile> images;
-  UpdateImages(this.images);
+  final bool keepExisting;
+  
+  UpdateImages(this.images, {this.keepExisting = false});
+  
   @override
-  List<Object?> get props => [images];
+  List<Object?> get props => [images, keepExisting];
 }
+
+
 
 class ReorderImages extends PublicationUpdateEvent {
   final int oldIndex;

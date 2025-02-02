@@ -101,14 +101,26 @@ class PublicationUpdateState extends Equatable {
     this.hasDeletedVideo = false, // Initialize this
   });
 
-  factory PublicationUpdateState.initial() => const PublicationUpdateState(
-        id: '',
-        title: '',
-        description: '',
-        price: 0.0,
-        canBargain: false,
-        condition: 'NEW_PRODUCT',
-      );
+  factory PublicationUpdateState.initial() {
+    return PublicationUpdateState(
+      id: "",
+      title: '',
+      description: '',
+      price: 0,
+      canBargain: false,
+      condition: '',
+      imageUrls: [],
+      newImages: [],
+      videoUrl: null,
+      newVideo: null,
+      hasDeletedVideo: false,
+      isVideoPlaying: false,
+      isSubmitting: false,
+      isSuccess: false,
+      error: null,
+      updatingState: PublicationUpdatingState.initial,
+    );
+  }
 
   PublicationUpdateState copyWith({
     String? id,
@@ -141,7 +153,7 @@ class PublicationUpdateState extends Equatable {
       isSubmitting: isSubmitting ?? this.isSubmitting,
       isSuccess: isSuccess ?? this.isSuccess,
       // Allow setting null values explicitly
-      imageUrls: imageUrls ?? [],
+      imageUrls: imageUrls ?? this.imageUrls,
       videoUrl: hasDeletedVideo == true ? null : (videoUrl ?? this.videoUrl),
 
       newImages: newImages ?? this.newImages,

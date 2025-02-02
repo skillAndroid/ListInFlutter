@@ -3,6 +3,7 @@
 import 'dart:io';
 
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
@@ -42,16 +43,76 @@ class MediaWidgetState extends State<MediaWidget> {
     super.dispose();
   }
 
-  Future<void> _pickImagesFromGallery() async {
+  Future<void> _pickImagesFromGallery(
+      BuildContext context, ImagePicker picker) async {
     try {
-      final List<XFile> pickedFiles = await _picker.pickMultiImage(
+      final List<XFile> pickedFiles = await picker.pickMultiImage(
         maxWidth: 1800,
         maxHeight: 1800,
         imageQuality: 100,
       );
 
       if (pickedFiles.isNotEmpty) {
-        context.read<PublicationUpdateBloc>().add(UpdateImages(pickedFiles));
+        final state = context.read<PublicationUpdateBloc>().state;
+
+        if (state.imageUrls?.isNotEmpty ?? false) {
+          // Show Cupertino-style dialog if there are existing images
+          final keepExisting = await showCupertinoDialog<bool>(
+            context: context,
+            builder: (BuildContext context) {
+              return CupertinoAlertDialog(
+                title: const Text(
+                  'Existing Images',
+                  style: TextStyle(
+                    fontFamily: "Poppins",
+                  ),
+                ),
+                content: const Text(
+                  'Do you want to keep the existing images?',
+                  style: TextStyle(
+                    fontFamily: "Poppins",
+                  ),
+                ),
+                actions: [
+                  CupertinoDialogAction(
+                    isDestructiveAction: true,
+                    child: const Text(
+                      'Replace All',
+                      style: TextStyle(
+                        fontFamily: "Poppins",
+                        fontSize: 14,
+                      ),
+                    ),
+                    onPressed: () => Navigator.of(context).pop(false),
+                  ),
+                  CupertinoDialogAction(
+                    isDefaultAction: true,
+                    child: const Text(
+                      'Keep Both',
+                      style: TextStyle(
+                        fontFamily: "Poppins",
+                        fontSize: 14,
+                      ),
+                    ),
+                    onPressed: () => Navigator.of(context).pop(true),
+                  ),
+                ],
+              );
+            },
+          );
+
+          if (keepExisting != null) {
+            // User made a choice
+            context
+                .read<PublicationUpdateBloc>()
+                .add(UpdateImages(pickedFiles, keepExisting: keepExisting));
+          }
+        } else {
+          // No existing images, just add new ones
+          context
+              .read<PublicationUpdateBloc>()
+              .add(UpdateImages(pickedFiles, keepExisting: false));
+        }
       }
     } catch (e) {
       debugPrint('Error picking images: $e');
@@ -188,127 +249,134 @@ class MediaWidgetState extends State<MediaWidget> {
   Widget _buildDraggableImageList(
       BuildContext context, PublicationUpdateState state) {
     // Combine existing URLs and new images into a single list
-    final List<ImageItem> allImages = [
-      ...state.imageUrls!.map((url) => ImageItem(path: url, isUrl: true)),
-      ...state.newImages
-          .map((file) => ImageItem(path: file.path, isUrl: false)),
-    ];
+    final List<ImageItem> allImages = [];
+    if (state.imageUrls != null) {
+      allImages.addAll(
+          state.imageUrls!.map((url) => ImageItem(path: url, isUrl: true)));
+    }
+
+    allImages.addAll(state.newImages
+        .map((file) => ImageItem(path: file.path, isUrl: false)));
 
     return SizedBox(
       height: 80,
-      child: ReorderableListView(
-        proxyDecorator: (Widget child, int index, Animation<double> animation) {
-          return AnimatedBuilder(
-            animation: animation,
-            builder: (BuildContext context, Widget? child) {
-              final elevationValue = animation.value * 8;
-              return Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.black.withOpacity(0.3),
-                      blurRadius: elevationValue,
-                      spreadRadius: 1,
-                    ),
-                  ],
-                ),
-                child: child,
-              );
-            },
-            child: child,
-          );
-        },
-        onReorder: (oldIndex, newIndex) {
-          context.read<PublicationUpdateBloc>().add(
-                ReorderImages(oldIndex, newIndex),
-              );
-        },
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.only(right: 6),
-        children: allImages.asMap().entries.map((entry) {
-          final index = entry.key;
-          final image = entry.value;
-          return Container(
-            key: ValueKey(image.path),
-            width: 80,
-            margin: const EdgeInsets.only(right: 6),
-            child: Stack(
-              children: [
-                SmoothClipRRect(
-                  smoothness: 1,
-                  side: const BorderSide(
-                    width: 1.5,
-                    color: AppColors.white,
-                  ),
-                  borderRadius: BorderRadius.circular(16),
-                  child: image.isUrl
-                      ? Image.network(
-                          'https://${image.path}',
-                          width: double.infinity,
-                          height: double.infinity,
-                          fit: BoxFit.cover,
-                        )
-                      : Image.file(
-                          File(image.path),
-                          width: double.infinity,
-                          height: double.infinity,
-                          fit: BoxFit.cover,
-                        ),
-                ),
-                if (index == 0)
-                  Positioned(
-                    top: 4,
-                    left: 4,
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
+      child: allImages.isNotEmpty
+          ? ReorderableListView(
+              proxyDecorator:
+                  (Widget child, int index, Animation<double> animation) {
+                return AnimatedBuilder(
+                  animation: animation,
+                  builder: (BuildContext context, Widget? child) {
+                    final elevationValue = animation.value * 8;
+                    return Container(
                       decoration: BoxDecoration(
-                        color: AppColors.error,
                         borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.black.withOpacity(0.3),
+                            blurRadius: elevationValue,
+                            spreadRadius: 1,
+                          ),
+                        ],
                       ),
-                      child: const Text(
-                        'Main',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
+                      child: child,
+                    );
+                  },
+                  child: child,
+                );
+              },
+              onReorder: (oldIndex, newIndex) {
+                context.read<PublicationUpdateBloc>().add(
+                      ReorderImages(oldIndex, newIndex),
+                    );
+              },
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.only(right: 6),
+              children: allImages.asMap().entries.map((entry) {
+                final index = entry.key;
+                final image = entry.value;
+                return Container(
+                  key:
+                      ValueKey('${image.isUrl ? "url" : "file"}-${image.path}'),
+                  width: 80,
+                  margin: const EdgeInsets.only(right: 6),
+                  child: Stack(
+                    children: [
+                      SmoothClipRRect(
+                        smoothness: 1,
+                        side: const BorderSide(
+                          width: 1.5,
+                          color: AppColors.white,
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                        child: image.isUrl
+                            ? Image.network(
+                                'https://${image.path}',
+                                width: double.infinity,
+                                height: double.infinity,
+                                fit: BoxFit.cover,
+                              )
+                            : Image.file(
+                                File(image.path),
+                                width: double.infinity,
+                                height: double.infinity,
+                                fit: BoxFit.cover,
+                              ),
+                      ),
+                      if (index == 0)
+                        Positioned(
+                          top: 4,
+                          left: 4,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: AppColors.error,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Text(
+                              'Main',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      Positioned(
+                        top: 0,
+                        right: 0,
+                        child: Transform.translate(
+                          offset: const Offset(4, -0),
+                          child: Container(
+                            width: 20,
+                            height: 20,
+                            decoration: const BoxDecoration(
+                              color: AppColors.error,
+                              shape: BoxShape.circle,
+                            ),
+                            child: IconButton(
+                              padding: EdgeInsets.zero,
+                              icon: const Icon(
+                                Icons.close,
+                                color: Colors.white,
+                                size: 16,
+                              ),
+                              onPressed: () {
+                                context
+                                    .read<PublicationUpdateBloc>()
+                                    .add(RemoveImage(index));
+                              },
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                    ],
                   ),
-                Positioned(
-                  top: 0,
-                  right: 0,
-                  child: Transform.translate(
-                    offset: const Offset(4, -0),
-                    child: Container(
-                      width: 20,
-                      height: 20,
-                      decoration: const BoxDecoration(
-                        color: AppColors.error,
-                        shape: BoxShape.circle,
-                      ),
-                      child: IconButton(
-                        padding: EdgeInsets.zero,
-                        icon: const Icon(
-                          Icons.close,
-                          color: Colors.white,
-                          size: 16,
-                        ),
-                        onPressed: () {
-                          context
-                              .read<PublicationUpdateBloc>()
-                              .add(RemoveImage(index));
-                        },
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        }).toList(),
-      ),
+                );
+              }).toList(),
+            )
+          : const SizedBox(),
     );
   }
 
@@ -329,7 +397,7 @@ class MediaWidgetState extends State<MediaWidget> {
                 fontWeight: FontWeight.w500,
               ),
             ),
-            if (state.imageUrls!.isNotEmpty) ...[
+            if (state.imageUrls!.isNotEmpty || state.newImages.isNotEmpty) ...[
               const SizedBox(height: 8),
               _buildDraggableImageList(context, state),
             ],
@@ -354,7 +422,8 @@ class MediaWidgetState extends State<MediaWidget> {
                   width: 76,
                   height: 76,
                   child: ElevatedButton(
-                    onPressed: _pickImagesFromGallery,
+                    onPressed: () => _pickImagesFromGallery(
+                        context, _picker), // Передаем context и _picker
                     child: const Icon(
                       EvaIcons.image,
                       color: AppColors.black,
