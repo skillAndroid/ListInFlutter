@@ -73,7 +73,7 @@ class PublicationUpdateState extends Equatable {
   final String? error;
   final bool isSubmitting;
   final bool isSuccess;
-  final List<String> imageUrls; // Existing image URLs
+  final List<String>? imageUrls; // Existing image URLs
   final String? videoUrl; // Existing video URL
   final List<XFile> newImages; // New images selected from gallery
   final XFile? newVideo; // New video selected from gallery
@@ -140,10 +140,13 @@ class PublicationUpdateState extends Equatable {
       error: error,
       isSubmitting: isSubmitting ?? this.isSubmitting,
       isSuccess: isSuccess ?? this.isSuccess,
-      imageUrls: imageUrls ?? this.imageUrls,
-      videoUrl: videoUrl ?? this.videoUrl,
+      // Allow setting null values explicitly
+      imageUrls: imageUrls ?? [],
+      videoUrl: hasDeletedVideo == true ? null : (videoUrl ?? this.videoUrl),
+
       newImages: newImages ?? this.newImages,
-      newVideo: newVideo ?? this.newVideo,
+      newVideo: hasDeletedVideo == true ? null : (newVideo ?? this.newVideo),
+
       isVideoPlaying: isVideoPlaying ?? this.isVideoPlaying,
       updatingState: updatingState ?? this.updatingState,
       hasDeletedVideo: hasDeletedVideo ?? this.hasDeletedVideo,

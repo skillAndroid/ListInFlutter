@@ -189,7 +189,7 @@ class MediaWidgetState extends State<MediaWidget> {
       BuildContext context, PublicationUpdateState state) {
     // Combine existing URLs and new images into a single list
     final List<ImageItem> allImages = [
-      ...state.imageUrls.map((url) => ImageItem(path: url, isUrl: true)),
+      ...state.imageUrls!.map((url) => ImageItem(path: url, isUrl: true)),
       ...state.newImages
           .map((file) => ImageItem(path: file.path, isUrl: false)),
     ];
@@ -329,7 +329,7 @@ class MediaWidgetState extends State<MediaWidget> {
                 fontWeight: FontWeight.w500,
               ),
             ),
-            if (state.imageUrls.isNotEmpty) ...[
+            if (state.imageUrls!.isNotEmpty) ...[
               const SizedBox(height: 8),
               _buildDraggableImageList(context, state),
             ],

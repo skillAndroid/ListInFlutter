@@ -7,7 +7,6 @@ import 'package:list_in/features/profile/domain/entity/publication/update_post_e
 import 'package:list_in/features/profile/domain/usecases/publication/update_publication_usecase.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_event.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_state.dart';
-import 'package:list_in/features/profile/presentation/widgets/media_widget.dart';
 
 class PublicationUpdateBloc
     extends Bloc<PublicationUpdateEvent, PublicationUpdateState> {
@@ -63,19 +62,9 @@ class PublicationUpdateBloc
     UpdateImages event,
     Emitter<PublicationUpdateState> emit,
   ) {
-    // Append new images to existing ones
-    final List<XFile> updatedNewImages = [...state.newImages, ...event.images];
-    emit(state.copyWith(newImages: updatedNewImages));
+    // Replace existing images with new ones
+    emit(state.copyWith(newImages: event.images));
   }
-
-  // void _onUpdateImages(
-  //   UpdateImages event,
-  //   Emitter<PublicationUpdateState> emit,
-  // ) {
-  //   // Append new images to existing ones
-  //   final List<XFile> updatedNewImages = state.newImages;
-  //   emit(state.copyWith(newImages: updatedNewImages));
-  // }
 
   void _onReorderImages(
     ReorderImages event,
@@ -84,63 +73,22 @@ class PublicationUpdateBloc
     int oldIndex = event.oldIndex;
     int newIndex = event.newIndex;
 
-    // Combine all images
-    List<ImageItem> allImages = [
-      ...state.imageUrls.map((url) => ImageItem(path: url, isUrl: true)),
-      ...state.newImages
-          .map((file) => ImageItem(path: file.path, isUrl: false)),
-    ];
-
-    // Perform reordering
-    final item = allImages.removeAt(oldIndex);
+    // Only reorder new images
+    List<XFile> updatedImages = List.from(state.newImages);
+    final item = updatedImages.removeAt(oldIndex);
     if (newIndex > oldIndex) newIndex--;
-    allImages.insert(newIndex, item);
+    updatedImages.insert(newIndex, item);
 
-    // Split back into URLs and files
-    final List<String> updatedUrls = [];
-    final List<XFile> updatedNewImages = [];
-
-    for (var image in allImages) {
-      if (image.isUrl) {
-        updatedUrls.add(image.path);
-      } else {
-        updatedNewImages.add(XFile(image.path));
-      }
-    }
-
-    emit(state.copyWith(
-      imageUrls: updatedUrls,
-      newImages: updatedNewImages,
-    ));
+    emit(state.copyWith(newImages: updatedImages));
   }
 
   void _onRemoveImage(
     RemoveImage event,
     Emitter<PublicationUpdateState> emit,
   ) {
-    List<ImageItem> allImages = [
-      ...state.imageUrls.map((url) => ImageItem(path: url, isUrl: true)),
-      ...state.newImages
-          .map((file) => ImageItem(path: file.path, isUrl: false)),
-    ];
-
-    allImages.removeAt(event.index);
-
-    final List<String> updatedUrls = [];
-    final List<XFile> updatedNewImages = [];
-
-    for (var image in allImages) {
-      if (image.isUrl) {
-        updatedUrls.add(image.path);
-      } else {
-        updatedNewImages.add(XFile(image.path));
-      }
-    }
-
-    emit(state.copyWith(
-      imageUrls: updatedUrls,
-      newImages: updatedNewImages,
-    ));
+    List<XFile> updatedImages = List.from(state.newImages);
+    updatedImages.removeAt(event.index);
+    emit(state.copyWith(newImages: updatedImages));
   }
 
   void _onClearVideo(
@@ -150,7 +98,7 @@ class PublicationUpdateBloc
     emit(state.copyWith(
       videoUrl: null,
       newVideo: null,
-      hasDeletedVideo: true, // Mark that video was explicitly deleted
+      hasDeletedVideo: true,
     ));
   }
 
@@ -160,7 +108,7 @@ class PublicationUpdateBloc
   ) {
     emit(state.copyWith(
       newVideo: event.video,
-      videoUrl: event.video == null ? null : state.videoUrl,
+      videoUrl: null, // Clear previous video URL
     ));
   }
 
@@ -210,7 +158,7 @@ class PublicationUpdateBloc
     SubmitPublicationUpdate event,
     Emitter<PublicationUpdateState> emit,
   ) async {
-    if (state.imageUrls.isEmpty && state.newImages.isEmpty) {
+    if (state.imageUrls!.isEmpty && state.newImages.isEmpty) {
       emit(state.copyWith(
         error: 'At least one image is required',
         updatingState: PublicationUpdatingState.error,
@@ -225,7 +173,7 @@ class PublicationUpdateBloc
     ));
 
     // Upload new images if any
-    List<String> finalImageUrls = List.from(state.imageUrls);
+    List<String> finalImageUrls = List.from(state.imageUrls!);
     if (state.newImages.isNotEmpty) {
       final imagesResult = await uploadImagesUseCase(params: state.newImages);
       final hasImageUploadFailed = imagesResult.fold(
@@ -247,10 +195,11 @@ class PublicationUpdateBloc
     }
 
     // Upload new video if any
-    String? finalVideoUrl = state.hasDeletedVideo ? null : state.videoUrl;
+    String? finalVideoUrl;
     if (state.newVideo != null) {
       emit(state.copyWith(
-          updatingState: PublicationUpdatingState.uploadingVideo));
+        updatingState: PublicationUpdatingState.uploadingVideo,
+      ));
       final videoResult = await uploadVideoUseCase(params: state.newVideo!);
       final hasVideoUploadFailed = videoResult.fold(
         (failure) => true,
@@ -272,21 +221,24 @@ class PublicationUpdateBloc
 
     // Update publication
     emit(state.copyWith(
-        updatingState: PublicationUpdatingState.updatingPublication));
+      updatingState: PublicationUpdatingState.updatingPublication,
+    ));
+
     final result = await updatePostUseCase(
       params: UpdatePostParams(
-          id: state.id,
-          post: UpdatePostEntity(
-            isNegatable: state.canBargain,
-            title: state.title,
-            description: state.description,
-            price: state.price,
-            imageUrls: finalImageUrls,
-            videoUrl: finalVideoUrl,
-            productCondition: state.condition,
-          )),
+        id: state.id,
+        post: UpdatePostEntity(
+          isNegatable: state.canBargain,
+          title: state.title,
+          description: state.description,
+          price: state.price,
+          imageUrls: finalImageUrls,
+          videoUrl: finalVideoUrl,
+          productCondition: state.condition,
+        ),
+      ),
     );
-    result.fold(
+   result.fold(
       (failure) => emit(state.copyWith(
         isSubmitting: false,
         error: _mapFailureToMessage(failure),
