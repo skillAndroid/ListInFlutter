@@ -1,21 +1,22 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:list_in/core/error/failure.dart';
-import 'package:list_in/features/post/domain/usecases/get_catalogs_usecase.dart';
 import 'package:list_in/features/post/domain/usecases/upload_images_usecase.dart';
 import 'package:list_in/features/post/domain/usecases/upload_video_usecase.dart';
+import 'package:list_in/features/profile/domain/entity/publication/update_post_entity.dart';
+import 'package:list_in/features/profile/domain/usecases/publication/update_publication_usecase.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_event.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_state.dart';
 import 'package:list_in/features/profile/presentation/widgets/media_widget.dart';
 
 class PublicationUpdateBloc
     extends Bloc<PublicationUpdateEvent, PublicationUpdateState> {
-  final GetGategoriesUsecase updatePublicationUseCase;
+  final UpdatePostUseCase updatePostUseCase;
   final UploadImagesUseCase uploadImagesUseCase;
   final UploadVideoUseCase uploadVideoUseCase;
 
   PublicationUpdateBloc({
-    required this.updatePublicationUseCase,
+    required this.updatePostUseCase,
     required this.uploadImagesUseCase,
     required this.uploadVideoUseCase,
   }) : super(PublicationUpdateState.initial()) {
@@ -272,19 +273,19 @@ class PublicationUpdateBloc
     // Update publication
     emit(state.copyWith(
         updatingState: PublicationUpdatingState.updatingPublication));
-    final result = await updatePublicationUseCase(
-        // UpdatePublicationParams(
-        //   id: state.id,
-        //   title: state.title,
-        //   description: state.description,
-        //   price: state.price,
-        //   bargain: state.canBargain,
-        //   condition: state.condition,
-        //   imageUrls: finalImageUrls,
-        //   videoUrl: finalVideoUrl,
-        // ),
-        );
-
+    final result = await updatePostUseCase(
+      params: UpdatePostParams(
+          id: state.id,
+          post: UpdatePostEntity(
+            isNegatable: state.canBargain,
+            title: state.title,
+            description: state.description,
+            price: state.price,
+            imageUrls: finalImageUrls,
+            videoUrl: finalVideoUrl,
+            productCondition: state.condition,
+          )),
+    );
     result.fold(
       (failure) => emit(state.copyWith(
         isSubmitting: false,

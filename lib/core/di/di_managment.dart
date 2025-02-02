@@ -55,6 +55,7 @@ import 'package:list_in/features/profile/data/sources/user_publications_remote.d
 import 'package:list_in/features/profile/domain/repository/user_profile_repository.dart';
 import 'package:list_in/features/profile/domain/repository/user_publications_repository.dart';
 import 'package:list_in/features/profile/domain/usecases/publication/get_user_publications_usecase.dart';
+import 'package:list_in/features/profile/domain/usecases/publication/update_publication_usecase.dart';
 import 'package:list_in/features/profile/domain/usecases/user/get_user_data_usecase.dart';
 import 'package:list_in/features/profile/domain/usecases/user/update_user_image_usecase.dart';
 import 'package:list_in/features/profile/domain/usecases/user/update_user_profile_usecase.dart';
@@ -151,7 +152,7 @@ Future<void> init() async {
 
   sl.registerFactory(
     () => PublicationUpdateBloc(
-      updatePublicationUseCase: sl(),
+      updatePostUseCase: sl(),
       uploadImagesUseCase: sl(),
       uploadVideoUseCase: sl(),
     ),
@@ -281,6 +282,8 @@ Future<void> init() async {
           ));
 
   sl.registerLazySingleton(() => GetUserPublicationsUseCase(sl()));
+
+  sl.registerLazySingleton(() => UpdatePostUseCase(sl()));
 
   sl.registerLazySingleton<UserPublicationsRemoteDataSource>(
       () => UserPublicationsRemoteDataSourceImpl(dio: sl(), authService: sl()));

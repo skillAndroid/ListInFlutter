@@ -41,3 +41,11 @@ class UnexpectedFailure extends Failure {
   @override
   String toString() => 'Unexpected Error occurred';
 }
+
+class InvalidParamsFailure extends Failure {
+  @override
+  List<Object> get properties => [];
+
+  @override
+  String toString() => 'Invalid parameters provided';
+}
