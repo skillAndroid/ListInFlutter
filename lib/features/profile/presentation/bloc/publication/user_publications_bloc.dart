@@ -15,7 +15,7 @@ class UserPublicationsBloc
   }) : super(const UserPublicationsState()) {
     on<FetchUserPublications>(_onFetchUserPublications);
     on<LoadMoreUserPublications>(_onLoadMoreUserPublications);
-    on<RefreshUserPublications>(_onRefreshUserPublications); 
+    on<RefreshUserPublications>(_onRefreshUserPublications);
   }
 
   Future<void> _onFetchUserPublications(
@@ -24,8 +24,6 @@ class UserPublicationsBloc
   ) async {
     try {
       debugPrint('DEBUG: Starting initial fetch of publications');
-
-      // Don't clear existing data immediately if we're retrying a failed initial load
       if (state.publications.isEmpty) {
         emit(state.copyWith(isLoading: true, error: null));
       } else {

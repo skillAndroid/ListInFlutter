@@ -25,9 +25,11 @@ import 'package:list_in/features/post/data/models/category_model.dart';
 import 'package:list_in/features/post/data/models/child_category_model.dart';
 import 'package:list_in/features/post/domain/usecases/get_catalogs_usecase.dart';
 import 'package:list_in/features/post/presentation/pages/post_screen.dart';
+import 'package:list_in/features/profile/domain/entity/publication/publication_entity.dart';
 import 'package:list_in/features/profile/domain/entity/user/user_profile_entity.dart';
 import 'package:list_in/features/profile/presentation/pages/profile_editor_page.dart';
 import 'package:list_in/features/profile/presentation/pages/profile_screen.dart';
+import 'package:list_in/features/profile/presentation/pages/publications_editor_page.dart';
 import 'package:list_in/features/undefined_screens_yet/wrapper_screen.dart';
 import 'package:list_in/features/video/presentation/pages/video_feed_screen.dart';
 import 'package:list_in/features/visitior_profile/visiter_profile.dart';
@@ -100,6 +102,14 @@ class AppRouter {
         builder: (context, state) => const PostScreen(),
       ),
 
+      GoRoute(
+        path: Routes.publicationsEdit,
+        builder: (context, state) {
+          return PublicationsEditorPage(
+            key: state.pageKey,
+          );
+        },
+      ),
       GoRoute(
         path: Routes.videosFeed,
         name: RoutesByName.videosFeed,

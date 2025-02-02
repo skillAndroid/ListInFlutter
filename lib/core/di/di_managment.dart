@@ -58,6 +58,7 @@ import 'package:list_in/features/profile/domain/usecases/publication/get_user_pu
 import 'package:list_in/features/profile/domain/usecases/user/get_user_data_usecase.dart';
 import 'package:list_in/features/profile/domain/usecases/user/update_user_image_usecase.dart';
 import 'package:list_in/features/profile/domain/usecases/user/update_user_profile_usecase.dart';
+import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/user/user_profile_bloc.dart';
 import 'package:path_provider/path_provider.dart' as path_provider;
@@ -147,6 +148,9 @@ Future<void> init() async {
       getStoredEmailUsecase: sl(),
     ),
   );
+
+  sl.registerFactory(
+      () => PublicationUpdateBloc(updatePublicationUseCase: sl()));
 
   // Use cases
   sl.registerLazySingleton(() => LoginUseCase(sl()));

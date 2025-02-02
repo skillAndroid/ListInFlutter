@@ -10,6 +10,7 @@ import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/map/presentation/bloc/MapBloc.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
+import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/user/user_profile_bloc.dart';
 
@@ -134,7 +135,8 @@ final List<ProductEntity> sampleProducts = [
     price: 205,
     isNew: true,
     id: "4",
-  ), ProductEntity(
+  ),
+  ProductEntity(
     name: "iPhone 14 Pro Max for sale",
     images: [
       "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg"
@@ -574,13 +576,15 @@ void main() async {
           BlocProvider<MapBloc>(
             create: (_) => di.sl<MapBloc>(),
           ),
-          
           BlocProvider<UserProfileBloc>(
             create: (_) => di.sl<UserProfileBloc>(),
           ),
           BlocProvider<UserPublicationsBloc>(
             create: (_) => di.sl<UserPublicationsBloc>(),
-          )
+          ),
+          BlocProvider<PublicationUpdateBloc>(
+            create: (_) => di.sl<PublicationUpdateBloc>(),
+          ),
         ],
         child: MyApp(router: di.sl<AppRouter>().router),
       ),

@@ -13,6 +13,9 @@ import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/profile/domain/entity/publication/publication_entity.dart';
+import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
+import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_event.dart';
+import 'package:provider/provider.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class HorizontalProfileProductCard extends StatelessWidget {
@@ -178,16 +181,27 @@ class HorizontalProfileProductCard extends StatelessWidget {
                         ),
                         Row(
                           children: [
-                            Container(
-                              padding: EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                color: AppColors.containerColor,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Icon(
-                                Icons.edit_rounded,
-                                color: AppColors.darkGray,
-                                size: 18,
+                            InkWell(
+                              onTap: () {
+                                context
+                                    .read<PublicationUpdateBloc>()
+                                    .add(InitializePublication(product));
+                                context.push(
+                                  Routes.publicationsEdit,
+                                  extra: product,
+                                );
+                              },
+                              child: Container(
+                                padding: EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: AppColors.containerColor,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Icon(
+                                  Icons.edit_rounded,
+                                  color: AppColors.darkGray,
+                                  size: 18,
+                                ),
                               ),
                             ),
                             SizedBox(width: 4),
@@ -683,9 +697,6 @@ class RemouteRegularProductCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 2),
-
-                    //  const SizedBox(height: 8),
-                    // Price section with fixed height
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

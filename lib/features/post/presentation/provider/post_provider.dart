@@ -158,7 +158,6 @@ class PostProvider extends ChangeNotifier {
   }
 
   void getAtributesForPost() {
-    // Clear previous requests
     attributeRequests.clear();
 
     // Set to track processed attribute-value combinations
@@ -434,8 +433,6 @@ class PostProvider extends ChangeNotifier {
         _selectedChildCategory = null;
         resetUIState();
         _selectedValues.clear();
-        // dynamicAttributes.clear();
-        // _currentAttributes.clear();
       }
     } else if (_selectedCatalog != null) {
       if (_catalogHistory.isNotEmpty) {
