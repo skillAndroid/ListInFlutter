@@ -120,12 +120,10 @@ class ChildPagingState {
 }
 
 class ChildHomeTreePage extends StatefulWidget {
-  final List<AdvertisedProductEntity> advertisedProducts;
   final List<ProductEntity> regularProducts;
 
   const ChildHomeTreePage({
     super.key,
-    required this.advertisedProducts,
     required this.regularProducts,
   });
 
@@ -154,7 +152,6 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
     _searchState = ChildSearchBarState();
     _scrollState = ChildScrollState();
     _pagingState = ChildPagingState();
-    _initializeVideoTracking();
   }
 
   void _setupListeners() {
@@ -172,14 +169,6 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
         context.read<HomeTreeCubit>().fetchSecondaryPage(pageKey);
       }
     });
-  }
-
-  void _initializeVideoTracking() {
-    if (!mounted) return;
-
-    for (final product in widget.advertisedProducts) {
-      _uiState.ensureProductTrackers(product.id);
-    }
   }
 
   @override

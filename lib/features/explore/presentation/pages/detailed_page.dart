@@ -11,7 +11,6 @@ import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
-import 'package:list_in/features/explore/domain/enties/advertised_product_entity.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
@@ -87,11 +86,9 @@ class DetailedPagingState {
 }
 
 class DetailedHomeTreePage extends StatefulWidget {
-  final List<AdvertisedProductEntity> advertisedProducts;
   final List<ProductEntity> regularProducts;
   const DetailedHomeTreePage({
     super.key,
-    required this.advertisedProducts,
     required this.regularProducts,
   });
 
@@ -120,19 +117,10 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
     _searchState = DetailedSearchBarState();
     _scrollState = DetailedScrollState();
     _pagingState = DetailedPagingState();
-    _initializeVideoTracking();
   }
 
   void _fetchInitialData() {
     context.read<HomeTreeCubit>().fetchCatalogs();
-  }
-
-  void _initializeVideoTracking() {
-    if (!mounted) return;
-
-    for (final product in widget.advertisedProducts) {
-      _uiState.ensureProductTrackers(product.id);
-    }
   }
 
   @override

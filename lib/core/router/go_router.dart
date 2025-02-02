@@ -179,7 +179,6 @@ class AppRouter {
                     child: InitialHomeTreePage(
                       key: state.pageKey,
                       regularProducts: sampleProducts,
-                      advertisedProducts: sampleVideos,
                     ),
                   );
                 },
@@ -252,7 +251,6 @@ class AppRouter {
                         child: ChildHomeTreePage(
                           key: state.pageKey,
                           regularProducts: sampleProducts,
-                          advertisedProducts: sampleVideos,
                         ),
                       );
                     },
@@ -320,7 +318,6 @@ class AppRouter {
                               child: DetailedHomeTreePage(
                                 key: state.pageKey,
                                 regularProducts: sampleProducts,
-                                advertisedProducts: sampleVideos,
                               ),
                             );
                           }),

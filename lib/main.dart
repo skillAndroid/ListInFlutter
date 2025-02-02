@@ -5,93 +5,17 @@ import 'package:go_router/go_router.dart';
 import 'package:list_in/config/theme/app_theme.dart';
 import 'package:list_in/core/router/go_router.dart';
 import 'package:list_in/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:list_in/features/explore/domain/enties/advertised_product_entity.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
-import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/map/presentation/bloc/MapBloc.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/user/user_profile_bloc.dart';
-
 import 'package:provider/provider.dart';
+
 import 'core/di/di_managment.dart' as di;
 
-// Sample data for products and advertisements
-final List<AdvertisedProductEntity> sampleVideos = [
-  AdvertisedProductEntity(
-    videoUrl:
-        "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-    thumbnailUrl:
-        "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg",
-    title: "Big Buck Bunny",
-    images: [
-      "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg",
-      "https://cdn.pixabay.com/photo/2022/11/02/14/47/bird-7565103_640.jpg",
-      "https://cdn.pixabay.com/photo/2020/04/13/17/32/volendam-5039431_640.jpg"
-    ],
-    userName: "Axel",
-    userRating: 4.5,
-    reviewsCount: 121,
-    location: "Buxoro, Quyliq Bozor",
-    price: "\$90",
-    id: "1",
-  ),
-  AdvertisedProductEntity(
-    videoUrl:
-        "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
-    thumbnailUrl:
-        "https://cdn.pixabay.com/photo/2022/11/02/15/35/iphone-14-7565225_640.jpg",
-    title: "Elephant's Dream",
-    images: [
-      "https://cdn.pixabay.com/photo/2022/11/02/15/35/iphone-14-7565225_640.jpg",
-      "https://cdn.pixabay.com/photo/2016/10/02/22/08/construction-1710526_640.jpg",
-      "https://cdn.pixabay.com/photo/2017/03/30/04/14/house-2187170_640.jpg"
-    ],
-    userName: "Kolen Morgen",
-    userRating: 4.0,
-    reviewsCount: 1212,
-    location: "Toshkent, Yashnobod",
-    price: "\$420",
-    id: "2",
-  ),
-  AdvertisedProductEntity(
-    videoUrl:
-        "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
-    thumbnailUrl:
-        "https://cdn.pixabay.com/photo/2017/03/27/15/17/apartment-2179337_640.jpg",
-    title: "Sintel",
-    images: [
-      "https://cdn.pixabay.com/photo/2018/07/26/16/14/cars-3564022_640.jpg",
-      "https://cdn.pixabay.com/photo/2021/03/25/13/27/cars-6123092_640.jpg",
-      "https://cdn.pixabay.com/photo/2017/03/27/15/17/apartment-2179337_640.jpg"
-    ],
-    userName: "Malika Bozor",
-    userRating: 5.0,
-    reviewsCount: 446,
-    location: "Toshkent, Mirzo Ulug'bek",
-    price: "\$205",
-    id: "3",
-  ),
-  AdvertisedProductEntity(
-    videoUrl:
-        "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
-    thumbnailUrl:
-        "https://cdn.pixabay.com/photo/2022/11/02/15/35/iphone-14-7565225_640.jpg",
-    title: "Elephant's Dream",
-    images: [
-      "https://cdn.pixabay.com/photo/2022/11/02/15/35/iphone-14-7565225_640.jpg",
-      "https://cdn.pixabay.com/photo/2016/10/02/22/08/construction-1710526_640.jpg",
-      "https://cdn.pixabay.com/photo/2017/03/30/04/14/house-2187170_640.jpg"
-    ],
-    userName: "Kolen Morgen",
-    userRating: 4.0,
-    reviewsCount: 1212,
-    location: "Toshkent, Yashnobod",
-    price: "\$420",
-    id: "20",
-  ),
-];
+
 final List<ProductEntity> sampleProducts = [
   ProductEntity(
     name: "iPhone 14 Pro Max for sale",

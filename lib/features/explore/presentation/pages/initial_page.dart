@@ -120,12 +120,10 @@ class PagingState {
 }
 
 class InitialHomeTreePage extends StatefulWidget {
-  final List<AdvertisedProductEntity> advertisedProducts;
   final List<ProductEntity> regularProducts;
 
   const InitialHomeTreePage({
     super.key,
-    required this.advertisedProducts,
     required this.regularProducts,
   });
 
@@ -155,7 +153,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
     _searchState = SearchBarState();
     _scrollState = ScrollState();
     _pagingState = PagingState();
-    _initializeVideoTracking();
+ 
   }
 
   void _setupListeners() {
@@ -180,13 +178,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
     context.read<HomeTreeCubit>().fetchVideoFeeds(0);
   }
 
-  void _initializeVideoTracking() {
-    if (!mounted) return;
 
-    for (final product in widget.advertisedProducts) {
-      _uiState.ensureProductTrackers(product.id);
-    }
-  }
 
   @override
   void dispose() {
