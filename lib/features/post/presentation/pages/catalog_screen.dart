@@ -31,7 +31,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
   late final PageController _pageController;
   late int _currentPage;
   late double _progressValue;
-  final int _pageCount = 10;
+  final int _pageCount = 8;
 
   @override
   void initState() {
@@ -47,6 +47,48 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
     super.dispose();
   }
 
+  bool get _isLoading {
+    final provider = Provider.of<PostProvider>(context, listen: false);
+    return provider.postCreationState == PostCreationState.uploadingImages ||
+        provider.postCreationState == PostCreationState.uploadingVideo ||
+        provider.postCreationState == PostCreationState.creatingPost;
+  }
+
+  bool _validateCurrentPage(PostProvider provider) {
+    switch (_currentPage) {
+      case 3: // Title page
+        return provider.postTitle.length >= 10;
+      case 4: // Description page
+        return provider.postDescription.length >= 45;
+      case 5: // Price page
+        return provider.price > 0;
+      case 6: // Condition page
+        // ignore: unnecessary_null_comparison
+        return provider.productCondition != null;
+      case 7: // Media page
+        return provider.images.isNotEmpty;
+      default:
+        return true;
+    }
+  }
+
+  String _getValidationErrorMessage() {
+    switch (_currentPage) {
+      case 3:
+        return 'Title must be at least 10 characters long';
+      case 4:
+        return 'Description must be at least 45 characters long';
+      case 5:
+        return 'Please enter a valid price';
+      case 6:
+        return 'Please select a condition';
+      case 7:
+        return 'Please add at least one image';
+      default:
+        return '';
+    }
+  }
+
   void _updateProgress(int pageIndex) {
     setState(() {
       _progressValue = (pageIndex + 1) / _pageCount;
@@ -54,6 +96,20 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
   }
 
   void _handleNextPage() {
+    final provider = Provider.of<PostProvider>(context, listen: false);
+
+    if (_isLoading) return;
+
+    if (!_validateCurrentPage(provider)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(_getValidationErrorMessage()),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     if (_currentPage < _pageCount - 1) {
       FocusScope.of(context).unfocus();
       _pageController.nextPage(
@@ -64,10 +120,10 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
   }
 
   Future<bool> _onWillPop() async {
-    final provider = Provider.of<PostProvider>(context, listen: false);
+    if (_isLoading) return false;
 
     if (_currentPage > 0) {
-      _handleBackNavigation(provider);
+      _handleBackNavigation();
       return false;
     }
 
@@ -75,7 +131,26 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
     return false;
   }
 
-  void _handleBackNavigation(PostProvider provider) {
+  Widget _buildProgressIndicator() {
+    return TweenAnimationBuilder<double>(
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOut,
+      tween: Tween<double>(begin: _progressValue, end: _progressValue),
+      builder: (context, value, _) => LinearProgressIndicator(
+        value: value,
+        backgroundColor: AppColors.containerColor,
+        valueColor: AlwaysStoppedAnimation<Color>(
+          AppColors.lighterGray.withOpacity(0.5),
+        ),
+        minHeight: double.infinity,
+      ),
+    );
+  }
+
+  void _handleBackNavigation() {
+    if (_isLoading) return;
+
+    final provider = Provider.of<PostProvider>(context, listen: false);
     if (_currentPage == 0) {
       provider.clear();
       context.pop();
@@ -83,41 +158,40 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
     }
     provider.resetUIState();
 
-    if (_currentPage == 9 ||
-        _currentPage == 8 ||
-        _currentPage == 7 ||
-        _currentPage == 6 ||
-        _currentPage == 5 ||
-        _currentPage == 4 ||
-        _currentPage == 3 ||
-        _currentPage == 3 ||
-        _currentPage == 2 ||
-        _currentPage == 1) {
-      _pageController.previousPage(
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.easeInOut,
-      );
+    _pageController.previousPage(
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOut,
+    );
 
-      if (_currentPage == 1) {
-        provider.goBack();
-      }
+    if (_currentPage == 1) {
+      provider.goBack();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: _onWillPop,
-      child: Scaffold(
-        backgroundColor: AppColors.bgColor,
-        appBar: _buildAppBar(context),
-        body: Stack(
-          children: [
-            _buildPageViewBody(context),
-            if (_currentPage >= 2) _buildBottomButton(context),
-          ],
-        ),
-      ),
+    return Consumer<PostProvider>(
+      builder: (context, provider, child) {
+        final canProceed = _validateCurrentPage(provider);
+
+        return WillPopScope(
+          onWillPop: _onWillPop,
+          child: AbsorbPointer(
+            absorbing: _isLoading,
+            child: Scaffold(
+              backgroundColor: AppColors.bgColor,
+              appBar: _buildAppBar(context),
+              body: Stack(
+                children: [
+                  _buildPageViewBody(context),
+                  if (_currentPage >= 2)
+                    _buildBottomButton(context, provider, canProceed),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -127,8 +201,6 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
       builder: (context, provider, child) {
         return Padding(
           padding: EdgeInsets.only(
-            left: 16.0,
-            right: 16.0,
             bottom: _currentPage >= 2 ? 80.0 : 8,
           ),
           child: PageView(
@@ -143,28 +215,46 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
             },
             physics: const NeverScrollableScrollPhysics(),
             children: [
-              CatalogListPage(
-                onCatalogSelected: (catalog) {
-                  provider.selectCatalog(catalog);
-                  _handleNextPage();
-                },
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: CatalogListPage(
+                  onCatalogSelected: (catalog) {
+                    provider.selectCatalog(catalog);
+                    _handleNextPage();
+                  },
+                ),
               ),
-              ChildCategoryListPage(
-                onChildCategorySelected: (childCategory) {
-                  provider.selectChildCategory(childCategory);
-                  _handleNextPage();
-                },
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: ChildCategoryListPage(
+                  onChildCategorySelected: (childCategory) {
+                    provider.selectChildCategory(childCategory);
+                    _handleNextPage();
+                  },
+                ),
               ),
-              const AttributesPage(),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: const AttributesPage(),
+              ),
               const AddTitlePage(),
               const AddDescriptionPage(),
               const AddPricePage(),
               const ProductConditionPage(),
-              const MediaPage(),
-              _buildPage(child: const PhoneSettingsPage()),
-              _buildPage(
-                child: const LocationSelectionPage(),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: const MediaPage(),
               ),
+              // Padding(
+              //   padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              //   child: _buildPage(child: const PhoneSettingsPage()),
+              // ),
+              // Padding(
+              //   padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              //   child: _buildPage(
+              //     child: const LocationSelectionPage(),
+              //   ),
+              // ),
             ],
           ),
         );
@@ -190,10 +280,11 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
       title: const Text(
         'Create Post',
         style: TextStyle(
-            fontWeight: FontWeight.w700,
-            fontFamily: "Syne",
-            fontSize: 21,
-            color: AppColors.black),
+          fontWeight: FontWeight.w700,
+          fontFamily: "Syne",
+          fontSize: 21,
+          color: AppColors.black,
+        ),
       ),
       toolbarHeight: 56.0,
       automaticallyImplyLeading: false,
@@ -203,140 +294,108 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
         offset: const Offset(10, 0),
         child: Padding(
           padding: const EdgeInsets.all(4.0),
-          child: CatalogBackButton(onTap: () {
-            final provider = Provider.of<PostProvider>(context, listen: false);
-            _handleBackNavigation(provider);
-          }),
+          child: CatalogBackButton(
+            onTap: _handleBackNavigation,
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildProgressIndicator() {
-    return TweenAnimationBuilder<double>(
-      duration: const Duration(milliseconds: 400),
-      curve: Curves.easeInOut,
-      tween: Tween<double>(begin: _progressValue, end: _progressValue),
-      builder: (context, value, _) => LinearProgressIndicator(
-        value: value,
-        backgroundColor: AppColors.containerColor,
-        valueColor: AlwaysStoppedAnimation<Color>(
-            AppColors.lighterGray.withOpacity(0.5)),
-        minHeight: double.infinity,
-      ),
-    );
-  }
+  Widget _buildBottomButton(
+      BuildContext context, PostProvider provider, bool canProceed) {
+    final isLastPage = _currentPage == 7;
+    final isLoading = _isLoading;
 
-  Widget _buildBottomButton(BuildContext context) {
-    return Consumer<PostProvider>(
-      builder: (context, provider, child) {
-        final isLastPage = _currentPage == 9;
-        final isLoading = provider.postCreationState ==
-                PostCreationState.uploadingImages ||
-            provider.postCreationState == PostCreationState.uploadingVideo ||
-            provider.postCreationState == PostCreationState.creatingPost;
-
-        Widget buttonChild;
-        if (isLastPage) {
-          buttonChild = isLoading
-              ? Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(
-                        color: AppColors.black,
-                        strokeWidth: 4,
-                        strokeCap: StrokeCap.round,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      _getLoadingText(provider.postCreationState),
-                      style: const TextStyle(fontFamily: "Syne"),
-                    ),
-                  ],
-                )
-              : const Text(
-                  'Create Post',
-                  style: TextStyle(fontFamily: "Syne"),
-                );
-        } else {
-          buttonChild = const Text(
-            'Next',
-            style: TextStyle(
-              fontFamily: "Syne",
-            ),
-          );
-        }
-
-        return Positioned(
-          left: 0,
-          right: 0,
-          bottom: 22,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                shape: SmoothRectangleBorder(
-                  smoothness: 1,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                backgroundColor: AppColors.black,
-                foregroundColor: AppColors.white,
-              ),
-              onPressed: isLoading
-                  ? null
-                  : () async {
-                      if (isLastPage) {
-                        final result = await provider.createPost();
-                        result.fold(
-                          (failure) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(provider.postCreationError ??
-                                    'Failed to create post'),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          },
-                          (success) {
-                            showDialog(
-                              context: context,
-                              barrierDismissible: false,
-                              builder: (context) => AlertDialog(
-                                title: const Text('Success'),
-                                content: const Text(
-                                    'Your post has been created successfully!'),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      context
-                                          .read<UserPublicationsBloc>()
-                                          .add(RefreshUserPublications());
-                                      Navigator.of(context).pop();
-                                      context.pop();
-                                    },
-                                    child: const Text('OK'),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        );
-                      } else {
-                        _handleNextPage();
-                      }
-                    },
-              child: Padding(
-                padding: const EdgeInsets.all(18.0),
-                child: buttonChild,
+    Widget buttonChild;
+    if (isLastPage && isLoading) {
+      buttonChild = Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(
+            width: 24,
+            height: 24,
+            child: Transform.scale(
+              scale: 0.8,
+              child: CircularProgressIndicator(
+                color: AppColors.black,
+                strokeWidth: 3,
+                strokeCap: StrokeCap.round,
               ),
             ),
           ),
-        );
-      },
+          const SizedBox(width: 12),
+          Text(
+            _getLoadingText(provider.postCreationState),
+            style: const TextStyle(fontFamily: "Syne"),
+          ),
+        ],
+      );
+    } else {
+      buttonChild = Text(
+        isLastPage ? 'Create Post' : 'Next',
+        style: const TextStyle(fontFamily: "Syne"),
+      );
+    }
+
+    return Positioned(
+      left: 0,
+      right: 0,
+      bottom: 22,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            shape: SmoothRectangleBorder(
+              smoothness: 1,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            backgroundColor:
+                canProceed ? AppColors.black : AppColors.lighterGray,
+            foregroundColor: AppColors.white,
+          ),
+          onPressed: (!canProceed || isLoading)
+              ? null
+              : () async {
+                  if (isLastPage) {
+                    final result = await provider.createPost();
+                    result.fold(
+                      (failure) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(provider.postCreationError ??
+                                'Failed to create post'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      },
+                      (success) {
+                        context
+                            .read<UserPublicationsBloc>()
+                            .add(RefreshUserPublications());
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              "Publication created successfuly!",
+                              style: TextStyle(fontFamily: "Poppins"),
+                            ),
+                            backgroundColor: Colors.blue,
+                          ),
+                        );
+                        Navigator.of(context).pop();
+                        context.pop();
+                      },
+                    );
+                  } else {
+                    _handleNextPage();
+                  }
+                },
+          child: Padding(
+            padding: const EdgeInsets.all(18.0),
+            child: buttonChild,
+          ),
+        ),
+      ),
     );
   }
 

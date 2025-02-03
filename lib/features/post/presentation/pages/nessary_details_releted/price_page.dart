@@ -144,7 +144,10 @@ class _AddPricePageState extends State<AddPricePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16.0),
+        padding: const EdgeInsets.symmetric(
+          vertical: 16.0,
+          horizontal: 16,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -227,13 +230,10 @@ class _AddPricePageState extends State<AddPricePage> {
                   child: CupertinoSwitch(
                     value: context.watch<PostProvider>().isNegatable,
                     onChanged: (bool value) {
-                      context
-                          .read<PostProvider>()
-                          .changeIsNegatable(value); 
+                      context.read<PostProvider>().changeIsNegatable(value);
                     },
-                    activeTrackColor: AppColors.green, 
-                    inactiveTrackColor:
-                        CupertinoColors.systemGrey, 
+                    activeTrackColor: AppColors.green,
+                    inactiveTrackColor: CupertinoColors.systemGrey,
                   ),
                 ),
               ],

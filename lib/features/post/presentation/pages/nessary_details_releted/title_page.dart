@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
@@ -16,10 +15,8 @@ class _AddTitlePageState extends State<AddTitlePage> {
   late TextEditingController _titleController;
   late FocusNode _focusNode;
   bool _isFocused = false;
-  String _lastCommittedText = '';
-  bool _needsUpdate = false;
-  Timer? _debounceTimer;
   String? _errorText;
+  bool _isDirty = false;
 
   static const int _minLength = 10;
   static const int _maxLength = 100;
@@ -28,16 +25,23 @@ class _AddTitlePageState extends State<AddTitlePage> {
   void initState() {
     super.initState();
     final provider = Provider.of<PostProvider>(context, listen: false);
-    _lastCommittedText = provider.postTitle;
-    _titleController = TextEditingController(text: _lastCommittedText);
+    _titleController = TextEditingController(text: provider.postTitle);
     _titleController.addListener(_onTextChanged);
 
     _focusNode = FocusNode();
-    _focusNode.addListener(() {
-      setState(() {
-        _isFocused = _focusNode.hasFocus;
-        _validateInput(_titleController.text);
-      });
+    _focusNode.addListener(_onFocusChange);
+    
+    // Initial validation
+    _validateInput(_titleController.text);
+  }
+
+  void _onFocusChange() {
+    setState(() {
+      _isFocused = _focusNode.hasFocus;
+      if (!_isFocused) {
+        _isDirty = true;
+      }
+      _validateInput(_titleController.text);
     });
   }
 
@@ -46,7 +50,7 @@ class _AddTitlePageState extends State<AddTitlePage> {
       if (value.isEmpty) {
         _errorText = 'Title is required';
       } else if (value.length < _minLength) {
-        _errorText = 'Title must be at least $_minLength characters';
+        _errorText = 'Title must be at least $_minLength characters (${value.length}/$_minLength)';
       } else if (value.length > _maxLength) {
         _errorText = 'Title cannot exceed $_maxLength characters';
       } else {
@@ -57,46 +61,27 @@ class _AddTitlePageState extends State<AddTitlePage> {
   }
 
   void _onTextChanged() {
-    _validateInput(_titleController.text);
-    if (_titleController.text != _lastCommittedText) {
-      _needsUpdate = true;
-      _debounceTimer?.cancel();
-      _debounceTimer = Timer(const Duration(milliseconds: 300), () {
-        if (_needsUpdate && mounted) {
-          _commitUpdate();
-        }
-      });
-    }
+    setState(() {
+      _isDirty = true;
+      _validateInput(_titleController.text);
+    });
+    // Update provider immediately without debouncing
+    Provider.of<PostProvider>(context, listen: false)
+        .changePostTitle(_titleController.text);
   }
 
-  void _commitUpdate() {
-    if (!mounted) return;
-    final newText = _titleController.text;
-    if (newText != _lastCommittedText && _errorText == null) {
-      final provider = Provider.of<PostProvider>(context, listen: false);
-      provider.changePostTitle(newText);
-      _lastCommittedText = newText;
-      _needsUpdate = false;
-    }
-  }
-
-  @override
-  void dispose() {
-    _debounceTimer?.cancel();
-    _titleController.removeListener(_onTextChanged);
-    if (_needsUpdate) {
-      _commitUpdate();
-    }
-    _titleController.dispose();
-    _focusNode.dispose();
-    super.dispose();
+  Color _getBorderColor() {
+    if (!_isDirty && !_isFocused) return Colors.transparent;
+    if (_errorText != null) return Colors.red;
+    if (_isFocused) return AppColors.black;
+    return Colors.transparent;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16.0),
+        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -117,45 +102,77 @@ class _AddTitlePageState extends State<AddTitlePage> {
                 smoothness: 1,
                 borderRadius: BorderRadius.circular(10),
                 side: BorderSide(
-                  color: _errorText != null ? Colors.red : AppColors.black,
+                  color: _getBorderColor(),
                   width: 2,
-                  style: _isFocused ? BorderStyle.solid : BorderStyle.none,
+                  style: BorderStyle.solid,
                 ),
                 child: TextField(
                   controller: _titleController,
                   focusNode: _focusNode,
                   maxLength: _maxLength,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     fillColor: AppColors.containerColor,
-                    border: OutlineInputBorder(),
+                    filled: true,
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                     hintText: 'For example: Iphone 15 pro',
-                    contentPadding: EdgeInsets.all(14),
-                    //  errorText: _errorText,
-                    counterText: '', // Remove built-in counter
+                    contentPadding: const EdgeInsets.all(14),
+                    counterText: '',
                   ),
                 ),
               ),
             ),
+            if (_isDirty && _errorText != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 4.0, left: 2.0),
+                child: Text(
+                  _errorText!,
+                  style: const TextStyle(
+                    color: Colors.red,
+                    fontSize: 12,
+                    fontFamily: "Syne",
+                  ),
+                ),
+              ),
             Padding(
               padding: const EdgeInsets.only(top: 4.0, right: 2.0),
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: Text(
-                  '${_titleController.text.length}/$_maxLength',
-                  style: TextStyle(
-                    fontSize: 13.5,
-                    fontFamily: "Syne",
-                    color: _titleController.text.length > _maxLength
-                        ? Colors.red
-                        : Colors.grey[600],
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                    '${_titleController.text.length}/$_maxLength',
+                    textAlign: TextAlign.end,
+                    style: TextStyle(
+                      fontSize: 13.5,
+                      fontFamily: "Syne",
+                      color: _titleController.text.length > _maxLength
+                          ? Colors.red
+                          : Colors.grey[600],
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
-            const SizedBox(height: 20),
           ],
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _focusNode.dispose();
+    super.dispose();
   }
 }

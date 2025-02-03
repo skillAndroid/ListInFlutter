@@ -39,7 +39,7 @@ class _PhoneSettingsPageState extends State<PhoneSettingsPage> {
 
   String? _validatePhone(String value) {
     if (value.isEmpty) {
-      _errorText = 'Phone number is required';
+      _errorText = 'Phone number is not requirder';
     } else if (value.length != 12 || !value.startsWith('+998')) {
       _errorText = 'Enter valid Uzbekistan number: +998XXXXXXXXX';
     } else {
@@ -49,28 +49,29 @@ class _PhoneSettingsPageState extends State<PhoneSettingsPage> {
   }
 
   // Inside _PhoneSettingsPageState class
-Future<void> _selectTime(BuildContext context, bool isStartTime) async {
- 
-  final TimeOfDay? picked = await showThemedTimePicker(
-    context: context,
-    initialTime: isStartTime ? _startTime ?? TimeOfDay.now() : _endTime ?? TimeOfDay.now(),
-  );
+  Future<void> _selectTime(BuildContext context, bool isStartTime) async {
+    final TimeOfDay? picked = await showThemedTimePicker(
+      context: context,
+      initialTime: isStartTime
+          ? _startTime ?? TimeOfDay.now()
+          : _endTime ?? TimeOfDay.now(),
+    );
 
-  if (picked != null) {
-    setState(() {
-      if (isStartTime) {
-        _startTime = picked;
-      } else {
-        _endTime = picked;
+    if (picked != null) {
+      setState(() {
+        if (isStartTime) {
+          _startTime = picked;
+        } else {
+          _endTime = picked;
+        }
+      });
+
+      if (mounted) {
+        final provider = Provider.of<PostProvider>(context, listen: false);
+        provider.setCallTime(_startTime!, _endTime!);
       }
-    });
-    
-    if (mounted) {
-      final provider = Provider.of<PostProvider>(context, listen: false);
-      provider.setCallTime(_startTime!, _endTime!);
     }
   }
-}
 
   @override
   void dispose() {
@@ -110,7 +111,7 @@ Future<void> _selectTime(BuildContext context, bool isStartTime) async {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'This screen shows your contact details from your profile. You can make temporary changes for this post, or update your profile settings permanently.',
+                      'Want to update your contact info? Changes here will sync with your profile (optional)',
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey[700],
@@ -119,14 +120,13 @@ Future<void> _selectTime(BuildContext context, bool isStartTime) async {
                     ),
                     const SizedBox(height: 4),
                     TextButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/profile/settings');
-                      },
+                      onPressed: null,
+                      isSemanticButton: false,
                       style: const ButtonStyle(
                           backgroundColor:
                               WidgetStatePropertyAll(AppColors.white)),
                       child: const Text(
-                        'Update Profile Settings  →',
+                        'Update Profile Settings',
                         style: TextStyle(
                             color: AppColors.black,
                             fontWeight: FontWeight.w600,
@@ -139,9 +139,8 @@ Future<void> _selectTime(BuildContext context, bool isStartTime) async {
             ),
             const SizedBox(height: 16),
 
-            // Phone Number Input
             const Text(
-              'Phone Number',
+              'Phone Number(Optinal)',
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
@@ -235,7 +234,9 @@ Future<void> _selectTime(BuildContext context, bool isStartTime) async {
 
                     // Call Time Settings
                     if (provider.allowCalls) ...[
-                      const Divider(color: AppColors.lightGray,),
+                      const Divider(
+                        color: AppColors.lightGray,
+                      ),
                       const Text(
                         'Preferred Call Time',
                         style: TextStyle(
@@ -294,8 +295,6 @@ Future<void> _selectTime(BuildContext context, bool isStartTime) async {
   }
 }
 
-
-
 // Custom Material Time Picker
 Future<TimeOfDay?> showThemedTimePicker({
   required BuildContext context,
@@ -313,7 +312,8 @@ Future<TimeOfDay?> showThemedTimePicker({
               borderRadius: BorderRadius.circular(8),
               side: const BorderSide(color: Colors.black, width: 1),
             ),
-            dayPeriodBorderSide: const BorderSide(color: Colors.black, width: 1),
+            dayPeriodBorderSide:
+                const BorderSide(color: Colors.black, width: 1),
             dayPeriodShape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
               side: const BorderSide(color: Colors.black, width: 1),

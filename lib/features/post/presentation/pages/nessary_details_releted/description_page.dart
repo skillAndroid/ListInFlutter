@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
@@ -16,10 +15,8 @@ class _AddDescriptionPageState extends State<AddDescriptionPage> {
   late TextEditingController _descriptionController;
   late FocusNode _focusNode;
   bool _isFocused = false;
-  String _lastCommittedText = '';
-  bool _needsUpdate = false;
-  Timer? _debounceTimer;
   String? _errorText;
+  bool _isDirty = false;
 
   static const int _minLength = 45;
   static const int _maxLength = 500;
@@ -28,16 +25,23 @@ class _AddDescriptionPageState extends State<AddDescriptionPage> {
   void initState() {
     super.initState();
     final provider = Provider.of<PostProvider>(context, listen: false);
-    _lastCommittedText = provider.postDescription;
-    _descriptionController = TextEditingController(text: _lastCommittedText);
+    _descriptionController = TextEditingController(text: provider.postDescription);
     _descriptionController.addListener(_onTextChanged);
 
     _focusNode = FocusNode();
-    _focusNode.addListener(() {
-      setState(() {
-        _isFocused = _focusNode.hasFocus;
-        _validateInput(_descriptionController.text);
-      });
+    _focusNode.addListener(_onFocusChange);
+    
+    // Initial validation
+    _validateInput(_descriptionController.text);
+  }
+
+  void _onFocusChange() {
+    setState(() {
+      _isFocused = _focusNode.hasFocus;
+      if (!_isFocused) {
+        _isDirty = true;
+      }
+      _validateInput(_descriptionController.text);
     });
   }
 
@@ -46,7 +50,7 @@ class _AddDescriptionPageState extends State<AddDescriptionPage> {
       if (value.isEmpty) {
         _errorText = 'Description is required';
       } else if (value.length < _minLength) {
-        _errorText = 'Description must be at least $_minLength characters';
+        _errorText = 'Description must be at least $_minLength characters (${value.length}/$_minLength)';
       } else if (value.length > _maxLength) {
         _errorText = 'Description cannot exceed $_maxLength characters';
       } else {
@@ -57,46 +61,27 @@ class _AddDescriptionPageState extends State<AddDescriptionPage> {
   }
 
   void _onTextChanged() {
-    _validateInput(_descriptionController.text);
-    if (_descriptionController.text != _lastCommittedText) {
-      _needsUpdate = true;
-      _debounceTimer?.cancel();
-      _debounceTimer = Timer(const Duration(milliseconds: 300), () {
-        if (_needsUpdate && mounted) {
-          _commitUpdate();
-        }
-      });
-    }
+    setState(() {
+      _isDirty = true;
+      _validateInput(_descriptionController.text);
+    });
+    // Update provider immediately without debouncing
+    Provider.of<PostProvider>(context, listen: false)
+        .changePostDescription(_descriptionController.text);
   }
 
-  void _commitUpdate() {
-    if (!mounted) return;
-    final newText = _descriptionController.text;
-    if (newText != _lastCommittedText && _errorText == null) {
-      final provider = Provider.of<PostProvider>(context, listen: false);
-      provider.changePostDescription(newText);
-      _lastCommittedText = newText;
-      _needsUpdate = false;
-    }
-  }
-
-  @override
-  void dispose() {
-    _debounceTimer?.cancel();
-    _descriptionController.removeListener(_onTextChanged);
-    if (_needsUpdate) {
-      _commitUpdate();
-    }
-    _descriptionController.dispose();
-    _focusNode.dispose();
-    super.dispose();
+  Color _getBorderColor() {
+    if (!_isDirty && !_isFocused) return Colors.transparent;
+    if (_errorText != null) return Colors.red;
+    if (_isFocused) return AppColors.black;
+    return Colors.transparent;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16.0),
+        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -117,46 +102,78 @@ class _AddDescriptionPageState extends State<AddDescriptionPage> {
                 smoothness: 1,
                 borderRadius: BorderRadius.circular(10),
                 side: BorderSide(
-                  color: _errorText != null ? Colors.red : AppColors.black,
+                  color: _getBorderColor(),
                   width: 2,
-                  style: _isFocused ? BorderStyle.solid : BorderStyle.none,
+                  style: BorderStyle.solid,
                 ),
                 child: TextField(
                   controller: _descriptionController,
                   focusNode: _focusNode,
                   maxLength: _maxLength,
                   maxLines: 15,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     fillColor: AppColors.containerColor,
-                    border: OutlineInputBorder(),
-                    hintText:
-                        'For example: Selling iPhone 15 pro, unused and silver color',
-                    contentPadding: EdgeInsets.all(14),
-                    //  errorText: _errorText,
-                    counterText: '', // Remove built-in counter
+                    filled: true,
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    hintText: 'For example: Selling iPhone 15 pro, unused and silver color',
+                    contentPadding: const EdgeInsets.all(14),
+                    counterText: '',
                   ),
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(top: 4.0, right: 2.0),
-              child: Align(
-                alignment: Alignment.centerRight,
+            if (_isDirty && _errorText != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 4.0, left: 2.0),
                 child: Text(
-                  '${_descriptionController.text.length}/$_maxLength',
-                  style: TextStyle(
-                    fontSize: 13.5,
+                  _errorText!,
+                  style: const TextStyle(
+                    color: Colors.red,
+                    fontSize: 12,
                     fontFamily: "Syne",
-                    color: _descriptionController.text.length > _maxLength
-                        ? Colors.red
-                        : Colors.grey[600],
                   ),
                 ),
+              ),
+            Padding(
+              padding: const EdgeInsets.only(top: 4.0, right: 2.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                    '${_descriptionController.text.length}/$_maxLength',
+                    textAlign: TextAlign.end,
+                    style: TextStyle(
+                      fontSize: 13.5,
+                      fontFamily: "Syne",
+                      color: _descriptionController.text.length > _maxLength
+                          ? Colors.red
+                          : Colors.grey[600],
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _descriptionController.dispose();
+    _focusNode.dispose();
+    super.dispose();
   }
 }
