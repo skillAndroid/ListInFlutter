@@ -161,7 +161,7 @@ class _AddDescriptionPageState extends State<AddDescriptionWidget> {
                 Padding(
                   padding: const EdgeInsets.only(top: 4.0, right: 2.0),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Text(
                         '${_descriptionController.text.length}/$_maxLength',

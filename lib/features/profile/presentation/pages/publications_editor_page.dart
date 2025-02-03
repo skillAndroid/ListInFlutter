@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -163,26 +164,18 @@ class _PublicationsEditorPageState extends State<PublicationsEditorPage> {
       listener: (context, state) {
         if (state.isSuccess) {
           context.read<UserPublicationsBloc>().add(RefreshUserPublications());
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (context) => AlertDialog(
-              title: const Text('Success'),
-              content: const Text('Your publication updated successfully!'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    context
-                        .read<PublicationUpdateBloc>()
-                        .add(ClearPublicationState());
-                    Navigator.of(context).pop();
-                    context.pop();
-                  },
-                  child: const Text('OK'),
-                ),
-              ],
+          context.read<PublicationUpdateBloc>().add(ClearPublicationState());
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                "Publication updated successfuly!",
+                style: TextStyle(fontFamily: "Poppins"),
+              ),
+              backgroundColor: Colors.blue,
             ),
           );
+          Navigator.of(context).pop();
+          context.pop();
         } else if (state.error != null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -287,26 +280,30 @@ class _PublicationsEditorPageState extends State<PublicationsEditorPage> {
   Widget _buildBottomButton(
       BuildContext context, PublicationUpdateState state) {
     final isLastPage = _currentPage == _pageCount - 1;
-    final isLoading = state.isSubmitting || _isUpdating;
+    // Only show loading if submitting and not yet successful
+    final isLoading = state.isSubmitting && !state.isSuccess;
     final canProceed = _canProceedToNextPage(state);
 
     Widget buttonChild;
     if (isLastPage) {
       buttonChild = isLoading
-          ? const Row(
+          ? Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SizedBox(
                   width: 24,
                   height: 24,
-                  child: CircularProgressIndicator(
-                    color: AppColors.black,
-                    strokeWidth: 4,
-                    strokeCap: StrokeCap.round,
+                  child: Transform.scale(
+                    scale: 0.8,
+                    child: CircularProgressIndicator(
+                      color: AppColors.black,
+                      strokeWidth: 3,
+                      strokeCap: StrokeCap.round,
+                    ),
                   ),
                 ),
-                SizedBox(width: 12),
-                Text(
+                const SizedBox(width: 12),
+                const Text(
                   "Updating...",
                   style: TextStyle(fontFamily: "Syne"),
                 ),
