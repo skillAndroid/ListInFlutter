@@ -12,11 +12,11 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
-import 'package:list_in/features/explore/domain/enties/advertised_product_entity.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
+import 'package:list_in/features/explore/presentation/pages/filter/filter.dart';
 import 'package:list_in/features/explore/presentation/widgets/advertised_product_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/explore/presentation/widgets/recomendation_widget.dart';
@@ -153,7 +153,6 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
     _searchState = SearchBarState();
     _scrollState = ScrollState();
     _pagingState = PagingState();
- 
   }
 
   void _setupListeners() {
@@ -177,8 +176,6 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
   void _fetchVideoFeeds() {
     context.read<HomeTreeCubit>().fetchVideoFeeds(0);
   }
-
-
 
   @override
   void dispose() {
@@ -574,7 +571,33 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                                   width: 24,
                                   height: 24,
                                 ),
-                                onPressed: () {},
+                                onPressed: () {
+                                  final homeTreeCubit =
+                                      BlocProvider.of<HomeTreeCubit>(context);
+
+                                  showModalBottomSheet(
+                                    context: context,
+                                    isScrollControlled: true,
+                                    useRootNavigator: true,
+                                    showDragHandle: false,
+                                    enableDrag: false,
+                                    shape: SmoothRectangleBorder(
+                                      borderRadius: BorderRadius.circular(18),
+                                    ),
+                                    builder: (context) => BlocProvider.value(
+                                      value:
+                                          homeTreeCubit, // Provide the same cubit instance
+                                      child: SmoothClipRRect(
+                                        borderRadius: BorderRadius.circular(10),
+                                        smoothness: 1,
+                                        child: const FractionallySizedBox(
+                                          heightFactor: 0.93,
+                                          child: FiltersPage(),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
                               ),
                               SizedBox(
                                 width: 2,

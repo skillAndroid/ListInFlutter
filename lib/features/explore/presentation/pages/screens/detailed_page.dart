@@ -15,6 +15,7 @@ import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
+import 'package:list_in/features/explore/presentation/pages/filter/filter.dart';
 import 'package:list_in/features/explore/presentation/widgets/advertised_product_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
@@ -557,7 +558,33 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                     width: 24,
                                     height: 24,
                                   ),
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    final homeTreeCubit =
+                                        BlocProvider.of<HomeTreeCubit>(context);
+
+                                    showModalBottomSheet(
+                                      context: context,
+                                      isScrollControlled: true,
+                                      useRootNavigator: true,
+                                      showDragHandle: false,
+                                      enableDrag: false,
+                                      shape: SmoothRectangleBorder(
+                                        borderRadius: BorderRadius.circular(18),
+                                      ),
+                                      builder: (context) => BlocProvider.value(
+                                        value:
+                                            homeTreeCubit, // Provide the same cubit instance
+                                        child: SmoothClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(18),
+                                          child: const FractionallySizedBox(
+                                            heightFactor: 0.93,
+                                            child: FiltersPage(),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
                                 ),
                                 SizedBox(
                                   width: 2,

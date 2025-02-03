@@ -257,8 +257,7 @@ class HomeTreeState {
           childPublicationsRequestState ?? this.childPublicationsRequestState,
       catalogs: catalogs ?? this.catalogs,
       selectedCatalog: selectedCatalog ?? this.selectedCatalog,
-      selectedChildCategory:
-          selectedChildCategory ?? this.selectedChildCategory,
+      selectedChildCategory: selectedChildCategory ?? this.selectedChildCategory,
       currentAttributes: currentAttributes ?? this.currentAttributes,
       dynamicAttributes: dynamicAttributes ?? this.dynamicAttributes,
       selectedValues: selectedValues ?? this.selectedValues,
