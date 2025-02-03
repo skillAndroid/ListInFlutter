@@ -16,11 +16,11 @@ import 'package:list_in/features/explore/domain/usecase/get_publications_usecase
 import 'package:list_in/features/explore/domain/usecase/get_video_publications_usecase.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
-import 'package:list_in/features/explore/presentation/pages/child_page.dart';
-import 'package:list_in/features/explore/presentation/pages/detailed_page.dart';
-import 'package:list_in/features/explore/presentation/pages/initial_page.dart';
-import 'package:list_in/features/explore/presentation/pages/search_page.dart';
-import 'package:list_in/features/explore/presentation/pages/search_result_page.dart';
+import 'package:list_in/features/explore/presentation/pages/screens/child_page.dart';
+import 'package:list_in/features/explore/presentation/pages/screens/detailed_page.dart';
+import 'package:list_in/features/explore/presentation/pages/screens/initial_page.dart';
+import 'package:list_in/features/explore/presentation/pages/screens/search_page.dart';
+import 'package:list_in/features/explore/presentation/pages/screens/search_result_page.dart';
 import 'package:list_in/features/post/data/models/category_model.dart';
 import 'package:list_in/features/post/data/models/child_category_model.dart';
 import 'package:list_in/features/post/domain/usecases/get_catalogs_usecase.dart';
