@@ -35,8 +35,6 @@ class PublicationUpdateBloc
     on<ClearVideo>(_onClearVideo);
   }
 
-
-
   void _onClearState(
     ClearPublicationState event,
     Emitter<PublicationUpdateState> emit,

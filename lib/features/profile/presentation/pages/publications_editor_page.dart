@@ -28,6 +28,65 @@ class _PublicationsEditorPageState extends State<PublicationsEditorPage> {
   late int _currentPage;
   late double _progressValue;
   final int _pageCount = 5;
+  bool get _isUpdating =>
+      context.read<PublicationUpdateBloc>().state.updatingState !=
+      PublicationUpdatingState.initial;
+
+  bool _isTitleValid(PublicationUpdateState state) {
+    return state.title.length >= 10;
+  }
+
+  bool _isDescriptionValid(PublicationUpdateState state) {
+    return state.description.length >= 45;
+  }
+
+  bool _isPriceValid(PublicationUpdateState state) {
+    return state.price > 0;
+  }
+
+  bool _isConditionValid(PublicationUpdateState state) {
+    return state.condition.isNotEmpty;
+  }
+
+  bool _hasValidMedia(PublicationUpdateState state) {
+    final hasExistingImages = state.imageUrls?.isNotEmpty ?? false;
+    final hasNewImages = state.newImages.isNotEmpty;
+    return hasExistingImages || hasNewImages;
+  }
+
+  bool _canProceedToNextPage(PublicationUpdateState state) {
+    switch (_currentPage) {
+      case 0:
+        return _isTitleValid(state);
+      case 1:
+        return _isDescriptionValid(state);
+      case 2:
+        return _isPriceValid(state);
+      case 3:
+        return _isConditionValid(state);
+      case 4:
+        return _hasValidMedia(state);
+      default:
+        return false;
+    }
+  }
+
+  String _getValidationMessage(PublicationUpdateState state) {
+    switch (_currentPage) {
+      case 0:
+        return 'Title must be at least 10 characters long';
+      case 1:
+        return 'Description must be at least 45 characters long';
+      case 2:
+        return 'Please enter a valid price';
+      case 3:
+        return 'Please select a condition';
+      case 4:
+        return 'Please add at least one image';
+      default:
+        return '';
+    }
+  }
 
   @override
   void initState() {
@@ -51,6 +110,18 @@ class _PublicationsEditorPageState extends State<PublicationsEditorPage> {
   }
 
   void _handleNextPage() {
+    final state = context.read<PublicationUpdateBloc>().state;
+
+    if (!_canProceedToNextPage(state)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(_getValidationMessage(state)),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     if (_currentPage < _pageCount - 1) {
       FocusScope.of(context).unfocus();
       _pageController.nextPage(
@@ -61,6 +132,8 @@ class _PublicationsEditorPageState extends State<PublicationsEditorPage> {
   }
 
   void _handleBackNavigation() {
+    if (_isUpdating) return; // Prevent back navigation during update
+
     if (_currentPage == 0) {
       context.pop();
       return;
@@ -73,6 +146,7 @@ class _PublicationsEditorPageState extends State<PublicationsEditorPage> {
   }
 
   Future<bool> _onWillPop() async {
+    if (_isUpdating) return false; // Prevent back navigation during update
     if (_currentPage > 0) {
       _handleBackNavigation();
       return false;
@@ -121,14 +195,17 @@ class _PublicationsEditorPageState extends State<PublicationsEditorPage> {
       builder: (context, state) {
         return WillPopScope(
           onWillPop: _onWillPop,
-          child: Scaffold(
-            backgroundColor: AppColors.bgColor,
-            appBar: _buildAppBar(context),
-            body: Stack(
-              children: [
-                _buildPageViewBody(context),
-                _buildBottomButton(context, state),
-              ],
+          child: AbsorbPointer(
+            absorbing: _isUpdating, // Prevent all interactions during update
+            child: Scaffold(
+              backgroundColor: AppColors.bgColor,
+              appBar: _buildAppBar(context),
+              body: Stack(
+                children: [
+                  _buildPageViewBody(context),
+                  _buildBottomButton(context, state),
+                ],
+              ),
             ),
           ),
         );
@@ -139,8 +216,8 @@ class _PublicationsEditorPageState extends State<PublicationsEditorPage> {
   Widget _buildPageViewBody(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(
-        left: 16.0,
-        right: 16.0,
+        left: 0.0,
+        right: 0.0,
         bottom: _currentPage >= 2 ? 80.0 : 8,
       ),
       child: PageView(
@@ -210,7 +287,8 @@ class _PublicationsEditorPageState extends State<PublicationsEditorPage> {
   Widget _buildBottomButton(
       BuildContext context, PublicationUpdateState state) {
     final isLastPage = _currentPage == _pageCount - 1;
-    final isLoading = state.isSubmitting;
+    final isLoading = state.isSubmitting || _isUpdating;
+    final canProceed = _canProceedToNextPage(state);
 
     Widget buttonChild;
     if (isLastPage) {
@@ -259,10 +337,11 @@ class _PublicationsEditorPageState extends State<PublicationsEditorPage> {
               smoothness: 1,
               borderRadius: BorderRadius.circular(10),
             ),
-            backgroundColor: AppColors.black,
+            backgroundColor:
+                canProceed ? AppColors.black : AppColors.lighterGray,
             foregroundColor: AppColors.white,
           ),
-          onPressed: isLoading
+          onPressed: (!canProceed || isLoading)
               ? null
               : () {
                   if (isLastPage) {

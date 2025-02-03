@@ -14,11 +14,13 @@ class AddDescriptionWidget extends StatefulWidget {
   @override
   State<AddDescriptionWidget> createState() => _AddDescriptionPageState();
 }
+
 class _AddDescriptionPageState extends State<AddDescriptionWidget> {
   late TextEditingController _descriptionController;
   late FocusNode _focusNode;
   bool _isFocused = false;
   String? _errorText;
+  bool _isDirty = false;
   Timer? _debounceTimer;
 
   static const int _minLength = 45;
@@ -32,39 +34,54 @@ class _AddDescriptionPageState extends State<AddDescriptionWidget> {
     _descriptionController.addListener(_onTextChanged);
 
     _focusNode = FocusNode();
-    _focusNode.addListener(() {
-      setState(() {
-        _isFocused = _focusNode.hasFocus;
-        _validateInput(_descriptionController.text);
-      });
+    _focusNode.addListener(_onFocusChange);
+    
+    // Initial validation
+    _validateInput(_descriptionController.text);
+  }
+
+  void _onFocusChange() {
+    setState(() {
+      _isFocused = _focusNode.hasFocus;
+      if (!_isFocused) {
+        _isDirty = true;
+      }
+      _validateInput(_descriptionController.text);
     });
   }
 
   String? _validateInput(String value) {
-    setState(() {
-      if (value.isEmpty) {
-        _errorText = 'Description is required';
-      } else if (value.length < _minLength) {
-        _errorText = 'Description must be at least $_minLength characters';
-      } else if (value.length > _maxLength) {
-        _errorText = 'Description cannot exceed $_maxLength characters';
-      } else {
-        _errorText = null;
-      }
-    });
+    if (value.isEmpty) {
+      _errorText = 'Description is required';
+    } else if (value.length < _minLength) {
+      _errorText = 'Description must be at least $_minLength characters (${value.length}/$_minLength)';
+    } else if (value.length > _maxLength) {
+      _errorText = 'Description cannot exceed $_maxLength characters';
+    } else {
+      _errorText = null;
+    }
     return _errorText;
   }
 
   void _onTextChanged() {
-    _validateInput(_descriptionController.text);
-    _debounceTimer?.cancel();
-    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
-      if (_errorText == null) {
-        context
-            .read<PublicationUpdateBloc>()
-            .add(UpdateDescription(_descriptionController.text));
-      }
+    setState(() {
+      _isDirty = true;
+      _validateInput(_descriptionController.text);
     });
+    
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 50), () {
+      context
+          .read<PublicationUpdateBloc>()
+          .add(UpdateDescription(_descriptionController.text));
+    });
+  }
+
+  Color _getBorderColor() {
+    if (!_isDirty && !_isFocused) return Colors.transparent;
+    if (_errorText != null) return Colors.red;
+    if (_isFocused) return AppColors.black;
+    return Colors.transparent;
   }
 
   @override
@@ -75,7 +92,7 @@ class _AddDescriptionPageState extends State<AddDescriptionWidget> {
       builder: (context, state) {
         return Scaffold(
           body: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16.0),
+             padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -96,48 +113,68 @@ class _AddDescriptionPageState extends State<AddDescriptionWidget> {
                     smoothness: 1,
                     borderRadius: BorderRadius.circular(10),
                     side: BorderSide(
-                      color: _errorText != null ? Colors.red : AppColors.black,
+                      color: _getBorderColor(),
                       width: 2,
-                      style: _isFocused ? BorderStyle.solid : BorderStyle.none,
+                      style: BorderStyle.solid,
                     ),
                     child: TextField(
                       controller: _descriptionController,
                       focusNode: _focusNode,
                       maxLength: _maxLength,
                       maxLines: 15,
-                      decoration: const InputDecoration(
+                      onChanged: (value) => _onTextChanged(),
+                      decoration: InputDecoration(
                         fillColor: AppColors.containerColor,
-                        border: OutlineInputBorder(),
+                        filled: true,
+                        border: OutlineInputBorder(
+                          borderSide: BorderSide.none,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide.none,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide.none,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                         hintText:
                             'For example: Selling iPhone 15 pro, unused and silver color',
-                        contentPadding: EdgeInsets.all(14),
+                        contentPadding: const EdgeInsets.all(14),
                         counterText: '',
                       ),
                     ),
                   ),
                 ),
-                if (_errorText != null)
+                if (_isDirty && _errorText != null)
                   Padding(
-                    padding: const EdgeInsets.only(top: 4.0, left: 12),
+                    padding: const EdgeInsets.only(top: 4.0, left: 2.0),
                     child: Text(
                       _errorText!,
-                      style: const TextStyle(color: Colors.red, fontSize: 12),
+                      style: const TextStyle(
+                        color: Colors.red,
+                        fontSize: 12,
+                        fontFamily: "Syne",
+                      ),
                     ),
                   ),
                 Padding(
                   padding: const EdgeInsets.only(top: 4.0, right: 2.0),
-                  child: Align(
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      '${_descriptionController.text.length}/$_maxLength',
-                      style: TextStyle(
-                        fontSize: 13.5,
-                        fontFamily: "Syne",
-                        color: _descriptionController.text.length > _maxLength
-                            ? Colors.red
-                            : Colors.grey[600],
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '${_descriptionController.text.length}/$_maxLength',
+                        textAlign: TextAlign.end,
+                        style: TextStyle(
+                          fontSize: 13.5,
+                          fontFamily: "Syne",
+                          color: _descriptionController.text.length > _maxLength
+                              ? Colors.red
+                              : Colors.grey[600],
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
               ],

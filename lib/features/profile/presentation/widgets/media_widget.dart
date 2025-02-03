@@ -384,181 +384,184 @@ class MediaWidgetState extends State<MediaWidget> {
   Widget build(BuildContext context) {
     return BlocBuilder<PublicationUpdateBloc, PublicationUpdateState>(
       builder: (context, state) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 16),
-            const Text(
-              'Upload Images',
-              style: TextStyle(
-                fontSize: 18,
-                fontFamily: "Syne",
-                color: AppColors.primary,
-                fontWeight: FontWeight.w500,
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 16),
+              const Text(
+                'Upload Images',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontFamily: "Syne",
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-            ),
-            if (state.imageUrls!.isNotEmpty || state.newImages.isNotEmpty) ...[
+              if (state.imageUrls!.isNotEmpty || state.newImages.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                _buildDraggableImageList(context, state),
+              ],
               const SizedBox(height: 8),
-              _buildDraggableImageList(context, state),
-            ],
-            const SizedBox(height: 8),
-            const Text(
-              'Tip: The first photo will be featured as your main image. Simply drag and drop photos to change their order.',
-              style: TextStyle(
-                fontSize: 13.5,
-                color: AppColors.darkGray,
-                fontWeight: FontWeight.w400,
+              const Text(
+                'Tip: The first photo will be featured as your main image. Simply drag and drop photos to change their order.',
+                style: TextStyle(
+                  fontSize: 13.5,
+                  color: AppColors.darkGray,
+                  fontWeight: FontWeight.w400,
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            const Divider(
-              height: 1,
-              color: AppColors.lightGray,
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                SizedBox(
-                  width: 76,
-                  height: 76,
-                  child: ElevatedButton(
-                    onPressed: () => _pickImagesFromGallery(
-                        context, _picker), // Передаем context и _picker
-                    child: const Icon(
-                      EvaIcons.image,
-                      color: AppColors.black,
-                      size: 28,
+              const SizedBox(height: 8),
+              const Divider(
+                height: 1,
+                color: AppColors.lightGray,
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  SizedBox(
+                    width: 76,
+                    height: 76,
+                    child: ElevatedButton(
+                      onPressed: () => _pickImagesFromGallery(
+                          context, _picker), // Передаем context и _picker
+                      child: const Icon(
+                        EvaIcons.image,
+                        color: AppColors.black,
+                        size: 28,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 16),
-                const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Upload product photo(s)',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontFamily: "Syne",
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w500,
+                  const SizedBox(width: 16),
+                  const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Upload product photo(s)',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontFamily: "Syne",
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      'Format JPG or PNG',
-                      style: TextStyle(
-                        fontSize: 13.5,
-                        color: AppColors.darkGray,
-                        fontWeight: FontWeight.w400,
+                      SizedBox(height: 4),
+                      Text(
+                        'Format JPG or PNG',
+                        style: TextStyle(
+                          fontSize: 13.5,
+                          color: AppColors.darkGray,
+                          fontWeight: FontWeight.w400,
+                        ),
                       ),
-                    ),
-                  ],
-                )
-              ],
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              'Upload Video',
-              style: TextStyle(
-                fontSize: 18,
-                fontFamily: "Syne",
-                color: AppColors.primary,
-                fontWeight: FontWeight.w500,
+                    ],
+                  )
+                ],
               ),
-            ),
-            if (state.videoUrl != null || state.newVideo != null)
-              const SizedBox(height: 8),
-            Row(
-              children: [
-                if (state.videoUrl != null || state.newVideo != null) ...[
-                  _buildVideoPreview(context, state),
+              const SizedBox(height: 24),
+              const Text(
+                'Upload Video',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontFamily: "Syne",
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              if (state.videoUrl != null || state.newVideo != null)
+                const SizedBox(height: 8),
+              Row(
+                children: [
+                  if (state.videoUrl != null || state.newVideo != null) ...[
+                    _buildVideoPreview(context, state),
+                    const SizedBox(width: 8),
+                  ],
+                  SmoothClipRRect(
+                    smoothness: 1,
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      width: 245,
+                      height: 176,
+                      color: AppColors.containerColor,
+                      child: Image.asset(
+                        AppImages.videoVector,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
                   const SizedBox(width: 8),
                 ],
-                SmoothClipRRect(
-                  smoothness: 1,
-                  borderRadius: BorderRadius.circular(16),
-                  child: Container(
-                    width: 245,
-                    height: 176,
-                    color: AppColors.containerColor,
-                    child: Image.asset(
-                      AppImages.videoVector,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-              ],
-            ),
-            // Rest of the UI remains the same but with bloc state
-            const SizedBox(height: 8),
-            const Text(
-              'Attract more buyers with quick show case',
-              style: TextStyle(
-                fontSize: 13.5,
-                color: AppColors.secondaryColor,
-                fontWeight: FontWeight.w500,
               ),
-            ),
-            const Text(
-              'Tip: Use vertical (9:16) orientation for your videos to best suit for application',
-              style: TextStyle(
-                fontSize: 13.5,
-                color: AppColors.darkGray,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Divider(
-              height: 1,
-              color: AppColors.lightGray,
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                SizedBox(
-                  width: 76,
-                  height: 76,
-                  child: ElevatedButton(
-                    onPressed: _pickVideo,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.lightGray,
-                    ),
-                    child: const Icon(
-                      EvaIcons.video,
-                      color: AppColors.black,
-                      size: 28,
-                    ),
-                  ),
+              // Rest of the UI remains the same but with bloc state
+              const SizedBox(height: 8),
+              const Text(
+                'Attract more buyers with quick show case',
+                style: TextStyle(
+                  fontSize: 13.5,
+                  color: AppColors.secondaryColor,
+                  fontWeight: FontWeight.w500,
                 ),
-                const SizedBox(width: 16),
-                const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Upload product video',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontFamily: "Syne",
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w500,
+              ),
+              const Text(
+                'Tip: Use vertical (9:16) orientation for your videos to best suit for application',
+                style: TextStyle(
+                  fontSize: 13.5,
+                  color: AppColors.darkGray,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Divider(
+                height: 1,
+                color: AppColors.lightGray,
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  SizedBox(
+                    width: 76,
+                    height: 76,
+                    child: ElevatedButton(
+                      onPressed: _pickVideo,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.lightGray,
+                      ),
+                      child: const Icon(
+                        EvaIcons.video,
+                        color: AppColors.black,
+                        size: 28,
                       ),
                     ),
-                    SizedBox(height: 4),
-                    Text(
-                      'Max video duration 1:30 min',
-                      style: TextStyle(
-                        fontSize: 13.5,
-                        color: AppColors.darkGray,
-                        fontWeight: FontWeight.w400,
+                  ),
+                  const SizedBox(width: 16),
+                  const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Upload product video',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontFamily: "Syne",
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
+                      SizedBox(height: 4),
+                      Text(
+                        'Max video duration 1:30 min',
+                        style: TextStyle(
+                          fontSize: 13.5,
+                          color: AppColors.darkGray,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
         );
       },
     );

@@ -110,7 +110,7 @@ class _AddPricePageState extends State<AddPriceWidget> {
       builder: (context, state) {
         return Scaffold(
           body: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16.0),
+             padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
