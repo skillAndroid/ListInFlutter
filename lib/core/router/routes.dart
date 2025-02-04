@@ -23,6 +23,9 @@ class Routes {
   static const searchResult = '/searchResult';
 
   static const publicationsEdit = '/publicationsEdit';
+
+  static const filterHomeResult = '/filterHomeResult';
+  static const filterSecondaryResult = '/filterSecondaryResult';
 }
 
 class RoutesByName {
@@ -49,4 +52,6 @@ class RoutesByName {
   static const searchResult = 'searchResult';
 
   static const publicationsEdit = 'publicationsEdit';
+  static const filterHomeResult = 'filterHomeResult';
+  static const filterSecondaryResult = 'filterSecondaryResult';
 }

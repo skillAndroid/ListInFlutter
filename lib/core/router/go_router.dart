@@ -15,9 +15,9 @@ import 'package:list_in/features/explore/domain/usecase/get_prediction_usecase.d
 import 'package:list_in/features/explore/domain/usecase/get_publications_usecase.dart';
 import 'package:list_in/features/explore/domain/usecase/get_video_publications_usecase.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
-import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/explore/presentation/pages/screens/child_page.dart';
 import 'package:list_in/features/explore/presentation/pages/screens/detailed_page.dart';
+import 'package:list_in/features/explore/presentation/pages/screens/filter_home_result_page.dart';
 import 'package:list_in/features/explore/presentation/pages/screens/initial_page.dart';
 import 'package:list_in/features/explore/presentation/pages/screens/search_page.dart';
 import 'package:list_in/features/explore/presentation/pages/screens/search_result_page.dart';
@@ -28,7 +28,6 @@ import 'package:list_in/features/post/data/models/category_model.dart';
 import 'package:list_in/features/post/data/models/child_category_model.dart';
 import 'package:list_in/features/post/domain/usecases/get_catalogs_usecase.dart';
 import 'package:list_in/features/post/presentation/pages/post_screen.dart';
-import 'package:list_in/features/profile/domain/entity/publication/publication_entity.dart';
 import 'package:list_in/features/profile/domain/entity/user/user_profile_entity.dart';
 import 'package:list_in/features/profile/presentation/pages/profile_editor_page.dart';
 import 'package:list_in/features/profile/presentation/pages/profile_screen.dart';
@@ -187,6 +186,24 @@ class AppRouter {
                 },
                 routes: [
                   GoRoute(
+                    path: Routes.filterHomeResult,
+                    name: RoutesByName.filterHomeResult,
+                    builder: (context, state) {
+                      return BlocProvider(
+                        create: (_) => HomeTreeCubit(
+                          getCatalogsUseCase: getGategoriesUsecase,
+                          getPublicationsUseCase: getPublicationsUsecase,
+                          getPredictionsUseCase: getPredictionsUseCase,
+                          getVideoPublicationsUsecase:
+                              getVideoPublicationsUsecase,
+                        ),
+                        child: FilterHomeResultPage(
+                          key: state.pageKey,
+                        ),
+                      );
+                    },
+                  ),
+                  GoRoute(
                     path: Routes.searchResult,
                     name: RoutesByName.searchResult,
                     builder: (context, state) {
@@ -221,6 +238,40 @@ class AppRouter {
                           ),
                         );
                       }),
+                  GoRoute(
+                    name: RoutesByName.filterSecondaryResult,
+                    path: Routes.filterSecondaryResult,
+                    builder: (context, state) {
+                      final extraData = state.extra as Map<String, dynamic>;
+                      final category = extraData['category'] as CategoryModel?;
+                   
+
+                      if (category == null) {
+                        return const Scaffold(
+                          body: Center(
+                              child: Text('Error: Invalid category data')),
+                        );
+                      }
+
+                      return BlocProvider(
+                        create: (_) {
+                          final cubit = HomeTreeCubit(
+                            getCatalogsUseCase: getGategoriesUsecase,
+                            getPublicationsUseCase: getPublicationsUsecase,
+                            getPredictionsUseCase: getPredictionsUseCase,
+                            getVideoPublicationsUsecase:
+                                getVideoPublicationsUsecase,
+                          );
+                          cubit.selectCatalog(category);
+                          return cubit;
+                        },
+                        child: ChildHomeTreePage(
+                          key: state.pageKey,
+                          regularProducts: sampleProducts,
+                        ),
+                      );
+                    },
+                  ),
                   GoRoute(
                     name: RoutesByName.subcategories,
                     path: Routes.subcategories,

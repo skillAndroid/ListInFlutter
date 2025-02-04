@@ -668,8 +668,7 @@ class _FiltersPageState extends State<FiltersPage>
                                     .resetChildCategorySelection();
                               } else {
                                 context
-                                    .read<HomeTreeCubit>()
-                                    .fetchInitialPage(0);
+                                    .pushNamed(RoutesByName.filterHomeResult);
                               }
 
                               return;
@@ -686,9 +685,9 @@ class _FiltersPageState extends State<FiltersPage>
                                     .read<HomeTreeCubit>()
                                     .resetCatalogSelection();
                               } else {
-                                context
-                                    .read<HomeTreeCubit>()
-                                    .fetchInitialPage(0);
+                                context.pushNamed(
+                                    RoutesByName.filterSecondaryResult,
+                                    extra: {'category': state.selectedCatalog});
                               }
 
                               return;
@@ -696,7 +695,7 @@ class _FiltersPageState extends State<FiltersPage>
                             if (state.selectedCatalog == null ||
                                 state.selectedChildCategory == null) {
                               context.pop();
-                              context.push(Routes.searchResult);
+                              context.pushNamed(RoutesByName.filterHomeResult);
                             }
                           },
                           style: ElevatedButton.styleFrom(
