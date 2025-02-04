@@ -21,6 +21,9 @@ import 'package:list_in/features/explore/presentation/pages/screens/detailed_pag
 import 'package:list_in/features/explore/presentation/pages/screens/initial_page.dart';
 import 'package:list_in/features/explore/presentation/pages/screens/search_page.dart';
 import 'package:list_in/features/explore/presentation/pages/screens/search_result_page.dart';
+import 'package:list_in/features/post/data/models/attribute_model.dart';
+import 'package:list_in/features/post/data/models/attribute_value_model.dart';
+import 'package:list_in/features/post/data/models/blabla.dart';
 import 'package:list_in/features/post/data/models/category_model.dart';
 import 'package:list_in/features/post/data/models/child_category_model.dart';
 import 'package:list_in/features/post/domain/usecases/get_catalogs_usecase.dart';
@@ -265,6 +268,10 @@ class AppRouter {
                                 extraData['category'] as CategoryModel?;
                             final childCategory = extraData['childCategory']
                                 as ChildCategoryModel?;
+
+                            final attributeState = extraData['attributeState']
+                                as Map<String, dynamic>?;
+
                             final parentAttributeKeyId =
                                 extraData['parentAttributeKeyId'] as String?;
                             final parentAttributeValueId =
@@ -298,6 +305,38 @@ class AppRouter {
                                   ..selectCatalog(parentCategory)
                                   ..selectChildCategory(childCategory);
 
+                                if (attributeState != null) {
+                                  final selectedValues =
+                                      attributeState['selectedValues']
+                                          as Map<String, dynamic>;
+                                  final selectedAttributeValues =
+                                      (attributeState['selectedAttributeValues']
+                                              as Map<String, dynamic>)
+                                          .map((key, value) => MapEntry(
+                                                cubit.state.orderedAttributes
+                                                    .firstWhere(
+                                                  (attr) =>
+                                                      attr.attributeKey == key,
+                                                ),
+                                                value as AttributeValueModel,
+                                              ));
+                                  final dynamicAttributes =
+                                      attributeState['dynamicAttributes']
+                                          as List<AttributeModel>;
+                                  final attributeRequests =
+                                      attributeState['attributeRequests']
+                                          as List<AttributeRequestValue>;
+
+                                  // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
+                                  cubit.emit(cubit.state.copyWith(
+                                    selectedValues: selectedValues,
+                                    selectedAttributeValues:
+                                        selectedAttributeValues,
+                                    dynamicAttributes: dynamicAttributes,
+                                    attributeRequests: attributeRequests,
+                                  ));
+                                }
+
                                 if (parentAttributeKeyId != null &&
                                     parentAttributeValueId != null) {
                                   cubit.selectAttributeById(
@@ -313,6 +352,7 @@ class AppRouter {
                                     childAttributeValueId,
                                   );
                                 }
+
                                 return cubit;
                               },
                               child: DetailedHomeTreePage(

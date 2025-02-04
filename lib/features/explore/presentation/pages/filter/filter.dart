@@ -1,16 +1,17 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:list_in/config/theme/app_colors.dart';
+import 'package:go_router/go_router.dart';
+import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
-import 'package:smooth_corner_updated/smooth_corner.dart';
+import 'package:list_in/features/post/data/models/category_model.dart';
+import 'package:list_in/features/post/data/models/child_category_model.dart';
 
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-
+// ignore: must_be_immutable
 class FiltersPage extends StatefulWidget {
-  const FiltersPage({super.key});
+  String page;
+  FiltersPage({super.key, required this.page});
 
   @override
   State<FiltersPage> createState() => _FiltersPageState();
@@ -27,6 +28,14 @@ class _FiltersPageState extends State<FiltersPage>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.page == "child") {
+        context.read<HomeTreeCubit>().resetChildCategorySelection();
+      }
+      if (widget.page == "initial") {
+        context.read<HomeTreeCubit>().resetCatalogSelection();
+      }
+    });
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
@@ -125,7 +134,7 @@ class _FiltersPageState extends State<FiltersPage>
                             _buildAnimatedAttributeSection(
                                 attribute, cubit, state)),
 
-                      _buildApplyButton()
+                      _buildApplyButton(state)
                     ],
                   ),
                 ),
@@ -604,13 +613,14 @@ class _FiltersPageState extends State<FiltersPage>
     );
   }
 
-  Widget _buildApplyButton() {
+  Widget _buildApplyButton(HomeTreeState state) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
           BoxShadow(
+            // ignore: deprecated_member_use
             color: Colors.black.withOpacity(0.05),
             offset: Offset(0, -4),
             blurRadius: 8,
@@ -632,8 +642,62 @@ class _FiltersPageState extends State<FiltersPage>
                         scale: 0.9 + (0.1 * value),
                         child: ElevatedButton(
                           onPressed: () {
-                            // Apply filters logic
-                            Navigator.pop(context);
+                            if (state.selectedCatalog != null &&
+                                state.selectedChildCategory != null) {
+                              final attributeState = {
+                                'selectedValues': state.selectedValues,
+                                'selectedAttributeValues':
+                                    state.selectedAttributeValues.map(
+                                  (key, value) =>
+                                      MapEntry(key.attributeKey, value),
+                                ),
+                                'dynamicAttributes': state.dynamicAttributes,
+                                'attributeRequests': state.attributeRequests,
+                              };
+                              context.pop();
+                              if (widget.page == "initial" ||
+                                  widget.page == "child") {
+                                context
+                                    .pushNamed(RoutesByName.attributes, extra: {
+                                  'category': state.selectedCatalog,
+                                  'childCategory': state.selectedChildCategory,
+                                  'attributeState': attributeState,
+                                });
+                                context
+                                    .read<HomeTreeCubit>()
+                                    .resetChildCategorySelection();
+                              } else {
+                                context
+                                    .read<HomeTreeCubit>()
+                                    .fetchInitialPage(0);
+                              }
+
+                              return;
+                            }
+
+                            if (state.selectedCatalog != null) {
+                              context.pop();
+                              if (widget.page != 'child') {
+                                context.goNamed(RoutesByName.subcategories,
+                                    extra: {
+                                      'category': state.selectedCatalog,
+                                    });
+                                context
+                                    .read<HomeTreeCubit>()
+                                    .resetCatalogSelection();
+                              } else {
+                                context
+                                    .read<HomeTreeCubit>()
+                                    .fetchInitialPage(0);
+                              }
+
+                              return;
+                            }
+                            if (state.selectedCatalog == null ||
+                                state.selectedChildCategory == null) {
+                              context.pop();
+                              context.push(Routes.searchResult);
+                            }
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blue.shade400,

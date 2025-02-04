@@ -540,9 +540,11 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
                                         child: SmoothClipRRect(
                                           borderRadius:
                                               BorderRadius.circular(18),
-                                          child: const FractionallySizedBox(
+                                          child: FractionallySizedBox(
                                             heightFactor: 0.93,
-                                            child: FiltersPage(),
+                                            child: FiltersPage(
+                                              page: "child",
+                                            ),
                                           ),
                                         ),
                                       ),
