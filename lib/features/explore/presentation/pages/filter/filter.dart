@@ -27,7 +27,7 @@ class _FiltersPageState extends State<FiltersPage>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (widget.page == "child" || widget.page == 'child_filter') {
+      if (widget.page == "child" || widget.page == 'ssssss') {
         context.read<HomeTreeCubit>().resetChildCategorySelection();
       }
       if (widget.page == "initial" || widget.page == "initial_filter") {
@@ -656,7 +656,8 @@ class _FiltersPageState extends State<FiltersPage>
                               if (widget.page == "initial" ||
                                   widget.page == "child" ||
                                   widget.page == "initial_filter" ||
-                                  widget.page == 'child_filter') {
+                                  widget.page == 'ssssss') {
+                                debugPrint("🐁🐁😡😡😡❤️❤️${widget.page}");
                                 context
                                     .pushNamed(RoutesByName.attributes, extra: {
                                   'category': state.selectedCatalog,
@@ -676,8 +677,8 @@ class _FiltersPageState extends State<FiltersPage>
 
                             if (state.selectedCatalog != null) {
                               context.pop();
-                              if (widget.page != 'child' ||
-                                  widget.page == "child_filter") {
+                              if (widget.page == 'initial' ||
+                                  widget.page == 'initial_filter') {
                                 context.pushNamed(RoutesByName.subcategories,
                                     extra: {
                                       'category': state.selectedCatalog,
@@ -685,18 +686,16 @@ class _FiltersPageState extends State<FiltersPage>
                                 context
                                     .read<HomeTreeCubit>()
                                     .resetCatalogSelection();
+                              } else if (widget.page == "child") {
+                                debugPrint("🐁🐁😡😡😡❤️❤️${widget.page}");
+                                context.pushNamed(
+                                    RoutesByName.filterSecondaryResult,
+                                    extra: {'category': state.selectedCatalog});
                               } else {
-                                if (widget.page == "child_filter") {
-                                  context
-                                      .read<HomeTreeCubit>()
-                                      .fetchSecondaryPage(0);
-                                } else {
-                                  context.pushNamed(
-                                      RoutesByName.filterSecondaryResult,
-                                      extra: {
-                                        'category': state.selectedCatalog
-                                      });
-                                }
+                                 debugPrint("🐁🐁😡😡😡❤️❤️${widget.page}");
+                                context
+                                    .read<HomeTreeCubit>()
+                                    .fetchSecondaryPage(0);
                               }
 
                               return;
