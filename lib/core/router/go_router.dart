@@ -17,7 +17,8 @@ import 'package:list_in/features/explore/domain/usecase/get_video_publications_u
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/pages/screens/child_page.dart';
 import 'package:list_in/features/explore/presentation/pages/screens/detailed_page.dart';
-import 'package:list_in/features/explore/presentation/pages/screens/filter_home_result_page.dart';
+import 'package:list_in/features/explore/presentation/pages/filter/filter_home_result_page.dart';
+import 'package:list_in/features/explore/presentation/pages/filter/filter_secondary_result_page.dart';
 import 'package:list_in/features/explore/presentation/pages/screens/initial_page.dart';
 import 'package:list_in/features/explore/presentation/pages/screens/search_page.dart';
 import 'package:list_in/features/explore/presentation/pages/screens/search_result_page.dart';
@@ -265,7 +266,7 @@ class AppRouter {
                           cubit.selectCatalog(category);
                           return cubit;
                         },
-                        child: ChildHomeTreePage(
+                        child: FilterSecondaryResultPage(
                           key: state.pageKey,
                           regularProducts: sampleProducts,
                         ),

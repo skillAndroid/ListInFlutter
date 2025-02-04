@@ -536,7 +536,7 @@ class _FilterSecondaryResultPageState extends State<FilterSecondaryResultPage> {
                                           child: FractionallySizedBox(
                                             heightFactor: 0.93,
                                             child: FiltersPage(
-                                              page: "child",
+                                              page: "child_filter",
                                             ),
                                           ),
                                         ),

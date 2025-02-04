@@ -5,8 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
-import 'package:list_in/features/post/data/models/category_model.dart';
-import 'package:list_in/features/post/data/models/child_category_model.dart';
 
 // ignore: must_be_immutable
 class FiltersPage extends StatefulWidget {
@@ -29,10 +27,10 @@ class _FiltersPageState extends State<FiltersPage>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (widget.page == "child") {
+      if (widget.page == "child" || widget.page == 'child_filter') {
         context.read<HomeTreeCubit>().resetChildCategorySelection();
       }
-      if (widget.page == "initial") {
+      if (widget.page == "initial" || widget.page == "initial_filter") {
         context.read<HomeTreeCubit>().resetCatalogSelection();
       }
     });
@@ -656,7 +654,9 @@ class _FiltersPageState extends State<FiltersPage>
                               };
                               context.pop();
                               if (widget.page == "initial" ||
-                                  widget.page == "child") {
+                                  widget.page == "child" ||
+                                  widget.page == "initial_filter" ||
+                                  widget.page == 'child_filter') {
                                 context
                                     .pushNamed(RoutesByName.attributes, extra: {
                                   'category': state.selectedCatalog,
@@ -667,8 +667,8 @@ class _FiltersPageState extends State<FiltersPage>
                                     .read<HomeTreeCubit>()
                                     .resetChildCategorySelection();
                               } else {
-                                context
-                                    .pushNamed(RoutesByName.filterHomeResult);
+                                context.read<HomeTreeCubit>().filtersTrigered();
+                                context.read<HomeTreeCubit>().fetchChildPage(0);
                               }
 
                               return;
@@ -676,8 +676,9 @@ class _FiltersPageState extends State<FiltersPage>
 
                             if (state.selectedCatalog != null) {
                               context.pop();
-                              if (widget.page != 'child') {
-                                context.goNamed(RoutesByName.subcategories,
+                              if (widget.page != 'child' ||
+                                  widget.page == "child_filter") {
+                                context.pushNamed(RoutesByName.subcategories,
                                     extra: {
                                       'category': state.selectedCatalog,
                                     });
@@ -685,9 +686,17 @@ class _FiltersPageState extends State<FiltersPage>
                                     .read<HomeTreeCubit>()
                                     .resetCatalogSelection();
                               } else {
-                                context.pushNamed(
-                                    RoutesByName.filterSecondaryResult,
-                                    extra: {'category': state.selectedCatalog});
+                                if (widget.page == "child_filter") {
+                                  context
+                                      .read<HomeTreeCubit>()
+                                      .fetchSecondaryPage(0);
+                                } else {
+                                  context.pushNamed(
+                                      RoutesByName.filterSecondaryResult,
+                                      extra: {
+                                        'category': state.selectedCatalog
+                                      });
+                                }
                               }
 
                               return;
@@ -695,7 +704,14 @@ class _FiltersPageState extends State<FiltersPage>
                             if (state.selectedCatalog == null ||
                                 state.selectedChildCategory == null) {
                               context.pop();
-                              context.pushNamed(RoutesByName.filterHomeResult);
+                              if (widget.page == 'initial_filter') {
+                                context
+                                    .read<HomeTreeCubit>()
+                                    .fetchInitialPage(0);
+                              } else {
+                                context
+                                    .pushNamed(RoutesByName.filterHomeResult);
+                              }
                             }
                           },
                           style: ElevatedButton.styleFrom(

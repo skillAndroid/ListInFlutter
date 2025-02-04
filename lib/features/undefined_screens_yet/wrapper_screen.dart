@@ -68,37 +68,40 @@ class _MainWrapperState extends State<MainWrapper> {
                   ),
                 ),
               ),
-              child: BottomNavigationBar(
-                backgroundColor: AppColors.white,
-                selectedItemColor: AppColors.primary,
-                unselectedItemColor: CupertinoColors.inactiveGray,
-                currentIndex: _selectedIndex, // Use our tracked index
-                onTap: (index) => _goToBranch(index),
-                type: BottomNavigationBarType.fixed,
-                showSelectedLabels: true,
-                showUnselectedLabels: true,
-                selectedLabelStyle: const TextStyle(
-                  fontWeight: FontWeight.bold, // Bold font for selected label
-                ),
-                unselectedLabelStyle:
-                    const TextStyle(fontWeight: FontWeight.bold),
-                items: const [
-                  BottomNavigationBarItem(
-                    icon: Icon(CupertinoIcons.home),
-                    label: 'Home',
+              child: SizedBox(
+                height: 75,
+                child: BottomNavigationBar(
+                  backgroundColor: AppColors.white,
+                  selectedItemColor: AppColors.primary,
+                  unselectedItemColor: CupertinoColors.inactiveGray,
+                  currentIndex: _selectedIndex, // Use our tracked index
+                  onTap: (index) => _goToBranch(index),
+                  type: BottomNavigationBarType.fixed,
+                  showSelectedLabels: true,
+                  showUnselectedLabels: true,
+                  selectedLabelStyle: const TextStyle(
+                    fontWeight: FontWeight.bold, // Bold font for selected label
                   ),
-                  BottomNavigationBarItem(
-                    icon: Icon(
-                      CupertinoIcons.plus_circled,
-                      size: 30,
+                  unselectedLabelStyle:
+                      const TextStyle(fontWeight: FontWeight.bold),
+                  items: const [
+                    BottomNavigationBarItem(
+                      icon: Icon(CupertinoIcons.home, size: 23,),
+                      label: 'Home',
                     ),
-                    label: 'Add Post',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(CupertinoIcons.person_fill),
-                    label: 'Profile',
-                  ),
-                ],
+                    BottomNavigationBarItem(
+                      icon: Icon(
+                        CupertinoIcons.plus_circled,
+                        size: 28,
+                      ),
+                      label: 'Add Post',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(CupertinoIcons.person_fill, size: 23,),
+                      label: 'Profile',
+                    ),
+                  ],
+                ),
               ),
             )
           : null,

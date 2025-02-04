@@ -517,7 +517,7 @@ class _FilterHomeResultPageState extends State<FilterHomeResultPage> {
                                         smoothness: 1,
                                         child: FractionallySizedBox(
                                           heightFactor: 0.93,
-                                          child: FiltersPage(page: "initial"),
+                                          child: FiltersPage(page: "initial_filter"),
                                         ),
                                       ),
                                     ),
