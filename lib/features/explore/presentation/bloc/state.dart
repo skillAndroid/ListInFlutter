@@ -234,6 +234,8 @@ class HomeTreeState {
     List<PredictionEntity>? predictions,
     RequestState? predictionsRequestState,
     String? errorPredictionsFetch,
+    bool clearSelectedCatalog = false,
+    bool clearSelectedChildCategory = false,
   }) {
     return HomeTreeState(
       searchRequestState: searchRequestState ?? this.searchRequestState,
@@ -256,8 +258,12 @@ class HomeTreeState {
       childPublicationsRequestState:
           childPublicationsRequestState ?? this.childPublicationsRequestState,
       catalogs: catalogs ?? this.catalogs,
-      selectedCatalog: selectedCatalog ?? this.selectedCatalog,
-      selectedChildCategory: selectedChildCategory ?? this.selectedChildCategory,
+      selectedCatalog: clearSelectedCatalog
+          ? null
+          : (selectedCatalog ?? this.selectedCatalog),
+      selectedChildCategory: clearSelectedChildCategory
+          ? null
+          : (selectedChildCategory ?? this.selectedChildCategory),
       currentAttributes: currentAttributes ?? this.currentAttributes,
       dynamicAttributes: dynamicAttributes ?? this.dynamicAttributes,
       selectedValues: selectedValues ?? this.selectedValues,

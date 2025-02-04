@@ -550,10 +550,9 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
       result.fold(
         (failure) {
           emit(state.copyWith(
-            childPublicationsRequestState: RequestState.error,
-            errorChildPublicationsFetch: _mapFailureToMessage(failure),
-            filtersTrigered: false
-          ));
+              childPublicationsRequestState: RequestState.error,
+              errorChildPublicationsFetch: _mapFailureToMessage(failure),
+              filtersTrigered: false));
         },
         (paginatedData) {
           // For page 0, we always want to replace existing data
@@ -563,13 +562,12 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
               paginatedData.isNotEmpty ? paginatedData.last.isLast : true;
 
           emit(state.copyWith(
-            childPublicationsRequestState: RequestState.completed,
-            childPublications: updatedPublications,
-            childHasReachedMax: isLastPage,
-            childCurrentPage: pageKey,
-            errorChildPublicationsFetch: null,
-            filtersTrigered: false
-          ));
+              childPublicationsRequestState: RequestState.completed,
+              childPublications: updatedPublications,
+              childHasReachedMax: isLastPage,
+              childCurrentPage: pageKey,
+              errorChildPublicationsFetch: null,
+              filtersTrigered: false));
         },
       );
     } catch (e) {
@@ -943,17 +941,13 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
       final currentValue = newSelectedValues[attribute.attributeKey];
       if (currentValue == value) return;
 
-      // Clear child-related data when parent value changes
       if (attribute.subFilterWidgetType != 'null') {
-        // Clear selected values for child attributes
         final childKey = '${attribute.attributeKey}_child';
         newSelectedValues.remove(childKey);
 
-        // Remove child-related entries from selectedAttributeValues
         newSelectedAttributeValues
             .removeWhere((attr, _) => attr.attributeKey == childKey);
 
-        // Update dynamic attributes without selecting values
         _handleDynamicAttributeCreation(
           attribute,
           value,
@@ -961,11 +955,9 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
         );
       }
 
-      // Only update the parent attribute's value
       newSelectedValues[attribute.attributeKey] = value;
       newSelectedAttributeValues[attribute] = value;
     } else {
-      // Handle multi-select case
       newSelectedValues.putIfAbsent(
           attribute.attributeKey, () => <AttributeValueModel>[]);
       final list = newSelectedValues[attribute.attributeKey]
@@ -1061,6 +1053,8 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
 
   void resetCatalogSelection() {
     emit(state.copyWith(
+      clearSelectedCatalog: true,
+      clearSelectedChildCategory: true,
       selectedCatalog: null,
       selectedChildCategory: null,
       childCategorySelections: {},
@@ -1081,6 +1075,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
       }
 
       emit(state.copyWith(
+        clearSelectedChildCategory: true,
         selectedChildCategory: null,
         childCategorySelections: newSelections,
         childCategoryDynamicAttributes: newDynamicAttributes,
@@ -1113,53 +1108,55 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     emit(HomeTreeState());
   }
 
-  void clearSelectedAttributeValue(AttributeModel attribute, AttributeValueModel value) {
-  final Map<String, dynamic> newSelectedValues =
-      Map<String, dynamic>.from(state.selectedValues);
-  final Map<AttributeModel, AttributeValueModel> newSelectedAttributeValues =
-      Map<AttributeModel, AttributeValueModel>.from(
-          state.selectedAttributeValues);
-  List<AttributeModel> newDynamicAttributes =
-      List<AttributeModel>.from(state.dynamicAttributes);
+  void clearSelectedAttributeValue(
+      AttributeModel attribute, AttributeValueModel value) {
+    final Map<String, dynamic> newSelectedValues =
+        Map<String, dynamic>.from(state.selectedValues);
+    final Map<AttributeModel, AttributeValueModel> newSelectedAttributeValues =
+        Map<AttributeModel, AttributeValueModel>.from(
+            state.selectedAttributeValues);
+    List<AttributeModel> newDynamicAttributes =
+        List<AttributeModel>.from(state.dynamicAttributes);
 
-  // For single-select attributes
-  if (attribute.filterWidgetType == 'oneSelectable') {
-    // Only clear if the selected value matches the value to be cleared
-    if (newSelectedAttributeValues[attribute] == value) {
-      newSelectedValues.remove(attribute.attributeKey);
-      newSelectedAttributeValues.remove(attribute);
-
-      // Handle dynamic attributes for parent-child relationships
-      if (attribute.subFilterWidgetType != 'null') {
-        final childKey = '${attribute.attributeKey}_child';
-        newSelectedValues.remove(childKey);
-        newSelectedAttributeValues
-            .removeWhere((attr, _) => attr.attributeKey == childKey);
-        newDynamicAttributes
-            .removeWhere((attr) => attr.attributeKey == childKey);
-      }
-    }
-  } 
-  // For multi-select attributes
-  else {
-    final list = newSelectedValues[attribute.attributeKey] as List<AttributeValueModel>?;
-    if (list != null) {
-      list.remove(value);
-      
-      // If the list becomes empty, remove the entire entry
-      if (list.isEmpty) {
+    // For single-select attributes
+    if (attribute.filterWidgetType == 'oneSelectable') {
+      // Only clear if the selected value matches the value to be cleared
+      if (newSelectedAttributeValues[attribute] == value) {
         newSelectedValues.remove(attribute.attributeKey);
         newSelectedAttributeValues.remove(attribute);
+
+        // Handle dynamic attributes for parent-child relationships
+        if (attribute.subFilterWidgetType != 'null') {
+          final childKey = '${attribute.attributeKey}_child';
+          newSelectedValues.remove(childKey);
+          newSelectedAttributeValues
+              .removeWhere((attr, _) => attr.attributeKey == childKey);
+          newDynamicAttributes
+              .removeWhere((attr) => attr.attributeKey == childKey);
+        }
       }
     }
-  }
+    // For multi-select attributes
+    else {
+      final list = newSelectedValues[attribute.attributeKey]
+          as List<AttributeValueModel>?;
+      if (list != null) {
+        list.remove(value);
 
-  emit(state.copyWith(
-    selectedValues: newSelectedValues,
-    selectedAttributeValues: newSelectedAttributeValues,
-    dynamicAttributes: newDynamicAttributes,
-  ));
-}
+        // If the list becomes empty, remove the entire entry
+        if (list.isEmpty) {
+          newSelectedValues.remove(attribute.attributeKey);
+          newSelectedAttributeValues.remove(attribute);
+        }
+      }
+    }
+
+    emit(state.copyWith(
+      selectedValues: newSelectedValues,
+      selectedAttributeValues: newSelectedAttributeValues,
+      dynamicAttributes: newDynamicAttributes,
+    ));
+  }
 
   bool isValueSelected(AttributeModel attribute, AttributeValueModel value) {
     final selectedValue = state.selectedValues[attribute.attributeKey];
