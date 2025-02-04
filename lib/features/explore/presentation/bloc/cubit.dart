@@ -1061,6 +1061,8 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
       childCategoryDynamicAttributes: {},
     ));
   }
+ 
+  
 
   void resetChildCategorySelection() {
     if (state.selectedCatalog != null) {
