@@ -402,10 +402,13 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
 
       result.fold(
         (failure) {
-          emit(state.copyWith(
-            initialPublicationsRequestState: RequestState.error,
-            errorInitialPublicationsFetch: _mapFailureToMessage(failure),
-          ));
+          emit(
+            state.copyWith(
+              initialPublicationsRequestState: RequestState.error,
+              errorInitialPublicationsFetch: _mapFailureToMessage(failure),
+              filtersTrigered: false,
+            ),
+          );
         },
         (paginatedData) {
           // Determine isLast by checking the last item's isLast property
@@ -421,6 +424,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
               initialPublications: updatedPublications,
               initialHasReachedMax: isLastPage,
               initialCurrentPage: pageKey,
+              filtersTrigered: false,
             ),
           );
         },
@@ -429,6 +433,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
       emit(state.copyWith(
         initialPublicationsRequestState: RequestState.error,
         errorInitialPublicationsFetch: 'An unexpected error occurred',
+        filtersTrigered: false,
       ));
     }
   }
@@ -472,10 +477,13 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
 
       result.fold(
         (failure) {
-          emit(state.copyWith(
-            secondaryPublicationsRequestState: RequestState.error,
-            errorSecondaryPublicationsFetch: _mapFailureToMessage(failure),
-          ));
+          emit(
+            state.copyWith(
+              secondaryPublicationsRequestState: RequestState.error,
+              errorSecondaryPublicationsFetch: _mapFailureToMessage(failure),
+              filtersTrigered: false,
+            ),
+          );
         },
         (paginatedData) {
           final updatedPublications =
@@ -491,6 +499,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
               secondaryPublications: updatedPublications,
               secondaryHasReachedMax: isLastPage,
               secondaryCurrentPage: pageKey,
+              filtersTrigered: false,
             ),
           );
         },
@@ -499,6 +508,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
       emit(state.copyWith(
         secondaryPublicationsRequestState: RequestState.error,
         errorSecondaryPublicationsFetch: 'An unexpected error occurred',
+        filtersTrigered: false,
       ));
     }
   }
@@ -549,10 +559,13 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
       // Handle the result only if we're still mounted and the request is still relevant
       result.fold(
         (failure) {
-          emit(state.copyWith(
+          emit(
+            state.copyWith(
               childPublicationsRequestState: RequestState.error,
               errorChildPublicationsFetch: _mapFailureToMessage(failure),
-              filtersTrigered: false));
+              filtersTrigered: false,
+            ),
+          );
         },
         (paginatedData) {
           // For page 0, we always want to replace existing data
@@ -561,19 +574,23 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
           final isLastPage =
               paginatedData.isNotEmpty ? paginatedData.last.isLast : true;
 
-          emit(state.copyWith(
+          emit(
+            state.copyWith(
               childPublicationsRequestState: RequestState.completed,
               childPublications: updatedPublications,
               childHasReachedMax: isLastPage,
               childCurrentPage: pageKey,
               errorChildPublicationsFetch: null,
-              filtersTrigered: false));
+              filtersTrigered: false,
+            ),
+          );
         },
       );
     } catch (e) {
       emit(state.copyWith(
         childPublicationsRequestState: RequestState.error,
         errorChildPublicationsFetch: 'An unexpected error occurred',
+        filtersTrigered: false,
       ));
     }
   }
@@ -1061,8 +1078,6 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
       childCategoryDynamicAttributes: {},
     ));
   }
- 
-  
 
   void resetChildCategorySelection() {
     if (state.selectedCatalog != null) {

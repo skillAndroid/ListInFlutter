@@ -541,7 +541,7 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
                                           borderRadius:
                                               BorderRadius.circular(18),
                                           child: FractionallySizedBox(
-                                            heightFactor: 0.93,
+                                            heightFactor: 1,
                                             child: FiltersPage(
                                               page: "child",
                                             ),

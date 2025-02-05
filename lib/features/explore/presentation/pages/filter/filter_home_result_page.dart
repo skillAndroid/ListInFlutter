@@ -18,9 +18,7 @@ import 'package:list_in/features/explore/presentation/pages/filter/filter.dart';
 import 'package:list_in/features/explore/presentation/pages/screens/initial_page.dart';
 import 'package:list_in/features/explore/presentation/widgets/advertised_product_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
-import 'package:list_in/features/explore/presentation/widgets/recomendation_widget.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
-import 'package:list_in/features/explore/presentation/widgets/top_app_recomendation.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
@@ -233,6 +231,9 @@ class _FilterHomeResultPageState extends State<FilterHomeResultPage> {
   }
 
   void _handleStateChanges(BuildContext context, HomeTreeState state) {
+    if (state.filtersTrigered) {
+      _pagingState.pagingController.itemList = null;
+    }
     if (state.initialPublicationsRequestState == RequestState.error) {
       _handleError(state);
     } else if (state.initialPublicationsRequestState ==
@@ -447,9 +448,19 @@ class _FilterHomeResultPageState extends State<FilterHomeResultPage> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             Padding(
-              padding: const EdgeInsets.only(left: 16, right: 8),
+              padding: const EdgeInsets.only(left: 16, right: 16),
               child: Row(
                 children: [
+                  Transform.translate(
+                    offset: Offset(-10, 0),
+                    child: IconButton(
+                      onPressed: () => context.pop(),
+                      icon: Icon(
+                        Icons.arrow_back_rounded,
+                        color: AppColors.black,
+                      ),
+                    ),
+                  ),
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
@@ -516,8 +527,9 @@ class _FilterHomeResultPageState extends State<FilterHomeResultPage> {
                                         borderRadius: BorderRadius.circular(10),
                                         smoothness: 1,
                                         child: FractionallySizedBox(
-                                          heightFactor: 0.93,
-                                          child: FiltersPage(page: "initial_filter"),
+                                          heightFactor: 1,
+                                          child: FiltersPage(
+                                              page: "initial_filter"),
                                         ),
                                       ),
                                     ),
@@ -531,44 +543,6 @@ class _FilterHomeResultPageState extends State<FilterHomeResultPage> {
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  Transform.translate(
-                    offset: Offset(0, 3),
-                    child: Stack(
-                      children: [
-                        IconButton(
-                          icon: Image.asset(
-                            AppIcons.chatIc,
-                            width: 46,
-                            height: 46,
-                            color: AppColors.black,
-                          ),
-                          onPressed: () {},
-                        ),
-                        Positioned(
-                          right: 8,
-                          bottom: 12,
-                          child: Container(
-                            width: 18,
-                            height: 18,
-                            decoration: BoxDecoration(
-                              color: AppColors.error,
-                              borderRadius: BorderRadius.circular(32),
-                            ),
-                            child: Center(
-                              child: const Text(
-                                "2",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
                     ),
                   ),
                 ],
@@ -598,34 +572,6 @@ class _FilterHomeResultPageState extends State<FilterHomeResultPage> {
           ),
         );
       },
-    );
-  }
-
-  Widget _buildCategories() {
-    final recommendations = [
-      RecommendationItem(
-        title: "Recent",
-        icon: Icons.access_time_rounded,
-        color: Colors.blue,
-      ),
-      RecommendationItem(
-        title: "Season Fashion",
-        icon: Icons.checkroom_rounded,
-        color: Colors.purple,
-      ),
-      RecommendationItem(
-        title: "For Free",
-        icon: Icons.card_giftcard_rounded,
-        color: Colors.red,
-      ),
-      RecommendationItem(
-        title: "Gift Ideas",
-        icon: Icons.redeem_rounded,
-        color: Colors.orange,
-      ),
-    ];
-    return TopAppRecomendationCategory(
-      recommendations: recommendations,
     );
   }
 }

@@ -231,6 +231,9 @@ class _FilterSecondaryResultPageState extends State<FilterSecondaryResultPage> {
   }
 
   void _handleStateChanges(BuildContext context, HomeTreeState state) {
+    if (state.filtersTrigered) {
+      _pagingState.pagingController.itemList = null;
+    }
     if (state.secondaryPublicationsRequestState == RequestState.error) {
       _handleError(state);
     } else if (state.secondaryPublicationsRequestState ==
@@ -452,20 +455,20 @@ class _FilterSecondaryResultPageState extends State<FilterSecondaryResultPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 16, right: 16),
-                child: Row(
-                  children: [
-                    Transform.translate(
-                      offset: Offset(-10, 0),
-                      child: IconButton(
-                        onPressed: () => context.pop(),
-                        icon: Icon(
-                          Icons.arrow_back_rounded,
-                          color: AppColors.black,
-                        ),
+               Padding(
+              padding: const EdgeInsets.only(left: 16, right: 16),
+              child: Row(
+                children: [
+                  Transform.translate(
+                    offset: Offset(-10, 0),
+                    child: IconButton(
+                      onPressed: () => context.pop(),
+                      icon: Icon(
+                        Icons.arrow_back_rounded,
+                        color: AppColors.black,
                       ),
                     ),
+                  ),
                     Expanded(
                       child: GestureDetector(
                         onTap: () {
@@ -534,7 +537,7 @@ class _FilterSecondaryResultPageState extends State<FilterSecondaryResultPage> {
                                           borderRadius:
                                               BorderRadius.circular(18),
                                           child: FractionallySizedBox(
-                                            heightFactor: 0.93,
+                                            heightFactor: 1,
                                             child: FiltersPage(
                                               page: "ssssss",
                                             ),

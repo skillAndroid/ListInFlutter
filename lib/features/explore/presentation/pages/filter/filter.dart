@@ -692,7 +692,8 @@ class _FiltersPageState extends State<FiltersPage>
                                     RoutesByName.filterSecondaryResult,
                                     extra: {'category': state.selectedCatalog});
                               } else {
-                                 debugPrint("🐁🐁😡😡😡❤️❤️${widget.page}");
+                                debugPrint("🐁🐁😡😡😡❤️❤️${widget.page}");
+                                context.read<HomeTreeCubit>().filtersTrigered();
                                 context
                                     .read<HomeTreeCubit>()
                                     .fetchSecondaryPage(0);
@@ -704,6 +705,7 @@ class _FiltersPageState extends State<FiltersPage>
                                 state.selectedChildCategory == null) {
                               context.pop();
                               if (widget.page == 'initial_filter') {
+                                context.read<HomeTreeCubit>().filtersTrigered();
                                 context
                                     .read<HomeTreeCubit>()
                                     .fetchInitialPage(0);

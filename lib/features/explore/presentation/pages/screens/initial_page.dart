@@ -23,6 +23,7 @@ import 'package:list_in/features/explore/presentation/widgets/recomendation_widg
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/top_app_recomendation.dart';
 import 'package:list_in/features/video/presentation/wigets/scrollable_list.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
@@ -575,26 +576,14 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                                   final homeTreeCubit =
                                       BlocProvider.of<HomeTreeCubit>(context);
 
-                                  showModalBottomSheet(
+                                  showCupertinoModalBottomSheet(
                                     context: context,
-                                    isScrollControlled: true,
                                     useRootNavigator: true,
-                                    showDragHandle: false,
                                     enableDrag: false,
-                                    shape: SmoothRectangleBorder(
-                                      borderRadius: BorderRadius.circular(18),
-                                    ),
                                     builder: (context) => BlocProvider.value(
                                       value:
                                           homeTreeCubit, // Provide the same cubit instance
-                                      child: SmoothClipRRect(
-                                        borderRadius: BorderRadius.circular(10),
-                                        smoothness: 1,
-                                        child: FractionallySizedBox(
-                                          heightFactor: 0.93,
-                                          child: FiltersPage(page:"initial"),
-                                        ),
-                                      ),
+                                      child: FiltersPage(page: "initial"),
                                     ),
                                   );
                                 },
