@@ -1,10 +1,18 @@
+// ignore_for_file: deprecated_member_use
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ionicons/ionicons.dart';
+import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
+import 'package:list_in/features/post/data/models/attribute_model.dart';
+import 'package:list_in/features/post/data/models/attribute_value_model.dart';
+import 'package:smooth_corner_updated/smooth_corner.dart';
 
 // ignore: must_be_immutable
 class FiltersPage extends StatefulWidget {
@@ -54,111 +62,949 @@ class _FiltersPageState extends State<FiltersPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[50],
-      body: BlocConsumer<HomeTreeCubit, HomeTreeState>(
-        listenWhen: (previous, current) {
-          final previousFilters = Set.from(previous.generateFilterParameters());
-          final currentFilters = Set.from(current.generateFilterParameters());
-          return !setEquals(previousFilters, currentFilters) ||
-              previous.childCurrentPage != current.childCurrentPage;
-        },
-        listener: (context, state) {
-          if (state.selectedCatalog != null ||
-              state.selectedChildCategory != null) {
-            _slideController.forward(from: 0);
-          }
-        },
-        builder: (context, state) {
-          final cubit = context.read<HomeTreeCubit>();
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: AppColors.white,
+        body: BlocConsumer<HomeTreeCubit, HomeTreeState>(
+          listenWhen: (previous, current) {
+            final previousFilters =
+                Set.from(previous.generateFilterParameters());
+            final currentFilters = Set.from(current.generateFilterParameters());
+            return !setEquals(previousFilters, currentFilters) ||
+                previous.childCurrentPage != current.childCurrentPage;
+          },
+          listener: (context, state) {
+            if (state.selectedCatalog != null ||
+                state.selectedChildCategory != null) {
+              _slideController.forward(from: 0);
+            }
+          },
+          builder: (context, state) {
+            final cubit = context.read<HomeTreeCubit>();
 
-          return CustomScrollView(
-            slivers: [
-              // Sticky Header
-              SliverAppBar(
-                pinned: true,
-                floating: true,
-                elevation: 0,
-                backgroundColor: Colors.white,
-                expandedHeight: 120,
-                flexibleSpace: FlexibleSpaceBar(
-                  background: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Colors.blue.shade50,
-                          Colors.green.shade50,
+            return Padding(
+              padding: EdgeInsets.only(top: 30),
+              child: CustomScrollView(
+                slivers: [
+                  // Sticky Header
+                  SliverAppBar(
+                      pinned: true,
+                      floating: false,
+                      automaticallyImplyLeading: false,
+                      scrolledUnderElevation: 0,
+                      elevation: 0,
+                      backgroundColor: Colors.white,
+                      flexibleSpace: Padding(
+                        padding: EdgeInsets.only(
+                          top: 8,
+                          left: 16,
+                          right: 16,
+                        ),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Icon(Icons.clear_rounded),
+                                Text(
+                                  "Filter",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                Text("Clear")
+                              ],
+                            ),
+                          ],
+                        ),
+                      )),
+
+                  // Main Content
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Category',
+                            style: TextStyle(
+                              fontSize: 22,
+                            ),
+                          ),
+                          SizedBox(
+                            height: 16,
+                          ),
+                          _buildMainCategories(state, cubit),
+
+                          if (state.selectedCatalog != null) ...[
+                            SizedBox(
+                              height: 24,
+                            ),
+                            Text(
+                              state.selectedCatalog!.name,
+                              style: TextStyle(
+                                fontSize: 22,
+                              ),
+                            ),
+                            SizedBox(
+                              height: 16,
+                            ),
+                            _buildChildCategories(state, cubit),
+                          ],
+
+                          // Price Range Slider
+                          _buildPriceRangeSlider(),
+
+                          // Condition Filter
+                          _buildConditionFilter(),
+
+                          // Location Filter
+                          _buildLocationFilter(),
+
+                          // Attributes Section
+                          if (state.selectedChildCategory != null)
+                            if (state.selectedChildCategory != null)
+                              Column(
+                                children:
+                                    state.orderedAttributes.map((attribute) {
+                                  final cubit = context.read<HomeTreeCubit>();
+                                  final selectedValue = cubit
+                                      .getSelectedAttributeValue(attribute);
+                                  final selectedValues =
+                                      cubit.getSelectedValues(attribute);
+
+                                  // Color mapping
+                                  final Map<String, Color> colorMap = {
+                                    'Silver': Colors.grey[300]!,
+                                    'Pink': Colors.pink,
+                                    'Rose Gold': Color(0xFFB76E79),
+                                    'Space Gray': Color(0xFF4A4A4A),
+                                    'Blue': Colors.blue,
+                                    'Yellow': Colors.yellow,
+                                    'Green': Colors.green,
+                                    'Purple': Colors.purple,
+                                    'White': Colors.white,
+                                    'Red': Colors.red,
+                                    'Black': Colors.black,
+                                  };
+
+                                  // Determine chip label based on selection type and count
+                                  String chipLabel;
+                                  if (attribute.filterWidgetType ==
+                                      'oneSelectable') {
+                                    chipLabel = selectedValue?.value ??
+                                        attribute.filterText;
+                                  } else {
+                                    if (selectedValues.isEmpty) {
+                                      chipLabel = attribute.filterText;
+                                    } else if (selectedValues.length == 1) {
+                                      chipLabel = selectedValues.first.value;
+                                    } else {
+                                      chipLabel =
+                                          '${attribute.filterText}(${selectedValues.length})';
+                                    }
+                                  }
+
+                                  Widget? colorIndicator;
+                                  if (attribute.filterWidgetType ==
+                                          'colorMultiSelectable' &&
+                                      selectedValues.isNotEmpty) {
+                                    if (selectedValues.length == 1) {
+                                      // Single color indicator
+                                      colorIndicator = Container(
+                                        width: 16,
+                                        height: 16,
+                                        decoration: BoxDecoration(
+                                          color: colorMap[
+                                                  selectedValues.first.value] ??
+                                              Colors.grey,
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: (colorMap[selectedValues
+                                                        .first.value] ==
+                                                    Colors.white)
+                                                ? Colors.grey
+                                                : Colors.transparent,
+                                            width: 1,
+                                          ),
+                                        ),
+                                      );
+                                    } else {
+                                      // Stacked color indicators
+                                      colorIndicator = SizedBox(
+                                        width: 40,
+                                        height: 20,
+                                        child: Stack(
+                                          children: [
+                                            for (int i = 0;
+                                                i < selectedValues.length;
+                                                i++)
+                                              Positioned(
+                                                top: 0,
+                                                bottom: 0,
+                                                left: i * 7.0,
+                                                child: Container(
+                                                  width: 16,
+                                                  height: 16,
+                                                  decoration: BoxDecoration(
+                                                    color: colorMap[
+                                                            selectedValues[i]
+                                                                .value] ??
+                                                        Colors.grey,
+                                                    shape: BoxShape.circle,
+                                                    border: Border.all(
+                                                      color: (colorMap[
+                                                                  selectedValues[
+                                                                          i]
+                                                                      .value] ==
+                                                              Colors.white)
+                                                          ? Colors.grey
+                                                          : Colors.transparent,
+                                                      width: 1,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                      );
+                                    }
+                                  }
+
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 2.5, vertical: 4),
+                                    child: FilterChip(
+                                      showCheckmark: false,
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 4, vertical: 10),
+                                      label: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          if (colorIndicator != null) ...[
+                                            colorIndicator,
+                                            const SizedBox(width: 4),
+                                          ],
+                                          Text(
+                                            chipLabel,
+                                            style: TextStyle(
+                                              color: AppColors.black,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      side: BorderSide(
+                                          width: 1, color: AppColors.lightGray),
+                                      shape: SmoothRectangleBorder(
+                                        smoothness: 0.8,
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      selected: selectedValue != null,
+                                      backgroundColor: AppColors.white,
+                                      selectedColor: AppColors.white,
+                                      onSelected: (_) {
+                                        if (attribute.values.isNotEmpty &&
+                                            mounted) {
+                                          _showAttributeSelectionUI(
+                                              context, attribute);
+                                        }
+                                      },
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+
+                          _buildApplyButton(state)
                         ],
                       ),
                     ),
                   ),
-                ),
-                bottom: PreferredSize(
-                  preferredSize: Size.fromHeight(60),
-                  child: _buildBreadcrumbs(state, cubit),
-                ),
+                ],
               ),
-
-              // Main Content
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Price Range Slider
-                      _buildPriceRangeSlider(),
-
-                      // Condition Filter
-                      _buildConditionFilter(),
-
-                      // Location Filter
-                      _buildLocationFilter(),
-
-                      // Categories Section
-                      if (state.selectedCatalog == null)
-                        _buildMainCategories(state, cubit),
-
-                      // Child Categories
-                      if (state.selectedCatalog != null &&
-                          state.selectedChildCategory == null)
-                        _buildChildCategories(state, cubit),
-
-                      // Attributes Section
-                      if (state.selectedChildCategory != null)
-                        ...state.orderedAttributes.map((attribute) =>
-                            _buildAnimatedAttributeSection(
-                                attribute, cubit, state)),
-
-                      _buildApplyButton(state)
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          );
-        },
+            );
+          },
+        ),
       ),
     );
+  }
+
+  void _showSelectionBottomSheet(
+      BuildContext context, AttributeModel attribute) {
+    Map<String, dynamic> temporarySelections = {};
+    final cubit = context.read<HomeTreeCubit>();
+
+    if (attribute.filterWidgetType == 'multiSelectable') {
+      // Create a deep copy of current selections to avoid modifying the original state
+      final currentSelections = cubit.getSelectedValues(attribute);
+      temporarySelections[attribute.attributeKey] =
+          List<AttributeValueModel>.from(currentSelections);
+    }
+
+    showModalBottomSheet(
+      context: context,
+      useRootNavigator: true,
+      shape: SmoothRectangleBorder(
+        smoothness: 0.8,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      builder: (bottomSheetContext) {
+        return BlocProvider.value(
+          value: cubit,
+          child: StatefulBuilder(
+            builder: (context, setState) {
+              double calculateInitialSize(List<dynamic> values) {
+                if (values.length >= 20) return 0.9;
+                if (values.length >= 15) return 0.8;
+                if (values.length >= 10) return 0.65;
+                if (values.length >= 5) return 0.53;
+                return values.length * 0.12;
+              }
+
+              return DraggableScrollableSheet(
+                initialChildSize: calculateInitialSize(attribute.values),
+                maxChildSize: attribute.values.length >= 20
+                    ? 0.9
+                    : calculateInitialSize(attribute.values),
+                minChildSize: 0,
+                expand: false,
+                builder: (context, scrollController) {
+                  return Column(
+                    children: [
+                      // Drag handle
+                      Container(
+                        margin: EdgeInsets.only(top: 8),
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                      // New toolbar with centered title
+                      SizedBox(
+                        height: 40,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            // Centered title
+                            Positioned.fill(
+                              child: Center(
+                                child: Text(
+                                  attribute.filterText,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ),
+                            // Left and right buttons
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 4),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.close_rounded),
+                                    onPressed: () => Navigator.pop(context),
+                                  ),
+                                  if (attribute.filterWidgetType ==
+                                          'multiSelectable' &&
+                                      cubit
+                                          .getSelectedValues(attribute)
+                                          .isNotEmpty)
+                                    TextButton(
+                                      onPressed: () {
+                                        cubit.clearSelectedAttribute(attribute);
+
+                                        cubit.getAtributesForPost();
+                                        Navigator.pop(context);
+                                      },
+                                      style: TextButton.styleFrom(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 8, vertical: 3),
+                                        foregroundColor: AppColors.black,
+                                      ),
+                                      child: Text(
+                                        'Clear',
+                                        style: TextStyle(
+                                          color: Colors.grey[600],
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    )
+                                  else if (cubit.getSelectedAttributeValue(
+                                          attribute) !=
+                                      null)
+                                    TextButton(
+                                      onPressed: () {
+                                        cubit.clearSelectedAttribute(attribute);
+
+                                        cubit.getAtributesForPost();
+                                        Navigator.pop(context);
+                                      },
+                                      style: TextButton.styleFrom(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 4, vertical: 0),
+                                        foregroundColor: AppColors.black,
+                                      ),
+                                      child: Text(
+                                        'clear',
+                                        style: TextStyle(
+                                          color: Colors.grey[600],
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    )
+                                  else
+                                    const SizedBox(width: 48),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Divider(
+                        height: 1,
+                        color: AppColors.containerColor,
+                      ),
+                      Expanded(
+                        child: attribute.filterWidgetType == 'multiSelectable'
+                            ? _buildMultiSelectList(
+                                context,
+                                attribute,
+                                scrollController,
+                                temporarySelections,
+                                setState,
+                              )
+                            : _buildSingleSelectList(
+                                context,
+                                attribute,
+                                scrollController,
+                              ),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildMultiSelectList(
+    BuildContext context,
+    AttributeModel attribute,
+    ScrollController scrollController,
+    Map<String, dynamic> temporarySelections,
+    StateSetter setState,
+  ) {
+    return Column(
+      children: [
+        Expanded(
+          child: ListView.builder(
+            controller: scrollController,
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            itemCount: attribute.values.length,
+            itemBuilder: (context, index) {
+              final value = attribute.values[index];
+              final selections = temporarySelections[attribute.attributeKey]
+                      as List<AttributeValueModel>? ??
+                  [];
+
+              final isSelected = selections.contains(value);
+              return Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    setState(() {
+                      if (isSelected) {
+                        selections.remove(value);
+                      } else {
+                        selections.add(value);
+                      }
+                    });
+                  },
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    child: Row(
+                      children: [
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: isSelected
+                                  ? AppColors.primary
+                                  : AppColors.lightGray,
+                              width: 2,
+                            ),
+                            color: isSelected
+                                ? AppColors.primary
+                                : AppColors.white,
+                          ),
+                          child: isSelected
+                              ? const Icon(
+                                  Icons.check,
+                                  size: 17,
+                                  color: AppColors.white,
+                                )
+                              : null,
+                        ),
+                        SizedBox(
+                          width: 8,
+                        ),
+                        Text(
+                          value.value,
+                          style: TextStyle(
+                              fontSize: 15,
+                              color: CupertinoColors.darkBackgroundGray,
+                              fontWeight: FontWeight.w600),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        SizedBox(
+          width: double.infinity,
+          child: Padding(
+            padding:
+                const EdgeInsets.only(left: 16, right: 16, bottom: 32, top: 8),
+            child: ElevatedButton(
+              onPressed: () {
+                final cubit = context.read<HomeTreeCubit>();
+                final selections = temporarySelections[attribute.attributeKey]
+                    as List<AttributeValueModel>;
+
+                if (selections.isEmpty) {
+                  cubit.clearSelectedAttribute(attribute);
+
+                  cubit.getAtributesForPost();
+                } else {
+                  cubit.clearSelectedAttribute(attribute);
+                  for (var value in selections) {
+                    cubit.selectAttributeValue(attribute, value);
+                  }
+
+                  cubit.getAtributesForPost();
+                }
+                Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                padding:
+                    const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                shape: SmoothRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 0,
+              ),
+              child: Text(
+                'Apply (${(temporarySelections[attribute.attributeKey] as List).length})',
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: AppColors.white,
+                  fontFamily: "Poppins",
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSingleSelectList(
+    BuildContext context,
+    AttributeModel attribute,
+    ScrollController scrollController,
+  ) {
+    final cubit = context.read<HomeTreeCubit>();
+    return ListView.builder(
+      controller: scrollController,
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      itemCount: attribute.values.length,
+      itemBuilder: (context, index) {
+        final value = attribute.values[index];
+        final selectedValue = cubit.getSelectedAttributeValue(attribute);
+        final isSelected =
+            selectedValue?.attributeValueId == value.attributeValueId;
+
+        return Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () {
+              if (isSelected) {
+                cubit.clearSelectedAttribute(attribute);
+              } else {
+                cubit.selectAttributeValue(attribute, value);
+              }
+              Navigator.pop(context);
+              cubit.getAtributesForPost();
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      value.value,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color:
+                            isSelected ? AppColors.black : AppColors.darkGray,
+                        fontWeight:
+                            isSelected ? FontWeight.w700 : FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isSelected
+                            ? AppColors.primary
+                            : AppColors.transparent,
+                        width: 2,
+                      ),
+                      color: isSelected ? AppColors.primary : AppColors.white,
+                    ),
+                    child: isSelected
+                        ? const Icon(
+                            Icons.check,
+                            size: 17,
+                            color: AppColors.white,
+                          )
+                        : null,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showColorMultiSelectDialog(
+      BuildContext context, AttributeModel attribute) {
+    final cubit = context.read<HomeTreeCubit>();
+    Map<String, dynamic> temporarySelections = {};
+
+    // Initialize temporary selections with current selections
+    final currentSelections = cubit.getSelectedValues(attribute);
+    temporarySelections[attribute.attributeKey] =
+        List<AttributeValueModel>.from(currentSelections);
+
+    final Map<String, Color> colorMap = {
+      'Silver': Colors.grey[300]!,
+      'Pink': Colors.pink,
+      'Rose Gold': Color(0xFFB76E79),
+      'Space Gray': Color(0xFF4A4A4A),
+      'Blue': Colors.blue,
+      'Yellow': Colors.yellow,
+      'Green': Colors.green,
+      'Purple': Colors.purple,
+      'White': Colors.white,
+      'Red': Colors.red,
+      'Black': Colors.black,
+    };
+
+    showModalBottomSheet(
+      context: context,
+      useRootNavigator: true,
+      shape: SmoothRectangleBorder(
+        smoothness: 0.8,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      builder: (bottomSheetContext) {
+        return BlocProvider.value(
+          value: cubit,
+          child: StatefulBuilder(
+            builder: (context, setState) {
+              double calculateInitialSize(List<dynamic> values) {
+                if (values.length >= 20) return 0.9;
+                if (values.length >= 15) return 0.8;
+                if (values.length >= 10) return 0.65;
+                if (values.length >= 5) return 0.5;
+                return values.length * 0.08;
+              }
+
+              return DraggableScrollableSheet(
+                initialChildSize: calculateInitialSize(attribute.values),
+                maxChildSize: attribute.values.length >= 20
+                    ? 0.9
+                    : calculateInitialSize(attribute.values),
+                minChildSize: 0,
+                expand: false,
+                builder: (context, scrollController) {
+                  return Column(
+                    children: [
+                      Container(
+                        margin: EdgeInsets.only(top: 8),
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 4,
+                      ),
+                      SizedBox(
+                        height: 48,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Positioned.fill(
+                              child: Center(
+                                child: Text(
+                                  attribute.filterText,
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 4),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Ionicons.close),
+                                    onPressed: () => Navigator.pop(context),
+                                    color: AppColors.black,
+                                  ),
+                                  if (cubit
+                                      .getSelectedValues(attribute)
+                                      .isNotEmpty)
+                                    TextButton(
+                                      onPressed: () {
+                                        cubit.clearAllSelectedAttributes();
+                                        cubit.getAtributesForPost();
+                                        Navigator.pop(context);
+                                      },
+                                      style: TextButton.styleFrom(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 8, vertical: 3),
+                                        foregroundColor: AppColors.black,
+                                      ),
+                                      child: Text(
+                                        'Clear',
+                                        style: TextStyle(
+                                          color: Colors.grey[600],
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    )
+                                  else
+                                    const SizedBox(width: 48),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Divider(
+                        height: 1,
+                        color: AppColors.containerColor,
+                      ),
+                      Expanded(
+                        child: ListView.builder(
+                          controller: scrollController,
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          itemCount: attribute.values.length,
+                          itemBuilder: (context, index) {
+                            final value = attribute.values[index];
+                            final selections =
+                                temporarySelections[attribute.attributeKey]
+                                        as List<AttributeValueModel>? ??
+                                    [];
+                            final isSelected = selections.contains(value);
+                            final color = colorMap[value.value] ?? Colors.grey;
+
+                            return Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    if (isSelected) {
+                                      selections.remove(value);
+                                    } else {
+                                      selections.add(value);
+                                    }
+                                  });
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 20, vertical: 12),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 24,
+                                        height: 24,
+                                        decoration: BoxDecoration(
+                                          color: color,
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: color == Colors.white
+                                                ? Colors.grey
+                                                : Colors.transparent,
+                                            width: 1,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Text(
+                                          value.value,
+                                          style: TextStyle(
+                                            fontSize: 15,
+                                            color: isSelected
+                                                ? AppColors.black
+                                                : AppColors.darkGray,
+                                            fontWeight: isSelected
+                                                ? FontWeight.w700
+                                                : FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                      AnimatedContainer(
+                                        duration:
+                                            const Duration(milliseconds: 200),
+                                        width: 24,
+                                        height: 24,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          border: Border.all(
+                                            color: isSelected
+                                                ? AppColors.primary
+                                                : AppColors.lightGray,
+                                            width: 2,
+                                          ),
+                                          color: isSelected
+                                              ? AppColors.primary
+                                              : AppColors.white,
+                                        ),
+                                        child: isSelected
+                                            ? const Icon(
+                                                Icons.check,
+                                                size: 17,
+                                                color: AppColors.white,
+                                              )
+                                            : null,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      SizedBox(
+                        width: double.infinity,
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                              left: 16, right: 16, bottom: 32, top: 8),
+                          child: ElevatedButton(
+                            onPressed: () {
+                              final cubit = context.read<HomeTreeCubit>();
+                              final selections =
+                                  temporarySelections[attribute.attributeKey]
+                                      as List<AttributeValueModel>;
+
+                              if (selections.isEmpty) {
+                                cubit.clearSelectedAttribute(attribute);
+                              } else {
+                                cubit.clearSelectedAttribute(attribute);
+                                for (var value in selections) {
+                                  cubit.selectAttributeValue(attribute, value);
+                                }
+
+                                cubit.getAtributesForPost(); // Add this line
+                              }
+                              Navigator.pop(context);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 16, horizontal: 16),
+                              shape: SmoothRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 0,
+                            ),
+                            child: Text(
+                              'Apply (${(temporarySelections[attribute.attributeKey] as List).length})',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: AppColors.white,
+                                fontFamily: "Poppins",
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  void _showAttributeSelectionUI(
+      BuildContext context, AttributeModel attribute) {
+    switch (attribute.filterWidgetType) {
+      case 'colorMultiSelectable':
+        _showColorMultiSelectDialog(context, attribute);
+        break;
+      case 'oneSelectable':
+      case 'multiSelectable':
+        _showSelectionBottomSheet(context, attribute);
+        break;
+    }
   }
 
   Widget _buildBreadcrumbs(HomeTreeState state, HomeTreeCubit cubit) {
     return AnimatedContainer(
       duration: Duration(milliseconds: 300),
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
       child: Row(
         children: [
           _buildBreadcrumbItem(
@@ -204,19 +1050,7 @@ class _FiltersPageState extends State<FiltersPage>
   Widget _buildPriceRangeSlider() {
     return AnimatedContainer(
       duration: Duration(milliseconds: 300),
-      margin: EdgeInsets.only(bottom: 16),
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
+      margin: EdgeInsets.only(top: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -225,10 +1059,9 @@ class _FiltersPageState extends State<FiltersPage>
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: Colors.blue.shade700,
+              color: AppColors.black,
             ),
           ),
-          SizedBox(height: 16),
           RangeSlider(
             values: _priceRange,
             min: 0,
@@ -243,7 +1076,7 @@ class _FiltersPageState extends State<FiltersPage>
                 _priceRange = values;
               });
             },
-            activeColor: Colors.blue.shade400,
+            activeColor: Colors.blue,
             inactiveColor: Colors.grey.shade200,
           ),
           Row(
@@ -263,15 +1096,15 @@ class _FiltersPageState extends State<FiltersPage>
       duration: Duration(milliseconds: 300),
       opacity: state.catalogs?.isEmpty ?? true ? 0.0 : 1.0,
       child: Wrap(
-        spacing: 8.0,
-        runSpacing: 8.0,
+        spacing: 5,
+        runSpacing: 5,
         children: state.catalogs?.map((category) {
               return _buildAnimatedFilterChip(
                 label: category.name,
                 onSelected: (selected) {
                   cubit.selectCatalog(category);
                 },
-                isSelected: false,
+                isSelected: category.id == state.selectedCatalog?.id,
               );
             }).toList() ??
             [],
@@ -295,24 +1128,27 @@ class _FiltersPageState extends State<FiltersPage>
             label: Text(
               label,
               style: TextStyle(
-                color: isSelected ? Colors.white : Colors.grey.shade800,
+                color: isSelected ? AppColors.black : AppColors.blue,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
               ),
             ),
+            showCheckmark: true,
             selected: isSelected,
             onSelected: onSelected,
             backgroundColor: Colors.white,
-            selectedColor: Colors.blue.shade400,
-            checkmarkColor: Colors.white,
-            elevation: isSelected ? 2 : 0,
+            selectedColor: AppColors.primaryLight2,
+            checkmarkColor: Colors.black,
+            elevation: 0,
             pressElevation: 4,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
+            shape: SmoothRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
               side: BorderSide(
-                color: isSelected ? Colors.transparent : Colors.grey.shade300,
+                color:
+                    isSelected ? Colors.transparent : AppColors.containerColor,
               ),
             ),
-            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
         ),
       ),
@@ -325,15 +1161,15 @@ class _FiltersPageState extends State<FiltersPage>
       opacity:
           state.selectedCatalog?.childCategories.isEmpty ?? true ? 0.0 : 1.0,
       child: Wrap(
-        spacing: 8.0,
-        runSpacing: 8.0,
+        spacing: 5,
+        runSpacing: 5,
         children: state.selectedCatalog!.childCategories.map((childCategory) {
           return _buildAnimatedFilterChip(
             label: childCategory.name,
             onSelected: (selected) {
               cubit.selectChildCategory(childCategory);
             },
-            isSelected: false,
+            isSelected: childCategory.id == state.selectedChildCategory?.id,
           );
         }).toList(),
       ),

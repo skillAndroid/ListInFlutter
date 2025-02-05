@@ -4,8 +4,9 @@ class AppColors {
   // static const primary = Color(0xFFFF4F67);
   static const primary = Color(0xFF27AE60);
   static const blue = AppColors.darkGray; // Deep green as primary brand color
-  static const primaryLight =
-      Color.fromARGB(255, 225, 241, 226); // Light green for secondary elements
+  static const primaryLight = Color.fromARGB(255, 225, 241, 226);
+  static const primaryLight2 =
+      Color.fromARGB(255, 143, 234, 149); // Light green for secondary elements
   static const primaryDark = Color(0xFF1B5E20); // Dark green for emphasis
   // static const bgColor = Color.fromARGB(255, 252, 252, 252);// Color(0xFFFFFAFA);
   static const bgColor = Color.fromARGB(255, 255, 255, 255);

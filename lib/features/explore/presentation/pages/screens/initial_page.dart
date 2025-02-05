@@ -23,7 +23,6 @@ import 'package:list_in/features/explore/presentation/widgets/recomendation_widg
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/top_app_recomendation.dart';
 import 'package:list_in/features/video/presentation/wigets/scrollable_list.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
@@ -576,9 +575,10 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                                   final homeTreeCubit =
                                       BlocProvider.of<HomeTreeCubit>(context);
 
-                                  showCupertinoModalBottomSheet(
+                                  showModalBottomSheet(
                                     context: context,
                                     useRootNavigator: true,
+                                    isScrollControlled: true,
                                     enableDrag: false,
                                     builder: (context) => BlocProvider.value(
                                       value:
