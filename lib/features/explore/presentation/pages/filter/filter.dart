@@ -27,7 +27,7 @@ class _FiltersPageState extends State<FiltersPage>
     with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late AnimationController _slideController;
-  RangeValues _priceRange = RangeValues(0, 1000);
+
   String? _selectedLocation;
   String _selectedCondition = 'all';
 
@@ -62,270 +62,325 @@ class _FiltersPageState extends State<FiltersPage>
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: AppColors.white,
-        body: BlocConsumer<HomeTreeCubit, HomeTreeState>(
-          listenWhen: (previous, current) {
-            final previousFilters =
-                Set.from(previous.generateFilterParameters());
-            final currentFilters = Set.from(current.generateFilterParameters());
-            return !setEquals(previousFilters, currentFilters) ||
-                previous.childCurrentPage != current.childCurrentPage;
-          },
-          listener: (context, state) {
-            if (state.selectedCatalog != null ||
-                state.selectedChildCategory != null) {
-              _slideController.forward(from: 0);
-            }
-          },
-          builder: (context, state) {
-            final cubit = context.read<HomeTreeCubit>();
+    return Scaffold(
+      backgroundColor: AppColors.white,
+      body: BlocConsumer<HomeTreeCubit, HomeTreeState>(
+        listenWhen: (previous, current) {
+          final previousFilters = Set.from(previous.generateFilterParameters());
+          final currentFilters = Set.from(current.generateFilterParameters());
+          return !setEquals(previousFilters, currentFilters) ||
+              previous.childCurrentPage != current.childCurrentPage;
+        },
+        listener: (context, state) {
+          if (state.selectedCatalog != null ||
+              state.selectedChildCategory != null) {
+            _slideController.forward(from: 0);
+          }
+        },
+        builder: (context, state) {
+          final cubit = context.read<HomeTreeCubit>();
 
-            return Padding(
-              padding: EdgeInsets.only(top: 30),
-              child: CustomScrollView(
-                slivers: [
-                  // Sticky Header
-                  SliverAppBar(
-                      pinned: true,
-                      floating: false,
-                      automaticallyImplyLeading: false,
-                      scrolledUnderElevation: 0,
-                      elevation: 0,
-                      backgroundColor: Colors.white,
-                      flexibleSpace: Padding(
-                        padding: EdgeInsets.only(
-                          top: 8,
-                          left: 16,
-                          right: 16,
-                        ),
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Icon(Icons.clear_rounded),
-                                Text(
-                                  "Filter",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
+          return Stack(
+            children: [
+              Padding(
+                padding: EdgeInsets.only(top: 30),
+                child: CustomScrollView(
+                  slivers: [
+                    // Sticky Header
+                    SliverAppBar(
+                        pinned: true,
+                        floating: false,
+                        automaticallyImplyLeading: false,
+                        scrolledUnderElevation: 0,
+                        elevation: 0,
+                        backgroundColor: Colors.white,
+                        flexibleSpace: Padding(
+                          padding: EdgeInsets.only(
+                            top: 8,
+                            left: 16,
+                            right: 16,
+                          ),
+                          child: Column(
+                            children: [
+                              Stack(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.clear_rounded),
+                                      Text(
+                                        "Clear",
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                        ),
+                                      )
+                                    ],
                                   ),
-                                ),
-                                Text("Clear")
-                              ],
-                            ),
-                          ],
-                        ),
-                      )),
-
-                  // Main Content
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Category',
-                            style: TextStyle(
-                              fontSize: 22,
-                            ),
+                                  Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Padding(
+                                          padding: EdgeInsets.only(top: 3),
+                                          child: Text(
+                                            "Filter",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                            ),
+                                          ),
+                                        ),
+                                      ]),
+                                ],
+                              ),
+                            ],
                           ),
-                          SizedBox(
-                            height: 16,
-                          ),
-                          _buildMainCategories(state, cubit),
+                        )),
 
-                          if (state.selectedCatalog != null) ...[
-                            SizedBox(
-                              height: 24,
-                            ),
+                    // Main Content
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
                             Text(
-                              state.selectedCatalog!.name,
+                              'Category',
                               style: TextStyle(
-                                fontSize: 22,
+                                fontSize: 19,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                             SizedBox(
                               height: 16,
                             ),
-                            _buildChildCategories(state, cubit),
-                          ],
+                            _buildMainCategories(state, cubit),
 
-                          // Price Range Slider
-                          _buildPriceRangeSlider(),
+                            if (state.selectedCatalog != null) ...[
+                              SizedBox(
+                                height: 24,
+                              ),
+                              Text(
+                                state.selectedCatalog!.name,
+                                style: TextStyle(
+                                  fontSize: 19,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              SizedBox(
+                                height: 16,
+                              ),
+                              _buildChildCategories(state, cubit),
+                            ],
 
-                          // Condition Filter
-                          _buildConditionFilter(),
+                            // Price Range Slider
+                            PriceRangeSlider(),
+                            SizedBox(
+                              height: 24,
+                            ),
 
-                          // Location Filter
-                          _buildLocationFilter(),
+                            _buildConditionFilter(),
 
-                          // Attributes Section
-                          if (state.selectedChildCategory != null)
+                            SizedBox(
+                              height: 24,
+                            ),
+
+                            _buildLocationFilter(),
+
+                            // Attributes Section
                             if (state.selectedChildCategory != null)
-                              Column(
-                                children:
-                                    state.orderedAttributes.map((attribute) {
-                                  final cubit = context.read<HomeTreeCubit>();
-                                  final selectedValue = cubit
-                                      .getSelectedAttributeValue(attribute);
-                                  final selectedValues =
-                                      cubit.getSelectedValues(attribute);
+                              if (state.selectedChildCategory != null)
+                                Column(
+                                  children:
+                                      state.orderedAttributes.map((attribute) {
+                                    final cubit = context.read<HomeTreeCubit>();
+                                    final selectedValue = cubit
+                                        .getSelectedAttributeValue(attribute);
+                                    final selectedValues =
+                                        cubit.getSelectedValues(attribute);
 
-                                  // Color mapping
-                                  final Map<String, Color> colorMap = {
-                                    'Silver': Colors.grey[300]!,
-                                    'Pink': Colors.pink,
-                                    'Rose Gold': Color(0xFFB76E79),
-                                    'Space Gray': Color(0xFF4A4A4A),
-                                    'Blue': Colors.blue,
-                                    'Yellow': Colors.yellow,
-                                    'Green': Colors.green,
-                                    'Purple': Colors.purple,
-                                    'White': Colors.white,
-                                    'Red': Colors.red,
-                                    'Black': Colors.black,
-                                  };
+                                    // Color mapping
+                                    final Map<String, Color> colorMap = {
+                                      'Silver': Colors.grey[300]!,
+                                      'Pink': Colors.pink,
+                                      'Rose Gold': Color(0xFFB76E79),
+                                      'Space Gray': Color(0xFF4A4A4A),
+                                      'Blue': Colors.blue,
+                                      'Yellow': Colors.yellow,
+                                      'Green': Colors.green,
+                                      'Purple': Colors.purple,
+                                      'White': Colors.white,
+                                      'Red': Colors.red,
+                                      'Black': Colors.black,
+                                    };
 
-                                  // Determine chip label based on selection type and count
-                                  String chipLabel;
-                                  if (attribute.filterWidgetType ==
-                                      'oneSelectable') {
-                                    chipLabel = selectedValue?.value ??
-                                        attribute.filterText;
-                                  } else {
-                                    if (selectedValues.isEmpty) {
-                                      chipLabel = attribute.filterText;
-                                    } else if (selectedValues.length == 1) {
-                                      chipLabel = selectedValues.first.value;
+                                    // Determine chip label based on selection type and count
+                                    String chipLabel;
+                                    if (attribute.filterWidgetType ==
+                                        'oneSelectable') {
+                                      chipLabel = selectedValue?.value ??
+                                          attribute.filterText;
                                     } else {
-                                      chipLabel =
-                                          '${attribute.filterText}(${selectedValues.length})';
+                                      if (selectedValues.isEmpty) {
+                                        chipLabel = attribute.filterText;
+                                      } else if (selectedValues.length == 1) {
+                                        chipLabel = selectedValues.first.value;
+                                      } else {
+                                        chipLabel =
+                                            '${attribute.filterText}(${selectedValues.length})';
+                                      }
                                     }
-                                  }
 
-                                  Widget? colorIndicator;
-                                  if (attribute.filterWidgetType ==
-                                          'colorMultiSelectable' &&
-                                      selectedValues.isNotEmpty) {
-                                    if (selectedValues.length == 1) {
-                                      // Single color indicator
-                                      colorIndicator = Container(
-                                        width: 16,
-                                        height: 16,
-                                        decoration: BoxDecoration(
-                                          color: colorMap[
-                                                  selectedValues.first.value] ??
-                                              Colors.grey,
-                                          shape: BoxShape.circle,
-                                          border: Border.all(
-                                            color: (colorMap[selectedValues
-                                                        .first.value] ==
-                                                    Colors.white)
-                                                ? Colors.grey
-                                                : Colors.transparent,
-                                            width: 1,
+                                    Widget? colorIndicator;
+                                    if (attribute.filterWidgetType ==
+                                            'colorMultiSelectable' &&
+                                        selectedValues.isNotEmpty) {
+                                      if (selectedValues.length == 1) {
+                                        // Single color indicator
+                                        colorIndicator = Container(
+                                          width: 16,
+                                          height: 16,
+                                          decoration: BoxDecoration(
+                                            color: colorMap[selectedValues
+                                                    .first.value] ??
+                                                Colors.grey,
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                              color: (colorMap[selectedValues
+                                                          .first.value] ==
+                                                      Colors.white)
+                                                  ? Colors.grey
+                                                  : Colors.transparent,
+                                              width: 1,
+                                            ),
                                           ),
-                                        ),
-                                      );
-                                    } else {
-                                      // Stacked color indicators
-                                      colorIndicator = SizedBox(
-                                        width: 40,
-                                        height: 20,
-                                        child: Stack(
-                                          children: [
-                                            for (int i = 0;
-                                                i < selectedValues.length;
-                                                i++)
-                                              Positioned(
-                                                top: 0,
-                                                bottom: 0,
-                                                left: i * 7.0,
-                                                child: Container(
-                                                  width: 16,
-                                                  height: 16,
-                                                  decoration: BoxDecoration(
-                                                    color: colorMap[
-                                                            selectedValues[i]
-                                                                .value] ??
-                                                        Colors.grey,
-                                                    shape: BoxShape.circle,
-                                                    border: Border.all(
-                                                      color: (colorMap[
-                                                                  selectedValues[
-                                                                          i]
-                                                                      .value] ==
-                                                              Colors.white)
-                                                          ? Colors.grey
-                                                          : Colors.transparent,
-                                                      width: 1,
+                                        );
+                                      } else {
+                                        // Stacked color indicators
+                                        colorIndicator = SizedBox(
+                                          width: 40,
+                                          height: 20,
+                                          child: Stack(
+                                            children: [
+                                              for (int i = 0;
+                                                  i < selectedValues.length;
+                                                  i++)
+                                                Positioned(
+                                                  top: 0,
+                                                  bottom: 0,
+                                                  left: i * 7.0,
+                                                  child: Container(
+                                                    width: 16,
+                                                    height: 16,
+                                                    decoration: BoxDecoration(
+                                                      color: colorMap[
+                                                              selectedValues[i]
+                                                                  .value] ??
+                                                          Colors.grey,
+                                                      shape: BoxShape.circle,
+                                                      border: Border.all(
+                                                        color: (colorMap[
+                                                                    selectedValues[
+                                                                            i]
+                                                                        .value] ==
+                                                                Colors.white)
+                                                            ? Colors.grey
+                                                            : Colors
+                                                                .transparent,
+                                                        width: 1,
+                                                      ),
                                                     ),
                                                   ),
                                                 ),
+                                            ],
+                                          ),
+                                        );
+                                      }
+                                    }
+
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 2.5, vertical: 4),
+                                      child: FilterChip(
+                                        showCheckmark: false,
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 4, vertical: 10),
+                                        label: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            if (colorIndicator != null) ...[
+                                              colorIndicator,
+                                              const SizedBox(width: 4),
+                                            ],
+                                            Text(
+                                              chipLabel,
+                                              style: TextStyle(
+                                                color: AppColors.black,
                                               ),
+                                            ),
                                           ],
                                         ),
-                                      );
-                                    }
-                                  }
-
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 2.5, vertical: 4),
-                                    child: FilterChip(
-                                      showCheckmark: false,
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 4, vertical: 10),
-                                      label: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          if (colorIndicator != null) ...[
-                                            colorIndicator,
-                                            const SizedBox(width: 4),
-                                          ],
-                                          Text(
-                                            chipLabel,
-                                            style: TextStyle(
-                                              color: AppColors.black,
-                                            ),
-                                          ),
-                                        ],
+                                        side: BorderSide(
+                                            width: 1,
+                                            color: AppColors.lightGray),
+                                        shape: SmoothRectangleBorder(
+                                          smoothness: 0.8,
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        selected: selectedValue != null,
+                                        backgroundColor: AppColors.white,
+                                        selectedColor: AppColors.white,
+                                        onSelected: (_) {
+                                          if (attribute.values.isNotEmpty &&
+                                              mounted) {
+                                            _showAttributeSelectionUI(
+                                                context, attribute);
+                                          }
+                                        },
                                       ),
-                                      side: BorderSide(
-                                          width: 1, color: AppColors.lightGray),
-                                      shape: SmoothRectangleBorder(
-                                        smoothness: 0.8,
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      selected: selectedValue != null,
-                                      backgroundColor: AppColors.white,
-                                      selectedColor: AppColors.white,
-                                      onSelected: (_) {
-                                        if (attribute.values.isNotEmpty &&
-                                            mounted) {
-                                          _showAttributeSelectionUI(
-                                              context, attribute);
-                                        }
-                                      },
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
-
-                          _buildApplyButton(state)
-                        ],
+                                    );
+                                  }).toList(),
+                                ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            );
-          },
-        ),
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  padding: EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    bottom: 16,
+                    top: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.015),
+                        blurRadius: 4,
+                        offset: Offset(0, -2),
+                      ),
+                    ],
+                  ),
+                  child: BlocBuilder<HomeTreeCubit, HomeTreeState>(
+                    builder: (context, state) => _buildApplyButton(state),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -1002,95 +1057,6 @@ class _FiltersPageState extends State<FiltersPage>
     }
   }
 
-  Widget _buildBreadcrumbs(HomeTreeState state, HomeTreeCubit cubit) {
-    return AnimatedContainer(
-      duration: Duration(milliseconds: 300),
-      child: Row(
-        children: [
-          _buildBreadcrumbItem(
-              "Categories", () => cubit.resetCatalogSelection(),
-              isActive: state.selectedCatalog == null),
-          if (state.selectedCatalog != null) ...[
-            Icon(Icons.chevron_right, size: 16, color: Colors.grey),
-            _buildBreadcrumbItem(
-              state.selectedCatalog!.name,
-              () => cubit.resetChildCategorySelection(),
-              isActive: state.selectedChildCategory == null,
-            ),
-          ],
-          if (state.selectedChildCategory != null) ...[
-            Icon(Icons.chevron_right, size: 16, color: Colors.grey),
-            _buildBreadcrumbItem(
-              state.selectedChildCategory!.name,
-              null,
-              isActive: true,
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBreadcrumbItem(String text, Function()? onTap,
-      {bool isActive = false}) {
-    return InkWell(
-      onTap: onTap,
-      child: AnimatedDefaultTextStyle(
-        duration: Duration(milliseconds: 200),
-        style: TextStyle(
-          fontSize: 14,
-          fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
-          color: isActive ? Colors.blue.shade700 : Colors.grey.shade600,
-        ),
-        child: Text(text),
-      ),
-    );
-  }
-
-  Widget _buildPriceRangeSlider() {
-    return AnimatedContainer(
-      duration: Duration(milliseconds: 300),
-      margin: EdgeInsets.only(top: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Price Range',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: AppColors.black,
-            ),
-          ),
-          RangeSlider(
-            values: _priceRange,
-            min: 0,
-            max: 1000,
-            divisions: 100,
-            labels: RangeLabels(
-              '\$${_priceRange.start.round()}',
-              '\$${_priceRange.end.round()}',
-            ),
-            onChanged: (RangeValues values) {
-              setState(() {
-                _priceRange = values;
-              });
-            },
-            activeColor: Colors.blue,
-            inactiveColor: Colors.grey.shade200,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('\$${_priceRange.start.round()}'),
-              Text('\$${_priceRange.end.round()}'),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildMainCategories(HomeTreeState state, HomeTreeCubit cubit) {
     return AnimatedOpacity(
       duration: Duration(milliseconds: 300),
@@ -1145,6 +1111,53 @@ class _FiltersPageState extends State<FiltersPage>
               side: BorderSide(
                 color:
                     isSelected ? Colors.transparent : AppColors.containerColor,
+              ),
+            ),
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPopularLocationChip(String location) {
+    return AnimatedSize(
+      duration: Duration(milliseconds: 200),
+      child: Hero(
+        tag: 'chip_$location',
+        child: Material(
+          color: Colors.transparent,
+          child: FilterChip(
+            label: Text(
+              location,
+              style: TextStyle(
+                color: _selectedLocation == location
+                    ? AppColors.black
+                    : AppColors.blue,
+                fontWeight: _selectedLocation == location
+                    ? FontWeight.w600
+                    : FontWeight.normal,
+              ),
+            ),
+            showCheckmark: true,
+            selected: _selectedLocation == location,
+            onSelected: (selected) {
+              setState(() {
+                _selectedLocation = location;
+              });
+            },
+            backgroundColor: Colors.white,
+            selectedColor: AppColors.primaryLight2,
+            checkmarkColor: Colors.black,
+            elevation: 0,
+            pressElevation: 4,
+            shape: SmoothRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(
+                color: _selectedLocation == location
+                    ? Colors.transparent
+                    : AppColors.containerColor,
               ),
             ),
             padding: EdgeInsets.symmetric(horizontal: 12, vertical: 9),
@@ -1256,39 +1269,26 @@ class _FiltersPageState extends State<FiltersPage>
   }
 
   Widget _buildConditionFilter() {
-    return Container(
-      margin: EdgeInsets.only(bottom: 16),
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Condition',
             style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Colors.blue.shade700,
+              fontSize: 19,
+              fontWeight: FontWeight.w500,
             ),
           ),
-          SizedBox(height: 12),
-          Row(
+          SizedBox(
+            height: 8,
+          ),
+          Column(
             children: [
-              _buildConditionChip('All', 'all'),
-              SizedBox(width: 8),
-              _buildConditionChip('New', 'new'),
-              SizedBox(width: 8),
-              _buildConditionChip('Used', 'used'),
+              _buildRadioOption('All', 'all'),
+              _buildRadioOption('New', 'new'),
+              _buildRadioOption('Used', 'used'),
             ],
           ),
         ],
@@ -1296,26 +1296,33 @@ class _FiltersPageState extends State<FiltersPage>
     );
   }
 
-  Widget _buildConditionChip(String label, String value) {
-    return AnimatedScale(
-      duration: Duration(milliseconds: 200),
-      scale: _selectedCondition == value ? 1.05 : 1.0,
-      child: ChoiceChip(
-        label: Text(label),
-        selected: _selectedCondition == value,
-        onSelected: (selected) {
-          setState(() {
-            _selectedCondition = value;
-          });
-        },
-        selectedColor: Colors.blue.shade400,
-        backgroundColor: Colors.grey.shade100,
-        labelStyle: TextStyle(
-          color:
-              _selectedCondition == value ? Colors.white : Colors.grey.shade800,
-          fontWeight:
-              _selectedCondition == value ? FontWeight.w600 : FontWeight.normal,
-        ),
+  Widget _buildRadioOption(String label, String value) {
+    return InkWell(
+      onTap: () {
+        setState(() {
+          _selectedCondition = value;
+        });
+      },
+      child: Row(
+        children: [
+          Radio(
+            value: value,
+            groupValue: _selectedCondition,
+            onChanged: (newValue) {
+              setState(() {
+                _selectedCondition = newValue as String;
+              });
+            },
+            activeColor: AppColors.error,
+          ),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.black87,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1324,267 +1331,181 @@ class _FiltersPageState extends State<FiltersPage>
     return AnimatedContainer(
       duration: Duration(milliseconds: 300),
       margin: EdgeInsets.only(bottom: 16),
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Icon(Icons.location_on, color: Colors.blue.shade400, size: 20),
-              SizedBox(width: 8),
-              Text(
-                'Location',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.blue.shade700,
-                ),
-              ),
-            ],
+          Text(
+            'Location',
+            style: TextStyle(
+              fontSize: 19,
+              fontWeight: FontWeight.w500,
+            ),
           ),
           SizedBox(height: 12),
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              color: Colors.grey.shade50,
-            ),
-            child: AnimatedSize(
+          AnimatedSize(
               duration: Duration(milliseconds: 200),
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: 'Enter location...',
-                  hintStyle: TextStyle(color: Colors.grey.shade400),
-                  prefixIcon: Icon(Icons.search, color: Colors.blue.shade400),
-                  suffixIcon: IconButton(
-                    icon: Icon(Icons.my_location, color: Colors.blue.shade400),
-                    onPressed: () {
-                      // Handle get current location
-                    },
-                  ),
-                  filled: true,
-                  fillColor: Colors.grey.shade50,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey.shade300),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey.shade300),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide:
-                        BorderSide(color: Colors.blue.shade400, width: 2),
-                  ),
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedLocation = value;
-                  });
-                },
-              ),
-            ),
-          ),
+              child: SmoothClipRRect(
+                  side: BorderSide(width: 1, color: AppColors.containerColor),
+                  borderRadius: BorderRadius.circular(14),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Select Location',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: AppColors.darkGray,
+                            ),
+                          ),
+                          Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            size: 16,
+                          )
+                        ],
+                      ),
+                    ),
+                  ))),
           // Popular locations chips
-          if (_selectedLocation?.isEmpty ?? true)
-            AnimatedContainer(
-              duration: Duration(milliseconds: 300),
-              margin: EdgeInsets.only(top: 12),
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  _buildPopularLocationChip('New York'),
-                  _buildPopularLocationChip('Los Angeles'),
-                  _buildPopularLocationChip('Chicago'),
-                ],
-              ),
+          //  if (_selectedLocation?.isEmpty ?? true)
+          AnimatedContainer(
+            duration: Duration(milliseconds: 300),
+            margin: EdgeInsets.only(top: 8),
+            child: Wrap(
+              spacing: 5,
+              runSpacing: 5,
+              children: [
+                _buildPopularLocationChip('Toshkent'),
+                _buildPopularLocationChip('Buxoro'),
+                _buildPopularLocationChip('Andijon'),
+              ],
             ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPopularLocationChip(String location) {
-    return AnimatedScale(
-      duration: Duration(milliseconds: 200),
-      scale: _selectedLocation == location ? 1.05 : 1.0,
-      child: ActionChip(
-        label: Text(
-          location,
-          style: TextStyle(
-            color: _selectedLocation == location
-                ? Colors.white
-                : Colors.grey.shade700,
-            fontSize: 12,
           ),
-        ),
-        backgroundColor: _selectedLocation == location
-            ? Colors.blue.shade400
-            : Colors.grey.shade100,
-        onPressed: () {
-          setState(() {
-            _selectedLocation = location;
-          });
-        },
-        elevation: 0,
-        pressElevation: 2,
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        ],
       ),
     );
   }
 
   Widget _buildApplyButton(HomeTreeState state) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            // ignore: deprecated_member_use
-            color: Colors.black.withOpacity(0.05),
-            offset: Offset(0, -4),
-            blurRadius: 8,
-          ),
-        ],
-      ),
-      child: SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: TweenAnimationBuilder<double>(
-                    duration: Duration(milliseconds: 300),
-                    tween: Tween(begin: 0.0, end: 1.0),
-                    builder: (context, value, child) {
-                      return Transform.scale(
-                        scale: 0.9 + (0.1 * value),
-                        child: ElevatedButton(
-                          onPressed: () {
-                            if (state.selectedCatalog != null &&
-                                state.selectedChildCategory != null) {
-                              final attributeState = {
-                                'selectedValues': state.selectedValues,
-                                'selectedAttributeValues':
-                                    state.selectedAttributeValues.map(
-                                  (key, value) =>
-                                      MapEntry(key.attributeKey, value),
-                                ),
-                                'dynamicAttributes': state.dynamicAttributes,
-                                'attributeRequests': state.attributeRequests,
-                              };
-                              context.pop();
-                              if (widget.page == "initial" ||
-                                  widget.page == "child" ||
-                                  widget.page == "initial_filter" ||
-                                  widget.page == 'ssssss') {
-                                debugPrint("🐁🐁😡😡😡❤️❤️${widget.page}");
-                                context
-                                    .pushNamed(RoutesByName.attributes, extra: {
-                                  'category': state.selectedCatalog,
-                                  'childCategory': state.selectedChildCategory,
-                                  'attributeState': attributeState,
-                                });
-                                context
-                                    .read<HomeTreeCubit>()
-                                    .resetChildCategorySelection();
-                              } else {
-                                context.read<HomeTreeCubit>().filtersTrigered();
-                                context.read<HomeTreeCubit>().fetchChildPage(0);
-                              }
-
-                              return;
-                            }
-
-                            if (state.selectedCatalog != null) {
-                              context.pop();
-                              if (widget.page == 'initial' ||
-                                  widget.page == 'initial_filter') {
-                                context.pushNamed(RoutesByName.subcategories,
-                                    extra: {
-                                      'category': state.selectedCatalog,
-                                    });
-                                context
-                                    .read<HomeTreeCubit>()
-                                    .resetCatalogSelection();
-                              } else if (widget.page == "child") {
-                                debugPrint("🐁🐁😡😡😡❤️❤️${widget.page}");
-                                context.pushNamed(
-                                    RoutesByName.filterSecondaryResult,
-                                    extra: {'category': state.selectedCatalog});
-                              } else {
-                                debugPrint("🐁🐁😡😡😡❤️❤️${widget.page}");
-                                context.read<HomeTreeCubit>().filtersTrigered();
-                                context
-                                    .read<HomeTreeCubit>()
-                                    .fetchSecondaryPage(0);
-                              }
-
-                              return;
-                            }
-                            if (state.selectedCatalog == null ||
-                                state.selectedChildCategory == null) {
-                              context.pop();
-                              if (widget.page == 'initial_filter') {
-                                context.read<HomeTreeCubit>().filtersTrigered();
-                                context
-                                    .read<HomeTreeCubit>()
-                                    .fetchInitialPage(0);
-                              } else {
-                                context
-                                    .pushNamed(RoutesByName.filterHomeResult);
-                              }
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue.shade400,
-                            foregroundColor: Colors.white,
-                            padding: EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+            Expanded(
+              child: TweenAnimationBuilder<double>(
+                duration: Duration(milliseconds: 300),
+                tween: Tween(begin: 0.0, end: 1.0),
+                builder: (context, value, child) {
+                  return Transform.scale(
+                    scale: 0.9 + (0.1 * value),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (state.selectedCatalog != null &&
+                            state.selectedChildCategory != null) {
+                          final attributeState = {
+                            'selectedValues': state.selectedValues,
+                            'selectedAttributeValues':
+                                state.selectedAttributeValues.map(
+                              (key, value) => MapEntry(key.attributeKey, value),
                             ),
-                            elevation: 0,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'Apply Filters',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                              SizedBox(width: 8),
-                              Icon(Icons.check_circle_outline, size: 20),
-                            ],
-                          ),
+                            'dynamicAttributes': state.dynamicAttributes,
+                            'attributeRequests': state.attributeRequests,
+                          };
+                          context.pop();
+                          if (widget.page == "initial" ||
+                              widget.page == "child" ||
+                              widget.page == "initial_filter" ||
+                              widget.page == 'ssssss') {
+                            debugPrint("🐁🐁😡😡😡❤️❤️${widget.page}");
+                            context.pushNamed(RoutesByName.attributes, extra: {
+                              'category': state.selectedCatalog,
+                              'childCategory': state.selectedChildCategory,
+                              'attributeState': attributeState,
+                            });
+                            context
+                                .read<HomeTreeCubit>()
+                                .resetChildCategorySelection();
+                          } else {
+                            context.read<HomeTreeCubit>().filtersTrigered();
+                            context.read<HomeTreeCubit>().fetchChildPage(0);
+                          }
+
+                          return;
+                        }
+
+                        if (state.selectedCatalog != null) {
+                          context.pop();
+                          if (widget.page == 'initial' ||
+                              widget.page == 'initial_filter') {
+                            context
+                                .pushNamed(RoutesByName.subcategories, extra: {
+                              'category': state.selectedCatalog,
+                            });
+                            context
+                                .read<HomeTreeCubit>()
+                                .resetCatalogSelection();
+                          } else if (widget.page == "child") {
+                            debugPrint("🐁🐁😡😡😡❤️❤️${widget.page}");
+                            context.pushNamed(
+                                RoutesByName.filterSecondaryResult,
+                                extra: {'category': state.selectedCatalog});
+                          } else {
+                            debugPrint("🐁🐁😡😡😡❤️❤️${widget.page}");
+                            context.read<HomeTreeCubit>().filtersTrigered();
+                            context.read<HomeTreeCubit>().fetchSecondaryPage(0);
+                          }
+
+                          return;
+                        }
+                        if (state.selectedCatalog == null ||
+                            state.selectedChildCategory == null) {
+                          context.pop();
+                          if (widget.page == 'initial_filter') {
+                            context.read<HomeTreeCubit>().filtersTrigered();
+                            context.read<HomeTreeCubit>().fetchInitialPage(0);
+                          } else {
+                            context.pushNamed(RoutesByName.filterHomeResult);
+                          }
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black,
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(vertical: 17),
+                        shape: SmoothRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
                         ),
-                      );
-                    },
-                  ),
-                ),
-              ],
+                        elevation: 0,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Apply',
+                            style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0.5,
+                                fontFamily: "Poppins"),
+                          ),
+                          //  SizedBox(width: 8),
+                          //  Icon(Icons.check_circle_outline, size: 20),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
           ],
         ),
-      ),
+      ],
     );
   }
 
@@ -1644,5 +1565,89 @@ extension ColorUtils on Color {
     final hslLight =
         hsl.withLightness((hsl.lightness + amount).clamp(0.0, 1.0));
     return hslLight.toColor();
+  }
+}
+
+class PriceRangeSlider extends StatefulWidget {
+  final void Function(RangeValues)? onChanged;
+  final RangeValues initialRange;
+
+  const PriceRangeSlider({
+    super.key,
+    this.onChanged,
+    this.initialRange = const RangeValues(50, 200),
+  });
+
+  @override
+  State<PriceRangeSlider> createState() => _PriceRangeSliderState();
+}
+
+class _PriceRangeSliderState extends State<PriceRangeSlider> {
+  late RangeValues _range;
+
+  @override
+  void initState() {
+    super.initState();
+    _range = widget.initialRange;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.only(
+            left: 4,
+            top: 24,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Price range',
+                style: TextStyle(
+                  fontSize: 19,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              Text(
+                '\$${_range.start.round()} - \$${_range.end.round()}',
+                style: TextStyle(
+                  color: AppColors.blue.withOpacity(0.75),
+                  fontSize: 19,
+                  fontWeight: FontWeight.w500,
+                ),
+              )
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        SliderTheme(
+          data: SliderThemeData(
+            trackHeight: 5,
+            activeTrackColor: AppColors.primaryLight2,
+            inactiveTrackColor: Colors.grey[200],
+            thumbColor: Colors.white,
+            overlayColor: Colors.transparent,
+            thumbShape: const RoundSliderThumbShape(
+              enabledThumbRadius: 8,
+              elevation: 2,
+            ),
+            overlayShape: const RoundSliderOverlayShape(overlayRadius: 0),
+            showValueIndicator: ShowValueIndicator.never,
+          ),
+          child: RangeSlider(
+            values: _range,
+            min: 0,
+            max: 1000,
+            onChanged: (RangeValues values) {
+              setState(() => _range = values);
+              widget.onChanged?.call(values);
+            },
+          ),
+        ),
+      ],
+    );
   }
 }
