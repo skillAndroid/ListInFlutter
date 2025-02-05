@@ -189,7 +189,19 @@ class _FiltersPageState extends State<FiltersPage>
                             ),
 
                             _buildLocationFilter(),
-
+                            SizedBox(
+                              height: 16,
+                            ),
+                            Text(
+                              'Additional',
+                              style: TextStyle(
+                                fontSize: 19,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            SizedBox(
+                              height: 16,
+                            ),
                             // Attributes Section
                             if (state.selectedChildCategory != null)
                               if (state.selectedChildCategory != null)
@@ -303,50 +315,75 @@ class _FiltersPageState extends State<FiltersPage>
 
                                     return Padding(
                                       padding: const EdgeInsets.symmetric(
-                                          horizontal: 2.5, vertical: 4),
-                                      child: FilterChip(
-                                        showCheckmark: false,
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 4, vertical: 10),
-                                        label: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            if (colorIndicator != null) ...[
-                                              colorIndicator,
-                                              const SizedBox(width: 4),
-                                            ],
-                                            Text(
-                                              chipLabel,
-                                              style: TextStyle(
-                                                color: AppColors.black,
+                                          vertical: 4),
+                                      child: SizedBox(
+                                        width: double.infinity,
+                                        child: FilterChip(
+                                          showCheckmark: false,
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 16, vertical: 16),
+                                          label: Row(
+                                            mainAxisSize: MainAxisSize.max,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  if (colorIndicator !=
+                                                      null) ...[
+                                                    colorIndicator,
+                                                    const SizedBox(width: 4),
+                                                  ],
+                                                  Text(
+                                                    chipLabel,
+                                                    style: TextStyle(
+                                                      color:
+                                                          selectedValue != null
+                                                              ? AppColors.black
+                                                              : AppColors.black,
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                      fontSize: 16,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
-                                            ),
-                                          ],
+                                              Icon(
+                                                Icons.arrow_forward_ios_rounded,
+                                                size: 16,
+                                              )
+                                            ],
+                                          ),
+                                          side: BorderSide(
+                                              width: 1,
+                                              color: AppColors.containerColor),
+                                          shape: SmoothRectangleBorder(
+                                            smoothness: 1,
+                                            borderRadius:
+                                                BorderRadius.circular(14),
+                                          ),
+                                          selected: selectedValue != null,
+                                          backgroundColor: AppColors.white,
+                                          selectedColor: AppColors.white,
+                                          onSelected: (_) {
+                                            if (attribute.values.isNotEmpty &&
+                                                mounted) {
+                                              _showAttributeSelectionUI(
+                                                  context, attribute);
+                                            }
+                                          },
                                         ),
-                                        side: BorderSide(
-                                            width: 1,
-                                            color: AppColors.lightGray),
-                                        shape: SmoothRectangleBorder(
-                                          smoothness: 0.8,
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                        ),
-                                        selected: selectedValue != null,
-                                        backgroundColor: AppColors.white,
-                                        selectedColor: AppColors.white,
-                                        onSelected: (_) {
-                                          if (attribute.values.isNotEmpty &&
-                                              mounted) {
-                                            _showAttributeSelectionUI(
-                                                context, attribute);
-                                          }
-                                        },
                                       ),
                                     );
                                   }).toList(),
                                 ),
                           ],
                         ),
+                      ),
+                    ),
+                    SliverToBoxAdapter(
+                      child: SizedBox(
+                        height: 80,
                       ),
                     ),
                   ],
@@ -365,13 +402,6 @@ class _FiltersPageState extends State<FiltersPage>
                   ),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.015),
-                        blurRadius: 4,
-                        offset: Offset(0, -2),
-                      ),
-                    ],
                   ),
                   child: BlocBuilder<HomeTreeCubit, HomeTreeState>(
                     builder: (context, state) => _buildApplyButton(state),
@@ -1269,30 +1299,27 @@ class _FiltersPageState extends State<FiltersPage>
   }
 
   Widget _buildConditionFilter() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Condition',
-            style: TextStyle(
-              fontSize: 19,
-              fontWeight: FontWeight.w500,
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Condition',
+          style: TextStyle(
+            fontSize: 19,
+            fontWeight: FontWeight.w500,
           ),
-          SizedBox(
-            height: 8,
-          ),
-          Column(
-            children: [
-              _buildRadioOption('All', 'all'),
-              _buildRadioOption('New', 'new'),
-              _buildRadioOption('Used', 'used'),
-            ],
-          ),
-        ],
-      ),
+        ),
+        SizedBox(
+          height: 8,
+        ),
+        Column(
+          children: [
+            _buildRadioOption('All', 'all'),
+            _buildRadioOption('New', 'new'),
+            _buildRadioOption('Used', 'used'),
+          ],
+        ),
+      ],
     );
   }
 
@@ -1331,7 +1358,6 @@ class _FiltersPageState extends State<FiltersPage>
     return AnimatedContainer(
       duration: Duration(milliseconds: 300),
       margin: EdgeInsets.only(bottom: 16),
-      padding: EdgeInsets.symmetric(horizontal: 4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1598,7 +1624,6 @@ class _PriceRangeSliderState extends State<PriceRangeSlider> {
       children: [
         Padding(
           padding: EdgeInsets.only(
-            left: 4,
             top: 24,
           ),
           child: Row(
