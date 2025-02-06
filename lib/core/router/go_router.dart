@@ -40,6 +40,8 @@ import 'package:list_in/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppRouter {
+  static GlobalKey<NavigatorState> get shellNavigatorHome =>
+      _shellNavigatorHome;
   final SharedPreferences sharedPreferences;
   final GetGategoriesUsecase getGategoriesUsecase;
   final GetPublicationsUsecase getPublicationsUsecase;

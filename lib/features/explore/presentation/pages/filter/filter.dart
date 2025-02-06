@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
 
 import 'dart:async';
 
@@ -9,6 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/router/go_router.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
@@ -70,7 +71,6 @@ class _FiltersPageState extends State<FiltersPage>
     final cubit = context.read<HomeTreeCubit>();
     return WillPopScope(
       onWillPop: () async {
-        // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
         cubit.emit(_initialState);
         return true;
       },
@@ -121,7 +121,13 @@ class _FiltersPageState extends State<FiltersPage>
                                       crossAxisAlignment:
                                           CrossAxisAlignment.center,
                                       children: [
-                                        Icon(Icons.clear_rounded),
+                                        InkWell(
+                                          child: Icon(Icons.clear_rounded),
+                                          onTap: () {
+                                            cubit.emit(_initialState);
+                                            Navigator.pop(context);
+                                          },
+                                        ),
                                         Text(
                                           "Clear",
                                           style: TextStyle(
@@ -1107,31 +1113,6 @@ class _FiltersPageState extends State<FiltersPage>
     }
   }
 
-  Widget _buildMainCategories(HomeTreeState state, HomeTreeCubit cubit) {
-    return AnimatedOpacity(
-      duration: Duration(milliseconds: 300),
-      opacity: state.catalogs?.isEmpty ?? true ? 0.0 : 1.0,
-      child: Wrap(
-        spacing: 5,
-        runSpacing: 5,
-        children: state.catalogs?.map((category) {
-              return _buildAnimatedFilterChip(
-                label: category.name,
-                onSelected: (selected) {
-                  if (selected) {
-                    cubit.selectCatalog(category);
-                  } else {
-                    cubit.resetCatalogSelection();
-                  }
-                },
-                isSelected: category.id == state.selectedCatalog?.id,
-              );
-            }).toList() ??
-            [],
-      ),
-    );
-  }
-
   Widget _buildAnimatedFilterChip({
     required String label,
     required Function(bool) onSelected,
@@ -1218,6 +1199,31 @@ class _FiltersPageState extends State<FiltersPage>
             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildMainCategories(HomeTreeState state, HomeTreeCubit cubit) {
+    return AnimatedOpacity(
+      duration: Duration(milliseconds: 300),
+      opacity: state.catalogs?.isEmpty ?? true ? 0.0 : 1.0,
+      child: Wrap(
+        spacing: 5,
+        runSpacing: 5,
+        children: state.catalogs?.map((category) {
+              return _buildAnimatedFilterChip(
+                label: category.name,
+                onSelected: (selected) {
+                  if (selected) {
+                    cubit.selectCatalog(category);
+                  } else {
+                    cubit.resetCatalogSelection();
+                  }
+                },
+                isSelected: category.id == state.selectedCatalog?.id,
+              );
+            }).toList() ??
+            [],
       ),
     );
   }
@@ -1515,6 +1521,21 @@ class _FiltersPageState extends State<FiltersPage>
                                   'priceFrom': state.priceFrom,
                                   'priceTo': state.priceTo,
                                 });
+                          } else if (widget.page != "child" &&
+                              widget.page != "ssssss" &&
+                              widget.page != "initial" &&
+                              widget.page != 'initial_filter') {
+                            AppRouter.shellNavigatorHome.currentState?.popUntil(
+                                (route) =>
+                                    route.settings.name ==
+                                    RoutesByName.subcategories);
+                            context.pushNamed(
+                                RoutesByName.filterSecondaryResult,
+                                extra: {
+                                  'category': state.selectedCatalog,
+                                  'priceFrom': state.priceFrom,
+                                  'priceTo': state.priceTo,
+                                });
                           } else {
                             debugPrint("🐁🐁😡😡😡❤️❤️${widget.page}");
                             context.read<HomeTreeCubit>().filtersTrigered();
@@ -1531,8 +1552,9 @@ class _FiltersPageState extends State<FiltersPage>
                             context.read<HomeTreeCubit>().fetchInitialPage(0);
                           } else if (widget.page != 'initial' &&
                               widget.page != 'initial_filter') {
-                            context.pushReplacement(
-                                RoutesByName.filterHomeResult,
+                            AppRouter.shellNavigatorHome.currentState
+                                ?.popUntil((route) => route.isFirst);
+                            context.pushNamed(RoutesByName.filterHomeResult,
                                 extra: {
                                   'priceFrom': state.priceFrom,
                                   'priceTo': state.priceTo,
