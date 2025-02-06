@@ -7,10 +7,12 @@ import 'package:go_router/go_router.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
+import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/post/data/models/category_model.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class CategoryCard extends StatefulWidget {
+  final HomeTreeState state;
   final CategoryModel category;
   final int index;
   final double width;
@@ -22,6 +24,7 @@ class CategoryCard extends StatefulWidget {
 
   const CategoryCard({
     super.key,
+    required this.state,
     required this.category,
     required this.index,
     required this.maxWidth,
@@ -46,7 +49,7 @@ class _CategoryCardState extends State<CategoryCard>
     super.initState();
     _scaleController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 150),  
+      duration: const Duration(milliseconds: 150),
       lowerBound: 0.95,
       upperBound: 1.0,
     );
@@ -66,8 +69,11 @@ class _CategoryCardState extends State<CategoryCard>
       child: GestureDetector(
         onTap: () {
           context.read<HomeTreeCubit>().selectCatalog(widget.category);
-          context.goNamed(RoutesByName.subcategories,
-              extra: {'category': widget.category});
+          context.goNamed(RoutesByName.subcategories, extra: {
+            'category': widget.category,
+            'priceFrom': widget.state.priceFrom,
+            'priceTo': widget.state.priceTo,
+          });
         },
         onTapDown: (_) {
           setState(() => _isPressed = true);

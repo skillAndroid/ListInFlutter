@@ -7,11 +7,13 @@ import 'package:go_router/go_router.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
+import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/post/data/models/category_model.dart';
 import 'package:list_in/features/post/data/models/child_category_model.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class SubcategoryCard extends StatefulWidget {
+  final HomeTreeState state;
   final ChildCategoryModel category;
   final CategoryModel categoryM;
   final int categoryIndex;
@@ -19,6 +21,7 @@ class SubcategoryCard extends StatefulWidget {
 
   const SubcategoryCard({
     super.key,
+    required this.state,
     required this.category,
     required this.categoryIndex,
     required this.itemIndex,
@@ -60,6 +63,8 @@ class _SubcategoryCardState extends State<SubcategoryCard>
         context.goNamed(RoutesByName.attributes, extra: {
           'category': widget.categoryM,
           'childCategory': widget.category,
+          'priceFrom': widget.state.priceFrom,
+          'priceTo': widget.state.priceTo,
         });
       },
       onTapDown: (_) {

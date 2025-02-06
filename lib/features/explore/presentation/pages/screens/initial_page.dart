@@ -318,7 +318,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
           controller: _scrollState.scrollController,
           physics: const BouncingScrollPhysics(),
           slivers: [
-            SliverToBoxAdapter(child: _buildCategories()),
+            SliverToBoxAdapter(child: _buildCategories(state)),
             ValueListenableBuilder<bool>(
               valueListenable: _scrollState.isAppBarVisible,
               builder: (context, isVisible, child) => SliverVisibility(
@@ -500,8 +500,11 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
         ),
         onSelected: (selected) {
           context.read<HomeTreeCubit>().selectCatalog(state.catalogs![index]);
-          context.goNamed(RoutesByName.subcategories,
-              extra: {'category': state.catalogs![index]});
+          context.goNamed(RoutesByName.subcategories, extra: {
+            'category': state.catalogs![index],
+            'priceFrom': state.priceFrom,
+            'priceTo': state.priceTo,
+          });
         },
         side: BorderSide(width: 1, color: AppColors.lightGray),
       ),
@@ -665,7 +668,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
     );
   }
 
-  Widget _buildCategories() {
+  Widget _buildCategories(HomeTreeState state) {
     final recommendations = [
       RecommendationItem(
         title: "Recent",

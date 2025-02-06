@@ -425,8 +425,11 @@ class _FilterHomeResultPageState extends State<FilterHomeResultPage> {
         ),
         onSelected: (selected) {
           context.read<HomeTreeCubit>().selectCatalog(state.catalogs![index]);
-          context.pushNamed(RoutesByName.subcategories,
-              extra: {'category': state.catalogs![index]});
+          context.pushNamed(RoutesByName.subcategories, extra: {
+            'category': state.catalogs![index],
+            'priceFrom': state.priceFrom,
+            'priceTo': state.priceTo,
+          });
         },
         side: BorderSide(width: 1, color: AppColors.lightGray),
       ),

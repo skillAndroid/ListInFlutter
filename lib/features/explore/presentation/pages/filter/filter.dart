@@ -194,7 +194,14 @@ class _FiltersPageState extends State<FiltersPage>
                               ],
 
                               // Price Range Slider
-                              PriceRangeSlider(),
+                              // ignore: prefer_if_null_operators
+                              PriceRangeSlider(
+                                initialRange: state.priceFrom != null &&
+                                        state.priceTo != null
+                                    ? RangeValues(
+                                        state.priceFrom!, state.priceTo!)
+                                    : null,
+                              ),
                               SizedBox(
                                 height: 24,
                               ),
@@ -1241,9 +1248,9 @@ class _FiltersPageState extends State<FiltersPage>
                 label: childCategory.name,
                 onSelected: (selected) {
                   if (selected) {
-                    cubit.resetChildCategorySelection();
-                  } else {
                     cubit.selectChildCategory(childCategory);
+                  } else {
+                    cubit.resetChildCategorySelection();
                   }
                 },
                 isSelected: childCategory.id == state.selectedChildCategory?.id,
@@ -1668,11 +1675,13 @@ extension ColorUtils on Color {
 class PriceRangeSlider extends StatefulWidget {
   final void Function(RangeValues)? onChanged;
   final RangeValues initialRange;
-  const PriceRangeSlider({
+
+  PriceRangeSlider({
     super.key,
     this.onChanged,
-    this.initialRange = const RangeValues(50, 200),
-  });
+    RangeValues? initialRange,
+  }) : initialRange = initialRange ?? RangeValues(0, 1000);
+
   @override
   State<PriceRangeSlider> createState() => _PriceRangeSliderState();
 }
@@ -1696,12 +1705,8 @@ class _PriceRangeSliderState extends State<PriceRangeSlider> {
   void _handleRangeChange(RangeValues values) {
     setState(() => _range = values);
 
-    // Cancel the previous timer if it exists
     _debounceTimer?.cancel();
-
-    // Create a new timer that will fire only after the user stops moving the slider
     _debounceTimer = Timer(const Duration(milliseconds: 200), () {
-      // Only update the cubit when the timer fires (user has stopped scrolling)
       context.read<HomeTreeCubit>().setPriceRange(values.start, values.end);
       widget.onChanged?.call(values);
     });
@@ -1709,55 +1714,59 @@ class _PriceRangeSliderState extends State<PriceRangeSlider> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 24),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Price range',
-                style: TextStyle(
-                  fontSize: 19,
-                  fontWeight: FontWeight.w500,
-                ),
+    return BlocBuilder<HomeTreeCubit, HomeTreeState>(
+      builder: (context, state) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 24),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Price range',
+                    style: TextStyle(
+                      fontSize: 19,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Text(
+                    '\$${_range.start.round()} - \$${_range.end.round()}',
+                    style: TextStyle(
+                      color: AppColors.blue.withOpacity(0.75),
+                      fontSize: 19,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  )
+                ],
               ),
-              Text(
-                '\$${_range.start.round()} - \$${_range.end.round()}',
-                style: TextStyle(
-                  color: AppColors.blue.withOpacity(0.75),
-                  fontSize: 19,
-                  fontWeight: FontWeight.w500,
-                ),
-              )
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-        SliderTheme(
-          data: SliderThemeData(
-            trackHeight: 5,
-            activeTrackColor: AppColors.primaryLight2,
-            inactiveTrackColor: Colors.grey[200],
-            thumbColor: Colors.white,
-            overlayColor: Colors.transparent,
-            thumbShape: const RoundSliderThumbShape(
-              enabledThumbRadius: 8,
-              elevation: 2,
             ),
-            overlayShape: const RoundSliderOverlayShape(overlayRadius: 0),
-            showValueIndicator: ShowValueIndicator.never,
-          ),
-          child: RangeSlider(
-            values: _range,
-            min: 0,
-            max: 1000,
-            onChanged: _handleRangeChange,
-          ),
-        ),
-      ],
+            const SizedBox(height: 16),
+            SliderTheme(
+              data: SliderThemeData(
+                trackHeight: 5,
+                activeTrackColor: AppColors.primaryLight2,
+                inactiveTrackColor: Colors.grey[200],
+                thumbColor: Colors.white,
+                overlayColor: Colors.transparent,
+                thumbShape: const RoundSliderThumbShape(
+                  enabledThumbRadius: 8,
+                  elevation: 2,
+                ),
+                overlayShape: const RoundSliderOverlayShape(overlayRadius: 0),
+                showValueIndicator: ShowValueIndicator.never,
+              ),
+              child: RangeSlider(
+                values: _range,
+                min: 0,
+                max: 1000,
+                onChanged: _handleRangeChange,
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

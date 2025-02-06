@@ -2,11 +2,13 @@
 
 import 'package:flutter/material.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/explore/presentation/widgets/sub_category_card.dart';
 import 'package:list_in/features/post/data/models/category_model.dart';
 import 'package:list_in/features/post/data/models/child_category_model.dart';
 
 class SubcategoriesList extends StatefulWidget {
+  final HomeTreeState state;
   final List<ChildCategoryModel> subcategories;
   final CategoryModel categoryModel;
   final String title;
@@ -14,6 +16,7 @@ class SubcategoriesList extends StatefulWidget {
 
   const SubcategoriesList({
     super.key,
+    required this.state,
     required this.subcategories,
     required this.title,
     required this.categoryIndex,
@@ -50,11 +53,11 @@ class _SubcategoriesListState extends State<SubcategoriesList> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildRow(firstRow, 0, true),
+                    _buildRow(firstRow, 0, true, widget.state),
                     const SizedBox(height: 8),
-                    _buildRow(secondRow, 1, false),
+                    _buildRow(secondRow, 1, false, widget.state),
                     const SizedBox(height: 8),
-                    _buildRow(thirdRow, 2, false),
+                    _buildRow(thirdRow, 2, false, widget.state),
                   ],
                 ),
               ),
@@ -66,7 +69,7 @@ class _SubcategoriesListState extends State<SubcategoriesList> {
   }
 
   Widget _buildRow(
-      List<ChildCategoryModel> items, int rowIndex, bool isFirstRow) {
+      List<ChildCategoryModel> items, int rowIndex, bool isFirstRow, HomeTreeState state) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: items.asMap().entries.map((entry) {
@@ -76,6 +79,7 @@ class _SubcategoriesListState extends State<SubcategoriesList> {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4),
           child: SubcategoryCard(
+            state : state,
             category: category,
             categoryM: widget.categoryModel,
             categoryIndex: widget.categoryIndex!,

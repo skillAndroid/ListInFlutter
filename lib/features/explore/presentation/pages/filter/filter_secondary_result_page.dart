@@ -433,6 +433,8 @@ class _FilterSecondaryResultPageState extends State<FilterSecondaryResultPage> {
           context.pushNamed(RoutesByName.attributes, extra: {
             'category': state.selectedCatalog,
             'childCategory': state.selectedCatalog?.childCategories[index],
+            'priceFrom': state.priceFrom,
+            'priceTo': state.priceTo,
           });
         },
         side: BorderSide(width: 1, color: AppColors.lightGray),

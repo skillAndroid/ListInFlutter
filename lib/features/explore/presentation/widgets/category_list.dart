@@ -38,9 +38,9 @@ class CategoriesList extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildRow(firstRow, true),
+                  _buildRow(firstRow, true, state),
                   const SizedBox(height: 8),
-                  _buildRow(secondRow, false),
+                  _buildRow(secondRow, false, state),
                 ],
               ),
             ),
@@ -50,7 +50,7 @@ class CategoriesList extends StatelessWidget {
     );
   }
 
-  Widget _buildRow(List<CategoryModel> items, bool isFirstRow) {
+  Widget _buildRow(List<CategoryModel> items, bool isFirstRow, HomeTreeState state) {
     final List<Map<String, dynamic>> configs = isFirstRow
         ? [
             // First row configs
@@ -143,6 +143,7 @@ class CategoriesList extends StatelessWidget {
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 0.5),
               child: CategoryCard(
+                state : state,
                 category: category,
                 index: index,
                 maxWidth: config['maxWidth'],
