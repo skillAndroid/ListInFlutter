@@ -34,6 +34,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     required this.getVideoPublicationsUsecase,
   }) : super(HomeTreeState());
 
+
   Future<void> getPredictions() async {
     // Cancel any previous timer
     _debounceTimer?.cancel();

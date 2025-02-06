@@ -648,7 +648,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
         elevation: 0,
         shadowColor: AppColors.primary.withOpacity(0.01),
         shape: SmoothRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(16),
           side: BorderSide(
             color: AppColors.white,
             width: 1.5,
@@ -657,8 +657,8 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
         label: Text(
           label,
           style: TextStyle(
-            color: isSelected ? AppColors.black : Colors.grey,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w600,
+            color: isSelected ? AppColors.black : AppColors.darkGray,
+            fontWeight: FontWeight.w600,
             fontSize: 11,
           ),
         ),
@@ -668,10 +668,10 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
             selectedProductFilter = value;
           });
         },
-        backgroundColor: AppColors.containerColor.withOpacity(0.75),
-        selectedColor: AppColors.containerColor,
+        backgroundColor: AppColors.bgColor,
+        selectedColor: AppColors.primaryLight2,
         showCheckmark: false,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       ),
     );
   }

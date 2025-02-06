@@ -4,7 +4,6 @@ import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/explore/presentation/widgets/location_bar.dart';
-import 'package:list_in/features/explore/presentation/widgets/recomendation_widget.dart';
 import 'package:list_in/features/explore/presentation/widgets/sub_category_list.dart';
 
 class TopAppRecomendationSubCategory extends StatelessWidget {

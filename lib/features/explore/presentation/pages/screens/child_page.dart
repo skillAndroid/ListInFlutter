@@ -311,6 +311,7 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
           controller: _scrollState.scrollController,
           physics: const BouncingScrollPhysics(),
           slivers: [
+            if(state.selectedCatalog!=null)
             SliverToBoxAdapter(child: _buildCategories()),
             ValueListenableBuilder<bool>(
               valueListenable: _scrollState.isAppBarVisible,

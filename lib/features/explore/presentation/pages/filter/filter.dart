@@ -1,5 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -31,10 +33,13 @@ class _FiltersPageState extends State<FiltersPage>
   String? _selectedLocation;
   String _selectedCondition = 'all';
 
+  late HomeTreeState _initialState;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initialState = context.read<HomeTreeCubit>().state;
       if (widget.page == "child" || widget.page == 'ssssss') {
         context.read<HomeTreeCubit>().resetChildCategorySelection();
       }
@@ -62,109 +67,99 @@ class _FiltersPageState extends State<FiltersPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      body: BlocConsumer<HomeTreeCubit, HomeTreeState>(
-        listenWhen: (previous, current) {
-          final previousFilters = Set.from(previous.generateFilterParameters());
-          final currentFilters = Set.from(current.generateFilterParameters());
-          return !setEquals(previousFilters, currentFilters) ||
-              previous.childCurrentPage != current.childCurrentPage;
-        },
-        listener: (context, state) {
-          if (state.selectedCatalog != null ||
-              state.selectedChildCategory != null) {
-            _slideController.forward(from: 0);
-          }
-        },
-        builder: (context, state) {
-          final cubit = context.read<HomeTreeCubit>();
-
-          return Stack(
-            children: [
-              Padding(
-                padding: EdgeInsets.only(top: 30),
-                child: CustomScrollView(
-                  slivers: [
-                    // Sticky Header
-                    SliverAppBar(
-                        pinned: true,
-                        floating: false,
-                        automaticallyImplyLeading: false,
-                        scrolledUnderElevation: 0,
-                        elevation: 0,
-                        backgroundColor: Colors.white,
-                        flexibleSpace: Padding(
-                          padding: EdgeInsets.only(
-                            top: 8,
-                            left: 16,
-                            right: 16,
-                          ),
-                          child: Column(
-                            children: [
-                              Stack(
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Icon(Icons.clear_rounded),
-                                      Text(
-                                        "Clear",
-                                        style: TextStyle(
-                                          fontSize: 15,
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                  Row(
+    final cubit = context.read<HomeTreeCubit>();
+    return WillPopScope(
+      onWillPop: () async {
+        // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
+        cubit.emit(_initialState);
+        return true;
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.white,
+        body: BlocConsumer<HomeTreeCubit, HomeTreeState>(
+          listenWhen: (previous, current) {
+            final previousFilters =
+                Set.from(previous.generateFilterParameters());
+            final currentFilters = Set.from(current.generateFilterParameters());
+            return !setEquals(previousFilters, currentFilters) ||
+                previous.childCurrentPage != current.childCurrentPage;
+          },
+          listener: (context, state) {
+            if (state.selectedCatalog != null ||
+                state.selectedChildCategory != null) {
+              _slideController.forward(from: 0);
+            }
+          },
+          builder: (context, state) {
+            return Stack(
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(top: 30),
+                  child: CustomScrollView(
+                    slivers: [
+                      // Sticky Header
+                      SliverAppBar(
+                          pinned: true,
+                          floating: false,
+                          automaticallyImplyLeading: false,
+                          scrolledUnderElevation: 0,
+                          elevation: 0,
+                          backgroundColor: Colors.white,
+                          flexibleSpace: Padding(
+                            padding: EdgeInsets.only(
+                              top: 8,
+                              left: 16,
+                              right: 16,
+                            ),
+                            child: Column(
+                              children: [
+                                Stack(
+                                  children: [
+                                    Row(
                                       mainAxisAlignment:
-                                          MainAxisAlignment.center,
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
                                       children: [
-                                        Padding(
-                                          padding: EdgeInsets.only(top: 3),
-                                          child: Text(
-                                            "Filter",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
+                                        Icon(Icons.clear_rounded),
+                                        Text(
+                                          "Clear",
+                                          style: TextStyle(
+                                            fontSize: 15,
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                    Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Padding(
+                                            padding: EdgeInsets.only(top: 3),
+                                            child: Text(
+                                              "Filter",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 18,
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                      ]),
-                                ],
-                              ),
-                            ],
-                          ),
-                        )),
-
-                    // Main Content
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Category',
-                              style: TextStyle(
-                                fontSize: 19,
-                                fontWeight: FontWeight.w500,
-                              ),
+                                        ]),
+                                  ],
+                                ),
+                              ],
                             ),
-                            SizedBox(
-                              height: 16,
-                            ),
-                            _buildMainCategories(state, cubit),
+                          )),
 
-                            if (state.selectedCatalog != null) ...[
-                              SizedBox(
-                                height: 24,
-                              ),
+                      // Main Content
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
                               Text(
-                                state.selectedCatalog!.name,
+                                'Category',
                                 style: TextStyle(
                                   fontSize: 19,
                                   fontWeight: FontWeight.w500,
@@ -173,244 +168,269 @@ class _FiltersPageState extends State<FiltersPage>
                               SizedBox(
                                 height: 16,
                               ),
-                              _buildChildCategories(state, cubit),
-                            ],
+                              _buildMainCategories(state, cubit),
 
-                            // Price Range Slider
-                            PriceRangeSlider(),
-                            SizedBox(
-                              height: 24,
-                            ),
+                              if (state.selectedCatalog != null) ...[
+                                SizedBox(
+                                  height: 24,
+                                ),
+                                Text(
+                                  state.selectedCatalog!.name,
+                                  style: TextStyle(
+                                    fontSize: 19,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 16,
+                                ),
+                                _buildChildCategories(state, cubit),
+                              ],
 
-                            _buildConditionFilter(),
-
-                            SizedBox(
-                              height: 24,
-                            ),
-
-                            _buildLocationFilter(),
-                            SizedBox(
-                              height: 16,
-                            ),
-                            Text(
-                              'Additional',
-                              style: TextStyle(
-                                fontSize: 19,
-                                fontWeight: FontWeight.w500,
+                              // Price Range Slider
+                              PriceRangeSlider(),
+                              SizedBox(
+                                height: 24,
                               ),
-                            ),
-                            SizedBox(
-                              height: 16,
-                            ),
-                            // Attributes Section
-                            if (state.selectedChildCategory != null)
+
+                              _buildConditionFilter(),
+
+                              SizedBox(
+                                height: 24,
+                              ),
+
+                              _buildLocationFilter(),
+                              SizedBox(
+                                height: 16,
+                              ),
+
+                              SizedBox(
+                                height: 16,
+                              ),
+                              // Attributes Section
                               if (state.selectedChildCategory != null)
-                                Column(
-                                  children:
-                                      state.orderedAttributes.map((attribute) {
-                                    final cubit = context.read<HomeTreeCubit>();
-                                    final selectedValue = cubit
-                                        .getSelectedAttributeValue(attribute);
-                                    final selectedValues =
-                                        cubit.getSelectedValues(attribute);
+                                if (state.selectedChildCategory != null) ...[
+                                  Text(
+                                    'Additional',
+                                    style: TextStyle(
+                                      fontSize: 19,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  Column(
+                                    children: state.orderedAttributes
+                                        .map((attribute) {
+                                      final cubit =
+                                          context.read<HomeTreeCubit>();
+                                      final selectedValue = cubit
+                                          .getSelectedAttributeValue(attribute);
+                                      final selectedValues =
+                                          cubit.getSelectedValues(attribute);
 
-                                    // Color mapping
-                                    final Map<String, Color> colorMap = {
-                                      'Silver': Colors.grey[300]!,
-                                      'Pink': Colors.pink,
-                                      'Rose Gold': Color(0xFFB76E79),
-                                      'Space Gray': Color(0xFF4A4A4A),
-                                      'Blue': Colors.blue,
-                                      'Yellow': Colors.yellow,
-                                      'Green': Colors.green,
-                                      'Purple': Colors.purple,
-                                      'White': Colors.white,
-                                      'Red': Colors.red,
-                                      'Black': Colors.black,
-                                    };
+                                      // Color mapping
+                                      final Map<String, Color> colorMap = {
+                                        'Silver': Colors.grey[300]!,
+                                        'Pink': Colors.pink,
+                                        'Rose Gold': Color(0xFFB76E79),
+                                        'Space Gray': Color(0xFF4A4A4A),
+                                        'Blue': Colors.blue,
+                                        'Yellow': Colors.yellow,
+                                        'Green': Colors.green,
+                                        'Purple': Colors.purple,
+                                        'White': Colors.white,
+                                        'Red': Colors.red,
+                                        'Black': Colors.black,
+                                      };
 
-                                    // Determine chip label based on selection type and count
-                                    String chipLabel;
-                                    if (attribute.filterWidgetType ==
-                                        'oneSelectable') {
-                                      chipLabel = selectedValue?.value ??
-                                          attribute.filterText;
-                                    } else {
-                                      if (selectedValues.isEmpty) {
-                                        chipLabel = attribute.filterText;
-                                      } else if (selectedValues.length == 1) {
-                                        chipLabel = selectedValues.first.value;
+                                      // Determine chip label based on selection type and count
+                                      String chipLabel;
+                                      if (attribute.filterWidgetType ==
+                                          'oneSelectable') {
+                                        chipLabel = selectedValue?.value ??
+                                            attribute.filterText;
                                       } else {
-                                        chipLabel =
-                                            '${attribute.filterText}(${selectedValues.length})';
+                                        if (selectedValues.isEmpty) {
+                                          chipLabel = attribute.filterText;
+                                        } else if (selectedValues.length == 1) {
+                                          chipLabel =
+                                              selectedValues.first.value;
+                                        } else {
+                                          chipLabel =
+                                              '${attribute.filterText}(${selectedValues.length})';
+                                        }
                                       }
-                                    }
 
-                                    Widget? colorIndicator;
-                                    if (attribute.filterWidgetType ==
-                                            'colorMultiSelectable' &&
-                                        selectedValues.isNotEmpty) {
-                                      if (selectedValues.length == 1) {
-                                        // Single color indicator
-                                        colorIndicator = Container(
-                                          width: 16,
-                                          height: 16,
-                                          decoration: BoxDecoration(
-                                            color: colorMap[selectedValues
-                                                    .first.value] ??
-                                                Colors.grey,
-                                            shape: BoxShape.circle,
-                                            border: Border.all(
-                                              color: (colorMap[selectedValues
-                                                          .first.value] ==
-                                                      Colors.white)
-                                                  ? Colors.grey
-                                                  : Colors.transparent,
-                                              width: 1,
+                                      Widget? colorIndicator;
+                                      if (attribute.filterWidgetType ==
+                                              'colorMultiSelectable' &&
+                                          selectedValues.isNotEmpty) {
+                                        if (selectedValues.length == 1) {
+                                          // Single color indicator
+                                          colorIndicator = Container(
+                                            width: 16,
+                                            height: 16,
+                                            decoration: BoxDecoration(
+                                              color: colorMap[selectedValues
+                                                      .first.value] ??
+                                                  Colors.grey,
+                                              shape: BoxShape.circle,
+                                              border: Border.all(
+                                                color: (colorMap[selectedValues
+                                                            .first.value] ==
+                                                        Colors.white)
+                                                    ? Colors.grey
+                                                    : Colors.transparent,
+                                                width: 1,
+                                              ),
                                             ),
-                                          ),
-                                        );
-                                      } else {
-                                        // Stacked color indicators
-                                        colorIndicator = SizedBox(
-                                          width: 40,
-                                          height: 20,
-                                          child: Stack(
-                                            children: [
-                                              for (int i = 0;
-                                                  i < selectedValues.length;
-                                                  i++)
-                                                Positioned(
-                                                  top: 0,
-                                                  bottom: 0,
-                                                  left: i * 7.0,
-                                                  child: Container(
-                                                    width: 16,
-                                                    height: 16,
-                                                    decoration: BoxDecoration(
-                                                      color: colorMap[
-                                                              selectedValues[i]
-                                                                  .value] ??
-                                                          Colors.grey,
-                                                      shape: BoxShape.circle,
-                                                      border: Border.all(
-                                                        color: (colorMap[
-                                                                    selectedValues[
-                                                                            i]
-                                                                        .value] ==
-                                                                Colors.white)
-                                                            ? Colors.grey
-                                                            : Colors
-                                                                .transparent,
-                                                        width: 1,
+                                          );
+                                        } else {
+                                          // Stacked color indicators
+                                          colorIndicator = SizedBox(
+                                            width: 40,
+                                            height: 20,
+                                            child: Stack(
+                                              children: [
+                                                for (int i = 0;
+                                                    i < selectedValues.length;
+                                                    i++)
+                                                  Positioned(
+                                                    top: 0,
+                                                    bottom: 0,
+                                                    left: i * 7.0,
+                                                    child: Container(
+                                                      width: 16,
+                                                      height: 16,
+                                                      decoration: BoxDecoration(
+                                                        color: colorMap[
+                                                                selectedValues[
+                                                                        i]
+                                                                    .value] ??
+                                                            Colors.grey,
+                                                        shape: BoxShape.circle,
+                                                        border: Border.all(
+                                                          color: (colorMap[
+                                                                      selectedValues[
+                                                                              i]
+                                                                          .value] ==
+                                                                  Colors.white)
+                                                              ? Colors.grey
+                                                              : Colors
+                                                                  .transparent,
+                                                          width: 1,
+                                                        ),
                                                       ),
                                                     ),
                                                   ),
-                                                ),
-                                            ],
-                                          ),
-                                        );
+                                              ],
+                                            ),
+                                          );
+                                        }
                                       }
-                                    }
 
-                                    return Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 4),
-                                      child: SizedBox(
-                                        width: double.infinity,
-                                        child: FilterChip(
-                                          showCheckmark: false,
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 16, vertical: 16),
-                                          label: Row(
-                                            mainAxisSize: MainAxisSize.max,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  if (colorIndicator !=
-                                                      null) ...[
-                                                    colorIndicator,
-                                                    const SizedBox(width: 4),
-                                                  ],
-                                                  Text(
-                                                    chipLabel,
-                                                    style: TextStyle(
-                                                      color:
-                                                          selectedValue != null
-                                                              ? AppColors.black
-                                                              : AppColors.black,
-                                                      fontWeight:
-                                                          FontWeight.w400,
-                                                      fontSize: 16,
+                                      return Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 4),
+                                        child: SizedBox(
+                                          width: double.infinity,
+                                          child: FilterChip(
+                                            showCheckmark: false,
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 16, vertical: 16),
+                                            label: Row(
+                                              mainAxisSize: MainAxisSize.max,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    if (colorIndicator !=
+                                                        null) ...[
+                                                      colorIndicator,
+                                                      const SizedBox(width: 4),
+                                                    ],
+                                                    Text(
+                                                      chipLabel,
+                                                      style: TextStyle(
+                                                        color: selectedValue !=
+                                                                null
+                                                            ? AppColors.black
+                                                            : AppColors.black,
+                                                        fontWeight:
+                                                            FontWeight.w400,
+                                                        fontSize: 16,
+                                                      ),
                                                     ),
-                                                  ),
-                                                ],
-                                              ),
-                                              Icon(
-                                                Icons.arrow_forward_ios_rounded,
-                                                size: 16,
-                                              )
-                                            ],
+                                                  ],
+                                                ),
+                                                Icon(
+                                                  Icons
+                                                      .arrow_forward_ios_rounded,
+                                                  size: 16,
+                                                )
+                                              ],
+                                            ),
+                                            side: BorderSide(
+                                                width: 1,
+                                                color:
+                                                    AppColors.containerColor),
+                                            shape: SmoothRectangleBorder(
+                                              smoothness: 1,
+                                              borderRadius:
+                                                  BorderRadius.circular(14),
+                                            ),
+                                            selected: selectedValue != null,
+                                            backgroundColor: AppColors.white,
+                                            selectedColor: AppColors.white,
+                                            onSelected: (_) {
+                                              if (attribute.values.isNotEmpty &&
+                                                  mounted) {
+                                                _showAttributeSelectionUI(
+                                                    context, attribute);
+                                              }
+                                            },
                                           ),
-                                          side: BorderSide(
-                                              width: 1,
-                                              color: AppColors.containerColor),
-                                          shape: SmoothRectangleBorder(
-                                            smoothness: 1,
-                                            borderRadius:
-                                                BorderRadius.circular(14),
-                                          ),
-                                          selected: selectedValue != null,
-                                          backgroundColor: AppColors.white,
-                                          selectedColor: AppColors.white,
-                                          onSelected: (_) {
-                                            if (attribute.values.isNotEmpty &&
-                                                mounted) {
-                                              _showAttributeSelectionUI(
-                                                  context, attribute);
-                                            }
-                                          },
                                         ),
-                                      ),
-                                    );
-                                  }).toList(),
-                                ),
-                          ],
+                                      );
+                                    }).toList(),
+                                  ),
+                                ],
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    SliverToBoxAdapter(
-                      child: SizedBox(
-                        height: 80,
+                      SliverToBoxAdapter(
+                        child: SizedBox(
+                          height: 80,
+                        ),
                       ),
+                    ],
+                  ),
+                ),
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: Container(
+                    padding: EdgeInsets.only(
+                      left: 16,
+                      right: 16,
+                      bottom: 16,
+                      top: 8,
                     ),
-                  ],
-                ),
-              ),
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: Container(
-                  padding: EdgeInsets.only(
-                    left: 16,
-                    right: 16,
-                    bottom: 16,
-                    top: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                  ),
-                  child: BlocBuilder<HomeTreeCubit, HomeTreeState>(
-                    builder: (context, state) => _buildApplyButton(state),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                    ),
+                    child: BlocBuilder<HomeTreeCubit, HomeTreeState>(
+                      builder: (context, state) => _buildApplyButton(state),
+                    ),
                   ),
                 ),
-              ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -1098,7 +1118,11 @@ class _FiltersPageState extends State<FiltersPage>
               return _buildAnimatedFilterChip(
                 label: category.name,
                 onSelected: (selected) {
-                  cubit.selectCatalog(category);
+                  if (selected) {
+                    cubit.selectCatalog(category);
+                  } else {
+                    cubit.resetCatalogSelection();
+                  }
                 },
                 isSelected: category.id == state.selectedCatalog?.id,
               );
@@ -1449,10 +1473,14 @@ class _FiltersPageState extends State<FiltersPage>
                               widget.page == "initial_filter" ||
                               widget.page == 'ssssss') {
                             debugPrint("🐁🐁😡😡😡❤️❤️${widget.page}");
+                            debugPrint("🐁🐁😡😡😡❤️❤️${state.priceFrom}");
+                            debugPrint("🐁🐁😡😡😡❤️❤️${state.priceTo}");
                             context.pushNamed(RoutesByName.attributes, extra: {
                               'category': state.selectedCatalog,
                               'childCategory': state.selectedChildCategory,
                               'attributeState': attributeState,
+                              'priceFrom': state.priceFrom,
+                              'priceTo': state.priceTo,
                             });
                             context
                                 .read<HomeTreeCubit>()
@@ -1472,6 +1500,8 @@ class _FiltersPageState extends State<FiltersPage>
                             context
                                 .pushNamed(RoutesByName.subcategories, extra: {
                               'category': state.selectedCatalog,
+                              'priceFrom': state.priceFrom,
+                              'priceTo': state.priceTo,
                             });
                             context
                                 .read<HomeTreeCubit>()
@@ -1480,7 +1510,11 @@ class _FiltersPageState extends State<FiltersPage>
                             debugPrint("🐁🐁😡😡😡❤️❤️${widget.page}");
                             context.pushNamed(
                                 RoutesByName.filterSecondaryResult,
-                                extra: {'category': state.selectedCatalog});
+                                extra: {
+                                  'category': state.selectedCatalog,
+                                  'priceFrom': state.priceFrom,
+                                  'priceTo': state.priceTo,
+                                });
                           } else {
                             debugPrint("🐁🐁😡😡😡❤️❤️${widget.page}");
                             context.read<HomeTreeCubit>().filtersTrigered();
@@ -1495,8 +1529,20 @@ class _FiltersPageState extends State<FiltersPage>
                           if (widget.page == 'initial_filter') {
                             context.read<HomeTreeCubit>().filtersTrigered();
                             context.read<HomeTreeCubit>().fetchInitialPage(0);
+                          } else if (widget.page != 'initial' &&
+                              widget.page != 'initial_filter') {
+                            context.pushReplacement(
+                                RoutesByName.filterHomeResult,
+                                extra: {
+                                  'priceFrom': state.priceFrom,
+                                  'priceTo': state.priceTo,
+                                });
                           } else {
-                            context.pushNamed(RoutesByName.filterHomeResult);
+                            context.pushNamed(RoutesByName.filterHomeResult,
+                                extra: {
+                                  'priceFrom': state.priceFrom,
+                                  'priceTo': state.priceTo,
+                                });
                           }
                         }
                       },
@@ -1520,8 +1566,6 @@ class _FiltersPageState extends State<FiltersPage>
                                 letterSpacing: 0.5,
                                 fontFamily: "Poppins"),
                           ),
-                          //  SizedBox(width: 8),
-                          //  Icon(Icons.check_circle_outline, size: 20),
                         ],
                       ),
                     ),
@@ -1597,19 +1641,18 @@ extension ColorUtils on Color {
 class PriceRangeSlider extends StatefulWidget {
   final void Function(RangeValues)? onChanged;
   final RangeValues initialRange;
-
   const PriceRangeSlider({
     super.key,
     this.onChanged,
     this.initialRange = const RangeValues(50, 200),
   });
-
   @override
   State<PriceRangeSlider> createState() => _PriceRangeSliderState();
 }
 
 class _PriceRangeSliderState extends State<PriceRangeSlider> {
   late RangeValues _range;
+  Timer? _debounceTimer;
 
   @override
   void initState() {
@@ -1618,18 +1661,36 @@ class _PriceRangeSliderState extends State<PriceRangeSlider> {
   }
 
   @override
+  void dispose() {
+    _debounceTimer?.cancel();
+    super.dispose();
+  }
+
+  void _handleRangeChange(RangeValues values) {
+    setState(() => _range = values);
+
+    // Cancel the previous timer if it exists
+    _debounceTimer?.cancel();
+
+    // Create a new timer that will fire only after the user stops moving the slider
+    _debounceTimer = Timer(const Duration(milliseconds: 200), () {
+      // Only update the cubit when the timer fires (user has stopped scrolling)
+      context.read<HomeTreeCubit>().setPriceRange(values.start, values.end);
+      widget.onChanged?.call(values);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.only(
-            top: 24,
-          ),
+          padding: const EdgeInsets.only(top: 24),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              const Text(
                 'Price range',
                 style: TextStyle(
                   fontSize: 19,
@@ -1666,10 +1727,7 @@ class _PriceRangeSliderState extends State<PriceRangeSlider> {
             values: _range,
             min: 0,
             max: 1000,
-            onChanged: (RangeValues values) {
-              setState(() => _range = values);
-              widget.onChanged?.call(values);
-            },
+            onChanged: _handleRangeChange,
           ),
         ),
       ],

@@ -316,15 +316,16 @@ class _FilterSecondaryResultPageState extends State<FilterSecondaryResultPage> {
           controller: _scrollState.scrollController,
           physics: const BouncingScrollPhysics(),
           slivers: [
-            SliverAppBar(
-              floating: false,
-              snap: false,
-              pinned: true,
-              automaticallyImplyLeading: false,
-              toolbarHeight: 50,
-              flexibleSpace: _buildFiltersBar(state),
-              backgroundColor: AppColors.bgColor,
-            ),
+            if (state.selectedCatalog != null)
+              SliverAppBar(
+                floating: false,
+                snap: false,
+                pinned: true,
+                automaticallyImplyLeading: false,
+                toolbarHeight: 50,
+                flexibleSpace: _buildFiltersBar(state),
+                backgroundColor: AppColors.bgColor,
+              ),
             _buildProductGrid(),
           ],
         ),
@@ -455,20 +456,20 @@ class _FilterSecondaryResultPageState extends State<FilterSecondaryResultPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-               Padding(
-              padding: const EdgeInsets.only(left: 16, right: 16),
-              child: Row(
-                children: [
-                  Transform.translate(
-                    offset: Offset(-10, 0),
-                    child: IconButton(
-                      onPressed: () => context.pop(),
-                      icon: Icon(
-                        Icons.arrow_back_rounded,
-                        color: AppColors.black,
+              Padding(
+                padding: const EdgeInsets.only(left: 16, right: 16),
+                child: Row(
+                  children: [
+                    Transform.translate(
+                      offset: Offset(-10, 0),
+                      child: IconButton(
+                        onPressed: () => context.pop(),
+                        icon: Icon(
+                          Icons.arrow_back_rounded,
+                          color: AppColors.black,
+                        ),
                       ),
                     ),
-                  ),
                     Expanded(
                       child: GestureDetector(
                         onTap: () {

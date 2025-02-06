@@ -190,14 +190,23 @@ class AppRouter {
                     path: Routes.filterHomeResult,
                     name: RoutesByName.filterHomeResult,
                     builder: (context, state) {
+                      final extraData = state.extra as Map<String, dynamic>;
+                      final priceFrom = extraData['priceFrom'] as double?;
+                      final priceTo = extraData['priceTo'] as double?;
                       return BlocProvider(
-                        create: (_) => HomeTreeCubit(
-                          getCatalogsUseCase: getGategoriesUsecase,
-                          getPublicationsUseCase: getPublicationsUsecase,
-                          getPredictionsUseCase: getPredictionsUseCase,
-                          getVideoPublicationsUsecase:
-                              getVideoPublicationsUsecase,
-                        ),
+                        create: (_) {
+                          final cubit = HomeTreeCubit(
+                            getCatalogsUseCase: getGategoriesUsecase,
+                            getPublicationsUseCase: getPublicationsUsecase,
+                            getPredictionsUseCase: getPredictionsUseCase,
+                            getVideoPublicationsUsecase:
+                                getVideoPublicationsUsecase,
+                          );
+                          if (priceFrom != null && priceTo != null) {
+                            cubit.setPriceRange(priceFrom, priceTo);
+                          }
+                          return cubit;
+                        },
                         child: FilterHomeResultPage(
                           key: state.pageKey,
                         ),
@@ -245,8 +254,8 @@ class AppRouter {
                     builder: (context, state) {
                       final extraData = state.extra as Map<String, dynamic>;
                       final category = extraData['category'] as CategoryModel?;
-                   
-
+                      final priceFrom = extraData['priceFrom'] as double?;
+                      final priceTo = extraData['priceTo'] as double?;
                       if (category == null) {
                         return const Scaffold(
                           body: Center(
@@ -264,6 +273,9 @@ class AppRouter {
                                 getVideoPublicationsUsecase,
                           );
                           cubit.selectCatalog(category);
+                          if (priceFrom != null && priceTo != null) {
+                            cubit.setPriceRange(priceFrom, priceTo);
+                          }
                           return cubit;
                         },
                         child: FilterSecondaryResultPage(
@@ -280,6 +292,8 @@ class AppRouter {
                       final extraData = state.extra as Map<String, dynamic>;
                       final category = extraData['category'] as CategoryModel?;
                       final searchText = extraData['searchText'] as String?;
+                      final priceFrom = extraData['priceFrom'] as double?;
+                      final priceTo = extraData['priceTo'] as double?;
 
                       if (category == null) {
                         return const Scaffold(
@@ -298,6 +312,10 @@ class AppRouter {
                                 getVideoPublicationsUsecase,
                           );
                           cubit.selectCatalog(category);
+
+                          if (priceFrom != null && priceTo != null) {
+                            cubit.setPriceRange(priceFrom, priceTo);
+                          }
                           if (searchText != null) {
                             cubit.updateSearchText(searchText);
                           }
@@ -333,6 +351,9 @@ class AppRouter {
                             final childAttributeValueId =
                                 extraData['childAttributeValueId'] as String?;
 
+                            final priceFrom = extraData['priceFrom'] as double?;
+                            final priceTo = extraData['priceTo'] as double?;
+
                             if (parentCategory == null ||
                                 childCategory == null) {
                               return const Scaffold(
@@ -352,6 +373,10 @@ class AppRouter {
                                   getVideoPublicationsUsecase:
                                       getVideoPublicationsUsecase,
                                 );
+
+                                if (priceFrom != null && priceTo != null) {
+                                  cubit.setPriceRange(priceFrom, priceTo);
+                                }
 
                                 cubit
                                   ..selectCatalog(parentCategory)
