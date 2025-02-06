@@ -1236,15 +1236,20 @@ class _FiltersPageState extends State<FiltersPage>
       child: Wrap(
         spacing: 5,
         runSpacing: 5,
-        children: state.selectedCatalog!.childCategories.map((childCategory) {
-          return _buildAnimatedFilterChip(
-            label: childCategory.name,
-            onSelected: (selected) {
-              cubit.selectChildCategory(childCategory);
-            },
-            isSelected: childCategory.id == state.selectedChildCategory?.id,
-          );
-        }).toList(),
+        children: state.selectedCatalog?.childCategories.map((childCategory) {
+              return _buildAnimatedFilterChip(
+                label: childCategory.name,
+                onSelected: (selected) {
+                  if (selected) {
+                    cubit.resetChildCategorySelection();
+                  } else {
+                    cubit.selectChildCategory(childCategory);
+                  }
+                },
+                isSelected: childCategory.id == state.selectedChildCategory?.id,
+              );
+            }).toList() ??
+            [],
       ),
     );
   }
