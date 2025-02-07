@@ -77,7 +77,7 @@ Future<void> init() async {
       ..baseUrl = 'http://listin.uz'
       ..connectTimeout = const Duration(seconds: 5)
       ..receiveTimeout = const Duration(seconds: 8)
-      ..sendTimeout = const Duration(seconds: 15);
+      ..sendTimeout = const Duration(minutes: 3);
 
     if (dio.httpClientAdapter is IOHttpClientAdapter) {
       // ignore: deprecated_member_use

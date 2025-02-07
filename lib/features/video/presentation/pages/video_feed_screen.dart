@@ -1,7 +1,5 @@
 // ignore_for_file: deprecated_member_use
 
-import 'dart:io';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -37,12 +35,11 @@ class _ListInShortsState extends State<ListInShorts> {
   late PageController _pageController;
   late HomeTreeCubit _homeTreeCubit;
 
+  // Reduce to only 3 controllers
   final List<VideoPlayerController?> _controllers = [
-    null,
-    null,
-    null,
-    null,
-    null,
+    null, // previous
+    null, // current
+    null, // next
   ];
 
   int _currentIndex = 0;
@@ -83,24 +80,16 @@ class _ListInShortsState extends State<ListInShorts> {
 
   void _initializeControllers(int index) {
     // Initialize current video with full load
-    _initializeController(2, index, fullLoad: true);
+    _initializeController(1, index, fullLoad: true);
 
-    // Preload previous video with buffer
-    if (index > 0) _initializeController(1, index - 1, fullLoad: false);
+    // Preload previous video if available
+    if (index > 0) {
+      _initializeController(0, index - 1, fullLoad: false);
+    }
 
-    // Preload next video with buffer
+    // Preload next video if available
     if (index + 1 < widget.initialVideos.length) {
-      _initializeController(3, index + 1, fullLoad: false);
-    }
-
-    // Preload after next video with buffer
-    if (index + 2 < widget.initialVideos.length) {
-      _initializeController(4, index + 2, fullLoad: false);
-    }
-
-    // Preload after after next video with buffer
-    if (index + 3 < widget.initialVideos.length) {
-      _initializeController(0, index + 3, fullLoad: false);
+      _initializeController(2, index + 1, fullLoad: false);
     }
   }
 
@@ -113,7 +102,7 @@ class _ListInShortsState extends State<ListInShorts> {
       final controller = VideoPlayerController.network(
         'https://${widget.initialVideos[index].videoUrl}',
         httpHeaders: {
-          if (!fullLoad) 'Range': 'bytes=0-500000',
+          if (!fullLoad) 'Range': 'bytes=0-300000',
         },
       );
 
@@ -146,12 +135,9 @@ class _ListInShortsState extends State<ListInShorts> {
         '└─ Current index: $_currentIndex\n'
         '└─ New index: $newIndex');
 
-    final currentController = _controllers[2];
+    final currentController = _controllers[1];
     if (currentController != null && currentController.value.isInitialized) {
       _videoPositions[_currentIndex] = currentController.value.position;
-      debugPrint('💾 Saved video position:\n'
-          '└─ Index: $_currentIndex\n'
-          '└─ Position: ${currentController.value.position}');
     }
 
     final previousIndex = _currentIndex;
@@ -160,54 +146,40 @@ class _ListInShortsState extends State<ListInShorts> {
     });
 
     if (newIndex > previousIndex) {
-      debugPrint('⏩ Moving forward in playlist:\n'
-          '└─ Disposing controller at position 1');
-      _disposeController(1);
-      _controllers[1] = _controllers[2];
-      _controllers[2] = _controllers[3];
-      _controllers[3] = _controllers[4];
-      _controllers[4] = _controllers[0];
-      _controllers[0] = null;
+      // Moving forward
+      _disposeController(0); // Dispose previous
+      _controllers[0] = _controllers[1]; // Current becomes previous
+      _controllers[1] = _controllers[2]; // Next becomes current
+      _controllers[2] = null; // Clear next
 
-      if (newIndex + 3 < widget.initialVideos.length) {
-        debugPrint('🔄 Preloading next video:\n'
-            '└─ Index: ${newIndex + 3}');
-        _initializeController(0, newIndex + 3, fullLoad: false);
+      // Initialize new next if available
+      if (newIndex + 1 < widget.initialVideos.length) {
+        _initializeController(2, newIndex + 1, fullLoad: false);
       }
     } else {
-      debugPrint('⏪ Moving backward in playlist:\n'
-          '└─ Disposing controller at position 4');
-      _disposeController(4);
-      _controllers[4] = _controllers[3];
-      _controllers[3] = _controllers[2];
-      _controllers[2] = _controllers[1];
-      _controllers[1] = _controllers[0];
-      _controllers[0] = null;
+      // Moving backward
+      _disposeController(2); // Dispose next
+      _controllers[2] = _controllers[1]; // Current becomes next
+      _controllers[1] = _controllers[0]; // Previous becomes current
+      _controllers[0] = null; // Clear previous
 
+      // Initialize new previous if available
       if (newIndex > 0) {
-        debugPrint('🔄 Preloading previous video:\n'
-            '└─ Index: ${newIndex - 1}');
         _initializeController(0, newIndex - 1, fullLoad: false);
       }
     }
 
-    if (_controllers[2] != null) {
-      _controllers[2]?.play().then((_) {
+    // Play current video
+    if (_controllers[1] != null) {
+      _controllers[1]?.play().then((_) {
         if (_videoPositions.containsKey(newIndex)) {
-          _controllers[2]?.seekTo(_videoPositions[newIndex]!);
-          debugPrint('⏱️ Restored video position:\n'
-              '└─ Index: $newIndex\n'
-              '└─ Position: ${_videoPositions[newIndex]}');
+          _controllers[1]?.seekTo(_videoPositions[newIndex]!);
         }
       });
     }
 
-    for (int i = 0; i < _controllers.length; i++) {
-      if (i != 2) {
-        _controllers[i]?.pause();
-        debugPrint('⏸️ Paused video at position: $i');
-      }
-    }
+    _controllers[0]?.pause();
+    _controllers[2]?.pause();
   }
 
   void _disposeController(int index) {
@@ -291,14 +263,16 @@ class _ListInShortsState extends State<ListInShorts> {
             scrollDirection: Axis.vertical,
             itemBuilder: (context, index) {
               final videoController = _controllers[index == _currentIndex
-                  ? 2
-                  : (index < _currentIndex
-                      ? 1
-                      : index == _currentIndex + 1
-                          ? 3
-                          : index == _currentIndex + 2
-                              ? 4
-                              : 0)];
+                      ? 1 // Current video is at index 1
+                      : index == _currentIndex - 1
+                          ? 0 // Previous video is at index 0
+                          : index == _currentIndex + 1
+                              ? 2 // Next video is at index 2
+                              : -1 // No controller for other indices
+                  ];
+              if (videoController == null) {
+                return Text("No Video $index");
+              }
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 2),
                 shape: SmoothRectangleBorder(
@@ -310,8 +284,7 @@ class _ListInShortsState extends State<ListInShorts> {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    if (videoController != null &&
-                        videoController
+                    if (videoController
                             .value.isInitialized) // Changed condition here
                       ValueListenableBuilder<VideoPlayerValue>(
                         valueListenable: videoController,
