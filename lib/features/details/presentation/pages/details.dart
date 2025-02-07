@@ -13,12 +13,11 @@ import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/details/presentation/pages/product_images_detailed.dart';
+import 'package:list_in/features/details/presentation/pages/video_details.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
-import 'package:list_in/features/map/presentation/widgets/map_direction_handler.dart';
 import 'package:list_in/main.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
@@ -730,50 +729,116 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
   }
 
   Widget _buildImageSlider() {
+    final hasVideo = widget.product.videoUrl != null;
+    final totalItems = hasVideo
+        ? widget.product.productImages.length + 1
+        : widget.product.productImages.length;
+
     return Stack(
       children: [
         PageView.builder(
           controller: _pageController,
           onPageChanged: (index) => setState(() => _currentPage = index),
-          itemCount: widget.product.productImages.length,
-          itemBuilder: (context, index) => _buildImageSlide(
-            widget.product.productImages[index].url,
-          ),
+          itemCount: totalItems,
+          itemBuilder: (context, index) {
+            if (hasVideo && index == 0) {
+              return _buildVideoSlide();
+            }
+            final imageIndex = hasVideo ? index - 1 : index;
+            return _buildImageSlide(
+              widget.product.productImages[imageIndex].url,
+            );
+          },
         ),
         _buildImageCounter(),
       ],
     );
   }
 
-  Widget _buildImageSlide(String imageUrl) {
+  Widget _buildVideoSlide() {
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ProductImagesDetailed(
-              images: widget.product.productImages,
-              initialIndex: _currentPage,
-              heroTag: widget.product.id,
+            builder: (context) => VideoPlayerScreen(
+              videoUrl: widget.product.videoUrl!,
+              thumbnailUrl: 'https://${widget.product.productImages[0].url}',
             ),
           ),
         );
       },
-      child: SmoothClipRRect(
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(16),
-          bottomRight: Radius.circular(16),
-        ),
-        child: CachedNetworkImage(
-          imageUrl: 'https://$imageUrl',
-          filterQuality: FilterQuality.high,
-          fit: BoxFit.cover,
-        ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          SmoothClipRRect(
+            borderRadius: const BorderRadius.only(
+              bottomLeft: Radius.circular(16),
+              bottomRight: Radius.circular(16),
+            ),
+            child: CachedNetworkImage(
+              imageUrl: 'https://${widget.product.productImages[0].url}',
+              filterQuality: FilterQuality.high,
+              fit: BoxFit.cover,
+            ),
+          ),
+          Center(
+            child: Container(
+              width: 60,
+              height: 60,
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.7),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.play_arrow_rounded,
+                color: Colors.white,
+                size: 40,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
+  Widget _buildImageSlide(String imageUrl) {
+  return GestureDetector(
+    onTap: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ProductImagesDetailed(
+            images: widget.product.productImages,
+            initialIndex: widget.product.videoUrl != null ? 
+              _currentPage : // Adjust for video at index 0
+              _currentPage,
+            heroTag: widget.product.id,
+            videoUrl: widget.product.videoUrl,
+          ),
+        ),
+      );
+    },
+    child: SmoothClipRRect(
+      borderRadius: const BorderRadius.only(
+        bottomLeft: Radius.circular(16),
+        bottomRight: Radius.circular(16),
+      ),
+      child: CachedNetworkImage(
+        imageUrl: 'https://$imageUrl',
+        filterQuality: FilterQuality.high,
+        fit: BoxFit.cover,
+      ),
+    ),
+  );
+}
+
   Widget _buildImageCounter() {
+    final hasVideo = widget.product.videoUrl != null;
+    final totalItems = hasVideo
+        ? widget.product.productImages.length + 1
+        : widget.product.productImages.length;
+
     return Positioned(
       bottom: 16,
       left: 0,
@@ -785,7 +850,7 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             color: Colors.black54,
             child: Text(
-              '${_currentPage + 1}/${widget.product.productImages.length}',
+              '${_currentPage + 1}/$totalItems',
               style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w600,
