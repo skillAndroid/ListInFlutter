@@ -132,6 +132,7 @@ class _FiltersPageState extends State<FiltersPage>
                                           "Clear",
                                           style: TextStyle(
                                             fontSize: 15,
+                                            color: Colors.blue
                                           ),
                                         )
                                       ],

@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
+import 'dart:async';
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -38,7 +39,6 @@ class _ListInShortsState extends State<ListInShorts> {
   late HomeTreeCubit _homeTreeCubit;
 
   final List<VideoPlayerController?> _controllers = [
-    null,
     null,
     null,
     null,
@@ -82,77 +82,86 @@ class _ListInShortsState extends State<ListInShorts> {
   }
 
   void _initializeControllers(int index) {
-    // Initialize current video with full load
     _initializeController(2, index, fullLoad: true);
 
-    // Preload previous video with buffer
     if (index > 0) _initializeController(1, index - 1, fullLoad: false);
 
-    // Preload next video with buffer
     if (index + 1 < widget.initialVideos.length) {
       _initializeController(3, index + 1, fullLoad: false);
     }
 
-    // Preload after next video with buffer
     if (index + 2 < widget.initialVideos.length) {
-      _initializeController(4, index + 2, fullLoad: false);
-    }
-
-    // Preload after after next video with buffer
-    if (index + 3 < widget.initialVideos.length) {
-      _initializeController(0, index + 3, fullLoad: false);
+      _initializeController(0, index + 2, fullLoad: false);
     }
   }
 
-  void _initializeController(int position, int index,
-      {required bool fullLoad}) {
-    if (_controllers[position] == null) {
-      debugPrint(
-          '🎬 Starting video initialization for position: $position, index: $index');
+  Future<void> _initializeController(int position, int index, {required bool fullLoad}) {
+  if (_controllers[position] == null) {
+    int retryCount = 0;
+    const maxRetries = 3;
 
-      final controller = VideoPlayerController.network(
-        'https://${widget.initialVideos[index].videoUrl}',
-        httpHeaders: {
-          if (!fullLoad) 'Range': 'bytes=0-500000',
-        },
-      );
+    Future<void> initWithRetry() async {
+      try {
+        final controller = VideoPlayerController.network(
+          'https://${widget.initialVideos[index].videoUrl}',
+          httpHeaders: {
+            if (!fullLoad) 'Range': 'bytes=0-200000',
+            'Accept': 'video/avc1,video/mp4,video/x-m4v,video/*',
+          },
+          videoPlayerOptions: VideoPlayerOptions(
+            mixWithOthers: true,
+            allowBackgroundPlayback: true,
+          ),
+        );
 
-      _controllers[position] = controller;
-      controller.initialize().then((_) async {
-        debugPrint('✅ Video initialized successfully:\n'
-            '└─ Position: $position\n'
-            '└─ Index: $index\n'
-            '└─ Duration: ${controller.value.duration}\n'
-            '└─ Size: ${controller.value.size}\n'
-            '└─ Video URL Size: ${await _getVideoSize("https://${widget.initialVideos[index].videoUrl}")}');
+        _controllers[position] = controller;
 
-        if (mounted) setState(() {});
-        if (fullLoad) {
-          controller.play();
-          debugPrint('▶️ Starting playback for index: $index');
+        await controller.initialize().timeout(
+          const Duration(seconds: 15),
+          onTimeout: () {
+            throw TimeoutException('Video initialization timeout');
+          },
+        );
+
+        if (mounted) {
+          setState(() {});
+          if (fullLoad) {
+            await controller.setVolume(1.0);
+            await controller.play();
+            controller.setLooping(true);
+          }
         }
-      }).catchError((error) {
-        debugPrint('❌ Video initialization failed:\n'
+      } catch (error) {
+        debugPrint('Video initialization error:\n'
+            '└─ Attempt: ${retryCount + 1}\n'
             '└─ Position: $position\n'
-            '└─ Index: $index\n'
             '└─ Error: $error');
-      });
+
+        if (retryCount < maxRetries) {
+          retryCount++;
+          await Future.delayed(Duration(milliseconds: 500 * retryCount));
+          await initWithRetry();
+        } else {
+          if (_controllers[position] != null) {
+            await _controllers[position]?.dispose();
+            _controllers[position] = null;
+          }
+          if (mounted) setState(() {});
+        }
+      }
     }
+
+    return initWithRetry();
   }
+  return Future.value();
+}
 
   void _handlePageChange(int newIndex) {
     if (newIndex == _currentIndex) return;
 
-    debugPrint('🔄 Page change triggered:\n'
-        '└─ Current index: $_currentIndex\n'
-        '└─ New index: $newIndex');
-
     final currentController = _controllers[2];
     if (currentController != null && currentController.value.isInitialized) {
       _videoPositions[_currentIndex] = currentController.value.position;
-      debugPrint('💾 Saved video position:\n'
-          '└─ Index: $_currentIndex\n'
-          '└─ Position: ${currentController.value.position}');
     }
 
     final previousIndex = _currentIndex;
@@ -161,33 +170,23 @@ class _ListInShortsState extends State<ListInShorts> {
     });
 
     if (newIndex > previousIndex) {
-      debugPrint('⏩ Moving forward in playlist:\n'
-          '└─ Disposing controller at position 1');
       _disposeController(1);
       _controllers[1] = _controllers[2];
       _controllers[2] = _controllers[3];
-      _controllers[3] = _controllers[4];
-      _controllers[4] = _controllers[0];
+      _controllers[3] = _controllers[0];
       _controllers[0] = null;
 
-      if (newIndex + 3 < widget.initialVideos.length) {
-        debugPrint('🔄 Preloading next video:\n'
-            '└─ Index: ${newIndex + 3}');
-        _initializeController(0, newIndex + 3, fullLoad: false);
+      if (newIndex + 2 < widget.initialVideos.length) {
+        _initializeController(0, newIndex + 2, fullLoad: false);
       }
     } else {
-      debugPrint('⏪ Moving backward in playlist:\n'
-          '└─ Disposing controller at position 4');
-      _disposeController(4);
-      _controllers[4] = _controllers[3];
+      _disposeController(3);
       _controllers[3] = _controllers[2];
       _controllers[2] = _controllers[1];
       _controllers[1] = _controllers[0];
       _controllers[0] = null;
 
       if (newIndex > 0) {
-        debugPrint('🔄 Preloading previous video:\n'
-            '└─ Index: ${newIndex - 1}');
         _initializeController(0, newIndex - 1, fullLoad: false);
       }
     }
@@ -196,9 +195,6 @@ class _ListInShortsState extends State<ListInShorts> {
       _controllers[2]?.play().then((_) {
         if (_videoPositions.containsKey(newIndex)) {
           _controllers[2]?.seekTo(_videoPositions[newIndex]!);
-          debugPrint('⏱️ Restored video position:\n'
-              '└─ Index: $newIndex\n'
-              '└─ Position: ${_videoPositions[newIndex]}');
         }
       });
     }
@@ -206,7 +202,6 @@ class _ListInShortsState extends State<ListInShorts> {
     for (int i = 0; i < _controllers.length; i++) {
       if (i != 2) {
         _controllers[i]?.pause();
-        debugPrint('⏸️ Paused video at position: $i');
       }
     }
   }
@@ -224,11 +219,14 @@ class _ListInShortsState extends State<ListInShorts> {
   @override
   void dispose() {
     for (var controller in _controllers) {
-      controller?.dispose();
+      try {
+        controller?.dispose();
+      } catch (e) {
+        debugPrint('Error disposing controller: $e');
+      }
     }
     _videoPositions.clear();
     _pageController.dispose();
-    context.read<HomeTreeCubit>().clearVideos();
     super.dispose();
   }
 
@@ -285,7 +283,7 @@ class _ListInShortsState extends State<ListInShorts> {
             itemCount: _videos.length,
             onPageChanged: (index) {
               _handlePageChange(index);
-              if (!_isLoading && index >= _videos.length - 5) {
+              if (!_isLoading && index >= _videos.length - 4) {
                 _loadMoreVideos();
               }
             },
@@ -297,9 +295,7 @@ class _ListInShortsState extends State<ListInShorts> {
                       ? 1
                       : index == _currentIndex + 1
                           ? 3
-                          : index == _currentIndex + 2
-                              ? 4
-                              : 0)];
+                          : 0)];
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 2),
                 shape: SmoothRectangleBorder(
