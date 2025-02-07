@@ -621,12 +621,19 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
   }
 
   Widget _buildFeatures() {
-    final features = [
-      'Internet: Available',
-      'Rooms: 2',
-      'Pool: Yes',
-      'Extra amenities: Yes',
-    ];
+    final enAttributes = widget.product.attributeValue.attributes['en'] ?? {};
+
+    final List<String> features = [];
+
+    enAttributes.forEach((key, values) {
+      if (values.isNotEmpty) {
+        if (values.length == 1) {
+          features.add('$key: ${values[0]}');
+        } else {
+          features.add('$key: ${values.join(', ')}');
+        }
+      }
+    });
 
     return Padding(
       padding: const EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 8),

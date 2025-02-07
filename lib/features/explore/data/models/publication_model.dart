@@ -95,6 +95,7 @@ class GetPublicationModel {
   final DateTime updatedAt;
   final CategoryModel category;
   final SellerModel seller;
+  final AttributeValueModel attributeValue;
 
   GetPublicationModel({
     required this.id,
@@ -113,6 +114,7 @@ class GetPublicationModel {
     required this.updatedAt,
     required this.category,
     required this.seller,
+    required this.attributeValue,
   });
 
   factory GetPublicationModel.fromJson(Map<String, dynamic> json) {
@@ -145,6 +147,9 @@ class GetPublicationModel {
           }
         }
       }
+      AttributeValueModel attributeValue = AttributeValueModel.fromJson(
+        json['attributeValue'] ?? {},
+      );
 
       return GetPublicationModel(
         id: json['id']?.toString() ?? '',
@@ -165,6 +170,7 @@ class GetPublicationModel {
             DateTime.now(),
         category: CategoryModel.fromJson(json['category'] ?? {}),
         seller: SellerModel.fromJson(json['seller'] ?? {}),
+        attributeValue: attributeValue,
       );
     } catch (e) {
       rethrow;
@@ -189,6 +195,54 @@ class GetPublicationModel {
       updatedAt: updatedAt,
       category: category.toEntity(),
       seller: seller.toEntity(),
+      attributeValue: attributeValue.toEntity(),
+    );
+  }
+}
+
+class AttributeValueModel {
+  final String parentCategory;
+  final String category;
+  final Map<String, Map<String, List<String>>> attributes;
+
+  AttributeValueModel({
+    required this.parentCategory,
+    required this.category,
+    required this.attributes,
+  });
+
+  factory AttributeValueModel.fromJson(Map<String, dynamic> json) {
+    Map<String, Map<String, List<String>>> attributes = {};
+
+    final attributesData = json['attributes'] ?? {};
+
+    // Parse attributes for each language
+    attributesData.forEach((language, attributeData) {
+      if (attributeData is Map) {
+        Map<String, List<String>> languageMap = {};
+
+        attributeData.forEach((key, value) {
+          if (value is List) {
+            languageMap[key] = List<String>.from(value);
+          }
+        });
+
+        attributes[language] = languageMap;
+      }
+    });
+
+    return AttributeValueModel(
+      parentCategory: json['parentCategory']?.toString() ?? '',
+      category: json['category']?.toString() ?? '',
+      attributes: attributes,
+    );
+  }
+
+  AttributeValueEntity toEntity() {
+    return AttributeValueEntity(
+      parentCategory: parentCategory,
+      category: category,
+      attributes: attributes,
     );
   }
 }

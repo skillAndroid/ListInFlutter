@@ -43,6 +43,7 @@ class GetPublicationEntity {
   final DateTime updatedAt;
   final CategoryEntity category;
   final SellerEntity seller;
+  final AttributeValueEntity attributeValue;
 
   GetPublicationEntity({
     required this.id,
@@ -61,6 +62,19 @@ class GetPublicationEntity {
     required this.updatedAt,
     required this.category,
     required this.seller,
+    required this.attributeValue,
+  });
+}
+
+class AttributeValueEntity {
+  final String parentCategory;
+  final String category;
+  final Map<String, Map<String, List<String>>> attributes;
+
+  AttributeValueEntity({
+    required this.parentCategory,
+    required this.category,
+    required this.attributes,
   });
 }
 
