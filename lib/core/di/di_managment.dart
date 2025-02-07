@@ -77,15 +77,15 @@ Future<void> init() async {
       ..baseUrl = 'http://listin.uz'
       ..connectTimeout = const Duration(seconds: 5)
       ..receiveTimeout = const Duration(seconds: 8)
-      ..sendTimeout = const Duration(seconds: 5);
+      ..sendTimeout = const Duration(seconds: 15);
 
     if (dio.httpClientAdapter is IOHttpClientAdapter) {
       // ignore: deprecated_member_use
       (dio.httpClientAdapter as IOHttpClientAdapter).onHttpClientCreate =
           (client) {
         client
-          ..idleTimeout = const Duration(seconds: 10)
-          ..connectionTimeout = const Duration(seconds: 7)
+          ..idleTimeout = const Duration(seconds: 15)
+          ..connectionTimeout = const Duration(seconds: 15)
           ..maxConnectionsPerHost = 7
           ..autoUncompress = true;
 

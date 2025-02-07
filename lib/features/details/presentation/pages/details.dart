@@ -168,7 +168,7 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(4.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -176,112 +176,114 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
                     borderRadius: BorderRadius.circular(16),
                     child: SizedBox(
                       width: double.infinity,
-                      height: 300,
+                      height: 330,
                       child: Stack(
                         children: [
-                          CachedNetworkImage(
-                            imageUrl:
-                                'https://staticmap.openstreetmap.de/staticmap.php?'
-                                'center=${widget.product.latitude},${widget.product.longitude}'
-                                '&zoom=15'
-                                '&size=400x300'
-                                '&maptype=mapnik',
-                            placeholder: (context, url) =>
-                                CircularProgressIndicator(),
-                            errorWidget: (context, url, error) =>
-                                Icon(Icons.error),
-                          ),
-                          const Positioned(
-                            top: 32,
-                            left: 0,
-                            right: 0,
-                            child: Icon(
-                              Ionicons.location,
-                              color: AppColors.error,
+                          GoogleMap(
+                            liteModeEnabled: true,
+                            zoomControlsEnabled: false,
+                            mapToolbarEnabled: true,
+                            myLocationButtonEnabled: false,
+                            compassEnabled: false,
+                            initialCameraPosition: CameraPosition(
+                              target: LatLng(
+                                widget.product.latitude!,
+                                widget.product.longitude!,
+                              ),
+                              zoom: 18,
                             ),
-                          )
+                            markers: {
+                              Marker(
+                                markerId: MarkerId('productLocation'),
+                                position: LatLng(
+                                  widget.product.latitude!,
+                                  widget.product.longitude!,
+                                ),
+                              ),
+                            },
+                          ),
                         ],
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Transform.translate(
-                    offset: Offset(0, 8),
-                    child: Icon(
-                      Ionicons.location,
-                      color: AppColors.primary,
-                      size: 18,
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 8,
-                      horizontal: 4,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          width: 150,
-                          child: Text(
-                            widget.product.locationName,
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        SmoothClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: InkWell(
-                            onTap: () {
-                              MapDirectionsHandler.openDirections(
-                                widget.product.latitude!,
-                                widget.product.longitude!,
-                              ).catchError((error) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      'Could not open maps. Please check if you have Google Maps installed or try again later.',
-                                    ),
-                                  ),
-                                );
-                              });
-                            },
-                            child: Container(
-                              color: AppColors.containerColor,
-                              margin: EdgeInsets.zero,
-                              padding: EdgeInsets.zero,
-                              child: const Padding(
-                                padding: EdgeInsets.only(
-                                    top: 4, bottom: 4, left: 8, right: 8),
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      CupertinoIcons.location_fill,
-                                      size: 17,
-                                    ),
-                                    SizedBox(width: 4),
-                                    Text(
-                                      'Get Direction',
-                                      style: TextStyle(
-                                        color: AppColors.black,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
-                  )
+                  // const SizedBox(height: 8),
+                  // Transform.translate(
+                  //   offset: Offset(0, 0),
+                  //   child: Icon(
+                  //     Ionicons.location,
+                  //     color: AppColors.primary,
+                  //     size: 18,
+                  //   ),
+                  // ),
+                  // Padding(
+                  //   padding: const EdgeInsets.symmetric(
+                  //     vertical: 8,
+                  //     horizontal: 4,
+                  //   ),
+                  //   child: Column(
+                  //     crossAxisAlignment: CrossAxisAlignment.start,
+                  //     children: [
+                  //       SizedBox(
+                  //         width: 150,
+                  //         child: Text(
+                  //           widget.product.locationName,
+                  //           maxLines: 3,
+                  //           overflow: TextOverflow.ellipsis,
+                  //           style: const TextStyle(
+                  //             color: AppColors.primary,
+                  //             fontWeight: FontWeight.w600,
+                  //           ),
+                  //         ),
+                  //       ),
+                  //       const SizedBox(height: 8),
+                  //       SmoothClipRRect(
+                  //         borderRadius: BorderRadius.circular(10),
+                  //         child: InkWell(
+                  //           onTap: () {
+                  //             MapDirectionsHandler.openDirections(
+                  //               widget.product.latitude!,
+                  //               widget.product.longitude!,
+                  //             ).catchError((error) {
+                  //               ScaffoldMessenger.of(context).showSnackBar(
+                  //                 const SnackBar(
+                  //                   content: Text(
+                  //                     'Could not open maps. Please check if you have Google Maps installed or try again later.',
+                  //                   ),
+                  //                 ),
+                  //               );
+                  //             });
+                  //           },
+                  //           child: Container(
+                  //             color: AppColors.containerColor,
+                  //             margin: EdgeInsets.zero,
+                  //             padding: EdgeInsets.zero,
+                  //             child: const Padding(
+                  //               padding: EdgeInsets.only(
+                  //                   top: 4, bottom: 4, left: 8, right: 8),
+                  //               child: Row(
+                  //                 children: [
+                  //                   Icon(
+                  //                     CupertinoIcons.location_fill,
+                  //                     size: 17,
+                  //                   ),
+                  //                   SizedBox(width: 4),
+                  //                   Text(
+                  //                     'Get Direction',
+                  //                     style: TextStyle(
+                  //                       color: AppColors.black,
+                  //                       fontSize: 12,
+                  //                       fontWeight: FontWeight.w600,
+                  //                     ),
+                  //                   ),
+                  //                 ],
+                  //               ),
+                  //             ),
+                  //           ),
+                  //         ),
+                  //       )
+                  //     ],
+                  //   ),
+                  // )
                 ],
               ),
             ),
@@ -297,14 +299,22 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
         print(
             '🌍 Latitude: ${widget.product.latitude} 🌐 Longitude: ${widget.product.longitude}');
         showModalBottomSheet(
-            context: context,
-            builder: (context) => Scaffold(
-                  body: Column(
-                    children: [
-                      _buildSelectedLocationCard(context),
-                    ],
-                  ),
-                ));
+          context: context,
+          shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          constraints: BoxConstraints.tight(
+              Size(double.infinity, 360)), // Set fixed height
+          builder: (context) => SmoothClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Scaffold(
+              backgroundColor: AppColors.white,
+              body: Column(
+                children: [
+                  _buildSelectedLocationCard(context),
+                ],
+              ),
+            ),
+          ),
+        );
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
