@@ -7,6 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
@@ -15,7 +16,9 @@ import 'package:list_in/features/details/presentation/pages/product_images_detai
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
+import 'package:list_in/features/map/presentation/widgets/map_direction_handler.dart';
 import 'package:list_in/main.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
@@ -37,6 +40,7 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
   int _currentPage = 0;
   final ScrollController _scrollController = ScrollController();
   bool _isCollapsed = false;
+  bool isMore = false;
 
   @override
   void initState() {
@@ -61,14 +65,15 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
 
   Widget _buildFeatureChip(String text) {
     return SmoothClipRRect(
+      side: BorderSide(width: 1, color: AppColors.containerColor),
       borderRadius: BorderRadius.circular(8),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        color: AppColors.containerColor,
+        color: AppColors.white,
         child: Text(
           text,
           style: const TextStyle(
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w400,
             color: AppColors.darkGray,
           ),
         ),
@@ -79,7 +84,7 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 252, 252, 252),
+      backgroundColor: Colors.white,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(
           parent: AlwaysScrollableScrollPhysics(),
@@ -97,12 +102,13 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
   }
 
   Widget _buildBody() {
+    final enAttributes = widget.product.attributeValue.attributes['en'] ?? {};
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 16),
         _buildProductTitle(),
-        _buildFeatures(),
+        if (enAttributes.isNotEmpty) _buildFeatures(enAttributes),
         _buildDivider(),
         _buildSellerInfo(),
         _buildDivider(),
@@ -136,11 +142,11 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 8),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
-            crossAxisSpacing: 4,
-            mainAxisSpacing: 4,
+            crossAxisSpacing: 0,
+            mainAxisSpacing: 0,
             childAspectRatio: 0.65,
           ),
           itemCount: widget.recommendedProducts.length,
@@ -154,49 +160,195 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
-  Widget _buildLocation() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              Icon(
-                CupertinoIcons
-                    .location, // Using solid variant for better visibility
-                color: AppColors.black,
-                size: 20,
+  Widget _buildSelectedLocationCard(BuildContext context) {
+    return SmoothClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        color: AppColors.white,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SmoothClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 300,
+                      child: Stack(
+                        children: [
+                          CachedNetworkImage(
+                            imageUrl:
+                                'https://staticmap.openstreetmap.de/staticmap.php?'
+                                'center=${widget.product.latitude},${widget.product.longitude}'
+                                '&zoom=15'
+                                '&size=400x300'
+                                '&maptype=mapnik',
+                            placeholder: (context, url) =>
+                                CircularProgressIndicator(),
+                            errorWidget: (context, url, error) =>
+                                Icon(Icons.error),
+                          ),
+                          const Positioned(
+                            top: 32,
+                            left: 0,
+                            right: 0,
+                            child: Icon(
+                              Ionicons.location,
+                              color: AppColors.error,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Transform.translate(
+                    offset: Offset(0, 8),
+                    child: Icon(
+                      Ionicons.location,
+                      color: AppColors.primary,
+                      size: 18,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 8,
+                      horizontal: 4,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: 150,
+                          child: Text(
+                            widget.product.locationName,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        SmoothClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: InkWell(
+                            onTap: () {
+                              MapDirectionsHandler.openDirections(
+                                widget.product.latitude!,
+                                widget.product.longitude!,
+                              ).catchError((error) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'Could not open maps. Please check if you have Google Maps installed or try again later.',
+                                    ),
+                                  ),
+                                );
+                              });
+                            },
+                            child: Container(
+                              color: AppColors.containerColor,
+                              margin: EdgeInsets.zero,
+                              padding: EdgeInsets.zero,
+                              child: const Padding(
+                                padding: EdgeInsets.only(
+                                    top: 4, bottom: 4, left: 8, right: 8),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      CupertinoIcons.location_fill,
+                                      size: 17,
+                                    ),
+                                    SizedBox(width: 4),
+                                    Text(
+                                      'Get Direction',
+                                      style: TextStyle(
+                                        color: AppColors.black,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  )
+                ],
               ),
-              const SizedBox(width: 10),
-              SizedBox(
-                width: 250,
-                child: Text(
-                  widget.product.seller.locationName,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    overflow: TextOverflow.ellipsis,
-                    color: Color(0xFF2F2F2F),
-                    fontWeight: FontWeight.w500,
-                    height: 1.2,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLocation() {
+    return InkWell(
+      onTap: () {
+        print(
+            '🌍 Latitude: ${widget.product.latitude} 🌐 Longitude: ${widget.product.longitude}');
+        showModalBottomSheet(
+            context: context,
+            builder: (context) => Scaffold(
+                  body: Column(
+                    children: [
+                      _buildSelectedLocationCard(context),
+                    ],
+                  ),
+                ));
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  CupertinoIcons
+                      .location, // Using solid variant for better visibility
+                  color: AppColors.black,
+                  size: 20,
+                ),
+                const SizedBox(width: 10),
+                SizedBox(
+                  width: 250,
+                  child: Text(
+                    widget.product.seller.locationName,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      overflow: TextOverflow.ellipsis,
+                      color: Color(0xFF2F2F2F),
+                      fontWeight: FontWeight.w500,
+                      height: 1.2,
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          Icon(
-            CupertinoIcons.forward, // Using rounded variant for softer look
-            color: Colors.grey.shade600,
-            size: 24,
-          ),
-        ],
+              ],
+            ),
+            Icon(
+              CupertinoIcons.forward,
+              color: Colors.grey.shade600,
+              size: 24,
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildSellerInfo() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.only(left: 24, right: 16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -204,12 +356,12 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
             child: Row(
               children: [
                 _buildSellerAvatar(),
-                const SizedBox(width: 8),
+                const SizedBox(width: 6),
                 IconButton(
                   onPressed: () {},
                   icon: const Icon(
                     Ionicons.person_add,
-                    size: 30,
+                    size: 28,
                     color: AppColors.black,
                   ),
                 ),
@@ -228,14 +380,15 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
       alignment: Alignment.centerLeft,
       children: [
         SmoothClipRRect(
+          side: BorderSide(width: 1, color: AppColors.containerColor),
           borderRadius: BorderRadius.circular(10),
           child: InkWell(
             onTap: () {
               context.push(Routes.anotherUserProfile);
             },
             child: Container(
-              color: AppColors.containerColor,
-              margin: const EdgeInsets.only(left: 24),
+              color: AppColors.white,
+              margin: const EdgeInsets.only(left: 16),
               child: Padding(
                 padding: const EdgeInsets.only(
                   top: 7,
@@ -286,16 +439,19 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
         ),
         Positioned(
           left: 0,
-          child: Container(
-            padding: const EdgeInsets.all(2),
-            decoration: BoxDecoration(
-              color: AppColors.bgColor,
-              shape: BoxShape.circle,
-            ),
-            child: CircleAvatar(
-              radius: 28,
-              backgroundImage: CachedNetworkImageProvider(
-                "https://${widget.product.seller.profileImagePath}",
+          child: Transform.translate(
+            offset: Offset(-8, 0),
+            child: Container(
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                color: AppColors.containerColor,
+                shape: BoxShape.circle,
+              ),
+              child: CircleAvatar(
+                radius: 28,
+                backgroundImage: CachedNetworkImageProvider(
+                  "https://${widget.product.seller.profileImagePath}",
+                ),
               ),
             ),
           ),
@@ -335,8 +491,8 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
             '\$${widget.product.price}',
             style: TextStyle(
               fontSize: 24,
-              color: AppColors.primary,
-              fontWeight: FontWeight.bold,
+              color: AppColors.black,
+              fontWeight: FontWeight.w800,
             ),
           ),
         ),
@@ -360,6 +516,7 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
           const SizedBox(height: 8),
           Text(
             widget.product.description,
+            maxLines: isMore == true ? 100 : 2,
             style: TextStyle(
               color: AppColors.darkGray.withOpacity(0.6),
               fontSize: 14,
@@ -367,14 +524,24 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
             ),
           ),
           TextButton(
-            onPressed: () {},
+            onPressed: () {
+              if (isMore) {
+                setState(() {
+                  isMore = false;
+                });
+              } else {
+                setState(() {
+                  isMore = true;
+                });
+              }
+            },
             style: TextButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 4),
               minimumSize: Size.zero,
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
             child: Text(
-              'Read more',
+              isMore == true ? "Less" : 'More',
               style: TextStyle(
                 color: AppColors.primary,
                 fontWeight: FontWeight.w600,
@@ -414,7 +581,7 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 4),
           ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -429,7 +596,7 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
 
   Widget _buildSliverAppBar() {
     return SliverAppBar(
-      expandedHeight: 360,
+      expandedHeight: 400,
       floating: false,
       pinned: true,
       elevation: 0,
@@ -620,9 +787,7 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
-  Widget _buildFeatures() {
-    final enAttributes = widget.product.attributeValue.attributes['en'] ?? {};
-
+  Widget _buildFeatures(enAttributes) {
     final List<String> features = [];
 
     enAttributes.forEach((key, values) {
@@ -638,8 +803,8 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
     return Padding(
       padding: const EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 8),
       child: Wrap(
-        spacing: 4,
-        runSpacing: 4,
+        spacing: 5,
+        runSpacing: 5,
         children: features.map(_buildFeatureChip).toList(),
       ),
     );
@@ -652,17 +817,18 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
         widget.product.title,
         style: const TextStyle(
           fontSize: 22,
-          fontWeight: FontWeight.bold,
+          color: AppColors.black,
+          fontWeight: FontWeight.w800,
         ),
       ),
     );
   }
 
   Widget _buildDivider() {
-    return const Divider(
+    return Divider(
       height: 32,
       thickness: 4,
-      color: AppColors.white,
+      color: AppColors.containerColor.withOpacity(0.3),
     );
   }
 
@@ -753,74 +919,86 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
 
 //
   Widget _buildReviewItem() {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.containerColor,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundImage: CachedNetworkImageProvider(
-                  "https://${widget.product.productImages[0].url}",
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      children: [
+        SmoothClipRRect(
+          side: BorderSide(width: 1, color: AppColors.containerColor),
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
-                    const Text(
-                      'John Doe',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
+                    CircleAvatar(
+                      radius: 20,
+                      backgroundImage: CachedNetworkImageProvider(
+                        "https://${widget.product.productImages[0].url}",
                       ),
                     ),
-                    Row(
-                      children: [
-                        const Icon(Icons.star, size: 16, color: Colors.amber),
-                        const Icon(Icons.star, size: 16, color: Colors.amber),
-                        const Icon(Icons.star, size: 16, color: Colors.amber),
-                        const Icon(Icons.star, size: 16, color: Colors.amber),
-                        Icon(Icons.star, size: 16, color: AppColors.lightGray),
-                        const SizedBox(width: 4),
-                        Text(
-                          '4.0',
-                          style: TextStyle(
-                            color: AppColors.darkGray.withOpacity(0.8),
-                            fontSize: 12,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'John Doe',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                        ),
-                      ],
+                          Row(
+                            children: [
+                              const Icon(Icons.star,
+                                  size: 16, color: Colors.amber),
+                              const Icon(Icons.star,
+                                  size: 16, color: Colors.amber),
+                              const Icon(Icons.star,
+                                  size: 16, color: Colors.amber),
+                              const Icon(Icons.star,
+                                  size: 16, color: Colors.amber),
+                              Icon(Icons.star,
+                                  size: 16, color: AppColors.lightGray),
+                              const SizedBox(width: 4),
+                              Text(
+                                '4.0',
+                                style: TextStyle(
+                                  color: AppColors.darkGray.withOpacity(0.8),
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    Text(
+                      '2 days ago',
+                      style: TextStyle(
+                        color: AppColors.darkGray.withOpacity(0.6),
+                        fontSize: 12,
+                      ),
                     ),
                   ],
                 ),
-              ),
-              Text(
-                '2 days ago',
-                style: TextStyle(
-                  color: AppColors.darkGray.withOpacity(0.6),
-                  fontSize: 12,
+                const SizedBox(height: 12),
+                Text(
+                  'Great product! The quality is amazing and delivery was super fast. Highly recommended!',
+                  style: TextStyle(
+                    color: AppColors.darkGray,
+                    height: 1.5,
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'Great product! The quality is amazing and delivery was super fast. Highly recommended!',
-            style: TextStyle(
-              color: AppColors.darkGray.withOpacity(0.8),
-              height: 1.5,
+              ],
             ),
           ),
-        ],
-      ),
+        ),
+        SizedBox(
+          height: 4,
+        )
+      ],
     );
   }
 }

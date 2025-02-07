@@ -3,9 +3,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:ionicons/ionicons.dart';
+import 'package:go_router/go_router.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/undefined_screens_yet/video_player.dart';
@@ -45,21 +46,29 @@ class _AdvertisedProductCardState extends State<AdvertisedProductCard> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: Card(
-        shadowColor: AppColors.black.withOpacity(0.2),
-        color: AppColors.white,
-        shape: SmoothRectangleBorder(
-          smoothness: 0.8,
-          borderRadius: BorderRadius.all(Radius.circular(2)),
-        ),
-        clipBehavior: Clip.hardEdge,
-        elevation: 5,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildProductImageCarousel(),
-            ProductDetails(product: widget.product),
-          ],
+      child: InkWell(
+        onTap: () {
+          context.push(
+            Routes.productDetails,
+            extra: widget.product, 
+          );
+        },
+        child: Card(
+          shadowColor: AppColors.black.withOpacity(0.2),
+          color: AppColors.white,
+          shape: SmoothRectangleBorder(
+            smoothness: 0.8,
+            borderRadius: BorderRadius.all(Radius.circular(2)),
+          ),
+          clipBehavior: Clip.hardEdge,
+          elevation: 5,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildProductImageCarousel(),
+              ProductDetails(product: widget.product),
+            ],
+          ),
         ),
       ),
     );
@@ -424,7 +433,6 @@ class ProductMediaContent extends StatelessWidget {
       fit: BoxFit.cover,
       memCacheWidth: 700,
       maxWidthDiskCache: 700,
-      
       placeholder: (context, url) => const _LoadingIndicator(),
       errorWidget: (context, url, error) => const _ErrorWidget(),
     );
