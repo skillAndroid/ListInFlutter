@@ -34,7 +34,6 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     required this.getVideoPublicationsUsecase,
   }) : super(HomeTreeState());
 
-
   Future<void> getPredictions() async {
     // Cancel any previous timer
     _debounceTimer?.cancel();
@@ -112,11 +111,11 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
 
   void handleVideoFeedNavigation(BuildContext context, int selectedIndex) {
     if (state.videoPublications.isNotEmpty) {
-      final limitedVideos = state.videoPublications.length > 20
-          ? state.videoPublications.sublist(0, 20)
+      final limitedVideos = state.videoPublications.length > 10
+          ? state.videoPublications.sublist(0, 10)
           : state.videoPublications;
 
-      if (state.videoPublications.length > 20) {
+      if (state.videoPublications.length > 10) {
         emit(state.copyWith(videoPublications: limitedVideos));
       }
 
@@ -629,7 +628,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
         params: GetPublicationsParams(
           query: state.searchText,
           page: pageKey,
-          size: pageSize,
+          size: 10,
           priceFrom: state.priceFrom,
           priceTo: state.priceTo,
           categoryId: state.selectedCatalog?.id,

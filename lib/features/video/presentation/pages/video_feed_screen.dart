@@ -51,6 +51,7 @@ class _ListInShortsState extends State<ListInShorts> {
   @override
   void initState() {
     super.initState();
+   
     _currentIndex = widget.initialIndex;
     _videos = widget.initialVideos;
     _homeTreeCubit = context.read<HomeTreeCubit>();
@@ -69,13 +70,13 @@ class _ListInShortsState extends State<ListInShorts> {
 
     debugPrint('📥 Loading more videos:\n'
         '└─ Current count: ${_videos.length}\n'
-        '└─ Loading page: ${_videos.length ~/ 20}');
+        '└─ Loading page: ${_videos.length ~/ 10}');
 
     setState(() {
       _isLoading = true;
     });
 
-    _homeTreeCubit.fetchVideoFeeds(_videos.length ~/ 20);
+    _homeTreeCubit.fetchVideoFeeds(_videos.length ~/ 10);
   }
 
   void _initializeControllers(int index) {

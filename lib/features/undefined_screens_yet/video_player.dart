@@ -4,7 +4,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:list_in/config/theme/app_colors.dart';
-import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:video_player/video_player.dart';
 
