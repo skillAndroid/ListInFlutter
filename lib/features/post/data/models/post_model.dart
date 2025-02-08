@@ -21,7 +21,7 @@ class PostModel extends PostEntity {
     required super.isNegatable,
     required super.childCategoryId,
     required super.attributeValues,
-    required super.numericFieldValues,
+    required super.numericValues,
   });
 
   factory PostModel.fromJson(Map<String, dynamic> json) {
@@ -49,7 +49,7 @@ class PostModel extends PostEntity {
                 attributeValueIds: List<String>.from(attr['attributeValueIds']),
               ))
           .toList(),
-      numericFieldValues: (json['numericFields'] as Map<String, dynamic>)
+      numericValues: (json['numericValues'] as Map<String, dynamic>)
           .entries
           .map((entry) => NumericRequestValue(
                 numericFieldId: entry.key,
@@ -74,7 +74,7 @@ class PostModel extends PostEntity {
       'bargain': isNegatable,
       'categoryId': childCategoryId,
       'attributeValues': attributeValues.map((attr) => attr.toJson()).toList(),
-      'numericFields': numericFieldValues, // Add this line
+      'numericValues': numericValues, // Add this line
     };
   }
 }

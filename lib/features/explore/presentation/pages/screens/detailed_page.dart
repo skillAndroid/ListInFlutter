@@ -1805,11 +1805,11 @@ class NumericFieldBottomSheet extends StatefulWidget {
 class _NumericFieldBottomSheetState extends State<NumericFieldBottomSheet> {
   late TextEditingController _fromController;
   late TextEditingController _toController;
+  String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
-    // Initialize controllers with initial values
     _fromController = TextEditingController(
       text: widget.initialValues?['from']?.toString() ?? '',
     );
@@ -1835,7 +1835,6 @@ class _NumericFieldBottomSheetState extends State<NumericFieldBottomSheet> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Drag handle
             Container(
               margin: const EdgeInsets.only(top: 8),
               width: 40,
@@ -1846,7 +1845,6 @@ class _NumericFieldBottomSheetState extends State<NumericFieldBottomSheet> {
               ),
             ),
 
-            // Header with close button and title
             Container(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
               child: Stack(
@@ -1881,7 +1879,6 @@ class _NumericFieldBottomSheetState extends State<NumericFieldBottomSheet> {
                       ),
                     ),
                   ),
-                  // Centered title
                   Text(
                     widget.field.fieldName,
                     style: const TextStyle(
@@ -1893,7 +1890,6 @@ class _NumericFieldBottomSheetState extends State<NumericFieldBottomSheet> {
               ),
             ),
 
-            // Numeric range inputs
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               child: Column(
@@ -1925,6 +1921,7 @@ class _NumericFieldBottomSheetState extends State<NumericFieldBottomSheet> {
                               vertical: 16,
                             ),
                           ),
+                          onChanged: (_) => setState(() => _errorMessage = null),
                         ),
                       ),
                       Padding(
@@ -1959,15 +1956,26 @@ class _NumericFieldBottomSheetState extends State<NumericFieldBottomSheet> {
                               vertical: 16,
                             ),
                           ),
+                          onChanged: (_) => setState(() => _errorMessage = null),
                         ),
                       ),
                     ],
                   ),
+                  if (_errorMessage != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(
+                        _errorMessage!,
+                        style: const TextStyle(
+                          color: Colors.red,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
 
-            // Apply button at the bottom
             Container(
               padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 24),
               width: double.infinity,
@@ -1975,20 +1983,16 @@ class _NumericFieldBottomSheetState extends State<NumericFieldBottomSheet> {
                 children: [
                   ElevatedButton(
                     onPressed: () {
-                      // Parse values only when Apply is pressed
                       final fromText = _fromController.text.trim();
                       final toText = _toController.text.trim();
                       
                       int? from = fromText.isEmpty ? null : int.tryParse(fromText);
                       int? to = toText.isEmpty ? null : int.tryParse(toText);
                       
-                      // Validate range if both values are provided
                       if (from != null && to != null && from > to) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('From value must be less than or equal to To value'),
-                          ),
-                        );
+                        setState(() {
+                          _errorMessage = 'From value must be less than or equal to To value';
+                        });
                         return;
                       }
                       

@@ -336,7 +336,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                 ),
               ),
             ),
-            _buildContentSection(state),
+         //   _buildContentSection(state),
             _buildProductGrid(),
           ],
         ),

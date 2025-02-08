@@ -137,7 +137,7 @@ class PostProvider extends ChangeNotifier {
         isNegatable: isNegatable,
         childCategoryId: _selectedChildCategory!.id,
         attributeValues: attributeRequests,
-        numericFieldValues: getFormattedNumericValues(), // Add this line
+        numericValues: getFormattedNumericValues(), // Add this line
       );
 
       final result = await createPostUseCase(params: post);

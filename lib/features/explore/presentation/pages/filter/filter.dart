@@ -13,8 +13,10 @@ import 'package:list_in/core/router/go_router.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
+import 'package:list_in/features/explore/presentation/pages/screens/detailed_page.dart';
 import 'package:list_in/features/post/data/models/attribute_model.dart';
 import 'package:list_in/features/post/data/models/attribute_value_model.dart';
+import 'package:list_in/features/post/data/models/nomeric_field_model.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 // ignore: must_be_immutable
@@ -131,9 +133,7 @@ class _FiltersPageState extends State<FiltersPage>
                                         Text(
                                           "Clear",
                                           style: TextStyle(
-                                            fontSize: 15,
-                                            color: Colors.blue
-                                          ),
+                                              fontSize: 15, color: Colors.blue),
                                         )
                                       ],
                                     ),
@@ -234,8 +234,6 @@ class _FiltersPageState extends State<FiltersPage>
                                   Column(
                                     children: state.orderedAttributes
                                         .map((attribute) {
-                                      final cubit =
-                                          context.read<HomeTreeCubit>();
                                       final selectedValue = cubit
                                           .getSelectedAttributeValue(attribute);
                                       final selectedValues =
@@ -409,6 +407,84 @@ class _FiltersPageState extends State<FiltersPage>
                                       );
                                     }).toList(),
                                   ),
+                                  // Add this after the existing attributes Column
+                                  if (state.numericFields.isNotEmpty) ...[
+                                    Column(
+                                      children: state.numericFields
+                                          .map((numericField) {
+                                        final fieldValues =
+                                            state.numericFieldValues[
+                                                numericField.id];
+
+                                        // Determine the display text based on selected values
+                                        String displayText =
+                                            numericField.fieldName;
+                                        if (fieldValues != null) {
+                                          final from = fieldValues['from'];
+                                          final to = fieldValues['to'];
+
+                                          if (from != null && to != null) {
+                                            displayText = '$from - $to';
+                                          } else if (from != null) {
+                                            displayText = '≥ $from';
+                                          } else if (to != null) {
+                                            displayText = '≤ $to';
+                                          }
+                                        }
+
+                                        return Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 4),
+                                          child: SizedBox(
+                                            width: double.infinity,
+                                            child: FilterChip(
+                                              showCheckmark: false,
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: 16, vertical: 16),
+                                              label: Row(
+                                                mainAxisSize: MainAxisSize.max,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    displayText,
+                                                    style: TextStyle(
+                                                      color: AppColors.black,
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                      fontSize: 16,
+                                                    ),
+                                                  ),
+                                                  Icon(
+                                                    Icons
+                                                        .arrow_forward_ios_rounded,
+                                                    size: 16,
+                                                  )
+                                                ],
+                                              ),
+                                              side: BorderSide(
+                                                  width: 1,
+                                                  color:
+                                                      AppColors.containerColor),
+                                              shape: SmoothRectangleBorder(
+                                                smoothness: 1,
+                                                borderRadius:
+                                                    BorderRadius.circular(14),
+                                              ),
+                                              selected: fieldValues != null,
+                                              backgroundColor: AppColors.white,
+                                              selectedColor: AppColors.white,
+                                              onSelected: (_) {
+                                                _showNumericFieldBottomSheet(
+                                                    context, numericField);
+                                              },
+                                            ),
+                                          ),
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ],
                                 ],
                             ],
                           ),
@@ -444,6 +520,33 @@ class _FiltersPageState extends State<FiltersPage>
               ],
             );
           },
+        ),
+      ),
+    );
+  }
+
+  void _showNumericFieldBottomSheet(
+      BuildContext context, NomericFieldModel field) {
+    final cubit = context.read<HomeTreeCubit>();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useRootNavigator: true,
+      backgroundColor: Colors.white,
+      builder: (context) => BlocProvider.value(
+        value: cubit,
+        child: Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: NumericFieldBottomSheet(
+            field: field,
+            initialValues: cubit.state.numericFieldValues[field.id],
+            onRangeSelected: (from, to) {
+              cubit.setNumericFieldRange(field.id, from, to);
+            },
+          ),
         ),
       ),
     );
@@ -1500,6 +1603,10 @@ class _FiltersPageState extends State<FiltersPage>
                               'attributeState': attributeState,
                               'priceFrom': state.priceFrom,
                               'priceTo': state.priceTo,
+                              'numericFieldState': {
+                                'numericFields': state.numericFields,
+                                'numericFieldValues': state.numericFieldValues,
+                              },
                             });
                             context
                                 .read<HomeTreeCubit>()

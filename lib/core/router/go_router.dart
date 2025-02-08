@@ -27,6 +27,7 @@ import 'package:list_in/features/post/data/models/attribute_value_model.dart';
 import 'package:list_in/features/post/data/models/blabla.dart';
 import 'package:list_in/features/post/data/models/category_model.dart';
 import 'package:list_in/features/post/data/models/child_category_model.dart';
+import 'package:list_in/features/post/data/models/nomeric_field_model.dart';
 import 'package:list_in/features/post/domain/usecases/get_catalogs_usecase.dart';
 import 'package:list_in/features/post/presentation/pages/post_screen.dart';
 import 'package:list_in/features/profile/domain/entity/user/user_profile_entity.dart';
@@ -353,6 +354,10 @@ class AppRouter {
                             final childAttributeValueId =
                                 extraData['childAttributeValueId'] as String?;
 
+                            final numericFieldState =
+                                extraData['numericFieldState']
+                                    as Map<String, dynamic>?;
+
                             final priceFrom = extraData['priceFrom'] as double?;
                             final priceTo = extraData['priceTo'] as double?;
 
@@ -430,6 +435,22 @@ class AppRouter {
                                     childAttributeKeyId,
                                     childAttributeValueId,
                                   );
+                                }
+
+                                // Handle numeric field state
+                                if (numericFieldState != null) {
+                                  final numericFields =
+                                      numericFieldState['numericFields']
+                                          as List<NomericFieldModel>;
+                                  final numericFieldValues =
+                                      numericFieldState['numericFieldValues']
+                                          as Map<String, Map<String, int>>;
+
+                                  // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
+                                  cubit.emit(cubit.state.copyWith(
+                                    numericFields: numericFields,
+                                    numericFieldValues: numericFieldValues,
+                                  ));
                                 }
 
                                 return cubit;

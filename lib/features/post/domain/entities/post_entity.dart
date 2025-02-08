@@ -21,7 +21,7 @@ class PostEntity {
   final String productCondition;
   final String childCategoryId;
   final List<AttributeRequestValue> attributeValues;
-  final List<NumericRequestValue> numericFieldValues; 
+  final List<NumericRequestValue> numericValues; 
 
   PostEntity({
     required this.isNegatable,
@@ -41,7 +41,7 @@ class PostEntity {
     required this.productCondition,
     required this.childCategoryId,
     required this.attributeValues,
-    required this.numericFieldValues,
+    required this.numericValues,
   });
 
   PostModel toModel() => PostModel(
@@ -62,5 +62,5 @@ class PostEntity {
       isNegatable: isNegatable,
       childCategoryId: childCategoryId,
       attributeValues: attributeValues,
-      numericFieldValues: numericFieldValues,);
+      numericValues: numericValues,);
 }
