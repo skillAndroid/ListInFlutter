@@ -19,3 +19,20 @@ class AttributeRequestValue {
     return 'AttributeRequestValue(attributeId: $attributeId, attributeValueIds: $attributeValueIds)';
   }
 }
+
+class NumericRequestValue {
+  final String numericFieldId;
+  final String numericValue;
+
+  NumericRequestValue({
+    required this.numericFieldId,
+    required this.numericValue,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'numericFieldId': numericFieldId,
+      'numericValue': numericValue,
+    };
+  }
+}

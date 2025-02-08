@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
@@ -24,32 +26,43 @@ class PostRepositoryImpl implements PostRepository {
   @override
   Future<Either<Failure, List<CategoryModel>>> getCategories() async {
     try {
+      print("🔍 Проверяем кэшированные данные...");
       if (await localDataSource.hasCachedData()) {
         final localCatalogs = await localDataSource.getCachedCategories();
-
+        print("✅ Данные найдены в кэше. Возвращаем локальные данные.");
         return Right(localCatalogs);
       }
 
+      print("🌐 Проверяем подключение к интернету...");
       final isConnected = await networkInfo.isConnected;
 
       if (isConnected) {
         try {
+          print("📡 Запрашиваем данные с сервера...");
           final remoteCatalogs = await remoteDataSource.getCatalogs();
 
+          print("💾 Кэшируем полученные данные...");
           await localDataSource.cacheCatalogs(remoteCatalogs);
 
+          print("✅ Данные успешно загружены с сервера и закэшированы.");
           return Right(remoteCatalogs);
         } catch (e) {
+          print("❌ Ошибка при получении данных с сервера: $e");
           rethrow;
         }
       } else {
+        print(
+            "⚠️ Нет подключения к интернету. Возвращаем ошибку NetworkFailure.");
         return Left(NetworkFailure());
       }
     } on ServerExeption {
+      print("🛑 Ошибка сервера! Возвращаем ServerFailure.");
       return Left(ServerFailure());
     } on CacheExeption {
+      print("🗄️ Ошибка кэша! Возвращаем CacheFailure.");
       return Left(CacheFailure());
     } catch (e) {
+      print("❓ Непредвиденная ошибка: $e. Возвращаем UnexpectedFailure.");
       return Left(UnexpectedFailure());
     }
   }

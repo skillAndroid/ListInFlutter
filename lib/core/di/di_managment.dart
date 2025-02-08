@@ -38,6 +38,7 @@ import 'package:list_in/features/post/data/models/attribute_model.dart';
 import 'package:list_in/features/post/data/models/attribute_value_model.dart';
 import 'package:list_in/features/post/data/models/category_model.dart';
 import 'package:list_in/features/post/data/models/child_category_model.dart';
+import 'package:list_in/features/post/data/models/nomeric_field_model.dart';
 import 'package:list_in/features/post/data/models/sub_model.dart';
 import 'package:list_in/features/post/data/repository/post_repository_impl.dart';
 import 'package:list_in/features/post/data/sources/post_local_data_source.dart';
@@ -76,7 +77,7 @@ Future<void> init() async {
     dio.options
       ..baseUrl = 'http://listin.uz'
       ..connectTimeout = const Duration(seconds: 5)
-      ..receiveTimeout = const Duration(seconds: 8)
+      ..receiveTimeout = const Duration(minutes: 3)
       ..sendTimeout = const Duration(minutes: 3);
 
     if (dio.httpClientAdapter is IOHttpClientAdapter) {
@@ -137,6 +138,7 @@ Future<void> init() async {
   Hive.registerAdapter(AttributeModelAdapter());
   Hive.registerAdapter(AttributeValueModelAdapter());
   Hive.registerAdapter(SubModelAdapter());
+  Hive.registerAdapter(NomericFieldModelAdapter());
 
   final catalogBox = await Hive.openBox<CategoryModel>('catalogs');
 

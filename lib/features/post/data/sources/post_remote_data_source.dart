@@ -38,12 +38,15 @@ class CatalogRemoteDataSourceImpl implements CatalogRemoteDataSource {
                 .map((json) =>
                     CategoryModel.fromJson(json as Map<String, dynamic>))
                 .toList();
-
+            debugPrint("😤😤 Success in remoute fetching data!");
+            debugPrint("😤😤 ${catalogs.length}");
             return catalogs;
           } catch (e) {
+            debugPrint("😤😤 Parsing data !$e");
             throw ServerExeption(message: 'Error parsing catalog data: $e');
           }
         } else {
+          debugPrint("😤😤Invalid response format: expected a list");
           throw ServerExeption(
               message: 'Invalid response format: expected a list');
         }
@@ -53,12 +56,16 @@ class CatalogRemoteDataSourceImpl implements CatalogRemoteDataSource {
     } on DioException catch (e) {
       if (e.type == DioExceptionType.connectionTimeout ||
           e.type == DioExceptionType.receiveTimeout) {
+        debugPrint("😤😤DIO ERROR: $e");
         throw ServerExeption(message: 'Connection timeout');
       } else if (e.response?.statusCode == 401) {
+        debugPrint("😤😤DIO ERROR: $e");
         throw ServerExeption(message: 'Invalid or expired token');
       }
+      debugPrint("😤😤DIO ERROR: $e");
       throw ServerExeption(message: e.message ?? 'Server error');
     } catch (e) {
+      debugPrint("😤😤Error try chatch : $e");
       throw ServerExeption(message: e.toString());
     }
   }

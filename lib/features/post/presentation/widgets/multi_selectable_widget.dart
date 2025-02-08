@@ -31,9 +31,9 @@ class MultiSelectableWidget extends StatelessWidget {
           child: Text(
             attribute.helperText,
             style: const TextStyle(
-              color: AppColors.grey,
+              color: AppColors.black,
               fontSize: 15,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.bold,
             ),
           ),
         ),
@@ -88,6 +88,7 @@ class MultiSelectableWidget extends StatelessWidget {
             ),
             padding: WidgetStateProperty.all(EdgeInsets.zero),
             elevation: WidgetStateProperty.all(0),
+            backgroundColor: WidgetStateProperty.all(AppColors.white),
             foregroundColor: WidgetStateProperty.all(Colors.black),
             shape: WidgetStateProperty.all(
               SmoothRectangleBorder(
@@ -133,9 +134,10 @@ class MultiSelectableWidget extends StatelessWidget {
           child: provider.isAttributeOptionsVisible(attribute)
               ? Card(
                   shape: SmoothRectangleBorder(
-                    smoothness: 1,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+                      smoothness: 1,
+                      borderRadius: BorderRadius.circular(16),
+                      side: BorderSide(
+                          width: 1, color: AppColors.containerColor)),
                   margin: const EdgeInsets.symmetric(vertical: 4),
                   color: AppColors.containerColor,
                   elevation: 0,

@@ -13,6 +13,7 @@ import 'package:list_in/features/post/data/models/attribute_value_model.dart';
 import 'package:list_in/features/post/data/models/blabla.dart';
 import 'package:list_in/features/post/data/models/category_model.dart';
 import 'package:list_in/features/post/data/models/child_category_model.dart';
+import 'package:list_in/features/post/data/models/nomeric_field_model.dart';
 import 'package:list_in/features/post/domain/entities/post_entity.dart';
 import 'package:list_in/features/post/domain/usecases/create_post_usecase.dart';
 import 'package:list_in/features/post/domain/usecases/get_catalogs_usecase.dart';
@@ -136,6 +137,7 @@ class PostProvider extends ChangeNotifier {
         isNegatable: isNegatable,
         childCategoryId: _selectedChildCategory!.id,
         attributeValues: attributeRequests,
+        numericFieldValues: getFormattedNumericValues(), // Add this line
       );
 
       final result = await createPostUseCase(params: post);
@@ -396,9 +398,13 @@ class PostProvider extends ChangeNotifier {
     }
     _selectedChildCategory = childCategory;
     _currentAttributes = childCategory.attributes;
+    _currentNumericFields = childCategory.numericFields; // Add this line
+
     if (_selectedChildCategory?.id != childCategory.id) {
       _selectedChildCategory = childCategory;
       _currentAttributes = childCategory.attributes;
+      _currentNumericFields = childCategory.numericFields; // Add this line
+
       if (_childCategorySelections.containsKey(childCategory.id)) {
         _selectedValues.clear();
         _selectedValues.addAll(_childCategorySelections[childCategory.id]!);
@@ -638,8 +644,10 @@ class PostProvider extends ChangeNotifier {
     _selectedCatalog = null;
     _selectedChildCategory = null;
     _currentAttributes = [];
+    _currentNumericFields = []; // Add this line
     dynamicAttributes = [];
     _selectedValues.clear();
+    _numericFieldValues.clear(); // Add this line
     _catalogHistory.clear();
     _childCategoryHistory.clear();
     _childCategorySelections.clear();
@@ -658,8 +666,33 @@ class PostProvider extends ChangeNotifier {
     _childCategorySelections.remove(newChildCategory.id);
     _childCategoryDynamicAttributes.remove(newChildCategory.id);
     _selectedValues.clear();
+    _numericFieldValues.clear(); // Add this line
     dynamicAttributes.clear();
     notifyListeners();
+  }
+
+  final Map<String, double> _numericFieldValues = {};
+  List<NomericFieldModel> _currentNumericFields = [];
+
+  // Getter for numeric fields
+  List<NomericFieldModel> get currentNumericFields => _currentNumericFields;
+  Map<String, double> get numericFieldValues => _numericFieldValues;
+
+  void setNumericFieldValue(String fieldId, double value) {
+    _numericFieldValues[fieldId] = value;
+  }
+
+  double? getNumericFieldValue(String fieldId) {
+    return _numericFieldValues[fieldId];
+  }
+
+  List<NumericRequestValue> getFormattedNumericValues() {
+    return _numericFieldValues.entries
+        .map((entry) => NumericRequestValue(
+              numericFieldId: entry.key,
+              numericValue: entry.value.toString(),
+            ))
+        .toList();
   }
 
   // Post 2nd part : Seller informations, images & videos, nessary details
@@ -820,7 +853,8 @@ class PostProvider extends ChangeNotifier {
     _selectedAttributeValues.clear();
     _childCategorySelections.clear();
     _childCategoryDynamicAttributes.clear();
-
+    _numericFieldValues.clear();
+    _currentNumericFields = [];
     _postTitle = "";
     _postDescription = "";
     _price = 0.0;

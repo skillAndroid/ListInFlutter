@@ -1,5 +1,6 @@
 import 'package:list_in/features/post/data/models/attribute_model.dart';
 import 'package:hive/hive.dart';
+import 'package:list_in/features/post/data/models/nomeric_field_model.dart';
 part 'child_category_model.g.dart';
 
 @HiveType(typeId: 1)
@@ -14,6 +15,8 @@ class ChildCategoryModel {
   List<AttributeModel> attributes;
   @HiveField(4)
   String logoUrl;
+  @HiveField(5)
+  List<NomericFieldModel> numericFields;
 
   ChildCategoryModel({
     required this.id,
@@ -21,6 +24,7 @@ class ChildCategoryModel {
     required this.description,
     required this.attributes,
     required this.logoUrl,
+    required this.numericFields,
   });
 
   factory ChildCategoryModel.fromJson(Map<String, dynamic> json) {
@@ -32,6 +36,10 @@ class ChildCategoryModel {
       attributes: (json['attributes'] as List)
           .map((attrJson) => AttributeModel.fromJson(attrJson))
           .toList(),
+      numericFields: (json['numericFields'] as List?)
+              ?.map((fieldJson) => NomericFieldModel.fromJson(fieldJson))
+              .toList() ??
+          [],
     );
   }
 }

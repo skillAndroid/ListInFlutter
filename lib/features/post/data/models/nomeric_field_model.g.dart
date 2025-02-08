@@ -1,47 +1,44 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'child_category_model.dart';
+part of 'nomeric_field_model.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class ChildCategoryModelAdapter extends TypeAdapter<ChildCategoryModel> {
+class NomericFieldModelAdapter extends TypeAdapter<NomericFieldModel> {
   @override
-  final int typeId = 1;
+  final int typeId = 5;
 
   @override
-  ChildCategoryModel read(BinaryReader reader) {
+  NomericFieldModel read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return ChildCategoryModel(
+    return NomericFieldModel(
       id: fields[0] as String,
-      name: fields[1] as String,
+      fieldName: fields[1] as String,
       description: fields[2] as String,
-      attributes: (fields[3] as List).cast<AttributeModel>(),
-      logoUrl: fields[4] as String,
-      numericFields: (fields[5] as List).cast<NomericFieldModel>(),
+      descriptionUz: fields[3] as String,
+      descriptionRu: fields[4] as String,
     );
   }
 
   @override
-  void write(BinaryWriter writer, ChildCategoryModel obj) {
+  void write(BinaryWriter writer, NomericFieldModel obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
-      ..write(obj.name)
+      ..write(obj.fieldName)
       ..writeByte(2)
       ..write(obj.description)
       ..writeByte(3)
-      ..write(obj.attributes)
+      ..write(obj.descriptionUz)
       ..writeByte(4)
-      ..write(obj.logoUrl)
-      ..writeByte(5)
-      ..write(obj.numericFields);
+      ..write(obj.descriptionRu);
   }
 
   @override
@@ -50,7 +47,7 @@ class ChildCategoryModelAdapter extends TypeAdapter<ChildCategoryModel> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is ChildCategoryModelAdapter &&
+      other is NomericFieldModelAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
