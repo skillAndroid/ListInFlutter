@@ -671,18 +671,18 @@ class PostProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  final Map<String, double> _numericFieldValues = {};
+  final Map<String, String> _numericFieldValues = {};
   List<NomericFieldModel> _currentNumericFields = [];
 
   // Getter for numeric fields
   List<NomericFieldModel> get currentNumericFields => _currentNumericFields;
-  Map<String, double> get numericFieldValues => _numericFieldValues;
+  Map<String, String> get numericFieldValues => _numericFieldValues;
 
-  void setNumericFieldValue(String fieldId, double value) {
+  void setNumericFieldValue(String fieldId, String value) {
     _numericFieldValues[fieldId] = value;
   }
 
-  double? getNumericFieldValue(String fieldId) {
+  String? getNumericFieldValue(String fieldId) {
     return _numericFieldValues[fieldId];
   }
 

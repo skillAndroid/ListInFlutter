@@ -61,25 +61,23 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
       setState(() => _isCollapsed = false);
     }
   }
-
-  Widget _buildFeatureChip(String text) {
-    return SmoothClipRRect(
-      side: BorderSide(width: 1, color: AppColors.containerColor),
-      borderRadius: BorderRadius.circular(8),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        color: AppColors.white,
-        child: Text(
-          text,
-          style: const TextStyle(
-            fontWeight: FontWeight.w400,
-            color: AppColors.darkGray,
-          ),
+Widget _buildFeatureChip(String text) {
+  return SmoothClipRRect(
+    side: BorderSide(width: 1, color: AppColors.containerColor),
+    borderRadius: BorderRadius.circular(8),
+    child: Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      color: AppColors.white,
+      child: Text(
+        text,
+        style: const TextStyle(
+          fontWeight: FontWeight.w400,
+          color: AppColors.darkGray,
         ),
       ),
-    );
-  }
-
+    ),
+  );
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -107,7 +105,8 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
       children: [
         const SizedBox(height: 16),
         _buildProductTitle(),
-        if (enAttributes.isNotEmpty) _buildFeatures(enAttributes),
+       if (enAttributes.isNotEmpty || widget.product.attributeValue.numericValues.isNotEmpty) 
+        _buildFeatures(enAttributes),
         _buildDivider(),
         _buildSellerInfo(),
         _buildDivider(),
@@ -861,29 +860,36 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
       ),
     );
   }
-
-  Widget _buildFeatures(enAttributes) {
-    final List<String> features = [];
-
-    enAttributes.forEach((key, values) {
-      if (values.isNotEmpty) {
-        if (values.length == 1) {
-          features.add('$key: ${values[0]}');
-        } else {
-          features.add('$key: ${values.join(', ')}');
-        }
+Widget _buildFeatures(Map<String, List<String>> enAttributes) {
+  final List<String> features = [];
+  
+  // Add regular attributes
+  enAttributes.forEach((key, values) {
+    if (values.isNotEmpty) {
+      if (values.length == 1) {
+        features.add('$key: ${values[0]}');
+      } else {
+        features.add('$key: ${values.join(', ')}');
       }
-    });
-
-    return Padding(
-      padding: const EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 8),
-      child: Wrap(
-        spacing: 5,
-        runSpacing: 5,
-        children: features.map(_buildFeatureChip).toList(),
-      ),
-    );
+    }
+  });
+  
+  // Add numeric values
+  for (var numericValue in widget.product.attributeValue.numericValues) {
+    if (numericValue.numericValue.isNotEmpty) {
+      features.add('${numericValue.numericField}: ${numericValue.numericValue}');
+    }
   }
+
+  return Padding(
+    padding: const EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 8),
+    child: Wrap(
+      spacing: 5,
+      runSpacing: 5,
+      children: features.map(_buildFeatureChip).toList(),
+    ),
+  );
+}
 
   Widget _buildProductTitle() {
     return Padding(

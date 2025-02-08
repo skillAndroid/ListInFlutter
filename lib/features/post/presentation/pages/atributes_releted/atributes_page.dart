@@ -105,7 +105,15 @@ class AttributesPage extends StatelessWidget {
                   keyboardType:
                       const TextInputType.numberWithOptions(decimal: true),
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+                    FilteringTextInputFormatter.digitsOnly,
+                    TextInputFormatter.withFunction((oldValue, newValue) {
+                      // If the first character is '0', reject the input
+                      if (newValue.text.startsWith('0') &&
+                          newValue.text.isNotEmpty) {
+                        return oldValue;
+                      }
+                      return newValue;
+                    }),
                   ],
                   decoration: InputDecoration(
                     fillColor: AppColors.white,
@@ -121,17 +129,15 @@ class AttributesPage extends StatelessWidget {
                         color: AppColors.black,
                       ),
                       onPressed: () {
-                        provider.setNumericFieldValue(numericField.id, 0);
+                        provider.setNumericFieldValue(numericField.id, '0');
                       },
                     ),
                   ),
                   onChanged: (value) {
                     if (value.isNotEmpty) {
-                      final numericValue = double.tryParse(value);
-                      if (numericValue != null) {
-                        provider.setNumericFieldValue(
-                            numericField.id, numericValue);
-                      }
+                      final numericValue = value.toString();
+                      provider.setNumericFieldValue(
+                          numericField.id, numericValue);
                     }
                   },
                 ),

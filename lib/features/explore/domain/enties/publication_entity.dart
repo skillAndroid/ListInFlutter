@@ -1,3 +1,5 @@
+import 'package:list_in/features/explore/data/models/publication_model.dart';
+
 class PublicationPairEntity {
   final bool isSponsored;
   final bool isLast;
@@ -70,11 +72,13 @@ class AttributeValueEntity {
   final String parentCategory;
   final String category;
   final Map<String, Map<String, List<String>>> attributes;
+  final List<NumericValueField> numericValues;
 
   AttributeValueEntity({
     required this.parentCategory,
     required this.category,
     required this.attributes,
+    required this.numericValues,
   });
 }
 

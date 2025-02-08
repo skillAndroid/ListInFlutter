@@ -204,37 +204,45 @@ class AttributeValueModel {
   final String parentCategory;
   final String category;
   final Map<String, Map<String, List<String>>> attributes;
+  final List<NumericValueField> numericValues;
 
   AttributeValueModel({
     required this.parentCategory,
     required this.category,
     required this.attributes,
+    required this.numericValues,
   });
 
   factory AttributeValueModel.fromJson(Map<String, dynamic> json) {
+    // Parse attributes
     Map<String, Map<String, List<String>>> attributes = {};
-
     final attributesData = json['attributes'] ?? {};
-
-    // Parse attributes for each language
     attributesData.forEach((language, attributeData) {
       if (attributeData is Map) {
         Map<String, List<String>> languageMap = {};
-
         attributeData.forEach((key, value) {
           if (value is List) {
             languageMap[key] = List<String>.from(value);
           }
         });
-
         attributes[language] = languageMap;
       }
     });
+
+    // Parse numeric values
+    List<NumericValueField> numericValues = [];
+    final numericValuesData = json['numericValues'] ?? [];
+    if (numericValuesData is List) {
+      numericValues = numericValuesData
+          .map((item) => NumericValueField.fromJson(item))
+          .toList();
+    }
 
     return AttributeValueModel(
       parentCategory: json['parentCategory']?.toString() ?? '',
       category: json['category']?.toString() ?? '',
       attributes: attributes,
+      numericValues: numericValues,
     );
   }
 
@@ -243,6 +251,30 @@ class AttributeValueModel {
       parentCategory: parentCategory,
       category: category,
       attributes: attributes,
+      numericValues: numericValues,
+    );
+  }
+}
+
+class NumericValueField {
+  final String numericField;
+  final String numericFieldUz;
+  final String numericFieldRu;
+  final String numericValue;
+
+  NumericValueField({
+    required this.numericField,
+    required this.numericFieldUz,
+    required this.numericFieldRu,
+    required this.numericValue,
+  });
+
+  factory NumericValueField.fromJson(Map<String, dynamic> json) {
+    return NumericValueField(
+      numericField: json['numericField']?.toString() ?? '',
+      numericFieldUz: json['numericFieldUz']?.toString() ?? '',
+      numericFieldRu: json['numericFieldRu']?.toString() ?? '',
+      numericValue: json['numericValue']?.toString() ?? '',
     );
   }
 }

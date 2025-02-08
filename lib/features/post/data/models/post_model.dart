@@ -53,7 +53,7 @@ class PostModel extends PostEntity {
           .entries
           .map((entry) => NumericRequestValue(
                 numericFieldId: entry.key,
-                numericValue: entry.value.toDouble, // Приводим к строке
+                numericValue: entry.value, // Приводим к строке
               ))
           .toList(), // Add this line
     );
