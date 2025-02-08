@@ -32,6 +32,7 @@ class _ProductConditionPageState extends State<ProductConditionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.white,
       body: Padding(
         padding: const EdgeInsets.symmetric(
           vertical: 16.0,
@@ -79,14 +80,14 @@ class _ProductConditionPageState extends State<ProductConditionPage> {
       onTap: () => _updateCondition(value),
       child: SmoothClipRRect(
         smoothness: 1,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(16),
         side: BorderSide(
-          color: isSelected ? AppColors.black : Colors.transparent,
-          width: 2,
+          color: isSelected ? AppColors.black : AppColors.containerColor,
+          width: 1.5,
         ),
         child: Container(
           padding: const EdgeInsets.all(16),
-          color: AppColors.containerColor,
+          color: AppColors.white,
           child: Row(
             children: [
               Expanded(

@@ -138,9 +138,9 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
       tween: Tween<double>(begin: _progressValue, end: _progressValue),
       builder: (context, value, _) => LinearProgressIndicator(
         value: value,
-        backgroundColor: AppColors.containerColor,
+        backgroundColor: AppColors.containerColor.withOpacity(0.7),
         valueColor: AlwaysStoppedAnimation<Color>(
-          AppColors.lighterGray.withOpacity(0.5),
+          AppColors.lighterGray.withOpacity(0.3),
         ),
         minHeight: double.infinity,
       ),
@@ -179,7 +179,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
           child: AbsorbPointer(
             absorbing: _isLoading,
             child: Scaffold(
-              backgroundColor: AppColors.bgColor,
+              backgroundColor: AppColors.white,
               appBar: _buildAppBar(context),
               body: Stack(
                 children: [
@@ -281,8 +281,8 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
         'Create Post',
         style: TextStyle(
           fontWeight: FontWeight.w700,
-          fontFamily: "Syne",
-          fontSize: 21,
+          fontFamily: "Poppins",
+          fontSize: 20,
           color: AppColors.black,
         ),
       ),
@@ -348,7 +348,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
           style: ElevatedButton.styleFrom(
             shape: SmoothRectangleBorder(
               smoothness: 1,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(16),
             ),
             backgroundColor:
                 canProceed ? AppColors.black : AppColors.lighterGray,

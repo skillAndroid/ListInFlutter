@@ -143,6 +143,7 @@ class _AddPricePageState extends State<AddPricePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.white,
       body: Padding(
         padding: const EdgeInsets.symmetric(
           vertical: 16.0,
@@ -166,10 +167,10 @@ class _AddPricePageState extends State<AddPricePage> {
               height: 52,
               child: SmoothClipRRect(
                 smoothness: 1,
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(16),
                 side: BorderSide(
-                  color: _errorText != null ? Colors.red : AppColors.black,
-                  width: 2,
+                  color: AppColors.containerColor,
+                  width: 1,
                   style: _isFocused ? BorderStyle.solid : BorderStyle.none,
                 ),
                 child: TextField(
@@ -179,8 +180,8 @@ class _AddPricePageState extends State<AddPricePage> {
                   inputFormatters: [
                     FilteringTextInputFormatter.digitsOnly,
                   ],
-                  decoration: const InputDecoration(
-                    fillColor: AppColors.containerColor,
+                  decoration: InputDecoration(
+                    fillColor: AppColors.containerColor.withOpacity(0.3),
                     border: OutlineInputBorder(),
                     hintText: 'Currency: UZS',
                     contentPadding: EdgeInsets.all(14),

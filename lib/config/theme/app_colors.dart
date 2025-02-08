@@ -9,7 +9,7 @@ class AppColors {
       Color.fromARGB(255, 143, 234, 149); // Light green for secondary elements
   static const primaryDark = Color(0xFF1B5E20); // Dark green for emphasis
   // static const bgColor = Color.fromARGB(255, 252, 252, 252);// Color(0xFFFFFAFA);
-  static const bgColor = Color.fromARGB(255, 255, 255, 255);
+  static const bgColor = Color.fromARGB(255, 254, 254, 254);
   static const secondaryColor = Color(0xFF274646);
   // static const littleGreen = Color(0xFFCFE9DC);
   static const littleGreen = Color(0xFFA8F6D4);

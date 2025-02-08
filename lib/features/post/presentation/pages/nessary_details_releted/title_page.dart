@@ -30,7 +30,7 @@ class _AddTitlePageState extends State<AddTitlePage> {
 
     _focusNode = FocusNode();
     _focusNode.addListener(_onFocusChange);
-    
+
     // Initial validation
     _validateInput(_titleController.text);
   }
@@ -50,7 +50,8 @@ class _AddTitlePageState extends State<AddTitlePage> {
       if (value.isEmpty) {
         _errorText = 'Title is required';
       } else if (value.length < _minLength) {
-        _errorText = 'Title must be at least $_minLength characters (${value.length}/$_minLength)';
+        _errorText =
+            'Title must be at least $_minLength characters (${value.length}/$_minLength)';
       } else if (value.length > _maxLength) {
         _errorText = 'Title cannot exceed $_maxLength characters';
       } else {
@@ -74,12 +75,13 @@ class _AddTitlePageState extends State<AddTitlePage> {
     if (!_isDirty && !_isFocused) return Colors.transparent;
     if (_errorText != null) return Colors.red;
     if (_isFocused) return AppColors.black;
-    return Colors.transparent;
+    return AppColors.containerColor;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.white,
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16),
         child: Column(
@@ -100,10 +102,10 @@ class _AddTitlePageState extends State<AddTitlePage> {
               height: 52,
               child: SmoothClipRRect(
                 smoothness: 1,
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(16),
                 side: BorderSide(
-                  color: _getBorderColor(),
-                  width: 2,
+                  color:  AppColors.containerColor,
+                  width: 1,
                   style: BorderStyle.solid,
                 ),
                 child: TextField(
@@ -111,7 +113,7 @@ class _AddTitlePageState extends State<AddTitlePage> {
                   focusNode: _focusNode,
                   maxLength: _maxLength,
                   decoration: InputDecoration(
-                    fillColor: AppColors.containerColor,
+                    fillColor: AppColors.containerColor.withOpacity(0.3),
                     filled: true,
                     border: OutlineInputBorder(
                       borderSide: BorderSide.none,

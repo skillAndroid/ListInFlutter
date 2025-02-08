@@ -29,7 +29,7 @@ class CatalogListPage extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   shape: SmoothRectangleBorder(
                     smoothness: 1,
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(14),
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 2),
                 ),
