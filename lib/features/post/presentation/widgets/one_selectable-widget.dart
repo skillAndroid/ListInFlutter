@@ -26,7 +26,7 @@ class OneSelectableWidget extends StatelessWidget {
             style: const TextStyle(
               color: AppColors.black,
               fontSize: 15,
-              fontWeight: FontWeight.bold ,
+              fontWeight: FontWeight.bold,
             ),
           ),
         ),
@@ -49,7 +49,8 @@ class OneSelectableWidget extends StatelessWidget {
                     ),
                     padding: WidgetStateProperty.all(EdgeInsets.zero),
                     elevation: WidgetStateProperty.all(0),
-                    backgroundColor: WidgetStateProperty.all(AppColors.white),
+                    backgroundColor:
+                        WidgetStateProperty.all(AppColors.containerColor),
                     foregroundColor: WidgetStateProperty.all(Colors.black),
                     shape: WidgetStateProperty.all(
                       SmoothRectangleBorder(
@@ -96,7 +97,7 @@ class OneSelectableWidget extends StatelessWidget {
                               side: BorderSide(
                                   width: 1, color: AppColors.containerColor)),
                           margin: const EdgeInsets.symmetric(vertical: 4),
-                          color: AppColors.white,
+                          color: AppColors.containerColor,
                           elevation: 0,
                           clipBehavior: Clip.antiAlias,
                           child: ConstrainedBox(

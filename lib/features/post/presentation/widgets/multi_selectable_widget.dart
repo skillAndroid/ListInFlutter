@@ -88,7 +88,7 @@ class MultiSelectableWidget extends StatelessWidget {
             ),
             padding: WidgetStateProperty.all(EdgeInsets.zero),
             elevation: WidgetStateProperty.all(0),
-            backgroundColor: WidgetStateProperty.all(AppColors.white),
+            backgroundColor: WidgetStateProperty.all(AppColors.containerColor),
             foregroundColor: WidgetStateProperty.all(Colors.black),
             shape: WidgetStateProperty.all(
               SmoothRectangleBorder(
