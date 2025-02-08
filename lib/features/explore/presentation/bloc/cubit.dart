@@ -300,6 +300,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
           categoryId: state.selectedCatalog?.id,
           subcategoryId: state.selectedChildCategory?.id,
           filters: state.generateFilterParameters(),
+          numerics: state._generateNumericFilters(),
         ),
       );
 
@@ -553,6 +554,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
           categoryId: state.selectedCatalog?.id,
           subcategoryId: state.selectedChildCategory?.id,
           filters: state.generateFilterParameters(),
+          numerics: state._generateNumericFilters(),
         ),
       );
 
@@ -882,6 +884,8 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
       selectedCatalog: state.selectedCatalog,
       selectedChildCategory: childCategory,
       currentAttributes: childCategory.attributes,
+      numericFields: childCategory.numericFields,
+      numericFieldValues: {},
       selectedValues: {}, // Clear all selected values
       dynamicAttributes: [], // Clear dynamic attributes
       selectedAttributeValues: {}, // Clear selected attribute values
@@ -895,6 +899,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     emit(state.copyWith(
       selectedValues: {},
       selectedAttributeValues: {},
+      numericFieldValues: {},
       dynamicAttributes: [],
       attributeOptionsVisibility: {},
       childCategorySelections: {},
@@ -1206,6 +1211,69 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     ));
   }
 
+  void setNumericFieldRange(String fieldId, int? from, int? to) {
+    final Map<String, Map<String, int>> newNumericFieldValues =
+        Map<String, Map<String, int>>.from(state.numericFieldValues);
+
+    // If both values are null, remove the field
+    if (from == null && to == null) {
+      newNumericFieldValues.remove(fieldId);
+    } else {
+      // Create or update the range for this field
+      newNumericFieldValues[fieldId] = {
+        'from': from ?? 0,
+        'to': to ?? 0,
+      };
+    }
+
+    emit(state.copyWith(
+      numericFieldValues: newNumericFieldValues,
+      filtersTrigered: true,
+    ));
+
+    // Trigger search or fetch based on current state
+    if (state.searchText != null) {
+      searchPage(0);
+    } else {
+      fetchChildPage(0);
+    }
+  }
+
+  void clearNumericField(String fieldId) {
+    final Map<String, Map<String, int>> newNumericFieldValues =
+        Map<String, Map<String, int>>.from(state.numericFieldValues);
+
+    newNumericFieldValues.remove(fieldId);
+
+    emit(state.copyWith(
+      numericFieldValues: newNumericFieldValues,
+      filtersTrigered: true,
+    ));
+
+    if (state.searchText != null) {
+      searchPage(0);
+    } else {
+      fetchChildPage(0);
+    }
+  }
+
+  void clearAllNumericFields() {
+    emit(state.copyWith(
+      numericFieldValues: {},
+      filtersTrigered: true,
+    ));
+
+    if (state.searchText != null) {
+      searchPage(0);
+    } else {
+      fetchChildPage(0);
+    }
+  }
+
+  Map<String, int>? getNumericFieldValues(String fieldId) {
+    return state.numericFieldValues[fieldId];
+  }
+
   @override
   Future<void> close() {
     _debounceTimer?.cancel();
@@ -1276,12 +1344,44 @@ extension AttributeFilterHelper on HomeTreeState {
 
     return filters;
   }
+
+  List<String> _generateNumericFilters() {
+    final List<String> filters = [];
+
+    numericFieldValues.forEach((fieldId, range) {
+      final fromValue = range['from'];
+      final toValue = range['to'];
+
+      if (fromValue != null || toValue != null) {
+        final from = (fromValue == null || fromValue == double.negativeInfinity)
+            ? ''
+            : fromValue.toString();
+        final to = (toValue == null || toValue == double.infinity)
+            ? ''
+            : toValue.toString();
+
+        if (from.isNotEmpty || to.isNotEmpty) {
+          filters.add('$fieldId:$from~$to');
+        }
+      }
+    });
+
+    return filters;
+  }
 }
 
 extension HomeTreeStateFilterTracking on HomeTreeState {
   bool hasFilterChanges(HomeTreeState previous) {
     final previousFilters = Set.from(previous.generateFilterParameters());
     final currentFilters = Set.from(generateFilterParameters());
+
     return !setEquals(previousFilters, currentFilters);
+  }
+
+  // Helper method to check if any filters are applied
+  bool hasAnyFilters() {
+    return selectedAttributeValues.isNotEmpty ||
+        selectedValues.isNotEmpty ||
+        numericFieldValues.isNotEmpty;
   }
 }

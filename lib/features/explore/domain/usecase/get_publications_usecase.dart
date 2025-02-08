@@ -15,18 +15,21 @@ class GetPublicationsParams {
   final String? categoryId;
   final String? subcategoryId;
   final List<String>? filters;
+  final List<String>? numerics;
 
-  GetPublicationsParams(
-      {this.query,
-      this.page,
-      this.size,
-      this.bargain,
-      this.condition,
-      this.priceFrom,
-      this.priceTo,
-      this.categoryId,
-      this.subcategoryId,
-      this.filters});
+  GetPublicationsParams({
+    this.query,
+    this.page,
+    this.size,
+    this.bargain,
+    this.condition,
+    this.priceFrom,
+    this.priceTo,
+    this.categoryId,
+    this.subcategoryId,
+    this.filters,
+    this.numerics,
+  });
 }
 
 class GetPublicationsUsecase
@@ -49,6 +52,7 @@ class GetPublicationsUsecase
       categoryId: params?.categoryId,
       subcategoryId: params?.subcategoryId,
       filters: params?.filters,
+      numeric : params?.numerics,
     );
   }
 }

@@ -29,6 +29,7 @@ class PublicationsRepositoryImpl implements PublicationsRepository {
     double? priceFrom,
     double? priceTo,
     List<String>? filters,
+    List<String>? numeric,
   }) async {
     if (await networkInfo.isConnected) {
       try {
@@ -43,6 +44,7 @@ class PublicationsRepositoryImpl implements PublicationsRepository {
           categoryId: categoryId,
           subcategoryId: subcategoryId,
           filters: filters,
+          numeric : numeric,
         );
         return Right(
           publications.map((pair) => pair.toEntity()).toList(),
@@ -81,17 +83,19 @@ class PublicationsRepositoryImpl implements PublicationsRepository {
   }
 
   @override
-  Future<Either<Failure, VideoPublicationsEntity>> getVideoPublications(
-      {String? categoryId,
-      String? subcategoryId,
-      String? query,
-      int? page,
-      int? size,
-      bool? bargain,
-      String? condition,
-      double? priceFrom,
-      double? priceTo,
-      List<String>? filters}) async {
+  Future<Either<Failure, VideoPublicationsEntity>> getVideoPublications({
+    String? categoryId,
+    String? subcategoryId,
+    String? query,
+    int? page,
+    int? size,
+    bool? bargain,
+    String? condition,
+    double? priceFrom,
+    double? priceTo,
+    List<String>? filters,
+    List<String>? numeric,
+  }) async {
     if (await networkInfo.isConnected) {
       try {
         final publications = await remoteDataSource.getVideoPublications(

@@ -5,6 +5,7 @@ import 'package:list_in/features/post/data/models/attribute_value_model.dart';
 import 'package:list_in/features/post/data/models/blabla.dart';
 import 'package:list_in/features/post/data/models/category_model.dart';
 import 'package:list_in/features/post/data/models/child_category_model.dart';
+import 'package:list_in/features/post/data/models/nomeric_field_model.dart';
 
 enum RequestState { idle, inProgress, completed, error }
 
@@ -32,6 +33,8 @@ class HomeTreeState {
   final Map<String, dynamic> selectedValues;
   final Map<AttributeModel, bool> attributeOptionsVisibility;
   final Map<AttributeModel, AttributeValueModel> selectedAttributeValues;
+  final List<NomericFieldModel> numericFields;
+  final Map<String, Map<String, int>> numericFieldValues;
   final List<CategoryModel> catalogHistory;
   final List<ChildCategoryModel> childCategoryHistory;
   final Map<String, Map<String, dynamic>> childCategorySelections;
@@ -109,6 +112,8 @@ class HomeTreeState {
     List<AttributeModel>? currentAttributes,
     List<AttributeModel>? dynamicAttributes,
     Map<String, dynamic>? selectedValues,
+    List<NomericFieldModel>? numericFields,
+    Map<String, Map<String, int>>? numericFieldValues,
     Map<AttributeModel, bool>? attributeOptionsVisibility,
     Map<AttributeModel, AttributeValueModel>? selectedAttributeValues,
     List<CategoryModel>? catalogHistory,
@@ -160,6 +165,8 @@ class HomeTreeState {
         selectedValues = selectedValues ?? {},
         attributeOptionsVisibility = attributeOptionsVisibility ?? {},
         selectedAttributeValues = selectedAttributeValues ?? {},
+        numericFields = numericFields ?? [],
+        numericFieldValues = numericFieldValues ?? {},
         catalogHistory = catalogHistory ?? [],
         childCategoryHistory = childCategoryHistory ?? [],
         childCategorySelections = childCategorySelections ?? {},
@@ -190,6 +197,8 @@ class HomeTreeState {
     Map<String, dynamic>? selectedValues,
     Map<AttributeModel, bool>? attributeOptionsVisibility,
     Map<AttributeModel, AttributeValueModel>? selectedAttributeValues,
+    List<NomericFieldModel>? numericFields,
+    Map<String, Map<String, int>>? numericFieldValues,
     List<CategoryModel>? catalogHistory,
     List<ChildCategoryModel>? childCategoryHistory,
     Map<String, Map<String, dynamic>>? childCategorySelections,
@@ -271,6 +280,8 @@ class HomeTreeState {
           attributeOptionsVisibility ?? this.attributeOptionsVisibility,
       selectedAttributeValues:
           selectedAttributeValues ?? this.selectedAttributeValues,
+      numericFields: numericFields ?? this.numericFields,
+      numericFieldValues: numericFieldValues ?? this.numericFieldValues,
       catalogHistory: catalogHistory ?? this.catalogHistory,
       childCategoryHistory: childCategoryHistory ?? this.childCategoryHistory,
       childCategorySelections:

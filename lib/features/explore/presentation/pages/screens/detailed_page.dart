@@ -21,6 +21,7 @@ import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
 import 'package:list_in/features/post/data/models/attribute_model.dart';
 import 'package:list_in/features/post/data/models/attribute_value_model.dart';
+import 'package:list_in/features/post/data/models/nomeric_field_model.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
@@ -246,6 +247,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
       listener: _handleStateChanges,
       builder: (context, state) {
         final attributes = state.orderedAttributes;
+        final numericFields = state.numericFields;
         if (state.isLoading) return _buildLoadingScreen();
         if (state.error != null) return _buildErrorScreen(state.error!);
         return Scaffold(
@@ -278,8 +280,10 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
                           padding: const EdgeInsets.symmetric(horizontal: 8),
-                          itemCount: attributes.length + 1,
+                          itemCount:
+                              attributes.length + numericFields.length + 1,
                           itemBuilder: (context, index) {
+                            debugPrint("😤😤${numericFields.length}");
                             if (index == 0) {
                               return Padding(
                                 padding:
@@ -319,109 +323,175 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                               );
                             }
 
-                            final attribute = attributes[index - 1];
-                            final cubit = context.read<HomeTreeCubit>();
-                            final selectedValue =
-                                cubit.getSelectedAttributeValue(attribute);
-                            final selectedValues =
-                                cubit.getSelectedValues(attribute);
+                            if (index <= attributes.length) {
+                              final attribute = attributes[index - 1];
+                              final cubit = context.read<HomeTreeCubit>();
+                              final selectedValue =
+                                  cubit.getSelectedAttributeValue(attribute);
+                              final selectedValues =
+                                  cubit.getSelectedValues(attribute);
 
-                            // Color mapping
-                            final Map<String, Color> colorMap = {
-                              'Silver': Colors.grey[300]!,
-                              'Pink': Colors.pink,
-                              'Rose Gold': Color(0xFFB76E79),
-                              'Space Gray': Color(0xFF4A4A4A),
-                              'Blue': Colors.blue,
-                              'Yellow': Colors.yellow,
-                              'Green': Colors.green,
-                              'Purple': Colors.purple,
-                              'White': Colors.white,
-                              'Red': Colors.red,
-                              'Black': Colors.black,
-                            };
+                              // Color mapping
+                              final Map<String, Color> colorMap = {
+                                'Silver': Colors.grey[300]!,
+                                'Pink': Colors.pink,
+                                'Rose Gold': Color(0xFFB76E79),
+                                'Space Gray': Color(0xFF4A4A4A),
+                                'Blue': Colors.blue,
+                                'Yellow': Colors.yellow,
+                                'Green': Colors.green,
+                                'Purple': Colors.purple,
+                                'White': Colors.white,
+                                'Red': Colors.red,
+                                'Black': Colors.black,
+                              };
 
-                            // Determine chip label based on selection type and count
-                            String chipLabel;
-                            if (attribute.filterWidgetType == 'oneSelectable') {
-                              // For single select, show selected value name if selected
-                              chipLabel =
-                                  selectedValue?.value ?? attribute.filterText;
-                            } else {
-                              // For multi-select types
-                              if (selectedValues.isEmpty) {
-                                chipLabel = attribute.filterText;
-                              } else if (selectedValues.length == 1) {
-                                // Show single selected value name
-                                chipLabel = selectedValues.first.value;
+                              // Determine chip label based on selection type and count
+                              String chipLabel;
+                              if (attribute.filterWidgetType ==
+                                  'oneSelectable') {
+                                // For single select, show selected value name if selected
+                                chipLabel = selectedValue?.value ??
+                                    attribute.filterText;
                               } else {
-                                // Show count for multiple selections
-                                chipLabel =
-                                    '${attribute.filterText}(${selectedValues.length})';
+                                // For multi-select types
+                                if (selectedValues.isEmpty) {
+                                  chipLabel = attribute.filterText;
+                                } else if (selectedValues.length == 1) {
+                                  // Show single selected value name
+                                  chipLabel = selectedValues.first.value;
+                                } else {
+                                  // Show count for multiple selections
+                                  chipLabel =
+                                      '${attribute.filterText}(${selectedValues.length})';
+                                }
                               }
-                            }
 
-                            Widget? colorIndicator;
-                            if (attribute.filterWidgetType ==
-                                    'colorMultiSelectable' &&
-                                selectedValues.isNotEmpty) {
-                              if (selectedValues.length == 1) {
-                                // Single color indicator
-                                colorIndicator = Container(
-                                  width: 16,
-                                  height: 16,
-                                  decoration: BoxDecoration(
-                                    color:
-                                        colorMap[selectedValues.first.value] ??
-                                            Colors.grey,
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: (colorMap[
-                                                  selectedValues.first.value] ==
-                                              Colors.white)
-                                          ? Colors.grey
-                                          : Colors.transparent,
-                                      width: 1,
+                              Widget? colorIndicator;
+                              if (attribute.filterWidgetType ==
+                                      'colorMultiSelectable' &&
+                                  selectedValues.isNotEmpty) {
+                                if (selectedValues.length == 1) {
+                                  // Single color indicator
+                                  colorIndicator = Container(
+                                    width: 16,
+                                    height: 16,
+                                    decoration: BoxDecoration(
+                                      color: colorMap[
+                                              selectedValues.first.value] ??
+                                          Colors.grey,
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: (colorMap[selectedValues
+                                                    .first.value] ==
+                                                Colors.white)
+                                            ? Colors.grey
+                                            : Colors.transparent,
+                                        width: 1,
+                                      ),
                                     ),
-                                  ),
-                                );
-                              } else {
-                                // Stacked color indicators
-                                colorIndicator = SizedBox(
-                                  width: 40,
-                                  height: 20,
-                                  child: Stack(
-                                    children: [
-                                      for (int i = 0;
-                                          i < selectedValues.length;
-                                          i++)
-                                        Positioned(
-                                          top: 0,
-                                          bottom: 0,
-                                          left: i * 7.0,
-                                          child: Container(
-                                            width: 16,
-                                            height: 16,
-                                            decoration: BoxDecoration(
-                                              color: colorMap[selectedValues[i]
-                                                      .value] ??
-                                                  Colors.grey,
-                                              shape: BoxShape.circle,
-                                              border: Border.all(
-                                                color: (colorMap[
-                                                            selectedValues[i]
-                                                                .value] ==
-                                                        Colors.white)
-                                                    ? Colors.grey
-                                                    : Colors.transparent,
-                                                width: 1,
+                                  );
+                                } else {
+                                  // Stacked color indicators
+                                  colorIndicator = SizedBox(
+                                    width: 40,
+                                    height: 20,
+                                    child: Stack(
+                                      children: [
+                                        for (int i = 0;
+                                            i < selectedValues.length;
+                                            i++)
+                                          Positioned(
+                                            top: 0,
+                                            bottom: 0,
+                                            left: i * 7.0,
+                                            child: Container(
+                                              width: 16,
+                                              height: 16,
+                                              decoration: BoxDecoration(
+                                                color: colorMap[
+                                                        selectedValues[i]
+                                                            .value] ??
+                                                    Colors.grey,
+                                                shape: BoxShape.circle,
+                                                border: Border.all(
+                                                  color: (colorMap[
+                                                              selectedValues[i]
+                                                                  .value] ==
+                                                          Colors.white)
+                                                      ? Colors.grey
+                                                      : Colors.transparent,
+                                                  width: 1,
+                                                ),
                                               ),
                                             ),
                                           ),
+                                      ],
+                                    ),
+                                  );
+                                }
+                              }
+
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 2.5),
+                                child: FilterChip(
+                                  showCheckmark: false,
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 4, vertical: 10),
+                                  label: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      if (colorIndicator != null) ...[
+                                        colorIndicator,
+                                        const SizedBox(width: 4),
+                                      ],
+                                      Text(
+                                        chipLabel,
+                                        style: TextStyle(
+                                          color: AppColors.black,
                                         ),
+                                      ),
                                     ],
                                   ),
-                                );
+                                  side: BorderSide(
+                                      width: 1, color: AppColors.lightGray),
+                                  shape: SmoothRectangleBorder(
+                                    smoothness: 0.8,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  selected: selectedValue != null,
+                                  backgroundColor: AppColors.white,
+                                  selectedColor: AppColors.white,
+                                  onSelected: (_) {
+                                    if (attribute.values.isNotEmpty &&
+                                        mounted) {
+                                      _showAttributeSelectionUI(
+                                          context, attribute);
+                                    }
+                                  },
+                                ),
+                              );
+                            }
+
+                            final numericFieldIndex =
+                                index - attributes.length - 1;
+                            final numericField =
+                                numericFields[numericFieldIndex];
+                            final fieldValues =
+                                state.numericFieldValues[numericField.id];
+
+                            String chipLabel = numericField.fieldName;
+                            if (fieldValues != null) {
+                              final from = fieldValues['from'];
+                              final to = fieldValues['to'];
+
+                              if (from != null && to != null) {
+                                chipLabel = '$from - $to';
+                              } else if (from != null) {
+                                chipLabel = '≥ $from';
+                              } else if (to != null) {
+                                chipLabel = '≤ $to';
                               }
                             }
 
@@ -432,20 +502,11 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                 showCheckmark: false,
                                 padding: EdgeInsets.symmetric(
                                     horizontal: 4, vertical: 10),
-                                label: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    if (colorIndicator != null) ...[
-                                      colorIndicator,
-                                      const SizedBox(width: 4),
-                                    ],
-                                    Text(
-                                      chipLabel,
-                                      style: TextStyle(
-                                        color: AppColors.black,
-                                      ),
-                                    ),
-                                  ],
+                                label: Text(
+                                  chipLabel,
+                                  style: TextStyle(
+                                    color: AppColors.black,
+                                  ),
                                 ),
                                 side: BorderSide(
                                     width: 1, color: AppColors.lightGray),
@@ -453,14 +514,12 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                   smoothness: 0.8,
                                   borderRadius: BorderRadius.circular(10),
                                 ),
-                                selected: selectedValue != null,
+                                selected: fieldValues != null,
                                 backgroundColor: AppColors.white,
                                 selectedColor: AppColors.white,
                                 onSelected: (_) {
-                                  if (attribute.values.isNotEmpty && mounted) {
-                                    _showAttributeSelectionUI(
-                                        context, attribute);
-                                  }
+                                  _showNumericFieldBottomSheet(
+                                      context, numericField);
                                 },
                               ),
                             );
@@ -477,6 +536,53 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
           ),
         );
       },
+    );
+  }
+
+  void _showPriceRangeBottomSheet(BuildContext context) {
+    final cubit = context.read<HomeTreeCubit>();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useRootNavigator: true,
+      backgroundColor: Colors.white,
+      builder: (context) => BlocProvider.value(
+        value: cubit,
+        child: Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: PriceRangeBottomSheet(),
+        ),
+      ),
+    );
+  }
+
+  void _showNumericFieldBottomSheet(
+      BuildContext context, NomericFieldModel field) {
+    final cubit = context.read<HomeTreeCubit>();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useRootNavigator: true,
+      backgroundColor: Colors.white,
+      builder: (context) => BlocProvider.value(
+        value: cubit,
+        child: Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: NumericFieldBottomSheet(
+            field: field,
+            initialValues: cubit.state.numericFieldValues[field.id],
+            onRangeSelected: (from, to) {
+              cubit.setNumericFieldRange(field.id, from, to);
+            },
+          ),
+        ),
+      ),
     );
   }
 
@@ -579,7 +685,8 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                               BorderRadius.circular(18),
                                           child: FractionallySizedBox(
                                             heightFactor: 1,
-                                            child: FiltersPage(page: "detailed"),
+                                            child:
+                                                FiltersPage(page: "detailed"),
                                           ),
                                         ),
                                       ),
@@ -1379,26 +1486,6 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
         break;
     }
   }
-
-  void _showPriceRangeBottomSheet(BuildContext context) {
-    final cubit = context.read<HomeTreeCubit>();
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      useRootNavigator: true,
-      backgroundColor: Colors.white,
-      builder: (context) => BlocProvider.value(
-        value: cubit,
-        child: Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: PriceRangeBottomSheet(),
-        ),
-      ),
-    );
-  }
 }
 
 String formatPrice(String value) {
@@ -1696,6 +1783,246 @@ class NoItemsFound extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Center(
       child: Text('No items found'),
+    );
+  }
+}
+class NumericFieldBottomSheet extends StatefulWidget {
+  final NomericFieldModel field;
+  final Map<String, int>? initialValues;
+  final Function(int?, int?) onRangeSelected;
+
+  const NumericFieldBottomSheet({
+    super.key,
+    required this.field,
+    required this.initialValues,
+    required this.onRangeSelected,
+  });
+
+  @override
+  State<NumericFieldBottomSheet> createState() => _NumericFieldBottomSheetState();
+}
+
+class _NumericFieldBottomSheetState extends State<NumericFieldBottomSheet> {
+  late TextEditingController _fromController;
+  late TextEditingController _toController;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize controllers with initial values
+    _fromController = TextEditingController(
+      text: widget.initialValues?['from']?.toString() ?? '',
+    );
+    _toController = TextEditingController(
+      text: widget.initialValues?['to']?.toString() ?? '',
+    );
+  }
+
+  @override
+  void dispose() {
+    _fromController.dispose();
+    _toController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SmoothClipRRect(
+      smoothness: 0.8,
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        color: Colors.white,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Drag handle
+            Container(
+              margin: const EdgeInsets.only(top: 8),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+
+            // Header with close button and title
+            Container(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Transform.translate(
+                      offset: const Offset(-4, 0),
+                      child: IconButton(
+                        icon: const Icon(Icons.close_rounded),
+                        onPressed: () => Navigator.pop(context),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        splashRadius: 24,
+                      ),
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () {
+                        widget.onRangeSelected(null, null);
+                        Navigator.pop(context);
+                      },
+                      child: Text(
+                        'Clear',
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Centered title
+                  Text(
+                    widget.field.fieldName,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Numeric range inputs
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _fromController,
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                            signed: true,
+                          ),
+                          decoration: InputDecoration(
+                            labelText: 'From',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: Theme.of(context).primaryColor,
+                                width: 2,
+                              ),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 16,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 6),
+                        child: Container(
+                          width: 8,
+                          height: 2,
+                          color: Colors.grey[300],
+                        ),
+                      ),
+                      Expanded(
+                        child: TextField(
+                          controller: _toController,
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                            signed: true,
+                          ),
+                          decoration: InputDecoration(
+                            labelText: 'To',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: Theme.of(context).primaryColor,
+                                width: 2,
+                              ),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 16,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            // Apply button at the bottom
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 24),
+              width: double.infinity,
+              child: Column(
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      // Parse values only when Apply is pressed
+                      final fromText = _fromController.text.trim();
+                      final toText = _toController.text.trim();
+                      
+                      int? from = fromText.isEmpty ? null : int.tryParse(fromText);
+                      int? to = toText.isEmpty ? null : int.tryParse(toText);
+                      
+                      // Validate range if both values are provided
+                      if (from != null && to != null && from > to) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('From value must be less than or equal to To value'),
+                          ),
+                        );
+                        return;
+                      }
+                      
+                      widget.onRangeSelected(from, to);
+                      Navigator.pop(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: SmoothRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Container(
+                      width: double.infinity,
+                      alignment: Alignment.center,
+                      child: const Text(
+                        'Apply',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: AppColors.white,
+                          fontFamily: "Poppins",
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+          ],
+        ),
+      ),
     );
   }
 }

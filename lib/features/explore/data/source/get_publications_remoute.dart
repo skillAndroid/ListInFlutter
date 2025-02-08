@@ -6,18 +6,18 @@ import 'package:list_in/features/explore/data/models/prediction_model.dart';
 import 'package:list_in/features/explore/data/models/publication_model.dart';
 
 abstract class PublicationsRemoteDataSource {
-  Future<List<PublicationPairModel>> getPublications({
-    String? categoryId,
-    String? subcategoryId,
-    String? query,
-    int? page,
-    int? size,
-    bool? bargain,
-    String? condition,
-    double? priceFrom,
-    double? priceTo,
-    List<String>? filters,
-  });
+  Future<List<PublicationPairModel>> getPublications(
+      {String? categoryId,
+      String? subcategoryId,
+      String? query,
+      int? page,
+      int? size,
+      bool? bargain,
+      String? condition,
+      double? priceFrom,
+      double? priceTo,
+      List<String>? filters,
+      List<String>? numeric});
 
   Future<List<PredictionModel>> getPredictions(String? query);
 
@@ -56,6 +56,7 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
     double? priceFrom,
     double? priceTo,
     List? filters,
+    List<String>? numeric,
   }) async {
     try {
       final options = await authService.getAuthOptions();
@@ -68,6 +69,8 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
         if (priceFrom != null) 'from': priceFrom.toString(),
         if (priceTo != null) 'to': priceTo.toString(),
         if (filters != null && filters.isNotEmpty) 'filter': filters,
+        if (numeric != null && numeric.isNotEmpty)
+          'numeric': numeric.join(','),
       };
 
       String url = '/api/v1/publications';
