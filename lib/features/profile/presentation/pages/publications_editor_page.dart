@@ -178,6 +178,7 @@ class _PublicationsEditorPageState extends State<PublicationsEditorPage> {
           Navigator.of(context).pop();
           context.pop();
         } else if (state.error != null) {
+          context.read<PublicationUpdateBloc>().add(ClearPublicationState());
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.error!),
@@ -187,10 +188,12 @@ class _PublicationsEditorPageState extends State<PublicationsEditorPage> {
         }
       },
       builder: (context, state) {
+        final shouldBlockUI =
+            state.isSubmitting && !state.isSuccess && state.error == null;
         return WillPopScope(
           onWillPop: _onWillPop,
           child: AbsorbPointer(
-            absorbing: _isUpdating, // Prevent all interactions during update
+            absorbing: shouldBlockUI, // Prevent all interactions during update
             child: Scaffold(
               backgroundColor: AppColors.bgColor,
               appBar: _buildAppBar(context),
