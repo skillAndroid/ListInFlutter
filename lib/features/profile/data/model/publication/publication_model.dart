@@ -1,7 +1,6 @@
 import 'package:list_in/features/profile/data/model/publication/cutegories_model.dart';
 import 'package:list_in/features/profile/data/model/publication/publication_image_model.dart';
 import 'package:list_in/features/profile/domain/entity/publication/publication_entity.dart';
-
 class PublicationModel {
   final String id;
   final String title;
@@ -18,13 +17,13 @@ class PublicationModel {
   final DateTime createdAt;
   final DateTime updatedAt;
   final CategoriesModel category;
-  final List<AttributeModel> attributes; // Added field
+  final AttributeValueModel attributeValue; // Changed from List<AttributeModel>
 
-   PublicationModel.fromJson(Map<String, dynamic> json)
+  PublicationModel.fromJson(Map<String, dynamic> json)
       : id = json['id'] as String,
         title = json['title'] as String,
         description = json['description'] as String,
-        price = (json['price'] as num).toDouble(), // Handles both int and double
+        price = (json['price'] as num).toDouble(),
         bargain = json['bargain'] as bool,
         locationName = json['locationName'] as String,
         latitude = (json['latitude'] as num).toDouble(),
@@ -38,11 +37,9 @@ class PublicationModel {
         createdAt = DateTime.parse(json['createdAt'] as String),
         updatedAt = DateTime.parse(json['updatedAt'] as String),
         category = CategoriesModel.fromJson(json['category'] as Map<String, dynamic>),
-        attributes = (json['attributes'] as List<dynamic>)
-            .map((attr) => AttributeModel.fromJson(attr as Map<String, dynamic>))
-            .toList();
+        attributeValue = AttributeValueModel.fromJson(json['attributeValue'] as Map<String, dynamic>);
 
-  PublicationEntity toEntity() => PublicationEntity(
+    PublicationEntity toEntity() => PublicationEntity(
         id: id,
         title: title,
         description: description,
@@ -58,6 +55,26 @@ class PublicationModel {
         createdAt: createdAt,
         updatedAt: updatedAt,
         category: category.toEntity(),
-        attributes: attributes.map((attr) => attr.toEntity()).toList(),
+        attributeValue: attributeValue.toEntity(),
+      );
+}
+
+class AttributeValueModel {
+  final String parentCategory;
+  final String category;
+  final Map<String, dynamic> attributes;
+  final dynamic numericValues; // Can be null
+
+  AttributeValueModel.fromJson(Map<String, dynamic> json)
+      : parentCategory = json['parentCategory'] as String,
+        category = json['category'] as String,
+        attributes = json['attributes'] as Map<String, dynamic>,
+        numericValues = json['numericValues'];
+
+  AttributeValueEntity toEntity() => AttributeValueEntity(
+        parentCategory: parentCategory,
+        category: category,
+        attributes: attributes,
+        numericValues: numericValues,
       );
 }

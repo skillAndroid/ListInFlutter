@@ -6,9 +6,11 @@ class PublicationImageModel {
   final String url;
 
   PublicationImageModel.fromJson(Map<String, dynamic> json)
-       : isPrimary = json['isPrimary'] ,
+      : isPrimary = json['isPrimary'] as bool?,
         url = json['url'] as String;
 
-  PublicationImageEntity toEntity() =>
-      PublicationImageEntity(isPrimary: isPrimary, url: url);
+  PublicationImageEntity toEntity() => PublicationImageEntity(
+        isPrimary: isPrimary,
+        url: url,
+      );
 }

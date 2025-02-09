@@ -16,8 +16,10 @@ class UpdatePostModel extends UpdatePostEntity {
       title: json['title'] as String,
       description: json['description'] as String,
       price: (json['price'] as num).toDouble(),
-      imageUrls: List<String>.from(json['imageUrls'] as List),
-      videoUrl: json['videoUrl'] as String?,
+      imageUrls: Map<String, List<String>>.from(json['imageUrls']).map(
+        (key, value) => MapEntry(key, List<String>.from(value)),
+      ),
+      videoUrl: Map<String, String?>.from(json['videoUrl']),
       productCondition: json['productCondition'] as String,
       isNegatable: json['bargain'] as bool,
     );

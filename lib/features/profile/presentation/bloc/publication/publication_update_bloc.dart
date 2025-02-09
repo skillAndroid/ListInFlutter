@@ -35,13 +35,6 @@ class PublicationUpdateBloc
     on<ClearVideo>(_onClearVideo);
   }
 
-  void _onClearState(
-    ClearPublicationState event,
-    Emitter<PublicationUpdateState> emit,
-  ) {
-    emit(PublicationUpdateState.initial());
-  }
-
   void _onInitializePublication(
     InitializePublication event,
     Emitter<PublicationUpdateState> emit,
@@ -55,92 +48,110 @@ class PublicationUpdateBloc
       condition: event.publication.productCondition,
       imageUrls: event.publication.productImages.map((img) => img.url).toList(),
       videoUrl: event.publication.videoUrl,
+      originalImageUrls: {
+        'false': event.publication.productImages.map((img) => img.url).toList()
+      },
+      originalVideoUrl: event.publication.videoUrl != null
+          ? {'false': event.publication.videoUrl}
+          : {},
     ));
   }
 
- void _onReorderImages(
-  ReorderImages event,
-  Emitter<PublicationUpdateState> emit,
-) {
-  final List<String> urls = List.from(state.imageUrls ?? []);
-  final List<XFile> newFiles = List.from(state.newImages);
-  
-  // Calculate indices
-  final oldIndex = event.oldIndex;
-  int newIndex = event.newIndex;
-  if (newIndex > oldIndex) {
-    newIndex -= 1;
+  void _onClearState(
+    ClearPublicationState event,
+    Emitter<PublicationUpdateState> emit,
+  ) {
+    emit(PublicationUpdateState.initial());
   }
 
-  if (oldIndex < urls.length) {
-    // Moving a URL image
-    if (newIndex < urls.length) {
-      // Moving within URL list
+  void _onReorderImages(
+    ReorderImages event,
+    Emitter<PublicationUpdateState> emit,
+  ) {
+    final List<String> urls = List.from(state.imageUrls ?? []);
+    final List<XFile> newFiles = List.from(state.newImages);
+    final List<String> deletedUrls = List.from(state.deletedImageUrls);
+
+    final oldIndex = event.oldIndex;
+    int newIndex = event.newIndex;
+    if (newIndex > oldIndex) newIndex -= 1;
+
+    if (oldIndex < urls.length) {
       final item = urls.removeAt(oldIndex);
-      urls.insert(newIndex, item);
+      if (newIndex < urls.length) {
+        urls.insert(newIndex, item);
+        if (!deletedUrls.contains(item)) {
+          deletedUrls.add(item);
+        }
+      } else {
+        urls.add(item);
+        if (!deletedUrls.contains(item)) {
+          deletedUrls.add(item);
+        }
+      }
     } else {
-      // Moving URL to XFile section - this case should be prevented
-      final item = urls.removeAt(oldIndex);
-      urls.insert(urls.length, item);
+      final xFileIndex = oldIndex - urls.length;
+      final newXFileIndex = newIndex - urls.length;
+      if (xFileIndex < newFiles.length) {
+        final item = newFiles.removeAt(xFileIndex);
+        final insertIndex = newXFileIndex.clamp(0, newFiles.length);
+        newFiles.insert(insertIndex, item);
+      }
     }
-  } else {
-    // Moving an XFile image
-    final xFileIndex = oldIndex - urls.length;
-    final newXFileIndex = newIndex - urls.length;
-    
-    if (xFileIndex < newFiles.length) {
-      final item = newFiles.removeAt(xFileIndex);
-      final insertIndex = newXFileIndex.clamp(0, newFiles.length);
-      newFiles.insert(insertIndex, item);
-    }
-  }
 
-  emit(state.copyWith(
-    imageUrls: urls,
-    newImages: newFiles,
-  ));
-}
-
-void _onRemoveImage(
-  RemoveImage event,
-  Emitter<PublicationUpdateState> emit,
-) {
-  final List<String> urls = List.from(state.imageUrls ?? []);
-  final List<XFile> newFiles = List.from(state.newImages);
-
-  if (event.index < urls.length) {
-    urls.removeAt(event.index);
-  } else {
-    final newIndex = event.index - urls.length;
-    if (newIndex < newFiles.length) {
-      newFiles.removeAt(newIndex);
-    }
-  }
-
-  emit(state.copyWith(
-    imageUrls: urls.isEmpty ? [] : urls,  // Explicitly set empty list if no URLs
-    newImages: newFiles,
-  ));
-}
-
-void _onUpdateImages(
-  UpdateImages event,
-  Emitter<PublicationUpdateState> emit,
-) {
-  // If keepExisting is false, clear existing URLs
-  if (!event.keepExisting) {
     emit(state.copyWith(
-      imageUrls: [], // Clear existing URLs
-      newImages: event.images,
-    ));
-  } else {
-    // Keep existing URLs and add new images
-    emit(state.copyWith(
-      imageUrls: state.imageUrls,
-      newImages: event.images,
+      imageUrls: urls,
+      newImages: newFiles,
+      deletedImageUrls: deletedUrls,
     ));
   }
-}
+
+  void _onRemoveImage(
+    RemoveImage event,
+    Emitter<PublicationUpdateState> emit,
+  ) {
+    final List<String> urls = List.from(state.imageUrls ?? []);
+    final List<XFile> newFiles = List.from(state.newImages);
+    final List<String> deletedUrls = List.from(state.deletedImageUrls);
+
+    if (event.index < urls.length) {
+      final removedUrl = urls.removeAt(event.index);
+      if (!deletedUrls.contains(removedUrl)) {
+        deletedUrls.add(removedUrl);
+      }
+    } else {
+      final newIndex = event.index - urls.length;
+      if (newIndex < newFiles.length) {
+        newFiles.removeAt(newIndex);
+      }
+    }
+
+    emit(state.copyWith(
+      imageUrls: urls.isEmpty ? [] : urls,
+      newImages: newFiles,
+      deletedImageUrls: deletedUrls,
+    ));
+  }
+
+  void _onUpdateImages(
+    UpdateImages event,
+    Emitter<PublicationUpdateState> emit,
+  ) {
+    if (!event.keepExisting) {
+      final List<String> deletedUrls = List.from(state.deletedImageUrls)
+        ..addAll(state.imageUrls ?? []);
+      emit(state.copyWith(
+        imageUrls: [],
+        newImages: event.images,
+        deletedImageUrls: deletedUrls,
+      ));
+    } else {
+      emit(state.copyWith(
+        imageUrls: state.imageUrls,
+        newImages: event.images,
+      ));
+    }
+  }
 
   void _onClearVideo(
     ClearVideo event,
@@ -150,6 +161,9 @@ void _onUpdateImages(
       videoUrl: null,
       newVideo: null,
       hasDeletedVideo: true,
+      originalVideoUrl: state.videoUrl != null
+          ? {'false': state.videoUrl}
+          : state.originalVideoUrl,
     ));
   }
 
@@ -160,6 +174,9 @@ void _onUpdateImages(
     emit(state.copyWith(
       newVideo: event.video,
       videoUrl: null,
+      originalVideoUrl: state.videoUrl != null
+          ? {'false': state.videoUrl}
+          : state.originalVideoUrl,
     ));
   }
 
@@ -205,7 +222,7 @@ void _onUpdateImages(
     emit(state.copyWith(canBargain: event.canBargain));
   }
 
-  Future<void> _onSubmitUpdate(
+ Future<void> _onSubmitUpdate(
     SubmitPublicationUpdate event,
     Emitter<PublicationUpdateState> emit,
   ) async {
@@ -223,14 +240,19 @@ void _onUpdateImages(
       updatingState: PublicationUpdatingState.uploadingImages,
     ));
 
+    // Handle images
+    Map<String, List<String>> finalImageUrls = {
+      'true': <String>[],
+      'false': state.deletedImageUrls,
+    };
+
     // Upload new images if any
-    List<String> finalImageUrls = List.from(state.imageUrls!);
     if (state.newImages.isNotEmpty) {
       final imagesResult = await uploadImagesUseCase(params: state.newImages);
       final hasImageUploadFailed = imagesResult.fold(
         (failure) => true,
         (urls) {
-          finalImageUrls.addAll(urls);
+          finalImageUrls['true'] = urls;
           return false;
         },
       );
@@ -245,17 +267,24 @@ void _onUpdateImages(
       }
     }
 
+    // Handle video
+    Map<String, String?> finalVideoUrl = {};
+
+    if (state.hasDeletedVideo || state.newVideo != null) {
+      finalVideoUrl['false'] = state.originalVideoUrl['false'];
+    }
+
     // Upload new video if any
-    String? finalVideoUrl;
     if (state.newVideo != null) {
       emit(state.copyWith(
         updatingState: PublicationUpdatingState.uploadingVideo,
       ));
+
       final videoResult = await uploadVideoUseCase(params: state.newVideo!);
       final hasVideoUploadFailed = videoResult.fold(
         (failure) => true,
         (url) {
-          finalVideoUrl = url;
+          finalVideoUrl['true'] = url;
           return false;
         },
       );
@@ -289,6 +318,7 @@ void _onUpdateImages(
         ),
       ),
     );
+
     result.fold(
       (failure) => emit(state.copyWith(
         isSubmitting: false,

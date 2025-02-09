@@ -4,8 +4,8 @@ class UpdatePostEntity {
   final String title;
   final String description;
   final double price;
-  final List<String> imageUrls;
-  final String? videoUrl;
+  final Map<String, List<String>> imageUrls;
+  final Map<String, String?> videoUrl;
   final bool isNegatable;
   final String productCondition;
 

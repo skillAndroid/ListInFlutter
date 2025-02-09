@@ -16,7 +16,7 @@ class PublicationEntity {
   final DateTime createdAt;
   final DateTime updatedAt;
   final CategoryEntity category;
-  final List<AttributeEntity> attributes; // Added field
+  final AttributeValueEntity attributeValue; // Changed from List<AttributeEntity>
 
   PublicationEntity({
     required this.id,
@@ -34,6 +34,20 @@ class PublicationEntity {
     required this.createdAt,
     required this.updatedAt,
     required this.category,
+    required this.attributeValue,
+  });
+}
+
+class AttributeValueEntity {
+  final String parentCategory;
+  final String category;
+  final Map<String, dynamic> attributes;
+  final dynamic numericValues;
+
+  AttributeValueEntity({
+    required this.parentCategory,
+    required this.category,
     required this.attributes,
+    this.numericValues,
   });
 }
