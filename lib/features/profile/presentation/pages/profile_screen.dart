@@ -195,11 +195,16 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    _buildStatItem('4.5', 'Rating'),
+                                    _buildStatItem(
+                                      userData?.rating.toString() == "null"
+                                          ? '0'
+                                          : userData!.rating.toInt().toString(),
+                                      'Rating',
+                                    ),
                                     const SizedBox(width: 32),
-                                    _buildStatItem('24.6k', 'Followers'),
+                                    _buildStatItem(userData!.followers.toString(), 'Followers'),
                                     const SizedBox(width: 32),
-                                    _buildStatItem('62', 'Following'),
+                                    _buildStatItem(userData.following.toString(), 'Following'),
                                   ],
                                 ),
                               ),
@@ -213,7 +218,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                                 width: 2,
                               ),
                               Text(
-                                userData?.nickName ?? 'User',
+                                userData.nickName ?? 'User',
                                 style: const TextStyle(
                                   fontSize: 17,
                                   fontWeight: FontWeight.w600,
@@ -231,7 +236,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                               ),
                               const SizedBox(width: 12),
                               Text(
-                                userData?.role ?? 'User Type',
+                                userData.role ?? 'User Type',
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
@@ -244,7 +249,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                           Padding(
                             padding: EdgeInsets.symmetric(horizontal: 2),
                             child: Text(
-                              'A full-service creative studio, specializing in character design',
+                              userData.biography ?? "No biograpty yet!",
                               maxLines: 1,
                               style: TextStyle(
                                 fontSize: 12.5,

@@ -15,6 +15,10 @@ class UserDataEntity {
   final String role;
   final DateTime dateCreated;
   final DateTime dateUpdated;
+  final int followers;
+  final int following;
+  final bool? isFollowing;
+  final String? biography;
 
   UserDataEntity({
     required this.id,
@@ -33,6 +37,10 @@ class UserDataEntity {
     required this.role,
     required this.dateCreated,
     required this.dateUpdated,
+    required this.followers,
+    required this.following,
+    this.isFollowing,
+    this.biography,
   });
 
   UserDataEntity copyWith({
@@ -52,6 +60,10 @@ class UserDataEntity {
     String? role,
     DateTime? dateCreated,
     DateTime? dateUpdated,
+    int? following,
+    int? followers,
+    bool? isFollowing,
+    String? biography,
   }) {
     return UserDataEntity(
       id: id ?? this.id,
@@ -63,13 +75,18 @@ class UserDataEntity {
       email: email ?? this.email,
       profileImagePath: profileImagePath ?? this.profileImagePath,
       rating: rating ?? this.rating,
-      isGrantedForPreciseLocation: isGrantedForPreciseLocation ?? this.isGrantedForPreciseLocation,
+      isGrantedForPreciseLocation:
+          isGrantedForPreciseLocation ?? this.isGrantedForPreciseLocation,
       locationName: locationName ?? this.locationName,
       longitude: longitude ?? this.longitude,
       latitude: latitude ?? this.latitude,
       role: role ?? this.role,
       dateCreated: dateCreated ?? this.dateCreated,
       dateUpdated: dateUpdated ?? this.dateUpdated,
+      isFollowing: isFollowing ?? this.isFollowing,
+      followers: followers ?? this.followers,
+      following: following ?? this.following,
+      biography: biography ?? this.biography,
     );
   }
 }
