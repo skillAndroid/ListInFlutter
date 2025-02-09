@@ -5,6 +5,7 @@ import 'package:list_in/features/post/domain/usecases/upload_images_usecase.dart
 import 'package:list_in/features/post/domain/usecases/upload_video_usecase.dart';
 import 'package:list_in/features/profile/domain/entity/publication/update_post_entity.dart';
 import 'package:list_in/features/profile/domain/usecases/publication/update_publication_usecase.dart';
+import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_state.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_event.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_state.dart';
 

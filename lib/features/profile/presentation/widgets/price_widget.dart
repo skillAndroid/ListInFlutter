@@ -6,8 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
+import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_state.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_event.dart';
-import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_state.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class AddPriceWidget extends StatefulWidget {

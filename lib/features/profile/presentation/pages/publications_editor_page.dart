@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/post/presentation/widgets/page_call_back_button.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
+import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_state.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_event.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_state.dart';
