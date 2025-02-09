@@ -202,9 +202,13 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                                       'Rating',
                                     ),
                                     const SizedBox(width: 32),
-                                    _buildStatItem(userData!.followers.toString(), 'Followers'),
+                                    _buildStatItem(
+                                        userData!.followers.toString(),
+                                        'Followers'),
                                     const SizedBox(width: 32),
-                                    _buildStatItem(userData.following.toString(), 'Following'),
+                                    _buildStatItem(
+                                        userData.following.toString(),
+                                        'Following'),
                                   ],
                                 ),
                               ),
@@ -674,7 +678,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
           });
         },
         backgroundColor: AppColors.bgColor,
-        selectedColor: AppColors.primaryLight2,
+        selectedColor: CupertinoColors.activeGreen,
         showCheckmark: false,
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       ),

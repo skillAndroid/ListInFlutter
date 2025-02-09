@@ -9,6 +9,7 @@ class UserProfileEntity {
   final String? fromTime;
   final String? toTime;
   final bool? isBusinessAccount;
+  final String? bio;
 
   UserProfileEntity({
     this.profileImagePath,
@@ -21,6 +22,7 @@ class UserProfileEntity {
     this.fromTime,
     this.toTime,
     this.isBusinessAccount,
+    this.bio,
   });
 
   UserProfileEntity copyWith({
@@ -34,6 +36,7 @@ class UserProfileEntity {
     double? longitude,
     double? latitude,
     String? locationName,
+    String? bio,
   }) {
     return UserProfileEntity(
       nickName: nickName ?? this.nickName,
@@ -47,6 +50,7 @@ class UserProfileEntity {
       longitude: longitude ?? this.longitude,
       latitude: latitude ?? this.latitude,
       locationName: locationName ?? this.locationName,
+      bio: bio ?? this.bio,
     );
   }
 }

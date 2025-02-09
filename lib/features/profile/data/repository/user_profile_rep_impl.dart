@@ -38,8 +38,9 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
     }
   }
 
- @override
-  Future<Either<Failure, (UserDataEntity, AuthToken?)>> updateUserData(UserProfileEntity user) async {
+  @override
+  Future<Either<Failure, (UserDataEntity, AuthToken?)>> updateUserData(
+      UserProfileEntity user) async {
     if (!await networkInfo.isConnected) {
       return Left(NetworkFailure());
     }
@@ -55,9 +56,11 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
         fromTime: user.fromTime,
         toTime: user.toTime,
         isBusinessAccount: user.isBusinessAccount,
+        biography: user.bio,
       );
-      
-      final (userData, tokens) = await remoteDataSource.updateUserData(userModel);
+
+      final (userData, tokens) =
+          await remoteDataSource.updateUserData(userModel);
       return Right((userData.toEntity(), tokens));
     } on ServerExeption {
       return Left(ServerFailure());
@@ -65,7 +68,6 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
       return Left(NetworkFailure());
     }
   }
-
 
   @override
   Future<Either<Failure, UserDataEntity>> getUserData() async {
@@ -79,10 +81,10 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
       debugPrint('🔄 Fetching user data from remote source...');
       final remoteData = await remoteDataSource.getUserData();
       debugPrint('📦 Remote data received: $remoteData');
-      
+
       final entity = remoteData.toEntity();
       debugPrint('🔄 Converted to entity: $entity');
-      
+
       return Right(entity);
     } on ServerExeption catch (e) {
       debugPrint('❌ ServerException: $e');

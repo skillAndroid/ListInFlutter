@@ -37,8 +37,10 @@ class _ProfileEditorState extends State<ProfileEditor> {
   TimeOfDay? openingTime;
   TimeOfDay? closingTime;
   final FocusNode _nameFocusNode = FocusNode();
+  final FocusNode _bioFocusNode = FocusNode();
   final FocusNode _phoneFocusNode = FocusNode();
   final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _bioController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   String? _profileImagePath;
   final ImagePicker _picker = ImagePicker();
@@ -52,6 +54,7 @@ class _ProfileEditorState extends State<ProfileEditor> {
     _longitude = widget.userData.longitude;
     _locationName = widget.userData.locationName ?? 'No Location';
     _nameController.text = widget.userData.nickName ?? '';
+    _bioController.text = widget.userData.bio ?? '';
     _phoneController.text = widget.userData.phoneNumber ?? '';
     _profileImagePath = widget.userData.profileImagePath;
     isBusinessAccount = widget.userData.isBusinessAccount ?? false;
@@ -79,6 +82,12 @@ class _ProfileEditorState extends State<ProfileEditor> {
       }
     });
 
+    _bioFocusNode.addListener(() {
+      if (_bioFocusNode.hasFocus) {
+        _bioFocusNode.unfocus;
+      }
+    });
+
     _phoneFocusNode.addListener(() {
       if (_phoneFocusNode.hasFocus) {
         _nameFocusNode.unfocus();
@@ -90,8 +99,10 @@ class _ProfileEditorState extends State<ProfileEditor> {
   void dispose() {
     _focusScopeNode.dispose();
     _nameFocusNode.dispose();
+    _bioFocusNode.dispose();
     _phoneFocusNode.dispose();
     _nameController.dispose();
+    _bioController.dispose();
     _phoneController.dispose();
     super.dispose();
   }
@@ -144,28 +155,31 @@ class _ProfileEditorState extends State<ProfileEditor> {
       formattedToTime = '$hour:$minute';
     }
 
-    final updatedProfile = UserProfileEntity(
-      nickName: _nameController.text,
-      phoneNumber: _phoneController.text,
-      isBusinessAccount: isBusinessAccount,
-      isGrantedForPreciseLocation: showExactLocation,
-      profileImagePath: _profileImagePath,
-      fromTime: formattedFromTime,
-      toTime: formattedToTime,
-      longitude: widget.userData.longitude,
-      latitude: widget.userData.latitude,
-      locationName: widget.userData.locationName,
-    );
+    
+  final updatedProfile = UserProfileEntity(
+    nickName: _nameController.text,
+    phoneNumber: _phoneController.text,
+    bio: _bioController.text.isEmpty ? null : _bioController.text, // Add this line
+    isBusinessAccount: isBusinessAccount,
+    isGrantedForPreciseLocation: showExactLocation,
+    profileImagePath: _profileImagePath,
+    fromTime: formattedFromTime,
+    toTime: formattedToTime,
+    longitude: widget.userData.longitude,
+    latitude: widget.userData.latitude,
+    locationName: widget.userData.locationName,
+  );
 
     // Check if data has changed
-    bool hasChanges = updatedProfile.nickName != widget.userData.nickName ||
-        updatedProfile.phoneNumber != widget.userData.phoneNumber ||
-        updatedProfile.isBusinessAccount != widget.userData.isBusinessAccount ||
-        updatedProfile.isGrantedForPreciseLocation !=
-            widget.userData.isGrantedForPreciseLocation ||
-        updatedProfile.fromTime != widget.userData.fromTime ||
-        updatedProfile.toTime != widget.userData.toTime ||
-        _selectedImageFile != null;
+     bool hasChanges = updatedProfile.nickName != widget.userData.nickName ||
+      updatedProfile.phoneNumber != widget.userData.phoneNumber ||
+      updatedProfile.bio != widget.userData.bio || // Add this line
+      updatedProfile.isBusinessAccount != widget.userData.isBusinessAccount ||
+      updatedProfile.isGrantedForPreciseLocation !=
+          widget.userData.isGrantedForPreciseLocation ||
+      updatedProfile.fromTime != widget.userData.fromTime ||
+      updatedProfile.toTime != widget.userData.toTime ||
+      _selectedImageFile != null;
 
     if (!hasChanges) {
       Navigator.pop(context);
@@ -228,7 +242,6 @@ class _ProfileEditorState extends State<ProfileEditor> {
                           "Updating...",
                           style: TextStyle(
                             color: AppColors.primary,
-                            fontWeight: FontWeight.w600,
                           ),
                         )
                       : CupertinoButton(
@@ -337,6 +350,14 @@ class _ProfileEditorState extends State<ProfileEditor> {
                         ),
                       ),
 
+                      _buildSection(
+                        title: "YOUR BIOGRAPHY!",
+                        children: [
+                          _buildBioTextField(),
+                        ],
+                      ),
+
+                      SizedBox(height: 24),
                       // Profile Info Section
                       _buildSection(
                         title: 'PROFILE INFORMATION',
@@ -458,6 +479,52 @@ class _ProfileEditorState extends State<ProfileEditor> {
             child: footer,
           ),
       ],
+    );
+  }
+
+  Widget _buildBioTextField() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CupertinoTextField.borderless(
+            controller: _bioController,
+            focusNode: _bioFocusNode,
+            maxLength: 70,
+            maxLines: 3,
+            minLines: 1,
+            placeholder: "Write something about yourself...",
+            placeholderStyle: TextStyle(
+              color: AppColors.lightText,
+              fontSize: 16,
+              fontFamily: "Poppins",
+            ),
+            style: TextStyle(
+              color: AppColors.black,
+              fontSize: 16,
+              fontFamily: "Poppins",
+            ),
+            onChanged: (value) {
+              // Force refresh to update character count
+              setState(() {});
+            },
+          ),
+          SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerRight,
+            child: Text(
+              '${_bioController.text.length}/70',
+              style: TextStyle(
+                color: _bioController.text.length >= 70
+                    ? AppColors.primary
+                    : AppColors.lightText,
+                fontSize: 12,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

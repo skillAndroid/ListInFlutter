@@ -11,6 +11,7 @@ class UserProfileModel {
   final String? fromTime;
   final String? toTime;
   final bool? isBusinessAccount;
+  final String? biography;
 
   UserProfileModel({
     this.profileImagePath,
@@ -23,21 +24,23 @@ class UserProfileModel {
     this.fromTime,
     this.toTime,
     this.isBusinessAccount,
+    this.biography,
   });
 
   factory UserProfileModel.fromJson(Map<String, dynamic> json) {
     return UserProfileModel(
-      profileImagePath: json['profileImagePath'] as String?,
-      nickName: json['nickName'] as String?,
-      phoneNumber: json['phoneNumber'] as String?,
-      isGrantedForPreciseLocation: json['isGrantedForPreciseLocation'] as bool?,
-      locationName: json['locationName'] as String?,
-      longitude: (json['longitude'] as num?)?.toDouble(),
-      latitude: (json['latitude'] as num?)?.toDouble(),
-      fromTime: json['fromTime'] as String?,
-      toTime: json['toTime'] as String?,
-      isBusinessAccount: json['isBusinessAccount'] as bool?,
-    );
+        profileImagePath: json['profileImagePath'] as String?,
+        nickName: json['nickName'] as String?,
+        phoneNumber: json['phoneNumber'] as String?,
+        isGrantedForPreciseLocation:
+            json['isGrantedForPreciseLocation'] as bool?,
+        locationName: json['locationName'] as String?,
+        longitude: (json['longitude'] as num?)?.toDouble(),
+        latitude: (json['latitude'] as num?)?.toDouble(),
+        fromTime: json['fromTime'] as String?,
+        toTime: json['toTime'] as String?,
+        isBusinessAccount: json['isBusinessAccount'] as bool?,
+        biography: json['biography'] as String?);
   }
 
   Map<String, dynamic> toJson() {
@@ -52,6 +55,7 @@ class UserProfileModel {
       'fromTime': fromTime,
       'toTime': toTime,
       'isBusinessAccount': isBusinessAccount,
+      'biography': biography,
     };
   }
 
@@ -66,6 +70,7 @@ class UserProfileModel {
       fromTime: fromTime,
       locationName: locationName,
       toTime: toTime,
+      bio : biography,
     );
   }
 }
