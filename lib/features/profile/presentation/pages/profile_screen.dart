@@ -131,11 +131,9 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // First row: Image, Name and Role
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              // Profile image
                               SizedBox(
                                 width: 75,
                                 height: 75,

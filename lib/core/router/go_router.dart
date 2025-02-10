@@ -158,10 +158,14 @@ class AppRouter {
 
       GoRoute(
         path: Routes.anotherUserProfile,
-        builder: (context, state) => VisitorProfileScreen(
-          userId: 'userId',
-          products: sampleProducts,
-        ),
+        builder: (context, state) {
+          final extraData = state.extra as Map<String, dynamic>;
+          final userId = extraData['userId'];
+          return VisitorProfileScreen(
+            userId: userId,
+            products: sampleProducts,
+          );
+        },
       ),
 
       StatefulShellRoute.indexedStack(

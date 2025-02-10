@@ -61,23 +61,25 @@ class _DetailsScreenState extends State<ProductDetailsScreen> {
       setState(() => _isCollapsed = false);
     }
   }
-Widget _buildFeatureChip(String text) {
-  return SmoothClipRRect(
-    side: BorderSide(width: 1, color: AppColors.containerColor),
-    borderRadius: BorderRadius.circular(8),
-    child: Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      color: AppColors.white,
-      child: Text(
-        text,
-        style: const TextStyle(
-          fontWeight: FontWeight.w400,
-          color: AppColors.darkGray,
+
+  Widget _buildFeatureChip(String text) {
+    return SmoothClipRRect(
+      side: BorderSide(width: 1, color: AppColors.containerColor),
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        color: AppColors.white,
+        child: Text(
+          text,
+          style: const TextStyle(
+            fontWeight: FontWeight.w400,
+            color: AppColors.darkGray,
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -105,8 +107,9 @@ Widget _buildFeatureChip(String text) {
       children: [
         const SizedBox(height: 16),
         _buildProductTitle(),
-       if (enAttributes.isNotEmpty || widget.product.attributeValue.numericValues.isNotEmpty) 
-        _buildFeatures(enAttributes),
+        if (enAttributes.isNotEmpty ||
+            widget.product.attributeValue.numericValues.isNotEmpty)
+          _buildFeatures(enAttributes),
         _buildDivider(),
         _buildSellerInfo(),
         _buildDivider(),
@@ -392,7 +395,9 @@ Widget _buildFeatureChip(String text) {
           borderRadius: BorderRadius.circular(10),
           child: InkWell(
             onTap: () {
-              context.push(Routes.anotherUserProfile);
+              context.push(Routes.anotherUserProfile, extra: {
+                'userId': widget.product.seller.id,
+              });
             },
             child: Container(
               color: AppColors.white,
@@ -802,35 +807,36 @@ Widget _buildFeatureChip(String text) {
   }
 
   Widget _buildImageSlide(String imageUrl) {
-  return GestureDetector(
-    onTap: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ProductImagesDetailed(
-            images: widget.product.productImages,
-            initialIndex: widget.product.videoUrl != null ? 
-              _currentPage : // Adjust for video at index 0
-              _currentPage,
-            heroTag: widget.product.id,
-            videoUrl: widget.product.videoUrl,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProductImagesDetailed(
+              images: widget.product.productImages,
+              initialIndex: widget.product.videoUrl != null
+                  ? _currentPage
+                  : // Adjust for video at index 0
+                  _currentPage,
+              heroTag: widget.product.id,
+              videoUrl: widget.product.videoUrl,
+            ),
           ),
+        );
+      },
+      child: SmoothClipRRect(
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(16),
+          bottomRight: Radius.circular(16),
         ),
-      );
-    },
-    child: SmoothClipRRect(
-      borderRadius: const BorderRadius.only(
-        bottomLeft: Radius.circular(16),
-        bottomRight: Radius.circular(16),
+        child: CachedNetworkImage(
+          imageUrl: 'https://$imageUrl',
+          filterQuality: FilterQuality.high,
+          fit: BoxFit.cover,
+        ),
       ),
-      child: CachedNetworkImage(
-        imageUrl: 'https://$imageUrl',
-        filterQuality: FilterQuality.high,
-        fit: BoxFit.cover,
-      ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildImageCounter() {
     final hasVideo = widget.product.videoUrl != null;
@@ -860,36 +866,38 @@ Widget _buildFeatureChip(String text) {
       ),
     );
   }
-Widget _buildFeatures(Map<String, List<String>> enAttributes) {
-  final List<String> features = [];
-  
-  // Add regular attributes
-  enAttributes.forEach((key, values) {
-    if (values.isNotEmpty) {
-      if (values.length == 1) {
-        features.add('$key: ${values[0]}');
-      } else {
-        features.add('$key: ${values.join(', ')}');
+
+  Widget _buildFeatures(Map<String, List<String>> enAttributes) {
+    final List<String> features = [];
+
+    // Add regular attributes
+    enAttributes.forEach((key, values) {
+      if (values.isNotEmpty) {
+        if (values.length == 1) {
+          features.add('$key: ${values[0]}');
+        } else {
+          features.add('$key: ${values.join(', ')}');
+        }
+      }
+    });
+
+    // Add numeric values
+    for (var numericValue in widget.product.attributeValue.numericValues) {
+      if (numericValue.numericValue.isNotEmpty) {
+        features
+            .add('${numericValue.numericField}: ${numericValue.numericValue}');
       }
     }
-  });
-  
-  // Add numeric values
-  for (var numericValue in widget.product.attributeValue.numericValues) {
-    if (numericValue.numericValue.isNotEmpty) {
-      features.add('${numericValue.numericField}: ${numericValue.numericValue}');
-    }
-  }
 
-  return Padding(
-    padding: const EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 8),
-    child: Wrap(
-      spacing: 5,
-      runSpacing: 5,
-      children: features.map(_buildFeatureChip).toList(),
-    ),
-  );
-}
+    return Padding(
+      padding: const EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 8),
+      child: Wrap(
+        spacing: 5,
+        runSpacing: 5,
+        children: features.map(_buildFeatureChip).toList(),
+      ),
+    );
+  }
 
   Widget _buildProductTitle() {
     return Padding(

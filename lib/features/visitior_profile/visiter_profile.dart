@@ -75,7 +75,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
             statusBarIconBrightness: Brightness.dark,
           ),
         );
-        
+
         return SafeArea(
           bottom: false,
           child: Scaffold(
@@ -103,7 +103,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                         },
                         icon: Icon(
                           Icons.arrow_back_ios_new_rounded,
-                          size: 20,
+                          size: 22,
                         )),
                     title: Transform.translate(
                       offset: Offset(-16, 0),
@@ -113,14 +113,17 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                             '${userData?.nickName ?? "User empty"} Store',
                             style: const TextStyle(
                               color: Colors.black87,
-                              fontSize: 18,
+                              fontSize: 17,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                           SizedBox(
                             width: 4,
                           ),
-                          Icon(Icons.store),
+                          Icon(
+                            Icons.store,
+                            size: 22,
+                          ),
                         ],
                       ),
                     ),
@@ -188,31 +191,6 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                                             )
                                           : Image.asset(AppImages.appLogo),
                                     ),
-                                    Positioned(
-                                      bottom: 0,
-                                      right: 0,
-                                      child: Transform.translate(
-                                        offset: Offset(6, 6),
-                                        child: SmoothClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(100),
-                                          child: InkWell(
-                                            child: Container(
-                                              width: 24,
-                                              height: 24,
-                                              color: AppColors.black,
-                                              child: Center(
-                                                child: Icon(
-                                                  size: 16,
-                                                  Icons.add_rounded,
-                                                  color: AppColors.white,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    )
                                   ],
                                 ),
                               ),
@@ -243,26 +221,26 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                               Text(
                                 userData?.nickName ?? 'User',
                                 style: const TextStyle(
-                                  fontSize: 20,
+                                  fontSize: 17,
                                   fontWeight: FontWeight.w600,
                                   color: Colors.black87,
                                 ),
                               ),
-                              const SizedBox(width: 16),
+                              const SizedBox(width: 12),
                               Container(
                                 decoration: BoxDecoration(
-                                  color: Colors.grey,
+                                  color: Colors.grey.withOpacity(0.3),
                                   borderRadius: BorderRadius.circular(2),
                                 ),
                                 width: 2,
-                                height: 16,
+                                height: 14,
                               ),
                               const SizedBox(width: 16),
                               Text(
                                 userData?.role ?? 'User Type',
                                 style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
                                   color: Colors.black87,
                                 ),
                               ),
@@ -305,7 +283,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
                                     colors: [
-                                      Colors.green,
+                                      Colors.blue,
                                       Colors.teal
                                     ], // Gradient colors
                                     begin: Alignment.topLeft,
@@ -316,7 +294,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                                   'Follow',
                                   style: TextStyle(
                                     color: Colors.white,
-                                    fontSize: 16,
+                                    fontSize: 15,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -344,7 +322,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                                   'Call',
                                   style: TextStyle(
                                     color: Colors.black,
-                                    fontSize: 16,
+                                    fontSize: 15,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -372,7 +350,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                                   'Messege',
                                   style: TextStyle(
                                     color: Colors.black,
-                                    fontSize: 16,
+                                    fontSize: 15,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -401,19 +379,20 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                               children: [
                                 Icon(
                                   Icons.inventory_rounded,
-                                  size: 26,
+                                  size: 22,
                                 ),
                                 SizedBox(
-                                  width: 6,
+                                  width: 4,
                                 ),
                                 Text(
                                   '13',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
+                                    fontSize: 13,
                                   ),
                                 ),
                                 SizedBox(
-                                  width: 6,
+                                  width: 4,
                                 ),
                               ],
                             ),
@@ -424,19 +403,19 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                               children: [
                                 Icon(
                                   CupertinoIcons.camera,
-                                  size: 26,
+                                  size: 22,
                                 ),
                                 SizedBox(
-                                  width: 6,
+                                  width: 4,
                                 ),
                                 Text(
                                   '13',
                                   style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 13),
                                 ),
                                 SizedBox(
-                                  width: 6,
+                                  width: 4,
                                 ),
                               ],
                             ),
@@ -447,19 +426,20 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                               children: [
                                 Icon(
                                   CupertinoIcons.play_circle,
-                                  size: 26,
+                                  size: 22,
                                 ),
                                 SizedBox(
-                                  width: 6,
+                                  width: 4,
                                 ),
                                 Text(
                                   '13',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
+                                    fontSize: 13,
                                   ),
                                 ),
                                 SizedBox(
-                                  width: 6,
+                                  width: 4,
                                 ),
                               ],
                             ),
@@ -471,19 +451,20 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                               children: [
                                 Icon(
                                   Icons.reviews_outlined,
-                                  size: 26,
+                                  size: 22,
                                 ),
                                 SizedBox(
-                                  width: 6,
+                                  width: 4,
                                 ),
                                 Text(
                                   '13',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
+                                      fontSize: 13,
                                   ),
                                 ),
                                 SizedBox(
-                                  width: 6,
+                                  width: 4,
                                 ),
                               ],
                             ),
@@ -554,15 +535,15 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
         Text(
           value,
           style: const TextStyle(
-            fontSize: 22,
+            fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: Colors.black87,
+            color: Colors.black,
           ),
         ),
         Text(
           label,
           style: TextStyle(
-            fontSize: 13,
+            fontSize: 12,
             fontWeight: FontWeight.w500,
             color: AppColors.grey,
           ),
