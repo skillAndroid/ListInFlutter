@@ -8,13 +8,13 @@ import 'package:list_in/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/map/presentation/bloc/MapBloc.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
+import 'package:list_in/features/profile/presentation/bloc/another_user/another_user_profile_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/user/user_profile_bloc.dart';
 import 'package:provider/provider.dart';
 
 import 'core/di/di_managment.dart' as di;
-
 
 final List<ProductEntity> sampleProducts = [
   ProductEntity(
@@ -508,6 +508,9 @@ void main() async {
           ),
           BlocProvider<PublicationUpdateBloc>(
             create: (_) => di.sl<PublicationUpdateBloc>(),
+          ),
+          BlocProvider<AnotherUserProfileBloc>(
+            create: (_) => di.sl<AnotherUserProfileBloc>(),
           ),
         ],
         child: MyApp(router: di.sl<AppRouter>().router),

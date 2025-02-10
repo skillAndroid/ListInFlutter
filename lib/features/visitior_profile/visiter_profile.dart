@@ -11,11 +11,12 @@ import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
+import 'package:list_in/features/profile/presentation/bloc/another_user/another_user_profile_bloc.dart';
+import 'package:list_in/features/profile/presentation/bloc/another_user/another_user_profile_event.dart';
+import 'package:list_in/features/profile/presentation/bloc/another_user/another_user_profile_state.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_event.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_state.dart';
-import 'package:list_in/features/profile/presentation/bloc/user/user_profile_bloc.dart';
-import 'package:list_in/features/profile/presentation/bloc/user/user_profile_state.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class VisitorProfileScreen extends StatefulWidget {
@@ -41,6 +42,9 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
     super.initState();
     _scrollController = ScrollController();
     _tabController = TabController(length: 4, vsync: this);
+    context
+        .read<AnotherUserProfileBloc>()
+        .add(GetAnotherUserData(widget.userId));
   }
 
   @override
@@ -53,22 +57,27 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<UserProfileBloc, UserProfileState>(
+    return BlocConsumer<AnotherUserProfileBloc, AnotherUserProfileState>(
       listener: (context, state) {
-        // if (state.status == UserProfileStatus.failure) {
-        //   ScaffoldMessenger.of(context).showSnackBar(
-        //     SnackBar(content: Text(state.errorMessage ?? 'An error occurred')),
-        //   );
-        // }
-      },
-      builder: (context, state) {
-        if (state.status == UserProfileStatus.loading &&
-            state.userData == null) {
-          return Scaffold(
-            body: Progress(),
+        if (state.status == AnotherUserProfileStatus.failure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.errorMessage ?? 'An error occurred')),
           );
         }
-        final userData = state.userData;
+      },
+      builder: (context, state) {
+        if (state.status == AnotherUserProfileStatus.loading &&
+            state.profile == null) {
+          return const Scaffold(body: Progress());
+        }
+
+        final userData = state.profile;
+        // Add null check validation to prevent null UI
+        if (userData == null) {
+          return const Scaffold(
+              body: Center(child: Text('No user data available')));
+        }
+
         SystemChrome.setSystemUIOverlayStyle(
           SystemUiOverlayStyle(
             statusBarColor: AppColors.bgColor,
@@ -110,7 +119,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                       child: Row(
                         children: [
                           Text(
-                            '${userData?.nickName ?? "User empty"} Store',
+                            '${userData.nickName ?? "User empty"} Store',
                             style: const TextStyle(
                               color: Colors.black87,
                               fontSize: 17,
@@ -169,12 +178,12 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                                   children: [
                                     SmoothClipRRect(
                                       borderRadius: BorderRadius.circular(24),
-                                      child: userData?.profileImagePath != null
+                                      child: userData.profileImagePath != null
                                           ? CachedNetworkImage(
                                               width: double.infinity,
                                               height: double.infinity,
                                               imageUrl:
-                                                  'https://${userData!.profileImagePath!}',
+                                                  'https://${userData.profileImagePath!}',
                                               fit: BoxFit.cover,
                                               placeholder: (context, url) =>
                                                   const Center(
@@ -201,11 +210,14 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    _buildStatItem('4.5', 'Rating'),
+                                    _buildStatItem(
+                                        '${userData.rating}', 'Rating'),
                                     const SizedBox(width: 32),
-                                    _buildStatItem('24.6k', 'Followers'),
+                                    _buildStatItem(
+                                        '${userData.followers}', 'Followers'),
                                     const SizedBox(width: 32),
-                                    _buildStatItem('62', 'Following'),
+                                    _buildStatItem(
+                                        '${userData.following}', 'Following'),
                                   ],
                                 ),
                               ),
@@ -219,7 +231,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                                 width: 2,
                               ),
                               Text(
-                                userData?.nickName ?? 'User',
+                                userData.nickName ?? 'User',
                                 style: const TextStyle(
                                   fontSize: 17,
                                   fontWeight: FontWeight.w600,
@@ -237,7 +249,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                               ),
                               const SizedBox(width: 16),
                               Text(
-                                userData?.role ?? 'User Type',
+                                userData.role ?? 'User Type',
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
@@ -250,7 +262,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                           Padding(
                             padding: EdgeInsets.symmetric(horizontal: 2),
                             child: Text(
-                              'A full-service creative studio, specializing in character design',
+                              userData.biography ?? "No bio yet!",
                               maxLines: 1,
                               style: TextStyle(
                                 fontSize: 12.5,
@@ -460,7 +472,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                                   '13',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
-                                      fontSize: 13,
+                                    fontSize: 13,
                                   ),
                                 ),
                                 SizedBox(

@@ -24,9 +24,9 @@ import 'package:list_in/features/auth/domain/usecases/verify_email_signup.dart';
 import 'package:list_in/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:list_in/features/explore/data/repository/get_publications_rep_impl.dart';
 import 'package:list_in/features/explore/data/source/get_publications_remoute.dart';
+import 'package:list_in/features/explore/domain/repository/get_publications_repository.dart';
 import 'package:list_in/features/explore/domain/usecase/get_prediction_usecase.dart';
 import 'package:list_in/features/explore/domain/usecase/get_publications_usecase.dart';
-import 'package:list_in/features/explore/domain/repository/get_publications_repository.dart';
 import 'package:list_in/features/explore/domain/usecase/get_video_publications_usecase.dart';
 import 'package:list_in/features/map/data/repositories/location_repository_impl.dart';
 import 'package:list_in/features/map/data/sources/location_remote_datasource.dart';
@@ -49,17 +49,22 @@ import 'package:list_in/features/post/domain/usecases/get_catalogs_usecase.dart'
 import 'package:list_in/features/post/domain/usecases/upload_images_usecase.dart';
 import 'package:list_in/features/post/domain/usecases/upload_video_usecase.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
+import 'package:list_in/features/profile/data/repository/another_user_profile_rep_impl.dart';
 import 'package:list_in/features/profile/data/repository/user_profile_rep_impl.dart';
 import 'package:list_in/features/profile/data/repository/user_publications_rep_impl.dart';
+import 'package:list_in/features/profile/data/sources/another_user_profile_remoute.dart';
 import 'package:list_in/features/profile/data/sources/user_profile_remoute.dart';
 import 'package:list_in/features/profile/data/sources/user_publications_remote.dart';
+import 'package:list_in/features/profile/domain/repository/another_user_profile_repository.dart';
 import 'package:list_in/features/profile/domain/repository/user_profile_repository.dart';
 import 'package:list_in/features/profile/domain/repository/user_publications_repository.dart';
+import 'package:list_in/features/profile/domain/usecases/another_user/get_another_user_profile_usecase.dart';
 import 'package:list_in/features/profile/domain/usecases/publication/get_user_publications_usecase.dart';
 import 'package:list_in/features/profile/domain/usecases/publication/update_publication_usecase.dart';
 import 'package:list_in/features/profile/domain/usecases/user/get_user_data_usecase.dart';
 import 'package:list_in/features/profile/domain/usecases/user/update_user_image_usecase.dart';
 import 'package:list_in/features/profile/domain/usecases/user/update_user_profile_usecase.dart';
+import 'package:list_in/features/profile/presentation/bloc/another_user/another_user_profile_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/user/user_profile_bloc.dart';
@@ -170,7 +175,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() =>
       UpdateUserProfileUseCase(repository: sl(), authLocalDataSource: sl()));
   sl.registerLazySingleton(() => UploadUserImagesUseCase(sl()));
-
+  sl.registerLazySingleton(() => GetAnotherUserDataUseCase(sl()));
   // Repository
   sl.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryImpl(
@@ -187,8 +192,18 @@ Future<void> init() async {
     ),
   );
 
+  sl.registerLazySingleton<AnotherUserProfileRepository>(
+    () => AnotherUserProfileRepImpl(
+      remoteDataSource: sl(),
+      networkInfo: sl(),
+    ),
+  );
+
   sl.registerLazySingleton<UserProfileRemoute>(
       () => UserProfileRemouteImpl(dio: sl(), authService: sl()));
+
+  sl.registerLazySingleton<AnotherUserProfileRemoute>(
+      () => AnotherUserProfileRemouteImpl(dio: sl(), authService: sl()));
 
   // Data sources
   sl.registerLazySingleton<AuthRemoteDataSource>(
@@ -259,6 +274,12 @@ Future<void> init() async {
     () => UserProfileBloc(
       updateUserProfileUseCase: sl(),
       uploadUserImagesUseCase: sl(),
+      getUserDataUseCase: sl(),
+    ),
+  );
+
+  sl.registerFactory(
+    () => AnotherUserProfileBloc(
       getUserDataUseCase: sl(),
     ),
   );
