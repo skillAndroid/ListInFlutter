@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:list_in/core/error/exeptions.dart';
 import 'package:list_in/core/error/failure.dart';
 import 'package:list_in/core/network/network_info.dart';
-import 'package:list_in/features/post/domain/entities/post_entity.dart';
 import 'package:list_in/features/profile/data/sources/user_publications_remote.dart';
 import 'package:list_in/features/profile/domain/entity/publication/paginated_publications_entity.dart';
 import 'package:list_in/features/profile/domain/entity/publication/update_post_entity.dart';
