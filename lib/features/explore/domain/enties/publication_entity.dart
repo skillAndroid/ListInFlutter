@@ -30,6 +30,9 @@ class VideoPublicationsEntity {
 
 class GetPublicationEntity {
   final String id;
+  final int likes;
+  final int views;
+  final bool isLiked;
   final String title;
   final String description;
   final double price;
@@ -50,6 +53,9 @@ class GetPublicationEntity {
   GetPublicationEntity({
     required this.id,
     required this.title,
+    required this.isLiked,
+    required this.likes,
+    required this.views,
     required this.description,
     required this.price,
     required this.bargain,

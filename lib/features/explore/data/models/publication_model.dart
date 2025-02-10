@@ -80,6 +80,9 @@ class VideoPublicationsModel {
 
 class GetPublicationModel {
   final String id;
+  final int likes;
+  final int views;
+  final bool isLiked;
   final String title;
   final String description;
   final double price;
@@ -99,6 +102,9 @@ class GetPublicationModel {
 
   GetPublicationModel({
     required this.id,
+    required this.isLiked,
+    required this.likes,
+    required this.views,
     required this.title,
     required this.description,
     required this.price,
@@ -153,6 +159,9 @@ class GetPublicationModel {
 
       return GetPublicationModel(
         id: json['id']?.toString() ?? '',
+        likes: json['likes'].toInt(),
+        views: json['views'].toInt(),
+        isLiked: json['isLiked'] as bool,
         title: json['title']?.toString() ?? '',
         description: json['description']?.toString() ?? '',
         price: price,
@@ -196,6 +205,9 @@ class GetPublicationModel {
       category: category.toEntity(),
       seller: seller.toEntity(),
       attributeValue: attributeValue.toEntity(),
+      isLiked: isLiked,
+      likes: likes,
+      views: views,
     );
   }
 }
