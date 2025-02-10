@@ -20,6 +20,7 @@ class AnotherUserProfileState {
   }) {
     return AnotherUserProfileState(
       status: status ?? this.status,
+      profile: profile ?? this.profile,
       errorMessage: errorMessage ?? this.errorMessage,
     );
   }

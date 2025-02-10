@@ -70,7 +70,7 @@ class UserProfileModel {
       fromTime: fromTime,
       locationName: locationName,
       toTime: toTime,
-      bio : biography,
+      biography : biography,
     );
   }
 }

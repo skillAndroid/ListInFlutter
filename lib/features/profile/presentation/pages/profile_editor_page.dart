@@ -54,7 +54,7 @@ class _ProfileEditorState extends State<ProfileEditor> {
     _longitude = widget.userData.longitude;
     _locationName = widget.userData.locationName ?? 'No Location';
     _nameController.text = widget.userData.nickName ?? '';
-    _bioController.text = widget.userData.bio ?? '';
+    _bioController.text = widget.userData.biography ?? '';
     _phoneController.text = widget.userData.phoneNumber ?? '';
     _profileImagePath = widget.userData.profileImagePath;
     isBusinessAccount = widget.userData.isBusinessAccount ?? false;
@@ -155,31 +155,32 @@ class _ProfileEditorState extends State<ProfileEditor> {
       formattedToTime = '$hour:$minute';
     }
 
-    
-  final updatedProfile = UserProfileEntity(
-    nickName: _nameController.text,
-    phoneNumber: _phoneController.text,
-    bio: _bioController.text.isEmpty ? null : _bioController.text, // Add this line
-    isBusinessAccount: isBusinessAccount,
-    isGrantedForPreciseLocation: showExactLocation,
-    profileImagePath: _profileImagePath,
-    fromTime: formattedFromTime,
-    toTime: formattedToTime,
-    longitude: widget.userData.longitude,
-    latitude: widget.userData.latitude,
-    locationName: widget.userData.locationName,
-  );
+    final updatedProfile = UserProfileEntity(
+      nickName: _nameController.text,
+      phoneNumber: _phoneController.text,
+      biography: _bioController.text.isEmpty
+          ? null
+          : _bioController.text, // Add this line
+      isBusinessAccount: isBusinessAccount,
+      isGrantedForPreciseLocation: showExactLocation,
+      profileImagePath: _profileImagePath,
+      fromTime: formattedFromTime,
+      toTime: formattedToTime,
+      longitude: widget.userData.longitude,
+      latitude: widget.userData.latitude,
+      locationName: widget.userData.locationName,
+    );
 
     // Check if data has changed
-     bool hasChanges = updatedProfile.nickName != widget.userData.nickName ||
-      updatedProfile.phoneNumber != widget.userData.phoneNumber ||
-      updatedProfile.bio != widget.userData.bio || // Add this line
-      updatedProfile.isBusinessAccount != widget.userData.isBusinessAccount ||
-      updatedProfile.isGrantedForPreciseLocation !=
-          widget.userData.isGrantedForPreciseLocation ||
-      updatedProfile.fromTime != widget.userData.fromTime ||
-      updatedProfile.toTime != widget.userData.toTime ||
-      _selectedImageFile != null;
+    bool hasChanges = updatedProfile.nickName != widget.userData.nickName ||
+        updatedProfile.phoneNumber != widget.userData.phoneNumber ||
+        updatedProfile.biography != widget.userData.biography || // Add this line
+        updatedProfile.isBusinessAccount != widget.userData.isBusinessAccount ||
+        updatedProfile.isGrantedForPreciseLocation !=
+            widget.userData.isGrantedForPreciseLocation ||
+        updatedProfile.fromTime != widget.userData.fromTime ||
+        updatedProfile.toTime != widget.userData.toTime ||
+        _selectedImageFile != null;
 
     if (!hasChanges) {
       Navigator.pop(context);
@@ -483,6 +484,7 @@ class _ProfileEditorState extends State<ProfileEditor> {
   }
 
   Widget _buildBioTextField() {
+    debugPrint("😉😉Here is the BIO TEXT : ${_bioController.text}");
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Column(

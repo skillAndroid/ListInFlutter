@@ -56,7 +56,7 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
         fromTime: user.fromTime,
         toTime: user.toTime,
         isBusinessAccount: user.isBusinessAccount,
-        biography: user.bio,
+        biography: user.biography,
       );
 
       final (userData, tokens) =

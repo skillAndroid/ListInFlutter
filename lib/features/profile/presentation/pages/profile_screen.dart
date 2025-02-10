@@ -75,6 +75,13 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
           return Scaffold(body: Progress());
         }
         final userData = state.userData;
+        // Add null check validation to prevent null UI
+        if (userData == null) {
+          return const Scaffold(
+              body: Center(child: Text('No user data available')));
+        }
+        if (state.userData == null) {}
+
         return SafeArea(
           child: Scaffold(
             backgroundColor: AppColors.bgColor,
@@ -95,7 +102,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                       children: [
                         const SizedBox(width: 2),
                         Text(
-                          '${userData?.nickName ?? "User empty"} Store',
+                          '${userData.nickName ?? "User empty"} Store',
                           style: const TextStyle(
                             color: AppColors.black,
                             fontSize: 17,
@@ -131,9 +138,11 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          // First row: Image, Name and Role
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
+                              // Profile image
                               SizedBox(
                                 width: 75,
                                 height: 75,
@@ -142,12 +151,12 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                                     SmoothClipRRect(
                                       smoothness: 0.8,
                                       borderRadius: BorderRadius.circular(22),
-                                      child: userData?.profileImagePath != null
+                                      child: userData.profileImagePath != null
                                           ? CachedNetworkImage(
                                               width: double.infinity,
                                               height: double.infinity,
                                               imageUrl:
-                                                  'https://${userData!.profileImagePath!}',
+                                                  'https://${userData.profileImagePath!}',
                                               fit: BoxFit.cover,
                                               placeholder: (context, url) =>
                                                   const Progress(),
@@ -194,14 +203,14 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     _buildStatItem(
-                                      userData?.rating.toString() == "null"
+                                      userData.rating.toString() == "null"
                                           ? '0'
-                                          : userData!.rating.toInt().toString(),
+                                          : userData.rating.toInt().toString(),
                                       'Rating',
                                     ),
                                     const SizedBox(width: 32),
                                     _buildStatItem(
-                                        userData!.followers.toString(),
+                                        userData.followers.toString(),
                                         'Followers'),
                                     const SizedBox(width: 32),
                                     _buildStatItem(
@@ -238,7 +247,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                               ),
                               const SizedBox(width: 12),
                               Text(
-                                userData.role ?? 'User Type',
+                                userData.role,
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
