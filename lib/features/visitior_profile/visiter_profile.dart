@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
+import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_event.dart';
@@ -64,16 +65,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
         if (state.status == UserProfileStatus.loading &&
             state.userData == null) {
           return Scaffold(
-            body: Center(
-              child: Transform.scale(
-                scale: 0.75,
-                child: CircularProgressIndicator(
-                  color: AppColors.black,
-                  strokeCap: StrokeCap.round,
-                  strokeWidth: 7.5,
-                ),
-              ),
-            ),
+            body: Progress(),
           );
         }
         final userData = state.userData;
@@ -83,6 +75,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
             statusBarIconBrightness: Brightness.dark,
           ),
         );
+        
         return SafeArea(
           bottom: false,
           child: Scaffold(
