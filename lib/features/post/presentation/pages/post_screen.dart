@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/post/presentation/pages/catalog_screen.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
 import 'package:provider/provider.dart';
@@ -28,16 +29,7 @@ class _PostScreenState extends State<PostScreen> {
 
         if (provider.isLoading) {
           return Scaffold(
-            body: Center(
-              child: Transform.scale(
-                scale: 0.75,
-                child: CircularProgressIndicator(
-                  strokeWidth: 6,
-                  color: AppColors.black,
-                  strokeCap: StrokeCap.round,
-                ),
-              ),
-            ),
+            body: Progress(),
           );
         }
 

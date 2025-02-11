@@ -6,9 +6,7 @@ import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/post/presentation/pages/atributes_releted/atributes_page.dart';
 import 'package:list_in/features/post/presentation/pages/atributes_releted/catalog_page.dart';
 import 'package:list_in/features/post/presentation/pages/atributes_releted/child_category_page.dart';
-import 'package:list_in/features/post/presentation/pages/nessary_details_releted/contacts_page.dart';
 import 'package:list_in/features/post/presentation/pages/nessary_details_releted/description_page.dart';
-import 'package:list_in/features/post/presentation/pages/nessary_details_releted/location_page.dart';
 import 'package:list_in/features/post/presentation/pages/nessary_details_releted/media_page.dart';
 import 'package:list_in/features/post/presentation/pages/nessary_details_releted/price_page.dart';
 import 'package:list_in/features/post/presentation/pages/nessary_details_releted/product_condition_page.dart';
@@ -382,7 +380,6 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
                             backgroundColor: Colors.blue,
                           ),
                         );
-                        Navigator.of(context).pop();
                         context.pop();
                       },
                     );

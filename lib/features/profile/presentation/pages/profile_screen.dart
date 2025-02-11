@@ -521,7 +521,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
             AppColors.primaryLight,
             AppColors.blue,
             onTap: () {
-              // Handle create action
+              context.push(Routes.post);
             },
           ),
           _buildActionItem(
@@ -643,7 +643,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
     return SliverToBoxAdapter(
       child: Container(
         height: 40,
-        margin: const EdgeInsets.only(bottom: 0, left: 0, top: 0),
+        margin: const EdgeInsets.only(bottom: 0, left: 2, top: 0),
         child: ListView(
           scrollDirection: Axis.horizontal,
           children: [
@@ -687,7 +687,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
         backgroundColor: AppColors.bgColor,
         selectedColor: CupertinoColors.activeGreen,
         showCheckmark: false,
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
       ),
     );
   }
