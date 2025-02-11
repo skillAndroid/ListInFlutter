@@ -64,6 +64,7 @@ import 'package:list_in/features/profile/domain/usecases/publication/update_publ
 import 'package:list_in/features/profile/domain/usecases/user/get_user_data_usecase.dart';
 import 'package:list_in/features/profile/domain/usecases/user/update_user_image_usecase.dart';
 import 'package:list_in/features/profile/domain/usecases/user/update_user_profile_usecase.dart';
+import 'package:list_in/features/visitior_profile/domain/usecase/get_another_user_publications_usecase.dart';
 import 'package:list_in/features/visitior_profile/presentation/bloc/another_user_profile_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_bloc.dart';
@@ -229,6 +230,7 @@ Future<void> init() async {
   );
 
   sl.registerLazySingleton(() => GetPublicationsUsecase(sl()));
+  sl.registerLazySingleton(() => GetPublicationsByIdUsecase(sl()));
   sl.registerLazySingleton(() => GetPredictionsUseCase(sl()));
   sl.registerLazySingleton(() => GetVideoPublicationsUsecase(sl()));
   sl.registerLazySingleton(() => GetLocationUseCase(sl()));
@@ -281,6 +283,7 @@ Future<void> init() async {
   sl.registerFactory(
     () => AnotherUserProfileBloc(
       getUserDataUseCase: sl(),
+      getPublications: sl(),
     ),
   );
 

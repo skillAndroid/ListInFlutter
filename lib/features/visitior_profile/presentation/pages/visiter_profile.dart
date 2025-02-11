@@ -515,7 +515,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                       },
                       child: CustomScrollView(
                         slivers: [
-                          _buildFilteredProductsGrid(),
+                          _buildProductsGrid(),
                         ],
                       ),
                     ),
@@ -564,17 +564,10 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
     );
   }
 
-  Widget _buildFilteredProductsGrid() {
-    return BlocConsumer<UserPublicationsBloc, UserPublicationsState>(
-      listener: (context, state) {
-        if (state.error != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.error!)),
-          );
-        }
-      },
+  Widget _buildProductsGrid() {
+    return BlocBuilder<AnotherUserProfileBloc, AnotherUserProfileState>(
       builder: (context, state) {
-        if ((state.isLoading || state.isInitialLoading) &&
+        if (state.status == AnotherUserProfileStatus.loading &&
             state.publications.isEmpty) {
           return SliverToBoxAdapter(
             child: Center(
@@ -590,16 +583,26 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
           );
         }
 
-        if (state.error != null) {
+        if (state.status == AnotherUserProfileStatus.failure &&
+            state.publications.isEmpty) {
           return SliverToBoxAdapter(
             child: Center(
-              child: TextButton(
-                onPressed: () {
-                  context
-                      .read<UserPublicationsBloc>()
-                      .add(FetchUserPublications());
-                },
-                child: Text("Retry"),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      context.read<AnotherUserProfileBloc>().add(
+                            FetchPublications(
+                              userId: state.profile?.id ?? '',
+                              isInitialFetch: true,
+                            ),
+                          );
+                    },
+                    child: Text("Retry"),
+                  ),
+                  if (state.errorMessage != null) Text(state.errorMessage!),
+                ],
               ),
             ),
           );
@@ -615,7 +618,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                   Icon(Icons.inventory, size: 72, color: Colors.grey[400]),
                   const SizedBox(height: 16),
                   Text(
-                    'No $selectedProductFilter products',
+                    'No publications available',
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.grey[600],
@@ -629,29 +632,38 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
         }
 
         return SliverPadding(
-          padding: EdgeInsets.only(top: 0, bottom: 16), // Added padding
+          padding: EdgeInsets.only(bottom: 16),
           sliver: SliverGrid(
             delegate: SliverChildBuilderDelegate(
               (context, index) {
+                // Check if we need to load more
+                if (index >= state.publications.length - 4 &&
+                    !state.isLoadingMore &&
+                    !state.hasReachedEnd) {
+                  context.read<AnotherUserProfileBloc>().add(
+                        FetchPublications(
+                          userId: state.profile?.id ?? '',
+                        ),
+                      );
+                }
+
                 if (index == state.publications.length) {
-                  if (state.isLoading) {
-                    return const Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 16.0, vertical: 0),
-                      child: Center(child: CircularProgressIndicator()),
-                    );
+                  if (state.isLoadingMore) {
+                    return const Center(child: CircularProgressIndicator());
                   }
                   return null;
                 }
 
+                final publication = state.publications[index];
                 return Padding(
                   padding: const EdgeInsets.all(0),
-                  child: RegularProductCard(
-                    product: widget.products[index],
+                  child: RemouteRegularProductCard2(
+                    product: publication,
                   ),
                 );
               },
-              childCount: state.publications.length + (state.isLoading ? 1 : 0),
+              childCount:
+                  state.publications.length + (state.isLoadingMore ? 1 : 0),
             ),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
