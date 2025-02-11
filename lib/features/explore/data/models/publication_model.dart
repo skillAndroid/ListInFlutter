@@ -353,6 +353,7 @@ class SellerModel {
   final String email;
   final String? profileImagePath;
   final double? rating;
+  final bool isFollowing;
   final bool isGrantedForPreciseLocation;
   final String locationName;
   final double? longitude;
@@ -378,12 +379,14 @@ class SellerModel {
     required this.role,
     required this.dateCreated,
     required this.dateUpdated,
+    required this.isFollowing,
   });
 
   factory SellerModel.fromJson(Map<String, dynamic> json) {
     try {
       return SellerModel(
         id: json['id']?.toString() ?? '',
+        isFollowing: json['isFollowing'] ?? false,
         nickName: json['nickName']?.toString() ?? '',
         enableCalling: json['enableCalling'] ?? false,
         phoneNumber: json['phoneNumber']?.toString() ?? '',
@@ -427,6 +430,7 @@ class SellerModel {
       longitude: longitude,
       latitude: latitude,
       role: role,
+      isFollowing: isFollowing,
       dateCreated: dateCreated,
       dateUpdated: dateUpdated,
     );

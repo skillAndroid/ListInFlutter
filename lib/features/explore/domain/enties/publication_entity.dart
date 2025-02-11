@@ -118,6 +118,7 @@ class SellerEntity {
   final String fromTime;
   final String toTime;
   final String email;
+  final bool isFollowing;
   final String? profileImagePath;
   final double? rating;
   final bool isGrantedForPreciseLocation;
@@ -145,5 +146,6 @@ class SellerEntity {
     required this.role,
     required this.dateCreated,
     required this.dateUpdated,
+    required this.isFollowing,
   });
 }
