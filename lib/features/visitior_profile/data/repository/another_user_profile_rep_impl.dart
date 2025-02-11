@@ -5,6 +5,7 @@ import 'package:list_in/core/error/failure.dart';
 import 'package:list_in/core/network/network_info.dart';
 import 'package:list_in/features/visitior_profile/data/source/another_user_profile_remoute.dart';
 import 'package:list_in/features/visitior_profile/domain/entity/another_user_profile_entity.dart';
+import 'package:list_in/features/visitior_profile/domain/entity/another_user_publications_entity.dart';
 import 'package:list_in/features/visitior_profile/domain/repository/another_user_profile_repository.dart';
 
 class AnotherUserProfileRepImpl implements AnotherUserProfileRepository {
@@ -45,6 +46,39 @@ class AnotherUserProfileRepImpl implements AnotherUserProfileRepository {
       return Left(NetworkFailure());
     } catch (e) {
       debugPrint('❌ Unexpected error: $e');
+      return Left(ServerFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, AnotherUserPublicationsEntity>> getUserPublications(
+      {required int page, required int size, required String userId}) async {
+    if (!await networkInfo.isConnected) {
+      return Left(NetworkFailure());
+    }
+
+    try {
+      final remoteData = await remoteDataSource.getPublications(
+        page: page,
+        size: size,
+        userId: userId,
+      );
+
+      debugPrint(
+          'Repository received data: ${remoteData.content.length} items');
+
+      final entity = remoteData.toEntity();
+      debugPrint('Converted to entity: ${entity.content.length} items');
+
+      return Right(entity);
+    } on ServerExeption catch (e) {
+      debugPrint('Server exception in repository: ${e.message}');
+      return Left(ServerFailure());
+    } on NetworkFailure {
+      return Left(NetworkFailure());
+    } catch (e, stackTrace) {
+      debugPrint('Unexpected error in repository: $e');
+      debugPrint('Stack trace: $stackTrace');
       return Left(ServerFailure());
     }
   }

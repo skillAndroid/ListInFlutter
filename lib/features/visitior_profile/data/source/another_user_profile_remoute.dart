@@ -3,9 +3,15 @@ import 'package:flutter/foundation.dart';
 import 'package:list_in/core/error/exeptions.dart';
 import 'package:list_in/core/services/auth_service.dart';
 import 'package:list_in/features/visitior_profile/data/model/another_user_profile_model.dart';
+import 'package:list_in/features/visitior_profile/data/model/another_user_publications_model.dart';
 
 abstract class AnotherUserProfileRemoute {
   Future<AnotherUserProfileModel> getUserData(String? userId);
+  Future<AnotherUserPublicationsModel> getPublications({
+    int? page,
+    int? size,
+    String userId,
+  });
 }
 
 class AnotherUserProfileRemouteImpl implements AnotherUserProfileRemoute {
@@ -42,6 +48,47 @@ class AnotherUserProfileRemouteImpl implements AnotherUserProfileRemoute {
         throw ServerExeption(message: e.message ?? 'Unknown error occurred');
       }
       throw ServerExeption(message: 'Failed to get user data');
+    }
+  }
+
+  @override
+  Future<AnotherUserPublicationsModel> getPublications({
+    int? page,
+    int? size,
+    String? userId,
+  }) async {
+    final options = await authService.getAuthOptions();
+    final response = await dio.get(
+      '/api/v1/publications/user/$userId',
+      queryParameters: {
+        'page': page,
+        'size': size,
+      },
+      options: options,
+    );
+
+    debugPrint("❤️❤️ ${response.data}");
+
+    if (response.data == null) {
+      throw ServerExeption(message: 'Null response data');
+    }
+    try {
+      return AnotherUserPublicationsModel.fromJson(response.data);
+    } on DioException catch (e) {
+      debugPrint('DioException: ${e.message}');
+      if (e.type == DioExceptionType.connectionTimeout) {
+        throw ConnectiontTimeOutExeption();
+      } else if (e.type == DioExceptionType.unknown) {
+        throw ConnectionExeption(message: 'Connection failed');
+      } else if (e.response?.statusCode == 401) {
+        throw UnauthorizedException('Unauthorized access');
+      } else {
+        throw ServerExeption(message: e.message.toString());
+      }
+    } catch (e, stackTrace) {
+      debugPrint('Unexpected error in remote data source: $e');
+      debugPrint('Stack trace: $stackTrace');
+      throw ServerExeption(message: e.toString());
     }
   }
 }
