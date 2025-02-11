@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/core/error/failure.dart';
-import 'package:list_in/features/profile/domain/usecases/another_user/get_another_user_profile_usecase.dart';
-import 'package:list_in/features/profile/presentation/bloc/another_user/another_user_profile_event.dart';
-import 'package:list_in/features/profile/presentation/bloc/another_user/another_user_profile_state.dart';
+import 'package:list_in/features/visitior_profile/domain/usecase/get_another_user_profile_usecase.dart';
+import 'package:list_in/features/visitior_profile/presentation/bloc/another_user_profile_event.dart';
+import 'package:list_in/features/visitior_profile/presentation/bloc/another_user_profile_state.dart';
 
 class AnotherUserProfileBloc
     extends Bloc<AnotherUserProfileEvent, AnotherUserProfileState> {

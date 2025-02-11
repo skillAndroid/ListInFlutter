@@ -36,7 +36,7 @@ import 'package:list_in/features/profile/presentation/pages/profile_screen.dart'
 import 'package:list_in/features/profile/presentation/pages/publications_editor_page.dart';
 import 'package:list_in/features/undefined_screens_yet/wrapper_screen.dart';
 import 'package:list_in/features/video/presentation/pages/video_feed_screen.dart';
-import 'package:list_in/features/visitior_profile/visiter_profile.dart';
+import 'package:list_in/features/visitior_profile/presentation/pages/visiter_profile.dart';
 import 'package:list_in/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

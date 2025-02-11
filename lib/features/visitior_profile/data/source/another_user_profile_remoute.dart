@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:list_in/core/error/exeptions.dart';
 import 'package:list_in/core/services/auth_service.dart';
-import 'package:list_in/features/profile/data/model/another_user/another_user_profile_model.dart';
+import 'package:list_in/features/visitior_profile/data/model/another_user_profile_model.dart';
 
 abstract class AnotherUserProfileRemoute {
   Future<AnotherUserProfileModel> getUserData(String? userId);

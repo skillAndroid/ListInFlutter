@@ -3,9 +3,9 @@ import 'package:flutter/foundation.dart';
 import 'package:list_in/core/error/exeptions.dart';
 import 'package:list_in/core/error/failure.dart';
 import 'package:list_in/core/network/network_info.dart';
-import 'package:list_in/features/profile/data/sources/another_user_profile_remoute.dart';
-import 'package:list_in/features/profile/domain/entity/another_user/another_user_profile_entity.dart';
-import 'package:list_in/features/profile/domain/repository/another_user_profile_repository.dart';
+import 'package:list_in/features/visitior_profile/data/source/another_user_profile_remoute.dart';
+import 'package:list_in/features/visitior_profile/domain/entity/another_user_profile_entity.dart';
+import 'package:list_in/features/visitior_profile/domain/repository/another_user_profile_repository.dart';
 
 class AnotherUserProfileRepImpl implements AnotherUserProfileRepository {
   final AnotherUserProfileRemoute remoteDataSource;
