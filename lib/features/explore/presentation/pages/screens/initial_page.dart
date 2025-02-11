@@ -336,7 +336,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                 ),
               ),
             ),
-            //_buildContentSection(state),
+            if (state.videoPublications.length > 4) _buildContentSection(state),
             _buildProductGrid(),
           ],
         ),

@@ -705,8 +705,6 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     fetchChildPage(0);
   }
 
-  // publications get border ************************************
-
   void getAtributesForPost() {
     final List<AttributeRequestValue> attributeRequests = [];
     final Set<String> processedCombinations = {};

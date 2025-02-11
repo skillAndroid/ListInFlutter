@@ -208,7 +208,10 @@ class _FiltersPageState extends State<FiltersPage>
                               ),
 
                               _buildConditionFilter(),
-
+                              SizedBox(
+                                height: 24,
+                              ),
+                              _buildBargainToggle(),
                               SizedBox(
                                 height: 24,
                               ),
@@ -1444,58 +1447,123 @@ class _FiltersPageState extends State<FiltersPage>
     );
   }
 
+  bool _isBargain = false;
+
+  Widget _buildBargainToggle() {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _isBargain = !_isBargain;
+        });
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.grey[100],
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+           
+            SizedBox(width: 8),
+            AnimatedContainer(
+              duration: Duration(milliseconds: 200),
+              width: 20,
+              height: 20,
+              decoration: BoxDecoration(
+                color: _isBargain ? Colors.blue : Colors.transparent,
+                border: Border.all(
+                  color: _isBargain ? Colors.blue : Colors.grey.shade400,
+                  width: 1.5,
+                ),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: _isBargain
+                  ? Icon(
+                      Icons.check,
+                      size: 16,
+                      color: Colors.white,
+                    )
+                  : null,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildConditionFilter() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Condition',
-          style: TextStyle(
-            fontSize: 19,
-            fontWeight: FontWeight.w500,
+        Padding(
+          padding: const EdgeInsets.only(left: 0, bottom: 8),
+          child: Text(
+            'Condition',
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w500,
+              color: Colors.black,
+            ),
           ),
         ),
-        SizedBox(
-          height: 8,
-        ),
-        Column(
-          children: [
-            _buildRadioOption('All', 'all'),
-            _buildRadioOption('New', 'new'),
-            _buildRadioOption('Used', 'used'),
-          ],
+        SmoothClipRRect(
+          borderRadius: BorderRadius.circular(14),
+          side: BorderSide(width: 1, color: AppColors.containerColor),
+          child: Container(
+            decoration: BoxDecoration(
+              color: AppColors.white,
+            ),
+            padding: EdgeInsets.all(4),
+            child: Row(
+              children: [
+                _buildSegmentOption('All', 'all'),
+                _buildSegmentOption('New', 'new'),
+                _buildSegmentOption('Used', 'used'),
+              ],
+            ),
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildRadioOption(String label, String value) {
-    return InkWell(
-      onTap: () {
-        setState(() {
-          _selectedCondition = value;
-        });
-      },
-      child: Row(
-        children: [
-          Radio(
-            value: value,
-            groupValue: _selectedCondition,
-            onChanged: (newValue) {
-              setState(() {
-                _selectedCondition = newValue as String;
-              });
-            },
-            activeColor: AppColors.error,
-          ),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.black87,
+  Widget _buildSegmentOption(String label, String value) {
+    final isSelected = _selectedCondition == value;
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _selectedCondition = value;
+          });
+        },
+        child: SmoothClipRRect(
+          borderRadius: BorderRadius.circular(14),
+          child: AnimatedContainer(
+            duration: Duration(milliseconds: 100),
+            curve: Curves.easeInOut,
+            height: 42,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: isSelected ? AppColors.primaryLight2 : Colors.transparent,
+            ),
+            child: AnimatedDefaultTextStyle(
+              duration: Duration(milliseconds: 100),
+              curve: Curves.easeInOut,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
+                color: isSelected ? Colors.black : Colors.black87,
+              ),
+              child: Text(
+                label,
+                style: TextStyle(fontFamily: "Poppins"),
+              ),
             ),
           ),
-        ],
+        ),
       ),
     );
   }
