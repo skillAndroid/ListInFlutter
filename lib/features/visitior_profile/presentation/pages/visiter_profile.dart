@@ -11,12 +11,11 @@ import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
+import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_bloc.dart';
+import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_event.dart';
 import 'package:list_in/features/visitior_profile/presentation/bloc/another_user_profile_bloc.dart';
 import 'package:list_in/features/visitior_profile/presentation/bloc/another_user_profile_event.dart';
 import 'package:list_in/features/visitior_profile/presentation/bloc/another_user_profile_state.dart';
-import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_bloc.dart';
-import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_event.dart';
-import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_state.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class VisitorProfileScreen extends StatefulWidget {
@@ -45,6 +44,12 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
     context
         .read<AnotherUserProfileBloc>()
         .add(GetAnotherUserData(widget.userId));
+    context.read<AnotherUserProfileBloc>().add(
+          FetchPublications(
+            userId: widget.userId,
+            isInitialFetch: true,
+          ),
+        );
   }
 
   @override
@@ -490,7 +495,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                 ];
               },
               body: Padding(
-                padding: const EdgeInsets.only(top: 0, right: 8, left: 8),
+                padding: const EdgeInsets.only(top: 0, right: 4, left: 4),
                 child: TabBarView(
                   controller: _tabController,
                   children: [
@@ -570,16 +575,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
         if (state.status == AnotherUserProfileStatus.loading &&
             state.publications.isEmpty) {
           return SliverToBoxAdapter(
-            child: Center(
-              child: Transform.scale(
-                scale: 0.75,
-                child: CircularProgressIndicator(
-                  strokeWidth: 6,
-                  color: AppColors.green,
-                  strokeCap: StrokeCap.round,
-                ),
-              ),
-            ),
+            child: Progress(),
           );
         }
 
