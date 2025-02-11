@@ -58,6 +58,7 @@ import 'package:list_in/features/profile/data/sources/user_publications_remote.d
 import 'package:list_in/features/visitior_profile/domain/repository/another_user_profile_repository.dart';
 import 'package:list_in/features/profile/domain/repository/user_profile_repository.dart';
 import 'package:list_in/features/profile/domain/repository/user_publications_repository.dart';
+import 'package:list_in/features/visitior_profile/domain/usecase/follow_usecase.dart';
 import 'package:list_in/features/visitior_profile/domain/usecase/get_another_user_profile_usecase.dart';
 import 'package:list_in/features/profile/domain/usecases/publication/get_user_publications_usecase.dart';
 import 'package:list_in/features/profile/domain/usecases/publication/update_publication_usecase.dart';
@@ -232,6 +233,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetPublicationsUsecase(sl()));
   sl.registerLazySingleton(() => GetPublicationsByIdUsecase(sl()));
   sl.registerLazySingleton(() => GetPredictionsUseCase(sl()));
+  sl.registerLazySingleton(() => FollowUserUseCase(sl()));
   sl.registerLazySingleton(() => GetVideoPublicationsUsecase(sl()));
   sl.registerLazySingleton(() => GetLocationUseCase(sl()));
   sl.registerLazySingleton(() => SearchLocationsUseCase(sl()));
@@ -284,6 +286,7 @@ Future<void> init() async {
     () => AnotherUserProfileBloc(
       getUserDataUseCase: sl(),
       getPublications: sl(),
+      followUserUseCase: sl(),
     ),
   );
 

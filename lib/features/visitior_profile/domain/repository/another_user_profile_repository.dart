@@ -10,4 +10,5 @@ abstract class AnotherUserProfileRepository {
     required int size,
     required String userId,
   });
+ Future<Either<Failure, AnotherUserProfileEntity>> followUser(String userId, bool follow);
 }

@@ -41,6 +41,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
     super.initState();
     _scrollController = ScrollController();
     _tabController = TabController(length: 4, vsync: this);
+
     context
         .read<AnotherUserProfileBloc>()
         .add(GetAnotherUserData(widget.userId));
@@ -288,7 +289,17 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                         children: [
                           const SizedBox(width: 12),
                           InkWell(
-                            onTap: () {},
+                            onTap: () {
+                              if (!state.isFollowingInProgress) {
+                                context.read<AnotherUserProfileBloc>().add(
+                                      FollowUser(
+                                        userId: widget.userId,
+                                        isFollowing: userData.isFollowing!,
+                                        context: context,
+                                      ),
+                                    );
+                              }
+                            },
                             child: SmoothClipRRect(
                               borderRadius: BorderRadius.circular(10),
                               child: Container(
@@ -299,22 +310,30 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                                 ),
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
-                                    colors: [
-                                      Colors.green,
-                                      Colors.teal
-                                    ], // Gradient colors
+                                    colors: [Colors.green, Colors.teal],
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
                                   ),
                                 ),
-                                child: const Text(
-                                  'Follow',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+                                child: state.isFollowingInProgress
+                                    ? const SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          color: Colors.white,
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                    : Text(
+                                        state.profile?.isFollowing == true
+                                            ? 'Following'
+                                            : 'Follow',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
                               ),
                             ),
                           ),

@@ -12,6 +12,7 @@ abstract class AnotherUserProfileRemoute {
     int? size,
     String userId,
   });
+  Future<AnotherUserProfileModel> followUser(String userId, bool follow);
 }
 
 class AnotherUserProfileRemouteImpl implements AnotherUserProfileRemoute {
@@ -28,10 +29,10 @@ class AnotherUserProfileRemouteImpl implements AnotherUserProfileRemoute {
     final options = await authService.getAuthOptions();
 
     try {
-      final response =
-          await dio.get('/api/v1/user', options: options, queryParameters: {
-        'userId': userId,
-      });
+      final response = await dio.get(
+        '/api/v1/user/$userId',
+        options: options,
+      );
 
       debugPrint("🎯 response data : ${response.data} ");
 
@@ -89,6 +90,32 @@ class AnotherUserProfileRemouteImpl implements AnotherUserProfileRemoute {
       debugPrint('Unexpected error in remote data source: $e');
       debugPrint('Stack trace: $stackTrace');
       throw ServerExeption(message: e.toString());
+    }
+  }
+
+  @override
+  Future<AnotherUserProfileModel> followUser(String userId, bool follow) async {
+    final options = await authService.getAuthOptions();
+
+    try {
+      final response = await dio.get(
+        follow
+            ? '/api/v1/user/unfollow/$userId' // Endpoint for unfollow
+            : '/api/v1/user/follow/$userId', // Endpoint for follow
+        options: options,
+      );
+      if (response.statusCode == 200) {
+        // Convert the response data to AnotherUserProfileModel and then to entity
+        final profileModel = AnotherUserProfileModel.fromJson(response.data);
+        return profileModel;
+      } else {
+        throw ServerExeption(message: 'Failed to follow user');
+      }
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout) {
+        throw ConnectiontTimeOutExeption();
+      }
+      throw ServerExeption(message: e.message ?? 'Unknown error occurred');
     }
   }
 }

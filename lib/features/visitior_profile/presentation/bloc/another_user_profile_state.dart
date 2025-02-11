@@ -10,12 +10,14 @@ class AnotherUserProfileState {
   final String? errorMessage;
   final bool isLoadingMore;
   final bool hasReachedEnd;
+  final bool isFollowingInProgress;
   final int currentPage;
   final int totalElements;
 
   AnotherUserProfileState({
     this.status = AnotherUserProfileStatus.initial,
     this.profile,
+    this.isFollowingInProgress = false,
     this.publications = const [],
     this.errorMessage,
     this.isLoadingMore = false,
@@ -25,6 +27,7 @@ class AnotherUserProfileState {
   });
 
   AnotherUserProfileState copyWith({
+    bool? isFollowingInProgress,
     AnotherUserProfileStatus? status,
     AnotherUserProfileEntity? profile,
     List<GetPublicationEntity>? publications,
@@ -35,6 +38,8 @@ class AnotherUserProfileState {
     int? totalElements,
   }) {
     return AnotherUserProfileState(
+      isFollowingInProgress:
+          isFollowingInProgress ?? this.isFollowingInProgress,
       status: status ?? this.status,
       profile: profile ?? this.profile,
       publications: publications ?? this.publications,
@@ -46,4 +51,3 @@ class AnotherUserProfileState {
     );
   }
 }
-

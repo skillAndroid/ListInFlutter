@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/core/error/failure.dart';
+import 'package:list_in/features/visitior_profile/domain/usecase/follow_usecase.dart';
 import 'package:list_in/features/visitior_profile/domain/usecase/get_another_user_profile_usecase.dart';
 import 'package:list_in/features/visitior_profile/domain/usecase/get_another_user_publications_usecase.dart';
 import 'package:list_in/features/visitior_profile/presentation/bloc/another_user_profile_event.dart';
@@ -10,14 +12,54 @@ class AnotherUserProfileBloc
     extends Bloc<AnotherUserProfileEvent, AnotherUserProfileState> {
   final GetAnotherUserDataUseCase getUserDataUseCase;
   final GetPublicationsByIdUsecase getPublications;
+  final FollowUserUseCase followUserUseCase;
   static const int pageSize = 20;
 
   AnotherUserProfileBloc({
     required this.getUserDataUseCase,
     required this.getPublications,
+    required this.followUserUseCase,
   }) : super(AnotherUserProfileState()) {
     on<GetAnotherUserData>(_onGetUserData);
     on<FetchPublications>(_onFetchPublications);
+    on<FollowUser>(_onFollowUser);
+  }
+
+  Future<void> _onFollowUser(
+    FollowUser event,
+    Emitter<AnotherUserProfileState> emit,
+  ) async {
+    emit(state.copyWith(isFollowingInProgress: true));
+
+    final params = FollowParams(
+      userId: event.userId,
+      isFollowing: event.isFollowing,
+    );
+
+    final result = await followUserUseCase(params: params);
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(
+          isFollowingInProgress: false,
+          status: AnotherUserProfileStatus.failure,
+          errorMessage: _mapFailureToMessage(failure),
+        ));
+
+        // Show error message
+        ScaffoldMessenger.of(event.context).showSnackBar(
+          SnackBar(content: Text(_mapFailureToMessage(failure))),
+        );
+      },
+      (updatedProfile) {
+        emit(state.copyWith(
+          isFollowingInProgress: false,
+          status: AnotherUserProfileStatus.success,
+          profile:
+              updatedProfile, // This now contains updated followers, following, and isFollowing
+        ));
+      },
+    );
   }
 
   Future<void> _onGetUserData(

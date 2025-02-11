@@ -18,6 +18,30 @@ class AnotherUserProfileRepImpl implements AnotherUserProfileRepository {
   });
 
   @override
+  Future<Either<Failure, AnotherUserProfileEntity>> followUser(
+    String userId,
+    bool follow,
+  ) async {
+    if (!await networkInfo.isConnected) {
+      return Left(NetworkFailure());
+    }
+
+    try {
+      final result = await remoteDataSource.followUser(
+        userId,
+        follow,
+      );
+      return Right(result.toEntity());
+    } on ServerExeption catch (e) {
+      return Left(ServerFailure());
+    } on NetworkFailure {
+      return Left(NetworkFailure());
+    } catch (e) {
+      return Left(ServerFailure());
+    }
+  }
+
+  @override
   Future<Either<Failure, AnotherUserProfileEntity>> getUserData(
       String? userId) async {
     debugPrint('📡 Checking network connection...');
