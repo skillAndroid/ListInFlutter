@@ -300,7 +300,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
                                     colors: [
-                                      Colors.blue,
+                                      Colors.green,
                                       Colors.teal
                                     ], // Gradient colors
                                     begin: Alignment.topLeft,
