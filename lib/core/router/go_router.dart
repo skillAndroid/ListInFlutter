@@ -15,6 +15,7 @@ import 'package:list_in/features/explore/domain/usecase/get_prediction_usecase.d
 import 'package:list_in/features/explore/domain/usecase/get_publications_usecase.dart';
 import 'package:list_in/features/explore/domain/usecase/get_video_publications_usecase.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
+import 'package:list_in/features/explore/presentation/pages/filter/filter.dart';
 import 'package:list_in/features/explore/presentation/pages/screens/child_page.dart';
 import 'package:list_in/features/explore/presentation/pages/screens/detailed_page.dart';
 import 'package:list_in/features/explore/presentation/pages/filter/filter_home_result_page.dart';
@@ -200,6 +201,8 @@ class AppRouter {
                       final extraData = state.extra as Map<String, dynamic>;
                       final priceFrom = extraData['priceFrom'] as double?;
                       final priceTo = extraData['priceTo'] as double?;
+                      final filterState =
+                          extraData['filterState'] as Map<String, dynamic>?;
                       return BlocProvider(
                         create: (_) {
                           final cubit = HomeTreeCubit(
@@ -211,6 +214,16 @@ class AppRouter {
                           );
                           if (priceFrom != null && priceTo != null) {
                             cubit.setPriceRange(priceFrom, priceTo);
+                          }
+                          if (filterState != null) {
+                            // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
+                            cubit.emit(cubit.state.copyWith(
+                              bargain: filterState['bargain'] as bool,
+                              isFree: filterState['isFree'] as bool,
+                              condition: filterState['condition'] as String,
+                              sellerType:
+                                  filterState['sellerType'] as SellerType,
+                            ));
                           }
                           return cubit;
                         },
@@ -263,6 +276,8 @@ class AppRouter {
                       final category = extraData['category'] as CategoryModel?;
                       final priceFrom = extraData['priceFrom'] as double?;
                       final priceTo = extraData['priceTo'] as double?;
+                      final filterState =
+                          extraData['filterState'] as Map<String, dynamic>?;
                       if (category == null) {
                         return const Scaffold(
                           body: Center(
@@ -283,6 +298,16 @@ class AppRouter {
                           if (priceFrom != null && priceTo != null) {
                             cubit.setPriceRange(priceFrom, priceTo);
                           }
+                          if (filterState != null) {
+                            // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
+                            cubit.emit(cubit.state.copyWith(
+                              bargain: filterState['bargain'] as bool,
+                              isFree: filterState['isFree'] as bool,
+                              condition: filterState['condition'] as String,
+                              sellerType:
+                                  filterState['sellerType'] as SellerType,
+                            ));
+                          }
                           return cubit;
                         },
                         child: FilterSecondaryResultPage(
@@ -301,6 +326,8 @@ class AppRouter {
                       final searchText = extraData['searchText'] as String?;
                       final priceFrom = extraData['priceFrom'] as double?;
                       final priceTo = extraData['priceTo'] as double?;
+                      final filterState =
+                          extraData['filterState'] as Map<String, dynamic>?;
 
                       if (category == null) {
                         return const Scaffold(
@@ -325,6 +352,17 @@ class AppRouter {
                           }
                           if (searchText != null) {
                             cubit.updateSearchText(searchText);
+                          }
+
+                          if (filterState != null) {
+                            // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
+                            cubit.emit(cubit.state.copyWith(
+                              bargain: filterState['bargain'] as bool,
+                              isFree: filterState['isFree'] as bool,
+                              condition: filterState['condition'] as String,
+                              sellerType:
+                                  filterState['sellerType'] as SellerType,
+                            ));
                           }
                           return cubit;
                         },
@@ -364,6 +402,9 @@ class AppRouter {
 
                             final priceFrom = extraData['priceFrom'] as double?;
                             final priceTo = extraData['priceTo'] as double?;
+
+                            final filterState = extraData['filterState']
+                                as Map<String, dynamic>?;
 
                             if (parentCategory == null ||
                                 childCategory == null) {
@@ -454,6 +495,18 @@ class AppRouter {
                                   cubit.emit(cubit.state.copyWith(
                                     numericFields: numericFields,
                                     numericFieldValues: numericFieldValues,
+                                  ));
+                                }
+
+                                if (filterState != null) {
+                                  // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
+                                  cubit.emit(cubit.state.copyWith(
+                                    bargain: filterState['bargain'] as bool,
+                                    isFree: filterState['isFree'] as bool,
+                                    condition:
+                                        filterState['condition'] as String,
+                                    sellerType:
+                                        filterState['sellerType'] as SellerType,
                                   ));
                                 }
 

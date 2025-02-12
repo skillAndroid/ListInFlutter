@@ -429,6 +429,12 @@ class _FilterHomeResultPageState extends State<FilterHomeResultPage> {
             'category': state.catalogs![index],
             'priceFrom': state.priceFrom,
             'priceTo': state.priceTo,
+            'filterState': {
+              'bargain': state.bargain,
+              'isFree': state.isFree,
+              'condition': state.condition,
+              'sellerType': state.sellerType,
+            },
           });
         },
         side: BorderSide(width: 1, color: AppColors.lightGray),

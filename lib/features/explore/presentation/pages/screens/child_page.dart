@@ -311,8 +311,8 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
           controller: _scrollState.scrollController,
           physics: const BouncingScrollPhysics(),
           slivers: [
-            if(state.selectedCatalog!=null)
-            SliverToBoxAdapter(child: _buildCategories()),
+            if (state.selectedCatalog != null)
+              SliverToBoxAdapter(child: _buildCategories()),
             ValueListenableBuilder<bool>(
               valueListenable: _scrollState.isAppBarVisible,
               builder: (context, isVisible, child) => SliverVisibility(
@@ -437,6 +437,12 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
           context.goNamed(RoutesByName.attributes, extra: {
             'category': state.selectedCatalog,
             'childCategory': state.selectedCatalog?.childCategories[index],
+            'filterState': {
+              'bargain': state.bargain,
+              'isFree': state.isFree,
+              'condition': state.condition,
+              'sellerType': state.sellerType,
+            },
           });
         },
         side: BorderSide(width: 1, color: AppColors.lightGray),

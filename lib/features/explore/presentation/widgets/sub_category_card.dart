@@ -65,6 +65,12 @@ class _SubcategoryCardState extends State<SubcategoryCard>
           'childCategory': widget.category,
           'priceFrom': widget.state.priceFrom,
           'priceTo': widget.state.priceTo,
+          'filterState': {
+            'bargain': widget.state.bargain,
+            'isFree': widget.state.isFree,
+            'condition': widget.state.condition,
+            'sellerType': widget.state.sellerType,
+          },
         });
       },
       onTapDown: (_) {

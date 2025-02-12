@@ -392,6 +392,10 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     }
 
     try {
+      bool shouldIncludeFilter(dynamic value, dynamic defaultValue) {
+        return value != null && value != defaultValue;
+      }
+
       final result = await getPublicationsUseCase(
         params: GetPublicationsParams(
           query: state.searchText,
@@ -399,6 +403,18 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
           size: pageSize,
           priceFrom: state.priceFrom,
           priceTo: state.priceTo,
+          // Only include bargain if true
+          bargain: state.bargain == true ? true : null,
+          // Only include isFree if true
+          //   isFree: state.isFree == true ? true : null,
+          // Only include condition if not ALL
+          condition: shouldIncludeFilter(state.condition, 'ALL')
+              ? state.condition
+              : null,
+          // Only include sellerType if not ALL
+          // sellerType: shouldIncludeFilter(state.sellerType, SellerType.ALL)
+          //     ? state.sellerType
+          //     : null,
         ),
       );
 
@@ -466,6 +482,10 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     try {
       debugPrint("🐁🐁${state.selectedCatalog}");
       debugPrint("🐁🐁${state.selectedCatalog?.id}");
+      bool shouldIncludeFilter(dynamic value, dynamic defaultValue) {
+        return value != null && value != defaultValue;
+      }
+
       final result = await getPublicationsUseCase(
         params: GetPublicationsParams(
           query: state.searchText,
@@ -473,6 +493,18 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
           size: pageSize,
           priceFrom: state.priceFrom,
           priceTo: state.priceTo,
+          // Only include bargain if true
+          bargain: state.bargain == true ? true : null,
+          // Only include isFree if true
+          //   isFree: state.isFree == true ? true : null,
+          // Only include condition if not ALL
+          condition: shouldIncludeFilter(state.condition, 'ALL')
+              ? state.condition
+              : null,
+          // Only include sellerType if not ALL
+          // sellerType: shouldIncludeFilter(state.sellerType, SellerType.ALL)
+          //     ? state.sellerType
+          //     : null,
           categoryId: state.selectedCatalog?.id,
         ),
       );
@@ -617,31 +649,43 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
   }
 
 // Update the related state management methods
-  void updateSellerType(SellerType type) {
+  void updateSellerType(SellerType type, bool filter) {
     emit(state.copyWith(sellerType: type));
     if (type != SellerType.ALL) {
-      fetchChildPage(0);
+      if (filter) {
+      } else {
+        fetchChildPage(0);
+      }
     }
   }
 
-  void updateCondition(String condition) {
+  void updateCondition(String condition, bool filter) {
     emit(state.copyWith(condition: condition));
     if (condition != 'ALL') {
-      fetchChildPage(0);
+      if (filter) {
+      } else {
+        fetchChildPage(0);
+      }
     }
   }
 
-  void toggleBargain(bool value) {
+  void toggleBargain(bool value, bool filter) {
     emit(state.copyWith(bargain: value));
     if (value) {
-      fetchChildPage(0);
+      if (filter) {
+      } else {
+        fetchChildPage(0);
+      }
     }
   }
 
-  void toggleIsFree(bool value) {
+  void toggleIsFree(bool value, bool filter) {
     emit(state.copyWith(isFree: value));
     if (value) {
-      fetchChildPage(0);
+      if (filter) {
+      } else {
+        fetchChildPage(0);
+      }
     }
   }
 

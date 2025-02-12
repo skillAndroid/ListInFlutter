@@ -1497,7 +1497,7 @@ class _FiltersPageState extends State<FiltersPage>
     return Expanded(
       child: GestureDetector(
         onTap: () {
-          context.read<HomeTreeCubit>().updateSellerType(value);
+          context.read<HomeTreeCubit>().updateSellerType(value, true);
         },
         child: SmoothClipRRect(
           borderRadius: BorderRadius.circular(12),
@@ -1546,7 +1546,7 @@ class _FiltersPageState extends State<FiltersPage>
         ),
         InkWell(
           onTap: () {
-            context.read<HomeTreeCubit>().toggleBargain(!state.bargain!);
+            context.read<HomeTreeCubit>().toggleBargain(!state.bargain, true);
           },
           child: Row(
             mainAxisSize: MainAxisSize.max,
@@ -1598,7 +1598,7 @@ class _FiltersPageState extends State<FiltersPage>
         ),
         InkWell(
           onTap: () {
-            context.read<HomeTreeCubit>().toggleIsFree(!state.isFree!);
+            context.read<HomeTreeCubit>().toggleIsFree(!state.isFree, true);
           },
           child: Row(
             mainAxisSize: MainAxisSize.max,
@@ -1694,7 +1694,7 @@ class _FiltersPageState extends State<FiltersPage>
     return Expanded(
       child: GestureDetector(
         onTap: () {
-          context.read<HomeTreeCubit>().updateCondition(value);
+          context.read<HomeTreeCubit>().updateCondition(value, true);
         },
         child: SmoothClipRRect(
           borderRadius: BorderRadius.circular(12),
@@ -1833,6 +1833,12 @@ class _FiltersPageState extends State<FiltersPage>
                                 'numericFields': state.numericFields,
                                 'numericFieldValues': state.numericFieldValues,
                               },
+                              'filterState': {
+                                'bargain': state.bargain,
+                                'isFree': state.isFree,
+                                'condition': state.condition,
+                                'sellerType': state.sellerType,
+                              },
                             });
                             context
                                 .read<HomeTreeCubit>()
@@ -1854,6 +1860,12 @@ class _FiltersPageState extends State<FiltersPage>
                               'category': state.selectedCatalog,
                               'priceFrom': state.priceFrom,
                               'priceTo': state.priceTo,
+                              'filterState': {
+                                'bargain': state.bargain,
+                                'isFree': state.isFree,
+                                'condition': state.condition,
+                                'sellerType': state.sellerType,
+                              },
                             });
                             context
                                 .read<HomeTreeCubit>()
@@ -1866,6 +1878,12 @@ class _FiltersPageState extends State<FiltersPage>
                                   'category': state.selectedCatalog,
                                   'priceFrom': state.priceFrom,
                                   'priceTo': state.priceTo,
+                                  'filterState': {
+                                    'bargain': state.bargain,
+                                    'isFree': state.isFree,
+                                    'condition': state.condition,
+                                    'sellerType': state.sellerType,
+                                  },
                                 });
                           } else if (widget.page != "child" &&
                               widget.page != "ssssss" &&
@@ -1881,6 +1899,12 @@ class _FiltersPageState extends State<FiltersPage>
                                   'category': state.selectedCatalog,
                                   'priceFrom': state.priceFrom,
                                   'priceTo': state.priceTo,
+                                  'filterState': {
+                                    'bargain': state.bargain,
+                                    'isFree': state.isFree,
+                                    'condition': state.condition,
+                                    'sellerType': state.sellerType,
+                                  },
                                 });
                           } else {
                             debugPrint("🐁🐁😡😡😡❤️❤️${widget.page}");
@@ -1904,12 +1928,24 @@ class _FiltersPageState extends State<FiltersPage>
                                 extra: {
                                   'priceFrom': state.priceFrom,
                                   'priceTo': state.priceTo,
+                                  'filterState': {
+                                    'bargain': state.bargain,
+                                    'isFree': state.isFree,
+                                    'condition': state.condition,
+                                    'sellerType': state.sellerType,
+                                  },
                                 });
                           } else {
                             context.pushNamed(RoutesByName.filterHomeResult,
                                 extra: {
                                   'priceFrom': state.priceFrom,
                                   'priceTo': state.priceTo,
+                                  'filterState': {
+                                    'bargain': state.bargain,
+                                    'isFree': state.isFree,
+                                    'condition': state.condition,
+                                    'sellerType': state.sellerType,
+                                  },
                                 });
                           }
                         }
