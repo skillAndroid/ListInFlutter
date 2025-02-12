@@ -1,5 +1,6 @@
 import 'package:list_in/features/explore/domain/enties/prediction_entity.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
+import 'package:list_in/features/explore/presentation/pages/filter/filter.dart';
 import 'package:list_in/features/post/data/models/attribute_model.dart';
 import 'package:list_in/features/post/data/models/attribute_value_model.dart';
 import 'package:list_in/features/post/data/models/blabla.dart';
@@ -44,6 +45,11 @@ class HomeTreeState {
   final double? priceTo;
   final bool isLoading;
   final String? error;
+
+  final bool bargain;
+  final bool isFree;
+  final String condition;
+  final SellerType sellerType;
 
   final bool initialIsPublicationsLoading;
   final bool initialIsLoadingMore;
@@ -109,6 +115,10 @@ class HomeTreeState {
     this.catalogs,
     this.selectedCatalog,
     this.selectedChildCategory,
+    bool? bargain,
+    bool? isFree,
+    String? condition,
+    SellerType? sellerType,
     List<AttributeModel>? currentAttributes,
     List<AttributeModel>? dynamicAttributes,
     Map<String, dynamic>? selectedValues,
@@ -160,7 +170,11 @@ class HomeTreeState {
     this.predictions = const [],
     this.predictionsRequestState = RequestState.idle,
     this.errorPredictionsFetch,
-  })  : currentAttributes = currentAttributes ?? [],
+  })  : bargain = bargain ?? false,
+        isFree = isFree ?? false,
+        condition = condition ?? 'ALL',
+        sellerType = sellerType ?? SellerType.ALL,
+        currentAttributes = currentAttributes ?? [],
         dynamicAttributes = dynamicAttributes ?? [],
         selectedValues = selectedValues ?? {},
         attributeOptionsVisibility = attributeOptionsVisibility ?? {},
@@ -245,6 +259,14 @@ class HomeTreeState {
     String? errorPredictionsFetch,
     bool clearSelectedCatalog = false,
     bool clearSelectedChildCategory = false,
+    bool? bargain,
+    bool? isFree,
+    String? condition,
+    SellerType? sellerType,
+    bool clearBargain = false,
+    bool clearIsFree = false,
+    bool clearCondition = false,
+    bool clearSellerType = false,
   }) {
     return HomeTreeState(
       searchRequestState: searchRequestState ?? this.searchRequestState,
@@ -317,6 +339,11 @@ class HomeTreeState {
       predictionsRequestState:
           predictionsRequestState ?? this.predictionsRequestState,
       errorPredictionsFetch: errorPredictionsFetch,
+      bargain: clearBargain ? false : (bargain ?? this.bargain),
+      isFree: clearIsFree ? false : (isFree ?? this.isFree),
+      condition: clearCondition ? 'ALL' : (condition ?? this.condition),
+      sellerType:
+          clearSellerType ? SellerType.ALL : (sellerType ?? this.sellerType),
     );
   }
 

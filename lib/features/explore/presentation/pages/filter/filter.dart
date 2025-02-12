@@ -34,7 +34,7 @@ class _FiltersPageState extends State<FiltersPage>
   late AnimationController _slideController;
 
   String? _selectedLocation;
-  String _selectedCondition = 'all';
+  String _selectedCondition = 'ALL';
 
   late HomeTreeState _initialState;
 
@@ -207,14 +207,15 @@ class _FiltersPageState extends State<FiltersPage>
                                 height: 24,
                               ),
 
-                              _buildConditionFilter(),
+                              _buildConditionFilter(state),
                               SizedBox(
                                 height: 24,
                               ),
-                              _buildBargainToggle(),
+                              _buildBargainToggle(state),
                               SizedBox(
                                 height: 24,
                               ),
+                              _buildSellerTypeFilter(state),
                               SizedBox(
                                 height: 24,
                               ),
@@ -1449,10 +1450,86 @@ class _FiltersPageState extends State<FiltersPage>
     );
   }
 
-  bool _isBargain = false;
-  bool _isFree = false;
+  Widget _buildSellerTypeFilter(HomeTreeState state) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 0, bottom: 8),
+          child: Text(
+            'Seller Type',
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w500,
+              color: Colors.black,
+            ),
+          ),
+        ),
+        SizedBox(
+          width: 250,
+          child: SmoothClipRRect(
+            borderRadius: BorderRadius.circular(14),
+            side: BorderSide(width: 1, color: AppColors.containerColor),
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppColors.white,
+              ),
+              padding: EdgeInsets.all(4),
+              child: Row(
+                children: [
+                  _buildSellerTypeOption('All', SellerType.ALL, state),
+                  _buildSellerTypeOption(
+                      'Individual', SellerType.INDIVIDUAL_SELLER, state),
+                  _buildSellerTypeOption(
+                      'Shop', SellerType.BUSINESS_SELLER, state),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
-  Widget _buildBargainToggle() {
+  Widget _buildSellerTypeOption(
+      String label, SellerType value, HomeTreeState state) {
+    final isSelected = state.sellerType == value;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          context.read<HomeTreeCubit>().updateSellerType(value);
+        },
+        child: SmoothClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: AnimatedContainer(
+            duration: Duration(milliseconds: 100),
+            curve: Curves.easeInOut,
+            height: 42,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: isSelected ? AppColors.containerColor : Colors.transparent,
+            ),
+            child: AnimatedDefaultTextStyle(
+              duration: Duration(milliseconds: 100),
+              curve: Curves.easeInOut,
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 15,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.normal,
+                color: isSelected ? AppColors.primary : AppColors.darkGray,
+              ),
+              child: Text(
+                label,
+                style: TextStyle(fontFamily: "Poppins"),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBargainToggle(HomeTreeState state) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1469,9 +1546,7 @@ class _FiltersPageState extends State<FiltersPage>
         ),
         InkWell(
           onTap: () {
-            setState(() {
-              _isBargain = !_isBargain;
-            });
+            context.read<HomeTreeCubit>().toggleBargain(!state.bargain!);
           },
           child: Row(
             mainAxisSize: MainAxisSize.max,
@@ -1484,17 +1559,17 @@ class _FiltersPageState extends State<FiltersPage>
                   height: 24,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
-                    color: _isBargain
+                    color: state.bargain!
                         ? AppColors.primaryLight2
                         : Colors.transparent,
                     border: Border.all(
-                      color: _isBargain
+                      color: state.bargain!
                           ? AppColors.primaryLight2
                           : AppColors.lighterGray,
                       width: 2.0,
                     ),
                   ),
-                  child: _isBargain
+                  child: state.bargain!
                       ? Icon(
                           Icons.check,
                           size: 16,
@@ -1523,9 +1598,7 @@ class _FiltersPageState extends State<FiltersPage>
         ),
         InkWell(
           onTap: () {
-            setState(() {
-              _isFree = !_isFree;
-            });
+            context.read<HomeTreeCubit>().toggleIsFree(!state.isFree!);
           },
           child: Row(
             mainAxisSize: MainAxisSize.max,
@@ -1538,16 +1611,17 @@ class _FiltersPageState extends State<FiltersPage>
                   height: 24,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
-                    color:
-                        _isFree ? AppColors.primaryLight2 : Colors.transparent,
+                    color: state.isFree!
+                        ? AppColors.primaryLight2
+                        : Colors.transparent,
                     border: Border.all(
-                      color: _isFree
+                      color: state.isFree!
                           ? AppColors.primaryLight2
                           : AppColors.lighterGray,
                       width: 2,
                     ),
                   ),
-                  child: _isFree
+                  child: state.isFree!
                       ? Icon(
                           Icons.check,
                           size: 16,
@@ -1575,7 +1649,7 @@ class _FiltersPageState extends State<FiltersPage>
     );
   }
 
-  Widget _buildConditionFilter() {
+  Widget _buildConditionFilter(HomeTreeState state) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1602,9 +1676,9 @@ class _FiltersPageState extends State<FiltersPage>
               padding: EdgeInsets.all(4),
               child: Row(
                 children: [
-                  _buildSegmentOption('All', 'all'),
-                  _buildSegmentOption('New', 'new'),
-                  _buildSegmentOption('Used', 'used'),
+                  _buildSegmentOption('All', 'ALL', state),
+                  _buildSegmentOption('New', 'NEW_PRODUCT', state),
+                  _buildSegmentOption('Used', 'USED_PRODUCT', state),
                 ],
               ),
             ),
@@ -1614,15 +1688,13 @@ class _FiltersPageState extends State<FiltersPage>
     );
   }
 
-  Widget _buildSegmentOption(String label, String value) {
-    final isSelected = _selectedCondition == value;
+  Widget _buildSegmentOption(String label, String value, HomeTreeState state) {
+    final isSelected = state.condition == value;
 
     return Expanded(
       child: GestureDetector(
         onTap: () {
-          setState(() {
-            _selectedCondition = value;
-          });
+          context.read<HomeTreeCubit>().updateCondition(value);
         },
         child: SmoothClipRRect(
           borderRadius: BorderRadius.circular(12),
@@ -2031,4 +2103,10 @@ class _PriceRangeSliderState extends State<PriceRangeSlider> {
       },
     );
   }
+}
+
+enum SellerType {
+  ALL,
+  INDIVIDUAL_SELLER,
+  BUSINESS_SELLER,
 }

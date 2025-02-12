@@ -13,6 +13,7 @@ import 'package:list_in/features/explore/domain/usecase/get_prediction_usecase.d
 import 'package:list_in/features/explore/domain/usecase/get_publications_usecase.dart';
 import 'package:list_in/features/explore/domain/usecase/get_video_publications_usecase.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
+import 'package:list_in/features/explore/presentation/pages/filter/filter.dart';
 import 'package:list_in/features/post/data/models/attribute_model.dart';
 import 'package:list_in/features/post/data/models/attribute_value_model.dart';
 import 'package:list_in/features/post/data/models/blabla.dart';
@@ -521,18 +522,16 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
   }
 
   Future<void> fetchChildPage(int pageKey) async {
-    // If we're already fetching, don't start another fetch
     if (state.childPublicationsRequestState == RequestState.inProgress) {
       debugPrint(
           '🚫 Preventing duplicate publications request for page: $pageKey');
       return;
     }
 
-    // If this is page 0, we want to ensure we're starting fresh
     if (pageKey == 0) {
       emit(state.copyWith(
         childPublicationsRequestState: RequestState.inProgress,
-        childPublications: [], // Ensure we clear existing publications
+        childPublications: [],
         childHasReachedMax: false,
         childCurrentPage: 0,
         errorChildPublicationsFetch: null,
@@ -545,47 +544,67 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     }
 
     try {
-      final result = await getPublicationsUseCase(
-        params: GetPublicationsParams(
-          page: pageKey,
-          size: pageSize,
-          priceFrom: state.priceFrom,
-          priceTo: state.priceTo,
-          categoryId: state.selectedCatalog?.id,
-          subcategoryId: state.selectedChildCategory?.id,
-          filters: state.generateFilterParameters(),
-          numerics: state._generateNumericFilters(),
-        ),
+      // Helper function to determine if a filter value should be included
+      bool shouldIncludeFilter(dynamic value, dynamic defaultValue) {
+        return value != null && value != defaultValue;
+      }
+
+      // Create GetPublicationsParams with conditional parameters
+      final params = GetPublicationsParams(
+        page: pageKey,
+        size: pageSize,
+        // Only include bargain if true
+        bargain: state.bargain == true ? true : null,
+        // Only include isFree if true
+        //   isFree: state.isFree == true ? true : null,
+        // Only include condition if not ALL
+        condition: shouldIncludeFilter(state.condition, 'ALL')
+            ? state.condition
+            : null,
+        // Only include sellerType if not ALL
+        // sellerType: shouldIncludeFilter(state.sellerType, SellerType.ALL)
+        //     ? state.sellerType
+        //     : null,
+        // Include price range if set
+        priceFrom: state.priceFrom,
+        priceTo: state.priceTo,
+        // Include category IDs if selected
+        categoryId: state.selectedCatalog?.id,
+        subcategoryId: state.selectedChildCategory?.id,
+        // Include filters if they exist
+        filters: state.generateFilterParameters().isNotEmpty
+            ? state.generateFilterParameters()
+            : null,
+        // Include numerics if they exist
+        numerics: state._generateNumericFilters().isNotEmpty
+            ? state._generateNumericFilters()
+            : null,
       );
 
-      // Handle the result only if we're still mounted and the request is still relevant
+      final result = await getPublicationsUseCase(params: params);
+
       result.fold(
         (failure) {
-          emit(
-            state.copyWith(
-              childPublicationsRequestState: RequestState.error,
-              errorChildPublicationsFetch: _mapFailureToMessage(failure),
-              filtersTrigered: false,
-            ),
-          );
+          emit(state.copyWith(
+            childPublicationsRequestState: RequestState.error,
+            errorChildPublicationsFetch: _mapFailureToMessage(failure),
+            filtersTrigered: false,
+          ));
         },
         (paginatedData) {
-          // For page 0, we always want to replace existing data
           final updatedPublications =
               pageKey == 0 ? paginatedData : paginatedData;
           final isLastPage =
               paginatedData.isNotEmpty ? paginatedData.last.isLast : true;
 
-          emit(
-            state.copyWith(
-              childPublicationsRequestState: RequestState.completed,
-              childPublications: updatedPublications,
-              childHasReachedMax: isLastPage,
-              childCurrentPage: pageKey,
-              errorChildPublicationsFetch: null,
-              filtersTrigered: false,
-            ),
-          );
+          emit(state.copyWith(
+            childPublicationsRequestState: RequestState.completed,
+            childPublications: updatedPublications,
+            childHasReachedMax: isLastPage,
+            childCurrentPage: pageKey,
+            errorChildPublicationsFetch: null,
+            filtersTrigered: false,
+          ));
         },
       );
     } catch (e) {
@@ -594,6 +613,35 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
         errorChildPublicationsFetch: 'An unexpected error occurred',
         filtersTrigered: false,
       ));
+    }
+  }
+
+// Update the related state management methods
+  void updateSellerType(SellerType type) {
+    emit(state.copyWith(sellerType: type));
+    if (type != SellerType.ALL) {
+      fetchChildPage(0);
+    }
+  }
+
+  void updateCondition(String condition) {
+    emit(state.copyWith(condition: condition));
+    if (condition != 'ALL') {
+      fetchChildPage(0);
+    }
+  }
+
+  void toggleBargain(bool value) {
+    emit(state.copyWith(bargain: value));
+    if (value) {
+      fetchChildPage(0);
+    }
+  }
+
+  void toggleIsFree(bool value) {
+    emit(state.copyWith(isFree: value));
+    if (value) {
+      fetchChildPage(0);
     }
   }
 

@@ -52,7 +52,7 @@ class GetPublicationsUsecase
       categoryId: params?.categoryId,
       subcategoryId: params?.subcategoryId,
       filters: params?.filters,
-      numeric : params?.numerics,
+      numeric: params?.numerics,
     );
   }
 }
