@@ -72,7 +72,6 @@ class SearchBarState {
   }
 }
 
-// First, modify the ScrollState class to include a ValueNotifier:
 class ScrollState {
   final scrollController = ScrollController();
   // Using ValueNotifier<bool> for minimal state updates

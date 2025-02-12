@@ -215,7 +215,9 @@ class _FiltersPageState extends State<FiltersPage>
                               SizedBox(
                                 height: 24,
                               ),
-
+                              SizedBox(
+                                height: 24,
+                              ),
                               _buildLocationFilter(),
                               SizedBox(
                                 height: 16,
@@ -1448,48 +1450,128 @@ class _FiltersPageState extends State<FiltersPage>
   }
 
   bool _isBargain = false;
+  bool _isFree = false;
 
   Widget _buildBargainToggle() {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _isBargain = !_isBargain;
-        });
-      },
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: Colors.grey[100],
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-           
-            SizedBox(width: 8),
-            AnimatedContainer(
-              duration: Duration(milliseconds: 200),
-              width: 20,
-              height: 20,
-              decoration: BoxDecoration(
-                color: _isBargain ? Colors.blue : Colors.transparent,
-                border: Border.all(
-                  color: _isBargain ? Colors.blue : Colors.grey.shade400,
-                  width: 1.5,
-                ),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: _isBargain
-                  ? Icon(
-                      Icons.check,
-                      size: 16,
-                      color: Colors.white,
-                    )
-                  : null,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 0, bottom: 12),
+          child: Text(
+            'Sorting',
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w500,
+              color: Colors.black,
             ),
-          ],
+          ),
         ),
-      ),
+        InkWell(
+          onTap: () {
+            setState(() {
+              _isBargain = !_isBargain;
+            });
+          },
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              SmoothClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: AnimatedContainer(
+                  duration: Duration(milliseconds: 200),
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    color: _isBargain
+                        ? AppColors.primaryLight2
+                        : Colors.transparent,
+                    border: Border.all(
+                      color: _isBargain
+                          ? AppColors.primaryLight2
+                          : AppColors.lighterGray,
+                      width: 2.0,
+                    ),
+                  ),
+                  child: _isBargain
+                      ? Icon(
+                          Icons.check,
+                          size: 16,
+                          color: Colors.white,
+                        )
+                      : null,
+                ),
+              ),
+              SizedBox(width: 12),
+              Padding(
+                padding: const EdgeInsets.only(left: 0, bottom: 1),
+                child: Text(
+                  'Borgain',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w400,
+                    color: AppColors.darkGray,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(
+          height: 12,
+        ),
+        InkWell(
+          onTap: () {
+            setState(() {
+              _isFree = !_isFree;
+            });
+          },
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              SmoothClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: AnimatedContainer(
+                  duration: Duration(milliseconds: 200),
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    color:
+                        _isFree ? AppColors.primaryLight2 : Colors.transparent,
+                    border: Border.all(
+                      color: _isFree
+                          ? AppColors.primaryLight2
+                          : AppColors.lighterGray,
+                      width: 2,
+                    ),
+                  ),
+                  child: _isFree
+                      ? Icon(
+                          Icons.check,
+                          size: 16,
+                          color: Colors.white,
+                        )
+                      : null,
+                ),
+              ),
+              SizedBox(width: 12),
+              Padding(
+                padding: const EdgeInsets.only(left: 0, bottom: 1),
+                child: Text(
+                  'For Free',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w400,
+                    color: AppColors.darkGray,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -1508,20 +1590,23 @@ class _FiltersPageState extends State<FiltersPage>
             ),
           ),
         ),
-        SmoothClipRRect(
-          borderRadius: BorderRadius.circular(14),
-          side: BorderSide(width: 1, color: AppColors.containerColor),
-          child: Container(
-            decoration: BoxDecoration(
-              color: AppColors.white,
-            ),
-            padding: EdgeInsets.all(4),
-            child: Row(
-              children: [
-                _buildSegmentOption('All', 'all'),
-                _buildSegmentOption('New', 'new'),
-                _buildSegmentOption('Used', 'used'),
-              ],
+        SizedBox(
+          width: 250,
+          child: SmoothClipRRect(
+            borderRadius: BorderRadius.circular(14),
+            side: BorderSide(width: 1, color: AppColors.containerColor),
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppColors.white,
+              ),
+              padding: EdgeInsets.all(4),
+              child: Row(
+                children: [
+                  _buildSegmentOption('All', 'all'),
+                  _buildSegmentOption('New', 'new'),
+                  _buildSegmentOption('Used', 'used'),
+                ],
+              ),
             ),
           ),
         ),
@@ -1540,22 +1625,23 @@ class _FiltersPageState extends State<FiltersPage>
           });
         },
         child: SmoothClipRRect(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(12),
           child: AnimatedContainer(
             duration: Duration(milliseconds: 100),
             curve: Curves.easeInOut,
             height: 42,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: isSelected ? AppColors.primaryLight2 : Colors.transparent,
+              color: isSelected ? AppColors.containerColor : Colors.transparent,
             ),
             child: AnimatedDefaultTextStyle(
               duration: Duration(milliseconds: 100),
               curve: Curves.easeInOut,
               style: TextStyle(
+                fontFamily: 'Poppins',
                 fontSize: 15,
-                fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
-                color: isSelected ? Colors.black : Colors.black87,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.normal,
+                color: isSelected ? AppColors.primary : AppColors.darkGray,
               ),
               child: Text(
                 label,
