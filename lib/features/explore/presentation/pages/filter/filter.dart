@@ -34,7 +34,6 @@ class _FiltersPageState extends State<FiltersPage>
   late AnimationController _slideController;
 
   String? _selectedLocation;
-  String _selectedCondition = 'ALL';
 
   late HomeTreeState _initialState;
 
@@ -198,17 +197,22 @@ class _FiltersPageState extends State<FiltersPage>
 
                               if (state.predictedPriceFrom >= 0)
                                 PriceRangeSlider(
-                                  min: state.predictedPriceFrom >= 0
-                                      ? state.predictedPriceFrom
-                                      : 0,
-                                  max: state.predictedPriceTo >= 1
-                                      ? state.predictedPriceTo
-                                      : 1,
+                                  min: state.predictedPriceFrom,
+                                  max: state.predictedPriceTo,
                                   initialRange: state.priceFrom != null &&
                                           state.priceTo != null
                                       ? RangeValues(
                                           state.priceFrom!, state.priceTo!)
                                       : null,
+                                  totalResults: state
+                                      .predictedFoundPublications, // Pass the total results
+
+                                  onChanged: (RangeValues values) {
+                                    context.read<HomeTreeCubit>().setPriceRange(
+                                          values.start,
+                                          values.end,
+                                        );
+                                  },
                                 ),
                               SizedBox(
                                 height: 24,
@@ -1983,18 +1987,21 @@ extension ColorUtils on Color {
     return hslLight.toColor();
   }
 }
+
 class PriceRangeSlider extends StatefulWidget {
   final void Function(RangeValues)? onChanged;
   final RangeValues? initialRange;
   final double min;
   final double max;
+  final int totalResults;
 
-  PriceRangeSlider({
+  const PriceRangeSlider({
     super.key,
     this.onChanged,
     this.initialRange,
     required this.min,
     required this.max,
+    required this.totalResults,
   });
 
   @override
@@ -2002,8 +2009,11 @@ class PriceRangeSlider extends StatefulWidget {
 }
 
 class _PriceRangeSliderState extends State<PriceRangeSlider> {
-  late RangeValues _range;
+  late RangeValues _currentRange;
   Timer? _debounceTimer;
+
+  // Safe default values
+  static const double _defaultMin = 0.0;
 
   @override
   void initState() {
@@ -2014,48 +2024,61 @@ class _PriceRangeSliderState extends State<PriceRangeSlider> {
   @override
   void didUpdateWidget(PriceRangeSlider oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Re-initialize range if min or max changes
     if (oldWidget.min != widget.min || oldWidget.max != widget.max) {
       _initializeRange();
     }
   }
 
+  double _getSafeMin() {
+    // Ensure min is a valid finite number
+    if (!widget.min.isFinite || widget.min < 0) {
+      return _defaultMin;
+    }
+    return widget.min;
+  }
+
+  double _getSafeMax() {
+    final safeMin = _getSafeMin();
+    // Ensure max is valid and greater than min
+    if (!widget.max.isFinite || widget.max <= safeMin) {
+      return safeMin + 1000; // Default range if max is invalid
+    }
+    return widget.max;
+  }
+
   void _initializeRange() {
-    // Ensure we have valid min and max
-    final validMin = widget.min.isFinite ? widget.min : 0.0;
-    final validMax = widget.max.isFinite ? widget.max : 1000.0;
-    
+    final safeMin = _getSafeMin();
+    final safeMax = _getSafeMax();
+
     if (widget.initialRange != null) {
-      // Clamp initial range between valid min and max
-      _range = RangeValues(
-        widget.initialRange!.start.clamp(validMin, validMax),
-        widget.initialRange!.end.clamp(validMin, validMax),
-      );
+      // Safely clamp initial range values
+      final start = widget.initialRange!.start.clamp(safeMin, safeMax);
+      final end = widget.initialRange!.end.clamp(start, safeMax);
+      _currentRange = RangeValues(start, end);
     } else {
-      // If no initial range, use min and max
-      _range = RangeValues(validMin, validMax);
+      // Use full range if no initial values
+      _currentRange = RangeValues(safeMin, safeMax);
     }
   }
 
   void _handleRangeChange(RangeValues values) {
-    // Ensure we have valid min and max
-    final validMin = widget.min.isFinite ? widget.min : 0.0;
-    final validMax = widget.max.isFinite ? widget.max : 1000.0;
+    final safeMin = _getSafeMin();
+    final safeMax = _getSafeMax();
 
-    // Ensure start value is not less than min
-    final start = values.start.clamp(validMin, validMax);
-    // Ensure end value is not more than max and not less than start
-    final end = values.end.clamp(start, validMax);
+    // Ensure values are within bounds
+    final start = values.start.clamp(safeMin, safeMax);
+    final end = values.end.clamp(start, safeMax);
 
     final newRange = RangeValues(start, end);
-    
-    if (_range != newRange) {
-      setState(() => _range = newRange);
-      
+
+    if (_currentRange != newRange) {
+      setState(() {
+        _currentRange = newRange;
+      });
+
       _debounceTimer?.cancel();
       _debounceTimer = Timer(const Duration(milliseconds: 200), () {
         widget.onChanged?.call(newRange);
-        context.read<HomeTreeCubit>().setPriceRange(start, end);
       });
     }
   }
@@ -2066,65 +2089,88 @@ class _PriceRangeSliderState extends State<PriceRangeSlider> {
     super.dispose();
   }
 
+  String _formatPrice(double value) {
+    if (value >= 1000000) {
+      return '\$${(value / 1000000).toStringAsFixed(1)}M';
+    } else if (value >= 1000) {
+      return '\$${(value / 1000).toStringAsFixed(1)}K';
+    }
+    return '\$${value.round()}';
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Ensure we have valid min and max for display
-    final validMin = widget.min.isFinite ? widget.min : 0.0;
-    final validMax = widget.max.isFinite ? widget.max : 1000.0;
+    final safeMin = _getSafeMin();
+    final safeMax = _getSafeMax();
 
-    return BlocBuilder<HomeTreeCubit, HomeTreeState>(
-      builder: (context, state) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 24),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Price range',
-                    style: TextStyle(
-                      fontSize: 19,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  Text(
-                    '\$${_range.start.round()} - \$${_range.end.round()}',
-                    style: TextStyle(
-                      color: AppColors.blue.withOpacity(0.75),
-                      fontSize: 19,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  )
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            SliderTheme(
-              data: SliderThemeData(
-                trackHeight: 5,
-                activeTrackColor: AppColors.primaryLight2,
-                inactiveTrackColor: Colors.grey[200],
-                thumbColor: Colors.white,
-                overlayColor: Colors.transparent,
-                thumbShape: const RoundSliderThumbShape(
-                  enabledThumbRadius: 8,
-                  elevation: 2,
+    // Handle zero results or invalid range
+    final bool isDisabled =
+        widget.totalResults == 0 || (widget.min == 0 && widget.max == 0);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 24),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Price range',
+                style: TextStyle(
+                  fontSize: 19,
+                  fontWeight: FontWeight.w500,
                 ),
-                overlayShape: const RoundSliderOverlayShape(overlayRadius: 0),
-                showValueIndicator: ShowValueIndicator.never,
               ),
-              child: RangeSlider(
-                values: _range,
-                min: validMin,
-                max: validMax,
-                onChanged: _handleRangeChange,
-              ),
+              if (isDisabled)
+                const Text(
+                  'No results in range',
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 17,
+                    fontWeight: FontWeight.w400,
+                  ),
+                )
+              else
+                Text(
+                  '${_formatPrice(_currentRange.start)} - ${_formatPrice(_currentRange.end)}',
+                  style: TextStyle(
+                    color: AppColors.darkGray,
+                    fontSize: 19,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        SliderTheme(
+          data: SliderThemeData(
+            trackHeight: 5,
+            activeTrackColor:
+                isDisabled ? Colors.grey[300] : AppColors.primaryLight2,
+            inactiveTrackColor: Colors.grey[200],
+            thumbColor: isDisabled ? Colors.grey[400] : Colors.white,
+            overlayColor: Colors.transparent,
+            thumbShape: const RoundSliderThumbShape(
+              enabledThumbRadius: 8,
+              elevation: 2,
             ),
-          ],
-        );
-      },
+            overlayShape: const RoundSliderOverlayShape(overlayRadius: 0),
+            showValueIndicator: ShowValueIndicator.never,
+          ),
+          child: RangeSlider(
+            values: RangeValues(
+              _currentRange.start.clamp(safeMin, safeMax),
+              _currentRange.end.clamp(_currentRange.start, safeMax),
+            ),
+            min: safeMin,
+            max: safeMax,
+            divisions: 100,
+            onChanged: isDisabled ? null : _handleRangeChange,
+          ),
+        ),
+      ],
     );
   }
 }
