@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:dio/dio.dart';
 import 'package:list_in/core/error/exeptions.dart';
 import 'package:list_in/core/error/failure.dart';
 import 'package:list_in/core/network/network_info.dart';
@@ -138,20 +139,20 @@ class PublicationsRepositoryImpl implements PublicationsRepository {
     double? priceTo,
     List<String>? filters,
     List<String>? numeric,
+    CancelToken? cancelToken,
   }) async {
     if (await networkInfo.isConnected) {
       try {
         final filterPredictionValues =
             await remoteDataSource.getFilteredValuesOfPublications(
           query: query,
-          page: page,
-          size: size,
           bargain: bargain,
           condition: condition,
           priceFrom: priceFrom,
           priceTo: priceTo,
           filters: filters,
           numeric: numeric,
+          cancelToken: cancelToken,
         );
         return Right(filterPredictionValues.toEntity());
       } on ServerExeption {

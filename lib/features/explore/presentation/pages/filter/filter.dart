@@ -1559,17 +1559,17 @@ class _FiltersPageState extends State<FiltersPage>
                   height: 24,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
-                    color: state.bargain!
+                    color: state.bargain
                         ? AppColors.primaryLight2
                         : Colors.transparent,
                     border: Border.all(
-                      color: state.bargain!
+                      color: state.bargain
                           ? AppColors.primaryLight2
                           : AppColors.lighterGray,
                       width: 2.0,
                     ),
                   ),
-                  child: state.bargain!
+                  child: state.bargain
                       ? Icon(
                           Icons.check,
                           size: 16,
@@ -1611,17 +1611,17 @@ class _FiltersPageState extends State<FiltersPage>
                   height: 24,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
-                    color: state.isFree!
+                    color: state.isFree
                         ? AppColors.primaryLight2
                         : Colors.transparent,
                     border: Border.all(
-                      color: state.isFree!
+                      color: state.isFree
                           ? AppColors.primaryLight2
                           : AppColors.lighterGray,
                       width: 2,
                     ),
                   ),
-                  child: state.isFree!
+                  child: state.isFree
                       ? Icon(
                           Icons.check,
                           size: 16,

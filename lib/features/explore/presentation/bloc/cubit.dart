@@ -1,10 +1,12 @@
 // post_cubit.dart
 import 'dart:async';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:list_in/core/error/exeptions.dart';
 import 'package:list_in/core/error/failure.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/core/usecases/usecases.dart';
@@ -31,6 +33,8 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
       getFilteredPublicationsValuesUsecase;
   static const int pageSize = 20;
   Timer? _debounceTimer;
+  Timer? _filterPredictionDebounceTimer;
+  CancelToken? _filterPredictionCancelToken;
   HomeTreeCubit({
     required this.getCatalogsUseCase,
     required this.getPublicationsUseCase,
@@ -652,11 +656,103 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     }
   }
 
+  Future<void> fetchFilteredPredictionValues() async {
+    // Cancel any existing timer
+    _filterPredictionDebounceTimer?.cancel();
+
+    // Cancel any ongoing request
+    if (_filterPredictionCancelToken != null) {
+      _filterPredictionCancelToken!.cancel('Cancelled due to new request');
+      _filterPredictionCancelToken = null;
+    }
+
+    // Create new debounce timer
+    _filterPredictionDebounceTimer =
+        Timer(const Duration(milliseconds: 1), () async {
+      emit(state.copyWith(
+        filteredValuesRequestState: RequestState.inProgress,
+        errorFilteredValuesFetch: null,
+      ));
+
+      try {
+        bool shouldIncludeFilter(dynamic value, dynamic defaultValue) {
+          return value != null && value != defaultValue;
+        }
+
+        // Create new cancel token for this request
+        _filterPredictionCancelToken = CancelToken();
+
+        final params = GetFilteredPublicationsValuesParams(
+          bargain: state.bargain == true ? true : null,
+          condition: shouldIncludeFilter(state.condition, 'ALL')
+              ? state.condition
+              : null,
+          priceFrom: state.priceFrom,
+          priceTo: state.priceTo,
+          filters: state.generateFilterParameters().isNotEmpty
+              ? state.generateFilterParameters()
+              : null,
+          numerics: state._generateNumericFilters().isNotEmpty
+              ? state._generateNumericFilters()
+              : null,
+          cancelToken:
+              _filterPredictionCancelToken, // Pass cancel token to the usecase
+        );
+
+        final result =
+            await getFilteredPublicationsValuesUsecase(params: params);
+
+        // Check if request was cancelled
+        if (_filterPredictionCancelToken?.isCancelled ?? false) {
+          return;
+        }
+
+        result.fold(
+          (failure) {
+            // Only emit if the failure is not due to cancellation
+            if (failure is! CancellationFailure) {
+              emit(state.copyWith(
+                filteredValuesRequestState: RequestState.error,
+                errorFilteredValuesFetch: _mapFailureToMessage(failure),
+                predictedPriceFrom: 0,
+                predictedPriceTo: 0,
+                predictedFoundPublications: 0,
+              ));
+            }
+          },
+          (filterPrediction) {
+            emit(state.copyWith(
+              filteredValuesRequestState: RequestState.completed,
+              predictedPriceFrom: filterPrediction.priceFrom,
+              predictedPriceTo: filterPrediction.priceTo,
+              predictedFoundPublications: filterPrediction.foundPublications,
+              errorFilteredValuesFetch: null,
+            ));
+          },
+        );
+      } catch (e) {
+        if (e is! CancelledException) {
+          emit(state.copyWith(
+            filteredValuesRequestState: RequestState.error,
+            errorFilteredValuesFetch: 'An unexpected error occurred',
+            predictedPriceFrom: 0,
+            predictedPriceTo: 0,
+            predictedFoundPublications: 0,
+          ));
+        }
+      } finally {
+        // Clear cancel token after request completes or fails
+        _filterPredictionCancelToken = null;
+      }
+    });
+  }
+
 // Update the related state management methods
   void updateSellerType(SellerType type, bool filter) {
     emit(state.copyWith(sellerType: type));
     if (type != SellerType.ALL) {
       if (filter) {
+        fetchFilteredPredictionValues();
       } else {
         fetchChildPage(0);
       }
@@ -667,6 +763,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     emit(state.copyWith(condition: condition));
     if (condition != 'ALL') {
       if (filter) {
+        fetchFilteredPredictionValues();
       } else {
         fetchChildPage(0);
       }
@@ -677,6 +774,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     emit(state.copyWith(bargain: value));
     if (value) {
       if (filter) {
+        fetchFilteredPredictionValues();
       } else {
         fetchChildPage(0);
       }
@@ -687,6 +785,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     emit(state.copyWith(isFree: value));
     if (value) {
       if (filter) {
+        fetchFilteredPredictionValues();
       } else {
         fetchChildPage(0);
       }
@@ -768,7 +867,10 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     }
   }
 
-  void setPriceRange(double? from, double? to) {
+  void setPriceRange(
+    double? from,
+    double? to,
+  ) {
     emit(state.copyWith(
       priceFrom: from,
       priceTo: to,
@@ -1371,6 +1473,8 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
   @override
   Future<void> close() {
     _debounceTimer?.cancel();
+    _filterPredictionDebounceTimer?.cancel();
+    _filterPredictionCancelToken?.cancel();
     return super.close();
   }
 }

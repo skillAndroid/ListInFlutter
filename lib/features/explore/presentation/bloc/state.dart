@@ -101,6 +101,12 @@ class HomeTreeState {
   final RequestState predictionsRequestState;
   final String? errorPredictionsFetch;
 
+  final double predictedPriceFrom;
+  final double predictedPriceTo;
+  final int predictedFoundPublications;
+  final RequestState filteredValuesRequestState;
+  final String? errorFilteredValuesFetch;
+
   HomeTreeState({
     this.searchRequestState = RequestState.idle,
     this.searchPublicationsRequestState = RequestState.idle,
@@ -115,6 +121,11 @@ class HomeTreeState {
     this.catalogs,
     this.selectedCatalog,
     this.selectedChildCategory,
+    this.predictedPriceFrom = 0,
+    this.predictedPriceTo = 0,
+    this.predictedFoundPublications = 0,
+    this.filteredValuesRequestState = RequestState.idle,
+    this.errorFilteredValuesFetch,
     bool? bargain,
     bool? isFree,
     String? condition,
@@ -267,6 +278,11 @@ class HomeTreeState {
     bool clearIsFree = false,
     bool clearCondition = false,
     bool clearSellerType = false,
+    double? predictedPriceFrom,
+    double? predictedPriceTo,
+    int? predictedFoundPublications,
+    RequestState? filteredValuesRequestState,
+    String? errorFilteredValuesFetch,
   }) {
     return HomeTreeState(
       searchRequestState: searchRequestState ?? this.searchRequestState,
@@ -344,6 +360,13 @@ class HomeTreeState {
       condition: clearCondition ? 'ALL' : (condition ?? this.condition),
       sellerType:
           clearSellerType ? SellerType.ALL : (sellerType ?? this.sellerType),
+      predictedPriceFrom: predictedPriceFrom ?? this.predictedPriceFrom,
+      predictedPriceTo: predictedPriceTo ?? this.predictedPriceTo,
+      predictedFoundPublications:
+          predictedFoundPublications ?? this.predictedFoundPublications,
+      filteredValuesRequestState:
+          filteredValuesRequestState ?? this.filteredValuesRequestState,
+      errorFilteredValuesFetch: errorFilteredValuesFetch,
     );
   }
 

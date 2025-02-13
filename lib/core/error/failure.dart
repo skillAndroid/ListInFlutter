@@ -49,3 +49,8 @@ class InvalidParamsFailure extends Failure {
   @override
   String toString() => 'Invalid parameters provided';
 }
+
+class CancellationFailure extends Failure {
+  @override
+  List<Object?> get props => [];
+}

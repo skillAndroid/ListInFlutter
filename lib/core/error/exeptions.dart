@@ -1,4 +1,3 @@
-
 class ServerExeption implements Exception {
   final String message;
   ServerExeption({required this.message});
@@ -39,26 +38,21 @@ class ConnectionExeption implements Exception {
   }
 }
 
-
 class ConnectiontTimeOutExeption implements Exception {
   ConnectiontTimeOutExeption();
 }
-
 
 class UknownExeption implements Exception {
   UknownExeption();
 }
 
-
 class NotFoundExeption implements Exception {
   NotFoundExeption();
 }
 
-
 class AuthExeption implements Exception {
   AuthExeption();
 }
-
 
 class CacheExeption implements Exception {
   final String message;
@@ -69,7 +63,6 @@ class CacheExeption implements Exception {
     return "Cache exeption: $message";
   }
 }
-
 
 class UnImplementedExeption implements Exception {
   final String message;
@@ -84,4 +77,14 @@ class UnImplementedExeption implements Exception {
 class UnauthorizedException implements Exception {
   final String message;
   UnauthorizedException(this.message);
+}
+
+class CancelledException implements Exception {
+  final String message;
+  CancelledException({required this.message});
+
+  @override
+  String toString() {
+    return "Cancelled exception: $message";
+  }
 }

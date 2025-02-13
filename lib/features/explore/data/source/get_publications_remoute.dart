@@ -38,14 +38,13 @@ abstract class PublicationsRemoteDataSource {
 
   Future<FilterPredictionValuesModel> getFilteredValuesOfPublications({
     String? query,
-    int? page,
-    int? size,
     bool? bargain,
     String? condition,
     double? priceFrom,
     double? priceTo,
     List<String>? filters,
     List<String>? numeric,
+    CancelToken? cancelToken,
   });
 }
 
@@ -160,6 +159,10 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
         return ConnectionExeption(
           message: 'No internet connection',
         );
+      case DioExceptionType.cancel:
+        return CancelledException(
+          message: 'Request was cancelled',
+        );
       default:
         return ServerExeption(
           message: e.message ?? 'Server error occurred',
@@ -226,19 +229,23 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
   @override
   Future<FilterPredictionValuesModel> getFilteredValuesOfPublications({
     String? query,
-    int? page,
-    int? size,
     bool? bargain,
     String? condition,
     double? priceFrom,
     double? priceTo,
     List<String>? filters,
     List<String>? numeric,
+    CancelToken? cancelToken,
   }) async {
     try {
       final options = await authService.getAuthOptions();
       final queryParams = {
-        'query': query ?? '',
+        if (bargain != null) 'bargain': bargain.toString(),
+        if (condition != null) 'condition': condition,
+        if (priceFrom != null) 'from': priceFrom.toString(),
+        if (priceTo != null) 'to': priceTo.toString(),
+        if (filters != null && filters.isNotEmpty) 'filter': filters,
+        if (numeric != null && numeric.isNotEmpty) 'numeric': numeric.join(','),
       };
 
       String url = '/api/v1/publications/search/';
@@ -246,6 +253,7 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
         url,
         queryParameters: queryParams,
         options: options,
+        cancelToken: cancelToken,
       );
       final paginatedResponse =
           FilterPredictionValuesModel.fromJson(response.data);
