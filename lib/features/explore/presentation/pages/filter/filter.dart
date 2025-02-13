@@ -1908,8 +1908,9 @@ class _FiltersPageState extends State<FiltersPage>
                           if (state.filteredValuesRequestState !=
                               RequestState.inProgress)
                             Text(
-                              'Show ${state.predictedFoundPublications} publications',
-                              style: TextStyle(
+                              _getPublicationCountText(
+                                  state.predictedFoundPublications),
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                                 letterSpacing: 0.5,
@@ -1929,21 +1930,15 @@ class _FiltersPageState extends State<FiltersPage>
     );
   }
 
-  Color? _getColorFromName(String colorName) {
-    final colorMap = {
-      'Silver': Colors.grey[300],
-      'Pink': Colors.pink,
-      'Rose Gold': Color(0xFFB76E79),
-      'Space Gray': Color(0xFF4A4A4A),
-      'Blue': Colors.blue,
-      'Yellow': Colors.yellow,
-      'Green': Colors.green,
-      'Purple': Colors.purple,
-      'White': Colors.white,
-      'Red': Colors.red,
-      'Black': Colors.black,
-    };
-    return colorMap[colorName];
+  String _getPublicationCountText(int count) {
+    if (count == 0) {
+      return 'No publications found';
+    } else if (count >= 1000) {
+      final thousands = (count / 1000).floor();
+      return 'Show more than ${thousands}k publications';
+    } else {
+      return 'Show ${count.toString()} publications';
+    }
   }
 }
 
