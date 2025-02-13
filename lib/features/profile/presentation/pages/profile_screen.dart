@@ -457,21 +457,21 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                     ),
                     // Posts Tab
                     _buildEmptyTab(
-                      icon: CupertinoIcons.doc_text,
-                      text: "Empty List",
+                      icon: CupertinoIcons.camera,
+                      text: "No Photos",
                     ),
                     // Videos Tab
                     _buildEmptyTab(
-                      icon: CupertinoIcons.video_camera,
-                      text: "Empty List",
+                      icon: Icons.play_circle_rounded,
+                      text: "No Videos",
                     ),
                     _buildEmptyTab(
-                      icon: CupertinoIcons.video_camera,
-                      text: "Empty List",
+                      icon: CupertinoIcons.star,
+                      text: "No Reviews",
                     ),
                     _buildEmptyTab(
-                      icon: CupertinoIcons.video_camera,
-                      text: "Empty List",
+                      icon: CupertinoIcons.heart,
+                      text: "No Likes",
                     ),
                   ],
                 ),
@@ -684,118 +684,173 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
             selectedProductFilter = value;
           });
         },
-        backgroundColor: AppColors.bgColor,
-        selectedColor: CupertinoColors.activeGreen,
+        backgroundColor: AppColors.white,
+        selectedColor: CupertinoColors.systemGreen,
         showCheckmark: false,
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
       ),
     );
   }
+Widget _buildFilteredProductsGrid() {
+  return BlocConsumer<UserPublicationsBloc, UserPublicationsState>(
+    listener: (context, state) {
+      if (state.error != null) {
+        _showErrorSnackbar(context, state.error!);
+      }
+    },
+    builder: (context, state) {
+      // For empty states, use SliverFillRemaining to center content
+      if ((state.isLoading || state.isInitialLoading) && state.publications.isEmpty) {
+        return SliverFillRemaining(
+          hasScrollBody: false,
+          child: Center(
+            child: Progress(),
+          ),
+        );
+      }
 
-  Widget _buildFilteredProductsGrid() {
-    return BlocConsumer<UserPublicationsBloc, UserPublicationsState>(
-      listener: (context, state) {
-        if (state.error != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.error!)),
-          );
-        }
-      },
-      builder: (context, state) {
-        if ((state.isLoading || state.isInitialLoading) &&
-            state.publications.isEmpty) {
-          return SliverToBoxAdapter(
-            child: Center(
-              child: Transform.scale(scale: 0.75, child: Progress()),
-            ),
-          );
-        }
-
-        if (state.error != null) {
-          return SliverToBoxAdapter(
-            child: Center(
-              child: TextButton(
-                onPressed: () {
-                  context
-                      .read<UserPublicationsBloc>()
-                      .add(FetchUserPublications());
-                },
-                child: Text("Retry"),
-              ),
-            ),
-          );
-        }
-
-        if (state.publications.isEmpty) {
-          return SliverToBoxAdapter(
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 32),
-                  Icon(Icons.inventory, size: 72, color: Colors.grey[400]),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No $selectedProductFilter products',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[600],
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }
-
-        return SliverPadding(
-          padding: const EdgeInsets.only(top: 8, bottom: 16), // Added padding
-          sliver: SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                if (index == state.publications.length) {
-                  if (state.isLoading) {
-                    return const Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 16.0, vertical: 0),
-                      child: Progress(),
-                    );
-                  }
-                  return null;
-                }
-
-                final publication = state.publications[index];
-                return HorizontalProfileProductCard(
-                  product: publication,
-                );
+      if (state.error != null) {
+        return SliverFillRemaining(
+          hasScrollBody: false,
+          child: Center(
+            child: FilledButton.icon(
+              onPressed: () {
+                context.read<UserPublicationsBloc>().add(FetchUserPublications());
               },
-              childCount: state.publications.length + (state.isLoading ? 1 : 0),
+              icon: const Icon(Icons.refresh_rounded),
+              label: const Text('Try Again'),
             ),
           ),
         );
-      },
-    );
-  }
+      }
 
-  Widget _buildEmptyTab({required IconData icon, required String text}) {
+      if (state.publications.isEmpty) {
+        return SliverFillRemaining(
+          hasScrollBody: false,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.inventory_2_outlined,
+                    size: 48,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'No $selectedProductFilter products',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+
+      // Content state with list
+      return SliverPadding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        sliver: SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              if (index == state.publications.length) {
+                if (state.isLoading) {
+                  return const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Center(child: Progress()),
+                  );
+                }
+                return null;
+              }
+
+              final publication = state.publications[index];
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: HorizontalProfileProductCard(
+                  product: publication,
+                ),
+              );
+            },
+            childCount: state.publications.length + (state.isLoading ? 1 : 0),
+          ),
+        ),
+      );
+    },
+  );
+}
+
+void _showErrorSnackbar(BuildContext context, String error) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(error),
+      behavior: SnackBarBehavior.floating,
+      action: SnackBarAction(
+        label: 'Dismiss',
+        onPressed: () {},
+      ),
+    ),
+  );
+}
+
+  Widget _buildEmptyTab({
+    required IconData icon,
+    required String text,
+    String? subText, // Optional subtitle for more context
+  }) {
     return CustomScrollView(
       slivers: [
-        SliverToBoxAdapter(
-          child: Column(
-            children: [
-              const SizedBox(height: 56),
-              Icon(icon, size: 76, color: AppColors.grey),
-              const SizedBox(height: 16),
-              Text(
-                text,
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.grey,
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    icon,
+                    size: 48,
+                    color: Colors.grey.shade600,
+                  ),
                 ),
-              )
-            ],
+                const SizedBox(height: 16),
+                Text(
+                  text,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.grey,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                if (subText != null) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    subText,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey.shade600,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ],
+            ),
           ),
         ),
       ],

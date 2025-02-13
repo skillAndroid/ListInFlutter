@@ -2143,9 +2143,9 @@ class _PriceRangeSliderState extends State<PriceRangeSlider> {
           data: SliderThemeData(
             trackHeight: 5,
             activeTrackColor:
-                isDisabled ? Colors.grey[300] : AppColors.primaryLight2,
-            inactiveTrackColor: Colors.grey[200],
-            thumbColor: isDisabled ? Colors.grey[400] : Colors.white,
+                isDisabled ? AppColors.containerColor : AppColors.primaryLight2,
+            inactiveTrackColor: AppColors.containerColor,
+            thumbColor: isDisabled ? Colors.grey[100] : Colors.white,
             overlayColor: Colors.transparent,
             thumbShape: const RoundSliderThumbShape(
               enabledThumbRadius: 8,

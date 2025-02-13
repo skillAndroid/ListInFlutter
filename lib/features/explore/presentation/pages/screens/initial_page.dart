@@ -715,15 +715,77 @@ class ErrorIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(error.toString()),
-          ElevatedButton(
-            onPressed: onTryAgain,
-            child: const Text('Try Again'),
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Card(
+          elevation: 0,
+          color: AppColors.white,
+          shape: SmoothRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
-        ],
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Error Icon
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.error_outline_rounded,
+                    size: 32,
+                    color: Colors.blue,
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Error Title
+                Text(
+                  'Oops! Something went wrong',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                  textAlign: TextAlign.center,
+                ),
+                // const SizedBox(height: 8),
+
+                // // Error Message
+                // Text(
+                //   error.toString(),
+                //   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                //         color: Theme.of(context).colorScheme.onSurfaceVariant,
+                //       ),
+                //   textAlign: TextAlign.center,
+                // ),
+                const SizedBox(height: 24),
+
+                // Try Again Button
+                FilledButton.icon(
+                  onPressed: onTryAgain,
+                  icon: const Icon(
+                    Icons.refresh_rounded,
+                    color: AppColors.black,
+                  ),
+                  label: const Text(
+                    'Try Again',
+                    style: TextStyle(color: AppColors.black),
+                  ),
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size(120, 48),
+                    backgroundColor: Colors.tealAccent,
+                    shape: SmoothRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

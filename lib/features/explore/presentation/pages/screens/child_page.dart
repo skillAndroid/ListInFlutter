@@ -16,6 +16,7 @@ import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/explore/presentation/pages/filter/filter.dart';
+import 'package:list_in/features/explore/presentation/pages/screens/initial_page.dart';
 import 'package:list_in/features/explore/presentation/widgets/advertised_product_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
@@ -600,32 +601,5 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
 
   Widget _buildCategories() {
     return TopAppRecomendationSubCategory();
-  }
-}
-
-class ErrorIndicator extends StatelessWidget {
-  final dynamic error;
-  final VoidCallback onTryAgain;
-
-  const ErrorIndicator({
-    super.key,
-    required this.error,
-    required this.onTryAgain,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(error.toString()),
-          ElevatedButton(
-            onPressed: onTryAgain,
-            child: const Text('Try Again'),
-          ),
-        ],
-      ),
-    );
   }
 }

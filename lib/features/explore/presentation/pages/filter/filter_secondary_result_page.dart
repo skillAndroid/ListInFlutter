@@ -386,7 +386,7 @@ class _FilterSecondaryResultPageState extends State<FilterSecondaryResultPage> {
       valueListenable: _uiState.selectedFilters,
       builder: (context, selectedFilters, _) {
         return Container(
-          color: AppColors.bgColor,
+          color: AppColors.white,
           height: 50,
           child: ListView.builder(
             physics: BouncingScrollPhysics(),
@@ -443,7 +443,7 @@ class _FilterSecondaryResultPageState extends State<FilterSecondaryResultPage> {
             },
           });
         },
-        side: BorderSide(width: 1, color: AppColors.lightGray),
+        side: BorderSide(width: 1, color: AppColors.lightGray.withOpacity(0.7)),
       ),
     );
   }
@@ -594,9 +594,5 @@ class _FilterSecondaryResultPageState extends State<FilterSecondaryResultPage> {
         );
       },
     );
-  }
-
-  Widget _buildCategories() {
-    return TopAppRecomendationSubCategory();
   }
 }

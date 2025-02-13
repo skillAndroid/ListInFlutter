@@ -16,6 +16,7 @@ import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/explore/presentation/pages/filter/filter.dart';
+import 'package:list_in/features/explore/presentation/pages/screens/initial_page.dart';
 import 'package:list_in/features/explore/presentation/widgets/advertised_product_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
@@ -251,6 +252,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
         if (state.isLoading) return _buildLoadingScreen();
         if (state.error != null) return _buildErrorScreen(state.error!);
         return Scaffold(
+          backgroundColor: AppColors.white,
           appBar: _buildAppBar(state),
           body: RefreshIndicator(
             color: Colors.blue,
@@ -300,7 +302,6 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                       Text(
                                         "Price",
                                         style: TextStyle(
-                                          fontWeight: FontWeight.w400,
                                           color: AppColors.black,
                                         ),
                                       ),
@@ -308,7 +309,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                   ),
                                   side: BorderSide(
                                     width: 1,
-                                    color: AppColors.lightGray,
+                                    color: AppColors.lightGray.withOpacity(0.7),
                                   ),
                                   shape: SmoothRectangleBorder(
                                     smoothness: 0.8,
@@ -450,14 +451,15 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                       Text(
                                         chipLabel,
                                         style: TextStyle(
-                                          fontWeight: FontWeight.w400,
                                           color: AppColors.black,
                                         ),
                                       ),
                                     ],
                                   ),
                                   side: BorderSide(
-                                      width: 1, color: AppColors.lightGray),
+                                      width: 1,
+                                      color:
+                                          AppColors.lightGray.withOpacity(0.7)),
                                   shape: SmoothRectangleBorder(
                                     smoothness: 0.8,
                                     borderRadius: BorderRadius.circular(10),
@@ -488,12 +490,13 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                   label: Text(
                                     _getSellerTypeText(state.sellerType),
                                     style: TextStyle(
-                                      fontWeight: FontWeight.w400,
                                       color: AppColors.black,
                                     ),
                                   ),
                                   side: BorderSide(
-                                      width: 1, color: AppColors.lightGray),
+                                      width: 1,
+                                      color:
+                                          AppColors.lightGray.withOpacity(0.7)),
                                   shape: SmoothRectangleBorder(
                                     smoothness: 0.8,
                                     borderRadius: BorderRadius.circular(10),
@@ -542,7 +545,9 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                   ),
                                 ),
                                 side: BorderSide(
-                                    width: 1, color: AppColors.lightGray),
+                                    width: 1,
+                                    color:
+                                        AppColors.lightGray.withOpacity(0.7)),
                                 shape: SmoothRectangleBorder(
                                   smoothness: 0.8,
                                   borderRadius: BorderRadius.circular(10),
@@ -561,7 +566,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                       ),
                     ],
                   ),
-                  backgroundColor: AppColors.bgColor,
+                  backgroundColor: AppColors.white,
                 ),
                 _buildProductGrid(),
               ],
@@ -640,7 +645,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
         elevation: 0,
         scrolledUnderElevation: 0,
         automaticallyImplyLeading: false,
-        backgroundColor: AppColors.bgColor,
+        backgroundColor: AppColors.white,
         systemOverlayStyle: const SystemUiOverlayStyle(
           statusBarIconBrightness: Brightness.dark,
         ),
@@ -1807,33 +1812,6 @@ class _PriceRangeBottomSheetState extends State<PriceRangeBottomSheet> {
   }
 }
 
-class ErrorIndicator extends StatelessWidget {
-  final dynamic error;
-  final VoidCallback onTryAgain;
-
-  const ErrorIndicator({
-    super.key,
-    required this.error,
-    required this.onTryAgain,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(error.toString()),
-          ElevatedButton(
-            onPressed: onTryAgain,
-            child: const Text('Try Again'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class NoItemsFound extends StatelessWidget {
   const NoItemsFound({super.key});
 
@@ -2177,7 +2155,9 @@ class SellerTypeBottomSheet extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: isSelected ?AppColors.primary.withOpacity(0.1): Colors.transparent,
+            color: isSelected
+                ? AppColors.primary.withOpacity(0.1)
+                : Colors.transparent,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
