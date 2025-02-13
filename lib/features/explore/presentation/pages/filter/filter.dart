@@ -43,12 +43,14 @@ class _FiltersPageState extends State<FiltersPage>
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initialState = context.read<HomeTreeCubit>().state;
+
       if (widget.page == "child" || widget.page == 'ssssss') {
         context.read<HomeTreeCubit>().resetChildCategorySelection();
       }
       if (widget.page == "initial" || widget.page == "initial_filter") {
         context.read<HomeTreeCubit>().resetCatalogSelection();
       }
+      context.read<HomeTreeCubit>().fetchFilteredPredictionValues();
     });
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 300),
@@ -194,15 +196,20 @@ class _FiltersPageState extends State<FiltersPage>
                                 _buildChildCategories(state, cubit),
                               ],
 
-                              // Price Range Slider
-                              // ignore: prefer_if_null_operators
-                              PriceRangeSlider(
-                                initialRange: state.priceFrom != null &&
-                                        state.priceTo != null
-                                    ? RangeValues(
-                                        state.priceFrom!, state.priceTo!)
-                                    : null,
-                              ),
+                              if (state.predictedPriceFrom >= 0)
+                                PriceRangeSlider(
+                                  min: state.predictedPriceFrom >= 0
+                                      ? state.predictedPriceFrom
+                                      : 0,
+                                  max: state.predictedPriceTo >= 1
+                                      ? state.predictedPriceTo
+                                      : 1,
+                                  initialRange: state.priceFrom != null &&
+                                          state.priceTo != null
+                                      ? RangeValues(
+                                          state.priceFrom!, state.priceTo!)
+                                      : null,
+                                ),
                               SizedBox(
                                 height: 24,
                               ),
@@ -1371,85 +1378,6 @@ class _FiltersPageState extends State<FiltersPage>
     );
   }
 
-  Widget _buildAnimatedAttributeSection(
-    dynamic attribute,
-    HomeTreeCubit cubit,
-    HomeTreeState state,
-  ) {
-    final isMultiSelect = attribute.filterWidgetType == 'multiSelectable' ||
-        attribute.filterWidgetType == 'colorMultiSelectable';
-
-    return AnimatedSlide(
-      duration: Duration(milliseconds: 400),
-      offset: Offset(0, 0),
-      child: AnimatedOpacity(
-        duration: Duration(milliseconds: 300),
-        opacity: 1.0,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              child: Text(
-                attribute.filterText,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.blue.shade700,
-                ),
-              ),
-            ),
-            SizedBox(
-              height: 48,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: attribute.values.length,
-                itemBuilder: (context, index) {
-                  final value = attribute.values[index];
-                  final isSelected = isMultiSelect
-                      ? cubit.getSelectedValues(attribute).contains(value)
-                      : cubit
-                              .getSelectedAttributeValue(attribute)
-                              ?.attributeValueId ==
-                          value.attributeValueId;
-
-                  return Padding(
-                    padding: EdgeInsets.only(right: 8),
-                    child: _buildAnimatedFilterChip(
-                      label: value.value,
-                      isSelected: isSelected,
-                      onSelected: (selected) {
-                        if (isMultiSelect) {
-                          if (isSelected) {
-                            cubit.clearSelectedAttributeValue(attribute, value);
-                          } else {
-                            cubit.selectAttributeValue(attribute, value);
-                          }
-                        } else {
-                          if (isSelected) {
-                            cubit.clearSelectedAttribute(attribute);
-                          } else {
-                            cubit.clearSelectedAttribute(attribute);
-                            cubit.selectAttributeValue(attribute, value);
-                          }
-                        }
-                        cubit.getAtributesForPost();
-                      },
-                      color:
-                          attribute.filterWidgetType == 'colorMultiSelectable'
-                              ? _getColorFromName(value.value)
-                              : null,
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildSellerTypeFilter(HomeTreeState state) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1962,14 +1890,28 @@ class _FiltersPageState extends State<FiltersPage>
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(
-                            'Apply',
-                            style: TextStyle(
+                          if (state.filteredValuesRequestState ==
+                              RequestState.inProgress)
+                            const SizedBox(
+                              height: 18,
+                              width: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.5,
+                                strokeCap: StrokeCap.round,
+                                color: Colors.white,
+                              ),
+                            ),
+                          if (state.filteredValuesRequestState !=
+                              RequestState.inProgress)
+                            Text(
+                              'Show ${state.predictedFoundPublications} publications',
+                              style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                                 letterSpacing: 0.5,
-                                fontFamily: "Poppins"),
-                          ),
+                                fontFamily: "Poppins",
+                              ),
+                            ),
                         ],
                       ),
                     ),
@@ -2045,11 +1987,15 @@ extension ColorUtils on Color {
 class PriceRangeSlider extends StatefulWidget {
   final void Function(RangeValues)? onChanged;
   final RangeValues initialRange;
+  final double min;
+  final double max;
 
   PriceRangeSlider({
     super.key,
     this.onChanged,
     RangeValues? initialRange,
+    required this.min,
+    required this.max,
   }) : initialRange = initialRange ?? RangeValues(0, 1000);
 
   @override
@@ -2129,8 +2075,8 @@ class _PriceRangeSliderState extends State<PriceRangeSlider> {
               ),
               child: RangeSlider(
                 values: _range,
-                min: 0,
-                max: 1000,
+                min: widget.min,
+                max: widget.max,
                 onChanged: _handleRangeChange,
               ),
             ),

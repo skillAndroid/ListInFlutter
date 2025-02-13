@@ -14,8 +14,8 @@ class FilterPredictionValuesModel {
   factory FilterPredictionValuesModel.fromJson(Map<String, dynamic> json) {
     return FilterPredictionValuesModel(
       foundPublications: json["foundPublications"],
-      priceFrom: json["priceFrom"],
-      priceTo: json["priceTo"],
+      priceFrom: json["priceFrom"] ?? 0,
+      priceTo: json["priceTo"] ?? 0,
     );
   }
   FilterPredictionValuesEntity toEntity() {

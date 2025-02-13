@@ -750,34 +750,28 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
 // Update the related state management methods
   void updateSellerType(SellerType type, bool filter) {
     emit(state.copyWith(sellerType: type));
-    if (type != SellerType.ALL) {
-      if (filter) {
-        fetchFilteredPredictionValues();
-      } else {
-        fetchChildPage(0);
-      }
+    if (filter) {
+      fetchFilteredPredictionValues();
+    } else {
+      fetchChildPage(0);
     }
   }
 
   void updateCondition(String condition, bool filter) {
     emit(state.copyWith(condition: condition));
-    if (condition != 'ALL') {
-      if (filter) {
-        fetchFilteredPredictionValues();
-      } else {
-        fetchChildPage(0);
-      }
+    if (filter) {
+      fetchFilteredPredictionValues();
+    } else {
+      fetchChildPage(0);
     }
   }
 
   void toggleBargain(bool value, bool filter) {
     emit(state.copyWith(bargain: value));
-    if (value) {
-      if (filter) {
-        fetchFilteredPredictionValues();
-      } else {
-        fetchChildPage(0);
-      }
+    if (filter) {
+      fetchFilteredPredictionValues();
+    } else {
+      fetchChildPage(0);
     }
   }
 
