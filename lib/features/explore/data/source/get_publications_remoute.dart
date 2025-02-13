@@ -2,22 +2,24 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:list_in/core/error/exeptions.dart';
 import 'package:list_in/core/services/auth_service.dart';
+import 'package:list_in/features/explore/data/models/filter_publications_values_model.dart';
 import 'package:list_in/features/explore/data/models/prediction_model.dart';
 import 'package:list_in/features/explore/data/models/publication_model.dart';
 
 abstract class PublicationsRemoteDataSource {
-  Future<List<PublicationPairModel>> getPublications(
-      {String? categoryId,
-      String? subcategoryId,
-      String? query,
-      int? page,
-      int? size,
-      bool? bargain,
-      String? condition,
-      double? priceFrom,
-      double? priceTo,
-      List<String>? filters,
-      List<String>? numeric});
+  Future<List<PublicationPairModel>> getPublications({
+    String? categoryId,
+    String? subcategoryId,
+    String? query,
+    int? page,
+    int? size,
+    bool? bargain,
+    String? condition,
+    double? priceFrom,
+    double? priceTo,
+    List<String>? filters,
+    List<String>? numeric,
+  });
 
   Future<List<PredictionModel>> getPredictions(String? query);
 
@@ -32,6 +34,18 @@ abstract class PublicationsRemoteDataSource {
     double? priceFrom,
     double? priceTo,
     List<String>? filters,
+  });
+
+  Future<FilterPredictionValuesModel> getFilteredValuesOfPublications({
+    String? query,
+    int? page,
+    int? size,
+    bool? bargain,
+    String? condition,
+    double? priceFrom,
+    double? priceTo,
+    List<String>? filters,
+    List<String>? numeric,
   });
 }
 
@@ -69,8 +83,7 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
         if (priceFrom != null) 'from': priceFrom.toString(),
         if (priceTo != null) 'to': priceTo.toString(),
         if (filters != null && filters.isNotEmpty) 'filter': filters,
-        if (numeric != null && numeric.isNotEmpty)
-          'numeric': numeric.join(','),
+        if (numeric != null && numeric.isNotEmpty) 'numeric': numeric.join(','),
       };
 
       String url = '/api/v1/publications';
@@ -206,6 +219,44 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
       throw _handleDioException(e);
     } catch (e) {
       debugPrint("😇😇Exception in fetching data remote $e");
+      throw UknownExeption();
+    }
+  }
+
+  @override
+  Future<FilterPredictionValuesModel> getFilteredValuesOfPublications({
+    String? query,
+    int? page,
+    int? size,
+    bool? bargain,
+    String? condition,
+    double? priceFrom,
+    double? priceTo,
+    List<String>? filters,
+    List<String>? numeric,
+  }) async {
+    try {
+      final options = await authService.getAuthOptions();
+      final queryParams = {
+        'query': query ?? '',
+      };
+
+      String url = '/api/v1/publications/search/';
+      final response = await dio.get(
+        url,
+        queryParameters: queryParams,
+        options: options,
+      );
+      final paginatedResponse =
+          FilterPredictionValuesModel.fromJson(response.data);
+
+      debugPrint("😇😇Success");
+      return paginatedResponse;
+    } on DioException catch (e) {
+      debugPrint("😇😇Exeption in fetching data remout DIO EXCEPTION $e");
+      throw _handleDioException(e);
+    } catch (e) {
+      debugPrint("😇😇Exeption in fetching data remout $e");
       throw UknownExeption();
     }
   }

@@ -9,6 +9,7 @@ import 'package:list_in/core/error/failure.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/core/usecases/usecases.dart';
 import 'package:list_in/features/explore/domain/enties/prediction_entity.dart';
+import 'package:list_in/features/explore/domain/usecase/get_filtered_publications_values_usecase.dart';
 import 'package:list_in/features/explore/domain/usecase/get_prediction_usecase.dart';
 import 'package:list_in/features/explore/domain/usecase/get_publications_usecase.dart';
 import 'package:list_in/features/explore/domain/usecase/get_video_publications_usecase.dart';
@@ -26,6 +27,8 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
   final GetPublicationsUsecase getPublicationsUseCase;
   final GetPredictionsUseCase getPredictionsUseCase;
   final GetVideoPublicationsUsecase getVideoPublicationsUsecase;
+  final GetFilteredPublicationsValuesUsecase
+      getFilteredPublicationsValuesUsecase;
   static const int pageSize = 20;
   Timer? _debounceTimer;
   HomeTreeCubit({
@@ -33,6 +36,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     required this.getPublicationsUseCase,
     required this.getPredictionsUseCase,
     required this.getVideoPublicationsUsecase,
+    required this.getFilteredPublicationsValuesUsecase,
   }) : super(HomeTreeState());
 
   Future<void> getPredictions() async {

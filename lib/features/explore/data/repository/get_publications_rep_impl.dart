@@ -3,6 +3,7 @@ import 'package:list_in/core/error/exeptions.dart';
 import 'package:list_in/core/error/failure.dart';
 import 'package:list_in/core/network/network_info.dart';
 import 'package:list_in/features/explore/data/source/get_publications_remoute.dart';
+import 'package:list_in/features/explore/domain/enties/filter_prediction_values_entity.dart';
 import 'package:list_in/features/explore/domain/enties/prediction_entity.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/domain/repository/get_publications_repository.dart';
@@ -44,7 +45,7 @@ class PublicationsRepositoryImpl implements PublicationsRepository {
           categoryId: categoryId,
           subcategoryId: subcategoryId,
           filters: filters,
-          numeric : numeric,
+          numeric: numeric,
         );
         return Right(
           publications.map((pair) => pair.toEntity()).toList(),
@@ -113,6 +114,46 @@ class PublicationsRepositoryImpl implements PublicationsRepository {
         return Right(
           publications.toEntity(),
         );
+      } on ServerExeption {
+        return Left(ServerFailure());
+      } on ConnectionExeption {
+        return Left(NetworkFailure());
+      } catch (e) {
+        return Left(UnexpectedFailure());
+      }
+    } else {
+      return Left(NetworkFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, FilterPredictionValuesEntity>>
+      getFilteredValuesOfPublications({
+    String? query,
+    int? page,
+    int? size,
+    bool? bargain,
+    String? condition,
+    double? priceFrom,
+    double? priceTo,
+    List<String>? filters,
+    List<String>? numeric,
+  }) async {
+    if (await networkInfo.isConnected) {
+      try {
+        final filterPredictionValues =
+            await remoteDataSource.getFilteredValuesOfPublications(
+          query: query,
+          page: page,
+          size: size,
+          bargain: bargain,
+          condition: condition,
+          priceFrom: priceFrom,
+          priceTo: priceTo,
+          filters: filters,
+          numeric: numeric,
+        );
+        return Right(filterPredictionValues.toEntity());
       } on ServerExeption {
         return Left(ServerFailure());
       } on ConnectionExeption {

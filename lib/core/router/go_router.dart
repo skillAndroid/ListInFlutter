@@ -11,6 +11,7 @@ import 'package:list_in/features/auth/presentation/pages/welcome_page.dart';
 import 'package:list_in/features/details/presentation/pages/details.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
+import 'package:list_in/features/explore/domain/usecase/get_filtered_publications_values_usecase.dart';
 import 'package:list_in/features/explore/domain/usecase/get_prediction_usecase.dart';
 import 'package:list_in/features/explore/domain/usecase/get_publications_usecase.dart';
 import 'package:list_in/features/explore/domain/usecase/get_video_publications_usecase.dart';
@@ -49,6 +50,8 @@ class AppRouter {
   final GetPublicationsUsecase getPublicationsUsecase;
   final GetVideoPublicationsUsecase getVideoPublicationsUsecase;
   final GetPredictionsUseCase getPredictionsUseCase;
+  final GetFilteredPublicationsValuesUsecase
+      getFilteredPublicationsValuesUsecase;
 
   AppRouter({
     required this.sharedPreferences,
@@ -56,6 +59,7 @@ class AppRouter {
     required this.getPublicationsUsecase,
     required this.getPredictionsUseCase,
     required this.getVideoPublicationsUsecase,
+    required this.getFilteredPublicationsValuesUsecase,
   });
 
   static final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -135,6 +139,8 @@ class AppRouter {
               getPublicationsUseCase: getPublicationsUsecase,
               getPredictionsUseCase: getPredictionsUseCase,
               getVideoPublicationsUsecase: getVideoPublicationsUsecase,
+              getFilteredPublicationsValuesUsecase:
+                  getFilteredPublicationsValuesUsecase,
             ),
             child: ListInShorts(
               initialVideos: initialVideos,
@@ -186,6 +192,8 @@ class AppRouter {
                       getPublicationsUseCase: getPublicationsUsecase,
                       getPredictionsUseCase: getPredictionsUseCase,
                       getVideoPublicationsUsecase: getVideoPublicationsUsecase,
+                      getFilteredPublicationsValuesUsecase:
+                          getFilteredPublicationsValuesUsecase,
                     ),
                     child: InitialHomeTreePage(
                       key: state.pageKey,
@@ -211,6 +219,8 @@ class AppRouter {
                             getPredictionsUseCase: getPredictionsUseCase,
                             getVideoPublicationsUsecase:
                                 getVideoPublicationsUsecase,
+                            getFilteredPublicationsValuesUsecase:
+                                getFilteredPublicationsValuesUsecase,
                           );
                           if (priceFrom != null && priceTo != null) {
                             cubit.setPriceRange(priceFrom, priceTo);
@@ -244,6 +254,8 @@ class AppRouter {
                           getPredictionsUseCase: getPredictionsUseCase,
                           getVideoPublicationsUsecase:
                               getVideoPublicationsUsecase,
+                          getFilteredPublicationsValuesUsecase:
+                              getFilteredPublicationsValuesUsecase,
                         ),
                         child: SearchResultPage(
                           key: state.pageKey,
@@ -262,6 +274,8 @@ class AppRouter {
                             getPredictionsUseCase: getPredictionsUseCase,
                             getVideoPublicationsUsecase:
                                 getVideoPublicationsUsecase,
+                            getFilteredPublicationsValuesUsecase:
+                                getFilteredPublicationsValuesUsecase,
                           ),
                           child: SearchPage(
                             key: state.pageKey,
@@ -293,6 +307,8 @@ class AppRouter {
                             getPredictionsUseCase: getPredictionsUseCase,
                             getVideoPublicationsUsecase:
                                 getVideoPublicationsUsecase,
+                            getFilteredPublicationsValuesUsecase:
+                                getFilteredPublicationsValuesUsecase,
                           );
                           cubit.selectCatalog(category);
                           if (priceFrom != null && priceTo != null) {
@@ -344,6 +360,8 @@ class AppRouter {
                             getPredictionsUseCase: getPredictionsUseCase,
                             getVideoPublicationsUsecase:
                                 getVideoPublicationsUsecase,
+                            getFilteredPublicationsValuesUsecase:
+                                getFilteredPublicationsValuesUsecase,
                           );
                           cubit.selectCatalog(category);
 
@@ -424,6 +442,8 @@ class AppRouter {
                                   getPredictionsUseCase: getPredictionsUseCase,
                                   getVideoPublicationsUsecase:
                                       getVideoPublicationsUsecase,
+                                  getFilteredPublicationsValuesUsecase:
+                                      getFilteredPublicationsValuesUsecase,
                                 );
 
                                 if (priceFrom != null && priceTo != null) {

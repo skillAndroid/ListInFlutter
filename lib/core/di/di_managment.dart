@@ -25,6 +25,7 @@ import 'package:list_in/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:list_in/features/explore/data/repository/get_publications_rep_impl.dart';
 import 'package:list_in/features/explore/data/source/get_publications_remoute.dart';
 import 'package:list_in/features/explore/domain/repository/get_publications_repository.dart';
+import 'package:list_in/features/explore/domain/usecase/get_filtered_publications_values_usecase.dart';
 import 'package:list_in/features/explore/domain/usecase/get_prediction_usecase.dart';
 import 'package:list_in/features/explore/domain/usecase/get_publications_usecase.dart';
 import 'package:list_in/features/explore/domain/usecase/get_video_publications_usecase.dart';
@@ -134,6 +135,8 @@ Future<void> init() async {
       getPublicationsUsecase: sl<GetPublicationsUsecase>(),
       getPredictionsUseCase: sl<GetPredictionsUseCase>(),
       getVideoPublicationsUsecase: sl<GetVideoPublicationsUsecase>(),
+      getFilteredPublicationsValuesUsecase:
+          sl<GetFilteredPublicationsValuesUsecase>(),
     ),
   );
 
@@ -231,6 +234,7 @@ Future<void> init() async {
   );
 
   sl.registerLazySingleton(() => GetPublicationsUsecase(sl()));
+  sl.registerLazySingleton(() => GetFilteredPublicationsValuesUsecase(sl()));
   sl.registerLazySingleton(() => GetPublicationsByIdUsecase(sl()));
   sl.registerLazySingleton(() => GetPredictionsUseCase(sl()));
   sl.registerLazySingleton(() => FollowUserUseCase(sl()));
