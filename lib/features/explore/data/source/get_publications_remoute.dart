@@ -56,7 +56,6 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
     required this.dio,
     required this.authService,
   });
-
   @override
   Future<List<PublicationPairModel>> getPublications({
     String? categoryId,
@@ -74,7 +73,7 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
     try {
       final options = await authService.getAuthOptions();
       final queryParams = {
-        'query': query ?? '',
+        if (query != null && query.isNotEmpty) 'query': query,
         if (page != null) 'page': page.toString(),
         if (size != null) 'size': size.toString(),
         if (bargain != null) 'bargain': bargain.toString(),
@@ -85,19 +84,18 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
         if (numeric != null && numeric.isNotEmpty) 'numeric': numeric.join(','),
       };
 
+      // Base URL for publications search
       String url = '/api/v1/publications/search';
 
-      if (query != null && query.isNotEmpty && query != "") {
-        //  url += '/search';
-      } else {
-        if (categoryId != null) {
-          if (subcategoryId != null) {
-            url += '/$categoryId/$subcategoryId';
-          } else {
-            url += '/$categoryId';
-          }
+      // Handle different endpoint patterns
+      if (categoryId != null) {
+        if (subcategoryId != null) {
+          url = '$url/$categoryId/$subcategoryId';
+        } else {
+          url = '$url/$categoryId';
         }
       }
+      // else use base URL: /api/v1/publications/search
 
       final response = await dio.get(
         url,
@@ -112,10 +110,10 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
       debugPrint("😇😇Success");
       return paginatedResponse;
     } on DioException catch (e) {
-      debugPrint("😇😇Exeption in fetching data remout DIO EXCEPTION $e");
+      debugPrint("😇😇Exception in fetching data remote DIO EXCEPTION $e");
       throw _handleDioException(e);
     } catch (e) {
-      debugPrint("😇😇Exeption in fetching data remout $e");
+      debugPrint("😇😇Exception in fetching data remote $e");
       throw UknownExeption();
     }
   }
