@@ -281,7 +281,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                           scrollDirection: Axis.horizontal,
                           padding: const EdgeInsets.symmetric(horizontal: 8),
                           itemCount:
-                              attributes.length + numericFields.length + 1,
+                              attributes.length + numericFields.length + 2,
                           itemBuilder: (context, index) {
                             debugPrint("😤😤${numericFields.length}");
                             if (index == 0) {
@@ -300,6 +300,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                       Text(
                                         "Price",
                                         style: TextStyle(
+                                          fontWeight: FontWeight.w400,
                                           color: AppColors.black,
                                         ),
                                       ),
@@ -449,6 +450,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                       Text(
                                         chipLabel,
                                         style: TextStyle(
+                                          fontWeight: FontWeight.w400,
                                           color: AppColors.black,
                                         ),
                                       ),
@@ -470,6 +472,37 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                           context, attribute);
                                     }
                                   },
+                                ),
+                              );
+                            }
+
+                            if (index ==
+                                attributes.length + numericFields.length + 1) {
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 2.5),
+                                child: FilterChip(
+                                  showCheckmark: false,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 4, vertical: 10),
+                                  label: Text(
+                                    _getSellerTypeText(state.sellerType),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      color: AppColors.black,
+                                    ),
+                                  ),
+                                  side: BorderSide(
+                                      width: 1, color: AppColors.lightGray),
+                                  shape: SmoothRectangleBorder(
+                                    smoothness: 0.8,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  selected: state.sellerType != SellerType.ALL,
+                                  backgroundColor: AppColors.white,
+                                  selectedColor: AppColors.white,
+                                  onSelected: (_) =>
+                                      _showSellerTypeBottomSheet(context),
                                 ),
                               );
                             }
@@ -536,6 +569,20 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
           ),
         );
       },
+    );
+  }
+
+  void _showSellerTypeBottomSheet(BuildContext context) {
+    final cubit = context.read<HomeTreeCubit>();
+    showModalBottomSheet(
+      context: context,
+      useRootNavigator: true,
+      backgroundColor: Colors.transparent,
+      shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      builder: (context) => BlocProvider.value(
+        value: cubit,
+        child: const SellerTypeBottomSheet(),
+      ),
     );
   }
 
@@ -798,7 +845,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
       useRootNavigator: true,
       shape: SmoothRectangleBorder(
         smoothness: 0.8,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(14),
       ),
       backgroundColor: Colors.white,
       isScrollControlled: true,
@@ -960,6 +1007,17 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
     );
   }
 
+  String _getSellerTypeText(SellerType type) {
+    switch (type) {
+      case SellerType.ALL:
+        return 'Shop Type';
+      case SellerType.INDIVIDUAL_SELLER:
+        return 'Individual';
+      case SellerType.BUSINESS_SELLER:
+        return 'Shop';
+    }
+  }
+
   Widget _buildMultiSelectList(
     BuildContext context,
     AttributeModel attribute,
@@ -1028,9 +1086,10 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                         Text(
                           value.value,
                           style: TextStyle(
-                              fontSize: 15,
-                              color: CupertinoColors.darkBackgroundGray,
-                              fontWeight: FontWeight.w600),
+                            fontSize: 15,
+                            color: CupertinoColors.darkBackgroundGray,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ],
                     ),
@@ -1148,7 +1207,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                         color:
                             isSelected ? AppColors.black : AppColors.darkGray,
                         fontWeight:
-                            isSelected ? FontWeight.w700 : FontWeight.w600,
+                            isSelected ? FontWeight.w600 : FontWeight.w500,
                       ),
                     ),
                   ),
@@ -1563,8 +1622,7 @@ class _PriceRangeBottomSheetState extends State<PriceRangeBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return SmoothClipRRect(
-      smoothness: 0.8,
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(14),
       child: Container(
         color: Colors.white,
         child: Column(
@@ -1786,6 +1844,7 @@ class NoItemsFound extends StatelessWidget {
     );
   }
 }
+
 class NumericFieldBottomSheet extends StatefulWidget {
   final NomericFieldModel field;
   final Map<String, int>? initialValues;
@@ -1799,7 +1858,8 @@ class NumericFieldBottomSheet extends StatefulWidget {
   });
 
   @override
-  State<NumericFieldBottomSheet> createState() => _NumericFieldBottomSheetState();
+  State<NumericFieldBottomSheet> createState() =>
+      _NumericFieldBottomSheetState();
 }
 
 class _NumericFieldBottomSheetState extends State<NumericFieldBottomSheet> {
@@ -1844,7 +1904,6 @@ class _NumericFieldBottomSheetState extends State<NumericFieldBottomSheet> {
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-
             Container(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
               child: Stack(
@@ -1889,7 +1948,6 @@ class _NumericFieldBottomSheetState extends State<NumericFieldBottomSheet> {
                 ],
               ),
             ),
-
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               child: Column(
@@ -1921,7 +1979,8 @@ class _NumericFieldBottomSheetState extends State<NumericFieldBottomSheet> {
                               vertical: 16,
                             ),
                           ),
-                          onChanged: (_) => setState(() => _errorMessage = null),
+                          onChanged: (_) =>
+                              setState(() => _errorMessage = null),
                         ),
                       ),
                       Padding(
@@ -1956,7 +2015,8 @@ class _NumericFieldBottomSheetState extends State<NumericFieldBottomSheet> {
                               vertical: 16,
                             ),
                           ),
-                          onChanged: (_) => setState(() => _errorMessage = null),
+                          onChanged: (_) =>
+                              setState(() => _errorMessage = null),
                         ),
                       ),
                     ],
@@ -1975,7 +2035,6 @@ class _NumericFieldBottomSheetState extends State<NumericFieldBottomSheet> {
                 ],
               ),
             ),
-
             Container(
               padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 24),
               width: double.infinity,
@@ -1985,17 +2044,19 @@ class _NumericFieldBottomSheetState extends State<NumericFieldBottomSheet> {
                     onPressed: () {
                       final fromText = _fromController.text.trim();
                       final toText = _toController.text.trim();
-                      
-                      int? from = fromText.isEmpty ? null : int.tryParse(fromText);
+
+                      int? from =
+                          fromText.isEmpty ? null : int.tryParse(fromText);
                       int? to = toText.isEmpty ? null : int.tryParse(toText);
-                      
+
                       if (from != null && to != null && from > to) {
                         setState(() {
-                          _errorMessage = 'From value must be less than or equal to To value';
+                          _errorMessage =
+                              'From value must be less than or equal to To value';
                         });
                         return;
                       }
-                      
+
                       widget.onRangeSelected(from, to);
                       Navigator.pop(context);
                     },
@@ -2025,6 +2086,118 @@ class _NumericFieldBottomSheetState extends State<NumericFieldBottomSheet> {
             ),
             const SizedBox(height: 24),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class SellerTypeBottomSheet extends StatelessWidget {
+  const SellerTypeBottomSheet({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<HomeTreeCubit, HomeTreeState>(
+      builder: (context, state) {
+        return SmoothClipRRect(
+          borderRadius: BorderRadius.circular(14),
+          child: Container(
+            color: AppColors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  width: double.infinity,
+                  child: const Text(
+                    'Seller Type',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                _buildSellerOption(
+                  context: context,
+                  title: 'All',
+                  isSelected: state.sellerType == SellerType.ALL,
+                  onTap: () {
+                    context
+                        .read<HomeTreeCubit>()
+                        .updateSellerType(SellerType.ALL, true);
+                    Navigator.pop(context);
+                  },
+                ),
+                const SizedBox(height: 8),
+                _buildSellerOption(
+                  context: context,
+                  title: 'Individual',
+                  isSelected: state.sellerType == SellerType.INDIVIDUAL_SELLER,
+                  onTap: () {
+                    context
+                        .read<HomeTreeCubit>()
+                        .updateSellerType(SellerType.INDIVIDUAL_SELLER, true);
+                    Navigator.pop(context);
+                  },
+                ),
+                const SizedBox(height: 8),
+                _buildSellerOption(
+                  context: context,
+                  title: 'Shop',
+                  isSelected: state.sellerType == SellerType.BUSINESS_SELLER,
+                  onTap: () {
+                    context
+                        .read<HomeTreeCubit>()
+                        .updateSellerType(SellerType.BUSINESS_SELLER, true);
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSellerOption({
+    required BuildContext context,
+    required String title,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: SmoothClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected ?AppColors.primary.withOpacity(0.1): Colors.transparent,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                  color: isSelected ? AppColors.primary : Colors.black,
+                ),
+              ),
+              if (isSelected)
+                const Icon(
+                  Icons.check_circle,
+                  color: AppColors.primary,
+                  size: 20,
+                ),
+            ],
+          ),
         ),
       ),
     );

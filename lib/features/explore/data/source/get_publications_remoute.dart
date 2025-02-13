@@ -85,16 +85,16 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
         if (numeric != null && numeric.isNotEmpty) 'numeric': numeric.join(','),
       };
 
-      String url = '/api/v1/publications';
+      String url = '/api/v1/publications/search';
 
       if (query != null && query.isNotEmpty && query != "") {
-        url += '/search/all';
+        //  url += '/search';
       } else {
         if (categoryId != null) {
           if (subcategoryId != null) {
-            url += '/search/all/$categoryId/$subcategoryId';
+            url += '/$categoryId/$subcategoryId';
           } else {
-            url += '/p/$categoryId';
+            url += '/$categoryId';
           }
         }
       }
