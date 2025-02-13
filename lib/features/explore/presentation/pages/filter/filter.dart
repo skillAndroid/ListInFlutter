@@ -1983,20 +1983,19 @@ extension ColorUtils on Color {
     return hslLight.toColor();
   }
 }
-
 class PriceRangeSlider extends StatefulWidget {
   final void Function(RangeValues)? onChanged;
-  final RangeValues initialRange;
+  final RangeValues? initialRange;
   final double min;
   final double max;
 
   PriceRangeSlider({
     super.key,
     this.onChanged,
-    RangeValues? initialRange,
+    this.initialRange,
     required this.min,
     required this.max,
-  }) : initialRange = initialRange ?? RangeValues(0, 1000);
+  });
 
   @override
   State<PriceRangeSlider> createState() => _PriceRangeSliderState();
@@ -2009,7 +2008,56 @@ class _PriceRangeSliderState extends State<PriceRangeSlider> {
   @override
   void initState() {
     super.initState();
-    _range = widget.initialRange;
+    _initializeRange();
+  }
+
+  @override
+  void didUpdateWidget(PriceRangeSlider oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Re-initialize range if min or max changes
+    if (oldWidget.min != widget.min || oldWidget.max != widget.max) {
+      _initializeRange();
+    }
+  }
+
+  void _initializeRange() {
+    // Ensure we have valid min and max
+    final validMin = widget.min.isFinite ? widget.min : 0.0;
+    final validMax = widget.max.isFinite ? widget.max : 1000.0;
+    
+    if (widget.initialRange != null) {
+      // Clamp initial range between valid min and max
+      _range = RangeValues(
+        widget.initialRange!.start.clamp(validMin, validMax),
+        widget.initialRange!.end.clamp(validMin, validMax),
+      );
+    } else {
+      // If no initial range, use min and max
+      _range = RangeValues(validMin, validMax);
+    }
+  }
+
+  void _handleRangeChange(RangeValues values) {
+    // Ensure we have valid min and max
+    final validMin = widget.min.isFinite ? widget.min : 0.0;
+    final validMax = widget.max.isFinite ? widget.max : 1000.0;
+
+    // Ensure start value is not less than min
+    final start = values.start.clamp(validMin, validMax);
+    // Ensure end value is not more than max and not less than start
+    final end = values.end.clamp(start, validMax);
+
+    final newRange = RangeValues(start, end);
+    
+    if (_range != newRange) {
+      setState(() => _range = newRange);
+      
+      _debounceTimer?.cancel();
+      _debounceTimer = Timer(const Duration(milliseconds: 200), () {
+        widget.onChanged?.call(newRange);
+        context.read<HomeTreeCubit>().setPriceRange(start, end);
+      });
+    }
   }
 
   @override
@@ -2018,18 +2066,12 @@ class _PriceRangeSliderState extends State<PriceRangeSlider> {
     super.dispose();
   }
 
-  void _handleRangeChange(RangeValues values) {
-    setState(() => _range = values);
-
-    _debounceTimer?.cancel();
-    _debounceTimer = Timer(const Duration(milliseconds: 200), () {
-      context.read<HomeTreeCubit>().setPriceRange(values.start, values.end);
-      widget.onChanged?.call(values);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
+    // Ensure we have valid min and max for display
+    final validMin = widget.min.isFinite ? widget.min : 0.0;
+    final validMax = widget.max.isFinite ? widget.max : 1000.0;
+
     return BlocBuilder<HomeTreeCubit, HomeTreeState>(
       builder: (context, state) {
         return Column(
@@ -2075,8 +2117,8 @@ class _PriceRangeSliderState extends State<PriceRangeSlider> {
               ),
               child: RangeSlider(
                 values: _range,
-                min: widget.min,
-                max: widget.max,
+                min: validMin,
+                max: validMax,
                 onChanged: _handleRangeChange,
               ),
             ),
