@@ -16,6 +16,7 @@ import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/explore/presentation/pages/filter/filter.dart';
+import 'package:list_in/features/explore/presentation/pages/filter/switch_filter_cheap.dart';
 import 'package:list_in/features/explore/presentation/pages/screens/initial_page.dart';
 import 'package:list_in/features/explore/presentation/widgets/advertised_product_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/filters_widgets/condition_bottom_sheet.dart';
@@ -286,7 +287,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                           scrollDirection: Axis.horizontal,
                           padding: const EdgeInsets.symmetric(horizontal: 8),
                           itemCount:
-                              attributes.length + numericFields.length + 3,
+                              attributes.length + numericFields.length + 5,
                           itemBuilder: (context, index) {
                             debugPrint("😤😤${numericFields.length}");
                             if (index == 0) {
@@ -545,6 +546,28 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                               );
                             }
 
+                            if (index ==
+                                attributes.length + numericFields.length + 3) {
+                              return SwitchFilterChip(
+                                label: 'Bargain',
+                                value: state.bargain,
+                                onChanged: (value) => context
+                                    .read<HomeTreeCubit>()
+                                    .toggleBargain(value, false, "CHILD"),
+                              );
+                            }
+
+                            if (index ==
+                                attributes.length + numericFields.length + 4) {
+                              return SwitchFilterChip(
+                                label: 'Is Free',
+                                value: state.isFree,
+                                onChanged: (value) => context
+                                    .read<HomeTreeCubit>()
+                                    .toggleIsFree(value, false, "CHILD"),
+                              );
+                            }
+
                             final numericFieldIndex =
                                 index - attributes.length - 1;
                             final numericField =
@@ -621,7 +644,9 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
       shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(14)),
       builder: (context) => BlocProvider.value(
         value: cubit,
-        child: const ConditionBottomSheet(),
+        child: const ConditionBottomSheet(
+          page: "CHILD",
+        ),
       ),
     );
   }
@@ -646,7 +671,9 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
       shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(14)),
       builder: (context) => BlocProvider.value(
         value: cubit,
-        child: const SellerTypeBottomSheet(),
+        child: const SellerTypeBottomSheet(
+          page: "CHILD",
+        ),
       ),
     );
   }
@@ -665,7 +692,9 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
-          child: PriceRangeBottomSheet(),
+          child: PriceRangeBottomSheet(
+            page: "CHILD",
+          ),
         ),
       ),
     );

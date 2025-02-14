@@ -299,17 +299,35 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     }
 
     try {
+      bool shouldIncludeFilter(dynamic value, dynamic defaultValue) {
+        return value != null && value != defaultValue;
+      }
+
       final result = await getPublicationsUseCase(
         params: GetPublicationsParams(
-          query: state.searchText,
           page: pageKey,
           size: pageSize,
+          // Only include bargain if true
+          sellerType:
+              state.sellerType == SellerType.ALL ? null : state.sellerType.name,
+          isFree: state.isFree == true ? true : null,
+          bargain: state.bargain == true ? true : null,
+          condition: shouldIncludeFilter(state.condition, 'ALL')
+              ? state.condition
+              : null,
           priceFrom: state.priceFrom,
           priceTo: state.priceTo,
+          // Include category IDs if selected
           categoryId: state.selectedCatalog?.id,
           subcategoryId: state.selectedChildCategory?.id,
-          filters: state.generateFilterParameters(),
-          numerics: state._generateNumericFilters(),
+          // Include filters if they exist
+          filters: state.generateFilterParameters().isNotEmpty
+              ? state.generateFilterParameters()
+              : null,
+          // Include numerics if they exist
+          numerics: state._generateNumericFilters().isNotEmpty
+              ? state._generateNumericFilters()
+              : null,
         ),
       );
 
@@ -707,6 +725,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
                 predictedPriceFrom: 0,
                 predictedPriceTo: 0,
                 predictedFoundPublications: 0,
+                filtersTrigered: false,
               ));
             }
           },
@@ -717,6 +736,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
               predictedPriceTo: filterPrediction.priceTo,
               predictedFoundPublications: filterPrediction.foundPublications,
               errorFilteredValuesFetch: null,
+              filtersTrigered: false,
             ));
           },
         );
@@ -728,6 +748,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
             predictedPriceFrom: 0,
             predictedPriceTo: 0,
             predictedFoundPublications: 0,
+            filtersTrigered: false,
           ));
         }
       } finally {
@@ -738,40 +759,82 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
   }
 
 // Update the related state management methods
-  void updateSellerType(SellerType type, bool filter) {
-    emit(state.copyWith(sellerType: type));
+  void updateSellerType(SellerType type, bool filter, String page) {
+    emit(state.copyWith(
+      sellerType: type,
+      filtersTrigered: true,
+    ));
     if (filter) {
       fetchFilteredPredictionValues();
     } else {
-      fetchChildPage(0);
-    }
-  }
-
-  void updateCondition(String condition, bool filter) {
-    emit(state.copyWith(condition: condition));
-    if (filter) {
-      fetchFilteredPredictionValues();
-    } else {
-      fetchChildPage(0);
-    }
-  }
-
-  void toggleBargain(bool value, bool filter) {
-    emit(state.copyWith(bargain: value));
-    if (filter) {
-      fetchFilteredPredictionValues();
-    } else {
-      fetchChildPage(0);
-    }
-  }
-
-  void toggleIsFree(bool value, bool filter) {
-    emit(state.copyWith(isFree: value));
-    if (value) {
-      if (filter) {
-        fetchFilteredPredictionValues();
-      } else {
+      if (page == 'CHILD') {
         fetchChildPage(0);
+      }
+      if (page == "SEARCH_RESULT") {
+        searchPage(0);
+      }
+    }
+  }
+
+  void updateCondition(
+    String condition,
+    bool filter,
+    String page,
+  ) {
+    emit(state.copyWith(
+      condition: condition,
+      filtersTrigered: true,
+    ));
+    if (filter) {
+      fetchFilteredPredictionValues();
+    } else {
+      if (page == 'child') {
+        fetchChildPage(0);
+      }
+      if (page == "SEARCH_RESULT") {
+        searchPage(0);
+      }
+    }
+  }
+
+  void toggleBargain(
+    bool value,
+    bool filter,
+    String page,
+  ) {
+    emit(state.copyWith(
+      bargain: value,
+      filtersTrigered: true,
+    ));
+    if (filter) {
+      fetchFilteredPredictionValues();
+    } else {
+      if (page == 'child') {
+        fetchChildPage(0);
+      }
+      if (page == "SEARCH_RESULT") {
+        searchPage(0);
+      }
+    }
+  }
+
+  void toggleIsFree(
+    bool value,
+    bool filter,
+    String page,
+  ) {
+    emit(state.copyWith(
+      isFree: value,
+      filtersTrigered: true,
+    ));
+    if (filter) {
+      fetchFilteredPredictionValues();
+    } else {
+      if (page == 'child') {
+        fetchChildPage(0);
+      }
+      if (page == "SEARCH_RESULT") {
+        searchPage(0);
       }
     }
   }
@@ -854,6 +917,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
   void setPriceRange(
     double? from,
     double? to,
+    String page,
   ) {
     emit(state.copyWith(
       priceFrom: from,
@@ -863,7 +927,12 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     if (state.searchText != null) {
       searchPage(0);
     } else {
-      fetchChildPage(0);
+      if (page == 'child') {
+        fetchChildPage(0);
+      }
+      if (page == "SEARCH_RESULT") {
+        searchPage(0);
+      }
     }
   }
 

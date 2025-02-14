@@ -6,9 +6,18 @@ import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/explore/presentation/pages/filter/filter.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
-class SellerTypeBottomSheet extends StatelessWidget {
-  const SellerTypeBottomSheet({super.key});
+class SellerTypeBottomSheet extends StatefulWidget {
+  final String page;
+  const SellerTypeBottomSheet({
+    super.key,
+    required this.page,
+  });
 
+  @override
+  State<SellerTypeBottomSheet> createState() => _SellerTypeBottomSheetState();
+}
+
+class _SellerTypeBottomSheetState extends State<SellerTypeBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<HomeTreeCubit, HomeTreeState>(
@@ -40,9 +49,11 @@ class SellerTypeBottomSheet extends StatelessWidget {
                   title: 'All',
                   isSelected: state.sellerType == SellerType.ALL,
                   onTap: () {
-                    context
-                        .read<HomeTreeCubit>()
-                        .updateSellerType(SellerType.ALL, true);
+                    context.read<HomeTreeCubit>().updateSellerType(
+                          SellerType.ALL,
+                          false,
+                          widget.page,
+                        );
                     Navigator.pop(context);
                   },
                 ),
@@ -52,9 +63,11 @@ class SellerTypeBottomSheet extends StatelessWidget {
                   title: 'Individual',
                   isSelected: state.sellerType == SellerType.INDIVIDUAL_SELLER,
                   onTap: () {
-                    context
-                        .read<HomeTreeCubit>()
-                        .updateSellerType(SellerType.INDIVIDUAL_SELLER, true);
+                    context.read<HomeTreeCubit>().updateSellerType(
+                          SellerType.INDIVIDUAL_SELLER,
+                          false,
+                          widget.page,
+                        );
                     Navigator.pop(context);
                   },
                 ),
@@ -64,9 +77,11 @@ class SellerTypeBottomSheet extends StatelessWidget {
                   title: 'Shop',
                   isSelected: state.sellerType == SellerType.BUSINESS_SELLER,
                   onTap: () {
-                    context
-                        .read<HomeTreeCubit>()
-                        .updateSellerType(SellerType.BUSINESS_SELLER, true);
+                    context.read<HomeTreeCubit>().updateSellerType(
+                          SellerType.BUSINESS_SELLER,
+                          false,
+                          widget.page,
+                        );
                     Navigator.pop(context);
                   },
                 ),
@@ -92,6 +107,7 @@ class SellerTypeBottomSheet extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
             color: isSelected
+                // ignore: deprecated_member_use
                 ? AppColors.primary.withOpacity(0.1)
                 : Colors.transparent,
           ),

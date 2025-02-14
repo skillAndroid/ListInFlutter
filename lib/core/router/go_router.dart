@@ -223,7 +223,7 @@ class AppRouter {
                                 getFilteredPublicationsValuesUsecase,
                           );
                           if (priceFrom != null && priceTo != null) {
-                            cubit.setPriceRange(priceFrom, priceTo);
+                            cubit.setPriceRange(priceFrom, priceTo, 'FILTER_HOME_RESULT');
                           }
                           if (filterState != null) {
                             // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
@@ -312,7 +312,7 @@ class AppRouter {
                           );
                           cubit.selectCatalog(category);
                           if (priceFrom != null && priceTo != null) {
-                            cubit.setPriceRange(priceFrom, priceTo);
+                            cubit.setPriceRange(priceFrom, priceTo,"FILTER_SECONDARY_RESULT");
                           }
                           if (filterState != null) {
                             // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
@@ -366,7 +366,7 @@ class AppRouter {
                           cubit.selectCatalog(category);
 
                           if (priceFrom != null && priceTo != null) {
-                            cubit.setPriceRange(priceFrom, priceTo);
+                            cubit.setPriceRange(priceFrom, priceTo, "SUBCATEGORY");
                           }
                           if (searchText != null) {
                             cubit.updateSearchText(searchText);
@@ -447,7 +447,7 @@ class AppRouter {
                                 );
 
                                 if (priceFrom != null && priceTo != null) {
-                                  cubit.setPriceRange(priceFrom, priceTo);
+                                  cubit.setPriceRange(priceFrom, priceTo, "CHILD");
                                 }
 
                                 cubit

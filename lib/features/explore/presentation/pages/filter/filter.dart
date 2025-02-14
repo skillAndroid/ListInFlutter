@@ -209,9 +209,7 @@ class _FiltersPageState extends State<FiltersPage>
 
                                   onChanged: (RangeValues values) {
                                     context.read<HomeTreeCubit>().setPriceRange(
-                                          values.start,
-                                          values.end,
-                                        );
+                                        values.start, values.end, "");
                                   },
                                 ),
                               SizedBox(
@@ -1431,7 +1429,7 @@ class _FiltersPageState extends State<FiltersPage>
     return Expanded(
       child: GestureDetector(
         onTap: () {
-          context.read<HomeTreeCubit>().updateSellerType(value, true);
+          context.read<HomeTreeCubit>().updateSellerType(value, true, '');
         },
         child: SmoothClipRRect(
           borderRadius: BorderRadius.circular(12),
@@ -1480,7 +1478,9 @@ class _FiltersPageState extends State<FiltersPage>
         ),
         InkWell(
           onTap: () {
-            context.read<HomeTreeCubit>().toggleBargain(!state.bargain, true);
+            context
+                .read<HomeTreeCubit>()
+                .toggleBargain(!state.bargain, true, '');
           },
           child: Row(
             mainAxisSize: MainAxisSize.max,
@@ -1532,7 +1532,7 @@ class _FiltersPageState extends State<FiltersPage>
         ),
         InkWell(
           onTap: () {
-            context.read<HomeTreeCubit>().toggleIsFree(!state.isFree, true);
+            context.read<HomeTreeCubit>().toggleIsFree(!state.isFree, true, '');
           },
           child: Row(
             mainAxisSize: MainAxisSize.max,
@@ -1628,7 +1628,7 @@ class _FiltersPageState extends State<FiltersPage>
     return Expanded(
       child: GestureDetector(
         onTap: () {
-          context.read<HomeTreeCubit>().updateCondition(value, true);
+          context.read<HomeTreeCubit>().updateCondition(value, true, "");
         },
         child: SmoothClipRRect(
           borderRadius: BorderRadius.circular(12),
@@ -1772,7 +1772,6 @@ class _FiltersPageState extends State<FiltersPage>
                                 'isFree': state.isFree,
                                 'condition': state.condition,
                                 'sellerType': state.sellerType,
-                                
                               },
                             });
                             context

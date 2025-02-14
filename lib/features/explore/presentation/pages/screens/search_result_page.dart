@@ -13,6 +13,7 @@ import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/explore/presentation/pages/filter/filter.dart';
+import 'package:list_in/features/explore/presentation/pages/filter/switch_filter_cheap.dart';
 import 'package:list_in/features/explore/presentation/pages/screens/initial_page.dart';
 import 'package:list_in/features/explore/presentation/widgets/advertised_product_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/filters_widgets/condition_bottom_sheet.dart';
@@ -282,7 +283,7 @@ class _SearchResultPageState extends State<SearchResultPage> {
                               scrollDirection: Axis.horizontal,
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 8),
-                              itemCount: 3,
+                              itemCount: 5,
                               itemBuilder: (context, index) {
                                 if (index == 0) {
                                   return Padding(
@@ -357,7 +358,27 @@ class _SearchResultPageState extends State<SearchResultPage> {
                                   );
                                 }
 
-                                // index == 2
+                                if (index == 3) {
+                                  return SwitchFilterChip(
+                                    label: 'Bargain',
+                                    value: state.bargain,
+                                    onChanged: (value) => context
+                                        .read<HomeTreeCubit>()
+                                        .toggleBargain(
+                                            value, false, 'SEARCH_RESULT'),
+                                  );
+                                }
+
+                                if (index == 4) {
+                                  return SwitchFilterChip(
+                                    label: 'Is Free',
+                                    value: state.isFree,
+                                    onChanged: (value) => context
+                                        .read<HomeTreeCubit>()
+                                        .toggleIsFree(
+                                            value, false, 'SEARCH_RESULT'),
+                                  );
+                                }
                                 return Padding(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 2.5),
@@ -445,7 +466,7 @@ class _SearchResultPageState extends State<SearchResultPage> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Padding(
-                padding: const EdgeInsets.only(left: 16, right: 16),
+                padding: const EdgeInsets.only(left: 16, right: 8),
                 child: Row(
                   children: [
                     Transform.translate(
@@ -496,31 +517,22 @@ class _SearchResultPageState extends State<SearchResultPage> {
                                     ),
                                   ),
                                 ),
-                                const VerticalDivider(
-                                  color: AppColors.lightGray,
-                                  width: 1,
-                                  indent: 12,
-                                  endIndent: 12,
-                                ),
-                                SizedBox(
-                                  width: 2,
-                                ),
-                                IconButton(
-                                  icon: Image.asset(
-                                    AppIcons.filterIc,
-                                    width: 24,
-                                    height: 24,
-                                  ),
-                                  onPressed: () {},
-                                ),
-                                SizedBox(
-                                  width: 2,
-                                ),
                               ],
                             ),
                           ),
                         ),
                       ),
+                    ),
+                    SizedBox(
+                      width: 6,
+                    ),
+                    IconButton(
+                      icon: Image.asset(
+                        AppIcons.filterIc,
+                        width: 24,
+                        height: 24,
+                      ),
+                      onPressed: () {},
                     ),
                   ],
                 ),
@@ -612,7 +624,11 @@ class _SearchResultPageState extends State<SearchResultPage> {
         padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).viewInsets.bottom,
         ),
-        child: BlocProvider.value(value: cubit, child: PriceRangeBottomSheet()),
+        child: BlocProvider.value(
+            value: cubit,
+            child: PriceRangeBottomSheet(
+              page: 'SEARCH_RESULT',
+            )),
       ),
     );
   }
@@ -626,7 +642,9 @@ class _SearchResultPageState extends State<SearchResultPage> {
       shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(14)),
       builder: (context) => BlocProvider.value(
         value: cubit,
-        child: const ConditionBottomSheet(),
+        child: const ConditionBottomSheet(
+          page: 'SEARCH_RESULT',
+        ),
       ),
     );
   }
@@ -640,7 +658,9 @@ class _SearchResultPageState extends State<SearchResultPage> {
       shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(14)),
       builder: (context) => BlocProvider.value(
         value: cubit,
-        child: const SellerTypeBottomSheet(),
+        child: const SellerTypeBottomSheet(
+          page: 'SEARCH_RESULT',
+        ),
       ),
     );
   }

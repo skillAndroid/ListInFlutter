@@ -7,7 +7,11 @@ import 'package:list_in/features/explore/presentation/widgets/formaters.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class PriceRangeBottomSheet extends StatefulWidget {
-  const PriceRangeBottomSheet({super.key});
+  final String page;
+  const PriceRangeBottomSheet({
+    super.key,
+    required this.page,
+  });
 
   @override
   _PriceRangeBottomSheetState createState() => _PriceRangeBottomSheetState();
@@ -208,7 +212,11 @@ class _PriceRangeBottomSheetState extends State<PriceRangeBottomSheet> {
                           _fromController.text.replaceAll(' ', ''));
                       final to = double.tryParse(
                           _toController.text.replaceAll(' ', ''));
-                      context.read<HomeTreeCubit>().setPriceRange(from, to);
+                      context.read<HomeTreeCubit>().setPriceRange(
+                            from,
+                            to,
+                            widget.page,
+                          );
                       Navigator.pop(context);
                     },
                     style: ElevatedButton.styleFrom(

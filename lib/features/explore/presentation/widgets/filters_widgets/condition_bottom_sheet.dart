@@ -6,9 +6,18 @@ import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 // Condition bottom sheet widget
-class ConditionBottomSheet extends StatelessWidget {
-  const ConditionBottomSheet({super.key});
+class ConditionBottomSheet extends StatefulWidget {
+  final String page;
+  const ConditionBottomSheet({
+    super.key,
+    required this.page,
+  });
 
+  @override
+  State<ConditionBottomSheet> createState() => _ConditionBottomSheetState();
+}
+
+class _ConditionBottomSheetState extends State<ConditionBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<HomeTreeCubit, HomeTreeState>(
@@ -40,7 +49,11 @@ class ConditionBottomSheet extends StatelessWidget {
                   title: 'All',
                   isSelected: state.condition == 'ALL',
                   onTap: () {
-                    context.read<HomeTreeCubit>().updateCondition('ALL', true);
+                    context.read<HomeTreeCubit>().updateCondition(
+                          'ALL',
+                          false,
+                          widget.page,
+                        );
                     Navigator.pop(context);
                   },
                 ),
@@ -50,9 +63,11 @@ class ConditionBottomSheet extends StatelessWidget {
                   title: 'New',
                   isSelected: state.condition == 'NEW_PRODUCT',
                   onTap: () {
-                    context
-                        .read<HomeTreeCubit>()
-                        .updateCondition('NEW_PRODUCT', true);
+                    context.read<HomeTreeCubit>().updateCondition(
+                          'NEW_PRODUCT',
+                          false,
+                          widget.page,
+                        );
                     Navigator.pop(context);
                   },
                 ),
@@ -62,9 +77,11 @@ class ConditionBottomSheet extends StatelessWidget {
                   title: 'Used',
                   isSelected: state.condition == 'USED_PRODUCT',
                   onTap: () {
-                    context
-                        .read<HomeTreeCubit>()
-                        .updateCondition('USED_PRODUCT', true);
+                    context.read<HomeTreeCubit>().updateCondition(
+                          'USED_PRODUCT',
+                          false,
+                          widget.page,
+                        );
                     Navigator.pop(context);
                   },
                 ),
