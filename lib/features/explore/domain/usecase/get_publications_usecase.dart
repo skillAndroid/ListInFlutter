@@ -5,6 +5,8 @@ import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/domain/repository/get_publications_repository.dart';
 
 class GetPublicationsParams {
+  final String? sellerType;
+  final bool? isFree;
   final String? query;
   final int? page;
   final int? size;
@@ -18,6 +20,8 @@ class GetPublicationsParams {
   final List<String>? numerics;
 
   GetPublicationsParams({
+    this.sellerType,
+    this.isFree,
     this.query,
     this.page,
     this.size,
@@ -44,6 +48,8 @@ class GetPublicationsUsecase
     return repository.getPublicationsFiltered2(
       query: params?.query,
       page: params?.page,
+      isFree: params?.isFree,
+      sellerType: params?.sellerType,
       size: params?.size,
       bargain: params?.bargain,
       condition: params?.condition,

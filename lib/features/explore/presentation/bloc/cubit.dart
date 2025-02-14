@@ -411,18 +411,13 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
           size: pageSize,
           priceFrom: state.priceFrom,
           priceTo: state.priceTo,
-          // Only include bargain if true
           bargain: state.bargain == true ? true : null,
-          // Only include isFree if true
-          //   isFree: state.isFree == true ? true : null,
-          // Only include condition if not ALL
           condition: shouldIncludeFilter(state.condition, 'ALL')
               ? state.condition
               : null,
-          // Only include sellerType if not ALL
-          // sellerType: shouldIncludeFilter(state.sellerType, SellerType.ALL)
-          //     ? state.sellerType
-          //     : null,
+          sellerType:
+              state.sellerType == SellerType.ALL ? null : state.sellerType.name,
+          isFree: state.isFree == true ? true : null,
         ),
       );
 
@@ -501,18 +496,13 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
           size: pageSize,
           priceFrom: state.priceFrom,
           priceTo: state.priceTo,
-          // Only include bargain if true
           bargain: state.bargain == true ? true : null,
-          // Only include isFree if true
-          //   isFree: state.isFree == true ? true : null,
-          // Only include condition if not ALL
+          sellerType:
+              state.sellerType == SellerType.ALL ? null : state.sellerType.name,
+          isFree: state.isFree == true ? true : null,
           condition: shouldIncludeFilter(state.condition, 'ALL')
               ? state.condition
               : null,
-          // Only include sellerType if not ALL
-          // sellerType: shouldIncludeFilter(state.sellerType, SellerType.ALL)
-          //     ? state.sellerType
-          //     : null,
           categoryId: state.selectedCatalog?.id,
         ),
       );
@@ -594,18 +584,13 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
         page: pageKey,
         size: pageSize,
         // Only include bargain if true
+        sellerType:
+            state.sellerType == SellerType.ALL ? null : state.sellerType.name,
+        isFree: state.isFree == true ? true : null,
         bargain: state.bargain == true ? true : null,
-        // Only include isFree if true
-        //   isFree: state.isFree == true ? true : null,
-        // Only include condition if not ALL
         condition: shouldIncludeFilter(state.condition, 'ALL')
             ? state.condition
             : null,
-        // Only include sellerType if not ALL
-        // sellerType: shouldIncludeFilter(state.sellerType, SellerType.ALL)
-        //     ? state.sellerType
-        //     : null,
-        // Include price range if set
         priceFrom: state.priceFrom,
         priceTo: state.priceTo,
         // Include category IDs if selected
@@ -685,9 +670,8 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
         final params = GetFilteredPublicationsValuesParams(
           categoryId: state.selectedCatalog?.id,
           subcategoryId: state.selectedChildCategory?.id,
-          sellerType: shouldIncludeFilter(state.sellerType, 'ALL')
-              ? state.sellerType.name
-              : null,
+          sellerType:
+              state.sellerType == SellerType.ALL ? null : state.sellerType.name,
           isFree: state.isFree == true ? true : null,
           bargain: state.bargain == true ? true : null,
           condition: shouldIncludeFilter(state.condition, 'ALL')

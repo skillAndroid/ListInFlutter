@@ -8,6 +8,8 @@ import 'package:list_in/features/explore/data/models/publication_model.dart';
 
 abstract class PublicationsRemoteDataSource {
   Future<List<PublicationPairModel>> getPublications({
+    String? sellerType,
+    bool? isFree,
     String? categoryId,
     String? subcategoryId,
     String? query,
@@ -64,6 +66,8 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
   Future<List<PublicationPairModel>> getPublications({
     String? categoryId,
     String? subcategoryId,
+    String? sellerType,
+    bool? isFree,
     String? query,
     int? page,
     int? size,
@@ -80,8 +84,10 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
         if (query != null && query.isNotEmpty) 'query': query,
         if (page != null) 'page': page.toString(),
         if (size != null) 'size': size.toString(),
+        if (isFree != null) 'isFree': isFree.toString(),
         if (bargain != null) 'bargain': bargain.toString(),
         if (condition != null) 'condition': condition,
+        if (sellerType != null) 'sellerType': sellerType,
         if (priceFrom != null) 'from': priceFrom.toString(),
         if (priceTo != null) 'to': priceTo.toString(),
         if (filters != null && filters.isNotEmpty) 'filter': filters,
@@ -271,7 +277,8 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
       final paginatedResponse =
           FilterPredictionValuesModel.fromJson(response.data);
 
-      debugPrint("😇😇Success in fetching the filters values from the remoute!");
+      debugPrint(
+          "😇😇Success in fetching the filters values from the remoute!");
       return paginatedResponse;
     } on DioException catch (e) {
       debugPrint("😇😇Exeption in fetching data remout DIO EXCEPTION $e");

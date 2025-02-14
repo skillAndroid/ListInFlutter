@@ -10,6 +10,8 @@ abstract class PublicationsRepository {
       getPublicationsFiltered2({
     String? categoryId,
     String? subcategoryId,
+    String? sellerType,
+    bool? isFree,
     String? query,
     int? page,
     int? size,

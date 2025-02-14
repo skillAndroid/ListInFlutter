@@ -1347,6 +1347,7 @@ class _FiltersPageState extends State<FiltersPage>
                   } else {
                     cubit.resetCatalogSelection();
                   }
+                  cubit.fetchFilteredPredictionValues();
                 },
                 isSelected: category.id == state.selectedCatalog?.id,
               );
@@ -1373,6 +1374,7 @@ class _FiltersPageState extends State<FiltersPage>
                   } else {
                     cubit.resetChildCategorySelection();
                   }
+                  cubit.fetchFilteredPredictionValues();
                 },
                 isSelected: childCategory.id == state.selectedChildCategory?.id,
               );
@@ -1770,6 +1772,7 @@ class _FiltersPageState extends State<FiltersPage>
                                 'isFree': state.isFree,
                                 'condition': state.condition,
                                 'sellerType': state.sellerType,
+                                
                               },
                             });
                             context

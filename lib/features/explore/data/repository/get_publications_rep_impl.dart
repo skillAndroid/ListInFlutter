@@ -24,6 +24,8 @@ class PublicationsRepositoryImpl implements PublicationsRepository {
       getPublicationsFiltered2({
     String? categoryId,
     String? subcategoryId,
+    String? sellerType,
+    bool? isFree,
     String? query,
     int? page,
     int? size,
@@ -37,6 +39,8 @@ class PublicationsRepositoryImpl implements PublicationsRepository {
     if (await networkInfo.isConnected) {
       try {
         final publications = await remoteDataSource.getPublications(
+          isFree: isFree,
+          sellerType: sellerType,
           query: query,
           page: page,
           size: size,

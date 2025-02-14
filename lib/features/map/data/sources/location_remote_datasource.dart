@@ -32,10 +32,10 @@ class LocationRemoteDataSourceImpl extends LocationRemoteDatasource {
       if (response.statusCode == 200) {
         final address = response.data['address'];
         final addressParts = [
-          address['county'],
-          address['city'],
-          address['state'],
-          address['country']
+          address['county'], // tuman
+          address['city'], // shahar
+          address['state'], // viloyat
+          address['country'] // davlat : 
         ].where((part) => part != null && part.isNotEmpty).toList();
 
         return addressParts.join(', ');
