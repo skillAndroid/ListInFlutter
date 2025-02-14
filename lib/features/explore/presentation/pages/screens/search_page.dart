@@ -1,6 +1,5 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -41,51 +40,51 @@ class _SearchPageState extends State<SearchPage> {
         }
 
         return ListView.separated(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  itemCount: state.predictions.length,
-                  separatorBuilder: (context, index) => Padding(
-        padding:
-            const EdgeInsets.only(top: 4), // Add some space above divider
-        child: Divider(
-          height: 1,
-          thickness: 1, // Make divider thicker
-          color: AppColors.containerColor, // Subtle grey color
-        ),
-                  ), // Make divider more compact
-                  itemBuilder: (context, index) {
-        final prediction = state.predictions[index];
-        return ListTile(
-          contentPadding: EdgeInsets.zero,
-          trailing: const Icon(Icons.arrow_forward_ios_rounded,
-              size: 16, color: Colors.black),
-          visualDensity:
-              VisualDensity(vertical: -4), // Reduce vertical padding
-          minLeadingWidth: 0, // Minimize leading width
-          title: Text(
-            prediction.childAttributeValue ?? '',
-            style: TextStyle(fontSize: 14), // Adjust font size if needed
-          ),
-          subtitle: Text(
-            state.predictions[index].categoryName
-                .toString(), // Add subtitle as shown in image
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.blue,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          itemCount: state.predictions.length,
+          separatorBuilder: (context, index) => Padding(
+            padding:
+                const EdgeInsets.only(top: 4), // Add some space above divider
+            child: Divider(
+              height: 1,
+              thickness: 1, // Make divider thicker
+              color: AppColors.containerColor, // Subtle grey color
             ),
-          ),
-          onTap: () {
-            _searchController.text = prediction.childAttributeValue ?? '';
-            _searchController.selection = TextSelection.fromPosition(
-              TextPosition(offset: _searchController.text.length),
+          ), // Make divider more compact
+          itemBuilder: (context, index) {
+            final prediction = state.predictions[index];
+            return ListTile(
+              contentPadding: EdgeInsets.zero,
+              trailing: const Icon(Icons.arrow_forward_ios_rounded,
+                  size: 16, color: Colors.black),
+              visualDensity:
+                  VisualDensity(vertical: -4), // Reduce vertical padding
+              minLeadingWidth: 0, // Minimize leading width
+              title: Text(
+                prediction.childAttributeValue ?? '',
+                style: TextStyle(fontSize: 14), // Adjust font size if needed
+              ),
+              subtitle: Text(
+                state.predictions[index].categoryName
+                    .toString(), // Add subtitle as shown in image
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.blue,
+                ),
+              ),
+              onTap: () {
+                _searchController.text = prediction.childAttributeValue ?? '';
+                _searchController.selection = TextSelection.fromPosition(
+                  TextPosition(offset: _searchController.text.length),
+                );
+                context
+                    .read<HomeTreeCubit>()
+                    .handlePredictionSelection(prediction, context);
+                FocusScope.of(context).unfocus();
+              },
             );
-            context
-                .read<HomeTreeCubit>()
-                .handlePredictionSelection(prediction, context);
-            FocusScope.of(context).unfocus();
           },
         );
-                  },
-                );
       },
     );
   }
@@ -191,7 +190,8 @@ class _SearchPageState extends State<SearchPage> {
                                       onSubmitted: (value) async {
                                         if (value.isNotEmpty) {
                                           context.replaceNamed(
-                                              RoutesByName.searchResult);
+                                            RoutesByName.searchResult,
+                                          );
                                         }
                                       },
                                       decoration: const InputDecoration(

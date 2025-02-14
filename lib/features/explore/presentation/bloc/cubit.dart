@@ -305,6 +305,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
 
       final result = await getPublicationsUseCase(
         params: GetPublicationsParams(
+          query: state.searchText,
           page: pageKey,
           size: pageSize,
           // Only include bargain if true
@@ -684,8 +685,9 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
 
         // Create new cancel token for this request
         _filterPredictionCancelToken = CancelToken();
-
+        debugPrint("🤩🤩${state.searchText}");
         final params = GetFilteredPublicationsValuesParams(
+          query: state.searchText,
           categoryId: state.selectedCatalog?.id,
           subcategoryId: state.selectedChildCategory?.id,
           sellerType:

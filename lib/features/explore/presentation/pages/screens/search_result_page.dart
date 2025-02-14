@@ -532,7 +532,32 @@ class _SearchResultPageState extends State<SearchResultPage> {
                         width: 24,
                         height: 24,
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        final homeTreeCubit =
+                            BlocProvider.of<HomeTreeCubit>(context);
+
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          useRootNavigator: true,
+                          showDragHandle: false,
+                          enableDrag: false,
+                          shape: SmoothRectangleBorder(
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                          builder: (context) => BlocProvider.value(
+                            value:
+                                homeTreeCubit, // Provide the same cubit instance
+                            child: SmoothClipRRect(
+                              borderRadius: BorderRadius.circular(18),
+                              child: FractionallySizedBox(
+                                heightFactor: 1,
+                                child: FiltersPage(page: "result_page"),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),

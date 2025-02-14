@@ -248,7 +248,9 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
   }) async {
     try {
       final options = await authService.getAuthOptions();
+      debugPrint("🤩🤩$query");
       final queryParams = {
+        if (query != null && query.isNotEmpty) 'query': query,
         if (isFree != null) 'isFree': isFree.toString(),
         if (bargain != null) 'bargain': bargain.toString(),
         if (condition != null) 'condition': condition,

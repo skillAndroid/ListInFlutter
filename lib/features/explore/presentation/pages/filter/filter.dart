@@ -13,7 +13,7 @@ import 'package:list_in/core/router/go_router.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
-import 'package:list_in/features/explore/presentation/pages/screens/detailed_page.dart';
+import 'package:list_in/features/explore/presentation/widgets/filters_widgets/numeric_fields_bototm_sheet.dart';
 import 'package:list_in/features/post/data/models/attribute_model.dart';
 import 'package:list_in/features/post/data/models/attribute_value_model.dart';
 import 'package:list_in/features/post/data/models/nomeric_field_model.dart';
@@ -159,31 +159,15 @@ class _FiltersPageState extends State<FiltersPage>
                             ),
                           )),
 
-                      // Main Content
                       SliverToBoxAdapter(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16.0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                'Category',
-                                style: TextStyle(
-                                  fontSize: 19,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              SizedBox(
-                                height: 16,
-                              ),
-                              _buildMainCategories(state, cubit),
-
-                              if (state.selectedCatalog != null) ...[
-                                SizedBox(
-                                  height: 24,
-                                ),
+                              if (widget.page != 'result_page') ...[
                                 Text(
-                                  state.selectedCatalog!.name,
+                                  'Category',
                                   style: TextStyle(
                                     fontSize: 19,
                                     fontWeight: FontWeight.w500,
@@ -192,7 +176,43 @@ class _FiltersPageState extends State<FiltersPage>
                                 SizedBox(
                                   height: 16,
                                 ),
-                                _buildChildCategories(state, cubit),
+                                _buildMainCategories(state, cubit),
+                                if (state.selectedCatalog != null) ...[
+                                  SizedBox(
+                                    height: 24,
+                                  ),
+                                  Text(
+                                    state.selectedCatalog!.name,
+                                    style: TextStyle(
+                                      fontSize: 19,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 16,
+                                  ),
+                                  _buildChildCategories(state, cubit),
+                                ],
+                              ],
+
+                              if (widget.page == "result_page") ...[
+                                Text(
+                                  'Searching',
+                                  style: TextStyle(
+                                    fontSize: 19,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                Text(
+                                  state.searchText!,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.blue,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
                               ],
 
                               if (state.predictedPriceFrom >= 0)
@@ -1855,7 +1875,8 @@ class _FiltersPageState extends State<FiltersPage>
                             context.read<HomeTreeCubit>().filtersTrigered();
                             context.read<HomeTreeCubit>().fetchInitialPage(0);
                           } else if (widget.page != 'initial' &&
-                              widget.page != 'initial_filter') {
+                              widget.page != 'initial_filter' &&
+                              widget.page != 'result_page') {
                             AppRouter.shellNavigatorHome.currentState
                                 ?.popUntil((route) => route.isFirst);
                             context.pushNamed(RoutesByName.filterHomeResult,
@@ -1869,6 +1890,9 @@ class _FiltersPageState extends State<FiltersPage>
                                     'sellerType': state.sellerType,
                                   },
                                 });
+                          } else if (widget.page == 'result_page') {
+                            context.read<HomeTreeCubit>().filtersTrigered();
+                            context.read<HomeTreeCubit>().searchPage(0);
                           } else {
                             context.pushNamed(RoutesByName.filterHomeResult,
                                 extra: {
