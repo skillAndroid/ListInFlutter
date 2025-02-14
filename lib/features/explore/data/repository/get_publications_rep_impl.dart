@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:list_in/core/error/exeptions.dart';
 import 'package:list_in/core/error/failure.dart';
 import 'package:list_in/core/network/network_info.dart';
@@ -143,8 +144,23 @@ class PublicationsRepositoryImpl implements PublicationsRepository {
     List<String>? numeric,
     CancelToken? cancelToken,
   }) async {
+    debugPrint('🚀 Starting getFilteredValuesOfPublications with params:');
+    debugPrint('categoryId: $categoryId');
+    debugPrint('subcategoryId: $subcategoryId');
+    debugPrint('sellerType: $sellerType');
+    debugPrint('isFree: $isFree');
+    debugPrint('query: $query');
+    debugPrint('bargain: $bargain');
+    debugPrint('condition: $condition');
+    debugPrint('priceFrom: $priceFrom');
+    debugPrint('priceTo: $priceTo');
+    debugPrint('filters: $filters');
+    debugPrint('numeric: $numeric');
+
     if (await networkInfo.isConnected) {
+      debugPrint('📶 Network is connected');
       try {
+        debugPrint('📤 Making API request...');
         final filterPredictionValues =
             await remoteDataSource.getFilteredValuesOfPublications(
           categoryId: categoryId,
@@ -160,15 +176,38 @@ class PublicationsRepositoryImpl implements PublicationsRepository {
           numeric: numeric,
           cancelToken: cancelToken,
         );
-        return Right(filterPredictionValues.toEntity());
-      } on ServerExeption {
+
+        debugPrint(
+            '📥 Received foundPublications response: ${filterPredictionValues.foundPublications}');
+        debugPrint(
+            '📥 Received foundPublications priceFrom: ${filterPredictionValues.priceFrom}');
+        debugPrint(
+            '📥 Received foundPublications priceTo: ${filterPredictionValues.priceTo}');
+        try {
+          final entity = filterPredictionValues.toEntity();
+          debugPrint('✅ Successfully parsed response to entity:');
+          debugPrint('Parsed fields:');
+
+          return Right(entity);
+        } catch (parseError) {
+          debugPrint('❌ Error during parsing: $parseError');
+          debugPrint(
+              'Raw data that failed parsing: ${filterPredictionValues.toString()}');
+          rethrow;
+        }
+      } on ServerExeption catch (e) {
+        debugPrint('⚠️ Server Exception: ${e.toString()}');
         return Left(ServerFailure());
-      } on ConnectionExeption {
+      } on ConnectionExeption catch (e) {
+        debugPrint('⚠️ Connection Exception: ${e.toString()}');
         return Left(NetworkFailure());
       } catch (e) {
+        debugPrint('⚠️ Unexpected Exception: ${e.toString()}');
+        debugPrint('Stack trace: ${StackTrace.current}');
         return Left(UnexpectedFailure());
       }
     } else {
+      debugPrint('❌ No network connection');
       return Left(NetworkFailure());
     }
   }

@@ -271,7 +271,7 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
       final paginatedResponse =
           FilterPredictionValuesModel.fromJson(response.data);
 
-      debugPrint("😇😇Success");
+      debugPrint("😇😇Success in fetching the filters values from the remoute!");
       return paginatedResponse;
     } on DioException catch (e) {
       debugPrint("😇😇Exeption in fetching data remout DIO EXCEPTION $e");
