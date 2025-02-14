@@ -18,6 +18,9 @@ import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/explore/presentation/pages/filter/filter.dart';
 import 'package:list_in/features/explore/presentation/pages/screens/initial_page.dart';
 import 'package:list_in/features/explore/presentation/widgets/advertised_product_card.dart';
+import 'package:list_in/features/explore/presentation/widgets/filters_widgets/condition_bottom_sheet.dart';
+import 'package:list_in/features/explore/presentation/widgets/filters_widgets/price_bottom_sheet.dart';
+import 'package:list_in/features/explore/presentation/widgets/filters_widgets/sellert_type_bottom_sheet.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
 import 'package:list_in/features/post/data/models/attribute_model.dart';
@@ -283,7 +286,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                           scrollDirection: Axis.horizontal,
                           padding: const EdgeInsets.symmetric(horizontal: 8),
                           itemCount:
-                              attributes.length + numericFields.length + 2,
+                              attributes.length + numericFields.length + 3,
                           itemBuilder: (context, index) {
                             debugPrint("😤😤${numericFields.length}");
                             if (index == 0) {
@@ -488,6 +491,38 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 4, vertical: 10),
                                   label: Text(
+                                    _getConditionText(state.condition),
+                                    style: TextStyle(
+                                      color: AppColors.black,
+                                    ),
+                                  ),
+                                  side: BorderSide(
+                                    width: 1,
+                                    color: AppColors.lightGray.withOpacity(0.7),
+                                  ),
+                                  shape: SmoothRectangleBorder(
+                                    smoothness: 0.8,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  selected: state.condition != 'ALL',
+                                  backgroundColor: AppColors.white,
+                                  selectedColor: AppColors.white,
+                                  onSelected: (_) =>
+                                      _showConditionBottomSheet(context),
+                                ),
+                              );
+                            }
+
+                            if (index ==
+                                attributes.length + numericFields.length + 2) {
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 2.5),
+                                child: FilterChip(
+                                  showCheckmark: false,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 4, vertical: 10),
+                                  label: Text(
                                     _getSellerTypeText(state.sellerType),
                                     style: TextStyle(
                                       color: AppColors.black,
@@ -575,6 +610,31 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
         );
       },
     );
+  }
+
+  void _showConditionBottomSheet(BuildContext context) {
+    final cubit = context.read<HomeTreeCubit>();
+    showModalBottomSheet(
+      context: context,
+      useRootNavigator: true,
+      backgroundColor: Colors.transparent,
+      shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      builder: (context) => BlocProvider.value(
+        value: cubit,
+        child: const ConditionBottomSheet(),
+      ),
+    );
+  }
+
+  String _getConditionText(String? condition) {
+    switch (condition) {
+      case 'NEW_PRODUCT':
+        return 'New';
+      case 'USED_PRODUCT':
+        return 'Used';
+      default:
+        return 'Condition';
+    }
   }
 
   void _showSellerTypeBottomSheet(BuildContext context) {
@@ -1552,266 +1612,6 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
   }
 }
 
-String formatPrice(String value) {
-  if (value.isEmpty) return '';
-
-  // Convert to number and back to string to remove any non-numeric characters
-  final number = double.tryParse(value.replaceAll(' ', ''));
-  if (number == null) return value;
-
-  // Convert to int to remove decimal places and format with spaces
-  final parts = number.toInt().toString().split('').reversed.toList();
-
-  String formatted = '';
-  for (var i = 0; i < parts.length; i++) {
-    if (i > 0 && i % 3 == 0) {
-      formatted = ' $formatted';
-    }
-    formatted = parts[i] + formatted;
-  }
-
-  return formatted;
-}
-
-class PriceRangeBottomSheet extends StatefulWidget {
-  const PriceRangeBottomSheet({super.key});
-
-  @override
-  _PriceRangeBottomSheetState createState() => _PriceRangeBottomSheetState();
-}
-
-class _PriceRangeBottomSheetState extends State<PriceRangeBottomSheet> {
-  late TextEditingController _fromController;
-  late TextEditingController _toController;
-  late HomeTreeState currentState;
-
-  @override
-  void initState() {
-    super.initState();
-    currentState = context.read<HomeTreeCubit>().state;
-    _fromController = TextEditingController(
-      text: currentState.priceFrom?.toInt().toString() ?? '',
-    );
-    _toController = TextEditingController(
-      text: currentState.priceTo?.toInt().toString() ?? '',
-    );
-  }
-
-  @override
-  void dispose() {
-    _fromController.dispose();
-    _toController.dispose();
-    super.dispose();
-  }
-
-  void _onFromChanged(String value) {
-    final formatted = formatPrice(value);
-    if (formatted != value) {
-      _fromController.value = TextEditingValue(
-        text: formatted,
-        selection: TextSelection.collapsed(offset: formatted.length),
-      );
-    }
-  }
-
-  void _onToChanged(String value) {
-    final formatted = formatPrice(value);
-    if (formatted != value) {
-      _toController.value = TextEditingValue(
-        text: formatted,
-        selection: TextSelection.collapsed(offset: formatted.length),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SmoothClipRRect(
-      borderRadius: BorderRadius.circular(14),
-      child: Container(
-        color: Colors.white,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Drag handle
-            Container(
-              margin: EdgeInsets.only(top: 8),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-
-            // Header with close button and title
-            Container(
-              padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Transform.translate(
-                      offset: Offset(-4, 0),
-                      child: IconButton(
-                        icon: Icon(Icons.close_rounded),
-                        onPressed: () => Navigator.pop(context),
-                        padding: EdgeInsets.only(),
-                        constraints: BoxConstraints(),
-                        splashRadius: 24,
-                      ),
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: () {
-                        context.read<HomeTreeCubit>().clearPriceRange();
-                        Navigator.pop(context);
-                      },
-                      child: Text(
-                        'Clear',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
-                  ),
-                  // Centered title
-                  Text(
-                    'Price Range',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Price range inputs
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _fromController,
-                          keyboardType: TextInputType.number,
-                          onChanged: _onFromChanged,
-                          decoration: InputDecoration(
-                            labelText: 'From',
-                            prefixText: '\$ ',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(
-                                color: Theme.of(context).primaryColor,
-                                width: 2,
-                              ),
-                            ),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 16,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 6),
-                        child: Container(
-                          width: 8,
-                          height: 2,
-                          color: Colors.grey[300],
-                        ),
-                      ),
-                      Expanded(
-                        child: TextField(
-                          controller: _toController,
-                          keyboardType: TextInputType.number,
-                          onChanged: _onToChanged,
-                          decoration: InputDecoration(
-                            labelText: 'To',
-                            prefixText: '\$ ',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(
-                                color: Theme.of(context).primaryColor,
-                                width: 2,
-                              ),
-                            ),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 16,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            // Apply button at the bottom
-            Container(
-              padding: EdgeInsets.symmetric(vertical: 0, horizontal: 24),
-              width: double.infinity,
-              child: Column(
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      final from = double.tryParse(
-                          _fromController.text.replaceAll(' ', ''));
-                      final to = double.tryParse(
-                          _toController.text.replaceAll(' ', ''));
-                      context.read<HomeTreeCubit>().setPriceRange(from, to);
-                      Navigator.pop(context);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                      shape: SmoothRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: Container(
-                      width: double.infinity,
-                      alignment: Alignment.center,
-                      child: Text(
-                        'Apply',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: AppColors.white,
-                          fontFamily: "Poppins",
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(
-              height: 24,
-            )
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class NoItemsFound extends StatelessWidget {
   const NoItemsFound({super.key});
 
@@ -2064,120 +1864,6 @@ class _NumericFieldBottomSheetState extends State<NumericFieldBottomSheet> {
             ),
             const SizedBox(height: 24),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class SellerTypeBottomSheet extends StatelessWidget {
-  const SellerTypeBottomSheet({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<HomeTreeCubit, HomeTreeState>(
-      builder: (context, state) {
-        return SmoothClipRRect(
-          borderRadius: BorderRadius.circular(14),
-          child: Container(
-            color: AppColors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  width: double.infinity,
-                  child: const Text(
-                    'Seller Type',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                _buildSellerOption(
-                  context: context,
-                  title: 'All',
-                  isSelected: state.sellerType == SellerType.ALL,
-                  onTap: () {
-                    context
-                        .read<HomeTreeCubit>()
-                        .updateSellerType(SellerType.ALL, true);
-                    Navigator.pop(context);
-                  },
-                ),
-                const SizedBox(height: 8),
-                _buildSellerOption(
-                  context: context,
-                  title: 'Individual',
-                  isSelected: state.sellerType == SellerType.INDIVIDUAL_SELLER,
-                  onTap: () {
-                    context
-                        .read<HomeTreeCubit>()
-                        .updateSellerType(SellerType.INDIVIDUAL_SELLER, true);
-                    Navigator.pop(context);
-                  },
-                ),
-                const SizedBox(height: 8),
-                _buildSellerOption(
-                  context: context,
-                  title: 'Shop',
-                  isSelected: state.sellerType == SellerType.BUSINESS_SELLER,
-                  onTap: () {
-                    context
-                        .read<HomeTreeCubit>()
-                        .updateSellerType(SellerType.BUSINESS_SELLER, true);
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildSellerOption({
-    required BuildContext context,
-    required String title,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      child: SmoothClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: isSelected
-                ? AppColors.primary.withOpacity(0.1)
-                : Colors.transparent,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                  color: isSelected ? AppColors.primary : Colors.black,
-                ),
-              ),
-              if (isSelected)
-                const Icon(
-                  Icons.check_circle,
-                  color: AppColors.primary,
-                  size: 20,
-                ),
-            ],
-          ),
         ),
       ),
     );

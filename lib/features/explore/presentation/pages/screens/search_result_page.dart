@@ -12,9 +12,12 @@ import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
-import 'package:list_in/features/explore/presentation/pages/screens/detailed_page.dart';
+import 'package:list_in/features/explore/presentation/pages/filter/filter.dart';
 import 'package:list_in/features/explore/presentation/pages/screens/initial_page.dart';
 import 'package:list_in/features/explore/presentation/widgets/advertised_product_card.dart';
+import 'package:list_in/features/explore/presentation/widgets/filters_widgets/condition_bottom_sheet.dart';
+import 'package:list_in/features/explore/presentation/widgets/filters_widgets/price_bottom_sheet.dart';
+import 'package:list_in/features/explore/presentation/widgets/filters_widgets/sellert_type_bottom_sheet.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
@@ -248,6 +251,7 @@ class _SearchResultPageState extends State<SearchResultPage> {
           if (state.isLoading) return _buildLoadingScreen();
           if (state.error != null) return _buildErrorScreen(state.error!);
           return Scaffold(
+            backgroundColor: AppColors.white,
             appBar: _buildAppBar(state),
             body: RefreshIndicator(
               color: Colors.blue,
@@ -272,52 +276,122 @@ class _SearchResultPageState extends State<SearchResultPage> {
                     flexibleSpace: Column(
                       children: [
                         Container(
-                          color: AppColors.bgColor,
-                          height: 50,
-                          child: ListView.builder(
+                            color: AppColors.bgColor,
+                            height: 50,
+                            child: ListView.builder(
                               scrollDirection: Axis.horizontal,
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 8),
-                              itemCount: 1,
+                              itemCount: 3,
                               itemBuilder: (context, index) {
+                                if (index == 0) {
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 2.5),
+                                    child: FilterChip(
+                                      showCheckmark: false,
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 2,
+                                        vertical: 10,
+                                      ),
+                                      label: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            "Price",
+                                            style: TextStyle(
+                                              color: AppColors.black,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      side: BorderSide(
+                                        width: 1,
+                                        color: AppColors.lightGray,
+                                      ),
+                                      shape: SmoothRectangleBorder(
+                                        smoothness: 0.8,
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      selected: state.priceFrom != null ||
+                                          state.priceTo != null,
+                                      backgroundColor: AppColors.white,
+                                      selectedColor: AppColors.white,
+                                      onSelected: (_) =>
+                                          _showPriceRangeBottomSheet(context),
+                                    ),
+                                  );
+                                }
+
+                                if (index == 1) {
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 2.5),
+                                    child: FilterChip(
+                                      showCheckmark: false,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 4,
+                                        vertical: 10,
+                                      ),
+                                      label: Text(
+                                        _getConditionText(state.condition),
+                                        style: TextStyle(
+                                          color: AppColors.black,
+                                        ),
+                                      ),
+                                      side: BorderSide(
+                                        width: 1,
+                                        color: AppColors.lightGray
+                                            .withOpacity(0.7),
+                                      ),
+                                      shape: SmoothRectangleBorder(
+                                        smoothness: 0.8,
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      selected: state.condition != 'ALL',
+                                      backgroundColor: AppColors.white,
+                                      selectedColor: AppColors.white,
+                                      onSelected: (_) =>
+                                          _showConditionBottomSheet(context),
+                                    ),
+                                  );
+                                }
+
+                                // index == 2
                                 return Padding(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 2.5),
                                   child: FilterChip(
                                     showCheckmark: false,
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 2,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 4,
                                       vertical: 10,
                                     ),
-                                    label: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          "Price",
-                                          style: TextStyle(
-                                            color: AppColors.black,
-                                          ),
-                                        ),
-                                      ],
+                                    label: Text(
+                                      _getSellerTypeText(state.sellerType),
+                                      style: TextStyle(
+                                        color: AppColors.black,
+                                      ),
                                     ),
                                     side: BorderSide(
                                       width: 1,
-                                      color: AppColors.lightGray,
+                                      color:
+                                          AppColors.lightGray.withOpacity(0.7),
                                     ),
                                     shape: SmoothRectangleBorder(
                                       smoothness: 0.8,
                                       borderRadius: BorderRadius.circular(10),
                                     ),
-                                    selected: state.priceFrom != null ||
-                                        state.priceTo != null,
+                                    selected:
+                                        state.sellerType != SellerType.ALL,
                                     backgroundColor: AppColors.white,
                                     selectedColor: AppColors.white,
                                     onSelected: (_) =>
-                                        _showPriceRangeBottomSheet(context),
+                                        _showSellerTypeBottomSheet(context),
                                   ),
                                 );
-                              }),
-                        ),
+                              },
+                            )),
                       ],
                     ),
                     backgroundColor: AppColors.bgColor,
@@ -330,6 +404,28 @@ class _SearchResultPageState extends State<SearchResultPage> {
         },
       ),
     );
+  }
+
+  String _getConditionText(String? condition) {
+    switch (condition) {
+      case 'NEW_PRODUCT':
+        return 'New';
+      case 'USED_PRODUCT':
+        return 'Used';
+      default:
+        return 'Condition';
+    }
+  }
+
+  String _getSellerTypeText(SellerType type) {
+    switch (type) {
+      case SellerType.ALL:
+        return 'Shop Type';
+      case SellerType.INDIVIDUAL_SELLER:
+        return 'Individual';
+      case SellerType.BUSINESS_SELLER:
+        return 'Shop';
+    }
   }
 
   PreferredSizeWidget _buildAppBar(HomeTreeState state) {
@@ -517,6 +613,34 @@ class _SearchResultPageState extends State<SearchResultPage> {
           bottom: MediaQuery.of(context).viewInsets.bottom,
         ),
         child: BlocProvider.value(value: cubit, child: PriceRangeBottomSheet()),
+      ),
+    );
+  }
+
+  void _showConditionBottomSheet(BuildContext context) {
+    final cubit = context.read<HomeTreeCubit>();
+    showModalBottomSheet(
+      context: context,
+      useRootNavigator: true,
+      backgroundColor: Colors.transparent,
+      shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      builder: (context) => BlocProvider.value(
+        value: cubit,
+        child: const ConditionBottomSheet(),
+      ),
+    );
+  }
+
+  void _showSellerTypeBottomSheet(BuildContext context) {
+    final cubit = context.read<HomeTreeCubit>();
+    showModalBottomSheet(
+      context: context,
+      useRootNavigator: true,
+      backgroundColor: Colors.transparent,
+      shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      builder: (context) => BlocProvider.value(
+        value: cubit,
+        child: const SellerTypeBottomSheet(),
       ),
     );
   }
