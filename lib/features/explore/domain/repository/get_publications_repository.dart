@@ -39,6 +39,10 @@ abstract class PublicationsRepository {
 
   Future<Either<Failure, FilterPredictionValuesEntity>>
       getFilteredValuesOfPublications({
+    String? categoryId,
+    String? subcategoryId,
+    String? sellerType,
+    bool? isFree,
     String? query,
     bool? bargain,
     String? condition,

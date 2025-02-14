@@ -6,17 +6,24 @@ import 'package:list_in/features/explore/domain/enties/filter_prediction_values_
 import 'package:list_in/features/explore/domain/repository/get_publications_repository.dart';
 
 class GetFilteredPublicationsValuesParams {
+  final String? categoryId;
+  final String? subcategoryId;
+  final String? sellerType;
+  final bool? isFree;
   final String? query;
   final bool? bargain;
   final String? condition;
   final double? priceFrom;
   final double? priceTo;
-
   final List<String>? filters;
   final List<String>? numerics;
   final CancelToken? cancelToken;
 
   GetFilteredPublicationsValuesParams({
+    this.sellerType,
+    this.isFree,
+    this.subcategoryId,
+    this.categoryId,
     this.query,
     this.bargain,
     this.condition,
@@ -38,6 +45,10 @@ class GetFilteredPublicationsValuesUsecase extends UseCase2<
   Future<Either<Failure, FilterPredictionValuesEntity>> call(
       {GetFilteredPublicationsValuesParams? params}) {
     return repository.getFilteredValuesOfPublications(
+      categoryId: params?.categoryId,
+      subcategoryId: params?.subcategoryId,
+      isFree: params?.isFree,
+      sellerType: params?.sellerType,
       query: params?.query,
       bargain: params?.bargain,
       condition: params?.condition,

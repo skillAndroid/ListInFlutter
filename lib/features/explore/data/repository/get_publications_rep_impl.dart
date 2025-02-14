@@ -130,9 +130,11 @@ class PublicationsRepositoryImpl implements PublicationsRepository {
   @override
   Future<Either<Failure, FilterPredictionValuesEntity>>
       getFilteredValuesOfPublications({
+    String? categoryId,
+    String? subcategoryId,
+    String? sellerType,
+    bool? isFree,
     String? query,
-    int? page,
-    int? size,
     bool? bargain,
     String? condition,
     double? priceFrom,
@@ -145,6 +147,10 @@ class PublicationsRepositoryImpl implements PublicationsRepository {
       try {
         final filterPredictionValues =
             await remoteDataSource.getFilteredValuesOfPublications(
+          categoryId: categoryId,
+          subcategoryId: subcategoryId,
+          isFree: isFree,
+          sellerType: sellerType,
           query: query,
           bargain: bargain,
           condition: condition,

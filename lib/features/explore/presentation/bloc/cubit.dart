@@ -683,6 +683,12 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
         _filterPredictionCancelToken = CancelToken();
 
         final params = GetFilteredPublicationsValuesParams(
+          categoryId: state.selectedCatalog?.id,
+          subcategoryId: state.selectedChildCategory?.id,
+          sellerType: shouldIncludeFilter(state.sellerType, 'ALL')
+              ? state.sellerType.name
+              : null,
+          isFree: state.isFree == true ? true : null,
           bargain: state.bargain == true ? true : null,
           condition: shouldIncludeFilter(state.condition, 'ALL')
               ? state.condition

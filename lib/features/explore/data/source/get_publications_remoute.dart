@@ -37,8 +37,12 @@ abstract class PublicationsRemoteDataSource {
   });
 
   Future<FilterPredictionValuesModel> getFilteredValuesOfPublications({
+    String? categoryId,
+    String? subcategoryId,
     String? query,
     bool? bargain,
+    bool? isFree,
+    String? sellerType,
     String? condition,
     double? priceFrom,
     double? priceTo,
@@ -84,10 +88,8 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
         if (numeric != null && numeric.isNotEmpty) 'numeric': numeric.join(','),
       };
 
-      // Base URL for publications search
       String url = '/api/v1/publications/search';
 
-      // Handle different endpoint patterns
       if (categoryId != null) {
         if (subcategoryId != null) {
           url = '$url/$categoryId/$subcategoryId';
@@ -95,7 +97,6 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
           url = '$url/$categoryId';
         }
       }
-      // else use base URL: /api/v1/publications/search
 
       final response = await dio.get(
         url,
@@ -226,8 +227,12 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
 
   @override
   Future<FilterPredictionValuesModel> getFilteredValuesOfPublications({
+    String? categoryId,
+    String? subcategoryId,
     String? query,
     bool? bargain,
+    bool? isFree,
+    String? sellerType,
     String? condition,
     double? priceFrom,
     double? priceTo,
@@ -238,15 +243,25 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
     try {
       final options = await authService.getAuthOptions();
       final queryParams = {
+        if (isFree != null) 'isFree': isFree.toString(),
         if (bargain != null) 'bargain': bargain.toString(),
         if (condition != null) 'condition': condition,
+        if (sellerType != null) 'sellerType': sellerType,
         if (priceFrom != null) 'from': priceFrom.toString(),
         if (priceTo != null) 'to': priceTo.toString(),
         if (filters != null && filters.isNotEmpty) 'filter': filters,
         if (numeric != null && numeric.isNotEmpty) 'numeric': numeric.join(','),
       };
 
-      String url = '/api/v1/publications/search/';
+      String url = '/api/v1/publications/search/count';
+
+      if (categoryId != null) {
+        if (subcategoryId != null) {
+          url = '$url/$categoryId/$subcategoryId';
+        } else {
+          url = '$url/$categoryId';
+        }
+      }
       final response = await dio.get(
         url,
         queryParameters: queryParams,
