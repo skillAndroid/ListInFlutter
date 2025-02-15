@@ -252,7 +252,7 @@ class _VideoCarouselState extends State<VideoCarousel> {
         }
       },
       child: SizedBox(
-        height: 160,
+        height: 170,
         child: PageView.builder(
           padEnds: false,
           controller: _pageController,

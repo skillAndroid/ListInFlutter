@@ -22,6 +22,14 @@ class AnotherUserProfileBloc
     on<GetAnotherUserData>(_onGetUserData);
     on<FetchPublications>(_onFetchPublications);
     on<FollowUser>(_onFollowUser);
+    on<ClearUserData>(_onClearUserData); // Добавляем обработчик
+  }
+
+  void _onClearUserData(
+    ClearUserData event,
+    Emitter<AnotherUserProfileState> emit,
+  ) {
+    emit(AnotherUserProfileState()); 
   }
 
   Future<void> _onFollowUser(

@@ -39,6 +39,8 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
   @override
   void initState() {
     super.initState();
+    context.read<AnotherUserProfileBloc>().add(ClearUserData());
+
     _scrollController = ScrollController();
     _tabController = TabController(length: 4, vsync: this);
 

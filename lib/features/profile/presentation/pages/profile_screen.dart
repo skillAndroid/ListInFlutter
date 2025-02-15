@@ -102,7 +102,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                       children: [
                         const SizedBox(width: 2),
                         Text(
-                          '${userData.nickName ?? "User empty"} Store',
+                          'My Store',
                           style: const TextStyle(
                             color: AppColors.black,
                             fontSize: 17,
@@ -114,7 +114,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                         ),
                         Icon(
                           Icons.store,
-                          color: AppColors.blue,
+                          color: AppColors.primary,
                           size: 22,
                         ),
                       ],
@@ -602,13 +602,13 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                 side: BorderSide(
                   width: index == 0 ? 1.5 : 0,
                   color: index == 0
-                      ? AppColors.blue.withOpacity(0.7)
+                      ? AppColors.containerColor
                       : AppColors.transparent,
                 ),
                 borderRadius: index != 0
                     ? BorderRadius.circular(20)
                     : BorderRadius.circular(20)),
-            color: AppColors.containerColor,
+            color: index == 0 ? AppColors.white : AppColors.containerColor,
             child: Container(
               margin: index != 0 ? const EdgeInsets.all(2.0) : EdgeInsets.zero,
               width: 56,
@@ -618,7 +618,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                 children: [
                   Icon(
                     icon,
-                    color: CupertinoColors.activeBlue,
+                    color: CupertinoColors.activeGreen,
                     size: 22,
                   ),
                 ],
@@ -662,7 +662,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
       padding: const EdgeInsets.only(right: 4),
       child: FilterChip(
         elevation: 0,
-        shadowColor: AppColors.primary.withOpacity(0.01),
+        shadowColor: CupertinoColors.activeGreen,
         shape: SmoothRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: BorderSide(
@@ -685,7 +685,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
           });
         },
         backgroundColor: AppColors.white,
-        selectedColor: CupertinoColors.systemGreen,
+        selectedColor: CupertinoColors.activeGreen,
         showCheckmark: false,
         padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 6),
       ),

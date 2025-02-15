@@ -16,6 +16,7 @@ class FetchPublications extends AnotherUserProfileEvent {
     this.isInitialFetch = false,
   });
 }
+
 class FollowUser extends AnotherUserProfileEvent {
   final String userId;
   final bool isFollowing;
@@ -27,3 +28,5 @@ class FollowUser extends AnotherUserProfileEvent {
     required this.context,
   });
 }
+
+class ClearUserData extends AnotherUserProfileEvent {} // Новый ивент
