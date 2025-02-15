@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
-import 'package:list_in/features/details/presentation/pages/details.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
@@ -19,7 +18,7 @@ class RegularProductCardProfile extends StatelessWidget {
       onTap: () {
         context.push(
           Routes.productDetails.replaceAll(':id', product.id),
-          extra: getRecommendedProducts(product.id),
+        //  extra: getRecommendedProducts(product.id),
         );
       },
       child: Container(
