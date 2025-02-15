@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
@@ -343,23 +344,23 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           ),
         ),
         Positioned(
-          bottom: 0,
+          bottom: 16,
           left: 0,
           right: 0,
-          child: SizedBox(
-            height: 2, // Thin line for progress
-            child: Row(
-              children: List.generate(
-                totalItems,
-                (index) => Expanded(
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 300),
-                    margin: const EdgeInsets.symmetric(horizontal: 2),
-                    decoration: BoxDecoration(
-                      color: _currentPage == index
-                          ? AppColors.black
-                          : Colors.grey.withOpacity(0.3),
-                    ),
+          child: Center(
+            child: SmoothClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.5),
+                ),
+                child: Text(
+                  '${_currentPage + 1} - $totalItems',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
@@ -620,6 +621,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
+// Modify the _buildLocationInfo() method in ProductDetailsScreen
   Widget _buildLocationInfo() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -655,15 +657,17 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   style: const TextStyle(fontSize: 13, color: Colors.grey),
                   children: [
                     const TextSpan(
-                        text: "Working hours: ",
-                        style: TextStyle(fontFamily: "Poppins")),
+                      text: "Working hours: ",
+                      style: TextStyle(fontFamily: "Poppins"),
+                    ),
                     TextSpan(
                       text:
                           "${widget.product.seller.fromTime} - ${widget.product.seller.toTime}",
                       style: const TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.w500,
-                          fontFamily: "Poppins"),
+                        color: Colors.black,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: "Poppins",
+                      ),
                     ),
                   ],
                 ),
@@ -671,23 +675,53 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             ],
           ),
           const SizedBox(height: 2),
-          Row(
-            children: [
-              const Icon(
-                Icons.arrow_right_alt,
-                color: Colors.blue,
-                size: 19,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'Show in map',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.blue,
+          InkWell(
+            onTap: () {
+              Navigator.of(context).push(
+                PageRouteBuilder(
+                  pageBuilder: (context, animation, secondaryAnimation) =>
+                      FullScreenMap(
+                    latitude: widget.product.latitude!,
+                    longitude: widget.product.longitude!,
+                    locationName: widget.product.seller.locationName,
+                  ),
+                  transitionsBuilder:
+                      (context, animation, secondaryAnimation, child) {
+                    const begin = Offset(1.0, 0.0);
+                    const end = Offset.zero;
+                    const curve = Curves.easeInOutQuart;
+
+                    var tween = Tween(begin: begin, end: end).chain(
+                      CurveTween(curve: curve),
+                    );
+
+                    return SlideTransition(
+                      position: animation.drive(tween),
+                      child: child,
+                    );
+                  },
+                  transitionDuration: const Duration(milliseconds: 500),
                 ),
-              ),
-            ],
+              );
+            },
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.arrow_right_alt,
+                  color: Colors.blue,
+                  size: 19,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Show in map',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.blue,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -1113,142 +1147,54 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   }
 }
 
+class FullScreenMap extends StatelessWidget {
+  final double latitude;
+  final double longitude;
+  final String locationName;
 
+  const FullScreenMap({
+    super.key,
+    required this.latitude,
+    required this.longitude,
+    required this.locationName,
+  });
 
-  // Widget _buildSelectedLocationCard(BuildContext context) {
-  //   return SmoothClipRRect(
-  //     borderRadius: BorderRadius.circular(16),
-  //     child: Container(
-  //       color: AppColors.white,
-  //       child: Column(
-  //         children: [
-  //           Padding(
-  //             padding: const EdgeInsets.all(4.0),
-  //             child: Column(
-  //               crossAxisAlignment: CrossAxisAlignment.start,
-  //               children: [
-  //                 SmoothClipRRect(
-  //                   borderRadius: BorderRadius.circular(16),
-  //                   child: SizedBox(
-  //                     width: double.infinity,
-  //                     height: 330,
-  //                     child: Stack(
-  //                       children: [
-  //                         GoogleMap(
-  //                           liteModeEnabled: true,
-  //                           zoomControlsEnabled: false,
-  //                           mapToolbarEnabled: true,
-  //                           myLocationButtonEnabled: false,
-  //                           compassEnabled: false,
-  //                           initialCameraPosition: CameraPosition(
-  //                             target: LatLng(
-  //                               widget.product.latitude!,
-  //                               widget.product.longitude!,
-  //                             ),
-  //                             zoom: 18,
-  //                           ),
-  //                           markers: {
-  //                             Marker(
-  //                               markerId: MarkerId('productLocation'),
-  //                               position: LatLng(
-  //                                 widget.product.latitude!,
-  //                                 widget.product.longitude!,
-  //                               ),
-  //                             ),
-  //                           },
-  //                         ),
-  //                       ],
-  //                     ),
-  //                   ),
-  //                 ),
-  //                 // const SizedBox(height: 8),
-  //                 // Transform.translate(
-  //                 //   offset: Offset(0, 0),
-  //                 //   child: Icon(
-  //                 //     Ionicons.location,
-  //                 //     color: AppColors.primary,
-  //                 //     size: 18,
-  //                 //   ),
-  //                 // ),
-  //                 // Padding(
-  //                 //   padding: const EdgeInsets.symmetric(
-  //                 //     vertical: 8,
-  //                 //     horizontal: 4,
-  //                 //   ),
-  //                 //   child: Column(
-  //                 //     crossAxisAlignment: CrossAxisAlignment.start,
-  //                 //     children: [
-  //                 //       SizedBox(
-  //                 //         width: 150,
-  //                 //         child: Text(
-  //                 //           widget.product.locationName,
-  //                 //           maxLines: 3,
-  //                 //           overflow: TextOverflow.ellipsis,
-  //                 //           style: const TextStyle(
-  //                 //             color: AppColors.primary,
-  //                 //             fontWeight: FontWeight.w600,
-  //                 //           ),
-  //                 //         ),
-  //                 //       ),
-  //                 //       const SizedBox(height: 8),
-  //                 //       SmoothClipRRect(
-  //                 //         borderRadius: BorderRadius.circular(10),
-  //                 //         child: InkWell(
-  //                 //           onTap: () {
-  //                 //             MapDirectionsHandler.openDirections(
-  //                 //               widget.product.latitude!,
-  //                 //               widget.product.longitude!,
-  //                 //             ).catchError((error) {
-  //                 //               ScaffoldMessenger.of(context).showSnackBar(
-  //                 //                 const SnackBar(
-  //                 //                   content: Text(
-  //                 //                     'Could not open maps. Please check if you have Google Maps installed or try again later.',
-  //                 //                   ),
-  //                 //                 ),
-  //                 //               );
-  //                 //             });
-  //                 //           },
-  //                 //           child: Container(
-  //                 //             color: AppColors.containerColor,
-  //                 //             margin: EdgeInsets.zero,
-  //                 //             padding: EdgeInsets.zero,
-  //                 //             child: const Padding(
-  //                 //               padding: EdgeInsets.only(
-  //                 //                   top: 4, bottom: 4, left: 8, right: 8),
-  //                 //               child: Row(
-  //                 //                 children: [
-  //                 //                   Icon(
-  //                 //                     CupertinoIcons.location_fill,
-  //                 //                     size: 17,
-  //                 //                   ),
-  //                 //                   SizedBox(width: 4),
-  //                 //                   Text(
-  //                 //                     'Get Direction',
-  //                 //                     style: TextStyle(
-  //                 //                       color: AppColors.black,
-  //                 //                       fontSize: 12,
-  //                 //                       fontWeight: FontWeight.w600,
-  //                 //                     ),
-  //                 //                   ),
-  //                 //                 ],
-  //                 //               ),
-  //                 //             ),
-  //                 //           ),
-  //                 //         ),
-  //                 //       )
-  //                 //     ],
-  //                 //   ),
-  //                 // )
-  //               ],
-  //             ),
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          locationName,
+          style: TextStyle(color: Colors.black, fontSize: 17),
+        ),
+      ),
+      body: GoogleMap(
+        zoomControlsEnabled: true,
+        mapToolbarEnabled: true,
+        myLocationButtonEnabled: false,
+        compassEnabled: true,
+        initialCameraPosition: CameraPosition(
+          target: LatLng(latitude, longitude),
+          zoom: 18,
+        ),
+        markers: {
+          Marker(
+            markerId: MarkerId('selectedLocation'),
+            position: LatLng(latitude, longitude),
+            infoWindow: InfoWindow(title: locationName),
+          ),
+        },
+      ),
+    );
+  }
+}
 
-  // Widget _buildLocation() {
   //   return InkWell(
   //     onTap: () {
   //       print(

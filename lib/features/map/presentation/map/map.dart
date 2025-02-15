@@ -39,7 +39,7 @@ class _ListInMapState extends State<ListInMap> {
   // Tashkent coordinates: 41.2995, 69.2401
   static const LatLng _defaultLocation = LatLng(41.2995, 69.2401);
 
-   void _onMapCreated(GoogleMapController controller) {
+  void _onMapCreated(GoogleMapController controller) {
     _mapController = controller;
     if (!_controllerCompleter.isCompleted) {
       _controllerCompleter.complete(controller);
@@ -82,8 +82,6 @@ class _ListInMapState extends State<ListInMap> {
     );
     _initPermission().ignore();
   }
-
- 
 
   Widget _buildTopGradient() {
     return Container(
