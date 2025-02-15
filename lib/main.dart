@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:list_in/config/theme/app_theme.dart';
 import 'package:list_in/core/router/go_router.dart';
 import 'package:list_in/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:list_in/features/details/presentation/bloc/details_bloc.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/map/presentation/bloc/MapBloc.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
@@ -511,6 +512,9 @@ void main() async {
           ),
           BlocProvider<AnotherUserProfileBloc>(
             create: (_) => di.sl<AnotherUserProfileBloc>(),
+          ),
+          BlocProvider<DetailsBloc>(
+            create: (_) => di.sl<DetailsBloc>(),
           ),
         ],
         child: MyApp(router: di.sl<AppRouter>().router),

@@ -1,24 +1,26 @@
+
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/core/error/failure.dart';
+import 'package:list_in/features/details/presentation/bloc/details_state.dart';
+import 'package:list_in/features/details/presentation/bloc/details_event.dart';
 import 'package:list_in/features/visitior_profile/domain/usecase/follow_usecase.dart';
 import 'package:list_in/features/visitior_profile/domain/usecase/get_another_user_profile_usecase.dart';
 import 'package:list_in/features/visitior_profile/domain/usecase/get_another_user_publications_usecase.dart';
-import 'package:list_in/features/visitior_profile/presentation/bloc/another_user_profile_event.dart';
-import 'package:list_in/features/visitior_profile/presentation/bloc/another_user_profile_state.dart';
 
-class AnotherUserProfileBloc
-    extends Bloc<AnotherUserProfileEvent, AnotherUserProfileState> {
+class DetailsBloc
+    extends Bloc<DetailsEvent, DetailsState> {
   final GetAnotherUserDataUseCase getUserDataUseCase;
   final GetPublicationsByIdUsecase getPublications;
   final FollowUserUseCase followUserUseCase;
   static const int pageSize = 20;
 
-  AnotherUserProfileBloc({
+  DetailsBloc({
     required this.getUserDataUseCase,
     required this.getPublications,
     required this.followUserUseCase,
-  }) : super(AnotherUserProfileState()) {
+  }) : super(DetailsState()) {
     on<GetAnotherUserData>(_onGetUserData);
     on<FetchPublications>(_onFetchPublications);
     on<FollowUser>(_onFollowUser);
@@ -26,7 +28,7 @@ class AnotherUserProfileBloc
 
   Future<void> _onFollowUser(
     FollowUser event,
-    Emitter<AnotherUserProfileState> emit,
+    Emitter<DetailsState> emit,
   ) async {
     emit(state.copyWith(isFollowingInProgress: true));
 
@@ -41,7 +43,7 @@ class AnotherUserProfileBloc
       (failure) {
         emit(state.copyWith(
           isFollowingInProgress: false,
-          status: AnotherUserProfileStatus.failure,
+          status: DetailsStatus.failure,
           errorMessage: _mapFailureToMessage(failure),
         ));
 
@@ -53,7 +55,7 @@ class AnotherUserProfileBloc
       (updatedProfile) {
         emit(state.copyWith(
           isFollowingInProgress: false,
-          status: AnotherUserProfileStatus.success,
+          status: DetailsStatus.success,
           profile:
               updatedProfile, // This now contains updated followers, following, and isFollowing
         ));
@@ -63,10 +65,10 @@ class AnotherUserProfileBloc
 
   Future<void> _onGetUserData(
     GetAnotherUserData event,
-    Emitter<AnotherUserProfileState> emit,
+    Emitter<DetailsState> emit,
   ) async {
     debugPrint('🚀 GetUserData event triggered');
-    emit(state.copyWith(status: AnotherUserProfileStatus.loading));
+    emit(state.copyWith(status: DetailsStatus.loading));
 
     final result = await getUserDataUseCase(params: event.userId);
 
@@ -75,14 +77,14 @@ class AnotherUserProfileBloc
       (failure) {
         debugPrint('❌ GetUserData failure: ${failure.runtimeType}');
         emit(state.copyWith(
-          status: AnotherUserProfileStatus.failure,
+          status: DetailsStatus.failure,
           errorMessage: _mapFailureToMessage(failure),
         ));
       },
       (userData) {
         debugPrint('✅ GetUserData success: $userData ');
         emit(state.copyWith(
-          status: AnotherUserProfileStatus.success,
+          status: DetailsStatus.success,
           profile: userData,
         ));
       },
@@ -104,14 +106,14 @@ class AnotherUserProfileBloc
 
   Future<void> _onFetchPublications(
     FetchPublications event,
-    Emitter<AnotherUserProfileState> emit,
+    Emitter<DetailsState> emit,
   ) async {
     // Don't load more if we're already at the end
     if (state.hasReachedEnd && !event.isInitialFetch) return;
 
     if (event.isInitialFetch) {
       emit(state.copyWith(
-        status: AnotherUserProfileStatus.loading,
+        status: DetailsStatus.loading,
         currentPage: 0,
         hasReachedEnd: false,
         publications: [],
@@ -131,7 +133,7 @@ class AnotherUserProfileBloc
     result.fold(
       (failure) {
         emit(state.copyWith(
-          status: AnotherUserProfileStatus.failure,
+          status: DetailsStatus.failure,
           errorMessage: _mapFailureToMessage(failure),
           isLoadingMore: false,
         ));
@@ -142,7 +144,7 @@ class AnotherUserProfileBloc
             : [...state.publications, ...publicationsPage.content];
 
         emit(state.copyWith(
-          status: AnotherUserProfileStatus.success,
+          status: DetailsStatus.success,
           publications: updatedPublications,
           isLoadingMore: false,
           hasReachedEnd: publicationsPage.isLast,

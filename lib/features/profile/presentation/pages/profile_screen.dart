@@ -425,7 +425,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                 ];
               },
               body: Padding(
-                padding: const EdgeInsets.only(top: 0, right: 8, left: 8),
+                padding: const EdgeInsets.only(top: 0, right: 8, left: 4),
                 child: TabBarView(
                   controller: _tabController,
                   children: [
@@ -518,7 +518,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
             0,
             CupertinoIcons.plus,
             'Create',
-            AppColors.primaryLight,
+            AppColors.white,
             AppColors.blue,
             onTap: () {
               context.push(Routes.post);
@@ -618,7 +618,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                 children: [
                   Icon(
                     icon,
-                    color: AppColors.blue,
+                    color: CupertinoColors.activeBlue,
                     size: 22,
                   ),
                 ],
@@ -643,7 +643,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
     return SliverToBoxAdapter(
       child: Container(
         height: 40,
-        margin: const EdgeInsets.only(bottom: 0, left: 2, top: 0),
+        margin: const EdgeInsets.only(bottom: 0, left: 8, top: 0),
         child: ListView(
           scrollDirection: Axis.horizontal,
           children: [
@@ -687,121 +687,126 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
         backgroundColor: AppColors.white,
         selectedColor: CupertinoColors.systemGreen,
         showCheckmark: false,
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 6),
       ),
     );
   }
-Widget _buildFilteredProductsGrid() {
-  return BlocConsumer<UserPublicationsBloc, UserPublicationsState>(
-    listener: (context, state) {
-      if (state.error != null) {
-        _showErrorSnackbar(context, state.error!);
-      }
-    },
-    builder: (context, state) {
-      // For empty states, use SliverFillRemaining to center content
-      if ((state.isLoading || state.isInitialLoading) && state.publications.isEmpty) {
-        return SliverFillRemaining(
-          hasScrollBody: false,
-          child: Center(
-            child: Progress(),
-          ),
-        );
-      }
 
-      if (state.error != null) {
-        return SliverFillRemaining(
-          hasScrollBody: false,
-          child: Center(
-            child: FilledButton.icon(
-              onPressed: () {
-                context.read<UserPublicationsBloc>().add(FetchUserPublications());
-              },
-              icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Try Again'),
+  Widget _buildFilteredProductsGrid() {
+    return BlocConsumer<UserPublicationsBloc, UserPublicationsState>(
+      listener: (context, state) {
+        if (state.error != null) {
+          _showErrorSnackbar(context, state.error!);
+        }
+      },
+      builder: (context, state) {
+        // For empty states, use SliverFillRemaining to center content
+        if ((state.isLoading || state.isInitialLoading) &&
+            state.publications.isEmpty) {
+          return SliverFillRemaining(
+            hasScrollBody: false,
+            child: Center(
+              child: Progress(),
             ),
-          ),
-        );
-      }
+          );
+        }
 
-      if (state.publications.isEmpty) {
-        return SliverFillRemaining(
-          hasScrollBody: false,
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.withOpacity(0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.inventory_2_outlined,
-                    size: 48,
-                    color: Colors.grey[600],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'No $selectedProductFilter products',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
+        if (state.error != null) {
+          return SliverFillRemaining(
+            hasScrollBody: false,
+            child: Center(
+              child: FilledButton.icon(
+                onPressed: () {
+                  context
+                      .read<UserPublicationsBloc>()
+                      .add(FetchUserPublications());
+                },
+                icon: const Icon(Icons.refresh_rounded),
+                label: const Text('Try Again'),
+              ),
             ),
-          ),
-        );
-      }
+          );
+        }
 
-      // Content state with list
-      return SliverPadding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        sliver: SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              if (index == state.publications.length) {
-                if (state.isLoading) {
-                  return const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    child: Center(child: Progress()),
-                  );
+        if (state.publications.isEmpty) {
+          return SliverFillRemaining(
+            hasScrollBody: false,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.inventory_2_outlined,
+                      size: 48,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No $selectedProductFilter products',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        // Content state with list
+        return SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          sliver: SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                if (index == state.publications.length) {
+                  if (state.isLoading) {
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                      child: Center(child: Progress()),
+                    );
+                  }
+                  return null;
                 }
-                return null;
-              }
 
-              final publication = state.publications[index];
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: HorizontalProfileProductCard(
-                  product: publication,
-                ),
-              );
-            },
-            childCount: state.publications.length + (state.isLoading ? 1 : 0),
+                final publication = state.publications[index];
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: HorizontalProfileProductCard(
+                    product: publication,
+                  ),
+                );
+              },
+              childCount: state.publications.length + (state.isLoading ? 1 : 0),
+            ),
           ),
-        ),
-      );
-    },
-  );
-}
+        );
+      },
+    );
+  }
 
-void _showErrorSnackbar(BuildContext context, String error) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text(error),
-      behavior: SnackBarBehavior.floating,
-      action: SnackBarAction(
-        label: 'Dismiss',
-        onPressed: () {},
+  void _showErrorSnackbar(BuildContext context, String error) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(error),
+        behavior: SnackBarBehavior.floating,
+        action: SnackBarAction(
+          label: 'Dismiss',
+          onPressed: () {},
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildEmptyTab({
     required IconData icon,

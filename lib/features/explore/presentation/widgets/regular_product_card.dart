@@ -414,7 +414,7 @@ class RegularProductCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
         ),
         elevation: 5,
-        shadowColor: Colors.black.withOpacity(0.2),
+        shadowColor: Colors.black.withOpacity(0.4),
         color: AppColors.white,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -783,7 +783,7 @@ class RemouteRegularProductCard2 extends StatelessWidget {
           smoothness: 1,
           borderRadius: BorderRadius.circular(10),
         ),
-        elevation: 4,
+        elevation: 5,
         shadowColor: Colors.black.withOpacity(0.4),
         color: AppColors.white,
         child: Column(

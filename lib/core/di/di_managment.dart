@@ -22,6 +22,7 @@ import 'package:list_in/features/auth/domain/usecases/register_user_data.dart';
 import 'package:list_in/features/auth/domain/usecases/signup_usecase.dart';
 import 'package:list_in/features/auth/domain/usecases/verify_email_signup.dart';
 import 'package:list_in/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:list_in/features/details/presentation/bloc/details_bloc.dart';
 import 'package:list_in/features/explore/data/repository/get_publications_rep_impl.dart';
 import 'package:list_in/features/explore/data/source/get_publications_remoute.dart';
 import 'package:list_in/features/explore/domain/repository/get_publications_repository.dart';
@@ -293,6 +294,14 @@ Future<void> init() async {
       followUserUseCase: sl(),
     ),
   );
+   sl.registerFactory(
+    () => DetailsBloc(
+      getUserDataUseCase: sl(),
+      getPublications: sl(),
+      followUserUseCase: sl(),
+    ),
+  );
+  
 
   sl.registerLazySingleton<PostRepository>(
     () => PostRepositoryImpl(

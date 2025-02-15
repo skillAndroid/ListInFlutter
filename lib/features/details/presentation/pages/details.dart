@@ -5,19 +5,25 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
+import 'package:list_in/features/details/presentation/bloc/details_bloc.dart';
+import 'package:list_in/features/details/presentation/bloc/details_state.dart';
 import 'package:list_in/features/details/presentation/pages/product_images_detailed.dart';
 import 'package:list_in/features/details/presentation/pages/video_details.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/formaters.dart';
+import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:visibility_detector/visibility_detector.dart';
+
+import '../bloc/details_event.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
   final GetPublicationEntity product;
@@ -48,6 +54,17 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         _isBottomButtonVisible = shouldShowBottomButton;
       });
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<DetailsBloc>().add(
+          FetchPublications(
+            userId: widget.product.seller.id,
+            isInitialFetch: true,
+          ),
+        );
   }
 
   @override
@@ -326,23 +343,23 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           ),
         ),
         Positioned(
-          bottom: 16,
+          bottom: 0,
           left: 0,
           right: 0,
-          child: Center(
-            child: SmoothClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.7),
-                ),
-                child: Text(
-                  '${_currentPage + 1} - $totalItems',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
+          child: SizedBox(
+            height: 2, // Thin line for progress
+            child: Row(
+              children: List.generate(
+                totalItems,
+                (index) => Expanded(
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    margin: const EdgeInsets.symmetric(horizontal: 2),
+                    decoration: BoxDecoration(
+                      color: _currentPage == index
+                          ? AppColors.black
+                          : Colors.grey.withOpacity(0.3),
+                    ),
                   ),
                 ),
               ),
@@ -369,7 +386,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         _buildTitle(),
         const SizedBox(height: 12),
         _buildShopInfo(),
-        const SizedBox(height: 16),
+        const SizedBox(height: 20),
         InkWell(
             onTap: () {
               context.push(Routes.anotherUserProfile, extra: {
@@ -380,21 +397,27 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         _buildSellerInfo(),
         _buildCalMessageButtons(),
         _buildLocationInfo(),
+        SizedBox(
+          height: 4,
+        ),
         if (enAttributes.isNotEmpty ||
             widget.product.attributeValue.numericValues.isNotEmpty)
           buildCharacteristics(enAttributes),
+        SizedBox(
+          height: 4,
+        ),
         _buildDescription(),
-        _buildVerificationStatus(),
-        _buildPriceEstimate(),
         SizedBox(
           height: 16,
+        ),
+        _buildTrustAndSafety(),
+        _buildBuyerProtection(),
+        SizedBox(
+          height: 20,
         ),
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Аватар продавца (25% ширины)
-
-            // Информация о продавце (75% ширины)
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -427,24 +450,26 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 left: 16,
                 right: 16,
               ),
-              child: CircleAvatar(
-                radius: 32,
-                backgroundColor: Colors.grey[300], // Фон, если нет фото
-                child: widget.product.seller.profileImagePath != null
-                    ? ClipOval(
-                        child: CachedNetworkImage(
-                          imageUrl:
-                              'https://${widget.product.seller.profileImagePath!}', // Исправил ошибку в URL
-                          fit: BoxFit.cover,
-                          width: 64, // Диаметр 2 * radius
-                          height: 64,
-                          placeholder: (context, url) =>
-                              CircularProgressIndicator(),
-                          errorWidget: (context, url, error) =>
-                              Icon(Icons.error, color: Colors.red),
-                        ),
-                      )
-                    : Icon(Icons.person, size: 32, color: Colors.white),
+              child: InkWell(
+                child: CircleAvatar(
+                  radius: 32,
+                  backgroundColor: Colors.grey[300], // Фон, если нет фото
+                  child: widget.product.seller.profileImagePath != null
+                      ? ClipOval(
+                          child: CachedNetworkImage(
+                            imageUrl:
+                                'https://${widget.product.seller.profileImagePath!}', // Исправил ошибку в URL
+                            fit: BoxFit.cover,
+                            width: 64, // Диаметр 2 * radius
+                            height: 64,
+                            placeholder: (context, url) =>
+                                CircularProgressIndicator(),
+                            errorWidget: (context, url, error) =>
+                                Icon(Icons.error, color: Colors.red),
+                          ),
+                        )
+                      : Icon(Icons.person, size: 32, color: Colors.white),
+                ),
               ),
             ),
           ],
@@ -459,39 +484,139 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          height: 24,
+          height: 16,
         ),
-        const Padding(
+        Padding(
           padding: EdgeInsets.symmetric(
             horizontal: 16,
           ),
-          child: Text(
-            'Similar posts',
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.w600,
+          child: InkWell(
+            onTap: () {
+              context.push(Routes.anotherUserProfile, extra: {
+                'userId': widget.product.seller.id,
+              });
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Other posts',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_right_alt,
+                  size: 44,
+                )
+              ],
             ),
           ),
         ),
         const SizedBox(height: 8),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 0,
-            mainAxisSpacing: 0,
-            childAspectRatio: 0.65,
-          ),
-          itemCount: widget.recommendedProducts.length,
-          itemBuilder: (context, index) {
-            return RegularProductCard(
-              product: widget.recommendedProducts[index],
-            );
-          },
-        ),
+        buildProductsGrid(),
       ],
+    );
+  }
+
+  Widget buildProductsGrid() {
+    return BlocBuilder<DetailsBloc, DetailsState>(
+      builder: (context, state) {
+        if (state.status == DetailsStatus.loading &&
+            state.publications.isEmpty) {
+          return Progress();
+        }
+
+        if (state.status == DetailsStatus.failure &&
+            state.publications.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    context.read<DetailsBloc>().add(
+                          FetchPublications(
+                            userId: state.profile?.id ?? '',
+                            isInitialFetch: true,
+                          ),
+                        );
+                  },
+                  child: Text("Retry"),
+                ),
+                if (state.errorMessage != null) Text(state.errorMessage!),
+              ],
+            ),
+          );
+        }
+
+        if (state.publications.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 32),
+                Icon(Icons.inventory, size: 72, color: Colors.grey[400]),
+                const SizedBox(height: 16),
+                Text(
+                  'No publications available',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return Padding(
+          padding: EdgeInsets.only(bottom: 24, left: 8, right: 8),
+          child: GridView.builder(
+            // If this grid is inside a ScrollView, you might want to set this to false
+            shrinkWrap: true,
+            // If this grid is inside a ScrollView, you might want to set this
+            physics: ScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 0,
+              mainAxisSpacing: 0,
+              childAspectRatio: 0.64,
+            ),
+            itemCount:
+                state.publications.length + (state.isLoadingMore ? 1 : 0),
+            itemBuilder: (context, index) {
+              // Check if we need to load more
+              if (index >= state.publications.length - 4 &&
+                  !state.isLoadingMore &&
+                  !state.hasReachedEnd) {
+                context.read<DetailsBloc>().add(
+                      FetchPublications(
+                        userId: state.profile?.id ?? '',
+                      ),
+                    );
+              }
+
+              if (index == state.publications.length) {
+                if (state.isLoadingMore) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                return null;
+              }
+
+              final publication = state.publications[index];
+              return Padding(
+                padding: const EdgeInsets.all(0),
+                child: RemouteRegularProductCard2(
+                  product: publication,
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 
@@ -698,7 +823,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           ],
           const SizedBox(width: 8),
           Text(
-            '1 отзыв',
+            '0 отзыв',
             style: TextStyle(
               color: Colors.grey[600],
             ),
@@ -924,85 +1049,65 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
-  Widget _buildVerificationStatus() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.error_outline, color: Colors.grey[600]),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Авто не проверено',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                  ),
+  Widget _buildBuyerProtection() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: SmoothClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.all(12), // Smaller height
+          color: AppColors.containerColor,
+          child: Row(
+            children: [
+              Icon(Icons.shield_outlined, color: Colors.orange),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Use verified payment methods and meet in safe locations to avoid scams.',
+                  style: TextStyle(color: Colors.grey[600], fontSize: 14),
                 ),
-                Text(
-                  'На фото не виден госномер',
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-          Icon(Icons.chevron_right, color: Colors.grey[600]),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildPriceEstimate() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            '4 200 000 ₽ — соответствует оценке Авито',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Container(
-            height: 8,
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  flex: 2,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.green,
-                      borderRadius: BorderRadius.circular(4),
+  Widget _buildTrustAndSafety() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: SmoothClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          color: AppColors.containerColor,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Transaction Safety',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Icon(Icons.verified, color: Colors.green),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Always check the item before buying. Avoid upfront payments without guarantees!',
+                      style: TextStyle(color: Colors.grey[600], fontSize: 14),
                     ),
                   ),
-                ),
-                Expanded(flex: 3, child: Container()),
-              ],
-            ),
+                ],
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
