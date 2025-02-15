@@ -223,7 +223,8 @@ class AppRouter {
                                 getFilteredPublicationsValuesUsecase,
                           );
                           if (priceFrom != null && priceTo != null) {
-                            cubit.setPriceRange(priceFrom, priceTo, 'FILTER_HOME_RESULT');
+                            cubit.setPriceRange(
+                                priceFrom, priceTo, 'FILTER_HOME_RESULT');
                           }
                           if (filterState != null) {
                             // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
@@ -267,16 +268,41 @@ class AppRouter {
                       path: Routes.search,
                       name: RoutesByName.search,
                       builder: (context, state) {
+                        final extraData = state.extra as Map<String, dynamic>;
+                        final priceFrom = extraData['priceFrom'] as double?;
+                        final priceTo = extraData['priceTo'] as double?;
+                        final filterState =
+                            extraData['filterState'] as Map<String, dynamic>?;
                         return BlocProvider(
-                          create: (_) => HomeTreeCubit(
-                            getCatalogsUseCase: getGategoriesUsecase,
-                            getPublicationsUseCase: getPublicationsUsecase,
-                            getPredictionsUseCase: getPredictionsUseCase,
-                            getVideoPublicationsUsecase:
-                                getVideoPublicationsUsecase,
-                            getFilteredPublicationsValuesUsecase:
-                                getFilteredPublicationsValuesUsecase,
-                          ),
+                          create: (_) {
+                            final cubit = HomeTreeCubit(
+                              getCatalogsUseCase: getGategoriesUsecase,
+                              getPublicationsUseCase: getPublicationsUsecase,
+                              getPredictionsUseCase: getPredictionsUseCase,
+                              getVideoPublicationsUsecase:
+                                  getVideoPublicationsUsecase,
+                              getFilteredPublicationsValuesUsecase:
+                                  getFilteredPublicationsValuesUsecase,
+                            );
+                            if (priceFrom != null && priceTo != null) {
+                              cubit.setPriceRange(
+                                priceFrom,
+                                priceTo,
+                                "CHILD",
+                              );
+                            }
+                            if (filterState != null) {
+                              // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
+                              cubit.emit(cubit.state.copyWith(
+                                bargain: filterState['bargain'] as bool,
+                                isFree: filterState['isFree'] as bool,
+                                condition: filterState['condition'] as String,
+                                sellerType:
+                                    filterState['sellerType'] as SellerType,
+                              ));
+                            }
+                            return cubit;
+                          },
                           child: SearchPage(
                             key: state.pageKey,
                           ),
@@ -312,7 +338,8 @@ class AppRouter {
                           );
                           cubit.selectCatalog(category);
                           if (priceFrom != null && priceTo != null) {
-                            cubit.setPriceRange(priceFrom, priceTo,"FILTER_SECONDARY_RESULT");
+                            cubit.setPriceRange(
+                                priceFrom, priceTo, "FILTER_SECONDARY_RESULT");
                           }
                           if (filterState != null) {
                             // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
@@ -366,7 +393,8 @@ class AppRouter {
                           cubit.selectCatalog(category);
 
                           if (priceFrom != null && priceTo != null) {
-                            cubit.setPriceRange(priceFrom, priceTo, "SUBCATEGORY");
+                            cubit.setPriceRange(
+                                priceFrom, priceTo, "SUBCATEGORY");
                           }
                           if (searchText != null) {
                             cubit.updateSearchText(searchText);
@@ -447,7 +475,8 @@ class AppRouter {
                                 );
 
                                 if (priceFrom != null && priceTo != null) {
-                                  cubit.setPriceRange(priceFrom, priceTo, "CHILD");
+                                  cubit.setPriceRange(
+                                      priceFrom, priceTo, "CHILD");
                                 }
 
                                 cubit

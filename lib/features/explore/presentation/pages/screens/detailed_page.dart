@@ -745,7 +745,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Padding(
-                padding: const EdgeInsets.only(left: 16, right: 16),
+                padding: const EdgeInsets.only(left: 16, right: 8),
                 child: Row(
                   children: [
                     Transform.translate(
@@ -761,7 +761,19 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                     Expanded(
                       child: GestureDetector(
                         onTap: () {
-                          context.pushNamed(RoutesByName.search);
+                          context.pushNamed(
+                            RoutesByName.search,
+                            extra: {
+                              'priceFrom': state.priceFrom,
+                              'priceTo': state.priceTo,
+                              'filterState': {
+                                'bargain': state.bargain,
+                                'isFree': state.isFree,
+                                'condition': state.condition,
+                                'sellerType': state.sellerType,
+                              },
+                            },
+                          );
                         },
                         child: SmoothClipRRect(
                           smoothness: 0.8,
@@ -791,58 +803,50 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                     ),
                                   ),
                                 ),
-                                const VerticalDivider(
-                                  color: AppColors.lightGray,
-                                  width: 1,
-                                  indent: 12,
-                                  endIndent: 12,
-                                ),
-                                SizedBox(
-                                  width: 2,
-                                ),
-                                IconButton(
-                                  icon: Image.asset(
-                                    AppIcons.filterIc,
-                                    width: 24,
-                                    height: 24,
-                                  ),
-                                  onPressed: () {
-                                    final homeTreeCubit =
-                                        BlocProvider.of<HomeTreeCubit>(context);
-
-                                    showModalBottomSheet(
-                                      context: context,
-                                      isScrollControlled: true,
-                                      useRootNavigator: true,
-                                      showDragHandle: false,
-                                      enableDrag: false,
-                                      shape: SmoothRectangleBorder(
-                                        borderRadius: BorderRadius.circular(18),
-                                      ),
-                                      builder: (context) => BlocProvider.value(
-                                        value:
-                                            homeTreeCubit, // Provide the same cubit instance
-                                        child: SmoothClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(18),
-                                          child: FractionallySizedBox(
-                                            heightFactor: 1,
-                                            child:
-                                                FiltersPage(page: "detailed"),
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                                SizedBox(
-                                  width: 2,
-                                ),
                               ],
                             ),
                           ),
                         ),
                       ),
+                    ),
+                    SizedBox(
+                      width: 6,
+                    ),
+                    IconButton(
+                      icon: Image.asset(
+                        AppIcons.filterIc,
+                        width: 24,
+                        height: 24,
+                      ),
+                      onPressed: () {
+                        final homeTreeCubit =
+                            BlocProvider.of<HomeTreeCubit>(context);
+
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          useRootNavigator: true,
+                          showDragHandle: false,
+                          enableDrag: false,
+                          shape: SmoothRectangleBorder(
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                          builder: (context) => BlocProvider.value(
+                            value:
+                                homeTreeCubit, // Provide the same cubit instance
+                            child: SmoothClipRRect(
+                              borderRadius: BorderRadius.circular(18),
+                              child: FractionallySizedBox(
+                                heightFactor: 1,
+                                child: FiltersPage(page: "detailed"),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    SizedBox(
+                      width: 2,
                     ),
                   ],
                 ),
@@ -1641,6 +1645,3 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
     }
   }
 }
-
-
-

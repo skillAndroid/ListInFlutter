@@ -790,7 +790,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     if (filter) {
       fetchFilteredPredictionValues();
     } else {
-      if (page == 'child') {
+      if (page == 'CHILD') {
         fetchChildPage(0);
       }
       if (page == "SEARCH_RESULT") {
@@ -811,7 +811,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     if (filter) {
       fetchFilteredPredictionValues();
     } else {
-      if (page == 'child') {
+      if (page == 'CHILD') {
         fetchChildPage(0);
       }
       if (page == "SEARCH_RESULT") {
@@ -832,7 +832,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     if (filter) {
       fetchFilteredPredictionValues();
     } else {
-      if (page == 'child') {
+      if (page == 'CHILD') {
         fetchChildPage(0);
       }
       if (page == "SEARCH_RESULT") {
@@ -929,7 +929,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     if (state.searchText != null) {
       searchPage(0);
     } else {
-      if (page == 'child') {
+      if (page == 'CHILD') {
         fetchChildPage(0);
       }
       if (page == "SEARCH_RESULT") {
