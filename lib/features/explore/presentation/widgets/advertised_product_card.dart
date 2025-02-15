@@ -8,6 +8,7 @@ import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
+import 'package:list_in/features/explore/presentation/widgets/formaters.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/undefined_screens_yet/video_player.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
@@ -50,7 +51,7 @@ class _AdvertisedProductCardState extends State<AdvertisedProductCard> {
         onTap: () {
           context.push(
             Routes.productDetails,
-            extra: widget.product, 
+            extra: widget.product,
           );
         },
         child: Card(
@@ -116,17 +117,20 @@ class _NewBadge extends StatelessWidget {
     return Positioned(
       top: 8,
       left: 8,
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: AppColors.primary,
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: Text(
-          'New',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
+      child: SmoothClipRRect(
+        borderRadius: BorderRadius.circular(6),
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: AppColors.white,
+          ),
+          child: Text(
+            'New',
+            style: TextStyle(
+              fontSize: 13,
+              color: Colors.black,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
       ),
@@ -139,6 +143,7 @@ class PageIndicator extends StatelessWidget {
   final int totalPages;
 
   const PageIndicator({
+    super.key,
     required this.currentPage,
     required this.totalPages,
   });
@@ -356,9 +361,11 @@ class _PriceSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-      price.toString(),
+      formatPrice(
+        price.toString(),
+      ),
       style: const TextStyle(
-        fontWeight: FontWeight.bold,
+        fontWeight: FontWeight.w800,
         fontSize: 18,
         color: AppColors.primary,
       ),

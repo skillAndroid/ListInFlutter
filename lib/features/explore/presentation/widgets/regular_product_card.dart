@@ -12,6 +12,7 @@ import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
+import 'package:list_in/features/explore/presentation/widgets/formaters.dart';
 import 'package:list_in/features/profile/domain/entity/publication/publication_entity.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_event.dart';
@@ -854,7 +855,7 @@ class RemouteRegularProductCard2 extends StatelessWidget {
                       child: SmoothCard(
                         margin: const EdgeInsets.all(0),
                         elevation: 0,
-                        color: AppColors.primary,
+                        color: AppColors.white,
                         borderRadius: BorderRadius.circular(6),
                         child: const Padding(
                           padding:
@@ -862,7 +863,7 @@ class RemouteRegularProductCard2 extends StatelessWidget {
                           child: Text(
                             'New',
                             style: TextStyle(
-                              color: AppColors.white,
+                              color: AppColors.black,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                             ),
@@ -926,11 +927,11 @@ class RemouteRegularProductCard2 extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Text(
-                              product.price.toString(),
+                              formatPrice(product.price.toString()),
                               style: const TextStyle(
                                 color: AppColors.primary,
                                 fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w800,
                               ),
                             ),
                             SmoothClipRRect(
