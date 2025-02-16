@@ -483,29 +483,32 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Widget _buildStatItem(String value, String label) {
+ Widget _buildStatItem(String value, String label) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Text(
           value,
           style: const TextStyle(
-            fontSize: 18,
+            fontSize: 17,
             fontWeight: FontWeight.w700,
-            color: Colors.black,
+            color: Colors.black87,
+            height: 1.2,
           ),
         ),
+        const SizedBox(height: 4),
         Text(
           label,
           style: TextStyle(
-            fontSize: 12,
+            fontSize: 13,
             fontWeight: FontWeight.w500,
-            color: AppColors.grey,
+            color: Colors.grey[600],
+            height: 1.1,
           ),
         ),
       ],
     );
   }
-
   Widget _buildContactActions(UserDataEntity? user) {
     return Container(
       height: 95,
@@ -643,7 +646,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
     return SliverToBoxAdapter(
       child: Container(
         height: 40,
-        margin: const EdgeInsets.only(bottom: 0, left: 8, top: 0),
+        margin: const EdgeInsets.only(bottom: 0, left: 12, top: 0),
         child: ListView(
           scrollDirection: Axis.horizontal,
           children: [
@@ -664,7 +667,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
         elevation: 0,
         shadowColor: CupertinoColors.activeGreen,
         shape: SmoothRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(12),
           side: BorderSide(
             color: AppColors.white,
             width: 1.5,
@@ -685,9 +688,9 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
           });
         },
         backgroundColor: AppColors.white,
-        selectedColor: CupertinoColors.activeGreen,
+        selectedColor: AppColors.containerColor,
         showCheckmark: false,
-        padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
       ),
     );
   }

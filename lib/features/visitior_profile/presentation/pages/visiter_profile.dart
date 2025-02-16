@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -119,7 +120,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                           context.pop();
                         },
                         icon: Icon(
-                          Icons.arrow_back_ios_new_rounded,
+                          Icons.arrow_back,
                           size: 22,
                         )),
                     title: Transform.translate(
@@ -127,19 +128,12 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                       child: Row(
                         children: [
                           Text(
-                            '${userData.nickName ?? "User empty"} Store',
+                            'Back',
                             style: const TextStyle(
                               color: Colors.black87,
                               fontSize: 17,
                               fontWeight: FontWeight.w600,
                             ),
-                          ),
-                          SizedBox(
-                            width: 4,
-                          ),
-                          Icon(
-                            Icons.store,
-                            size: 22,
                           ),
                         ],
                       ),
@@ -303,20 +297,16 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                               }
                             },
                             child: SmoothClipRRect(
-                              borderRadius: BorderRadius.circular(10),
+                              smoothness: 0.9,
+                              borderRadius: BorderRadius.circular(12),
                               child: Container(
                                 alignment: Alignment.center,
                                 constraints: const BoxConstraints(
                                   minWidth: 110,
-                                  minHeight: 40,
+                                  minHeight: 50,
                                 ),
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [Colors.green, Colors.teal],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                ),
+                                decoration:
+                                    BoxDecoration(color: AppColors.primary),
                                 child: state.isFollowingInProgress
                                     ? const SizedBox(
                                         width: 20,
@@ -326,15 +316,26 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                                           strokeWidth: 2,
                                         ),
                                       )
-                                    : Text(
-                                        state.profile?.isFollowing == true
-                                            ? 'Following'
-                                            : 'Follow',
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                    : Row(
+                                        children: [
+                                          Icon(
+                                              state.profile?.isFollowing == true
+                                                  ? Icons.person_remove
+                                                  : Icons.person_add,
+                                              color: Colors.white,
+                                              size: 20),
+                                          const SizedBox(width: 6),
+                                          Text(
+                                            state.profile?.isFollowing == true
+                                                ? 'Following'
+                                                : 'Follow',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                               ),
                             ),
@@ -345,24 +346,32 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                             child: SmoothClipRRect(
                               side: BorderSide(
                                 width: 1.2,
-                                color: AppColors.grey.withOpacity(0.5),
+                                color: AppColors.containerColor,
                               ),
-                              borderRadius: BorderRadius.circular(10),
+                              smoothness: 0.9,
+                              borderRadius: BorderRadius.circular(12),
                               child: Container(
                                 alignment: Alignment.center,
                                 constraints: const BoxConstraints(
                                   minWidth: 110,
-                                  minHeight: 40,
+                                  minHeight: 50,
                                 ),
                                 decoration:
                                     BoxDecoration(color: AppColors.white),
-                                child: const Text(
-                                  'Call',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                child: Row(
+                                  children: [
+                                    Icon(EvaIcons.phoneCall,
+                                        color: Colors.black, size: 20),
+                                    const SizedBox(width: 6),
+                                    const Text(
+                                      'Call',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
@@ -373,24 +382,32 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                             child: SmoothClipRRect(
                               side: BorderSide(
                                 width: 1.2,
-                                color: AppColors.grey.withOpacity(0.5),
+                                color: AppColors.containerColor,
                               ),
-                              borderRadius: BorderRadius.circular(10),
+                              smoothness: 0.9,
+                              borderRadius: BorderRadius.circular(12),
                               child: Container(
                                 alignment: Alignment.center,
                                 constraints: const BoxConstraints(
                                   minWidth: 110,
-                                  minHeight: 40,
+                                  minHeight: 50,
                                 ),
                                 decoration:
                                     BoxDecoration(color: AppColors.bgColor),
-                                child: const Text(
-                                  'Messege',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                child: Row(
+                                  children: [
+                                    Icon(EvaIcons.messageSquare,
+                                        color: Colors.black, size: 20),
+                                    const SizedBox(width: 6),
+                                    const Text(
+                                      'Messege',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
@@ -569,21 +586,25 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
 
   Widget _buildStatItem(String value, String label) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Text(
           value,
           style: const TextStyle(
-            fontSize: 18,
+            fontSize: 17,
             fontWeight: FontWeight.w700,
-            color: Colors.black,
+            color: Colors.black87,
+            height: 1.2,
           ),
         ),
+        const SizedBox(height: 4),
         Text(
           label,
           style: TextStyle(
-            fontSize: 12,
+            fontSize: 13,
             fontWeight: FontWeight.w500,
-            color: AppColors.grey,
+            color: Colors.grey[600],
+            height: 1.1,
           ),
         ),
       ],
@@ -649,7 +670,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
         }
 
         return SliverPadding(
-          padding: EdgeInsets.only(bottom: 16),
+          padding: EdgeInsets.only(bottom: 16, left: 8, right: 8),
           sliver: SliverGrid(
             delegate: SliverChildBuilderDelegate(
               (context, index) {
@@ -686,7 +707,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
               crossAxisCount: 2,
               crossAxisSpacing: 0,
               mainAxisSpacing: 0,
-              childAspectRatio: 0.66,
+              childAspectRatio: 0.64,
             ),
           ),
         );
