@@ -11,6 +11,7 @@ import 'package:list_in/core/error/failure.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/core/usecases/usecases.dart';
 import 'package:list_in/features/explore/domain/enties/prediction_entity.dart';
+import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/domain/usecase/get_filtered_publications_values_usecase.dart';
 import 'package:list_in/features/explore/domain/usecase/get_prediction_usecase.dart';
 import 'package:list_in/features/explore/domain/usecase/get_publications_usecase.dart';
@@ -23,6 +24,7 @@ import 'package:list_in/features/post/data/models/blabla.dart';
 import 'package:list_in/features/post/data/models/category_model.dart';
 import 'package:list_in/features/post/data/models/child_category_model.dart';
 import 'package:list_in/features/post/domain/usecases/get_catalogs_usecase.dart';
+import 'package:list_in/global/global_bloc.dart';
 
 class HomeTreeCubit extends Cubit<HomeTreeState> {
   final GetGategoriesUsecase getCatalogsUseCase;
@@ -31,6 +33,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
   final GetVideoPublicationsUsecase getVideoPublicationsUsecase;
   final GetFilteredPublicationsValuesUsecase
       getFilteredPublicationsValuesUsecase;
+  final GlobalBloc globalBloc;
   static const int pageSize = 20;
   Timer? _debounceTimer;
   Timer? _filterPredictionDebounceTimer;
@@ -41,7 +44,31 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     required this.getPredictionsUseCase,
     required this.getVideoPublicationsUsecase,
     required this.getFilteredPublicationsValuesUsecase,
+    required this.globalBloc,
   }) : super(HomeTreeState());
+
+  void _syncFollowStatuses(List<PublicationPairEntity> publications) {
+    final Map<String, bool> userFollowStatuses = {};
+
+    // Process first publications
+    for (var pair in publications) {
+      final sellerId = pair.firstPublication.seller.id;
+      final isFollowing = pair.firstPublication.seller.isFollowing;
+      userFollowStatuses[sellerId] = isFollowing;
+
+      // Process second publication if exists
+      if (pair.secondPublication != null) {
+        final secondSellerId = pair.secondPublication!.seller.id;
+        final secondIsFollowing = pair.secondPublication!.seller.isFollowing;
+        userFollowStatuses[secondSellerId] = secondIsFollowing;
+      }
+    }
+
+    // Sync with GlobalBloc
+    globalBloc.add(SyncFollowStatusesEvent(
+      userFollowStatuses: userFollowStatuses,
+    ));
+  }
 
   Future<void> getPredictions() async {
     // Cancel any previous timer
@@ -401,6 +428,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
           '🚫 Preventing duplicate publications request for page: $pageKey');
       return;
     }
+
     debugPrint('🔍 Fetching page: $pageKey with search: ${state.searchText}');
 
     if (pageKey == 0) {
@@ -451,11 +479,13 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
           );
         },
         (paginatedData) {
-          // Determine isLast by checking the last item's isLast property
           final updatedPublications =
               pageKey == 0 ? paginatedData : paginatedData;
           final isLastPage =
               paginatedData.isNotEmpty ? paginatedData.last.isLast : true;
+
+          // Sync follow statuses
+          _syncFollowStatuses(updatedPublications);
 
           emit(
             state.copyWith(

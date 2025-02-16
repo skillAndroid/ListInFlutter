@@ -72,6 +72,7 @@ import 'package:list_in/features/visitior_profile/presentation/bloc/another_user
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/user/user_profile_bloc.dart';
+import 'package:list_in/global/global_bloc.dart';
 import 'package:path_provider/path_provider.dart' as path_provider;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -84,7 +85,7 @@ Future<void> init() async {
     final dio = Dio();
 
     dio.options
-      ..baseUrl = 'http://listin.uz'
+      ..baseUrl = 'https://6409-185-213-230-4.ngrok-free.app'
       ..connectTimeout = const Duration(seconds: 5)
       ..receiveTimeout = const Duration(minutes: 3)
       ..sendTimeout = const Duration(minutes: 3);
@@ -128,17 +129,17 @@ Future<void> init() async {
       },
     );
   });
-
+  sl.registerLazySingleton(() => GlobalBloc(followUserUseCase: sl()));
   sl.registerLazySingleton(
     () => AppRouter(
-      sharedPreferences: sl<SharedPreferences>(),
-      getGategoriesUsecase: sl<GetGategoriesUsecase>(),
-      getPublicationsUsecase: sl<GetPublicationsUsecase>(),
-      getPredictionsUseCase: sl<GetPredictionsUseCase>(),
-      getVideoPublicationsUsecase: sl<GetVideoPublicationsUsecase>(),
-      getFilteredPublicationsValuesUsecase:
-          sl<GetFilteredPublicationsValuesUsecase>(),
-    ),
+        sharedPreferences: sl<SharedPreferences>(),
+        getGategoriesUsecase: sl<GetGategoriesUsecase>(),
+        getPublicationsUsecase: sl<GetPublicationsUsecase>(),
+        getPredictionsUseCase: sl<GetPredictionsUseCase>(),
+        getVideoPublicationsUsecase: sl<GetVideoPublicationsUsecase>(),
+        getFilteredPublicationsValuesUsecase:
+            sl<GetFilteredPublicationsValuesUsecase>(),
+        globalBloc: sl<GlobalBloc>()),
   );
 
   final appDocumentDirectory =
@@ -291,17 +292,15 @@ Future<void> init() async {
     () => AnotherUserProfileBloc(
       getUserDataUseCase: sl(),
       getPublications: sl(),
-      followUserUseCase: sl(),
     ),
   );
-   sl.registerFactory(
+  sl.registerFactory(
     () => DetailsBloc(
       getUserDataUseCase: sl(),
       getPublications: sl(),
       followUserUseCase: sl(),
     ),
   );
-  
 
   sl.registerLazySingleton<PostRepository>(
     () => PostRepositoryImpl(

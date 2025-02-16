@@ -621,7 +621,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                 children: [
                   Icon(
                     icon,
-                    color: CupertinoColors.activeGreen,
+                    color: AppColors.primary,
                     size: 22,
                   ),
                 ],

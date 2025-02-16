@@ -350,7 +350,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
         child: SmoothClipRRect(
           borderRadius: BorderRadius.circular(16),
           child: Container(
-            color: CupertinoColors.systemCyan.withOpacity(0.1),
+            color: AppColors.containerColor,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -536,19 +536,19 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
-                       context.pushNamed(
-                            RoutesByName.search,
-                            extra: {
-                              'priceFrom': state.priceFrom,
-                              'priceTo': state.priceTo,
-                              'filterState': {
-                                'bargain': state.bargain,
-                                'isFree': state.isFree,
-                                'condition': state.condition,
-                                'sellerType': state.sellerType,
-                              },
+                        context.pushNamed(
+                          RoutesByName.search,
+                          extra: {
+                            'priceFrom': state.priceFrom,
+                            'priceTo': state.priceTo,
+                            'filterState': {
+                              'bargain': state.bargain,
+                              'isFree': state.isFree,
+                              'condition': state.condition,
+                              'sellerType': state.sellerType,
                             },
-                          );
+                          },
+                        );
                       },
                       child: SmoothClipRRect(
                         smoothness: 0.8,

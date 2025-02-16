@@ -100,8 +100,8 @@ class AnotherUserProfileRemouteImpl implements AnotherUserProfileRemoute {
     try {
       final response = await dio.get(
         follow
-            ? '/api/v1/user/unfollow/$userId' // Endpoint for unfollow
-            : '/api/v1/user/follow/$userId', // Endpoint for follow
+            ? '/api/v1/user/follow/$userId'
+            : '/api/v1/user/unfollow/$userId',
         options: options,
       );
       if (response.statusCode == 200) {

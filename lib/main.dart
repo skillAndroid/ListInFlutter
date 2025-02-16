@@ -13,6 +13,7 @@ import 'package:list_in/features/visitior_profile/presentation/bloc/another_user
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/user/user_profile_bloc.dart';
+import 'package:list_in/global/global_bloc.dart';
 import 'package:provider/provider.dart';
 
 import 'core/di/di_managment.dart' as di;
@@ -495,6 +496,9 @@ void main() async {
       ],
       child: MultiBlocProvider(
         providers: [
+          BlocProvider(
+            create: (_) => di.sl<GlobalBloc>(),
+          ),
           BlocProvider(
             create: (_) => di.sl<AuthBloc>(),
           ),

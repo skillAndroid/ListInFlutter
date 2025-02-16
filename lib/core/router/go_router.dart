@@ -39,6 +39,7 @@ import 'package:list_in/features/profile/presentation/pages/publications_editor_
 import 'package:list_in/features/undefined_screens_yet/wrapper_screen.dart';
 import 'package:list_in/features/video/presentation/pages/video_feed_screen.dart';
 import 'package:list_in/features/visitior_profile/presentation/pages/visiter_profile.dart';
+import 'package:list_in/global/global_bloc.dart';
 import 'package:list_in/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -52,6 +53,7 @@ class AppRouter {
   final GetPredictionsUseCase getPredictionsUseCase;
   final GetFilteredPublicationsValuesUsecase
       getFilteredPublicationsValuesUsecase;
+  final GlobalBloc globalBloc;
 
   AppRouter({
     required this.sharedPreferences,
@@ -60,6 +62,7 @@ class AppRouter {
     required this.getPredictionsUseCase,
     required this.getVideoPublicationsUsecase,
     required this.getFilteredPublicationsValuesUsecase,
+    required this.globalBloc,
   });
 
   static final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -141,6 +144,7 @@ class AppRouter {
               getVideoPublicationsUsecase: getVideoPublicationsUsecase,
               getFilteredPublicationsValuesUsecase:
                   getFilteredPublicationsValuesUsecase,
+              globalBloc: globalBloc,
             ),
             child: ListInShorts(
               initialVideos: initialVideos,
@@ -194,6 +198,7 @@ class AppRouter {
                       getVideoPublicationsUsecase: getVideoPublicationsUsecase,
                       getFilteredPublicationsValuesUsecase:
                           getFilteredPublicationsValuesUsecase,
+                      globalBloc: globalBloc,
                     ),
                     child: InitialHomeTreePage(
                       key: state.pageKey,
@@ -221,6 +226,7 @@ class AppRouter {
                                 getVideoPublicationsUsecase,
                             getFilteredPublicationsValuesUsecase:
                                 getFilteredPublicationsValuesUsecase,
+                            globalBloc: globalBloc,
                           );
                           if (priceFrom != null && priceTo != null) {
                             cubit.setPriceRange(
@@ -257,6 +263,7 @@ class AppRouter {
                               getVideoPublicationsUsecase,
                           getFilteredPublicationsValuesUsecase:
                               getFilteredPublicationsValuesUsecase,
+                          globalBloc: globalBloc,
                         ),
                         child: SearchResultPage(
                           key: state.pageKey,
@@ -283,6 +290,7 @@ class AppRouter {
                                   getVideoPublicationsUsecase,
                               getFilteredPublicationsValuesUsecase:
                                   getFilteredPublicationsValuesUsecase,
+                              globalBloc: globalBloc,
                             );
                             if (priceFrom != null && priceTo != null) {
                               cubit.setPriceRange(
@@ -335,6 +343,7 @@ class AppRouter {
                                 getVideoPublicationsUsecase,
                             getFilteredPublicationsValuesUsecase:
                                 getFilteredPublicationsValuesUsecase,
+                            globalBloc: globalBloc,
                           );
                           cubit.selectCatalog(category);
                           if (priceFrom != null && priceTo != null) {
@@ -389,6 +398,7 @@ class AppRouter {
                                 getVideoPublicationsUsecase,
                             getFilteredPublicationsValuesUsecase:
                                 getFilteredPublicationsValuesUsecase,
+                            globalBloc: globalBloc,
                           );
                           cubit.selectCatalog(category);
 
@@ -472,6 +482,7 @@ class AppRouter {
                                       getVideoPublicationsUsecase,
                                   getFilteredPublicationsValuesUsecase:
                                       getFilteredPublicationsValuesUsecase,
+                                  globalBloc: globalBloc,
                                 );
 
                                 if (priceFrom != null && priceTo != null) {

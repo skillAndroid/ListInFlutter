@@ -17,6 +17,7 @@ import 'package:list_in/features/profile/presentation/bloc/publication/user_publ
 import 'package:list_in/features/visitior_profile/presentation/bloc/another_user_profile_bloc.dart';
 import 'package:list_in/features/visitior_profile/presentation/bloc/another_user_profile_event.dart';
 import 'package:list_in/features/visitior_profile/presentation/bloc/another_user_profile_state.dart';
+import 'package:list_in/global/global_bloc.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class VisitorProfileScreen extends StatefulWidget {
@@ -284,61 +285,72 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           const SizedBox(width: 12),
-                          InkWell(
-                            onTap: () {
-                              if (!state.isFollowingInProgress) {
-                                context.read<AnotherUserProfileBloc>().add(
-                                      FollowUser(
-                                        userId: widget.userId,
-                                        isFollowing: userData.isFollowing!,
-                                        context: context,
-                                      ),
-                                    );
-                              }
-                            },
-                            child: SmoothClipRRect(
-                              smoothness: 0.9,
-                              borderRadius: BorderRadius.circular(12),
-                              child: Container(
-                                alignment: Alignment.center,
-                                constraints: const BoxConstraints(
-                                  minWidth: 110,
-                                  minHeight: 50,
-                                ),
-                                decoration:
-                                    BoxDecoration(color: AppColors.primary),
-                                child: state.isFollowingInProgress
-                                    ? const SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(
-                                          color: Colors.white,
-                                          strokeWidth: 2,
-                                        ),
-                                      )
-                                    : Row(
-                                        children: [
-                                          Icon(
-                                              state.profile?.isFollowing == true
-                                                  ? Icons.person_remove
-                                                  : Icons.person_add,
+                          BlocBuilder<GlobalBloc, GlobalState>(
+                            builder: (context, state) {
+                              final isFollowed =
+                                  state.isUserFollowed(widget.userId);
+                              final followStatus =
+                                  state.getFollowStatus(widget.userId);
+                              final isLoading =
+                                  followStatus == FollowStatus.inProgress;
+
+                              return InkWell(
+                                onTap: isLoading
+                                    ? null
+                                    : () {
+                                        context.read<GlobalBloc>().add(
+                                              UpdateFollowStatusEvent(
+                                                userId: widget.userId,
+                                                isFollowed: isFollowed,
+                                                context: context,
+                                              ),
+                                            );
+                                      },
+                                child: SmoothClipRRect(
+                                  smoothness: 0.9,
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Container(
+                                    alignment: Alignment.center,
+                                    constraints: const BoxConstraints(
+                                      minWidth: 110,
+                                      minHeight: 50,
+                                    ),
+                                    decoration:
+                                        BoxDecoration(color: AppColors.primary),
+                                    child: isLoading
+                                        ? const SizedBox(
+                                            width: 20,
+                                            height: 20,
+                                            child: CircularProgressIndicator(
                                               color: Colors.white,
-                                              size: 20),
-                                          const SizedBox(width: 6),
-                                          Text(
-                                            state.profile?.isFollowing == true
-                                                ? 'Following'
-                                                : 'Follow',
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.w500,
+                                              strokeWidth: 2,
                                             ),
+                                          )
+                                        : Row(
+                                            children: [
+                                              Icon(
+                                                  isFollowed
+                                                      ? Icons.person_remove
+                                                      : Icons.person_add,
+                                                  color: Colors.white,
+                                                  size: 20),
+                                              const SizedBox(width: 6),
+                                              Text(
+                                                isFollowed == true
+                                                    ? 'Unfollow'
+                                                    : 'Follow',
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                            ],
                                           ),
-                                        ],
-                                      ),
-                              ),
-                            ),
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                           const SizedBox(width: 12),
                           InkWell(

@@ -16,6 +16,7 @@ import 'package:list_in/features/details/presentation/bloc/details_bloc.dart';
 import 'package:list_in/features/details/presentation/bloc/details_state.dart';
 import 'package:list_in/features/details/presentation/pages/product_images_detailed.dart';
 import 'package:list_in/features/details/presentation/pages/video_details.dart';
+import 'package:list_in/features/details/presentation/widgets/follow_button.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/formaters.dart';
@@ -432,16 +433,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     child: _buildLocation(),
                   ),
                   _buildSellerInfo(),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4, left: 16),
-                    child: Text(
-                      "Subscribe",
-                      style: TextStyle(
-                        color: Colors.blue,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
+                  FollowButton(
+                    userId: widget.product.seller.id,
                   ),
                 ],
               ),
@@ -1194,5 +1187,3 @@ class FullScreenMap extends StatelessWidget {
     );
   }
 }
-
- 
