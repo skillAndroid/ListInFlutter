@@ -113,10 +113,12 @@ class GlobalBloc extends Bloc<GlobalEvent, GlobalState> {
         updatedFollowedIds.remove(userId);
       }
 
-      // Only update status if it's not in progress
-      if (state.followStatusMap[userId]?.status != FollowStatus.inProgress) {
+      final existingStatus = state.followStatusMap[userId];
+      if (existingStatus == null ||
+          existingStatus.status != FollowStatus.inProgress) {
         updatedStatusMap[userId] = FollowStatusInfo(
           status: FollowStatus.success,
+          errorMessage: existingStatus?.errorMessage,
         );
       }
     });

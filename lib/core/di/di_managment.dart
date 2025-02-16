@@ -85,7 +85,7 @@ Future<void> init() async {
     final dio = Dio();
 
     dio.options
-      ..baseUrl = 'https://6409-185-213-230-4.ngrok-free.app'
+      ..baseUrl = 'http://listin.uz'
       ..connectTimeout = const Duration(seconds: 5)
       ..receiveTimeout = const Duration(minutes: 3)
       ..sendTimeout = const Duration(minutes: 3);

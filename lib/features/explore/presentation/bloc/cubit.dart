@@ -47,26 +47,44 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     required this.globalBloc,
   }) : super(HomeTreeState());
 
-  void _syncFollowStatuses(List<PublicationPairEntity> publications) {
+  void _syncFollowStatusesForPublications(
+      List<GetPublicationEntity> publications) {
+    // Create a map to store seller follow statuses
     final Map<String, bool> userFollowStatuses = {};
 
-    // Process first publications
-    for (var pair in publications) {
-      final sellerId = pair.firstPublication.seller.id;
-      final isFollowing = pair.firstPublication.seller.isFollowing;
+    // Process each publication's seller status
+    for (var publication in publications) {
+      final sellerId = publication.seller.id;
+      final isFollowing = publication.seller.isFollowing;
       userFollowStatuses[sellerId] = isFollowing;
+    }
 
-      // Process second publication if exists
+    // Sync the follow statuses with global bloc
+    globalBloc.add(SyncFollowStatusesEvent(
+      userFollowStatuses: userFollowStatuses,
+    ));
+  }
+
+  void _syncFollowStatuses(List<PublicationPairEntity> publications) {
+    // Create a map for new follow statuses
+    final Map<String, bool> newFollowStatuses = {};
+
+    // Process all publications
+    for (var pair in publications) {
+      // Add first publication's seller status
+      newFollowStatuses[pair.firstPublication.seller.id] =
+          pair.firstPublication.seller.isFollowing;
+
+      // Add second publication's seller status if it exists
       if (pair.secondPublication != null) {
-        final secondSellerId = pair.secondPublication!.seller.id;
-        final secondIsFollowing = pair.secondPublication!.seller.isFollowing;
-        userFollowStatuses[secondSellerId] = secondIsFollowing;
+        newFollowStatuses[pair.secondPublication!.seller.id] =
+            pair.secondPublication!.seller.isFollowing;
       }
     }
 
-    // Sync with GlobalBloc
+    // Send the new statuses to be merged with existing ones
     globalBloc.add(SyncFollowStatusesEvent(
-      userFollowStatuses: userFollowStatuses,
+      userFollowStatuses: newFollowStatuses,
     ));
   }
 
@@ -373,7 +391,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
 
           final isLastPage =
               paginatedData.isNotEmpty ? paginatedData.last.isLast : true;
-
+          _syncFollowStatuses(updatedPublications);
           emit(
             state.copyWith(
               searchPublicationsRequestState: RequestState.completed,
@@ -572,7 +590,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
 
           final isLastPage =
               paginatedData.isNotEmpty ? paginatedData.last.isLast : true;
-
+          _syncFollowStatuses(updatedPublications);
           emit(
             state.copyWith(
               secondaryPublicationsRequestState: RequestState.completed,
@@ -592,12 +610,6 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
         filtersTrigered: false,
       ));
     }
-  }
-
-  void filtersTrigered() {
-    emit(state.copyWith(
-      filtersTrigered: true,
-    ));
   }
 
   Future<void> fetchChildPage(int pageKey) async {
@@ -670,7 +682,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
               pageKey == 0 ? paginatedData : paginatedData;
           final isLastPage =
               paginatedData.isNotEmpty ? paginatedData.last.isLast : true;
-
+          _syncFollowStatuses(updatedPublications);
           emit(state.copyWith(
             childPublicationsRequestState: RequestState.completed,
             childPublications: updatedPublications,
@@ -788,6 +800,12 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
         _filterPredictionCancelToken = null;
       }
     });
+  }
+
+  void filtersTrigered() {
+    emit(state.copyWith(
+      filtersTrigered: true,
+    ));
   }
 
 // Update the related state management methods
@@ -925,7 +943,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
           final updatedPublications = pageKey == 0
               ? videoPublicationsEntity.content
               : videoPublicationsEntity.content;
-
+          _syncFollowStatusesForPublications(updatedPublications);
           emit(
             state.copyWith(
               videoPublicationsRequestState: RequestState.completed,

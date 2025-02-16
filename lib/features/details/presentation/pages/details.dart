@@ -774,8 +774,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       child: Text(
         "${formatPrice(widget.product.price.toString())} Uz",
         style: const TextStyle(
-          height: 1.1,
-          fontSize: 28,
+          height: 1.2,
+          fontSize: 26,
           fontWeight: FontWeight.w700,
         ),
       ),
@@ -788,7 +788,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       child: Text(
         widget.product.title,
         style: const TextStyle(
-          fontSize: 22,
+          fontSize: 20,
           color: Colors.black,
         ),
       ),
@@ -804,10 +804,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           Text(
             widget.product.seller.nickName,
             style: const TextStyle(
-              fontSize: 28,
+              fontSize: 26,
               fontWeight: FontWeight.w600,
             ),
           ),
+          SizedBox(height: 2,),
           Text(
             'Created: ${DateFormat('dd MMMM yyyy').format(widget.product.seller.dateCreated)}',
             style: TextStyle(
@@ -903,7 +904,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           const Text(
             'Description',
             style: TextStyle(
-              fontSize: 28,
+              fontSize: 26,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -976,7 +977,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           const Text(
             'Characteristics',
             style: TextStyle(
-              fontSize: 28,
+              fontSize: 26,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -1024,7 +1025,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             const Text(
               'Characteristics',
               style: TextStyle(
-                fontSize: 28,
+                fontSize: 26,
                 fontWeight: FontWeight.w600,
               ),
             ),
