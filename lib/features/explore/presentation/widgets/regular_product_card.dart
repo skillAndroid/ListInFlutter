@@ -245,7 +245,7 @@ class ProfileProductCard extends StatelessWidget {
     return Card(
       color: AppColors.white,
       elevation: 5,
-      shadowColor: Colors.black.withOpacity(0.3),
+      shadowColor: Colors.black.withOpacity(0.25),
       shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -330,7 +330,7 @@ class ProfileProductCard extends StatelessWidget {
                   style: TextStyle(
                     color: AppColors.primary,
                     fontSize: 18,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
                 SizedBox(height: 12),
@@ -354,16 +354,27 @@ class ProfileProductCard extends StatelessWidget {
                     ),
                     Row(
                       children: [
-                        Container(
-                          padding: EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: AppColors.containerColor,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Icon(
-                            Icons.edit_rounded,
-                            color: AppColors.darkGray,
-                            size: 16,
+                        InkWell(
+                          onTap: () {
+                            context
+                                .read<PublicationUpdateBloc>()
+                                .add(InitializePublication(product));
+                            context.push(
+                              Routes.publicationsEdit,
+                              extra: product,
+                            );
+                          },
+                          child: Container(
+                            padding: EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: AppColors.containerColor,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Icon(
+                              Icons.edit_rounded,
+                              color: AppColors.primary,
+                              size: 16,
+                            ),
                           ),
                         ),
                         SizedBox(
@@ -377,7 +388,7 @@ class ProfileProductCard extends StatelessWidget {
                           ),
                           child: Icon(
                             Ionicons.ellipsis_vertical,
-                            color: AppColors.darkGray,
+                            color: AppColors.error,
                             size: 16,
                           ),
                         ),

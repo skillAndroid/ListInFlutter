@@ -94,41 +94,51 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                     floating: true,
                     pinned: false,
                     snap: false,
+                    toolbarHeight: 56,
                     elevation: 0,
-                    scrolledUnderElevation: 0.3,
-                    shadowColor: AppColors.black,
                     backgroundColor: Colors.white,
+                    surfaceTintColor: Colors.transparent,
+                    scrolledUnderElevation: 0,
                     title: Row(
                       children: [
-                        const SizedBox(width: 2),
                         Text(
                           'My Store',
-                          style: const TextStyle(
-                            color: AppColors.black,
-                            fontSize: 17,
+                          style: TextStyle(
+                            color: Colors.black87,
+                            fontSize: 18,
                             fontWeight: FontWeight.w600,
+                            letterSpacing: -0.3,
                           ),
                         ),
-                        SizedBox(
-                          width: 4,
-                        ),
-                        Icon(
-                          Icons.store,
-                          color: AppColors.primary,
-                          size: 22,
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Icon(
+                            Icons.store_rounded,
+                            color: AppColors.primary,
+                            size: 20,
+                          ),
                         ),
                       ],
                     ),
                     actions: [
                       IconButton(
-                        icon: const Icon(
-                          Icons.info,
-                          color: Colors.black,
+                        icon: Icon(
+                          Icons.info_outline_rounded,
+                          color: Colors.black87,
                           size: 24,
                         ),
                         onPressed: () {},
+                        style: IconButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          minimumSize: Size(48, 48),
+                        ),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 12),
                     ],
                   ),
                   SliverToBoxAdapter(
@@ -483,7 +493,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
     );
   }
 
- Widget _buildStatItem(String value, String label) {
+  Widget _buildStatItem(String value, String label) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -509,6 +519,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
       ],
     );
   }
+
   Widget _buildContactActions(UserDataEntity? user) {
     return Container(
       height: 95,
@@ -621,7 +632,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                 children: [
                   Icon(
                     icon,
-                    color: AppColors.primary,
+                    color: AppColors.black,
                     size: 22,
                   ),
                 ],
@@ -703,7 +714,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
         }
       },
       builder: (context, state) {
-        // For empty states, use SliverFillRemaining to center content
+        // Loading state
         if ((state.isLoading || state.isInitialLoading) &&
             state.publications.isEmpty) {
           return SliverFillRemaining(
@@ -714,6 +725,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
           );
         }
 
+        // Error state
         if (state.error != null) {
           return SliverFillRemaining(
             hasScrollBody: false,
@@ -731,6 +743,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
           );
         }
 
+        // Empty state
         if (state.publications.isEmpty) {
           return SliverFillRemaining(
             hasScrollBody: false,
@@ -766,31 +779,35 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
           );
         }
 
-        // Content state with list
+        // Content state with grid
         return SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-          sliver: SliverList(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          sliver: SliverGrid(
             delegate: SliverChildBuilderDelegate(
               (context, index) {
-                if (index == state.publications.length) {
+                // Check if we need to show loading indicator
+                if (index >= state.publications.length) {
                   if (state.isLoading) {
-                    return const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                      child: Center(child: Progress()),
-                    );
+                    return const Center(child: Progress());
                   }
                   return null;
                 }
 
                 final publication = state.publications[index];
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: HorizontalProfileProductCard(
+                  padding: const EdgeInsets.all(4),
+                  child: ProfileProductCard(
                     product: publication,
                   ),
                 );
               },
               childCount: state.publications.length + (state.isLoading ? 1 : 0),
+            ),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: 0.60,
+              crossAxisSpacing: 0,
+              mainAxisSpacing: 0,
             ),
           ),
         );

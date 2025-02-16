@@ -4,7 +4,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:list_in/config/assets/app_images.dart';
@@ -98,60 +97,74 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
             headerSliverBuilder: (context, innerBoxIsScrolled) {
               return [
                 SliverAppBar(
-                  floating: true,
-                  pinned: false,
-                  snap: true,
+                  floating: false,
+                  pinned: true,
+                  snap: false,
+                  toolbarHeight: 56,
                   automaticallyImplyLeading: false,
                   elevation: 0,
-                  scrolledUnderElevation: 0.3,
-                  shadowColor: AppColors.black,
                   backgroundColor: Colors.white,
-                  leading: IconButton(
-                      padding: EdgeInsets.zero,
-                      onPressed: () {
-                        context.pop();
-                      },
-                      icon: Icon(
-                        Icons.arrow_back,
-                        size: 22,
-                      )),
-                  title: Transform.translate(
-                    offset: Offset(-16, 0),
-                    child: Row(
-                      children: [
-                        Text(
-                          'Back',
-                          style: const TextStyle(
+                  surfaceTintColor: Colors.transparent,
+                  leadingWidth: 80,
+                  leading: GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onTap: () => context.pop(),
+                    child: Container(
+                      padding: const EdgeInsets.only(left: 16),
+                      alignment: Alignment.centerLeft,
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.arrow_back,
+                            size: 24,
                             color: Colors.black87,
-                            fontSize: 17,
-                            fontWeight: FontWeight.w600,
                           ),
-                        ),
-                      ],
+                          // Text(
+                          //   'Back',
+                          //   style: TextStyle(
+                          //     color: Colors.black87,
+                          //     fontSize: 16,
+                          //     fontWeight: FontWeight.w500,
+                          //   ),
+                          // ),
+                        ],
+                      ),
                     ),
                   ),
                   actions: [
-                    Transform.translate(
-                      offset: Offset(12, 0),
-                      child: IconButton(
-                        icon: const Icon(
-                          Icons.info_outline_rounded,
-                          color: Colors.black87,
-                          size: 24,
-                        ),
-                        onPressed: () {},
+                    IconButton(
+                      icon: Icon(
+                        Icons.info_outline_rounded,
+                        color: Colors.black87,
+                        size: 24,
+                      ),
+                      onPressed: () {},
+                      style: IconButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        minimumSize: Size(48, 48),
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.more_vert,
                         color: Colors.black87,
                         size: 24,
                       ),
                       onPressed: () {},
+                      style: IconButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        minimumSize: Size(48, 48),
+                      ),
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                   ],
+                  bottom: PreferredSize(
+                    preferredSize: Size.fromHeight(1),
+                    child: Container(
+                      height: 1,
+                      color: AppColors.white.withOpacity(0.2),
+                    ),
+                  ),
                 ),
                 SliverToBoxAdapter(
                   child: Padding(
