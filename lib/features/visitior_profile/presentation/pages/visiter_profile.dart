@@ -88,506 +88,492 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
               body: Center(child: Text('No user data available')));
         }
 
-        SystemChrome.setSystemUIOverlayStyle(
-          SystemUiOverlayStyle(
-            statusBarColor: AppColors.bgColor,
-            statusBarIconBrightness: Brightness.dark,
-          ),
-        );
-
-        return SafeArea(
-          bottom: false,
-          child: Scaffold(
-            backgroundColor: AppColors.bgColor,
-            body: NestedScrollView(
-              controller: _scrollController,
-              physics: const BouncingScrollPhysics(
-                parent: AlwaysScrollableScrollPhysics(),
-              ),
-              headerSliverBuilder: (context, innerBoxIsScrolled) {
-                return [
-                  SliverAppBar(
-                    floating: true,
-                    pinned: false,
-                    snap: true,
-                    automaticallyImplyLeading: false,
-                    elevation: 0,
-                    scrolledUnderElevation: 0.3,
-                    shadowColor: AppColors.black,
-                    backgroundColor: Colors.white,
-                    leading: IconButton(
-                        padding: EdgeInsets.zero,
-                        onPressed: () {
-                          context.pop();
-                        },
-                        icon: Icon(
-                          Icons.arrow_back,
-                          size: 22,
-                        )),
-                    title: Transform.translate(
-                      offset: Offset(-16, 0),
-                      child: Row(
-                        children: [
-                          Text(
-                            'Back',
-                            style: const TextStyle(
-                              color: Colors.black87,
-                              fontSize: 17,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    actions: [
-                      Transform.translate(
-                        offset: Offset(12, 0),
-                        child: IconButton(
-                          icon: const Icon(
-                            Icons.info_outline_rounded,
+        return Scaffold(
+          backgroundColor: AppColors.bgColor,
+          body: NestedScrollView(
+            controller: _scrollController,
+            physics: const BouncingScrollPhysics(
+              parent: AlwaysScrollableScrollPhysics(),
+            ),
+            headerSliverBuilder: (context, innerBoxIsScrolled) {
+              return [
+                SliverAppBar(
+                  floating: true,
+                  pinned: false,
+                  snap: true,
+                  automaticallyImplyLeading: false,
+                  elevation: 0,
+                  scrolledUnderElevation: 0.3,
+                  shadowColor: AppColors.black,
+                  backgroundColor: Colors.white,
+                  leading: IconButton(
+                      padding: EdgeInsets.zero,
+                      onPressed: () {
+                        context.pop();
+                      },
+                      icon: Icon(
+                        Icons.arrow_back,
+                        size: 22,
+                      )),
+                  title: Transform.translate(
+                    offset: Offset(-16, 0),
+                    child: Row(
+                      children: [
+                        Text(
+                          'Back',
+                          style: const TextStyle(
                             color: Colors.black87,
-                            size: 24,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w600,
                           ),
-                          onPressed: () {},
                         ),
-                      ),
-                      IconButton(
+                      ],
+                    ),
+                  ),
+                  actions: [
+                    Transform.translate(
+                      offset: Offset(12, 0),
+                      child: IconButton(
                         icon: const Icon(
-                          Icons.more_vert,
+                          Icons.info_outline_rounded,
                           color: Colors.black87,
                           size: 24,
                         ),
                         onPressed: () {},
                       ),
-                      const SizedBox(width: 8),
-                    ],
-                  ),
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16.0, vertical: 12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // First row: Image, Name and Role
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              // Profile image
-                              SizedBox(
-                                width: 75,
-                                height: 75,
-                                child: Stack(
-                                  children: [
-                                    SmoothClipRRect(
-                                      borderRadius: BorderRadius.circular(24),
-                                      child: userData.profileImagePath != null
-                                          ? CachedNetworkImage(
-                                              width: double.infinity,
-                                              height: double.infinity,
-                                              imageUrl:
-                                                  'https://${userData.profileImagePath!}',
-                                              fit: BoxFit.cover,
-                                              placeholder: (context, url) =>
-                                                  const Center(
-                                                child:
-                                                    CircularProgressIndicator(
-                                                  color: Colors.lightGreen,
-                                                  strokeWidth: 2,
-                                                ),
-                                              ),
-                                              errorWidget:
-                                                  (context, url, error) =>
-                                                      Image.asset(
-                                                          AppImages.appLogo),
-                                            )
-                                          : Image.asset(AppImages.appLogo),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 36),
-                              Padding(
-                                padding: const EdgeInsets.only(top: 4.0),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    _buildStatItem(
-                                        '${userData.rating}', 'Rating'),
-                                    const SizedBox(width: 32),
-                                    _buildStatItem(
-                                        '${userData.followers}', 'Followers'),
-                                    const SizedBox(width: 32),
-                                    _buildStatItem(
-                                        '${userData.following}', 'Following'),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              SizedBox(
-                                width: 2,
-                              ),
-                              Text(
-                                userData.nickName ?? 'User',
-                                style: const TextStyle(
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.withOpacity(0.3),
-                                  borderRadius: BorderRadius.circular(2),
-                                ),
-                                width: 2,
-                                height: 14,
-                              ),
-                              const SizedBox(width: 16),
-                              Text(
-                                userData.role ?? 'User Type',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 2),
-                            child: Text(
-                              userData.biography ?? "No bio yet!",
-                              maxLines: 1,
-                              style: TextStyle(
-                                fontSize: 12.5,
-                                overflow: TextOverflow.ellipsis,
-                                color: Colors.grey[800],
-                              ),
-                            ),
-                          ),
-                        ],
+                    ),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.more_vert,
+                        color: Colors.black87,
+                        size: 24,
                       ),
+                      onPressed: () {},
                     ),
-                  ),
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const SizedBox(width: 12),
-                          BlocBuilder<GlobalBloc, GlobalState>(
-                            builder: (context, state) {
-                              final isFollowed =
-                                  state.isUserFollowed(widget.userId);
-                              final followStatus =
-                                  state.getFollowStatus(widget.userId);
-                              final isLoading =
-                                  followStatus == FollowStatus.inProgress;
-
-                              return InkWell(
-                                onTap: isLoading
-                                    ? null
-                                    : () {
-                                        context.read<GlobalBloc>().add(
-                                              UpdateFollowStatusEvent(
-                                                userId: widget.userId,
-                                                isFollowed: isFollowed,
-                                                context: context,
-                                              ),
-                                            );
-                                      },
-                                child: SmoothClipRRect(
-                                  smoothness: 0.9,
-                                  borderRadius: BorderRadius.circular(12),
-                                  child: Container(
-                                    alignment: Alignment.center,
-                                    constraints: const BoxConstraints(
-                                      minWidth: 110,
-                                      minHeight: 50,
-                                    ),
-                                    decoration:
-                                        BoxDecoration(color: AppColors.primary),
-                                    child: isLoading
-                                        ? const SizedBox(
-                                            width: 20,
-                                            height: 20,
-                                            child: CircularProgressIndicator(
-                                              color: Colors.white,
-                                              strokeWidth: 2,
-                                            ),
-                                          )
-                                        : Row(
-                                            children: [
-                                              Icon(
-                                                  isFollowed
-                                                      ? Icons.person_remove
-                                                      : Icons.person_add,
-                                                  color: Colors.white,
-                                                  size: 20),
-                                              const SizedBox(width: 6),
-                                              Text(
-                                                isFollowed == true
-                                                    ? 'Unfollow'
-                                                    : 'Follow',
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                          const SizedBox(width: 12),
-                          InkWell(
-                            onTap: () {},
-                            child: SmoothClipRRect(
-                              side: BorderSide(
-                                width: 1.2,
-                                color: AppColors.containerColor,
-                              ),
-                              smoothness: 0.9,
-                              borderRadius: BorderRadius.circular(12),
-                              child: Container(
-                                alignment: Alignment.center,
-                                constraints: const BoxConstraints(
-                                  minWidth: 110,
-                                  minHeight: 50,
-                                ),
-                                decoration:
-                                    BoxDecoration(color: AppColors.white),
-                                child: Row(
-                                  children: [
-                                    Icon(EvaIcons.phoneCall,
-                                        color: Colors.black, size: 20),
-                                    const SizedBox(width: 6),
-                                    const Text(
-                                      'Call',
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          InkWell(
-                            onTap: () {},
-                            child: SmoothClipRRect(
-                              side: BorderSide(
-                                width: 1.2,
-                                color: AppColors.containerColor,
-                              ),
-                              smoothness: 0.9,
-                              borderRadius: BorderRadius.circular(12),
-                              child: Container(
-                                alignment: Alignment.center,
-                                constraints: const BoxConstraints(
-                                  minWidth: 110,
-                                  minHeight: 50,
-                                ),
-                                decoration:
-                                    BoxDecoration(color: AppColors.bgColor),
-                                child: Row(
-                                  children: [
-                                    Icon(EvaIcons.messageSquare,
-                                        color: Colors.black, size: 20),
-                                    const SizedBox(width: 6),
-                                    const Text(
-                                      'Messege',
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SliverToBoxAdapter(
-                    child: SizedBox(
-                      height: 12,
-                    ),
-                  ),
-                  SliverPersistentHeader(
-                    delegate: _SliverTabBarDelegate(
-                      TabBar(
-                        controller: _tabController,
-                        tabs: [
-                          Tab(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.inventory_rounded,
-                                  size: 22,
-                                ),
-                                SizedBox(
-                                  width: 4,
-                                ),
-                                Text(
-                                  '13',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 4,
-                                ),
-                              ],
-                            ),
-                          ),
-                          Tab(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  CupertinoIcons.camera,
-                                  size: 22,
-                                ),
-                                SizedBox(
-                                  width: 4,
-                                ),
-                                Text(
-                                  '13',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 13),
-                                ),
-                                SizedBox(
-                                  width: 4,
-                                ),
-                              ],
-                            ),
-                          ),
-                          Tab(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  CupertinoIcons.play_circle,
-                                  size: 22,
-                                ),
-                                SizedBox(
-                                  width: 4,
-                                ),
-                                Text(
-                                  '13',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 4,
-                                ),
-                              ],
-                            ),
-                          ),
-                          Tab(
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.reviews_outlined,
-                                  size: 22,
-                                ),
-                                SizedBox(
-                                  width: 4,
-                                ),
-                                Text(
-                                  '13',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 4,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      backgroundColor: AppColors.bgColor,
-                    ),
-                    pinned: true,
-                  ),
-                ];
-              },
-              body: Padding(
-                padding: const EdgeInsets.only(top: 0, right: 4, left: 4),
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    // Products Tab
-                    NotificationListener<ScrollNotification>(
-                      onNotification: (ScrollNotification scrollInfo) {
-                        // Check if we're near the bottom
-                        if (scrollInfo is ScrollEndNotification) {
-                          if (scrollInfo.metrics.pixels >=
-                              scrollInfo.metrics.maxScrollExtent * 0.7) {
-                            final publicationsState =
-                                context.read<UserPublicationsBloc>().state;
-                            if (!publicationsState.hasReachedEnd &&
-                                !publicationsState.isLoading) {
-                              context
-                                  .read<UserPublicationsBloc>()
-                                  .add(LoadMoreUserPublications());
-                            }
-                          }
-                        }
-                        return true;
-                      },
-                      child: CustomScrollView(
-                        slivers: [
-                          _buildProductsGrid(),
-                        ],
-                      ),
-                    ),
-                    _buildEmptyTab(
-                      icon: CupertinoIcons.video_camera,
-                      text: "Empty List",
-                    ),
-                    _buildEmptyTab(
-                      icon: CupertinoIcons.video_camera,
-                      text: "Empty List",
-                    ),
-                    _buildEmptyTab(
-                      icon: CupertinoIcons.video_camera,
-                      text: "Empty List",
-                    ),
+                    const SizedBox(width: 8),
                   ],
                 ),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0, vertical: 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // First row: Image, Name and Role
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            // Profile image
+                            SizedBox(
+                              width: 75,
+                              height: 75,
+                              child: Stack(
+                                children: [
+                                  SmoothClipRRect(
+                                    borderRadius: BorderRadius.circular(24),
+                                    child: userData.profileImagePath != null
+                                        ? CachedNetworkImage(
+                                            width: double.infinity,
+                                            height: double.infinity,
+                                            imageUrl:
+                                                'https://${userData.profileImagePath!}',
+                                            fit: BoxFit.cover,
+                                            placeholder: (context, url) =>
+                                                const Center(
+                                              child: CircularProgressIndicator(
+                                                color: Colors.lightGreen,
+                                                strokeWidth: 2,
+                                              ),
+                                            ),
+                                            errorWidget: (context, url,
+                                                    error) =>
+                                                Image.asset(AppImages.appLogo),
+                                          )
+                                        : Image.asset(AppImages.appLogo),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 36),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  _buildStatItem(
+                                      '${userData.rating}', 'Rating'),
+                                  const SizedBox(width: 32),
+                                  _buildStatItem(
+                                      '${userData.followers}', 'Followers'),
+                                  const SizedBox(width: 32),
+                                  _buildStatItem(
+                                      '${userData.following}', 'Following'),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              width: 2,
+                            ),
+                            Text(
+                              userData.nickName ?? 'User',
+                              style: const TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.grey.withOpacity(0.3),
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                              width: 2,
+                              height: 14,
+                            ),
+                            const SizedBox(width: 16),
+                            Text(
+                              userData.role ?? 'User Type',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 2),
+                          child: Text(
+                            userData.biography ?? "No bio yet!",
+                            maxLines: 1,
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              overflow: TextOverflow.ellipsis,
+                              color: Colors.grey[800],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const SizedBox(width: 12),
+                        BlocBuilder<GlobalBloc, GlobalState>(
+                          builder: (context, state) {
+                            final isFollowed =
+                                state.isUserFollowed(widget.userId);
+                            final followStatus =
+                                state.getFollowStatus(widget.userId);
+                            final isLoading =
+                                followStatus == FollowStatus.inProgress;
+
+                            return InkWell(
+                              onTap: isLoading
+                                  ? null
+                                  : () {
+                                      context.read<GlobalBloc>().add(
+                                            UpdateFollowStatusEvent(
+                                              userId: widget.userId,
+                                              isFollowed: isFollowed,
+                                              context: context,
+                                            ),
+                                          );
+                                    },
+                              child: SmoothClipRRect(
+                                smoothness: 0.9,
+                                borderRadius: BorderRadius.circular(12),
+                                child: Container(
+                                  alignment: Alignment.center,
+                                  constraints: const BoxConstraints(
+                                    minWidth: 110,
+                                    minHeight: 50,
+                                  ),
+                                  decoration:
+                                      BoxDecoration(color: AppColors.primary),
+                                  child: isLoading
+                                      ? const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            color: Colors.white,
+                                            strokeWidth: 2,
+                                          ),
+                                        )
+                                      : Row(
+                                          children: [
+                                            Icon(
+                                                isFollowed
+                                                    ? Icons.person_remove
+                                                    : Icons.person_add,
+                                                color: Colors.white,
+                                                size: 20),
+                                            const SizedBox(width: 6),
+                                            Text(
+                                              isFollowed == true
+                                                  ? 'Unfollow'
+                                                  : 'Follow',
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(width: 12),
+                        InkWell(
+                          onTap: () {},
+                          child: SmoothClipRRect(
+                            side: BorderSide(
+                              width: 1.2,
+                              color: AppColors.containerColor,
+                            ),
+                            smoothness: 0.9,
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              alignment: Alignment.center,
+                              constraints: const BoxConstraints(
+                                minWidth: 110,
+                                minHeight: 50,
+                              ),
+                              decoration: BoxDecoration(color: AppColors.white),
+                              child: Row(
+                                children: [
+                                  Icon(EvaIcons.phoneCall,
+                                      color: Colors.black, size: 20),
+                                  const SizedBox(width: 6),
+                                  const Text(
+                                    'Call',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        InkWell(
+                          onTap: () {},
+                          child: SmoothClipRRect(
+                            side: BorderSide(
+                              width: 1.2,
+                              color: AppColors.containerColor,
+                            ),
+                            smoothness: 0.9,
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              alignment: Alignment.center,
+                              constraints: const BoxConstraints(
+                                minWidth: 110,
+                                minHeight: 50,
+                              ),
+                              decoration:
+                                  BoxDecoration(color: AppColors.bgColor),
+                              child: Row(
+                                children: [
+                                  Icon(EvaIcons.messageSquare,
+                                      color: Colors.black, size: 20),
+                                  const SizedBox(width: 6),
+                                  const Text(
+                                    'Messege',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                      ],
+                    ),
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: SizedBox(
+                    height: 12,
+                  ),
+                ),
+                SliverPersistentHeader(
+                  delegate: _SliverTabBarDelegate(
+                    TabBar(
+                      controller: _tabController,
+                      tabs: [
+                        Tab(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.inventory_rounded,
+                                size: 22,
+                              ),
+                              SizedBox(
+                                width: 4,
+                              ),
+                              Text(
+                                '13',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                ),
+                              ),
+                              SizedBox(
+                                width: 4,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Tab(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                CupertinoIcons.camera,
+                                size: 22,
+                              ),
+                              SizedBox(
+                                width: 4,
+                              ),
+                              Text(
+                                '13',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w600, fontSize: 13),
+                              ),
+                              SizedBox(
+                                width: 4,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Tab(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                CupertinoIcons.play_circle,
+                                size: 22,
+                              ),
+                              SizedBox(
+                                width: 4,
+                              ),
+                              Text(
+                                '13',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                ),
+                              ),
+                              SizedBox(
+                                width: 4,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Tab(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.reviews_outlined,
+                                size: 22,
+                              ),
+                              SizedBox(
+                                width: 4,
+                              ),
+                              Text(
+                                '13',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                ),
+                              ),
+                              SizedBox(
+                                width: 4,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    backgroundColor: AppColors.bgColor,
+                  ),
+                  pinned: true,
+                ),
+              ];
+            },
+            body: Padding(
+              padding: const EdgeInsets.only(top: 0, right: 4, left: 4),
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  // Products Tab
+                  NotificationListener<ScrollNotification>(
+                    onNotification: (ScrollNotification scrollInfo) {
+                      // Check if we're near the bottom
+                      if (scrollInfo is ScrollEndNotification) {
+                        if (scrollInfo.metrics.pixels >=
+                            scrollInfo.metrics.maxScrollExtent * 0.7) {
+                          final publicationsState =
+                              context.read<UserPublicationsBloc>().state;
+                          if (!publicationsState.hasReachedEnd &&
+                              !publicationsState.isLoading) {
+                            context
+                                .read<UserPublicationsBloc>()
+                                .add(LoadMoreUserPublications());
+                          }
+                        }
+                      }
+                      return true;
+                    },
+                    child: CustomScrollView(
+                      slivers: [
+                        _buildProductsGrid(),
+                      ],
+                    ),
+                  ),
+                  _buildEmptyTab(
+                    icon: CupertinoIcons.video_camera,
+                    text: "Empty List",
+                  ),
+                  _buildEmptyTab(
+                    icon: CupertinoIcons.video_camera,
+                    text: "Empty List",
+                  ),
+                  _buildEmptyTab(
+                    icon: CupertinoIcons.video_camera,
+                    text: "Empty List",
+                  ),
+                ],
               ),
             ),
           ),

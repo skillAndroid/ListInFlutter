@@ -71,6 +71,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -913,7 +914,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             widget.product.description,
             maxLines: isMore == true ? 100 : 5,
             style: TextStyle(
-              color: AppColors.darkGray.withOpacity(0.6),
+              color: AppColors.darkBackground,
               fontSize: 14,
               height: 1.5,
             ),
