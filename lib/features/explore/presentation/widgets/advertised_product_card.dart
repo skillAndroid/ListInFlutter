@@ -195,7 +195,7 @@ class ProductDetails extends StatelessWidget {
           const SizedBox(height: 6),
           _ProductTitle(title: product.title),
           ProductDescription(description: product.description),
-          const SizedBox(height: 6),
+          const SizedBox(height: 1),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -325,7 +325,7 @@ class _LocationInfo extends StatelessWidget {
         Text(
           location,
           style: TextStyle(
-            color: AppColors.darkGray.withOpacity(0.5),
+            color: AppColors.darkGray.withOpacity(0.7),
             fontSize: 13,
           ),
         ),
@@ -345,7 +345,7 @@ class ProductDescription extends StatelessWidget {
       description,
       style: TextStyle(
         fontSize: 13,
-        color: AppColors.darkGray.withOpacity(0.7),
+       color: AppColors.darkGray.withOpacity(0.7),
       ),
       maxLines: 2,
       overflow: TextOverflow.ellipsis,
@@ -381,8 +381,10 @@ class CallButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: () {},
       style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.white,
         shape: SmoothRectangleBorder(
           smoothness: 1,
+          side: BorderSide(width: 1.2, color: AppColors.primary),
           borderRadius: BorderRadius.all(Radius.circular(8)),
         ),
       ),
@@ -395,7 +397,7 @@ class CallButton extends StatelessWidget {
               fontSize: 14,
               fontFamily: "Poppins",
               fontWeight: FontWeight.w700,
-              color: AppColors.darkGray,
+              color: AppColors.primary,
             ),
           ),
         ),
