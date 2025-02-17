@@ -47,24 +47,12 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     required this.globalBloc,
   }) : super(HomeTreeState());
 
-  void _syncLikeStatusesForPublications(
-      List<GetPublicationEntity> publications) {
-    final Map<String, bool> publicationLikeStatuses = {};
-
-    for (var publication in publications) {
-      publicationLikeStatuses[publication.id] = publication.isLiked;
-    }
-
-    globalBloc.add(SyncLikeStatusesEvent(
-      publicationLikeStatuses: publicationLikeStatuses,
-    ));
-  }
-
   void _syncFollowStatusesForPublications(
       List<GetPublicationEntity> publications) {
     final Map<String, bool> userFollowStatuses = {};
     final Map<String, int> userFollowersCount = {};
     final Map<String, int> userFollowingCount = {};
+    
 
     for (var publication in publications) {
       final seller = publication.seller;
@@ -104,6 +92,19 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
       userFollowStatuses: newFollowStatuses,
       userFollowersCount: newFollowersCount,
       userFollowingCount: newFollowingCount,
+    ));
+  }
+
+  void _syncLikeStatusesForPublications(
+      List<GetPublicationEntity> publications) {
+    final Map<String, bool> publicationLikeStatuses = {};
+
+    for (var publication in publications) {
+      publicationLikeStatuses[publication.id] = publication.isLiked;
+    }
+
+    globalBloc.add(SyncLikeStatusesEvent(
+      publicationLikeStatuses: publicationLikeStatuses,
     ));
   }
 

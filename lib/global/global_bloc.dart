@@ -3,6 +3,8 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/core/error/failure.dart';
+import 'package:list_in/features/profile/presentation/bloc/user/user_profile_bloc.dart';
+import 'package:list_in/features/profile/presentation/bloc/user/user_profile_event.dart';
 import 'package:list_in/features/visitior_profile/domain/usecase/follow_usecase.dart';
 import 'package:list_in/features/visitior_profile/domain/usecase/like_publication_usecase.dart';
 
@@ -49,6 +51,8 @@ class LikeStatusInfo {
     );
   }
 }
+
+enum ViewStatus { initial, inProgress, success, error }
 
 class GlobalState extends Equatable {
   final Map<String, FollowStatusInfo> followStatusMap;
@@ -189,14 +193,12 @@ class GlobalBloc extends Bloc<GlobalEvent, GlobalState> {
         Map<String, int>.from(state.userFollowingCount);
 
     event.userFollowStatuses.forEach((userId, isFollowed) {
-      // Update follow status
       if (isFollowed) {
         updatedFollowedIds.add(userId);
       } else {
         updatedFollowedIds.remove(userId);
       }
 
-      // Update status map
       final existingStatus = state.followStatusMap[userId];
       if (existingStatus == null ||
           existingStatus.status != FollowStatus.inProgress) {
@@ -206,12 +208,10 @@ class GlobalBloc extends Bloc<GlobalEvent, GlobalState> {
         );
       }
 
-      
       if (event.userFollowersCount.containsKey(userId)) {
         updatedFollowersCount[userId] = event.userFollowersCount[userId]!;
       }
 
-      // Update following count
       if (event.userFollowingCount.containsKey(userId)) {
         updatedFollowingCount[userId] = event.userFollowingCount[userId]!;
       }
@@ -277,7 +277,10 @@ class GlobalBloc extends Bloc<GlobalEvent, GlobalState> {
         final newStatusMap =
             Map<String, FollowStatusInfo>.from(state.followStatusMap)
               ..[event.userId] = FollowStatusInfo(status: FollowStatus.success);
-
+        if (event.context.mounted) {
+          BlocProvider.of<UserProfileBloc>(event.context)
+              .add(GetUserData());
+        }
         emit(state.copyWith(
           followedUserIds: updatedFollowedIds,
           followStatusMap: newStatusMap,
