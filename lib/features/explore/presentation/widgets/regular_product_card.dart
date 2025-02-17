@@ -1038,21 +1038,10 @@ class ShimmerEffect extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (isLiked) {
-      // Enhanced shimmer effect for liked state (primary color background)
-      return Shimmer.fromColors(
-        baseColor: Colors.white.withOpacity(0.25), // More visible white base
-        highlightColor:
-            Colors.white.withOpacity(0.9), // Brighter white highlight
-        child: child,
-      );
-    } else {
-      // Original shimmer effect for unliked state
-      return Shimmer.fromColors(
-        baseColor: Colors.grey[400]!,
-        highlightColor: Colors.white,
-        child: child,
-      );
-    }
+    return Shimmer.fromColors(
+      baseColor: isLiked ? Colors.grey[300]! : Colors.grey[400]!,
+      highlightColor: isLiked ? Colors.grey[100]! : Colors.grey[200]!,
+      child: child,
+    );
   }
 }

@@ -354,6 +354,8 @@ class SellerModel {
   final String? profileImagePath;
   final double? rating;
   final bool isFollowing;
+  final int followers;
+  final int followings;
   final bool isGrantedForPreciseLocation;
   final String locationName;
   final double? longitude;
@@ -377,6 +379,8 @@ class SellerModel {
     this.longitude,
     this.latitude,
     required this.role,
+    required this.followers,
+    required this.followings,
     required this.dateCreated,
     required this.dateUpdated,
     required this.isFollowing,
@@ -387,6 +391,8 @@ class SellerModel {
       return SellerModel(
         id: json['id']?.toString() ?? '',
         isFollowing: json['isFollowing'] ?? false,
+        followers: json['followers'],
+        followings: json['following'],
         nickName: json['nickName']?.toString() ?? '',
         enableCalling: json['enableCalling'] ?? false,
         phoneNumber: json['phoneNumber']?.toString() ?? '',
@@ -433,6 +439,8 @@ class SellerModel {
       isFollowing: isFollowing,
       dateCreated: dateCreated,
       dateUpdated: dateUpdated,
+      followers: followers,
+      followings: followings,
     );
   }
 }

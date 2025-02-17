@@ -169,9 +169,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                           ? AppIcons.favoriteBlack
                                           : AppIcons.favorite,
                                       width: 24,
-                                      color: AppColors.black,
                                       height: 24,
                                       fit: BoxFit.contain,
+                                      // Remove color property here to maintain visibility
                                     ),
                                   ),
                                 ),
@@ -194,7 +194,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                       : AppIcons.favorite,
                                   width: 24,
                                   height: 24,
-                                  color: AppColors.black,
+                                  color: isLiked
+                                      ? AppColors.primary
+                                      : AppColors.black,
                                   fit: BoxFit.contain,
                                 ),
                               ),

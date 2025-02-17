@@ -128,6 +128,8 @@ class SellerEntity {
   final String role;
   final DateTime dateCreated;
   final DateTime dateUpdated;
+  final int followers;
+  final int followings;
 
   SellerEntity({
     required this.id,
@@ -147,5 +149,7 @@ class SellerEntity {
     required this.dateCreated,
     required this.dateUpdated,
     required this.isFollowing,
+    required this.followers,
+    required this.followings,
   });
 }

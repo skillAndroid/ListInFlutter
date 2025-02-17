@@ -62,42 +62,48 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
 
   void _syncFollowStatusesForPublications(
       List<GetPublicationEntity> publications) {
-    // Create a map to store seller follow statuses
     final Map<String, bool> userFollowStatuses = {};
+    final Map<String, int> userFollowersCount = {};
+    final Map<String, int> userFollowingCount = {};
 
-    // Process each publication's seller status
     for (var publication in publications) {
-      final sellerId = publication.seller.id;
-      final isFollowing = publication.seller.isFollowing;
-      userFollowStatuses[sellerId] = isFollowing;
+      final seller = publication.seller;
+      userFollowStatuses[seller.id] = seller.isFollowing;
+      userFollowersCount[seller.id] = seller.followers;
+      userFollowingCount[seller.id] = seller.followings;
     }
 
-    // Sync the follow statuses with global bloc
     globalBloc.add(SyncFollowStatusesEvent(
       userFollowStatuses: userFollowStatuses,
+      userFollowersCount: userFollowersCount,
+      userFollowingCount: userFollowingCount,
     ));
   }
 
   void _syncFollowStatuses(List<PublicationPairEntity> publications) {
-    // Create a map for new follow statuses
     final Map<String, bool> newFollowStatuses = {};
+    final Map<String, int> newFollowersCount = {};
+    final Map<String, int> newFollowingCount = {};
 
-    // Process all publications
     for (var pair in publications) {
-      // Add first publication's seller status
-      newFollowStatuses[pair.firstPublication.seller.id] =
-          pair.firstPublication.seller.isFollowing;
+      // Process first publication's seller
+      final firstSeller = pair.firstPublication.seller;
+      newFollowStatuses[firstSeller.id] = firstSeller.isFollowing;
+      newFollowersCount[firstSeller.id] = firstSeller.followers;
+      newFollowingCount[firstSeller.id] = firstSeller.followings;
 
-      // Add second publication's seller status if it exists
       if (pair.secondPublication != null) {
-        newFollowStatuses[pair.secondPublication!.seller.id] =
-            pair.secondPublication!.seller.isFollowing;
+        final secondSeller = pair.secondPublication!.seller;
+        newFollowStatuses[secondSeller.id] = secondSeller.isFollowing;
+        newFollowersCount[secondSeller.id] = secondSeller.followers;
+        newFollowingCount[secondSeller.id] = secondSeller.followings;
       }
     }
 
-    // Send the new statuses to be merged with existing ones
     globalBloc.add(SyncFollowStatusesEvent(
       userFollowStatuses: newFollowStatuses,
+      userFollowersCount: newFollowersCount,
+      userFollowingCount: newFollowingCount,
     ));
   }
 

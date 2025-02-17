@@ -100,7 +100,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                   floating: false,
                   pinned: true,
                   snap: false,
-                  toolbarHeight: 56,
+                  toolbarHeight: 52,
                   automaticallyImplyLeading: false,
                   elevation: 0,
                   backgroundColor: Colors.white,
@@ -218,11 +218,24 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                                   _buildStatItem(
                                       '${userData.rating}', 'Rating'),
                                   const SizedBox(width: 32),
-                                  _buildStatItem(
-                                      '${userData.followers}', 'Followers'),
-                                  const SizedBox(width: 32),
-                                  _buildStatItem(
-                                      '${userData.following}', 'Following'),
+                                  BlocBuilder<GlobalBloc, GlobalState>(
+                                    builder: (context, state) {
+                                      final followersCount = state
+                                          .getFollowersCount(userData.id ?? '');
+                                      final followingCount = state
+                                          .getFollowingCount(userData.id ?? '');
+
+                                      return Row(
+                                        children: [
+                                          _buildStatItem(
+                                              '$followersCount', 'Followers'),
+                                          const SizedBox(width: 32),
+                                          _buildStatItem(
+                                              '$followingCount', 'Following'),
+                                        ],
+                                      );
+                                    },
+                                  )
                                 ],
                               ),
                             ),
