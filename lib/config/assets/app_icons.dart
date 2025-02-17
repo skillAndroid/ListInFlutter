@@ -10,6 +10,7 @@ class AppIcons {
   static const filterIc = '${_basePath}filter_ic$_format';
   static const chatIc = '${_basePath}chat_ic$_format';
   static const favorite = '${_basePath}love_ic$_format';
+  static const favoriteBlack = '${_basePath}love_blac$_format';
 
   static const logoutIc = '${_basePath}logout_ic$_format';
   static const startIc = '${_basePath}ic_star$_format';

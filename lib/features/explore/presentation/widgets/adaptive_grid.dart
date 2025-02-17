@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
-import 'package:list_in/features/explore/presentation/pages/screens/initial_page.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
 class DynamicPublicationGrid extends StatelessWidget {
   final PagingController<int, GetPublicationEntity> pagingController;

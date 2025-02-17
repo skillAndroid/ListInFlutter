@@ -10,6 +10,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/details/presentation/bloc/details_bloc.dart';
@@ -22,6 +23,7 @@ import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/formaters.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
+import 'package:list_in/global/global_bloc.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
@@ -71,7 +73,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -145,9 +146,60 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     icon: CupertinoIcons.ellipsis,
                     onTap: () {},
                   ),
-                  _buildTopBarButton(
-                    icon: CupertinoIcons.heart,
-                    onTap: () {},
+                  BlocBuilder<GlobalBloc, GlobalState>(
+                    builder: (context, state) {
+                      final isLiked =
+                          state.isPublicationLiked(widget.product.id);
+                      final likeStatus = state.getLikeStatus(widget.product.id);
+                      final isLoading = likeStatus == LikeStatus.inProgress;
+
+                      return SizedBox(
+                        width: 40,
+                        height: 40,
+                        child: isLoading
+                            ? Center(
+                                child: ShimmerEffect(
+                                  isLiked: isLiked,
+                                  child: Container(
+                                    width: 24,
+                                    height: 24,
+                                    alignment: Alignment.center,
+                                    child: Image.asset(
+                                      isLiked
+                                          ? AppIcons.favoriteBlack
+                                          : AppIcons.favorite,
+                                      width: 24,
+                                      color: AppColors.black,
+                                      height: 24,
+                                      fit: BoxFit.contain,
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : IconButton(
+                                onPressed: () {
+                                  if (!isLoading) {
+                                    context.read<GlobalBloc>().add(
+                                          UpdateLikeStatusEvent(
+                                            publicationId: widget.product.id,
+                                            isLiked: isLiked,
+                                            context: context,
+                                          ),
+                                        );
+                                  }
+                                },
+                                icon: Image.asset(
+                                  isLiked
+                                      ? AppIcons.favoriteBlack
+                                      : AppIcons.favorite,
+                                  width: 24,
+                                  height: 24,
+                                  color: AppColors.black,
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -809,7 +861,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               fontWeight: FontWeight.w600,
             ),
           ),
-          SizedBox(height: 2,),
+          SizedBox(
+            height: 2,
+          ),
           Text(
             'Created: ${DateFormat('dd MMMM yyyy').format(widget.product.seller.dateCreated)}',
             style: TextStyle(

@@ -3,6 +3,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
@@ -10,7 +11,9 @@ import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/formaters.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
+import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
 import 'package:list_in/features/undefined_screens_yet/video_player.dart';
+import 'package:list_in/global/global_bloc.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class AdvertisedProductCard extends StatefulWidget {
@@ -207,20 +210,64 @@ class ProductDetails extends StatelessWidget {
                   _PriceSection(price: product.price),
                 ],
               ),
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColors.containerColor,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                padding: const EdgeInsets.all(8),
-                child: SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: Image.asset(
-                    AppIcons.favorite,
-                    color: AppColors.darkGray,
-                  ),
-                ),
+              BlocBuilder<GlobalBloc, GlobalState>(
+                builder: (context, state) {
+                  final isLiked = state.isPublicationLiked(product.id);
+                  final likeStatus = state.getLikeStatus(product.id);
+                  final isLoading = likeStatus == LikeStatus.inProgress;
+
+                  return InkWell(
+                    onTap: () {
+                      if (!isLoading) {
+                        context.read<GlobalBloc>().add(
+                              UpdateLikeStatusEvent(
+                                publicationId: product.id,
+                                isLiked: isLiked,
+                                context: context,
+                              ),
+                            );
+                      }
+                    },
+                    child: SmoothClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        color: isLiked
+                            ? AppColors.primary
+                            : AppColors.containerColor,
+                        child: isLoading
+                            ? ShimmerEffect(
+                                isLiked: isLiked,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: Image.asset(
+                                      AppIcons.favorite,
+                                      color: isLiked
+                                          ? Colors.white
+                                          : AppColors.darkGray,
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: Image.asset(
+                                    AppIcons.favorite,
+                                    color: isLiked
+                                        ? Colors.white
+                                        : AppColors.darkGray,
+                                  ),
+                                ),
+                              ),
+                      ),
+                    ),
+                  );
+                },
               )
             ],
           ),
@@ -345,7 +392,7 @@ class ProductDescription extends StatelessWidget {
       description,
       style: TextStyle(
         fontSize: 13,
-       color: AppColors.darkGray.withOpacity(0.7),
+        color: AppColors.darkGray.withOpacity(0.7),
       ),
       maxLines: 2,
       overflow: TextOverflow.ellipsis,

@@ -18,7 +18,6 @@ import 'package:list_in/features/profile/domain/entity/publication/publication_e
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_event.dart';
 import 'package:list_in/global/global_bloc.dart';
-import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
@@ -956,6 +955,7 @@ class RemouteRegularProductCard2 extends StatelessWidget {
                                     state.getLikeStatus(product.id);
                                 final isLoading =
                                     likeStatus == LikeStatus.inProgress;
+
                                 return InkWell(
                                   onTap: () {
                                     if (!isLoading) {
@@ -974,28 +974,38 @@ class RemouteRegularProductCard2 extends StatelessWidget {
                                       color: isLiked
                                           ? AppColors.primary
                                           : AppColors.containerColor,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: SizedBox(
-                                          width: 18,
-                                          height: 18,
-                                          child: isLoading
-                                              ? ShimmerEffect(
+                                      child: isLoading
+                                          ? ShimmerEffect(
+                                              isLiked: isLiked,
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child: SizedBox(
+                                                  width: 18,
+                                                  height: 18,
                                                   child: Image.asset(
                                                     AppIcons.favorite,
                                                     color: isLiked
                                                         ? Colors.white
                                                         : AppColors.darkGray,
                                                   ),
-                                                )
-                                              : Image.asset(
+                                                ),
+                                              ),
+                                            )
+                                          : Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: SizedBox(
+                                                width: 18,
+                                                height: 18,
+                                                child: Image.asset(
                                                   AppIcons.favorite,
                                                   color: isLiked
                                                       ? Colors.white
                                                       : AppColors.darkGray,
                                                 ),
-                                        ),
-                                      ),
+                                              ),
+                                            ),
                                     ),
                                   ),
                                 );
@@ -1018,18 +1028,31 @@ class RemouteRegularProductCard2 extends StatelessWidget {
 
 class ShimmerEffect extends StatelessWidget {
   final Widget child;
+  final bool isLiked;
 
   const ShimmerEffect({
     super.key,
     required this.child,
+    required this.isLiked,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
-      child: child,
-    );
+    if (isLiked) {
+      // Enhanced shimmer effect for liked state (primary color background)
+      return Shimmer.fromColors(
+        baseColor: Colors.white.withOpacity(0.25), // More visible white base
+        highlightColor:
+            Colors.white.withOpacity(0.9), // Brighter white highlight
+        child: child,
+      );
+    } else {
+      // Original shimmer effect for unliked state
+      return Shimmer.fromColors(
+        baseColor: Colors.grey[400]!,
+        highlightColor: Colors.white,
+        child: child,
+      );
+    }
   }
 }
