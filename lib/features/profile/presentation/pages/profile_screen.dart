@@ -785,7 +785,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
           sliver: SliverGrid(
             delegate: SliverChildBuilderDelegate(
               (context, index) {
-                // Check if we need to show loading indicator
+               
                 if (index >= state.publications.length) {
                   if (state.isLoading) {
                     return const Center(child: Progress());

@@ -68,6 +68,7 @@ import 'package:list_in/features/profile/domain/usecases/user/get_user_data_usec
 import 'package:list_in/features/profile/domain/usecases/user/update_user_image_usecase.dart';
 import 'package:list_in/features/profile/domain/usecases/user/update_user_profile_usecase.dart';
 import 'package:list_in/features/visitior_profile/domain/usecase/get_another_user_publications_usecase.dart';
+import 'package:list_in/features/visitior_profile/domain/usecase/like_publication_usecase.dart';
 import 'package:list_in/features/visitior_profile/presentation/bloc/another_user_profile_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_bloc.dart';
@@ -129,7 +130,10 @@ Future<void> init() async {
       },
     );
   });
-  sl.registerLazySingleton(() => GlobalBloc(followUserUseCase: sl()));
+  sl.registerLazySingleton(() => GlobalBloc(
+        followUserUseCase: sl(),
+        likePublicationUsecase: sl(),
+      ));
   sl.registerLazySingleton(
     () => AppRouter(
         sharedPreferences: sl<SharedPreferences>(),
@@ -240,6 +244,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetPublicationsByIdUsecase(sl()));
   sl.registerLazySingleton(() => GetPredictionsUseCase(sl()));
   sl.registerLazySingleton(() => FollowUserUseCase(sl()));
+  sl.registerLazySingleton(() => LikePublicationUsecase(sl()));
   sl.registerLazySingleton(() => GetVideoPublicationsUsecase(sl()));
   sl.registerLazySingleton(() => GetLocationUseCase(sl()));
   sl.registerLazySingleton(() => SearchLocationsUseCase(sl()));
@@ -292,6 +297,7 @@ Future<void> init() async {
     () => AnotherUserProfileBloc(
       getUserDataUseCase: sl(),
       getPublications: sl(),
+      globalBloc: sl(),
     ),
   );
   sl.registerFactory(
@@ -299,6 +305,7 @@ Future<void> init() async {
       getUserDataUseCase: sl(),
       getPublications: sl(),
       followUserUseCase: sl(),
+      globalBloc: sl(),
     ),
   );
 

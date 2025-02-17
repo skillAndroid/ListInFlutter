@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
-import 'package:list_in/features/visitior_profile/presentation/bloc/another_user_profile_bloc.dart';
-import 'package:list_in/features/visitior_profile/presentation/bloc/another_user_profile_state.dart';
 import 'package:list_in/global/global_bloc.dart';
 
 class FollowButton extends StatelessWidget {
@@ -40,10 +37,10 @@ class FollowButton extends StatelessWidget {
           child: InkWell(
             onTap: () {
               context.read<GlobalBloc>().add(UpdateFollowStatusEvent(
-  userId: userId,
-  isFollowed: isFollowed,
-  context: context,
-));
+                    userId: userId,
+                    isFollowed: isFollowed,
+                    context: context,
+                  ));
             },
             child: Text(
               isFollowed ? 'Unfollow' : 'Follow',

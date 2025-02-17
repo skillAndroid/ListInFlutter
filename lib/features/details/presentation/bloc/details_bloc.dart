@@ -1,29 +1,43 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/core/error/failure.dart';
 import 'package:list_in/features/details/presentation/bloc/details_state.dart';
 import 'package:list_in/features/details/presentation/bloc/details_event.dart';
+import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/visitior_profile/domain/usecase/follow_usecase.dart';
 import 'package:list_in/features/visitior_profile/domain/usecase/get_another_user_profile_usecase.dart';
 import 'package:list_in/features/visitior_profile/domain/usecase/get_another_user_publications_usecase.dart';
+import 'package:list_in/global/global_bloc.dart';
 
-class DetailsBloc
-    extends Bloc<DetailsEvent, DetailsState> {
+class DetailsBloc extends Bloc<DetailsEvent, DetailsState> {
   final GetAnotherUserDataUseCase getUserDataUseCase;
   final GetPublicationsByIdUsecase getPublications;
   final FollowUserUseCase followUserUseCase;
+  final GlobalBloc globalBloc;
   static const int pageSize = 20;
 
   DetailsBloc({
     required this.getUserDataUseCase,
     required this.getPublications,
     required this.followUserUseCase,
+    required this.globalBloc,
   }) : super(DetailsState()) {
     on<GetAnotherUserData>(_onGetUserData);
     on<FetchPublications>(_onFetchPublications);
     on<FollowUser>(_onFollowUser);
+  }
+
+  void _syncLikeStatusesForPublications(
+      List<GetPublicationEntity> publications) {
+    final Map<String, bool> publicationLikeStatuses = {};
+
+    for (var publication in publications) {
+      publicationLikeStatuses[publication.id] = publication.isLiked;
+    }
+
+    globalBloc.add(SyncLikeStatusesEvent(
+      publicationLikeStatuses: publicationLikeStatuses,
+    ));
   }
 
   Future<void> _onFollowUser(
@@ -142,7 +156,7 @@ class DetailsBloc
         final updatedPublications = event.isInitialFetch
             ? publicationsPage.content
             : [...state.publications, ...publicationsPage.content];
-
+        _syncLikeStatusesForPublications(updatedPublications);
         emit(state.copyWith(
           status: DetailsStatus.success,
           publications: updatedPublications,

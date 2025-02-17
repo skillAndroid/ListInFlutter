@@ -47,6 +47,19 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     required this.globalBloc,
   }) : super(HomeTreeState());
 
+  void _syncLikeStatusesForPublications(
+      List<GetPublicationEntity> publications) {
+    final Map<String, bool> publicationLikeStatuses = {};
+
+    for (var publication in publications) {
+      publicationLikeStatuses[publication.id] = publication.isLiked;
+    }
+
+    globalBloc.add(SyncLikeStatusesEvent(
+      publicationLikeStatuses: publicationLikeStatuses,
+    ));
+  }
+
   void _syncFollowStatusesForPublications(
       List<GetPublicationEntity> publications) {
     // Create a map to store seller follow statuses
@@ -85,6 +98,28 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     // Send the new statuses to be merged with existing ones
     globalBloc.add(SyncFollowStatusesEvent(
       userFollowStatuses: newFollowStatuses,
+    ));
+  }
+
+  void _syncLikeStatuses(List<PublicationPairEntity> publications) {
+    // Create a map for new like statuses
+    final Map<String, bool> newLikeStatuses = {};
+
+    // Process all publications
+    for (var pair in publications) {
+      // Add first publication's like status
+      newLikeStatuses[pair.firstPublication.id] = pair.firstPublication.isLiked;
+
+      // Add second publication's like status if it exists
+      if (pair.secondPublication != null) {
+        newLikeStatuses[pair.secondPublication!.id] =
+            pair.secondPublication!.isLiked;
+      }
+    }
+
+    // Send the new statuses to be merged with existing ones
+    globalBloc.add(SyncLikeStatusesEvent(
+      publicationLikeStatuses: newLikeStatuses,
     ));
   }
 
@@ -392,6 +427,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
           final isLastPage =
               paginatedData.isNotEmpty ? paginatedData.last.isLast : true;
           _syncFollowStatuses(updatedPublications);
+          _syncLikeStatuses(updatedPublications);
           emit(
             state.copyWith(
               searchPublicationsRequestState: RequestState.completed,
@@ -504,6 +540,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
 
           // Sync follow statuses
           _syncFollowStatuses(updatedPublications);
+          _syncLikeStatuses(updatedPublications);
 
           emit(
             state.copyWith(
@@ -591,6 +628,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
           final isLastPage =
               paginatedData.isNotEmpty ? paginatedData.last.isLast : true;
           _syncFollowStatuses(updatedPublications);
+          _syncLikeStatuses(updatedPublications);
           emit(
             state.copyWith(
               secondaryPublicationsRequestState: RequestState.completed,
@@ -683,6 +721,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
           final isLastPage =
               paginatedData.isNotEmpty ? paginatedData.last.isLast : true;
           _syncFollowStatuses(updatedPublications);
+          _syncLikeStatuses(updatedPublications);
           emit(state.copyWith(
             childPublicationsRequestState: RequestState.completed,
             childPublications: updatedPublications,
@@ -944,6 +983,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
               ? videoPublicationsEntity.content
               : videoPublicationsEntity.content;
           _syncFollowStatusesForPublications(updatedPublications);
+          _syncLikeStatusesForPublications(updatedPublications);
           emit(
             state.copyWith(
               videoPublicationsRequestState: RequestState.completed,

@@ -1,23 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/core/error/failure.dart';
+import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/visitior_profile/domain/usecase/get_another_user_profile_usecase.dart';
 import 'package:list_in/features/visitior_profile/domain/usecase/get_another_user_publications_usecase.dart';
 import 'package:list_in/features/visitior_profile/presentation/bloc/another_user_profile_event.dart';
 import 'package:list_in/features/visitior_profile/presentation/bloc/another_user_profile_state.dart';
+import 'package:list_in/global/global_bloc.dart';
+
 class AnotherUserProfileBloc
     extends Bloc<AnotherUserProfileEvent, AnotherUserProfileState> {
   final GetAnotherUserDataUseCase getUserDataUseCase;
   final GetPublicationsByIdUsecase getPublications;
+  final GlobalBloc globalBloc;
   static const int pageSize = 20;
 
   AnotherUserProfileBloc({
     required this.getUserDataUseCase,
     required this.getPublications,
+    required this.globalBloc,
   }) : super(AnotherUserProfileState()) {
     on<GetAnotherUserData>(_onGetUserData);
     on<FetchPublications>(_onFetchPublications);
     on<ClearUserData>(_onClearUserData);
+  }
+
+  void _syncLikeStatusesForPublications(
+      List<GetPublicationEntity> publications) {
+    final Map<String, bool> publicationLikeStatuses = {};
+
+    for (var publication in publications) {
+      publicationLikeStatuses[publication.id] = publication.isLiked;
+    }
+
+    globalBloc.add(SyncLikeStatusesEvent(
+      publicationLikeStatuses: publicationLikeStatuses,
+    ));
   }
 
   void _onClearUserData(
@@ -92,7 +110,7 @@ class AnotherUserProfileBloc
         final updatedPublications = event.isInitialFetch
             ? publicationsPage.content
             : [...state.publications, ...publicationsPage.content];
-
+        _syncLikeStatusesForPublications(updatedPublications);
         emit(state.copyWith(
           status: AnotherUserProfileStatus.success,
           publications: updatedPublications,

@@ -4,6 +4,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/assets/app_icons.dart';
@@ -16,7 +17,9 @@ import 'package:list_in/features/explore/presentation/widgets/formaters.dart';
 import 'package:list_in/features/profile/domain/entity/publication/publication_entity.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_event.dart';
+import 'package:list_in/global/global_bloc.dart';
 import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class HorizontalProfileProductCard extends StatelessWidget {
@@ -945,22 +948,58 @@ class RemouteRegularProductCard2 extends StatelessWidget {
                                 fontWeight: FontWeight.w800,
                               ),
                             ),
-                            SmoothClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Container(
-                                color: AppColors.containerColor,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: SizedBox(
-                                    width: 18,
-                                    height: 18,
-                                    child: Image.asset(
-                                      AppIcons.favorite,
-                                      color: AppColors.darkGray,
+                            BlocBuilder<GlobalBloc, GlobalState>(
+                              builder: (context, state) {
+                                final isLiked =
+                                    state.isPublicationLiked(product.id);
+                                final likeStatus =
+                                    state.getLikeStatus(product.id);
+                                final isLoading =
+                                    likeStatus == LikeStatus.inProgress;
+                                return InkWell(
+                                  onTap: () {
+                                    if (!isLoading) {
+                                      context.read<GlobalBloc>().add(
+                                            UpdateLikeStatusEvent(
+                                              publicationId: product.id,
+                                              isLiked: isLiked,
+                                              context: context,
+                                            ),
+                                          );
+                                    }
+                                  },
+                                  child: SmoothClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Container(
+                                      color: isLiked
+                                          ? AppColors.primary
+                                          : AppColors.containerColor,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: SizedBox(
+                                          width: 18,
+                                          height: 18,
+                                          child: isLoading
+                                              ? ShimmerEffect(
+                                                  child: Image.asset(
+                                                    AppIcons.favorite,
+                                                    color: isLiked
+                                                        ? Colors.white
+                                                        : AppColors.darkGray,
+                                                  ),
+                                                )
+                                              : Image.asset(
+                                                  AppIcons.favorite,
+                                                  color: isLiked
+                                                      ? Colors.white
+                                                      : AppColors.darkGray,
+                                                ),
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ),
+                                );
+                              },
                             )
                           ],
                         ),
@@ -973,6 +1012,24 @@ class RemouteRegularProductCard2 extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class ShimmerEffect extends StatelessWidget {
+  final Widget child;
+
+  const ShimmerEffect({
+    super.key,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: child,
     );
   }
 }

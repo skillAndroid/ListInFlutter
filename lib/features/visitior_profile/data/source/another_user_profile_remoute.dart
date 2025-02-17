@@ -13,6 +13,7 @@ abstract class AnotherUserProfileRemoute {
     String userId,
   });
   Future<AnotherUserProfileModel> followUser(String userId, bool follow);
+  Future<void> likePublication(String publicationId, bool like);
 }
 
 class AnotherUserProfileRemouteImpl implements AnotherUserProfileRemoute {
@@ -110,6 +111,30 @@ class AnotherUserProfileRemouteImpl implements AnotherUserProfileRemoute {
         return profileModel;
       } else {
         throw ServerExeption(message: 'Failed to follow user');
+      }
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout) {
+        throw ConnectiontTimeOutExeption();
+      }
+      throw ServerExeption(message: e.message ?? 'Unknown error occurred');
+    }
+  }
+
+  @override
+  Future<void> likePublication(String publicationId, bool like) async {
+    final options = await authService.getAuthOptions();
+    try {
+      final response = await dio.patch(
+        like
+            ? '/api/v1/publications/like/$publicationId'
+            : '/api/v1/publications/unlike/$publicationId',
+        options: options,
+      );
+      if (response.statusCode == 200) {
+        debugPrint('😘😘Success liking in remoute!');
+        return;
+      } else {
+        throw ServerExeption(message: 'Failed to like publication');
       }
     } on DioException catch (e) {
       if (e.type == DioExceptionType.connectionTimeout) {

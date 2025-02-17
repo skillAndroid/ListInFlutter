@@ -32,7 +32,7 @@ class AnotherUserProfileRepImpl implements AnotherUserProfileRepository {
         follow,
       );
       return Right(result.toEntity());
-    } on ServerExeption catch (e) {
+    } on ServerExeption {
       return Left(ServerFailure());
     } on NetworkFailure {
       return Left(NetworkFailure());
@@ -103,6 +103,29 @@ class AnotherUserProfileRepImpl implements AnotherUserProfileRepository {
     } catch (e, stackTrace) {
       debugPrint('Unexpected error in repository: $e');
       debugPrint('Stack trace: $stackTrace');
+      return Left(ServerFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> likePublication(
+      String publicationId, bool like) async {
+    if (!await networkInfo.isConnected) {
+      return Left(NetworkFailure());
+    }
+
+    try {
+      final result = await remoteDataSource.likePublication(
+        publicationId,
+        like,
+      );
+      debugPrint('😘😘Success liking in repository impl!');
+      return Right(result);
+    } on ServerExeption {
+      return Left(ServerFailure());
+    } on NetworkFailure {
+      return Left(NetworkFailure());
+    } catch (e) {
       return Left(ServerFailure());
     }
   }
