@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/core/error/failure.dart';
 import 'package:list_in/features/auth/data/sources/auth_local_data_source.dart';
+import 'package:list_in/features/profile/domain/usecases/user/get_user_data_usecase.dart';
 import 'package:list_in/features/profile/presentation/bloc/user/user_profile_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/user/user_profile_event.dart';
 import 'package:list_in/features/visitior_profile/domain/usecase/follow_usecase.dart';
@@ -229,7 +230,16 @@ class GlobalBloc extends Bloc<GlobalEvent, GlobalState> {
 
   Future<void> _onFetchUserId(
       FetchUserIdEvent event, Emitter<GlobalState> emit) async {
-    userId = await authLocalDataSource.getUserId();
+    userId = AppSession.currentUserId;
+
+    if (userId == null) {
+      userId = await authLocalDataSource.getUserId();
+
+      if (userId != null) {
+        AppSession.currentUserId = userId;
+      }
+    }
+
     debugPrint('🎯 GlobalBloc fetched userId: $userId');
   }
 

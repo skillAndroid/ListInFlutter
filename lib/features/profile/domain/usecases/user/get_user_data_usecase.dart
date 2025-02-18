@@ -16,13 +16,29 @@ class GetUserDataUseCase extends UseCase2<UserDataEntity, NoParams> {
   Future<Either<Failure, UserDataEntity>> call({NoParams? params}) async {
     debugPrint('🎯 GetUserDataUseCase called');
     final result = await repository.getUserData();
+
+    String? userId;
     result.fold(
       (failure) => null,
       (userData) async {
-        await authLocalDataSource.cacheUserId(userData.id);
+        userId = userData.id;
+        await authLocalDataSource.cacheUserId(userId!);
+
+        // Here's the key part - immediately update a global static variable
+        AppSession.currentUserId = userId;
+        debugPrint('🎯 User ID set in AppSession: $userId');
       },
     );
+
     debugPrint('🎯 GetUserDataUseCase result: $result');
     return result;
   }
+}
+
+class AppSession {
+  static String? currentUserId;
+
+  // You can add more session-related variables here
+
+  static bool get isLoggedIn => currentUserId != null;
 }

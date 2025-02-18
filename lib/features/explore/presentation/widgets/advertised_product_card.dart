@@ -11,11 +11,13 @@ import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/formaters.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
-import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
+import 'package:list_in/features/profile/domain/usecases/user/get_user_data_usecase.dart';
 import 'package:list_in/features/undefined_screens_yet/video_player.dart';
 import 'package:list_in/global/global_bloc.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 
 class AdvertisedProductCard extends StatefulWidget {
   final GetPublicationEntity product;
@@ -34,11 +36,14 @@ class AdvertisedProductCard extends StatefulWidget {
 class _AdvertisedProductCardState extends State<AdvertisedProductCard> {
   late PageController _pageController;
   int _currentPage = 0;
+  // Check owner status once at initialization
+  late final bool _isOwner;
 
   @override
   void initState() {
     super.initState();
     _pageController = PageController();
+    _isOwner = AppSession.currentUserId == widget.product.seller.id;
   }
 
   @override
@@ -71,7 +76,10 @@ class _AdvertisedProductCardState extends State<AdvertisedProductCard> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildProductImageCarousel(),
-              ProductDetails(product: widget.product),
+              ProductDetails(
+                product: widget.product,
+                isOwner: _isOwner,
+              ),
             ],
           ),
         ),
@@ -100,56 +108,11 @@ class _AdvertisedProductCardState extends State<AdvertisedProductCard> {
                   isPlaying: currentlyPlayingId == widget.product.id,
                 ),
               ),
-              _NewBadge(product: widget.product),
-              BlocBuilder<GlobalBloc, GlobalState>(
-                builder: (context, state) {
-                  final isViewed = state.isPublicationViewed(widget.product.id);
-                  final viewStatus = state.getViewStatus(widget.product.id);
-                  final globalBloc = context.read<GlobalBloc>();
-                  final currentUserId =
-                      globalBloc.getUserId(); // Get current user ID
-                  final isOwner = currentUserId ==
-                      widget.product.seller.id; // Check if user is owner
-                  // Show "Viewed" if the publication is viewed or in progress
-                  if (isViewed ||
-                      viewStatus == ViewStatus.inProgress ||
-                      isOwner) {
-                    return Positioned(
-                      top: 8,
-                      right: 8,
-                      child: SmoothCard(
-                        margin: const EdgeInsets.all(0),
-                        elevation: 0,
-                        color: AppColors.black.withOpacity(0.5),
-                        borderRadius: BorderRadius.circular(6),
-                        child: Padding(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(
-                                Icons.visibility,
-                                color: AppColors.white,
-                                size: 12,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                isOwner ? '${widget.product.views}' : 'Viewed',
-                                style: TextStyle(
-                                  color: AppColors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  }
-                  return const SizedBox.shrink();
-                },
+              _NewBadge(condition: widget.product.productCondition),
+              _ViewedStatusBadge(
+                productId: widget.product.id,
+                views: widget.product.views,
+                isOwner: _isOwner,
               ),
               PageIndicator(
                 currentPage: _currentPage,
@@ -164,9 +127,10 @@ class _AdvertisedProductCardState extends State<AdvertisedProductCard> {
 }
 
 class _NewBadge extends StatefulWidget {
-  final GetPublicationEntity product;
+  final String condition;
+  
   const _NewBadge({
-    required this.product,
+    required this.condition,
   });
 
   @override
@@ -182,13 +146,13 @@ class _NewBadgeState extends State<_NewBadge> {
       child: SmoothClipRRect(
         borderRadius: BorderRadius.circular(6),
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: const BoxDecoration(
             color: AppColors.white,
           ),
           child: Text(
-            widget.product.productCondition == "NEW_PRODUCT" ? 'New' : "Used",
-            style: TextStyle(
+            widget.condition == "NEW_PRODUCT" ? 'New' : "Used",
+            style: const TextStyle(
               fontSize: 13,
               color: Colors.black,
               fontWeight: FontWeight.w600,
@@ -196,6 +160,73 @@ class _NewBadgeState extends State<_NewBadge> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _ViewedStatusBadge extends StatelessWidget {
+  final String productId;
+  final int views;
+  final bool isOwner;
+
+  const _ViewedStatusBadge({
+    required this.productId,
+    required this.views,
+    required this.isOwner,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<GlobalBloc, GlobalState>(
+      buildWhen: (previous, current) {
+        // Only rebuild when view status changes for this specific product
+        final previousViewed = previous.isPublicationViewed(productId);
+        final currentViewed = current.isPublicationViewed(productId);
+        final previousStatus = previous.getViewStatus(productId);
+        final currentStatus = current.getViewStatus(productId);
+        
+        return previousViewed != currentViewed || previousStatus != currentStatus;
+      },
+      builder: (context, state) {
+        final isViewed = state.isPublicationViewed(productId);
+        final viewStatus = state.getViewStatus(productId);
+        
+        if (isViewed || viewStatus == ViewStatus.inProgress || isOwner) {
+          return Positioned(
+            top: 8,
+            right: 8,
+            child: SmoothCard(
+              margin: const EdgeInsets.all(0),
+              elevation: 0,
+              color: AppColors.black.withOpacity(0.5),
+              borderRadius: BorderRadius.circular(6),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.visibility,
+                      color: AppColors.white,
+                      size: 12,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      isOwner ? '$views' : 'Viewed',
+                      style: const TextStyle(
+                        color: AppColors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+        return const SizedBox.shrink();
+      },
     );
   }
 }
@@ -218,14 +249,14 @@ class PageIndicator extends StatelessWidget {
       right: 0,
       child: Center(
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(
             color: Colors.black.withOpacity(0.4),
             borderRadius: BorderRadius.circular(6),
           ),
           child: Text(
             '${currentPage + 1}/$totalPages',
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 13,
               fontWeight: FontWeight.bold,
@@ -239,18 +270,16 @@ class PageIndicator extends StatelessWidget {
 
 class ProductDetails extends StatelessWidget {
   final GetPublicationEntity product;
+  final bool isOwner;
 
   const ProductDetails({
     super.key,
     required this.product,
+    required this.isOwner,
   });
 
   @override
   Widget build(BuildContext context) {
-    final globalBloc = context.read<GlobalBloc>();
-    final currentUserId = globalBloc.getUserId(); // Get current user ID
-    final isOwner =
-        currentUserId == product.seller.id; // Check if user is owner
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: Column(
@@ -260,7 +289,7 @@ class ProductDetails extends StatelessWidget {
           _SellerInfo(seller: product.seller),
           const SizedBox(height: 6),
           _ProductTitle(title: product.title),
-          ProductDescription(description: product.description),
+          _ProductDescription(description: product.description),
           const SizedBox(height: 1),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -273,104 +302,16 @@ class ProductDetails extends StatelessWidget {
                   _PriceSection(price: product.price),
                 ],
               ),
-              BlocBuilder<GlobalBloc, GlobalState>(
-                builder: (context, state) {
-                  final isLiked = state.isPublicationLiked(product.id);
-                  final likeStatus = state.getLikeStatus(product.id);
-                  final isLoading = likeStatus == LikeStatus.inProgress;
-
-                  return InkWell(
-                    onTap: () {
-                      if (!isLoading) {
-                        if (!isOwner) {
-                          context.read<GlobalBloc>().add(
-                                UpdateLikeStatusEvent(
-                                  publicationId: product.id,
-                                  isLiked: isLiked,
-                                  context: context,
-                                ),
-                              );
-                        }
-                      }
-                    },
-                    child: isOwner
-                        ? SmoothClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Container(
-                              color: AppColors.containerColor,
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Row(
-                                  children: [
-                                    SizedBox(
-                                      width: 18,
-                                      height: 18,
-                                      child: Image.asset(
-                                        AppIcons.favorite,
-                                        color: AppColors.darkGray,
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 4,
-                                    ),
-                                    Text(
-                                      '${product.likes}',
-                                      style: TextStyle(
-                                        color: AppColors.darkGray,
-                                        fontSize: 15,
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
-                          )
-                        : SmoothClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Container(
-                              color: isLiked
-                                  ? AppColors.primary
-                                  : AppColors.containerColor,
-                              child: isLoading
-                                  ? ShimmerEffect(
-                                      isLiked: isLiked,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: SizedBox(
-                                          width: 18,
-                                          height: 18,
-                                          child: Image.asset(
-                                            AppIcons.favorite,
-                                            color: isLiked
-                                                ? Colors.white
-                                                : AppColors.darkGray,
-                                          ),
-                                        ),
-                                      ),
-                                    )
-                                  : Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: SizedBox(
-                                        width: 18,
-                                        height: 18,
-                                        child: Image.asset(
-                                          AppIcons.favorite,
-                                          color: isLiked
-                                              ? Colors.white
-                                              : AppColors.darkGray,
-                                        ),
-                                      ),
-                                    ),
-                            ),
-                          ),
-                  );
-                },
-              )
+              _LikeButton(
+                productId: product.id,
+                likes: product.likes,
+                isOwner: isOwner,
+              ),
             ],
           ),
           const SizedBox(height: 2),
-          CallButton(
-            product: product,
+          _CallButton(
+            phoneNumber: product.seller.phoneNumber,
             isOwner: isOwner,
           ),
         ],
@@ -436,11 +377,19 @@ class _SellerInfo extends StatelessWidget {
     );
   }
 }
-
 class _SellerAvatar extends StatelessWidget {
   final String? imageUrl;
 
   const _SellerAvatar({required this.imageUrl});
+
+  String _getFormattedUrl(String? url) {
+    if (url == null || url.isEmpty) return '';
+    // Check if URL already starts with http/https
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    return 'https://$url';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -449,12 +398,32 @@ class _SellerAvatar extends StatelessWidget {
       height: 28,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(40),
-        child: CachedNetworkImage(
-          imageUrl: "https://$imageUrl",
-          fit: BoxFit.cover,
-          errorWidget: (context, url, error) =>
-              const Center(child: Icon(Icons.error)),
-        ),
+        child: imageUrl == null || imageUrl!.isEmpty
+            ? const Icon(Icons.person, color: Colors.grey)
+            : CachedNetworkImage(
+                imageUrl: _getFormattedUrl(imageUrl),
+                fit: BoxFit.cover,
+                memCacheWidth: 120,
+                maxWidthDiskCache: 120,
+                placeholder: (context, url) => Container(
+                  color: Colors.grey[200],
+                  child: const Center(
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                    ),
+                  ),
+                ),
+                errorWidget: (context, url, error) => Container(
+                  color: Colors.grey[200],
+                  child: const Center(
+                    child: Icon(
+                      Icons.error,
+                      color: Colors.red,
+                      size: 16,
+                    ),
+                  ),
+                ),
+              ),
       ),
     );
   }
@@ -481,10 +450,10 @@ class _LocationInfo extends StatelessWidget {
   }
 }
 
-class ProductDescription extends StatelessWidget {
+class _ProductDescription extends StatelessWidget {
   final String description;
 
-  const ProductDescription({super.key, required this.description});
+  const _ProductDescription({required this.description});
 
   @override
   Widget build(BuildContext context) {
@@ -520,25 +489,138 @@ class _PriceSection extends StatelessWidget {
   }
 }
 
-class CallButton extends StatefulWidget {
-  final GetPublicationEntity product;
+class _LikeButton extends StatelessWidget {
+  final String productId;
+  final int likes;
   final bool isOwner;
 
-  const CallButton({
-    super.key,
-    required this.product,
+  const _LikeButton({
+    required this.productId,
+    required this.likes,
     required this.isOwner,
   });
 
   @override
-  State<CallButton> createState() => _CallButtonState();
+  Widget build(BuildContext context) {
+    if (isOwner) {
+      return _buildOwnerLikeButton();
+    }
+    
+    return BlocBuilder<GlobalBloc, GlobalState>(
+      buildWhen: (previous, current) {
+        // Only rebuild when like status changes for this specific product
+        final previousLiked = previous.isPublicationLiked(productId);
+        final currentLiked = current.isPublicationLiked(productId);
+        final previousStatus = previous.getLikeStatus(productId);
+        final currentStatus = current.getLikeStatus(productId);
+        
+        return previousLiked != currentLiked || previousStatus != currentStatus;
+      },
+      builder: (context, state) {
+        final isLiked = state.isPublicationLiked(productId);
+        final likeStatus = state.getLikeStatus(productId);
+        final isLoading = likeStatus == LikeStatus.inProgress;
+
+        return InkWell(
+          onTap: () {
+            if (!isLoading) {
+              context.read<GlobalBloc>().add(
+                UpdateLikeStatusEvent(
+                  publicationId: productId,
+                  isLiked: isLiked,
+                  context: context,
+                ),
+              );
+            }
+          },
+          child: SmoothClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Container(
+              color: isLiked
+                  ? AppColors.primary
+                  : AppColors.containerColor,
+              child: isLoading
+                  ? ShimmerEffect(
+                      isLiked: isLiked,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: Image.asset(
+                            AppIcons.favorite,
+                            color: isLiked
+                                ? Colors.white
+                                : AppColors.darkGray,
+                          ),
+                        ),
+                      ),
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: Image.asset(
+                          AppIcons.favorite,
+                          color: isLiked
+                              ? Colors.white
+                              : AppColors.darkGray,
+                        ),
+                      ),
+                    ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildOwnerLikeButton() {
+    return SmoothClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        color: AppColors.containerColor,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 18,
+                height: 18,
+                child: Image.asset(
+                  AppIcons.favorite,
+                  color: AppColors.darkGray,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Text(
+                '$likes',
+                style: const TextStyle(
+                  color: AppColors.darkGray,
+                  fontSize: 15,
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
-class _CallButtonState extends State<CallButton> {
-  Future<void> _makeCall() async {
-    final phoneNumber =
-        widget.product.seller.phoneNumber.replaceAll(RegExp(r'[^\d+]'), '');
-    final String uriString = 'tel:$phoneNumber';
+class _CallButton extends StatelessWidget {
+  final String phoneNumber;
+  final bool isOwner;
+
+  const _CallButton({
+    required this.phoneNumber,
+    required this.isOwner,
+  });
+
+  Future<void> _makeCall(BuildContext context) async {
+    final cleanPhoneNumber = phoneNumber.replaceAll(RegExp(r'[^\d+]'), '');
+    final String uriString = 'tel:$cleanPhoneNumber';
 
     try {
       if (await canLaunchUrl(Uri.parse(uriString))) {
@@ -547,12 +629,11 @@ class _CallButtonState extends State<CallButton> {
         debugPrint("🤙Cannot launch URL: $uriString");
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text("Error: Unable to launch call to $phoneNumber")),
+              content: Text("Error: Unable to launch call to $cleanPhoneNumber")),
         );
       }
     } catch (e) {
       debugPrint("🤙Cannot launch URL: $uriString");
-      ("Error launching URL: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Exception: $e")),
       );
@@ -562,15 +643,15 @@ class _CallButtonState extends State<CallButton> {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed: widget.isOwner ? null : _makeCall, // Disable button if owner
+      onPressed: isOwner ? null : () => _makeCall(context),
       style: ElevatedButton.styleFrom(
         backgroundColor:
-            widget.isOwner ? Colors.grey.shade200 : AppColors.white,
+            isOwner ? Colors.grey.shade200 : AppColors.white,
         shape: SmoothRectangleBorder(
           smoothness: 1,
           side: BorderSide(
             width: 1.2,
-            color: widget.isOwner ? Colors.grey.shade400 : AppColors.primary,
+            color: isOwner ? Colors.grey.shade400 : AppColors.primary,
           ),
           borderRadius: const BorderRadius.all(Radius.circular(8)),
         ),
@@ -579,12 +660,12 @@ class _CallButtonState extends State<CallButton> {
         width: double.infinity,
         child: Center(
           child: Text(
-            widget.isOwner ? "You can't call your own number" : 'Call Now',
+            isOwner ? "You can't call your own number" : 'Call Now',
             style: TextStyle(
               fontSize: 14,
               fontFamily: "Poppins",
               fontWeight: FontWeight.w700,
-              color: widget.isOwner ? Colors.grey.shade600 : AppColors.primary,
+              color: isOwner ? Colors.grey.shade600 : AppColors.primary,
             ),
           ),
         ),
@@ -629,29 +710,31 @@ class ProductMediaContent extends StatelessWidget {
       fit: BoxFit.cover,
       memCacheWidth: 700,
       maxWidthDiskCache: 700,
-      placeholder: (context, url) => const _LoadingIndicator(),
-      errorWidget: (context, url, error) => const _ErrorWidget(),
+      placeholder: (context, url) => const Progress(),
+      errorWidget: (context, url, error) => const Center(
+        child: Icon(Icons.error),
+      ),
+      filterQuality: FilterQuality.low,
     );
   }
 }
 
-// Extracted widgets for better reusability and const optimization
-class _LoadingIndicator extends StatelessWidget {
-  const _LoadingIndicator();
+class ShimmerEffect extends StatelessWidget {
+  final Widget child;
+  final bool isLiked;
+
+  const ShimmerEffect({
+    super.key,
+    required this.child,
+    required this.isLiked,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Progress();
-  }
-}
-
-class _ErrorWidget extends StatelessWidget {
-  const _ErrorWidget();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Icon(Icons.error),
+    return Shimmer.fromColors(
+      baseColor: isLiked ? Colors.grey[300]! : Colors.grey[400]!,
+      highlightColor: isLiked ? Colors.grey[100]! : Colors.grey[200]!,
+      child: child,
     );
   }
 }

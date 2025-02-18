@@ -23,6 +23,7 @@ import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/formaters.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
+import 'package:list_in/features/profile/domain/usecases/user/get_user_data_usecase.dart';
 import 'package:list_in/global/global_bloc.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -91,8 +92,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final globalBloc = context.read<GlobalBloc>();
-    final currentUserId = globalBloc.getUserId(); // Get current user ID
+    final currentUserId = AppSession.currentUserId; // Get current user ID
     final isOwner =
         currentUserId == widget.product.seller.id; // Check if user is owner
 
@@ -495,7 +495,43 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   child: CachedNetworkImage(
                     imageUrl:
                         'https://${widget.product.productImages[imageIndex].url}',
-                    fit: BoxFit.contain,
+                    fit: BoxFit
+                        .cover, // Better than contain for most product images
+                    filterQuality: FilterQuality
+                        .low, // Balance between quality and performance
+                    fadeInDuration:
+                        const Duration(milliseconds: 200), // Quick fade in
+                    memCacheWidth: 800, // Limit memory cache size
+                    maxWidthDiskCache: 800, // Limit disk cache size
+                    placeholderFadeInDuration:
+                        const Duration(milliseconds: 200),
+                    progressIndicatorBuilder: (context, url, progress) =>
+                        Container(
+                      color: Colors.grey[200],
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          value: progress.progress,
+                          strokeWidth: 2,
+                        ),
+                      ),
+                    ),
+                    errorWidget: (context, url, error) => Container(
+                      color: Colors.grey[100],
+                      child: const Icon(Icons.error_outline, color: Colors.red),
+                    ),
+                    cacheKey:
+                        '${widget.product.id}_$imageIndex', // Unique cache key
+                    useOldImageOnUrlChange:
+                        true, // Show old image while loading new one
+                    fadeOutDuration: const Duration(milliseconds: 100),
+                    imageBuilder: (context, imageProvider) => Container(
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: imageProvider,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
                   ),
                 );
               },
