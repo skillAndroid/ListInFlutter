@@ -69,6 +69,7 @@ import 'package:list_in/features/profile/domain/usecases/user/update_user_image_
 import 'package:list_in/features/profile/domain/usecases/user/update_user_profile_usecase.dart';
 import 'package:list_in/features/visitior_profile/domain/usecase/get_another_user_publications_usecase.dart';
 import 'package:list_in/features/visitior_profile/domain/usecase/like_publication_usecase.dart';
+import 'package:list_in/features/visitior_profile/domain/usecase/view_publication_usecase.dart';
 import 'package:list_in/features/visitior_profile/presentation/bloc/another_user_profile_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_bloc.dart';
@@ -133,6 +134,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GlobalBloc(
         followUserUseCase: sl(),
         likePublicationUsecase: sl(),
+        viewPublicationUsecase: sl(),
       ));
   sl.registerLazySingleton(
     () => AppRouter(
@@ -178,6 +180,7 @@ Future<void> init() async {
 
   // Use cases
   sl.registerLazySingleton(() => LoginUseCase(sl()));
+  sl.registerLazySingleton(() => ViewPublicationUsecase(sl()));
   sl.registerLazySingleton(() => SignupUseCase(sl()));
   sl.registerLazySingleton(() => VerifyEmailSignupUseCase(sl()));
   sl.registerLazySingleton(() => RegisterUserDataUseCase(sl()));

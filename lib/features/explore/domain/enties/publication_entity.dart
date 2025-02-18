@@ -32,6 +32,7 @@ class GetPublicationEntity {
   final String id;
   final int likes;
   final int views;
+  final bool isViewed;
   final bool isLiked;
   final String title;
   final String description;
@@ -54,6 +55,7 @@ class GetPublicationEntity {
     required this.id,
     required this.title,
     required this.isLiked,
+    required this.isViewed,
     required this.likes,
     required this.views,
     required this.description,

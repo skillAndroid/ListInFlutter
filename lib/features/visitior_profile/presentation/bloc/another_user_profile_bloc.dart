@@ -28,13 +28,20 @@ class AnotherUserProfileBloc
   void _syncLikeStatusesForPublications(
       List<GetPublicationEntity> publications) {
     final Map<String, bool> publicationLikeStatuses = {};
-
+    final Map<String, bool> publicationViewedStatus = {};
     for (var publication in publications) {
       publicationLikeStatuses[publication.id] = publication.isLiked;
+      publicationViewedStatus[publication.id] = publication.isViewed;
     }
 
     globalBloc.add(SyncLikeStatusesEvent(
       publicationLikeStatuses: publicationLikeStatuses,
+    ));
+    globalBloc.add(SyncFollowStatusesEvent(
+      userFollowStatuses: {},
+      userFollowersCount: {},
+      userFollowingCount: {},
+      publicationViewedStatus: publicationViewedStatus,
     ));
   }
 

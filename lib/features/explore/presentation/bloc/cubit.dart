@@ -52,19 +52,23 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     final Map<String, bool> userFollowStatuses = {};
     final Map<String, int> userFollowersCount = {};
     final Map<String, int> userFollowingCount = {};
-    
+    final Map<String, bool> publicationViewedStatus = {}; 
 
     for (var publication in publications) {
       final seller = publication.seller;
       userFollowStatuses[seller.id] = seller.isFollowing;
       userFollowersCount[seller.id] = seller.followers;
       userFollowingCount[seller.id] = seller.followings;
+
+      // Add view status tracking here
+      publicationViewedStatus[publication.id] = publication.isViewed;
     }
 
     globalBloc.add(SyncFollowStatusesEvent(
       userFollowStatuses: userFollowStatuses,
       userFollowersCount: userFollowersCount,
       userFollowingCount: userFollowingCount,
+      publicationViewedStatus: publicationViewedStatus,
     ));
   }
 
@@ -72,19 +76,26 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     final Map<String, bool> newFollowStatuses = {};
     final Map<String, int> newFollowersCount = {};
     final Map<String, int> newFollowingCount = {};
+    final Map<String, bool> publicationViewedStatus = {}; // Add this
 
     for (var pair in publications) {
-      // Process first publication's seller
       final firstSeller = pair.firstPublication.seller;
       newFollowStatuses[firstSeller.id] = firstSeller.isFollowing;
       newFollowersCount[firstSeller.id] = firstSeller.followers;
       newFollowingCount[firstSeller.id] = firstSeller.followings;
+
+      publicationViewedStatus[pair.firstPublication.id] =
+          pair.firstPublication.isViewed;
 
       if (pair.secondPublication != null) {
         final secondSeller = pair.secondPublication!.seller;
         newFollowStatuses[secondSeller.id] = secondSeller.isFollowing;
         newFollowersCount[secondSeller.id] = secondSeller.followers;
         newFollowingCount[secondSeller.id] = secondSeller.followings;
+
+        // Process second publication view status
+        publicationViewedStatus[pair.secondPublication!.id] =
+            pair.secondPublication!.isViewed;
       }
     }
 
@@ -92,6 +103,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
       userFollowStatuses: newFollowStatuses,
       userFollowersCount: newFollowersCount,
       userFollowingCount: newFollowingCount,
+      publicationViewedStatus: publicationViewedStatus, // Include view status
     ));
   }
 

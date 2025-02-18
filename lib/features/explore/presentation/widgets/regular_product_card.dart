@@ -883,7 +883,51 @@ class RemouteRegularProductCard2 extends StatelessWidget {
                           ),
                         ),
                       ),
-                    )
+                    ),
+                    BlocBuilder<GlobalBloc, GlobalState>(
+                      builder: (context, state) {
+                        final isViewed = state.isPublicationViewed(product.id);
+                        final viewStatus = state.getViewStatus(product.id);
+
+                        // Show "Viewed" if the publication is viewed or in progress
+                        if (isViewed || viewStatus == ViewStatus.inProgress) {
+                          return Positioned(
+                            top: 8,
+                            right: 8,
+                            child: SmoothCard(
+                              margin: const EdgeInsets.all(0),
+                              elevation: 0,
+                              color: AppColors.black.withOpacity(0.5),
+                              borderRadius: BorderRadius.circular(6),
+                              child: const Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 4),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.visibility,
+                                      color: AppColors.white,
+                                      size: 12,
+                                    ),
+                                    SizedBox(width: 4),
+                                    Text(
+                                      'Viewed',
+                                      style: TextStyle(
+                                        color: AppColors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
                   ],
                 ),
               ),

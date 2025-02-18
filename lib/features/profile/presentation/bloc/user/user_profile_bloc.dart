@@ -70,8 +70,7 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
           isUploading: false,
         )),
         (userDataAndToken) {
-          final (userData, _) =
-              userDataAndToken;
+          final (userData, _) = userDataAndToken;
           emit(state.copyWith(
             status: UserProfileStatus.success,
             userData: userData,
@@ -108,6 +107,7 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
       },
       (userData) {
         debugPrint('✅ GetUserData success: $userData ');
+
         emit(state.copyWith(
           status: UserProfileStatus.success,
           userData: userData,

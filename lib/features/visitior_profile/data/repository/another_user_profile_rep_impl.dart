@@ -129,4 +129,23 @@ class AnotherUserProfileRepImpl implements AnotherUserProfileRepository {
       return Left(ServerFailure());
     }
   }
+
+  @override
+  Future<Either<Failure, void>> viewPublication(String publicationId) async {
+    if (!await networkInfo.isConnected) {
+      return Left(NetworkFailure());
+    }
+
+    try {
+      final result = await remoteDataSource.viewPublication(publicationId);
+      debugPrint('😘😘Success viewing in repository impl!');
+      return Right(result);
+    } on ServerExeption {
+      return Left(ServerFailure());
+    } on NetworkFailure {
+      return Left(NetworkFailure());
+    } catch (e) {
+      return Left(ServerFailure());
+    }
+  }
 }

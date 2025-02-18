@@ -14,4 +14,6 @@ abstract class AnotherUserProfileRepository {
       String userId, bool follow);
   Future<Either<Failure, void>> likePublication(
       String publicationId, bool like);
+  Future<Either<Failure, void>> viewPublication(
+      String publicationId);
 }

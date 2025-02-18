@@ -69,6 +69,19 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             isInitialFetch: true,
           ),
         );
+
+    final globalBloc = context.read<GlobalBloc>();
+    final isViewed = globalBloc.state.isPublicationViewed(widget.product.id);
+
+    if (!isViewed) {
+      globalBloc.add(
+        UpdateViewStatusEvent(
+          publicationId: widget.product.id,
+          isViewed: true,
+          context: context,
+        ),
+      );
+    }
   }
 
   @override

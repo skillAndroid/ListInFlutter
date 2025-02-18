@@ -7,6 +7,7 @@ import 'package:list_in/features/profile/presentation/bloc/user/user_profile_blo
 import 'package:list_in/features/profile/presentation/bloc/user/user_profile_event.dart';
 import 'package:list_in/features/visitior_profile/domain/usecase/follow_usecase.dart';
 import 'package:list_in/features/visitior_profile/domain/usecase/like_publication_usecase.dart';
+import 'package:list_in/features/visitior_profile/domain/usecase/view_publication_usecase.dart';
 
 enum FollowStatus { initial, inProgress, success, error }
 
@@ -52,11 +53,33 @@ class LikeStatusInfo {
   }
 }
 
+class ViewStatusInfo {
+  final ViewStatus status;
+  final String? errorMessage;
+
+  const ViewStatusInfo({
+    this.status = ViewStatus.initial,
+    this.errorMessage,
+  });
+
+  ViewStatusInfo copyWith({
+    ViewStatus? status,
+    String? errorMessage,
+  }) {
+    return ViewStatusInfo(
+      status: status ?? this.status,
+      errorMessage: errorMessage ?? this.errorMessage,
+    );
+  }
+}
+
 enum ViewStatus { initial, inProgress, success, error }
 
 class GlobalState extends Equatable {
   final Map<String, FollowStatusInfo> followStatusMap;
   final Set<String> followedUserIds;
+  final Map<String, ViewStatusInfo> viewStatusMap;
+  final Set<String> viewedPublicationsIds;
   final Map<String, LikeStatusInfo> likeStatusMap;
   final Set<String> likedPublicationIds;
   final Map<String, int> userFollowersCount;
@@ -69,10 +92,16 @@ class GlobalState extends Equatable {
     this.likedPublicationIds = const {},
     this.userFollowersCount = const {},
     this.userFollowingCount = const {},
+    this.viewStatusMap = const {},
+    this.viewedPublicationsIds = const {},
   });
 
   bool isUserFollowed(String userId) => followedUserIds.contains(userId);
+  bool isPublicationViewed(String publicationId) =>
+      viewedPublicationsIds.contains(publicationId);
 
+  ViewStatus getViewStatus(String publicationId) =>
+      viewStatusMap[publicationId]?.status ?? ViewStatus.initial;
   FollowStatus getFollowStatus(String userId) =>
       followStatusMap[userId]?.status ?? FollowStatus.initial;
   int getFollowersCount(String userId) => userFollowersCount[userId] ?? 0;
@@ -91,6 +120,8 @@ class GlobalState extends Equatable {
     Map<String, int>? userFollowingCount,
     Map<String, LikeStatusInfo>? likeStatusMap,
     Set<String>? likedPublicationIds,
+    Map<String, ViewStatusInfo>? viewStatusMap,
+    Set<String>? viewedPublicationIds,
   }) {
     return GlobalState(
       followStatusMap: followStatusMap ?? this.followStatusMap,
@@ -99,6 +130,8 @@ class GlobalState extends Equatable {
       userFollowingCount: userFollowingCount ?? this.userFollowingCount,
       likeStatusMap: likeStatusMap ?? this.likeStatusMap,
       likedPublicationIds: likedPublicationIds ?? this.likedPublicationIds,
+      viewStatusMap: viewStatusMap ?? this.viewStatusMap,
+      viewedPublicationsIds: viewedPublicationIds ?? this.viewedPublicationsIds,
     );
   }
 
@@ -110,6 +143,8 @@ class GlobalState extends Equatable {
         userFollowingCount,
         likeStatusMap,
         likedPublicationIds,
+        viewStatusMap,
+        viewedPublicationsIds,
       ];
 }
 
@@ -117,11 +152,13 @@ class SyncFollowStatusesEvent extends GlobalEvent {
   final Map<String, bool> userFollowStatuses;
   final Map<String, int> userFollowersCount; // Add this
   final Map<String, int> userFollowingCount; // Add this
+  final Map<String, bool> publicationViewedStatus;
 
   const SyncFollowStatusesEvent({
     required this.userFollowStatuses,
     required this.userFollowersCount, // Add this
-    required this.userFollowingCount, // Add this
+    required this.userFollowingCount,
+    required this.publicationViewedStatus, // Add this
   });
 }
 
@@ -169,15 +206,69 @@ class UpdateLikeStatusEvent extends GlobalEvent {
 class GlobalBloc extends Bloc<GlobalEvent, GlobalState> {
   final FollowUserUseCase followUserUseCase;
   final LikePublicationUsecase likePublicationUsecase;
+  final ViewPublicationUsecase viewPublicationUsecase;
 
   GlobalBloc({
     required this.followUserUseCase,
     required this.likePublicationUsecase,
+    required this.viewPublicationUsecase,
   }) : super(const GlobalState()) {
     on<UpdateFollowStatusEvent>(_onUpdateFollowStatus);
     on<SyncFollowStatusesEvent>(_onSyncFollowStatuses);
     on<UpdateLikeStatusEvent>(_onUpdateLikeStatus);
     on<SyncLikeStatusesEvent>(_onSyncLikeStatuses);
+    on<UpdateViewStatusEvent>(_onUpdateViewStatus);
+  }
+
+
+
+  Future<void> _onUpdateViewStatus(
+    UpdateViewStatusEvent event,
+    Emitter<GlobalState> emit,
+  ) async {
+    // Update status to inProgress
+    final updatedStatusMap =
+        Map<String, ViewStatusInfo>.from(state.viewStatusMap)
+          ..[event.publicationId] =
+              ViewStatusInfo(status: ViewStatus.inProgress);
+
+    emit(state.copyWith(viewStatusMap: updatedStatusMap));
+
+    final params = ViewParams(
+      publicationId: event.publicationId,
+    );
+
+    final result = await viewPublicationUsecase(params: params);
+
+    result.fold(
+      (failure) {
+        final newStatusMap =
+            Map<String, ViewStatusInfo>.from(state.viewStatusMap)
+              ..[event.publicationId] = ViewStatusInfo(
+                status: ViewStatus.error,
+                errorMessage: _mapFailureToMessage(failure),
+              );
+        emit(state.copyWith(
+          viewStatusMap: newStatusMap,
+        ));
+
+        if (event.context.mounted) {}
+      },
+      (_) {
+        final updatedViewedIds = Set<String>.from(state.viewedPublicationsIds);
+        updatedViewedIds.add(event.publicationId);
+
+        final newStatusMap =
+            Map<String, ViewStatusInfo>.from(state.viewStatusMap)
+              ..[event.publicationId] =
+                  ViewStatusInfo(status: ViewStatus.success);
+
+        emit(state.copyWith(
+          viewedPublicationIds: updatedViewedIds,
+          viewStatusMap: newStatusMap,
+        ));
+      },
+    );
   }
 
   void _onSyncFollowStatuses(
@@ -191,6 +282,11 @@ class GlobalBloc extends Bloc<GlobalEvent, GlobalState> {
         Map<String, int>.from(state.userFollowersCount);
     final updatedFollowingCount =
         Map<String, int>.from(state.userFollowingCount);
+
+    final updatedViewedPublicationIds =
+        Set<String>.from(state.viewedPublicationsIds);
+    final updatedViewStatusMap =
+        Map<String, ViewStatusInfo>.from(state.viewStatusMap);
 
     event.userFollowStatuses.forEach((userId, isFollowed) {
       if (isFollowed) {
@@ -216,12 +312,29 @@ class GlobalBloc extends Bloc<GlobalEvent, GlobalState> {
         updatedFollowingCount[userId] = event.userFollowingCount[userId]!;
       }
     });
+    event.publicationViewedStatus.forEach((publicationId, isViewed) {
+      if (isViewed) {
+        updatedViewedPublicationIds.add(publicationId);
+      } else {
+        updatedViewedPublicationIds.remove(publicationId);
+      }
 
+      final existingStatus = state.viewStatusMap[publicationId];
+      if (existingStatus == null ||
+          existingStatus.status != ViewStatus.inProgress) {
+        updatedViewStatusMap[publicationId] = ViewStatusInfo(
+          status: ViewStatus.success,
+          errorMessage: existingStatus?.errorMessage,
+        );
+      }
+    });
     emit(state.copyWith(
       followedUserIds: updatedFollowedIds,
       followStatusMap: updatedStatusMap,
       userFollowersCount: updatedFollowersCount,
       userFollowingCount: updatedFollowingCount,
+      viewedPublicationIds: updatedViewedPublicationIds,
+      viewStatusMap: updatedViewStatusMap,
     ));
   }
 
@@ -278,8 +391,7 @@ class GlobalBloc extends Bloc<GlobalEvent, GlobalState> {
             Map<String, FollowStatusInfo>.from(state.followStatusMap)
               ..[event.userId] = FollowStatusInfo(status: FollowStatus.success);
         if (event.context.mounted) {
-          BlocProvider.of<UserProfileBloc>(event.context)
-              .add(GetUserData());
+          BlocProvider.of<UserProfileBloc>(event.context).add(GetUserData());
         }
         emit(state.copyWith(
           followedUserIds: updatedFollowedIds,
@@ -395,4 +507,19 @@ abstract class GlobalEvent extends Equatable {
 
   @override
   List<Object> get props => [];
+}
+
+class UpdateViewStatusEvent extends GlobalEvent {
+  final String publicationId;
+  final bool isViewed;
+  final BuildContext context;
+
+  const UpdateViewStatusEvent({
+    required this.publicationId,
+    required this.isViewed,
+    required this.context,
+  });
+
+  @override
+  List<Object> get props => [publicationId, isViewed];
 }

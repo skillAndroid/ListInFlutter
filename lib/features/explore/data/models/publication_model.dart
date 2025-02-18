@@ -84,6 +84,7 @@ class GetPublicationModel {
   final int views;
   final bool isLiked;
   final String title;
+  final bool isViewed;
   final String description;
   final double price;
   final bool bargain;
@@ -109,6 +110,7 @@ class GetPublicationModel {
     required this.description,
     required this.price,
     required this.bargain,
+    required this.isViewed,
     required this.locationName,
     this.latitude,
     this.longitude,
@@ -162,6 +164,7 @@ class GetPublicationModel {
         likes: json['likes'].toInt(),
         views: json['views'].toInt(),
         isLiked: json['isLiked'] as bool,
+        isViewed: json['isViewed'] as bool,
         title: json['title']?.toString() ?? '',
         description: json['description']?.toString() ?? '',
         price: price,
@@ -192,6 +195,7 @@ class GetPublicationModel {
       title: title,
       description: description,
       price: price,
+      isViewed: isViewed,
       bargain: bargain,
       locationName: locationName,
       latitude: latitude,
