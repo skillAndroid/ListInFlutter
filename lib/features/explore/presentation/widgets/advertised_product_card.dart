@@ -15,6 +15,7 @@ import 'package:list_in/features/explore/presentation/widgets/regular_product_ca
 import 'package:list_in/features/undefined_screens_yet/video_player.dart';
 import 'package:list_in/global/global_bloc.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AdvertisedProductCard extends StatefulWidget {
   final GetPublicationEntity product;
@@ -99,51 +100,57 @@ class _AdvertisedProductCardState extends State<AdvertisedProductCard> {
                   isPlaying: currentlyPlayingId == widget.product.id,
                 ),
               ),
-              const _NewBadge(),
-                BlocBuilder<GlobalBloc, GlobalState>(
-                      builder: (context, state) {
-                        final isViewed = state.isPublicationViewed(widget.product.id);
-                        final viewStatus = state.getViewStatus(widget.product.id);
-
-                        // Show "Viewed" if the publication is viewed or in progress
-                        if (isViewed || viewStatus == ViewStatus.inProgress) {
-                          return Positioned(
-                            top: 8,
-                            right: 8,
-                            child: SmoothCard(
-                              margin: const EdgeInsets.all(0),
-                              elevation: 0,
-                              color: AppColors.black.withOpacity(0.5),
-                              borderRadius: BorderRadius.circular(6),
-                              child: const Padding(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 4),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.visibility,
-                                      color: AppColors.white,
-                                      size: 12,
-                                    ),
-                                    SizedBox(width: 4),
-                                    Text(
-                                      'Viewed',
-                                      style: TextStyle(
-                                        color: AppColors.white,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
+              _NewBadge(product: widget.product),
+              BlocBuilder<GlobalBloc, GlobalState>(
+                builder: (context, state) {
+                  final isViewed = state.isPublicationViewed(widget.product.id);
+                  final viewStatus = state.getViewStatus(widget.product.id);
+                  final globalBloc = context.read<GlobalBloc>();
+                  final currentUserId =
+                      globalBloc.getUserId(); // Get current user ID
+                  final isOwner = currentUserId ==
+                      widget.product.seller.id; // Check if user is owner
+                  // Show "Viewed" if the publication is viewed or in progress
+                  if (isViewed ||
+                      viewStatus == ViewStatus.inProgress ||
+                      isOwner) {
+                    return Positioned(
+                      top: 8,
+                      right: 8,
+                      child: SmoothCard(
+                        margin: const EdgeInsets.all(0),
+                        elevation: 0,
+                        color: AppColors.black.withOpacity(0.5),
+                        borderRadius: BorderRadius.circular(6),
+                        child: Padding(
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.visibility,
+                                color: AppColors.white,
+                                size: 12,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                isOwner ? '${widget.product.views}' : 'Viewed',
+                                style: TextStyle(
+                                  color: AppColors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
-                            ),
-                          );
-                        }
-                        return const SizedBox.shrink();
-                      },
-                    ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
               PageIndicator(
                 currentPage: _currentPage,
                 totalPages: widget.product.productImages.length,
@@ -156,9 +163,17 @@ class _AdvertisedProductCardState extends State<AdvertisedProductCard> {
   }
 }
 
-class _NewBadge extends StatelessWidget {
-  const _NewBadge();
+class _NewBadge extends StatefulWidget {
+  final GetPublicationEntity product;
+  const _NewBadge({
+    required this.product,
+  });
 
+  @override
+  State<_NewBadge> createState() => _NewBadgeState();
+}
+
+class _NewBadgeState extends State<_NewBadge> {
   @override
   Widget build(BuildContext context) {
     return Positioned(
@@ -172,7 +187,7 @@ class _NewBadge extends StatelessWidget {
             color: AppColors.white,
           ),
           child: Text(
-            'New',
+            widget.product.productCondition == "NEW_PRODUCT" ? 'New' : "Used",
             style: TextStyle(
               fontSize: 13,
               color: Colors.black,
@@ -232,6 +247,10 @@ class ProductDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final globalBloc = context.read<GlobalBloc>();
+    final currentUserId = globalBloc.getUserId(); // Get current user ID
+    final isOwner =
+        currentUserId == product.seller.id; // Check if user is owner
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: Column(
@@ -263,60 +282,97 @@ class ProductDetails extends StatelessWidget {
                   return InkWell(
                     onTap: () {
                       if (!isLoading) {
-                        context.read<GlobalBloc>().add(
-                              UpdateLikeStatusEvent(
-                                publicationId: product.id,
-                                isLiked: isLiked,
-                                context: context,
-                              ),
-                            );
+                        if (!isOwner) {
+                          context.read<GlobalBloc>().add(
+                                UpdateLikeStatusEvent(
+                                  publicationId: product.id,
+                                  isLiked: isLiked,
+                                  context: context,
+                                ),
+                              );
+                        }
                       }
                     },
-                    child: SmoothClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Container(
-                        color: isLiked
-                            ? AppColors.primary
-                            : AppColors.containerColor,
-                        child: isLoading
-                            ? ShimmerEffect(
-                                isLiked: isLiked,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: SizedBox(
-                                    width: 18,
-                                    height: 18,
-                                    child: Image.asset(
-                                      AppIcons.favorite,
-                                      color: isLiked
-                                          ? Colors.white
-                                          : AppColors.darkGray,
-                                    ),
-                                  ),
-                                ),
-                              )
-                            : Padding(
+                    child: isOwner
+                        ? SmoothClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Container(
+                              color: AppColors.containerColor,
+                              child: Padding(
                                 padding: const EdgeInsets.all(8.0),
-                                child: SizedBox(
-                                  width: 18,
-                                  height: 18,
-                                  child: Image.asset(
-                                    AppIcons.favorite,
-                                    color: isLiked
-                                        ? Colors.white
-                                        : AppColors.darkGray,
-                                  ),
+                                child: Row(
+                                  children: [
+                                    SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: Image.asset(
+                                        AppIcons.favorite,
+                                        color: AppColors.darkGray,
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: 4,
+                                    ),
+                                    Text(
+                                      '${product.likes}',
+                                      style: TextStyle(
+                                        color: AppColors.darkGray,
+                                        fontSize: 15,
+                                      ),
+                                    )
+                                  ],
                                 ),
                               ),
-                      ),
-                    ),
+                            ),
+                          )
+                        : SmoothClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Container(
+                              color: isLiked
+                                  ? AppColors.primary
+                                  : AppColors.containerColor,
+                              child: isLoading
+                                  ? ShimmerEffect(
+                                      isLiked: isLiked,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: SizedBox(
+                                          width: 18,
+                                          height: 18,
+                                          child: Image.asset(
+                                            AppIcons.favorite,
+                                            color: isLiked
+                                                ? Colors.white
+                                                : AppColors.darkGray,
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  : Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: SizedBox(
+                                        width: 18,
+                                        height: 18,
+                                        child: Image.asset(
+                                          AppIcons.favorite,
+                                          color: isLiked
+                                              ? Colors.white
+                                              : AppColors.darkGray,
+                                        ),
+                                      ),
+                                    ),
+                            ),
+                          ),
                   );
                 },
               )
             ],
           ),
           const SizedBox(height: 2),
-          const CallButton(),
+          CallButton(
+            product: product,
+            isOwner: isOwner,
+          ),
         ],
       ),
     );
@@ -464,31 +520,71 @@ class _PriceSection extends StatelessWidget {
   }
 }
 
-class CallButton extends StatelessWidget {
-  const CallButton({super.key});
+class CallButton extends StatefulWidget {
+  final GetPublicationEntity product;
+  final bool isOwner;
+
+  const CallButton({
+    super.key,
+    required this.product,
+    required this.isOwner,
+  });
+
+  @override
+  State<CallButton> createState() => _CallButtonState();
+}
+
+class _CallButtonState extends State<CallButton> {
+  Future<void> _makeCall() async {
+    final phoneNumber =
+        widget.product.seller.phoneNumber.replaceAll(RegExp(r'[^\d+]'), '');
+    final String uriString = 'tel:$phoneNumber';
+
+    try {
+      if (await canLaunchUrl(Uri.parse(uriString))) {
+        await launchUrl(Uri.parse(uriString));
+      } else {
+        debugPrint("🤙Cannot launch URL: $uriString");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text("Error: Unable to launch call to $phoneNumber")),
+        );
+      }
+    } catch (e) {
+      debugPrint("🤙Cannot launch URL: $uriString");
+      ("Error launching URL: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Exception: $e")),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed: () {},
+      onPressed: widget.isOwner ? null : _makeCall, // Disable button if owner
       style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.white,
+        backgroundColor:
+            widget.isOwner ? Colors.grey.shade200 : AppColors.white,
         shape: SmoothRectangleBorder(
           smoothness: 1,
-          side: BorderSide(width: 1.2, color: AppColors.primary),
-          borderRadius: BorderRadius.all(Radius.circular(8)),
+          side: BorderSide(
+            width: 1.2,
+            color: widget.isOwner ? Colors.grey.shade400 : AppColors.primary,
+          ),
+          borderRadius: const BorderRadius.all(Radius.circular(8)),
         ),
       ),
-      child: const SizedBox(
+      child: SizedBox(
         width: double.infinity,
         child: Center(
           child: Text(
-            'Call Now',
+            widget.isOwner ? "You can't call your own number" : 'Call Now',
             style: TextStyle(
               fontSize: 14,
               fontFamily: "Poppins",
               fontWeight: FontWeight.w700,
-              color: AppColors.primary,
+              color: widget.isOwner ? Colors.grey.shade600 : AppColors.primary,
             ),
           ),
         ),

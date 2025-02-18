@@ -735,9 +735,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           ),
           child: InkWell(
             onTap: () {
-              context.push(Routes.anotherUserProfile, extra: {
-                'userId': widget.product.seller.id,
-              });
+              if (!isOwner) {
+                context.push(Routes.anotherUserProfile, extra: {
+                  'userId': widget.product.seller.id,
+                });
+              }
             },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

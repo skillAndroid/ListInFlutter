@@ -784,6 +784,10 @@ class RemouteRegularProductCard2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final globalBloc = context.read<GlobalBloc>();
+    final currentUserId = globalBloc.getUserId(); // Get current user ID
+    final isOwner =
+        currentUserId == product.seller.id; // Check if user is owner
     return GestureDetector(
       onTap: () {
         context.push(
@@ -870,12 +874,12 @@ class RemouteRegularProductCard2 extends StatelessWidget {
                         elevation: 0,
                         color: AppColors.white,
                         borderRadius: BorderRadius.circular(6),
-                        child: const Padding(
+                        child: Padding(
                           padding:
                               EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           child: Text(
-                            'New',
-                            style: TextStyle(
+                            product.productCondition == "NEW_PRODUCT" ? 'New' : "Used",
+                            style: const TextStyle(
                               color: AppColors.black,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -890,7 +894,7 @@ class RemouteRegularProductCard2 extends StatelessWidget {
                         final viewStatus = state.getViewStatus(product.id);
 
                         // Show "Viewed" if the publication is viewed or in progress
-                        if (isViewed || viewStatus == ViewStatus.inProgress) {
+                        if (isViewed || viewStatus == ViewStatus.inProgress || isOwner) {
                           return Positioned(
                             top: 8,
                             right: 8,
@@ -899,20 +903,20 @@ class RemouteRegularProductCard2 extends StatelessWidget {
                               elevation: 0,
                               color: AppColors.black.withOpacity(0.5),
                               borderRadius: BorderRadius.circular(6),
-                              child: const Padding(
+                              child: Padding(
                                 padding: EdgeInsets.symmetric(
                                     horizontal: 8, vertical: 4),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Icon(
+                                    const Icon(
                                       Icons.visibility,
                                       color: AppColors.white,
                                       size: 12,
                                     ),
-                                    SizedBox(width: 4),
+                                    const SizedBox(width: 4),
                                     Text(
-                                      'Viewed',
+                                      isOwner ? '${product.views}' : 'Viewed',
                                       style: TextStyle(
                                         color: AppColors.white,
                                         fontSize: 12,
@@ -1003,55 +1007,96 @@ class RemouteRegularProductCard2 extends StatelessWidget {
                                 return InkWell(
                                   onTap: () {
                                     if (!isLoading) {
-                                      context.read<GlobalBloc>().add(
-                                            UpdateLikeStatusEvent(
-                                              publicationId: product.id,
-                                              isLiked: isLiked,
-                                              context: context,
-                                            ),
-                                          );
+                                      if (!isOwner) {
+                                        context.read<GlobalBloc>().add(
+                                              UpdateLikeStatusEvent(
+                                                publicationId: product.id,
+                                                isLiked: isLiked,
+                                                context: context,
+                                              ),
+                                            );
+                                      }
                                     }
                                   },
-                                  child: SmoothClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: Container(
-                                      color: isLiked
-                                          ? AppColors.primary
-                                          : AppColors.containerColor,
-                                      child: isLoading
-                                          ? ShimmerEffect(
-                                              isLiked: isLiked,
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.all(8.0),
-                                                child: SizedBox(
-                                                  width: 18,
-                                                  height: 18,
-                                                  child: Image.asset(
-                                                    AppIcons.favorite,
-                                                    color: isLiked
-                                                        ? Colors.white
-                                                        : AppColors.darkGray,
-                                                  ),
-                                                ),
-                                              ),
-                                            )
-                                          : Padding(
+                                  child: isOwner
+                                      ? SmoothClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          child: Container(
+                                            color: AppColors.containerColor,
+                                            child: Padding(
                                               padding:
                                                   const EdgeInsets.all(8.0),
-                                              child: SizedBox(
-                                                width: 18,
-                                                height: 18,
-                                                child: Image.asset(
-                                                  AppIcons.favorite,
-                                                  color: isLiked
-                                                      ? Colors.white
-                                                      : AppColors.darkGray,
-                                                ),
+                                              child: Row(
+                                                children: [
+                                                  SizedBox(
+                                                    width: 18,
+                                                    height: 18,
+                                                    child: Image.asset(
+                                                      AppIcons.favorite,
+                                                      color: AppColors.darkGray,
+                                                    ),
+                                                  ),
+                                                  SizedBox(
+                                                    width: 4,
+                                                  ),
+                                                  Text(
+                                                    '${product.likes}',
+                                                    style: TextStyle(
+                                                      color: AppColors.darkGray,
+                                                      fontSize: 15,
+                                                    ),
+                                                  )
+                                                ],
                                               ),
                                             ),
-                                    ),
-                                  ),
+                                          ),
+                                        )
+                                      : SmoothClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          child: Container(
+                                            color: isLiked
+                                                ? AppColors.primary
+                                                : AppColors.containerColor,
+                                            child: isLoading
+                                                ? ShimmerEffect(
+                                                    isLiked: isLiked,
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8.0),
+                                                      child: SizedBox(
+                                                        width: 18,
+                                                        height: 18,
+                                                        child: Image.asset(
+                                                          AppIcons.favorite,
+                                                          color: isLiked
+                                                              ? Colors.white
+                                                              : AppColors
+                                                                  .darkGray,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  )
+                                                : Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child: SizedBox(
+                                                      width: 18,
+                                                      height: 18,
+                                                      child: Image.asset(
+                                                        AppIcons.favorite,
+                                                        color: isLiked
+                                                            ? Colors.white
+                                                            : AppColors
+                                                                .darkGray,
+                                                      ),
+                                                    ),
+                                                  ),
+                                          ),
+                                        ),
                                 );
                               },
                             )
