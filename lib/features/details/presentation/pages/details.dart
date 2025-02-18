@@ -26,7 +26,6 @@ import 'package:list_in/features/explore/presentation/widgets/regular_product_ca
 import 'package:list_in/global/global_bloc.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:visibility_detector/visibility_detector.dart';
-
 import '../bloc/details_event.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
@@ -71,28 +70,39 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         );
 
     final globalBloc = context.read<GlobalBloc>();
-    final isViewed = globalBloc.state.isPublicationViewed(widget.product.id);
+    final currentUserId = globalBloc.getUserId(); // Get current user ID
+    final isOwner =
+        currentUserId == widget.product.seller.id; // Check if user is owner
 
-    if (!isViewed) {
-      globalBloc.add(
-        UpdateViewStatusEvent(
-          publicationId: widget.product.id,
-          isViewed: true,
-          context: context,
-        ),
-      );
+    // Only update view status if the user is not the owner
+    if (!isOwner) {
+      final isViewed = globalBloc.state.isPublicationViewed(widget.product.id);
+      if (!isViewed) {
+        globalBloc.add(
+          UpdateViewStatusEvent(
+            publicationId: widget.product.id,
+            isViewed: true,
+            context: context,
+          ),
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final globalBloc = context.read<GlobalBloc>();
+    final currentUserId = globalBloc.getUserId(); // Get current user ID
+    final isOwner =
+        currentUserId == widget.product.seller.id; // Check if user is owner
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         elevation: 0,
         scrolledUnderElevation: 0,
         backgroundColor: AppColors.white,
-        flexibleSpace: _buildTopBar(),
+        flexibleSpace: _buildTopBar(isOwner),
       ),
       bottomNavigationBar: AnimatedSwitcher(
         duration: const Duration(milliseconds: 300),
@@ -103,8 +113,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           ).animate(animation),
           child: child,
         ),
-        child:
-            _isBottomButtonVisible ? _buildBottomButtons() : SizedBox.shrink(),
+        child: _isBottomButtonVisible
+            ? _buildBottomButtons(isOwner)
+            : SizedBox.shrink(),
       ),
       body: Stack(
         children: [
@@ -115,7 +126,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   child: Column(
                     children: [
                       _buildImageSlider(),
-                      _buildMainContent(),
+                      _buildMainContent(isOwner),
                     ],
                   ),
                 ),
@@ -127,7 +138,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
-  Widget _buildTopBar() {
+  Widget _buildTopBar(bool isOwner) {
     return SafeArea(
       child: Card(
         margin: EdgeInsets.all(0),
@@ -147,75 +158,125 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               ),
               Row(
                 children: [
-                  _buildTopBarButton(
-                    icon: CupertinoIcons.doc_on_doc,
-                    onTap: () {},
-                  ),
-                  _buildTopBarButton(
-                    icon: CupertinoIcons.share,
-                    onTap: () {},
-                  ),
-                  _buildTopBarButton(
-                    icon: CupertinoIcons.ellipsis,
-                    onTap: () {},
-                  ),
-                  BlocBuilder<GlobalBloc, GlobalState>(
-                    builder: (context, state) {
-                      final isLiked =
-                          state.isPublicationLiked(widget.product.id);
-                      final likeStatus = state.getLikeStatus(widget.product.id);
-                      final isLoading = likeStatus == LikeStatus.inProgress;
+                  if (!isOwner) ...[
+                    _buildTopBarButton(
+                      icon: CupertinoIcons.doc_on_doc,
+                      onTap: () {},
+                    ),
+                    _buildTopBarButton(
+                      icon: CupertinoIcons.share,
+                      onTap: () {},
+                    ),
+                    _buildTopBarButton(
+                      icon: CupertinoIcons.ellipsis,
+                      onTap: () {},
+                    ),
+                    BlocBuilder<GlobalBloc, GlobalState>(
+                      builder: (context, state) {
+                        final isLiked =
+                            state.isPublicationLiked(widget.product.id);
+                        final likeStatus =
+                            state.getLikeStatus(widget.product.id);
+                        final isLoading = likeStatus == LikeStatus.inProgress;
 
-                      return SizedBox(
-                        width: 40,
-                        height: 40,
-                        child: isLoading
-                            ? Center(
-                                child: ShimmerEffect(
-                                  isLiked: isLiked,
-                                  child: Container(
-                                    width: 24,
-                                    height: 24,
-                                    alignment: Alignment.center,
-                                    child: Image.asset(
-                                      isLiked
-                                          ? AppIcons.favoriteBlack
-                                          : AppIcons.favorite,
+                        return SizedBox(
+                          width: 40,
+                          height: 40,
+                          child: isLoading
+                              ? Center(
+                                  child: ShimmerEffect(
+                                    isLiked: isLiked,
+                                    child: Container(
                                       width: 24,
                                       height: 24,
-                                      fit: BoxFit.contain,
-                                      // Remove color property here to maintain visibility
+                                      alignment: Alignment.center,
+                                      child: Image.asset(
+                                        isLiked
+                                            ? AppIcons.favoriteBlack
+                                            : AppIcons.favorite,
+                                        width: 24,
+                                        height: 24,
+                                        fit: BoxFit.contain,
+                                      ),
                                     ),
                                   ),
+                                )
+                              : IconButton(
+                                  onPressed: () {
+                                    if (!isLoading) {
+                                      context.read<GlobalBloc>().add(
+                                            UpdateLikeStatusEvent(
+                                              publicationId: widget.product.id,
+                                              isLiked: isLiked,
+                                              context: context,
+                                            ),
+                                          );
+                                    }
+                                  },
+                                  icon: Image.asset(
+                                    isLiked
+                                        ? AppIcons.favoriteBlack
+                                        : AppIcons.favorite,
+                                    width: 24,
+                                    height: 24,
+                                    color: isLiked
+                                        ? AppColors.primary
+                                        : AppColors.black,
+                                    fit: BoxFit.contain,
+                                  ),
                                 ),
-                              )
-                            : IconButton(
-                                onPressed: () {
-                                  if (!isLoading) {
-                                    context.read<GlobalBloc>().add(
-                                          UpdateLikeStatusEvent(
-                                            publicationId: widget.product.id,
-                                            isLiked: isLiked,
-                                            context: context,
-                                          ),
-                                        );
-                                  }
-                                },
-                                icon: Image.asset(
-                                  isLiked
-                                      ? AppIcons.favoriteBlack
-                                      : AppIcons.favorite,
-                                  width: 24,
-                                  height: 24,
-                                  color: isLiked
-                                      ? AppColors.primary
-                                      : AppColors.black,
-                                  fit: BoxFit.contain,
-                                ),
+                        );
+                      },
+                    ),
+                  ],
+                  if (isOwner) ...[
+                    IconButton(
+                      onPressed: () {
+                        context.push(
+                          Routes.publicationsEdit,
+                          extra: widget.product.convertToPublicationEntity(),
+                        );
+                      },
+                      icon: Icon(
+                        color: AppColors.primary,
+                        EvaIcons.edit,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        // Show delete confirmation dialog
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Delete Publication'),
+                            content: const Text(
+                                'Are you sure you want to delete this publication?'),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text('Cancel'),
                               ),
-                      );
-                    },
-                  ),
+                              TextButton(
+                                onPressed: () {
+                                  // Implement delete logic
+                                  Navigator.pop(context);
+                                },
+                                style: TextButton.styleFrom(
+                                  foregroundColor: Colors.red,
+                                ),
+                                child: const Text('Delete'),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      icon: Icon(
+                        CupertinoIcons.delete_solid,
+                        color: AppColors.error,
+                        size: 22,
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ],
@@ -246,7 +307,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
-  Widget _buildBottomButtons() {
+  Widget _buildBottomButtons(bool isOwner) {
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16, top: 6, bottom: 16),
       child: Container(
@@ -255,26 +316,55 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         ),
         child: Row(
           children: [
-            Expanded(
-              child: _buildButton(
-                icon: EvaIcons.phoneCall,
-                label: 'Call',
-                color: AppColors.primary,
-                textColor: Colors.white,
-                onPressed: () {/* Call logic */},
+            if (!isOwner) ...[
+              Expanded(
+                child: _buildButton(
+                  icon: EvaIcons.phoneCall,
+                  label: 'Call',
+                  color: AppColors.primary,
+                  textColor: Colors.white,
+                  onPressed: () {/* Call logic */},
+                ),
               ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: _buildButton(
-                icon: EvaIcons.messageSquare,
-                label: 'Message',
-                color: Colors.blue,
-                textColor: AppColors.white,
-                borderColor: AppColors.containerColor,
-                onPressed: () {/* Message logic */},
+              const SizedBox(width: 10),
+              Expanded(
+                child: _buildButton(
+                  icon: EvaIcons.messageSquare,
+                  label: 'Message',
+                  color: Colors.blue,
+                  textColor: AppColors.white,
+                  borderColor: AppColors.containerColor,
+                  onPressed: () {/* Message logic */},
+                ),
               ),
-            ),
+            ],
+            if (isOwner) ...[
+              Expanded(
+                child: _buildButton(
+                  icon: EvaIcons.edit,
+                  label: 'Edit',
+                  color: AppColors.primary,
+                  textColor: Colors.white,
+                  onPressed: () {
+                    context.push(
+                      Routes.publicationsEdit,
+                      extra: widget.product.convertToPublicationEntity(),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _buildButton(
+                  icon: CupertinoIcons.delete,
+                  label: 'Delete',
+                  color: AppColors.error,
+                  textColor: AppColors.white,
+                  borderColor: AppColors.containerColor,
+                  onPressed: () {/* Message logic */},
+                ),
+              ),
+            ]
           ],
         ),
         //
@@ -447,26 +537,102 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
-  Widget _buildMainContent() {
+  Widget _buildMainContent(bool isOwner) {
     final enAttributes = widget.product.attributeValue.attributes['en'] ?? {};
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildPrice(),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 12, 0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildPrice(),
+              if (isOwner) ...[
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: AppColors.containerColor.withOpacity(0.25),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Image.asset(
+                            AppIcons.favorite,
+                            width: 22,
+                            height: 22,
+                            color: AppColors.darkGray,
+                            fit: BoxFit.contain,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            widget.product.likes.toString(),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.darkGray,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(width: 4),
+                    // Views counter
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: AppColors.containerColor.withOpacity(0.25),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            CupertinoIcons.eye,
+                            size: 24,
+                            color: AppColors.darkGray,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            widget.product.views.toString(),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.darkGray,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                )
+              ],
+            ],
+          ),
+        ),
         _buildTitle(),
         const SizedBox(height: 12),
-        _buildShopInfo(),
+        _buildShopInfo(isOwner),
         const SizedBox(height: 20),
         InkWell(
             onTap: () {
-              context.push(Routes.anotherUserProfile, extra: {
-                'userId': widget.product.seller.id,
-              });
+              if (!isOwner) {
+                context.push(Routes.anotherUserProfile, extra: {
+                  'userId': widget.product.seller.id,
+                });
+              } else {}
             },
             child: _buildLocation()),
         _buildSellerInfo(),
-        _buildCalMessageButtons(),
-        _buildLocationInfo(),
+        _buildCalMessageButtons(isOwner),
+        _buildLocationInfo(isOwner),
         SizedBox(
           height: 4,
         ),
@@ -494,16 +660,31 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 children: [
                   InkWell(
                     onTap: () {
-                      context.push(Routes.anotherUserProfile, extra: {
-                        'userId': widget.product.seller.id,
-                      });
+                      if (!isOwner) {
+                        context.push(Routes.anotherUserProfile, extra: {
+                          'userId': widget.product.seller.id,
+                        });
+                      } else {}
                     },
                     child: _buildLocation(),
                   ),
                   _buildSellerInfo(),
-                  FollowButton(
-                    userId: widget.product.seller.id,
-                  ),
+                  if (!isOwner)
+                    FollowButton(
+                      userId: widget.product.seller.id,
+                    ),
+                  if (isOwner)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4, left: 16),
+                      child: Text(
+                        'IT IS YOU',
+                        style: const TextStyle(
+                          color: Colors.blue,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    )
                 ],
               ),
             ),
@@ -536,12 +717,12 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             ),
           ],
         ),
-        _buildSimilarProducts(),
+        _buildSimilarProducts(isOwner),
       ],
     );
   }
 
-  Widget _buildSimilarProducts() {
+  Widget _buildSimilarProducts(bool isOwner) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -562,7 +743,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Other posts',
+                  isOwner ? "Your post" : 'Other posts',
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w600,
@@ -577,12 +758,12 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           ),
         ),
         const SizedBox(height: 8),
-        buildProductsGrid(),
+        buildProductsGrid(isOwner),
       ],
     );
   }
 
-  Widget buildProductsGrid() {
+  Widget buildProductsGrid(bool isOwner) {
     return BlocBuilder<DetailsBloc, DetailsState>(
       builder: (context, state) {
         if (state.status == DetailsStatus.loading &&
@@ -683,7 +864,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   }
 
 // Modify the _buildLocationInfo() method in ProductDetailsScreen
-  Widget _buildLocationInfo() {
+  Widget _buildLocationInfo(bool isOwner) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -789,7 +970,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
-  Widget _buildShopInfo() {
+  Widget _buildShopInfo(bool isOwner) {
     bool isBusinessSeller = widget.product.seller.role == "BUSINESS_SELLER";
     bool isBargain = widget.product.bargain;
 
@@ -837,15 +1018,12 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   }
 
   Widget _buildPrice() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-      child: Text(
-        "${formatPrice(widget.product.price.toString())} Uz",
-        style: const TextStyle(
-          height: 1.2,
-          fontSize: 26,
-          fontWeight: FontWeight.w700,
-        ),
+    return Text(
+      "${formatPrice(widget.product.price.toString())} Uz",
+      style: const TextStyle(
+        height: 1.2,
+        fontSize: 26,
+        fontWeight: FontWeight.w700,
       ),
     );
   }
@@ -931,7 +1109,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
-  Widget _buildCalMessageButtons() {
+  Widget _buildCalMessageButtons(bool isOwner) {
     return VisibilityDetector(
       key: Key('cal_message_visibility'),
       onVisibilityChanged: _onVisibilityChanged,
@@ -939,28 +1117,58 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         child: Row(
           children: [
-            Expanded(
-              child: _buildButton(
-                icon: EvaIcons.phoneCall,
-                label: 'Call',
-                color: AppColors.primary,
-                textColor: Colors.white,
-                onPressed: () {/* Call logic */},
+            if (!isOwner) ...[
+              Expanded(
+                child: _buildButton(
+                  icon: EvaIcons.phoneCall,
+                  label: 'Call',
+                  color: AppColors.primary,
+                  textColor: Colors.white,
+                  onPressed: () {/* Call logic */},
+                ),
               ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: _buildButton(
-                icon: EvaIcons.messageSquare,
-                label: 'Message',
-                color: Colors.blue,
-                textColor: Colors.white,
-                borderColor: AppColors.containerColor,
-                onPressed: () {/* Message logic */},
+              const SizedBox(width: 10),
+              Expanded(
+                child: _buildButton(
+                  icon: EvaIcons.messageSquare,
+                  label: 'Message',
+                  color: Colors.blue,
+                  textColor: AppColors.white,
+                  borderColor: AppColors.containerColor,
+                  onPressed: () {/* Message logic */},
+                ),
               ),
-            ),
+            ],
+            if (isOwner) ...[
+              Expanded(
+                child: _buildButton(
+                  icon: EvaIcons.edit,
+                  label: 'Edit',
+                  color: AppColors.primary,
+                  textColor: Colors.white,
+                  onPressed: () {
+                    context.push(
+                      Routes.publicationsEdit,
+                      extra: widget.product.convertToPublicationEntity(),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _buildButton(
+                  icon: CupertinoIcons.delete,
+                  label: 'Delete',
+                  color: AppColors.error,
+                  textColor: AppColors.white,
+                  borderColor: AppColors.containerColor,
+                  onPressed: () {/* Message logic */},
+                ),
+              ),
+            ]
           ],
         ),
+        //
       ),
     );
   }

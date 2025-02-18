@@ -1,9 +1,9 @@
-class CategoryEntity {
+class ProfileCategoryEntity {
   final String id;
   final String name;
   final String? parentCategoryId;
 
-  CategoryEntity({
+  ProfileCategoryEntity({
     required this.id,
     required this.name,
     this.parentCategoryId,

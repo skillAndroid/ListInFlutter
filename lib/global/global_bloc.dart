@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/core/error/failure.dart';
+import 'package:list_in/features/auth/data/sources/auth_local_data_source.dart';
 import 'package:list_in/features/profile/presentation/bloc/user/user_profile_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/user/user_profile_event.dart';
 import 'package:list_in/features/visitior_profile/domain/usecase/follow_usecase.dart';
@@ -188,6 +189,8 @@ class UpdateFollowStatusEvent extends GlobalEvent {
   List<Object> get props => [userId, isFollowed];
 }
 
+class FetchUserIdEvent extends GlobalEvent {}
+
 class UpdateLikeStatusEvent extends GlobalEvent {
   final String publicationId;
   final bool isLiked;
@@ -207,20 +210,32 @@ class GlobalBloc extends Bloc<GlobalEvent, GlobalState> {
   final FollowUserUseCase followUserUseCase;
   final LikePublicationUsecase likePublicationUsecase;
   final ViewPublicationUsecase viewPublicationUsecase;
-
+  final AuthLocalDataSource authLocalDataSource;
+  String? userId;
   GlobalBloc({
     required this.followUserUseCase,
     required this.likePublicationUsecase,
     required this.viewPublicationUsecase,
+    required this.authLocalDataSource,
   }) : super(const GlobalState()) {
     on<UpdateFollowStatusEvent>(_onUpdateFollowStatus);
     on<SyncFollowStatusesEvent>(_onSyncFollowStatuses);
     on<UpdateLikeStatusEvent>(_onUpdateLikeStatus);
     on<SyncLikeStatusesEvent>(_onSyncLikeStatuses);
     on<UpdateViewStatusEvent>(_onUpdateViewStatus);
+    on<FetchUserIdEvent>(_onFetchUserId);
+    add(FetchUserIdEvent());
   }
 
+  Future<void> _onFetchUserId(
+      FetchUserIdEvent event, Emitter<GlobalState> emit) async {
+    userId = await authLocalDataSource.getUserId();
+    debugPrint('🎯 GlobalBloc fetched userId: $userId');
+  }
 
+  String? getUserId() {
+    return userId;
+  }
 
   Future<void> _onUpdateViewStatus(
     UpdateViewStatusEvent event,

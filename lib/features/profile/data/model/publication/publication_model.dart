@@ -71,7 +71,7 @@ class AttributeValueModel {
         attributes = json['attributes'] as Map<String, dynamic>,
         numericValues = json['numericValues'];
 
-  AttributeValueEntity toEntity() => AttributeValueEntity(
+  ProfileAttributeValueEntity toEntity() => ProfileAttributeValueEntity(
         parentCategory: parentCategory,
         category: category,
         attributes: attributes,

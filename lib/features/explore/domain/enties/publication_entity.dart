@@ -1,4 +1,7 @@
 import 'package:list_in/features/explore/data/models/publication_model.dart';
+import 'package:list_in/features/profile/domain/entity/publication/category_entity.dart';
+import 'package:list_in/features/profile/domain/entity/publication/publication_entity.dart';
+import 'package:list_in/features/profile/domain/entity/publication/publication_image_entity.dart';
 
 class PublicationPairEntity {
   final bool isSponsored;
@@ -74,6 +77,43 @@ class GetPublicationEntity {
     required this.seller,
     required this.attributeValue,
   });
+  // Add this function to your class or as a separate utility function
+  PublicationEntity convertToPublicationEntity() {
+    return PublicationEntity(
+      id: id,
+      title: title,
+      description:description,
+      price: price,
+      bargain: bargain,
+      locationName: locationName,
+      latitude: latitude ?? 0.0,
+      longitude: longitude ?? 0.0,
+      productImages: productImages.map((image) {
+        return PublicationImageEntity(
+          isPrimary: image.isPrimary,
+          url: image.url,
+        );
+      }).toList(),
+      videoUrl: videoUrl,
+      publicationType: publicationType,
+      productCondition: productCondition,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      category: ProfileCategoryEntity(
+        // Use the appropriate namespace if needed
+        id: category.id,
+        name: category.name,
+        parentCategoryId: category.parentCategoryId,
+      ),
+      attributeValue: ProfileAttributeValueEntity(
+        // Use the appropriate namespace if needed
+        parentCategory: attributeValue.parentCategory,
+        category: attributeValue.category,
+        attributes: attributeValue.attributes,
+        numericValues: attributeValue.numericValues,
+      ),
+    );
+  }
 }
 
 class AttributeValueEntity {

@@ -13,6 +13,8 @@ abstract class AuthLocalDataSource {
   Future<void> cacheRetrivedEmail(RetrivedEmailModel retrivedEmail);
   Future<RetrivedEmail?> getRetrivedEmail();
   Future<void> deleteRetrivedEmail();
+  Future<void> cacheUserId(String userId);
+  Future<String?> getUserId();
 }
 
 class AuthLocalDataSourceImpl implements AuthLocalDataSource {
@@ -52,10 +54,21 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
 
   @override
   Future<RetrivedEmail?> getRetrivedEmail() async {
-    final jsonString = sharedPreferences.getString(Constants.CACHED_RETRIVED_EMAIL);
+    final jsonString =
+        sharedPreferences.getString(Constants.CACHED_RETRIVED_EMAIL);
     if (jsonString != null) {
       return RetrivedEmailModel.fromJson(json.decode(jsonString));
     }
     return null;
+  }
+
+  @override
+  Future<void> cacheUserId(String userId) async {
+    await sharedPreferences.setString(Constants.CACHED_USER_ID, userId);
+  }
+
+  @override
+  Future<String?> getUserId() async {
+    return sharedPreferences.getString(Constants.CACHED_USER_ID);
   }
 }

@@ -135,6 +135,7 @@ Future<void> init() async {
         followUserUseCase: sl(),
         likePublicationUsecase: sl(),
         viewPublicationUsecase: sl(),
+        authLocalDataSource: sl(),
       ));
   sl.registerLazySingleton(
     () => AppRouter(
@@ -185,7 +186,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => VerifyEmailSignupUseCase(sl()));
   sl.registerLazySingleton(() => RegisterUserDataUseCase(sl()));
   sl.registerLazySingleton(() => GetStoredEmailUsecase(sl()));
-  sl.registerLazySingleton(() => GetUserDataUseCase(sl()));
+  sl.registerLazySingleton(() => GetUserDataUseCase(sl(), sl()));
   sl.registerLazySingleton(() =>
       UpdateUserProfileUseCase(repository: sl(), authLocalDataSource: sl()));
   sl.registerLazySingleton(() => UploadUserImagesUseCase(sl()));

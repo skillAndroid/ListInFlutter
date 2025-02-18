@@ -1,5 +1,6 @@
 import 'package:list_in/features/profile/domain/entity/publication/category_entity.dart';
 import 'package:list_in/features/profile/domain/entity/publication/publication_image_entity.dart';
+
 class PublicationEntity {
   final String id;
   final String title;
@@ -15,8 +16,9 @@ class PublicationEntity {
   final String productCondition;
   final DateTime createdAt;
   final DateTime updatedAt;
-  final CategoryEntity category;
-  final AttributeValueEntity attributeValue; // Changed from List<AttributeEntity>
+  final ProfileCategoryEntity category;
+  final ProfileAttributeValueEntity
+      attributeValue; // Changed from List<AttributeEntity>
 
   PublicationEntity({
     required this.id,
@@ -38,13 +40,13 @@ class PublicationEntity {
   });
 }
 
-class AttributeValueEntity {
+class ProfileAttributeValueEntity {
   final String parentCategory;
   final String category;
   final Map<String, dynamic> attributes;
   final dynamic numericValues;
 
-  AttributeValueEntity({
+  ProfileAttributeValueEntity({
     required this.parentCategory,
     required this.category,
     required this.attributes,

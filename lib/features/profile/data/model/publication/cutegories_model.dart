@@ -10,8 +10,8 @@ class CategoriesModel {
         name = json['name'] as String,
         parentCategoryId = json['parentCategoryId'] as String?;
 
-  CategoryEntity toEntity() =>
-      CategoryEntity(id: id, name: name, parentCategoryId: parentCategoryId);
+  ProfileCategoryEntity toEntity() =>
+      ProfileCategoryEntity(id: id, name: name, parentCategoryId: parentCategoryId);
 }
 
 class AttributeModel {
