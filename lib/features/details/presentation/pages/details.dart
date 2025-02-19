@@ -455,6 +455,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                           imageUrl:
                               'https://${widget.product.productImages[0].url}',
                           fit: BoxFit.contain,
+                          filterQuality: FilterQuality.high,
                         ),
                         Center(
                           child: Container(
@@ -498,23 +499,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     fit: BoxFit
                         .cover, // Better than contain for most product images
                     filterQuality: FilterQuality
-                        .low, // Balance between quality and performance
-                    fadeInDuration:
-                        const Duration(milliseconds: 200), // Quick fade in
-                    memCacheWidth: 800, // Limit memory cache size
-                    maxWidthDiskCache: 800, // Limit disk cache size
-                    placeholderFadeInDuration:
-                        const Duration(milliseconds: 200),
-                    progressIndicatorBuilder: (context, url, progress) =>
-                        Container(
-                      color: Colors.grey[200],
-                      child: Center(
-                        child: CircularProgressIndicator(
-                          value: progress.progress,
-                          strokeWidth: 2,
-                        ),
-                      ),
-                    ),
+                        .high, // Balance between quality and performance
                     errorWidget: (context, url, error) => Container(
                       color: Colors.grey[100],
                       child: const Icon(Icons.error_outline, color: Colors.red),
@@ -528,7 +513,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       decoration: BoxDecoration(
                         image: DecorationImage(
                           image: imageProvider,
-                          fit: BoxFit.cover,
+                          fit: BoxFit.contain,
                         ),
                       ),
                     ),

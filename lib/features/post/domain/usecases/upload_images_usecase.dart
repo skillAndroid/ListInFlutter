@@ -1,9 +1,9 @@
 import 'dart:io';
-import 'dart:typed_data';
+
 import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
-import 'package:image/image.dart' as img_lib;
-import 'package:image_picker/image_picker.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:list_in/core/error/failure.dart';
 import 'package:list_in/core/usecases/usecases.dart';
 import 'package:list_in/features/post/domain/repository/post_repository.dart';
@@ -12,14 +12,14 @@ import 'package:path_provider/path_provider.dart';
 
 class UploadImagesUseCase implements UseCase2<List<String>, List<XFile>> {
   final PostRepository repository;
-  
-  // Constants for image processing
-  static const int maxImageDimension = 1200;
-  static const int jpegQuality = 85;
-  static const int pngCompressionLevel = 9;
-  
+
+  static const int maxFileSize = 125 * 1024; //125
+  static const int minQuality = 1;
+  static const int maxQuality = 100;
+  static const double aspectRatio = 1.5;
+
   UploadImagesUseCase(this.repository);
-  
+
   void _logDebug(String message) {
     if (kDebugMode) {
       print('🔍 [ImageUpload] $message');
@@ -31,21 +31,20 @@ class UploadImagesUseCase implements UseCase2<List<String>, List<XFile>> {
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(2)} KB';
     return '${(bytes / (1024 * 1024)).toStringAsFixed(2)} MB';
   }
-  
+
   @override
   Future<Either<Failure, List<String>>> call({List<XFile>? params}) async {
     if (params == null) {
       _logDebug('❌ No images provided');
       return Left(ServerFailure());
     }
-    
+
     try {
       _logDebug('📸 Starting compression for ${params.length} images');
-      
-      List<XFile> compressedImages = await Future.wait(
-        params.map((file) => compressImage(file))
-      );
-      
+
+      List<XFile> compressedImages =
+          await Future.wait(params.map((file) => compressImage(file)));
+
       _logDebug('✅ Compression completed for all images');
       return await repository.uploadImages(compressedImages);
     } catch (e) {
@@ -54,116 +53,119 @@ class UploadImagesUseCase implements UseCase2<List<String>, List<XFile>> {
     }
   }
 
-  img_lib.Image _resizeIfNeeded(img_lib.Image image) {
-    final int originalWidth = image.width;
-    final int originalHeight = image.height;
-    
-    // If both dimensions are already smaller than max, return original
-    if (originalWidth <= maxImageDimension && originalHeight <= maxImageDimension) {
-      _logDebug('📏 Image already within size limits, skipping resize');
-      return image;
-    }
-
-    // Calculate new dimensions maintaining aspect ratio
+  Future<(int, int)> _calculateDimensions(
+      int originalWidth, int originalHeight) {
     double ratio = originalWidth / originalHeight;
-    int newWidth, newHeight;
+    int targetWidth, targetHeight;
 
-    if (originalWidth > originalHeight) {
-      newWidth = maxImageDimension;
-      newHeight = (maxImageDimension / ratio).round();
+    if (ratio > aspectRatio) {
+      targetWidth = 1080;
+      targetHeight = (1080 / ratio).round();
     } else {
-      newHeight = maxImageDimension;
-      newWidth = (maxImageDimension * ratio).round();
+      targetHeight = 720;
+      targetWidth = (720 * ratio).round();
     }
 
-    _logDebug('📏 Resizing from ${originalWidth}x${originalHeight} to ${newWidth}x${newHeight}');
-    return img_lib.copyResize(
-      image,
-      width: newWidth,
-      height: newHeight,
-      interpolation: img_lib.Interpolation.linear
+    return Future.value((targetWidth, targetHeight));
+  }
+
+  Future<Uint8List?> _compressWithQuality(
+      XFile file, int quality, CompressFormat format) async {
+    final imageBytes = await file.readAsBytes();
+    final decodedImage = await decodeImageFromList(imageBytes);
+    final (targetWidth, targetHeight) =
+        await _calculateDimensions(decodedImage.width, decodedImage.height);
+
+    return await FlutterImageCompress.compressWithFile(
+      file.path,
+      minWidth: targetWidth,
+      minHeight: targetHeight,
+      quality: quality,
+      rotate: 0,
+      format: format,
+      autoCorrectionAngle: true,
+      keepExif: false,
     );
   }
 
   Future<XFile> compressImage(XFile file) async {
     _logDebug('🔄 Starting compression for: ${file.path}');
-    
+
     final Directory tempDir = await getTemporaryDirectory();
-    final String targetPath = path_lib.join(tempDir.path, 
-      '${DateTime.now().millisecondsSinceEpoch}_${path_lib.basename(file.path)}');
-    
+    final String fileName =
+        '${DateTime.now().millisecondsSinceEpoch}_${path_lib.basename(file.path)}';
+    final String targetPath = path_lib.join(tempDir.path, fileName);
+
     final File imageFile = File(file.path);
     final int originalSize = await imageFile.length();
-    _logDebug('📊 Original file size: ${_formatFileSize(originalSize)}');
-    
+
+    if (originalSize <= maxFileSize) {
+      _logDebug(
+          '⏩ File already under target size: ${_formatFileSize(originalSize)}');
+      return file;
+    }
+
+    _logDebug('📊 Original size: ${_formatFileSize(originalSize)}');
     final Stopwatch stopwatch = Stopwatch()..start();
-    final Uint8List imageBytes = await imageFile.readAsBytes();
-    final img_lib.Image? originalImage = img_lib.decodeImage(imageBytes);
-    
-    if (originalImage == null) {
-      _logDebug('❌ Failed to decode image');
-      throw Exception('Failed to decode image');
+
+    // Always use JPEG for consistent compression
+    CompressFormat format = CompressFormat.jpeg;
+
+    // Binary search for the optimal quality setting
+    int low = minQuality;
+    int high = maxQuality;
+    int bestQuality = low;
+    Uint8List? bestResult;
+
+    while (low <= high) {
+      int mid = (low + high) ~/ 2;
+      _logDebug('🔄 Trying quality: $mid');
+
+      final result = await _compressWithQuality(file, mid, format);
+
+      if (result == null) {
+        _logDebug('❌ Compression failed at quality: $mid');
+        high = mid - 1;
+        continue;
+      }
+
+      if (result.length <= maxFileSize) {
+        bestResult = result;
+        bestQuality = mid;
+        low = mid + 1; // Try higher quality
+      } else {
+        high = mid - 1; // Try lower quality
+      }
     }
-    
-    _logDebug('📐 Original dimensions: ${originalImage.width}x${originalImage.height}');
-    
-    // Resize image if needed
-    final img_lib.Image processedImage = _resizeIfNeeded(originalImage);
-    
-    Uint8List compressedBytes;
-    final String extension = path_lib.extension(file.path).toLowerCase();
-    
-    _logDebug('🎨 Processing image format: $extension');
-    
-    if (extension == '.png') {
-      _logDebug('🔄 Using PNG compression...');
-      compressedBytes = Uint8List.fromList(
-        img_lib.encodePng(processedImage, level: pngCompressionLevel)
-      );
-      _logDebug('✅ PNG compression completed');
-    } else {
-      _logDebug('🔄 Using JPEG compression...');
-      compressedBytes = Uint8List.fromList(
-        img_lib.encodeJpg(processedImage, quality: jpegQuality)
-      );
-      _logDebug('✅ JPEG compression completed');
+
+    if (bestResult == null) {
+      _logDebug('❌ Could not achieve target size, using minimum quality');
+      bestResult = await _compressWithQuality(file, minQuality, format);
+
+      if (bestResult == null) {
+        _logDebug('❌ Compression failed completely');
+        return file;
+      }
     }
-    
-    await File(targetPath).writeAsBytes(compressedBytes);
+
+    await File(targetPath).writeAsBytes(bestResult);
     final int compressedSize = await File(targetPath).length();
     stopwatch.stop();
-    
+
     final double compressionRatio = originalSize / compressedSize;
-    final double savingsPercentage = ((originalSize - compressedSize) / originalSize * 100);
-    
+    final double savingsPercentage =
+        ((originalSize - compressedSize) / originalSize * 100);
+
     _logDebug('''
 📊 Compression Results:
    • Original size: ${_formatFileSize(originalSize)}
    • Compressed size: ${_formatFileSize(compressedSize)}
+   • Final quality: $bestQuality
    • Compression ratio: ${compressionRatio.toStringAsFixed(2)}x
    • Space saved: ${savingsPercentage.toStringAsFixed(2)}%
    • Processing time: ${stopwatch.elapsedMilliseconds}ms
     ''');
-    
-    return XFile(targetPath);
-  }
-}
 
-extension ImageDebugExtension on XFile {
-  Future<void> logImageInfo() async {
-    if (kDebugMode) {
-      final File file = File(path);
-      final int size = await file.length();
-      final Uint8List bytes = await file.readAsBytes();
-      final img_lib.Image? image = img_lib.decodeImage(bytes);
-      
-      print('''
-📸 Image Information:
-   • Path: $path
-   • Size: ${(size / 1024).toStringAsFixed(2)} KB
-   • Dimensions: ${image?.width}x${image?.height}
-   • Format: ${path.split('.').last.toUpperCase()}
-      ''');
-    }
+    return XFile(targetPath);
   }
 }
