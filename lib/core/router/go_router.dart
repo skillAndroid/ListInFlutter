@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:list_in/core/di/di_managment.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/auth/presentation/pages/login_page.dart';
@@ -8,6 +9,7 @@ import 'package:list_in/features/auth/presentation/pages/register_details_page.d
 import 'package:list_in/features/auth/presentation/pages/signup_page.dart';
 import 'package:list_in/features/auth/presentation/pages/verification_page.dart';
 import 'package:list_in/features/auth/presentation/pages/welcome_page.dart';
+import 'package:list_in/features/details/presentation/bloc/details_bloc.dart';
 import 'package:list_in/features/details/presentation/pages/details.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
@@ -159,10 +161,13 @@ class AppRouter {
         path: Routes.productDetails,
         builder: (context, state) {
           final product = state.extra as GetPublicationEntity;
-          return ProductDetailsScreen(
-            key: state.pageKey,
-            product: product,
-            recommendedProducts: sampleProducts,
+          return BlocProvider(
+            create: (context) => sl<DetailsBloc>(),
+            child: ProductDetailsScreen(
+              key: state.pageKey,
+              product: product,
+              recommendedProducts: sampleProducts,
+            ),
           );
         },
       ),

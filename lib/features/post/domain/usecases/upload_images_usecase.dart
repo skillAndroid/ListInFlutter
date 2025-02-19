@@ -13,7 +13,7 @@ import 'package:path_provider/path_provider.dart';
 class UploadImagesUseCase implements UseCase2<List<String>, List<XFile>> {
   final PostRepository repository;
 
-  static const int maxFileSize = 125 * 1024; //125
+  static const int maxFileSize = 125 * 1024;
   static const int minQuality = 1;
   static const int maxQuality = 100;
   static const double aspectRatio = 1.5;
