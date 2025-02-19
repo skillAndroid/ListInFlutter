@@ -785,7 +785,6 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
           sliver: SliverGrid(
             delegate: SliverChildBuilderDelegate(
               (context, index) {
-               
                 if (index >= state.publications.length) {
                   if (state.isLoading) {
                     return const Center(child: Progress());
@@ -795,7 +794,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
 
                 final publication = state.publications[index];
                 return Padding(
-                  padding: const EdgeInsets.all(4),
+                  padding: const EdgeInsets.all(0),
                   child: ProfileProductCard(
                     product: publication,
                   ),
