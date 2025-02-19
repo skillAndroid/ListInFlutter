@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
@@ -109,8 +111,9 @@ class _AddPricePageState extends State<AddPriceWidget> {
           previous.canBargain != current.canBargain,
       builder: (context, state) {
         return Scaffold(
+          backgroundColor: AppColors.white,
           body: Padding(
-             padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16),
+            padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -129,19 +132,19 @@ class _AddPricePageState extends State<AddPriceWidget> {
                   height: 52,
                   child: SmoothClipRRect(
                     smoothness: 1,
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(16),
                     side: BorderSide(
-                      color: _errorText != null ? Colors.red : AppColors.black,
-                      width: 2,
-                      style: _isFocused ? BorderStyle.solid : BorderStyle.none,
+                      color: AppColors.containerColor,
+                      width: 1,
+                      style: BorderStyle.solid,
                     ),
                     child: TextField(
                       controller: _priceController,
                       focusNode: _focusNode,
                       keyboardType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      decoration: const InputDecoration(
-                        fillColor: AppColors.containerColor,
+                      decoration: InputDecoration(
+                        fillColor: AppColors.containerColor.withOpacity(0.3),
                         border: OutlineInputBorder(),
                         hintText: 'Currency: UZS',
                         contentPadding: EdgeInsets.all(14),

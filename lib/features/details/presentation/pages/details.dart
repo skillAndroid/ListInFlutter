@@ -24,6 +24,8 @@ import 'package:list_in/features/explore/presentation/widgets/formaters.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
 import 'package:list_in/features/profile/domain/usecases/user/get_user_data_usecase.dart';
+import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
+import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_event.dart';
 import 'package:list_in/global/global_bloc.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -232,6 +234,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   if (isOwner) ...[
                     IconButton(
                       onPressed: () {
+                        context.read<PublicationUpdateBloc>().add(
+                            InitializePublication(
+                                widget.product.convertToPublicationEntity()));
                         context.push(
                           Routes.publicationsEdit,
                           extra: widget.product.convertToPublicationEntity(),
@@ -346,6 +351,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   color: AppColors.primary,
                   textColor: Colors.white,
                   onPressed: () {
+                    context.read<PublicationUpdateBloc>().add(
+                        InitializePublication(
+                            widget.product.convertToPublicationEntity()));
                     context.push(
                       Routes.publicationsEdit,
                       extra: widget.product.convertToPublicationEntity(),
@@ -1170,6 +1178,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   color: AppColors.primary,
                   textColor: Colors.white,
                   onPressed: () {
+                     context.read<PublicationUpdateBloc>().add(
+                        InitializePublication(
+                            widget.product.convertToPublicationEntity()));
                     context.push(
                       Routes.publicationsEdit,
                       extra: widget.product.convertToPublicationEntity(),

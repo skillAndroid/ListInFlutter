@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/config/theme/app_colors.dart';
@@ -32,7 +34,7 @@ class _AddTitlePageState extends State<AddTitleWidget> {
 
     _focusNode = FocusNode();
     _focusNode.addListener(_onFocusChange);
-    
+
     // Initial validation
     _validateInput(_titleController.text);
   }
@@ -51,7 +53,8 @@ class _AddTitlePageState extends State<AddTitleWidget> {
     if (value.isEmpty) {
       _errorText = 'Title is required';
     } else if (value.length < _minLength) {
-      _errorText = 'Title must be at least $_minLength characters (${value.length}/$_minLength)';
+      _errorText =
+          'Title must be at least $_minLength characters (${value.length}/$_minLength)';
     } else if (value.length > _maxLength) {
       _errorText = 'Title cannot exceed $_maxLength characters';
     } else {
@@ -65,15 +68,11 @@ class _AddTitlePageState extends State<AddTitleWidget> {
       _isDirty = true;
       _validateInput(_titleController.text);
     });
-    context.read<PublicationUpdateBloc>().add(UpdateTitle(_titleController.text));
+    context
+        .read<PublicationUpdateBloc>()
+        .add(UpdateTitle(_titleController.text));
   }
 
-  Color _getBorderColor() {
-    if (!_isDirty && !_isFocused) return Colors.transparent;
-    if (_errorText != null) return Colors.red;
-    if (_isFocused) return AppColors.black;
-    return Colors.transparent;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,6 +80,7 @@ class _AddTitlePageState extends State<AddTitleWidget> {
       buildWhen: (previous, current) => previous.title != current.title,
       builder: (context, state) {
         return Scaffold(
+          backgroundColor: AppColors.white,
           body: Padding(
             padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16),
             child: Column(
@@ -101,10 +101,10 @@ class _AddTitlePageState extends State<AddTitleWidget> {
                   height: 52,
                   child: SmoothClipRRect(
                     smoothness: 1,
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(16),
                     side: BorderSide(
-                      color: _getBorderColor(),
-                      width: 2,
+                      color: AppColors.containerColor,
+                      width: 1,
                       style: BorderStyle.solid,
                     ),
                     child: TextField(
@@ -113,7 +113,7 @@ class _AddTitlePageState extends State<AddTitleWidget> {
                       maxLength: _maxLength,
                       onChanged: (value) => _onTextChanged(),
                       decoration: InputDecoration(
-                        fillColor: AppColors.containerColor,
+                        fillColor: AppColors.containerColor.withOpacity(0.3),
                         filled: true,
                         border: OutlineInputBorder(
                           borderSide: BorderSide.none,
@@ -151,8 +151,6 @@ class _AddTitlePageState extends State<AddTitleWidget> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                     
-                       
                       Text(
                         '${_titleController.text.length}/$_maxLength',
                         textAlign: TextAlign.end,

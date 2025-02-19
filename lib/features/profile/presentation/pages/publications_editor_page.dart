@@ -244,8 +244,8 @@ class _PublicationsEditorPageState extends State<PublicationsEditorPage> {
         'Update Post',
         style: TextStyle(
           fontWeight: FontWeight.w700,
-          fontFamily: "Syne",
-          fontSize: 21,
+          fontFamily: "Poppins",
+          fontSize: 20,
           color: AppColors.black,
         ),
       ),
@@ -336,7 +336,7 @@ class _PublicationsEditorPageState extends State<PublicationsEditorPage> {
           style: ElevatedButton.styleFrom(
             shape: SmoothRectangleBorder(
               smoothness: 1,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(14),
             ),
             backgroundColor:
                 canProceed ? AppColors.black : AppColors.lighterGray,

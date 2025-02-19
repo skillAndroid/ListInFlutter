@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/post/presentation/pages/catalog_screen.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';

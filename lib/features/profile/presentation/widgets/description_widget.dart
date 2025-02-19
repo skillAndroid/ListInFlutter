@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -6,7 +8,6 @@ import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_state.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_event.dart';
-import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_state.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class AddDescriptionWidget extends StatefulWidget {
@@ -36,7 +37,7 @@ class _AddDescriptionPageState extends State<AddDescriptionWidget> {
 
     _focusNode = FocusNode();
     _focusNode.addListener(_onFocusChange);
-    
+
     // Initial validation
     _validateInput(_descriptionController.text);
   }
@@ -55,7 +56,8 @@ class _AddDescriptionPageState extends State<AddDescriptionWidget> {
     if (value.isEmpty) {
       _errorText = 'Description is required';
     } else if (value.length < _minLength) {
-      _errorText = 'Description must be at least $_minLength characters (${value.length}/$_minLength)';
+      _errorText =
+          'Description must be at least $_minLength characters (${value.length}/$_minLength)';
     } else if (value.length > _maxLength) {
       _errorText = 'Description cannot exceed $_maxLength characters';
     } else {
@@ -69,20 +71,13 @@ class _AddDescriptionPageState extends State<AddDescriptionWidget> {
       _isDirty = true;
       _validateInput(_descriptionController.text);
     });
-    
+
     _debounceTimer?.cancel();
     _debounceTimer = Timer(const Duration(milliseconds: 50), () {
       context
           .read<PublicationUpdateBloc>()
           .add(UpdateDescription(_descriptionController.text));
     });
-  }
-
-  Color _getBorderColor() {
-    if (!_isDirty && !_isFocused) return Colors.transparent;
-    if (_errorText != null) return Colors.red;
-    if (_isFocused) return AppColors.black;
-    return Colors.transparent;
   }
 
   @override
@@ -92,8 +87,9 @@ class _AddDescriptionPageState extends State<AddDescriptionWidget> {
           previous.description != current.description,
       builder: (context, state) {
         return Scaffold(
+          backgroundColor: AppColors.white,
           body: Padding(
-             padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16),
+            padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -112,10 +108,10 @@ class _AddDescriptionPageState extends State<AddDescriptionWidget> {
                   height: 250,
                   child: SmoothClipRRect(
                     smoothness: 1,
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(16),
                     side: BorderSide(
-                      color: _getBorderColor(),
-                      width: 2,
+                      color: AppColors.containerColor,
+                      width: 1,
                       style: BorderStyle.solid,
                     ),
                     child: TextField(
@@ -125,7 +121,7 @@ class _AddDescriptionPageState extends State<AddDescriptionWidget> {
                       maxLines: 15,
                       onChanged: (value) => _onTextChanged(),
                       decoration: InputDecoration(
-                        fillColor: AppColors.containerColor,
+                        fillColor: AppColors.containerColor.withOpacity(0.3),
                         filled: true,
                         border: OutlineInputBorder(
                           borderSide: BorderSide.none,
@@ -139,8 +135,7 @@ class _AddDescriptionPageState extends State<AddDescriptionWidget> {
                           borderSide: BorderSide.none,
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        hintText:
-                            'For example: Selling iPhone 15 pro, unused and silver color',
+                        hintText: 'For example: Iphone 15 pro',
                         contentPadding: const EdgeInsets.all(14),
                         counterText: '',
                       ),

@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
@@ -71,12 +73,6 @@ class _AddTitlePageState extends State<AddTitlePage> {
         .changePostTitle(_titleController.text);
   }
 
-  Color _getBorderColor() {
-    if (!_isDirty && !_isFocused) return Colors.transparent;
-    if (_errorText != null) return Colors.red;
-    if (_isFocused) return AppColors.black;
-    return AppColors.containerColor;
-  }
 
   @override
   Widget build(BuildContext context) {
