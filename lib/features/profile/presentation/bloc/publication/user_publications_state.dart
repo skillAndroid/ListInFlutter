@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:list_in/features/profile/domain/entity/publication/publication_entity.dart';
 
 enum PublicationUpdatingState {

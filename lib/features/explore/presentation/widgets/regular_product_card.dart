@@ -11,6 +11,7 @@ import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
+import 'package:list_in/features/details/presentation/pages/details_user_profile_publication.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/formaters.dart';
@@ -245,164 +246,178 @@ class ProfileProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: AppColors.white,
-      elevation: 5,
-      shadowColor: Colors.black.withOpacity(0.25),
-      shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Stack(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(2),
-                child: SmoothClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: AspectRatio(
-                    aspectRatio: 1.1,
-                    child: CachedNetworkImage(
-                      imageUrl: "https://${product.productImages[0].url}",
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-              ),
-              Positioned(
-                top: 12,
-                right: 12,
-                child: SmoothClipRRect(
-                  borderRadius: BorderRadius.circular(7),
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    color: AppColors.white.withOpacity(0.9),
-                    child: Row(
-                      children: [
-                        Icon(Icons.remove_red_eye_rounded,
-                            size: 14, color: AppColors.black),
-                        SizedBox(width: 4),
-                        Text(
-                          '2.5k',
-                          style: TextStyle(
-                            color: AppColors.black,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DetailsUserProfilePublication(
+              product: product,
+              recommendedProducts: [], // Pass recommended products here
+            ),
           ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        );
+      },
+      child: Card(
+        color: AppColors.white,
+        elevation: 5,
+        shadowColor: Colors.black.withOpacity(0.25),
+        shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
               children: [
-                SmoothClipRRect(
-                  borderRadius: BorderRadius.circular(7),
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: AppColors.containerColor,
-                    ),
-                    child: Text(
-                      'Boosted',
-                      style: TextStyle(
-                        color: AppColors.darkGray,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
+                Padding(
+                  padding: const EdgeInsets.all(2),
+                  child: SmoothClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: AspectRatio(
+                      aspectRatio: 1.1,
+                      child: CachedNetworkImage(
+                        imageUrl: "https://${product.productImages[0].url}",
+                        fit: BoxFit.cover,
                       ),
                     ),
                   ),
                 ),
-                SizedBox(height: 8),
-                Text(
-                  'Product Name',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.darkBackground,
-                  ),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  '\$299.99',
-                  style: TextStyle(
-                    color: AppColors.primary,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.favorite_rounded,
-                            size: 16, color: AppColors.myRedBrown),
-                        SizedBox(width: 4),
-                        Text(
-                          '1.2k',
-                          style: TextStyle(
-                            color: AppColors.darkGray,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
+                Positioned(
+                  top: 12,
+                  right: 12,
+                  child: SmoothClipRRect(
+                    borderRadius: BorderRadius.circular(7),
+                    child: Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      color: AppColors.white.withOpacity(0.9),
+                      child: Row(
+                        children: [
+                          Icon(Icons.remove_red_eye_rounded,
+                              size: 14, color: AppColors.black),
+                          SizedBox(width: 4),
+                          Text(
+                            '2.5k',
+                            style: TextStyle(
+                              color: AppColors.black,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                    Row(
-                      children: [
-                        InkWell(
-                          onTap: () {
-                            context
-                                .read<PublicationUpdateBloc>()
-                                .add(InitializePublication(product));
-                            context.push(
-                              Routes.publicationsEdit,
-                              extra: product,
-                            );
-                          },
-                          child: Container(
+                  ),
+                ),
+              ],
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SmoothClipRRect(
+                    borderRadius: BorderRadius.circular(7),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: AppColors.containerColor,
+                      ),
+                      child: Text(
+                        'Boosted',
+                        style: TextStyle(
+                          color: AppColors.darkGray,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Product Name',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.darkBackground,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    '\$299.99',
+                    style: TextStyle(
+                      color: AppColors.primary,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.favorite_rounded,
+                              size: 16, color: AppColors.myRedBrown),
+                          SizedBox(width: 4),
+                          Text(
+                            '1.2k',
+                            style: TextStyle(
+                              color: AppColors.darkGray,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              context
+                                  .read<PublicationUpdateBloc>()
+                                  .add(InitializePublication(product));
+                              context.push(
+                                Routes.publicationsEdit,
+                                extra: product,
+                              );
+                            },
+                            child: Container(
+                              padding: EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: AppColors.containerColor,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Icon(
+                                Icons.edit_rounded,
+                                color: AppColors.primary,
+                                size: 16,
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 4,
+                          ),
+                          Container(
                             padding: EdgeInsets.all(8),
                             decoration: BoxDecoration(
                               color: AppColors.containerColor,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Icon(
-                              Icons.edit_rounded,
-                              color: AppColors.primary,
+                              Ionicons.ellipsis_vertical,
+                              color: AppColors.error,
                               size: 16,
                             ),
                           ),
-                        ),
-                        SizedBox(
-                          width: 4,
-                        ),
-                        Container(
-                          padding: EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: AppColors.containerColor,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Icon(
-                            Ionicons.ellipsis_vertical,
-                            color: AppColors.error,
-                            size: 16,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -787,7 +802,7 @@ class RemouteRegularProductCard2 extends StatelessWidget {
   Widget build(BuildContext context) {
     // Check owner status just once at build time using AppSession
     final isOwner = AppSession.currentUserId == product.seller.id;
-    
+
     return GestureDetector(
       onTap: () {
         context.push(
@@ -851,7 +866,7 @@ class RemouteRegularProductCard2 extends StatelessWidget {
   Widget _buildProductDetails(BuildContext context, bool isOwner) {
     return SizedBox(
       width: double.infinity,
-      height: 115, 
+      height: 115,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
         child: Column(
@@ -872,7 +887,7 @@ class RemouteRegularProductCard2 extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 2),
-            
+
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -927,9 +942,9 @@ class RemouteRegularProductCard2 extends StatelessWidget {
 
 class _ProductImage extends StatelessWidget {
   final GetPublicationEntity product;
-  
+
   const _ProductImage({required this.product});
-  
+
   @override
   Widget build(BuildContext context) {
     return product.productImages.isNotEmpty
@@ -978,9 +993,9 @@ class _ProductImage extends StatelessWidget {
 
 class _ConditionBadge extends StatelessWidget {
   final String condition;
-  
+
   const _ConditionBadge({required this.condition});
-  
+
   @override
   Widget build(BuildContext context) {
     return SmoothCard(
@@ -1006,9 +1021,9 @@ class _ConditionBadge extends StatelessWidget {
 class _ViewedStatusBadge extends StatelessWidget {
   final GetPublicationEntity product;
   final bool isOwner;
-  
+
   const _ViewedStatusBadge({required this.product, required this.isOwner});
-  
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<GlobalBloc, GlobalState>(
@@ -1018,8 +1033,9 @@ class _ViewedStatusBadge extends StatelessWidget {
         final currentViewed = current.isPublicationViewed(product.id);
         final previousStatus = previous.getViewStatus(product.id);
         final currentStatus = current.getViewStatus(product.id);
-        
-        return previousViewed != currentViewed || previousStatus != currentStatus;
+
+        return previousViewed != currentViewed ||
+            previousStatus != currentStatus;
       },
       builder: (context, state) {
         final isViewed = state.isPublicationViewed(product.id);
@@ -1068,9 +1084,9 @@ class _ViewedStatusBadge extends StatelessWidget {
 class _LikeButton extends StatelessWidget {
   final GetPublicationEntity product;
   final bool isOwner;
-  
+
   const _LikeButton({required this.product, required this.isOwner});
-  
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<GlobalBloc, GlobalState>(
@@ -1080,7 +1096,7 @@ class _LikeButton extends StatelessWidget {
         final currentLiked = current.isPublicationLiked(product.id);
         final previousStatus = previous.getLikeStatus(product.id);
         final currentStatus = current.getLikeStatus(product.id);
-        
+
         return previousLiked != currentLiked || previousStatus != currentStatus;
       },
       builder: (context, state) {
@@ -1096,7 +1112,7 @@ class _LikeButton extends StatelessWidget {
       },
     );
   }
-  
+
   Widget _buildOwnerLikeButton() {
     return SmoothClipRRect(
       borderRadius: BorderRadius.circular(8),
@@ -1128,26 +1144,25 @@ class _LikeButton extends StatelessWidget {
       ),
     );
   }
-  
-  Widget _buildUserLikeButton(BuildContext context, bool isLiked, bool isLoading) {
+
+  Widget _buildUserLikeButton(
+      BuildContext context, bool isLiked, bool isLoading) {
     return InkWell(
       onTap: () {
         if (!isLoading) {
           context.read<GlobalBloc>().add(
-            UpdateLikeStatusEvent(
-              publicationId: product.id,
-              isLiked: isLiked,
-              context: context,
-            ),
-          );
+                UpdateLikeStatusEvent(
+                  publicationId: product.id,
+                  isLiked: isLiked,
+                  context: context,
+                ),
+              );
         }
       },
       child: SmoothClipRRect(
         borderRadius: BorderRadius.circular(8),
         child: Container(
-          color: isLiked
-              ? AppColors.primary
-              : AppColors.containerColor,
+          color: isLiked ? AppColors.primary : AppColors.containerColor,
           child: isLoading
               ? ShimmerEffect(
                   isLiked: isLiked,
@@ -1158,9 +1173,7 @@ class _LikeButton extends StatelessWidget {
                       height: 18,
                       child: Image.asset(
                         AppIcons.favorite,
-                        color: isLiked
-                            ? Colors.white
-                            : AppColors.darkGray,
+                        color: isLiked ? Colors.white : AppColors.darkGray,
                       ),
                     ),
                   ),
@@ -1172,9 +1185,7 @@ class _LikeButton extends StatelessWidget {
                     height: 18,
                     child: Image.asset(
                       AppIcons.favorite,
-                      color: isLiked
-                          ? Colors.white
-                          : AppColors.darkGray,
+                      color: isLiked ? Colors.white : AppColors.darkGray,
                     ),
                   ),
                 ),
@@ -1183,6 +1194,7 @@ class _LikeButton extends StatelessWidget {
     );
   }
 }
+
 class ShimmerEffect extends StatelessWidget {
   final Widget child;
   final bool isLiked;
