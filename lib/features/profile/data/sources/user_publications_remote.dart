@@ -12,6 +12,7 @@ abstract class UserPublicationsRemoteDataSource {
   });
 
   Future<void> updatePublication(UpdatePostModel publication, String id);
+  Future<void> deletePublication(String id);
 }
 
 class UserPublicationsRemoteDataSourceImpl
@@ -80,6 +81,41 @@ class UserPublicationsRemoteDataSourceImpl
         '/api/v1/publications/update/$id',
         data: publication.toJson(),
         options: options,
+      );
+
+      debugPrint("❤️❤️ ${response.data}");
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return;
+      } else {
+        throw ServerExeption(
+            message: 'Unexpected status code: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      debugPrint('DioException: ${e.message}');
+      if (e.type == DioExceptionType.connectionTimeout) {
+        throw ConnectiontTimeOutExeption();
+      } else if (e.type == DioExceptionType.unknown) {
+        throw ConnectionExeption(message: 'Connection failed');
+      } else if (e.response?.statusCode == 401) {
+        throw UnauthorizedException('Unauthorized access');
+      } else {
+        throw ServerExeption(message: e.message.toString());
+      }
+    } catch (e, stackTrace) {
+      debugPrint('Unexpected error in remote data source: $e');
+      debugPrint('Stack trace: $stackTrace');
+      throw ServerExeption(message: e.toString());
+    }
+  }
+
+  @override
+  Future<void> deletePublication(String id) async {
+    try {
+      final options = await authService.getAuthOptions();
+      final response = await dio.delete(
+        '/api/v1/publications/delete/$id',
+         options: options,
       );
 
       debugPrint("❤️❤️ ${response.data}");
