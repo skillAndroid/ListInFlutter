@@ -54,7 +54,6 @@ dependencies:
   lottie: ^3.2.0
   modal_bottom_sheet: ^3.0.0
   wolt_modal_sheet: ^0.10.0
-  yandex_mapkit: ^4.1.0
   geolocator: ^13.0.2
   rxdart: ^0.28.0
   google_maps_flutter: ^2.5.0
