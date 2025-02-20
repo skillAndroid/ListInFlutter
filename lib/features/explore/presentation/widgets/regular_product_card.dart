@@ -11,7 +11,6 @@ import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
-import 'package:list_in/features/details/presentation/pages/details_user_profile_publication.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/formaters.dart';
@@ -247,14 +246,9 @@ class ProfileProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => DetailsUserProfilePublication(
-              product: product,
-              recommendedProducts: [], // Pass recommended products here
-            ),
-          ),
+        context.push(
+          Routes.productDetails,
+          extra: product,
         );
       },
       child: Card(
@@ -295,7 +289,7 @@ class ProfileProductCard extends StatelessWidget {
                               size: 14, color: AppColors.black),
                           SizedBox(width: 4),
                           Text(
-                            '2.5k',
+                            product.views.toString(),
                             style: TextStyle(
                               color: AppColors.black,
                               fontSize: 12,
@@ -322,7 +316,7 @@ class ProfileProductCard extends StatelessWidget {
                         color: AppColors.containerColor,
                       ),
                       child: Text(
-                        'Boosted',
+                        'Not Boosted',
                         style: TextStyle(
                           color: AppColors.darkGray,
                           fontSize: 10,
@@ -333,7 +327,7 @@ class ProfileProductCard extends StatelessWidget {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    'Product Name',
+                    product.title,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -342,7 +336,7 @@ class ProfileProductCard extends StatelessWidget {
                   ),
                   SizedBox(height: 4),
                   Text(
-                    '\$299.99',
+                    formatPrice(product.price.toString()),
                     style: TextStyle(
                       color: AppColors.primary,
                       fontSize: 18,
@@ -359,7 +353,7 @@ class ProfileProductCard extends StatelessWidget {
                               size: 16, color: AppColors.myRedBrown),
                           SizedBox(width: 4),
                           Text(
-                            '1.2k',
+                            product.likes.toString(),
                             style: TextStyle(
                               color: AppColors.darkGray,
                               fontSize: 12,
