@@ -485,7 +485,19 @@ class _SearchResultPageState extends State<SearchResultPage> {
                     Expanded(
                       child: GestureDetector(
                         onTap: () {
-                          context.pushNamed(RoutesByName.search);
+                          context.pushNamed(
+                            RoutesByName.search,
+                            extra: {
+                              'priceFrom': state.priceFrom,
+                              'priceTo': state.priceTo,
+                              'filterState': {
+                                'bargain': state.bargain,
+                                'isFree': state.isFree,
+                                'condition': state.condition,
+                                'sellerType': state.sellerType,
+                              },
+                            },
+                          );
                         },
                         child: SmoothClipRRect(
                           smoothness: 0.8,
