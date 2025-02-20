@@ -18,7 +18,6 @@ import 'package:shimmer/shimmer.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-
 class AdvertisedProductCard extends StatefulWidget {
   final GetPublicationEntity product;
   final ValueNotifier<String?> currentlyPlayingId;
@@ -55,7 +54,7 @@ class _AdvertisedProductCardState extends State<AdvertisedProductCard> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: 2),
       child: InkWell(
         onTap: () {
           context.push(
@@ -64,14 +63,14 @@ class _AdvertisedProductCardState extends State<AdvertisedProductCard> {
           );
         },
         child: Card(
-          shadowColor: AppColors.black.withOpacity(0.2),
+          shadowColor: AppColors.black.withOpacity(0.5),
           color: AppColors.white,
           shape: SmoothRectangleBorder(
-            smoothness: 0.8,
-            borderRadius: BorderRadius.all(Radius.circular(2)),
+            smoothness: 1,
+            borderRadius: BorderRadius.all(Radius.circular(10)),
           ),
           clipBehavior: Clip.hardEdge,
-          elevation: 5,
+          elevation: 4,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -88,39 +87,42 @@ class _AdvertisedProductCardState extends State<AdvertisedProductCard> {
   }
 
   Widget _buildProductImageCarousel() {
-    return AspectRatio(
-      aspectRatio: 16 / 10.5,
-      child: ValueListenableBuilder<String?>(
-        valueListenable: widget.currentlyPlayingId,
-        builder: (context, currentlyPlayingId, _) {
-          return Stack(
-            children: [
-              PageView.builder(
-                controller: _pageController,
-                itemCount: widget.product.productImages.length,
-                onPageChanged: (page) => setState(() {
-                  _currentPage = page;
-                }),
-                itemBuilder: (context, index) => ProductMediaContent(
-                  product: widget.product,
-                  index: index,
-                  currentPage: _currentPage,
-                  isPlaying: currentlyPlayingId == widget.product.id,
+    return SmoothClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: AspectRatio(
+        aspectRatio: 16 / 10.5,
+        child: ValueListenableBuilder<String?>(
+          valueListenable: widget.currentlyPlayingId,
+          builder: (context, currentlyPlayingId, _) {
+            return Stack(
+              children: [
+                PageView.builder(
+                  controller: _pageController,
+                  itemCount: widget.product.productImages.length,
+                  onPageChanged: (page) => setState(() {
+                    _currentPage = page;
+                  }),
+                  itemBuilder: (context, index) => ProductMediaContent(
+                    product: widget.product,
+                    index: index,
+                    currentPage: _currentPage,
+                    isPlaying: currentlyPlayingId == widget.product.id,
+                  ),
                 ),
-              ),
-              _NewBadge(condition: widget.product.productCondition),
-              _ViewedStatusBadge(
-                productId: widget.product.id,
-                views: widget.product.views,
-                isOwner: _isOwner,
-              ),
-              PageIndicator(
-                currentPage: _currentPage,
-                totalPages: widget.product.productImages.length,
-              ),
-            ],
-          );
-        },
+                _NewBadge(condition: widget.product.productCondition),
+                _ViewedStatusBadge(
+                  productId: widget.product.id,
+                  views: widget.product.views,
+                  isOwner: _isOwner,
+                ),
+                PageIndicator(
+                  currentPage: _currentPage,
+                  totalPages: widget.product.productImages.length,
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -128,7 +130,7 @@ class _AdvertisedProductCardState extends State<AdvertisedProductCard> {
 
 class _NewBadge extends StatefulWidget {
   final String condition;
-  
+
   const _NewBadge({
     required this.condition,
   });
@@ -184,13 +186,14 @@ class _ViewedStatusBadge extends StatelessWidget {
         final currentViewed = current.isPublicationViewed(productId);
         final previousStatus = previous.getViewStatus(productId);
         final currentStatus = current.getViewStatus(productId);
-        
-        return previousViewed != currentViewed || previousStatus != currentStatus;
+
+        return previousViewed != currentViewed ||
+            previousStatus != currentStatus;
       },
       builder: (context, state) {
         final isViewed = state.isPublicationViewed(productId);
         final viewStatus = state.getViewStatus(productId);
-        
+
         if (isViewed || viewStatus == ViewStatus.inProgress || isOwner) {
           return Positioned(
             top: 8,
@@ -377,6 +380,7 @@ class _SellerInfo extends StatelessWidget {
     );
   }
 }
+
 class _SellerAvatar extends StatelessWidget {
   final String? imageUrl;
 
@@ -505,7 +509,7 @@ class _LikeButton extends StatelessWidget {
     if (isOwner) {
       return _buildOwnerLikeButton();
     }
-    
+
     return BlocBuilder<GlobalBloc, GlobalState>(
       buildWhen: (previous, current) {
         // Only rebuild when like status changes for this specific product
@@ -513,7 +517,7 @@ class _LikeButton extends StatelessWidget {
         final currentLiked = current.isPublicationLiked(productId);
         final previousStatus = previous.getLikeStatus(productId);
         final currentStatus = current.getLikeStatus(productId);
-        
+
         return previousLiked != currentLiked || previousStatus != currentStatus;
       },
       builder: (context, state) {
@@ -525,20 +529,18 @@ class _LikeButton extends StatelessWidget {
           onTap: () {
             if (!isLoading) {
               context.read<GlobalBloc>().add(
-                UpdateLikeStatusEvent(
-                  publicationId: productId,
-                  isLiked: isLiked,
-                  context: context,
-                ),
-              );
+                    UpdateLikeStatusEvent(
+                      publicationId: productId,
+                      isLiked: isLiked,
+                      context: context,
+                    ),
+                  );
             }
           },
           child: SmoothClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: Container(
-              color: isLiked
-                  ? AppColors.primary
-                  : AppColors.containerColor,
+              color: isLiked ? AppColors.primary : AppColors.containerColor,
               child: isLoading
                   ? ShimmerEffect(
                       isLiked: isLiked,
@@ -549,9 +551,7 @@ class _LikeButton extends StatelessWidget {
                           height: 18,
                           child: Image.asset(
                             AppIcons.favorite,
-                            color: isLiked
-                                ? Colors.white
-                                : AppColors.darkGray,
+                            color: isLiked ? Colors.white : AppColors.darkGray,
                           ),
                         ),
                       ),
@@ -563,9 +563,7 @@ class _LikeButton extends StatelessWidget {
                         height: 18,
                         child: Image.asset(
                           AppIcons.favorite,
-                          color: isLiked
-                              ? Colors.white
-                              : AppColors.darkGray,
+                          color: isLiked ? Colors.white : AppColors.darkGray,
                         ),
                       ),
                     ),
@@ -629,7 +627,8 @@ class _CallButton extends StatelessWidget {
         debugPrint("🤙Cannot launch URL: $uriString");
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text("Error: Unable to launch call to $cleanPhoneNumber")),
+              content:
+                  Text("Error: Unable to launch call to $cleanPhoneNumber")),
         );
       }
     } catch (e) {
@@ -645,15 +644,14 @@ class _CallButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: isOwner ? null : () => _makeCall(context),
       style: ElevatedButton.styleFrom(
-        backgroundColor:
-            isOwner ? Colors.grey.shade200 : AppColors.white,
+        backgroundColor: isOwner ? Colors.grey.shade200 : AppColors.primary,
         shape: SmoothRectangleBorder(
           smoothness: 1,
           side: BorderSide(
             width: 1.2,
             color: isOwner ? Colors.grey.shade400 : AppColors.primary,
           ),
-          borderRadius: const BorderRadius.all(Radius.circular(8)),
+          borderRadius: const BorderRadius.all(Radius.circular(10)),
         ),
       ),
       child: SizedBox(
@@ -665,7 +663,7 @@ class _CallButton extends StatelessWidget {
               fontSize: 14,
               fontFamily: "Poppins",
               fontWeight: FontWeight.w700,
-              color: isOwner ? Colors.grey.shade600 : AppColors.primary,
+              color: isOwner ? Colors.grey.shade600 : AppColors.white,
             ),
           ),
         ),
@@ -693,17 +691,19 @@ class ProductMediaContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (index == 0 && product.videoUrl != null && isPlaying) {
-      return VideoPlayerWidget(
-        key: ValueKey('video_${product.id}'),
-        videoUrl: _getFormattedUrl(product.videoUrl!),
-        thumbnailUrl: _getFormattedUrl(product.productImages[0].url),
-        isPlaying: true,
-        onPlay: () {},
-        onPause: () {},
+      return Container(
+        color: AppColors.black,
+        child: VideoPlayerWidget(
+          key: ValueKey('video_${product.id}'),
+          videoUrl: _getFormattedUrl(product.videoUrl!),
+          thumbnailUrl: _getFormattedUrl(product.productImages[0].url),
+          isPlaying: true,
+          onPlay: () {},
+          onPause: () {},
+        ),
       );
     }
 
-    // Show image for all other cases
     return CachedNetworkImage(
       key: ValueKey('image_${product.id}_$index'),
       imageUrl: _getFormattedUrl(product.productImages[index].url),
