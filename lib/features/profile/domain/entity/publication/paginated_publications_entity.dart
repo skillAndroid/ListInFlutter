@@ -1,7 +1,7 @@
-import 'package:list_in/features/profile/domain/entity/publication/publication_entity.dart';
+import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 
 class PaginatedPublicationsEntity {
-  final List<PublicationEntity> content;
+  final List<GetPublicationEntity> content;
   final int number;
   final int size;
   final int totalElements;

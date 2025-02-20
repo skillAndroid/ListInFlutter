@@ -236,10 +236,10 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       onPressed: () {
                         context.read<PublicationUpdateBloc>().add(
                             InitializePublication(
-                                widget.product.convertToPublicationEntity()));
+                                widget.product));
                         context.push(
                           Routes.publicationsEdit,
-                          extra: widget.product.convertToPublicationEntity(),
+                          extra: widget.product,
                         );
                       },
                       icon: Icon(
@@ -353,10 +353,10 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   onPressed: () {
                     context.read<PublicationUpdateBloc>().add(
                         InitializePublication(
-                            widget.product.convertToPublicationEntity()));
+                            widget.product));
                     context.push(
                       Routes.publicationsEdit,
-                      extra: widget.product.convertToPublicationEntity(),
+                      extra: widget.product,
                     );
                   },
                 ),
@@ -1180,10 +1180,10 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   onPressed: () {
                      context.read<PublicationUpdateBloc>().add(
                         InitializePublication(
-                            widget.product.convertToPublicationEntity()));
+                            widget.product));
                     context.push(
                       Routes.publicationsEdit,
-                      extra: widget.product.convertToPublicationEntity(),
+                      extra: widget.product,
                     );
                   },
                 ),

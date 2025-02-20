@@ -310,7 +310,7 @@ class _VideoCarouselState extends State<VideoCarousel> {
                   onTap: () => _onVideoTap(index),
                   child: SizedBox(
                     height: 160,
-                    width: 90,
+                    width: 90, 
                     child: Stack(
                       fit: StackFit.expand,
                       children: [

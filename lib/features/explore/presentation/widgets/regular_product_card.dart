@@ -24,7 +24,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class HorizontalProfileProductCard extends StatelessWidget {
-  final PublicationEntity product;
+  final GetPublicationEntity product;
   const HorizontalProfileProductCard({
     super.key,
     required this.product,
@@ -238,7 +238,7 @@ class HorizontalProfileProductCard extends StatelessWidget {
 }
 
 class ProfileProductCard extends StatelessWidget {
-  final PublicationEntity product;
+  final GetPublicationEntity product;
   const ProfileProductCard({
     super.key,
     required this.product,

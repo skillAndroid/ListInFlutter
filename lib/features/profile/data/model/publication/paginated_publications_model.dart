@@ -1,8 +1,8 @@
-import 'package:list_in/features/profile/data/model/publication/publication_model.dart';
+import 'package:list_in/features/explore/data/models/publication_model.dart';
 import 'package:list_in/features/profile/domain/entity/publication/paginated_publications_entity.dart';
 
 class PaginatedPublicationsModel {
-  final List<PublicationModel> content;
+  final List<GetPublicationModel> content;
   final int number;
   final int size;
   final int totalElements;
@@ -12,7 +12,7 @@ class PaginatedPublicationsModel {
 
   PaginatedPublicationsModel.fromJson(Map<String, dynamic> json)
       : content = (json['content'] as List<dynamic>)
-            .map((item) => PublicationModel.fromJson(item as Map<String, dynamic>))
+            .map((item) => GetPublicationModel.fromJson(item as Map<String, dynamic>))
             .toList(),
         number = json['number'] as int,
         size = json['size'] as int,

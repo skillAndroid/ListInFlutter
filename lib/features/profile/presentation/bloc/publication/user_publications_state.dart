@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:list_in/features/profile/domain/entity/publication/publication_entity.dart';
+import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 
 enum PublicationUpdatingState {
   initial,
@@ -11,7 +11,7 @@ enum PublicationUpdatingState {
 }
 
 class UserPublicationsState extends Equatable {
-  final List<PublicationEntity> publications;
+  final List<GetPublicationEntity> publications;
   final bool isLoading;
   final String? error;
   final bool hasReachedEnd;
@@ -30,7 +30,7 @@ class UserPublicationsState extends Equatable {
   });
 
   UserPublicationsState copyWith({
-    List<PublicationEntity>? publications,
+    List<GetPublicationEntity>? publications,
     bool? isLoading,
     bool? isRefreshing,
     String? error,

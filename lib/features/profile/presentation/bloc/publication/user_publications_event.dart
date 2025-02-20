@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:list_in/features/profile/domain/entity/publication/publication_entity.dart';
+import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 
 abstract class UserPublicationsEvent extends Equatable {
   @override
@@ -19,7 +19,7 @@ abstract class PublicationUpdateEvent extends Equatable {
 }
 
 class InitializePublication extends PublicationUpdateEvent {
-  final PublicationEntity publication;
+  final GetPublicationEntity publication;
 
   InitializePublication(this.publication);
 

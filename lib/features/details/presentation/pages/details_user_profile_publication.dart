@@ -13,14 +13,14 @@ import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/details/presentation/pages/video_details.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
+import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/formaters.dart';
-import 'package:list_in/features/profile/domain/entity/publication/publication_entity.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_event.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class DetailsUserProfilePublication extends StatefulWidget {
-  final PublicationEntity product;
+  final GetPublicationEntity product;
   final List<ProductEntity> recommendedProducts;
 
   const DetailsUserProfilePublication({
