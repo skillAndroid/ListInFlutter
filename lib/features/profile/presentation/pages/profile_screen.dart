@@ -45,7 +45,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
   void initState() {
     super.initState();
     _scrollController = ScrollController();
-    _tabController = TabController(length: 5, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
 
     context.read<UserProfileBloc>().add(GetUserData());
     context.read<UserPublicationsBloc>().add(FetchUserPublications());
@@ -322,55 +322,8 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                               ],
                             ),
                           ),
-                          Tab(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  CupertinoIcons.camera,
-                                  size: 22,
-                                ),
-                                SizedBox(
-                                  width: 4,
-                                ),
-                                Text(
-                                  '13',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 4,
-                                ),
-                              ],
-                            ),
-                          ),
-                          Tab(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  CupertinoIcons.play_circle,
-                                  size: 22,
-                                ),
-                                SizedBox(
-                                  width: 4,
-                                ),
-                                Text(
-                                  '13',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 4,
-                                ),
-                              ],
-                            ),
-                          ),
-                          Tab(
+                         
+                         Tab(
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -466,15 +419,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                       ),
                     ),
                     // Posts Tab
-                    _buildEmptyTab(
-                      icon: CupertinoIcons.camera,
-                      text: "No Photos",
-                    ),
-                    // Videos Tab
-                    _buildEmptyTab(
-                      icon: Icons.play_circle_rounded,
-                      text: "No Videos",
-                    ),
+
                     _buildEmptyTab(
                       icon: CupertinoIcons.star,
                       text: "No Reviews",
