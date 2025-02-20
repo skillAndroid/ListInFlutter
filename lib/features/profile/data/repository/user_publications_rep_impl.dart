@@ -72,4 +72,24 @@ class UserPublicationsRepositoryImpl implements UserPublicationsRepository {
       return Left(ServerFailure());
     }
   }
+
+  @override
+  Future<Either<Failure, void>> deletePost(String id) async {
+    if (!await networkInfo.isConnected) {
+      return Left(NetworkFailure());
+    }
+    try {
+      await remoteDataSource.deletePublication(id);
+      return Right(null);
+    } on ServerExeption catch (e) {
+      debugPrint('Server exception in repository: ${e.message}');
+      return Left(ServerFailure());
+    } on NetworkFailure {
+      return Left(NetworkFailure());
+    } catch (e, stackTrace) {
+      debugPrint('Unexpected error in repository: $e');
+      debugPrint('Stack trace: $stackTrace');
+      return Left(ServerFailure());
+    }
+  }
 }
