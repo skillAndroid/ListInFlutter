@@ -17,7 +17,7 @@ class LocationRemoteDataSourceImpl extends LocationRemoteDatasource {
   Future<String> getRegionFromCoordinates(CoordinatesModel coordinates) async {
     try {
       final response = await dio.get(
-      'https://nominatim.openstreetmap.org/reverse',
+        'https://nominatim.openstreetmap.org/reverse',
         queryParameters: {
           'format': 'json',
           'lat': coordinates.latitude,
@@ -32,10 +32,10 @@ class LocationRemoteDataSourceImpl extends LocationRemoteDatasource {
       if (response.statusCode == 200) {
         final address = response.data['address'];
         final addressParts = [
-          address['county'], // tuman
-          address['city'], // shahar
-          address['state'], // viloyat
-          address['country'] // davlat :
+          address['county'],
+          address['city'],
+          address['state'],
+          address['country'],
         ].where((part) => part != null && part.isNotEmpty).toList();
 
         return addressParts.join(', ');
