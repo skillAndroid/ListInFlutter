@@ -361,8 +361,8 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                       ClipRRect(
                         borderRadius: BorderRadius.circular(100),
                         child: Container(
-                          width: 44,
-                          height: 44,
+                          width: 40,
+                          height: 40,
                           decoration: BoxDecoration(
                             color: AppColors.white,
                           ),
@@ -389,11 +389,14 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                   ),
                 ),
                 if (state.videoPublications.isNotEmpty) ...[
-                  SizedBox(height: 8),
-                  VideoCarousel(
-                    items: state.videoPublications.sublist(0, 4),
+                  SizedBox(height: 4),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal:  8.0),
+                    child: VideoCarousel(
+                      items: state.videoPublications.sublist(0, 4),
+                    ),
                   ),
-                  SizedBox(height: 16),
+                  SizedBox(height: 8),
                 ]
               ],
             ),

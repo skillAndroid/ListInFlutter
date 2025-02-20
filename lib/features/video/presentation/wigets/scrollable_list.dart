@@ -23,6 +23,7 @@ class VideoCarousel extends StatefulWidget {
 }
 
 class _VideoCarouselState extends State<VideoCarousel> {
+
   late PageController _pageController;
   VideoPlayerController? _videoController;
   int _currentIndex = 0;
@@ -35,7 +36,7 @@ class _VideoCarouselState extends State<VideoCarousel> {
   @override
   void initState() {
     super.initState();
-    _pageController = PageController(viewportFraction: 0.275, initialPage: 0);
+    _pageController = PageController(viewportFraction: 0.29, initialPage: 0);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_isVisible) {
         _initializeVideo(_currentIndex);
