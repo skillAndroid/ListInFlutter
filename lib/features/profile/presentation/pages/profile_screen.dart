@@ -304,13 +304,13 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                               children: [
                                 Icon(
                                   Icons.inventory_rounded,
-                                  size: 22,
+                                  size: 24,
                                 ),
                                 SizedBox(
                                   width: 4,
                                 ),
                                 Text(
-                                  '13',
+                                  'Posts',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 13,
@@ -322,21 +322,20 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                               ],
                             ),
                           ),
-                         
-                         Tab(
+                          Tab(
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(
-                                  Icons.reviews_outlined,
-                                  size: 22,
+                                  Icons.reviews,
+                                  size: 24,
                                 ),
                                 SizedBox(
                                   width: 4,
                                 ),
                                 Text(
-                                  '13',
+                                  'Reviews',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 13,
@@ -354,13 +353,13 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                               children: [
                                 Icon(
                                   CupertinoIcons.heart_circle,
-                                  size: 22,
+                                  size: 24,
                                 ),
                                 SizedBox(
                                   width: 4,
                                 ),
                                 Text(
-                                  '13',
+                                  'Liked Posts',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 13,
@@ -413,7 +412,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                       },
                       child: CustomScrollView(
                         slivers: [
-                          _buildProductFilters(),
+                          //   _buildProductFilters(),
                           _buildFilteredProductsGrid(),
                         ],
                       ),

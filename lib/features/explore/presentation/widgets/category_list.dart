@@ -29,7 +29,7 @@ class CategoriesList extends StatelessWidget {
 
         return Container(
           color: AppColors.bgColor,
-          height: 170, // Adjusted height for two rows
+          height: 156, // Adjusted height for two rows
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             physics: const BouncingScrollPhysics(),
@@ -50,7 +50,8 @@ class CategoriesList extends StatelessWidget {
     );
   }
 
-  Widget _buildRow(List<CategoryModel> items, bool isFirstRow, HomeTreeState state) {
+  Widget _buildRow(
+      List<CategoryModel> items, bool isFirstRow, HomeTreeState state) {
     final List<Map<String, dynamic>> configs = isFirstRow
         ? [
             // First row configs
@@ -143,7 +144,7 @@ class CategoriesList extends StatelessWidget {
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 0.5),
               child: CategoryCard(
-                state : state,
+                state: state,
                 category: category,
                 index: index,
                 maxWidth: config['maxWidth'],

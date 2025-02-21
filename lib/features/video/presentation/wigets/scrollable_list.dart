@@ -23,7 +23,6 @@ class VideoCarousel extends StatefulWidget {
 }
 
 class _VideoCarouselState extends State<VideoCarousel> {
-
   late PageController _pageController;
   VideoPlayerController? _videoController;
   int _currentIndex = 0;
@@ -265,7 +264,7 @@ class _VideoCarouselState extends State<VideoCarousel> {
                 padding: const EdgeInsets.only(right: 2),
                 child: SmoothClipRRect(
                   side: BorderSide(width: 2, color: AppColors.white),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(16),
                   child: GestureDetector(
                     onTap: () => context
                         .read<HomeTreeCubit>()
@@ -304,13 +303,13 @@ class _VideoCarouselState extends State<VideoCarousel> {
             return Padding(
               padding: const EdgeInsets.only(right: 2),
               child: SmoothClipRRect(
-                side: BorderSide(width: 2, color: AppColors.white),
-                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(width: 2, color: AppColors.containerColor),
+                borderRadius: BorderRadius.circular(16),
                 child: GestureDetector(
                   onTap: () => _onVideoTap(index),
                   child: SizedBox(
                     height: 160,
-                    width: 90, 
+                    width: 90,
                     child: Stack(
                       fit: StackFit.expand,
                       children: [

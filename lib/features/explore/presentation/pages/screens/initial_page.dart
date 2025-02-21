@@ -345,12 +345,12 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
 
   Widget _buildContentSection(HomeTreeState state) {
     return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
       sliver: SliverToBoxAdapter(
         child: SmoothClipRRect(
           borderRadius: BorderRadius.circular(16),
           child: Container(
-            color: AppColors.containerColor,
+            color: AppColors.white,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -391,7 +391,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                 if (state.videoPublications.isNotEmpty) ...[
                   SizedBox(height: 4),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal:  8.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     child: VideoCarousel(
                       items: state.videoPublications.sublist(0, 4),
                     ),
@@ -628,8 +628,8 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                         IconButton(
                           icon: Image.asset(
                             AppIcons.chatIc,
-                            width: 46,
-                            height: 46,
+                            width: 38,
+                            height: 38,
                             color: AppColors.black,
                           ),
                           onPressed: () {},
@@ -638,8 +638,8 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                           right: 8,
                           bottom: 12,
                           child: Container(
-                            width: 18,
-                            height: 18,
+                            width: 14,
+                            height: 14,
                             decoration: BoxDecoration(
                               color: AppColors.error,
                               borderRadius: BorderRadius.circular(32),
@@ -649,7 +649,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                                 "2",
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 12,
+                                  fontSize: 11,
                                 ),
                               ),
                             ),

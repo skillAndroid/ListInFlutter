@@ -1,8 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:list_in/config/theme/app_colors.dart';
-import 'package:list_in/features/explore/presentation/widgets/location_bar.dart';
-import 'package:list_in/features/explore/presentation/widgets/recomendation_widget.dart';
 import 'package:list_in/features/explore/presentation/widgets/category_list.dart';
+import 'package:list_in/features/explore/presentation/widgets/recomendation_widget.dart';
 
 class TopAppRecomendationCategory extends StatelessWidget {
   final List<RecommendationItem> recommendations;
@@ -23,7 +22,6 @@ class TopAppRecomendationCategory extends StatelessWidget {
           RecommendationsRow(recommendations: recommendations),
           const SizedBox(height: 2),
           CategoriesList(),
-          const LocationBar(),
         ],
       ),
     );
