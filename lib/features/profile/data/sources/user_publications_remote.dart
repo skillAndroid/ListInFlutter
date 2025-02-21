@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:list_in/core/error/exeptions.dart';
 import 'package:list_in/core/services/auth_service.dart';
-import 'package:list_in/features/explore/data/models/publication_model.dart';
 import 'package:list_in/features/profile/data/model/publication/paginated_publications_model.dart';
 import 'package:list_in/features/profile/data/model/publication/update_user_post_model.dart';
 
@@ -12,7 +11,7 @@ abstract class UserPublicationsRemoteDataSource {
     required int size,
   });
 
-  Future<GetPublicationModel> updatePublication(UpdatePostModel publication, String id);
+  Future<void> updatePublication(UpdatePostModel publication, String id);
   Future<void> deletePublication(String id);
 }
 
@@ -75,7 +74,7 @@ class UserPublicationsRemoteDataSourceImpl
   }
 
   @override
-  Future<GetPublicationModel> updatePublication(UpdatePostModel publication, String id) async {
+  Future<void> updatePublication(UpdatePostModel publication, String id) async {
     try {
       final options = await authService.getAuthOptions();
       final response = await dio.patch(
@@ -87,7 +86,7 @@ class UserPublicationsRemoteDataSourceImpl
       debugPrint("❤️❤️ ${response.data}");
 
       if (response.statusCode == 200 || response.statusCode == 204) {
-        return response.data;
+        return;
       } else {
         throw ServerExeption(
             message: 'Unexpected status code: ${response.statusCode}');

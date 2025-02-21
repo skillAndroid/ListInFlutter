@@ -1,6 +1,5 @@
 import 'package:dartz/dartz.dart';
 import 'package:list_in/core/error/failure.dart';
-import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/profile/domain/entity/publication/paginated_publications_entity.dart';
 import 'package:list_in/features/profile/domain/entity/publication/update_post_entity.dart';
 
@@ -10,6 +9,6 @@ abstract class UserPublicationsRepository {
     required int size,
   });
 
-  Future<Either<Failure, GetPublicationEntity>> updatePost(UpdatePostEntity post, String id);
+  Future<Either<Failure, void>> updatePost(UpdatePostEntity post, String id);
   Future<Either<Failure, void>> deletePost(String id);
 }

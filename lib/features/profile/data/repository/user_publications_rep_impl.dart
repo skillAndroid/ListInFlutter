@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:list_in/core/error/exeptions.dart';
 import 'package:list_in/core/error/failure.dart';
 import 'package:list_in/core/network/network_info.dart';
-import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/profile/data/sources/user_publications_remote.dart';
 import 'package:list_in/features/profile/domain/entity/publication/paginated_publications_entity.dart';
 import 'package:list_in/features/profile/domain/entity/publication/update_post_entity.dart';
@@ -53,15 +52,15 @@ class UserPublicationsRepositoryImpl implements UserPublicationsRepository {
   }
 
   @override
-  Future<Either<Failure, GetPublicationEntity>> updatePost(
+  Future<Either<Failure, void>> updatePost(
       UpdatePostEntity post, String id) async {
     if (!await networkInfo.isConnected) {
       return Left(NetworkFailure());
     }
     try {
-      final result =
-          await remoteDataSource.updatePublication(post.toModel(), id);
-      return Right(result.toEntity());
+      await remoteDataSource.updatePublication(
+          post.toModel(), id); // Убрали ненужный return
+      return Right(null); // Возвращаем `Right(null)`, так как метод void
     } on ServerExeption catch (e) {
       debugPrint('Server exception in repository: ${e.message}');
       return Left(ServerFailure());

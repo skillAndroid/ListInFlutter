@@ -862,10 +862,134 @@ class RemouteRegularProductCard2 extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        context.push(
-          Routes.productDetails,
-          extra: product,
-        );
+        if (!isOwner) {
+          context.push(
+            Routes.productDetails,
+            extra: product,
+          );
+        } else {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) => Dialog(
+              shape: SmoothRectangleBorder(
+                smoothness: 0.7,
+                borderRadius: BorderRadius.circular(16.0),
+              ),
+              child: Container(
+                width: MediaQuery.of(context).size.width * 0.85,
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Title section
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Under Construction',
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        Text('🚧', style: TextStyle(fontSize: 20)),
+                      ],
+                    ),
+                    SizedBox(height: 16),
+
+                    // Content section
+                    SizedBox(
+                      width: double.infinity,
+                      child: Text(
+                        "We're sorry, but you can't view your own publication details from this page yet.",
+                        style: TextStyle(fontSize: 14, fontFamily: 'Poppins'),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    SizedBox(height: 12),
+
+                    Text(
+                      "Our development team is working on this feature! 👨‍💻",
+                      style: TextStyle(fontSize: 14, fontFamily: 'Poppins'),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 16),
+
+                    SmoothClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.withOpacity(0.1),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text('✨', style: TextStyle(fontSize: 16)),
+                            SizedBox(width: 4),
+                            Flexible(
+                              child: Text(
+                                'To view or edit your publication, please go to your profile.',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'Poppins',
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                            SizedBox(width: 4),
+                            Text('✨', style: TextStyle(fontSize: 16)),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    // Buttons section
+                    SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            context.go(Routes.profile);
+                          },
+                          child: Text(
+                            'Go to Profile',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              color: Colors.blue,
+                            ),
+                          ),
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            foregroundColor: Colors.white,
+                            shape: SmoothRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: Text(
+                            'OK, Got it',
+                            style: TextStyle(fontFamily: 'Poppins'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
       },
       child: Card(
         margin: EdgeInsets.symmetric(horizontal: 3, vertical: 3),

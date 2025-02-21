@@ -213,7 +213,7 @@ class _ProfileEditorState extends State<ProfileEditor> {
               ],
             ),
           );
-        } else if (state.status == UserProfileStatus.success) {
+        } else if (state.status == UserProfileStatus.success || state.status == UserProfileStatus.failure) {
           // Navigate back on success
           Navigator.pop(context);
         }

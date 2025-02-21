@@ -75,19 +75,20 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<DetailsBloc>().add(
-          FetchPublications(
-            userId: widget.product.seller.id,
-            isInitialFetch: true,
-          ),
-        );
-
     final globalBloc = context.read<GlobalBloc>();
     final currentUserId = globalBloc.getUserId(); // Get current user ID
     final isOwner =
         currentUserId == widget.product.seller.id; // Check if user is owner
 
-    // Only update view status if the user is not the owner
+    if (!isOwner) {
+      context.read<DetailsBloc>().add(
+            FetchPublications(
+              userId: widget.product.seller.id,
+              isInitialFetch: true,
+            ),
+          );
+    }
+
     if (!isOwner) {
       final isViewed = globalBloc.state.isPublicationViewed(widget.product.id);
       if (!isViewed) {
@@ -314,7 +315,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   label: 'Call',
                   color: AppColors.primary,
                   textColor: Colors.white,
-                  onPressed: () { _makeCall(context, widget.product.seller.phoneNumber);},
+                  onPressed: () {
+                    _makeCall(context, widget.product.seller.phoneNumber);
+                  },
                 ),
               ),
               const SizedBox(width: 10),
@@ -1484,6 +1487,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       context.read<UserPublicationsBloc>().add(
             DeleteUserPublication(publicationId: widget.product.id),
           );
+          context.pop();
     }
   }
 
