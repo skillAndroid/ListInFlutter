@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/core/error/failure.dart';
-import 'package:list_in/features/details/presentation/bloc/details_state.dart';
 import 'package:list_in/features/details/presentation/bloc/details_event.dart';
+import 'package:list_in/features/details/presentation/bloc/details_state.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/visitior_profile/domain/usecase/follow_usecase.dart';
 import 'package:list_in/features/visitior_profile/domain/usecase/get_another_user_profile_usecase.dart';
 import 'package:list_in/features/visitior_profile/domain/usecase/get_another_user_publications_usecase.dart';
 import 'package:list_in/global/global_bloc.dart';
+import 'package:list_in/global/global_event.dart';
 
 class DetailsBloc extends Bloc<DetailsEvent, DetailsState> {
   final GetAnotherUserDataUseCase getUserDataUseCase;

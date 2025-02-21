@@ -17,6 +17,9 @@ import 'package:list_in/features/visitior_profile/presentation/bloc/another_user
 import 'package:list_in/features/visitior_profile/presentation/bloc/another_user_profile_event.dart';
 import 'package:list_in/features/visitior_profile/presentation/bloc/another_user_profile_state.dart';
 import 'package:list_in/global/global_bloc.dart';
+import 'package:list_in/global/global_event.dart';
+import 'package:list_in/global/global_state.dart';
+import 'package:list_in/global/global_status.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class VisitorProfileScreen extends StatefulWidget {

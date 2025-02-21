@@ -32,9 +32,13 @@ import 'package:list_in/features/profile/presentation/widgets/action_sheet_menu.
 import 'package:list_in/features/profile/presentation/widgets/delete_confirmation.dart';
 import 'package:list_in/features/profile/presentation/widgets/info_dialog.dart';
 import 'package:list_in/global/global_bloc.dart';
+import 'package:list_in/global/global_event.dart';
+import 'package:list_in/global/global_state.dart';
+import 'package:list_in/global/global_status.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:visibility_detector/visibility_detector.dart';
+
 import '../bloc/details_event.dart';
 
 class ProductDetailsScreen extends StatefulWidget {

@@ -7,6 +7,7 @@ import 'package:list_in/features/visitior_profile/domain/usecase/get_another_use
 import 'package:list_in/features/visitior_profile/presentation/bloc/another_user_profile_event.dart';
 import 'package:list_in/features/visitior_profile/presentation/bloc/another_user_profile_state.dart';
 import 'package:list_in/global/global_bloc.dart';
+import 'package:list_in/global/global_event.dart';
 
 class AnotherUserProfileBloc
     extends Bloc<AnotherUserProfileEvent, AnotherUserProfileState> {
