@@ -705,7 +705,7 @@ Widget _buildFilteredProductsGrid() {
           ),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
-            childAspectRatio: 0.60,
+            childAspectRatio: 0.625,
             crossAxisSpacing: 0,
             mainAxisSpacing: 0,
           ),

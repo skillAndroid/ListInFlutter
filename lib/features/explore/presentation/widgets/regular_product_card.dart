@@ -22,6 +22,11 @@ import 'package:list_in/global/global_bloc.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
+import '../../../profile/presentation/widgets/action_sheet_menu.dart';
+import '../../../profile/presentation/widgets/delete_confirmation.dart';
+import '../../../profile/presentation/widgets/info_dialog.dart';
+
+
 class HorizontalProfileProductCard extends StatelessWidget {
   final GetPublicationEntity product;
   const HorizontalProfileProductCard({
@@ -235,7 +240,6 @@ class HorizontalProfileProductCard extends StatelessWidget {
     );
   }
 }
-
 class ProfileProductCard extends StatelessWidget {
   final GetPublicationEntity product;
   const ProfileProductCard({
@@ -329,6 +333,8 @@ class ProfileProductCard extends StatelessWidget {
                   SizedBox(height: 8),
                   Text(
                     product.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -344,7 +350,6 @@ class ProfileProductCard extends StatelessWidget {
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -392,7 +397,7 @@ class ProfileProductCard extends StatelessWidget {
                             width: 4,
                           ),
                           InkWell(
-                            onTap: () => _showOptionsMenu(context, product),
+                            onTap: () => _showPublicationOptions(context),
                             child: Container(
                               padding: EdgeInsets.all(8),
                               decoration: BoxDecoration(
@@ -419,140 +424,57 @@ class ProfileProductCard extends StatelessWidget {
     );
   }
 
-  void _showDeleteConfirmation(BuildContext context, String publicationId) {
-    showCupertinoDialog(
+  void _showDeleteConfirmation(BuildContext context) async {
+    final shouldDelete = await ConfirmationDialog.show(
       context: context,
-      builder: (context) => CupertinoAlertDialog(
-        title: const Text(
-          'Delete Publication',
-          style: TextStyle(fontFamily: "Poppins"),
-        ),
-        content: const Text(
-          'Are you sure you want to delete this publication? This action cannot be undone.',
-            style: TextStyle(fontFamily: "Poppins", ),
-        ),
-        actions: [
-          CupertinoDialogAction(
-            isDefaultAction: true,
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          CupertinoDialogAction(
-            isDestructiveAction: true,
-            onPressed: () {
-              // Dispatch delete event
-              context.read<UserPublicationsBloc>().add(
-                    DeleteUserPublication(publicationId: publicationId),
-                  );
-              Navigator.of(context).pop();
-            },
-            child: const Text('Delete',  style: TextStyle(fontFamily: "Poppins", ),),
-          ),
-        ],
-      ),
+      title: 'Delete Publication',
+      message: 'Are you sure you want to delete this publication? This action cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      isDestructiveAction: true,
     );
-  }
-
-  void _showOptionsMenu(BuildContext context, GetPublicationEntity product) {
-    showCupertinoModalPopup(
-      context: context,
-      builder: (context) => CupertinoActionSheet(
-        title: const Text(
-          'Publication Options',
-          style: TextStyle(fontFamily: "Poppins"),
-        ),
-        message: const Text(
-          'Choose an action for this publication',
-          style: TextStyle(fontFamily: "Poppins"),
-        ),
-        actions: [
-          CupertinoActionSheetAction(
-            onPressed: () {
-              Navigator.of(context).pop();
-              _showBoostUnavailableMessage(context);
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  CupertinoIcons.rocket,
-                  color: AppColors.primary,
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                const Text(
-                  'Boost Publication',
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.w500,
-                      fontFamily: "Poppins",
-                      fontSize: 16),
-                ),
-              ],
-            ),
-          ),
-          CupertinoActionSheetAction(
-            isDestructiveAction: true,
-            onPressed: () {
-              Navigator.of(context).pop();
-              _showDeleteConfirmation(context, product.id);
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  CupertinoIcons.delete,
-                  color: AppColors.error,
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                const Text(
-                  'Delete Publication',
-                  style: TextStyle(fontFamily: "Poppins", fontSize: 16),
-                ),
-              ],
-            ),
-          ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text(
-            'Cancel',
-            style: TextStyle(fontFamily: "Poppins", fontSize: 16),
-          ),
-        ),
-      ),
-    );
+    
+    if (shouldDelete) {
+      context.read<UserPublicationsBloc>().add(
+        DeleteUserPublication(publicationId: product.id),
+      );
+    }
   }
 
   void _showBoostUnavailableMessage(BuildContext context) {
-    showCupertinoDialog(
+    InfoDialog.show(
       context: context,
-      builder: (context) => CupertinoAlertDialog(
-        title: const Text(
-          'Boost Unavailable',
-          style: TextStyle(fontFamily: "Poppins"),
-        ),
-        content: const Text(
-          'Publication boosting is a premium feature that is not yet supported. Stay tuned for updates!',
-          style: TextStyle(fontFamily: "Poppins"),
-        ),
-        actions: [
-          CupertinoDialogAction(
-            isDefaultAction: true,
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text(
-              'OK',
-              style: TextStyle(
-                fontFamily: "Poppins",
-              ),
-            ),
-          ),
-        ],
+      title: 'Boost Unavailable',
+      message: 'Publication boosting is a premium feature that is not yet supported. Stay tuned for updates!',
+    );
+  }
+
+  void _showPublicationOptions(BuildContext context) {
+    final options = [
+      ActionSheetOption(
+        title: 'Boost Publication',
+        icon: CupertinoIcons.rocket,
+        iconColor: AppColors.primary,
+        onPressed: () => _showBoostUnavailableMessage(context),
       ),
+      ActionSheetOption(
+        title: 'Delete Publication',
+        icon: CupertinoIcons.delete,
+        iconColor: AppColors.error,
+        onPressed: () => _showDeleteConfirmation(context),
+        isDestructive: true,
+      ),
+    ];
+
+    ActionSheetMenu.show(
+      context: context,
+      title: 'Publication Options',
+      message: 'Choose an action for this publication',
+      options: options,
     );
   }
 }
+
 
 class RegularProductCard extends StatelessWidget {
   final ProductEntity product;
