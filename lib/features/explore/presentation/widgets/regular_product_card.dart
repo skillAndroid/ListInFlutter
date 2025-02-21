@@ -16,6 +16,7 @@ import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/formaters.dart';
 import 'package:list_in/features/profile/domain/usecases/user/get_user_data_usecase.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
+import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_event.dart';
 import 'package:list_in/global/global_bloc.dart';
 import 'package:shimmer/shimmer.dart';
@@ -390,16 +391,19 @@ class ProfileProductCard extends StatelessWidget {
                           SizedBox(
                             width: 4,
                           ),
-                          Container(
-                            padding: EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: AppColors.containerColor,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Icon(
-                              Ionicons.ellipsis_vertical,
-                              color: AppColors.error,
-                              size: 16,
+                          InkWell(
+                            onTap: () => _showOptionsMenu(context, product),
+                            child: Container(
+                              padding: EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: AppColors.containerColor,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Icon(
+                                Ionicons.ellipsis_vertical,
+                                color: AppColors.error,
+                                size: 16,
+                              ),
                             ),
                           ),
                         ],
@@ -411,6 +415,140 @@ class ProfileProductCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showDeleteConfirmation(BuildContext context, String publicationId) {
+    showCupertinoDialog(
+      context: context,
+      builder: (context) => CupertinoAlertDialog(
+        title: const Text(
+          'Delete Publication',
+          style: TextStyle(fontFamily: "Poppins"),
+        ),
+        content: const Text(
+          'Are you sure you want to delete this publication? This action cannot be undone.',
+            style: TextStyle(fontFamily: "Poppins", ),
+        ),
+        actions: [
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            onPressed: () {
+              // Dispatch delete event
+              context.read<UserPublicationsBloc>().add(
+                    DeleteUserPublication(publicationId: publicationId),
+                  );
+              Navigator.of(context).pop();
+            },
+            child: const Text('Delete',  style: TextStyle(fontFamily: "Poppins", ),),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showOptionsMenu(BuildContext context, GetPublicationEntity product) {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (context) => CupertinoActionSheet(
+        title: const Text(
+          'Publication Options',
+          style: TextStyle(fontFamily: "Poppins"),
+        ),
+        message: const Text(
+          'Choose an action for this publication',
+          style: TextStyle(fontFamily: "Poppins"),
+        ),
+        actions: [
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _showBoostUnavailableMessage(context);
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  CupertinoIcons.rocket,
+                  color: AppColors.primary,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                const Text(
+                  'Boost Publication',
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: "Poppins",
+                      fontSize: 16),
+                ),
+              ],
+            ),
+          ),
+          CupertinoActionSheetAction(
+            isDestructiveAction: true,
+            onPressed: () {
+              Navigator.of(context).pop();
+              _showDeleteConfirmation(context, product.id);
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  CupertinoIcons.delete,
+                  color: AppColors.error,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                const Text(
+                  'Delete Publication',
+                  style: TextStyle(fontFamily: "Poppins", fontSize: 16),
+                ),
+              ],
+            ),
+          ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text(
+            'Cancel',
+            style: TextStyle(fontFamily: "Poppins", fontSize: 16),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showBoostUnavailableMessage(BuildContext context) {
+    showCupertinoDialog(
+      context: context,
+      builder: (context) => CupertinoAlertDialog(
+        title: const Text(
+          'Boost Unavailable',
+          style: TextStyle(fontFamily: "Poppins"),
+        ),
+        content: const Text(
+          'Publication boosting is a premium feature that is not yet supported. Stay tuned for updates!',
+          style: TextStyle(fontFamily: "Poppins"),
+        ),
+        actions: [
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text(
+              'OK',
+              style: TextStyle(
+                fontFamily: "Poppins",
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

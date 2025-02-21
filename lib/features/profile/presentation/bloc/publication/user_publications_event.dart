@@ -7,6 +7,12 @@ abstract class UserPublicationsEvent extends Equatable {
   List<Object?> get props => [];
 }
 
+class DeleteUserPublication extends UserPublicationsEvent {
+  final String publicationId;
+  
+  DeleteUserPublication({required this.publicationId});
+}
+
 class FetchUserPublications extends UserPublicationsEvent {}
 
 class LoadMoreUserPublications extends UserPublicationsEvent {}
@@ -85,14 +91,12 @@ class ClearPublicationState extends PublicationUpdateEvent {
 class UpdateImages extends PublicationUpdateEvent {
   final List<XFile> images;
   final bool keepExisting;
-  
+
   UpdateImages(this.images, {this.keepExisting = false});
-  
+
   @override
   List<Object?> get props => [images, keepExisting];
 }
-
-
 
 class ReorderImages extends PublicationUpdateEvent {
   final int oldIndex;

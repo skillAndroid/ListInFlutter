@@ -18,6 +18,7 @@ class UserPublicationsState extends Equatable {
   final bool isRefreshing;
   final int currentPage;
   final bool isInitialLoading;
+  final Set<String> deletedPublicationIds; // Add this field
 
   const UserPublicationsState({
     this.publications = const [],
@@ -27,6 +28,7 @@ class UserPublicationsState extends Equatable {
     this.hasReachedEnd = false,
     this.currentPage = 0,
     this.isInitialLoading = false,
+    this.deletedPublicationIds = const {},
   });
 
   UserPublicationsState copyWith({
@@ -37,6 +39,7 @@ class UserPublicationsState extends Equatable {
     bool? hasReachedEnd,
     int? currentPage,
     bool? isInitialLoading,
+    Set<String>? deletedPublicationIds,
   }) {
     return UserPublicationsState(
       publications: publications ?? this.publications,
@@ -46,6 +49,8 @@ class UserPublicationsState extends Equatable {
       currentPage: currentPage ?? this.currentPage,
       error: error,
       isInitialLoading: isInitialLoading ?? this.isInitialLoading,
+      deletedPublicationIds:
+          deletedPublicationIds ?? this.deletedPublicationIds,
     );
   }
 

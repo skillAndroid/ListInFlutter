@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/core/error/failure.dart';
+import 'package:list_in/features/profile/domain/usecases/publication/delete_user_publication_usecase.dart';
 import 'package:list_in/features/profile/domain/usecases/publication/get_user_publications_usecase.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_event.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_state.dart';
@@ -8,14 +9,78 @@ import 'package:list_in/features/profile/presentation/bloc/publication/user_publ
 class UserPublicationsBloc
     extends Bloc<UserPublicationsEvent, UserPublicationsState> {
   final GetUserPublicationsUseCase getUserPublicationsUseCase;
+  final DeleteUserPublicationUsecase deletePublicationUseCase;
   static const int _pageSize = 20;
 
   UserPublicationsBloc({
     required this.getUserPublicationsUseCase,
+    required this.deletePublicationUseCase,
   }) : super(const UserPublicationsState()) {
     on<FetchUserPublications>(_onFetchUserPublications);
     on<LoadMoreUserPublications>(_onLoadMoreUserPublications);
     on<RefreshUserPublications>(_onRefreshUserPublications);
+    on<DeleteUserPublication>(_onDeleteUserPublication);
+  }
+
+  Future<void> _onDeleteUserPublication(
+    DeleteUserPublication event,
+    Emitter<UserPublicationsState> emit,
+  ) async {
+    try {
+      debugPrint(
+          'DEBUG: Attempting to delete publication ${event.publicationId}');
+
+      // Optimistically update UI first
+      final updatedPublications = state.publications
+          // ignore: unrelated_type_equality_checks
+          .where((pub) => pub.id != event.publicationId)
+          .toList();
+
+      final updatedDeletedIds = {...state.deletedPublicationIds};
+      updatedDeletedIds.add(event.publicationId);
+
+      emit(state.copyWith(
+        publications: updatedPublications,
+        deletedPublicationIds: updatedDeletedIds,
+      ));
+
+      // Make the API call to delete the publication
+      final result = await deletePublicationUseCase(
+        params: DeleteParams(id: event.publicationId.toString()),
+      );
+
+      result.fold(
+        (failure) {
+          debugPrint(
+              'DEBUG: Failed to delete publication: ${_mapFailureToMessage(failure)}');
+
+          // If delete failed, revert the optimistic update
+          // Fetch fresh data to ensure consistency
+          add(RefreshUserPublications());
+
+          // Show error to user
+          emit(state.copyWith(
+            error: 'Failed to delete: ${_mapFailureToMessage(failure)}',
+          ));
+        },
+        (success) {
+          debugPrint(
+              'DEBUG: Successfully deleted publication ${event.publicationId}');
+
+          // Check if we need to load more content due to deletion
+          if (updatedPublications.length < _pageSize && !state.hasReachedEnd) {
+            add(LoadMoreUserPublications());
+          }
+        },
+      );
+    } catch (e, stackTrace) {
+      debugPrint('DEBUG: Exception during publication deletion: $e');
+      debugPrint('Stack trace: $stackTrace');
+
+      // Revert changes and show error
+      add(RefreshUserPublications());
+      emit(state.copyWith(error: 'Error deleting publication: $e'));
+    }
   }
 
   Future<void> _onFetchUserPublications(
@@ -49,10 +114,13 @@ class UserPublicationsBloc
           ));
         },
         (data) {
+          final filteredContent = data.content
+              .where((pub) => !state.deletedPublicationIds.contains(pub.id))
+              .toList();
           debugPrint(
               'DEBUG: Initial fetch successful. Items count: ${data.content.length}');
           emit(state.copyWith(
-            publications: data.content,
+            publications: filteredContent,
             isLoading: false,
             hasReachedEnd: data.last,
             currentPage: 0,
@@ -124,6 +192,19 @@ class UserPublicationsBloc
           debugPrint(
               'DEBUG: Load more successful. New items: ${data.content.length}');
 
+          final filteredNewContent = data.content
+              .where((pub) => !state.deletedPublicationIds.contains(pub.id))
+              .toList();
+
+          // If filtered content is empty but original wasn't, try loading more
+          if (filteredNewContent.isEmpty &&
+              data.content.isNotEmpty &&
+              !data.last) {
+            // All loaded items were deleted ones, try loading next page
+            add(LoadMoreUserPublications());
+            return;
+          }
+
           // Handle empty response
           if (data.content.isEmpty) {
             emit(state.copyWith(
@@ -135,7 +216,7 @@ class UserPublicationsBloc
           }
 
           emit(state.copyWith(
-            publications: [...state.publications, ...data.content],
+            publications: [...state.publications, ...filteredNewContent],
             isLoading: false,
             hasReachedEnd: data.last,
             currentPage: state.currentPage + 1,

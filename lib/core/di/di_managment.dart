@@ -187,7 +187,10 @@ Future<void> init() async {
   sl.registerLazySingleton(() => VerifyEmailSignupUseCase(sl()));
   sl.registerLazySingleton(() => RegisterUserDataUseCase(sl()));
   sl.registerLazySingleton(() => GetStoredEmailUsecase(sl()));
-  sl.registerLazySingleton(() => GetUserDataUseCase(sl(), sl(),));
+  sl.registerLazySingleton(() => GetUserDataUseCase(
+        sl(),
+        sl(),
+      ));
   sl.registerLazySingleton(() =>
       UpdateUserProfileUseCase(repository: sl(), authLocalDataSource: sl()));
   sl.registerLazySingleton(() => UploadUserImagesUseCase(sl()));
@@ -326,8 +329,10 @@ Future<void> init() async {
     ),
   );
 
-  sl.registerFactory(
-      () => UserPublicationsBloc(getUserPublicationsUseCase: sl()));
+  sl.registerFactory(() => UserPublicationsBloc(
+        getUserPublicationsUseCase: sl(),
+        deletePublicationUseCase: sl(),
+      ));
   sl.registerLazySingleton<UserPublicationsRepository>(
       () => UserPublicationsRepositoryImpl(
             networkInfo: sl(),
