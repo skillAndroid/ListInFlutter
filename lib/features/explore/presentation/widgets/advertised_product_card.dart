@@ -53,34 +53,31 @@ class _AdvertisedProductCardState extends State<AdvertisedProductCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 2),
-      child: InkWell(
-        onTap: () {
-          context.push(
-            Routes.productDetails,
-            extra: widget.product,
-          );
-        },
-        child: Card(
-          shadowColor: AppColors.black.withOpacity(0.5),
-          color: AppColors.white,
-          shape: SmoothRectangleBorder(
-            smoothness: 1,
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-          ),
-          clipBehavior: Clip.hardEdge,
-          elevation: 4,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildProductImageCarousel(),
-              ProductDetails(
-                product: widget.product,
-                isOwner: _isOwner,
-              ),
-            ],
-          ),
+    return InkWell(
+      onTap: () {
+        context.push(
+          Routes.productDetails,
+          extra: widget.product,
+        );
+      },
+      child: Card(
+        shadowColor: AppColors.black.withOpacity(0.5),
+        color: AppColors.white,
+        shape: SmoothRectangleBorder(
+          smoothness: 1,
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+        ),
+        clipBehavior: Clip.hardEdge,
+        elevation: 4,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildProductImageCarousel(),
+            ProductDetails(
+              product: widget.product,
+              isOwner: _isOwner,
+            ),
+          ],
         ),
       ),
     );

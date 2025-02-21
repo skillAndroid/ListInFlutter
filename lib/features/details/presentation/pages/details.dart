@@ -10,6 +10,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
@@ -25,9 +26,14 @@ import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
 import 'package:list_in/features/profile/domain/usecases/user/get_user_data_usecase.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
+import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_event.dart';
+import 'package:list_in/features/profile/presentation/widgets/action_sheet_menu.dart';
+import 'package:list_in/features/profile/presentation/widgets/delete_confirmation.dart';
+import 'package:list_in/features/profile/presentation/widgets/info_dialog.dart';
 import 'package:list_in/global/global_bloc.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import '../bloc/details_event.dart';
 
@@ -234,9 +240,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   if (isOwner) ...[
                     IconButton(
                       onPressed: () {
-                        context.read<PublicationUpdateBloc>().add(
-                            InitializePublication(
-                                widget.product));
+                        context
+                            .read<PublicationUpdateBloc>()
+                            .add(InitializePublication(widget.product));
                         context.push(
                           Routes.publicationsEdit,
                           extra: widget.product,
@@ -249,36 +255,12 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     ),
                     IconButton(
                       onPressed: () {
-                        // Show delete confirmation dialog
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            title: const Text('Delete Publication'),
-                            content: const Text(
-                                'Are you sure you want to delete this publication?'),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: const Text('Cancel'),
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  // Implement delete logic
-                                  Navigator.pop(context);
-                                },
-                                style: TextButton.styleFrom(
-                                  foregroundColor: Colors.red,
-                                ),
-                                child: const Text('Delete'),
-                              ),
-                            ],
-                          ),
-                        );
+                        _showPublicationOptions(context);
                       },
                       icon: Icon(
-                        CupertinoIcons.delete_solid,
-                        color: AppColors.error,
-                        size: 22,
+                        Ionicons.ellipsis_vertical,
+                        color: AppColors.black,
+                        size: 20,
                       ),
                     ),
                   ],
@@ -328,7 +310,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   label: 'Call',
                   color: AppColors.primary,
                   textColor: Colors.white,
-                  onPressed: () {/* Call logic */},
+                  onPressed: () { _makeCall(context, widget.product.seller.phoneNumber);},
                 ),
               ),
               const SizedBox(width: 10),
@@ -351,9 +333,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   color: AppColors.primary,
                   textColor: Colors.white,
                   onPressed: () {
-                    context.read<PublicationUpdateBloc>().add(
-                        InitializePublication(
-                            widget.product));
+                    context
+                        .read<PublicationUpdateBloc>()
+                        .add(InitializePublication(widget.product));
                     context.push(
                       Routes.publicationsEdit,
                       extra: widget.product,
@@ -369,7 +351,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   color: AppColors.error,
                   textColor: AppColors.white,
                   borderColor: AppColors.containerColor,
-                  onPressed: () {/* Message logic */},
+                  onPressed: () {
+                    _showDeleteConfirmation(context);
+                  },
                 ),
               ),
             ]
@@ -1155,7 +1139,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   label: 'Call',
                   color: AppColors.primary,
                   textColor: Colors.white,
-                  onPressed: () {/* Call logic */},
+                  onPressed: () {
+                    _makeCall(context, widget.product.seller.phoneNumber);
+                  },
                 ),
               ),
               const SizedBox(width: 10),
@@ -1178,9 +1164,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   color: AppColors.primary,
                   textColor: Colors.white,
                   onPressed: () {
-                     context.read<PublicationUpdateBloc>().add(
-                        InitializePublication(
-                            widget.product));
+                    context
+                        .read<PublicationUpdateBloc>()
+                        .add(InitializePublication(widget.product));
                     context.push(
                       Routes.publicationsEdit,
                       extra: widget.product,
@@ -1196,7 +1182,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   color: AppColors.error,
                   textColor: AppColors.white,
                   borderColor: AppColors.containerColor,
-                  onPressed: () {/* Message logic */},
+                  onPressed: () {
+                    _showDeleteConfirmation(context);
+                  },
                 ),
               ),
             ]
@@ -1450,6 +1438,81 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         ),
       ),
     );
+  }
+
+  void _showPublicationOptions(BuildContext context) {
+    final options = [
+      ActionSheetOption(
+        title: 'Boost Publication',
+        icon: CupertinoIcons.rocket,
+        iconColor: AppColors.primary,
+        onPressed: () => _showBoostUnavailableMessage(context),
+      ),
+      ActionSheetOption(
+        title: 'Delete Publication',
+        icon: CupertinoIcons.delete,
+        iconColor: AppColors.error,
+        onPressed: () => _showDeleteConfirmation(context),
+        isDestructive: true,
+      ),
+    ];
+
+    ActionSheetMenu.show(
+      context: context,
+      title: 'Publication Options',
+      message: 'Choose an action for this publication',
+      options: options,
+    );
+  }
+
+  void _showDeleteConfirmation(BuildContext context) async {
+    final shouldDelete = await ConfirmationDialog.show(
+      context: context,
+      title: 'Delete Publication',
+      message:
+          'Are you sure you want to delete this publication? This action cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      isDestructiveAction: true,
+    );
+
+    if (shouldDelete) {
+      context.read<UserPublicationsBloc>().add(
+            DeleteUserPublication(publicationId: widget.product.id),
+          );
+    }
+  }
+
+  void _showBoostUnavailableMessage(BuildContext context) {
+    InfoDialog.show(
+      context: context,
+      title: 'Boost Unavailable',
+      message:
+          'Publication boosting is a premium feature that is not yet supported. Stay tuned for updates!',
+    );
+  }
+
+  Future<void> _makeCall(BuildContext context, String phoneNumber) async {
+    final cleanPhoneNumber = phoneNumber.replaceAll(RegExp(r'[^\d+]'), '');
+    final String uriString = 'tel:$cleanPhoneNumber';
+
+    try {
+      if (await canLaunchUrl(Uri.parse(uriString))) {
+        await launchUrl(Uri.parse(uriString));
+      } else {
+        debugPrint("🤙Cannot launch URL: $uriString");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content:
+                  Text("Error: Unable to launch call to $cleanPhoneNumber")),
+        );
+      }
+    } catch (e) {
+      debugPrint("🤙Cannot launch URL: $uriString");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Exception: $e")),
+      );
+    }
   }
 }
 

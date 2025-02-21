@@ -298,7 +298,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
 
   Widget _buildMainScreen(HomeTreeState state) {
     return Scaffold(
-      backgroundColor: AppColors.bgColor,
+      backgroundColor: CupertinoColors.white,
       extendBody: true,
       appBar: _buildAppBar(state),
       body: RefreshIndicator(
@@ -345,10 +345,12 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
 
   Widget _buildContentSection(HomeTreeState state) {
     return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+      padding: const EdgeInsets.only(left: 0, right: 0, bottom: 8),
       sliver: SliverToBoxAdapter(
         child: SmoothClipRRect(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(16),
+              bottomRight: Radius.circular(16)),
           child: Container(
             color: AppColors.white,
             child: Column(
@@ -408,7 +410,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
 
   Widget _buildProductGrid() {
     return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 6),
       sliver: PagedSliverList(
         pagingController: _pagingState.pagingController,
         builderDelegate: PagedChildBuilderDelegate(
@@ -417,7 +419,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
           itemBuilder: (context, item, index) {
             final currentItem = item as PublicationPairEntity;
             return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 1),
+              padding: const EdgeInsets.symmetric(vertical: 0),
               child: currentItem.isSponsored
                   ? _buildAdvertisedProduct(currentItem.firstPublication)
                   : Row(
@@ -533,7 +535,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             Padding(
-              padding: const EdgeInsets.only(left: 16, right: 8),
+              padding: const EdgeInsets.only(left: 16, right: 8, bottom: 2),
               child: Row(
                 children: [
                   Expanded(

@@ -26,7 +26,6 @@ import '../../../profile/presentation/widgets/action_sheet_menu.dart';
 import '../../../profile/presentation/widgets/delete_confirmation.dart';
 import '../../../profile/presentation/widgets/info_dialog.dart';
 
-
 class HorizontalProfileProductCard extends StatelessWidget {
   final GetPublicationEntity product;
   const HorizontalProfileProductCard({
@@ -240,6 +239,7 @@ class HorizontalProfileProductCard extends StatelessWidget {
     );
   }
 }
+
 class ProfileProductCard extends StatelessWidget {
   final GetPublicationEntity product;
   const ProfileProductCard({
@@ -428,16 +428,17 @@ class ProfileProductCard extends StatelessWidget {
     final shouldDelete = await ConfirmationDialog.show(
       context: context,
       title: 'Delete Publication',
-      message: 'Are you sure you want to delete this publication? This action cannot be undone.',
+      message:
+          'Are you sure you want to delete this publication? This action cannot be undone.',
       confirmText: 'Delete',
       cancelText: 'Cancel',
       isDestructiveAction: true,
     );
-    
+
     if (shouldDelete) {
       context.read<UserPublicationsBloc>().add(
-        DeleteUserPublication(publicationId: product.id),
-      );
+            DeleteUserPublication(publicationId: product.id),
+          );
     }
   }
 
@@ -445,7 +446,8 @@ class ProfileProductCard extends StatelessWidget {
     InfoDialog.show(
       context: context,
       title: 'Boost Unavailable',
-      message: 'Publication boosting is a premium feature that is not yet supported. Stay tuned for updates!',
+      message:
+          'Publication boosting is a premium feature that is not yet supported. Stay tuned for updates!',
     );
   }
 
@@ -474,7 +476,6 @@ class ProfileProductCard extends StatelessWidget {
     );
   }
 }
-
 
 class RegularProductCard extends StatelessWidget {
   final ProductEntity product;
@@ -864,6 +865,7 @@ class RemouteRegularProductCard2 extends StatelessWidget {
         );
       },
       child: Card(
+        margin: EdgeInsets.symmetric(horizontal: 3, vertical: 3),
         shape: SmoothRectangleBorder(
           smoothness: 1,
           borderRadius: BorderRadius.circular(10),
