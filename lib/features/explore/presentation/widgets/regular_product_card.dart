@@ -18,7 +18,6 @@ import 'package:list_in/features/profile/presentation/bloc/publication/publicati
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_event.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:smooth_corner_updated/smooth_corner.dart';
 
 import '../../../profile/presentation/widgets/action_sheet_menu.dart';
 import '../../../profile/presentation/widgets/delete_confirmation.dart';
@@ -41,8 +40,9 @@ class HorizontalProfileProductCard extends StatelessWidget {
       color: Colors.white,
       margin: EdgeInsets.symmetric(vertical: 3, horizontal: 4),
       elevation: 0,
-      shape: SmoothRectangleBorder(
-          borderRadius: BorderRadius.circular(14), smoothness: 0.8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+      ),
       child: SizedBox(
         height: 115,
         child: Row(
@@ -53,8 +53,7 @@ class HorizontalProfileProductCard extends StatelessWidget {
                   Padding(
                     padding:
                         const EdgeInsets.symmetric(vertical: 3, horizontal: 3),
-                    child: SmoothClipRRect(
-                      smoothness: 0.8,
+                    child: ClipRRect(
                       borderRadius: BorderRadius.circular(14),
                       child: CachedNetworkImage(
                         width: 100,
@@ -75,7 +74,7 @@ class HorizontalProfileProductCard extends StatelessWidget {
                   Positioned(
                     top: 8,
                     right: 8,
-                    child: SmoothClipRRect(
+                    child: ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: Container(
                         padding:
@@ -114,7 +113,7 @@ class HorizontalProfileProductCard extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            SmoothClipRRect(
+                            ClipRRect(
                               borderRadius: BorderRadius.circular(6),
                               child: Container(
                                 padding: EdgeInsets.symmetric(
@@ -258,7 +257,7 @@ class ProfileProductCard extends StatelessWidget {
         color: AppColors.white,
         elevation: 5,
         shadowColor: Colors.black.withOpacity(0.25),
-        shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -266,7 +265,7 @@ class ProfileProductCard extends StatelessWidget {
               children: [
                 Padding(
                   padding: const EdgeInsets.all(2),
-                  child: SmoothClipRRect(
+                  child: ClipRRect(
                     borderRadius: BorderRadius.circular(10),
                     child: AspectRatio(
                       aspectRatio: 1.1,
@@ -280,7 +279,7 @@ class ProfileProductCard extends StatelessWidget {
                 Positioned(
                   top: 12,
                   right: 12,
-                  child: SmoothClipRRect(
+                  child: ClipRRect(
                     borderRadius: BorderRadius.circular(7),
                     child: Container(
                       padding:
@@ -311,7 +310,7 @@ class ProfileProductCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SmoothClipRRect(
+                  ClipRRect(
                     borderRadius: BorderRadius.circular(7),
                     child: Container(
                       padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -490,8 +489,7 @@ class RegularProductCard extends StatelessWidget {
         );
       },
       child: Card(
-        shape: SmoothRectangleBorder(
-          smoothness: 1,
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
         elevation: 5,
@@ -507,8 +505,7 @@ class RegularProductCard extends StatelessWidget {
                 padding: const EdgeInsets.all(3),
                 child: Stack(
                   children: [
-                    SmoothClipRRect(
-                      smoothness: 1,
+                    ClipRRect(
                       borderRadius: BorderRadius.circular(10),
                       child: SizedBox.expand(
                         child: CachedNetworkImage(
@@ -520,11 +517,12 @@ class RegularProductCard extends StatelessWidget {
                     Positioned(
                       top: 8,
                       left: 8,
-                      child: SmoothCard(
+                      child: Card(
                         margin: const EdgeInsets.all(0),
                         elevation: 0,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(6)),
                         color: AppColors.primary,
-                        borderRadius: BorderRadius.circular(6),
                         child: const Padding(
                           padding:
                               EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -600,7 +598,7 @@ class RegularProductCard extends StatelessWidget {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            SmoothClipRRect(
+                            ClipRRect(
                               borderRadius: BorderRadius.circular(8),
                               child: Container(
                                 color: AppColors.containerColor,
@@ -647,8 +645,7 @@ class RemouteRegularProductCard extends StatelessWidget {
         );
       },
       child: Card(
-        shape: SmoothRectangleBorder(
-          smoothness: 1,
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
         elevation: 4,
@@ -664,8 +661,7 @@ class RemouteRegularProductCard extends StatelessWidget {
                 padding: const EdgeInsets.all(3),
                 child: Stack(
                   children: [
-                    SmoothClipRRect(
-                      smoothness: 1,
+                    ClipRRect(
                       borderRadius: BorderRadius.circular(10),
                       child: SizedBox(
                         width: double.infinity,
@@ -732,11 +728,13 @@ class RemouteRegularProductCard extends StatelessWidget {
                     Positioned(
                       top: 8,
                       left: 8,
-                      child: SmoothCard(
+                      child: Card(
                         margin: const EdgeInsets.all(0),
                         elevation: 0,
                         color: AppColors.primary,
-                        borderRadius: BorderRadius.circular(6),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
+                        ),
                         child: const Padding(
                           padding:
                               EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -813,7 +811,7 @@ class RemouteRegularProductCard extends StatelessWidget {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            SmoothClipRRect(
+                            ClipRRect(
                               borderRadius: BorderRadius.circular(8),
                               child: Container(
                                 color: AppColors.containerColor,
@@ -844,8 +842,6 @@ class RemouteRegularProductCard extends StatelessWidget {
     );
   }
 }
-
-
 
 class ShimmerEffect extends StatelessWidget {
   final Widget child;

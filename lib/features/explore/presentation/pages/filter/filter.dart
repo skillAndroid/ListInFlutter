@@ -17,7 +17,6 @@ import 'package:list_in/features/explore/presentation/widgets/filters_widgets/nu
 import 'package:list_in/features/post/data/models/attribute_model.dart';
 import 'package:list_in/features/post/data/models/attribute_value_model.dart';
 import 'package:list_in/features/post/data/models/nomeric_field_model.dart';
-import 'package:smooth_corner_updated/smooth_corner.dart';
 
 // ignore: must_be_immutable
 class FiltersPage extends StatefulWidget {
@@ -422,8 +421,7 @@ class _FiltersPageState extends State<FiltersPage>
                                                 width: 1,
                                                 color:
                                                     AppColors.containerColor),
-                                            shape: SmoothRectangleBorder(
-                                              smoothness: 1,
+                                            shape: RoundedRectangleBorder(
                                               borderRadius:
                                                   BorderRadius.circular(14),
                                             ),
@@ -502,8 +500,7 @@ class _FiltersPageState extends State<FiltersPage>
                                                   width: 1,
                                                   color:
                                                       AppColors.containerColor),
-                                              shape: SmoothRectangleBorder(
-                                                smoothness: 1,
+                                              shape: RoundedRectangleBorder(
                                                 borderRadius:
                                                     BorderRadius.circular(14),
                                               ),
@@ -602,8 +599,7 @@ class _FiltersPageState extends State<FiltersPage>
     showModalBottomSheet(
       context: context,
       useRootNavigator: true,
-      shape: SmoothRectangleBorder(
-        smoothness: 0.8,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
       ),
       backgroundColor: Colors.white,
@@ -868,7 +864,7 @@ class _FiltersPageState extends State<FiltersPage>
                 backgroundColor: AppColors.primary,
                 padding:
                     const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-                shape: SmoothRectangleBorder(
+                shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
                 elevation: 0,
@@ -991,8 +987,7 @@ class _FiltersPageState extends State<FiltersPage>
     showModalBottomSheet(
       context: context,
       useRootNavigator: true,
-      shape: SmoothRectangleBorder(
-        smoothness: 0.8,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
       ),
       backgroundColor: Colors.white,
@@ -1218,7 +1213,7 @@ class _FiltersPageState extends State<FiltersPage>
                               backgroundColor: AppColors.primary,
                               padding: const EdgeInsets.symmetric(
                                   vertical: 16, horizontal: 16),
-                              shape: SmoothRectangleBorder(
+                              shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               elevation: 0,
@@ -1287,7 +1282,7 @@ class _FiltersPageState extends State<FiltersPage>
             checkmarkColor: Colors.black,
             elevation: 0,
             pressElevation: 4,
-            shape: SmoothRectangleBorder(
+            shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
               side: BorderSide(
                 color:
@@ -1333,7 +1328,7 @@ class _FiltersPageState extends State<FiltersPage>
             checkmarkColor: Colors.black,
             elevation: 0,
             pressElevation: 4,
-            shape: SmoothRectangleBorder(
+            shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
               side: BorderSide(
                 color: _selectedLocation == location
@@ -1419,9 +1414,9 @@ class _FiltersPageState extends State<FiltersPage>
         ),
         SizedBox(
           width: 250,
-          child: SmoothClipRRect(
+          child: ClipRRect(
             borderRadius: BorderRadius.circular(14),
-            side: BorderSide(width: 1, color: AppColors.containerColor),
+            // side: BorderSide(width: 1, color: AppColors.containerColor),
             child: Container(
               decoration: BoxDecoration(
                 color: AppColors.white,
@@ -1451,7 +1446,7 @@ class _FiltersPageState extends State<FiltersPage>
         onTap: () {
           context.read<HomeTreeCubit>().updateSellerType(value, true, '');
         },
-        child: SmoothClipRRect(
+        child: ClipRRect(
           borderRadius: BorderRadius.circular(12),
           child: AnimatedContainer(
             duration: Duration(milliseconds: 100),
@@ -1505,7 +1500,7 @@ class _FiltersPageState extends State<FiltersPage>
           child: Row(
             mainAxisSize: MainAxisSize.max,
             children: [
-              SmoothClipRRect(
+              ClipRRect(
                 borderRadius: BorderRadius.circular(6),
                 child: AnimatedContainer(
                   duration: Duration(milliseconds: 200),
@@ -1557,7 +1552,7 @@ class _FiltersPageState extends State<FiltersPage>
           child: Row(
             mainAxisSize: MainAxisSize.max,
             children: [
-              SmoothClipRRect(
+              ClipRRect(
                 borderRadius: BorderRadius.circular(6),
                 child: AnimatedContainer(
                   duration: Duration(milliseconds: 200),
@@ -1620,21 +1615,23 @@ class _FiltersPageState extends State<FiltersPage>
         ),
         SizedBox(
           width: 250,
-          child: SmoothClipRRect(
-            borderRadius: BorderRadius.circular(14),
-            side: BorderSide(width: 1, color: AppColors.containerColor),
-            child: Container(
-              decoration: BoxDecoration(
-                color: AppColors.white,
+          child: Container(
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              border: Border.all(
+                width: 1,
+                color: AppColors.containerColor, // Цвет рамки
               ),
-              padding: EdgeInsets.all(4),
-              child: Row(
-                children: [
-                  _buildSegmentOption('All', 'ALL', state),
-                  _buildSegmentOption('New', 'NEW_PRODUCT', state),
-                  _buildSegmentOption('Used', 'USED_PRODUCT', state),
-                ],
-              ),
+              borderRadius: BorderRadius.circular(
+                  14), // Чтобы границы были скруглёнными
+            ),
+            padding: EdgeInsets.all(4),
+            child: Row(
+              children: [
+                _buildSegmentOption('All', 'ALL', state),
+                _buildSegmentOption('New', 'NEW_PRODUCT', state),
+                _buildSegmentOption('Used', 'USED_PRODUCT', state),
+              ],
             ),
           ),
         ),
@@ -1650,7 +1647,7 @@ class _FiltersPageState extends State<FiltersPage>
         onTap: () {
           context.read<HomeTreeCubit>().updateCondition(value, true, "");
         },
-        child: SmoothClipRRect(
+        child: ClipRRect(
           borderRadius: BorderRadius.circular(12),
           child: AnimatedContainer(
             duration: Duration(milliseconds: 100),
@@ -1697,8 +1694,8 @@ class _FiltersPageState extends State<FiltersPage>
           SizedBox(height: 12),
           AnimatedSize(
               duration: Duration(milliseconds: 200),
-              child: SmoothClipRRect(
-                  side: BorderSide(width: 1, color: AppColors.containerColor),
+              child: ClipRRect(
+                  // side: BorderSide(width: 1, color: AppColors.containerColor),
                   borderRadius: BorderRadius.circular(14),
                   child: SizedBox(
                     width: double.infinity,
@@ -1912,7 +1909,7 @@ class _FiltersPageState extends State<FiltersPage>
                         backgroundColor: Colors.black,
                         foregroundColor: Colors.white,
                         padding: EdgeInsets.symmetric(vertical: 17),
-                        shape: SmoothRectangleBorder(
+                        shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
                         ),
                         elevation: 0,

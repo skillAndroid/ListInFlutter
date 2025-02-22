@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:list_in/config/theme/app_colors.dart';
-import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class AuthTextField extends StatelessWidget {
   final TextEditingController controller;
@@ -20,9 +19,7 @@ class AuthTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SmoothClipRRect(
-      smoothness: 1,
-      side: BorderSide(width: 1, color: AppColors.containerColor),
+    return ClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: TextFormField(
         style: const TextStyle(

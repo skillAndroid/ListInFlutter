@@ -19,8 +19,6 @@ import 'package:list_in/features/explore/presentation/pages/screens/initial_page
 import 'package:list_in/features/explore/presentation/widgets/product_card/bb/boosted_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/product_card/bb/regular_product_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
-import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
-import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 class HomePageUIState {
@@ -412,8 +410,7 @@ class _FilterHomeResultPageState extends State<FilterHomeResultPage> {
           state.catalogs![index].name,
           style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
         ),
-        shape: SmoothRectangleBorder(
-          smoothness: 0.8,
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
         selected: selectedFilters.contains(index),
@@ -488,8 +485,7 @@ class _FilterHomeResultPageState extends State<FilterHomeResultPage> {
                           },
                         );
                       },
-                      child: SmoothClipRRect(
-                        smoothness: 0.8,
+                      child: ClipRRect(
                         borderRadius: BorderRadius.circular(16),
                         child: Container(
                           height: 52,
@@ -539,15 +535,14 @@ class _FilterHomeResultPageState extends State<FilterHomeResultPage> {
                         useRootNavigator: true,
                         showDragHandle: false,
                         enableDrag: false,
-                        shape: SmoothRectangleBorder(
+                        shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(18),
                         ),
                         builder: (context) => BlocProvider.value(
                           value:
                               homeTreeCubit, // Provide the same cubit instance
-                          child: SmoothClipRRect(
+                          child: ClipRRect(
                             borderRadius: BorderRadius.circular(10),
-                            smoothness: 1,
                             child: FractionallySizedBox(
                               heightFactor: 1,
                               child: FiltersPage(page: "initial_filter"),

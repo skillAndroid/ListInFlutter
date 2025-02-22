@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
-import 'package:smooth_corner_updated/smooth_corner.dart';
-
 
 class SearchTextField extends StatelessWidget {
   final TextEditingController controller;
@@ -24,8 +22,7 @@ class SearchTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SmoothClipRRect(
-      smoothness: 1,
+    return ClipRRect(
       borderRadius: BorderRadius.circular(12),
       child: TextFormField(
         style: const TextStyle(

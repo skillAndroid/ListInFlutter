@@ -4,7 +4,6 @@ import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/explore/presentation/pages/filter/filter.dart';
-import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class SellerTypeBottomSheet extends StatefulWidget {
   final String page;
@@ -22,7 +21,7 @@ class _SellerTypeBottomSheetState extends State<SellerTypeBottomSheet> {
   Widget build(BuildContext context) {
     return BlocBuilder<HomeTreeCubit, HomeTreeState>(
       builder: (context, state) {
-        return SmoothClipRRect(
+        return ClipRRect(
           borderRadius: BorderRadius.circular(14),
           child: Container(
             color: AppColors.white,
@@ -101,7 +100,7 @@ class _SellerTypeBottomSheetState extends State<SellerTypeBottomSheet> {
   }) {
     return InkWell(
       onTap: onTap,
-      child: SmoothClipRRect(
+      child: ClipRRect(
         borderRadius: BorderRadius.circular(10),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

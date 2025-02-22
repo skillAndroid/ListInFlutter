@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:list_in/features/details/presentation/pages/video_details.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
-import 'package:smooth_corner_updated/smooth_corner.dart';
 class ProductImagesDetailed extends StatefulWidget {
   final List<ProductImageEntity> images;
   final int initialIndex;
@@ -176,7 +175,7 @@ class _ProductImagesDetailedState extends State<ProductImagesDetailed> {
       left: 0,
       right: 0,
       child: Center(
-        child: SmoothClipRRect(
+        child: ClipRRect(
           borderRadius: BorderRadius.circular(6),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -197,7 +196,7 @@ class _ProductImagesDetailedState extends State<ProductImagesDetailed> {
   Widget _buildBackButton() {
     return Container(
       margin: const EdgeInsets.only(left: 16, top: 8),
-      child: SmoothClipRRect(
+      child: ClipRRect(
         borderRadius: BorderRadius.circular(10),
         child: Material(
           color: Colors.white.withOpacity(0.2),

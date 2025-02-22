@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:list_in/config/theme/app_colors.dart';
-import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class AppTheme {
   static final lightTheme = ThemeData(
@@ -67,8 +66,7 @@ class AppTheme {
           fontWeight: FontWeight.w600,
           color: AppColors.white,
         ),
-        shape: SmoothRectangleBorder(
-          smoothness: 1,
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(18),
         ),
       ).copyWith(
@@ -79,8 +77,7 @@ class AppTheme {
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
-        shape: SmoothRectangleBorder(
-          smoothness: 1,
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
         textStyle: const TextStyle(
@@ -120,8 +117,7 @@ class AppTheme {
           color: AppColors.white,
         ),
         elevation: 0,
-        shape: SmoothRectangleBorder(
-          smoothness: 1,
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30),
         ),
       ),

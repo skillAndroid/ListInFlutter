@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
-import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key});
@@ -85,10 +84,8 @@ class _WelcomePageState extends State<WelcomePage> {
   Widget _buildSmoothImage(String assetPath, {double height = 180}) {
     return Padding(
       padding: EdgeInsets.only(bottom: spaceHeight),
-      child: SmoothClipRRect(
-        smoothness: borderRadiusSmoothness,
+      child: ClipRRect(
         borderRadius: BorderRadius.circular(borderRadius),
-        side: const BorderSide(width: 2, color: AppColors.white),
         child: Image.asset(
           assetPath,
           height: height,
@@ -125,8 +122,7 @@ class _WelcomePageState extends State<WelcomePage> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          SmoothClipRRect(
-            smoothness: 1,
+          ClipRRect(
             borderRadius: BorderRadius.circular(24),
             child: SizedBox(
               height: 70,

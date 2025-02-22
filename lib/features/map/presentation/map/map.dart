@@ -17,7 +17,6 @@ import 'package:list_in/features/map/presentation/widgets/marker.dart';
 import 'package:list_in/features/map/presentation/widgets/search_text_field.dart';
 import 'package:list_in/features/map/presentation/widgets/show_custom_sheet.dart';
 import 'package:list_in/features/map/service/AppLocation.dart';
-import 'package:smooth_corner_updated/smooth_corner.dart';
 
 // ignore: must_be_immutable
 class ListInMap extends StatefulWidget {
@@ -36,7 +35,6 @@ class _ListInMapState extends State<ListInMap> {
   GoogleMapController? _mapController;
   late final CameraPosition _initialCameraPosition;
 
-  
   static const LatLng _defaultLocation = LatLng(41.2995, 69.2401);
 
   void _onMapCreated(GoogleMapController controller) {
@@ -112,8 +110,7 @@ class _ListInMapState extends State<ListInMap> {
         minimumSize: const Size(120, 36),
         padding: EdgeInsets.zero,
         backgroundColor: AppColors.transparent,
-        shape: SmoothRectangleBorder(
-          smoothness: 1,
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: BorderSide(
             color: Colors.black.withOpacity(0.2),
@@ -185,8 +182,7 @@ class _ListInMapState extends State<ListInMap> {
                       bottom: 12,
                       right: 8,
                       child: FloatingActionButton(
-                        shape: SmoothRectangleBorder(
-                            smoothness: 1,
+                        shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(32)),
                         elevation: 4,
                         backgroundColor: AppColors.white,
@@ -207,8 +203,7 @@ class _ListInMapState extends State<ListInMap> {
                       bottom: 12,
                       left: 8,
                       child: FloatingActionButton(
-                        shape: SmoothRectangleBorder(
-                            smoothness: 1,
+                        shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(32)),
                         elevation: 4,
                         backgroundColor: AppColors.white,
@@ -258,8 +253,7 @@ class _ListInMapState extends State<ListInMap> {
           child: Card(
             margin: EdgeInsets.zero,
             color: AppColors.white,
-            shape: SmoothRectangleBorder(
-              smoothness: 0.8,
+            shape: RoundedRectangleBorder(
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(16),
                 topRight: Radius.circular(16),

@@ -10,7 +10,6 @@ import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:pinput/pinput.dart';
-import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class VerificationPage extends StatefulWidget {
   const VerificationPage({super.key});
@@ -81,8 +80,7 @@ class _VerificationPageState extends State<VerificationPage> {
                         ),
                         Transform.translate(
                           offset: const Offset(-6, 0),
-                          child: SmoothClipRRect(
-                            smoothness: 1,
+                          child: ClipRRect(
                             borderRadius: BorderRadius.circular(16.0),
                             child: Image.asset(
                               AppImages.appLogo,

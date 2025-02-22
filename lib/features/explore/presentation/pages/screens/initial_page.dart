@@ -90,7 +90,7 @@ class ScrollState {
     _scrollTimer?.cancel();
 
     // Debounce the scroll updates
-    _scrollTimer = Timer(const Duration(milliseconds: 32), () {
+    _scrollTimer = Timer(const Duration(milliseconds: 0), () {
       final currentPosition = scrollController.position.pixels;
       final shouldShowAppBar = currentPosition > scrollThreshold;
 
@@ -768,16 +768,7 @@ class ErrorIndicator extends StatelessWidget {
                       ),
                   textAlign: TextAlign.center,
                 ),
-                // const SizedBox(height: 8),
-
-                // // Error Message
-                // Text(
-                //   error.toString(),
-                //   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                //         color: Theme.of(context).colorScheme.onSurfaceVariant,
-                //       ),
-                //   textAlign: TextAlign.center,
-                // ),
+               
                 const SizedBox(height: 24),
 
                 // Try Again Button

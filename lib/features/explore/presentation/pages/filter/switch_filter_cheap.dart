@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:list_in/config/theme/app_colors.dart';
-import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class MinimalToggleSwitch extends StatelessWidget {
   final bool value;
@@ -198,8 +197,7 @@ class SwitchFilterChip extends StatelessWidget {
           width: 1,
           color: AppColors.lightGray.withOpacity(0.7),
         ),
-        shape: SmoothRectangleBorder(
-          smoothness: 0.8,
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
         selected: value,

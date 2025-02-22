@@ -10,7 +10,6 @@ import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/post/data/models/category_model.dart';
 import 'package:list_in/features/post/data/models/child_category_model.dart';
-import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class SubcategoryCard extends StatefulWidget {
   final HomeTreeState state;
@@ -89,8 +88,7 @@ class _SubcategoryCardState extends State<SubcategoryCard>
         scale: _scaleController,
         child: Stack(
           children: [
-            SmoothClipRRect(
-              smoothness: 0.8,
+            ClipRRect(
               borderRadius: BorderRadius.circular(16),
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 0),
@@ -125,7 +123,7 @@ class _SubcategoryCardState extends State<SubcategoryCard>
                         ),
                       ),
                     ),
-                    SmoothClipRRect(
+                    ClipRRect(
                       borderRadius: BorderRadius.circular(0),
                       child: SizedBox(
                         width: 70,
@@ -161,7 +159,7 @@ class _SubcategoryCardState extends State<SubcategoryCard>
               right: 0,
               child: Transform.translate(
                 offset: Offset(-4, 4),
-                child: SmoothClipRRect(
+                child: ClipRRect(
                   borderRadius: BorderRadius.circular(16),
                   child: SizedBox(
                     width: 64,

@@ -1,9 +1,10 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
-import 'package:smooth_corner_updated/smooth_corner.dart';
 
 // Condition bottom sheet widget
 class ConditionBottomSheet extends StatefulWidget {
@@ -22,7 +23,7 @@ class _ConditionBottomSheetState extends State<ConditionBottomSheet> {
   Widget build(BuildContext context) {
     return BlocBuilder<HomeTreeCubit, HomeTreeState>(
       builder: (context, state) {
-        return SmoothClipRRect(
+        return ClipRRect(
           borderRadius: BorderRadius.circular(14),
           child: Container(
             color: AppColors.white,
@@ -101,7 +102,7 @@ class _ConditionBottomSheetState extends State<ConditionBottomSheet> {
   }) {
     return InkWell(
       onTap: onTap,
-      child: SmoothClipRRect(
+      child: ClipRRect(
         borderRadius: BorderRadius.circular(10),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

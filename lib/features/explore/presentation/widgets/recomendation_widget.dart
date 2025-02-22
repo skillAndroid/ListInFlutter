@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:list_in/config/theme/app_colors.dart';
-import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class RecommendationsRow extends StatelessWidget {
   final List<RecommendationItem> recommendations;
@@ -47,7 +46,7 @@ class RecommendationCard extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SmoothClipRRect(
+          ClipRRect(
             borderRadius: BorderRadius.circular(6),
             child: Container(
               padding: const EdgeInsets.all(6),
