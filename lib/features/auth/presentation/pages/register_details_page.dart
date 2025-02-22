@@ -13,6 +13,7 @@ import 'package:list_in/features/auth/presentation/widgets/auth_text_field.dart'
 import 'package:list_in/features/map/domain/entities/coordinates_entity.dart';
 import 'package:list_in/features/map/domain/entities/location_entity.dart';
 import 'package:list_in/features/map/presentation/map/map.dart';
+import 'package:smooth_corner_updated/smooth_corner.dart';
 
 enum LocationSharingMode { precise, region }
 
@@ -328,7 +329,8 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                           ? AppColors.myRedBrown.withOpacity(0.25)
                           : AppColors.containerColor,
                       elevation: 0,
-                      shape: RoundedRectangleBorder(
+                      shape: SmoothRectangleBorder(
+                        smoothness: 0.8,
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Padding(
@@ -481,10 +483,11 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
         Text(
           title,
           style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-              fontFamily: 'Poppins',
-              color: AppColors.black),
+            fontSize: 24,
+            fontWeight: FontWeight.w700,
+            fontFamily: 'Poppins',
+            color: AppColors.black
+          ),
         ),
         const SizedBox(height: 12),
         Padding(

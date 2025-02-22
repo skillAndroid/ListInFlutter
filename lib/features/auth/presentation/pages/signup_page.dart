@@ -10,6 +10,7 @@ import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/auth/presentation/widgets/auth_text_field.dart';
+import 'package:smooth_corner_updated/smooth_corner.dart';
 import '../bloc/auth_bloc.dart';
 
 class SignupPage extends StatefulWidget {
@@ -72,7 +73,8 @@ class _SignupPageState extends State<SignupPage> {
                             ),
                             Transform.translate(
                               offset: const Offset(-6, 0),
-                              child: ClipRRect(
+                              child: SmoothClipRRect(
+                                smoothness: 1,
                                 borderRadius: BorderRadius.circular(16.0),
                                 child: Image.asset(
                                   AppImages.appLogo,

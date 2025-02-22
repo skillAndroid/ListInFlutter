@@ -6,6 +6,7 @@ import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/auth/presentation/pages/register_details_page.dart';
 import 'package:list_in/features/map/domain/entities/location_entity.dart';
 import 'package:list_in/features/map/presentation/widgets/map_direction_handler.dart';
+import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class LocationSelectorWidget extends StatefulWidget {
   final LocationEntity? selectedLocation;
@@ -36,7 +37,8 @@ class _LocationSelectorWidgetState extends State<LocationSelectorWidget> {
           elevation: 0,
           margin: EdgeInsets.zero,
           color: AppColors.containerColor,
-          shape: RoundedRectangleBorder(
+          shape: SmoothRectangleBorder(
+            smoothness: 1,
             borderRadius: BorderRadius.circular(16),
           ),
           child: Padding(
@@ -62,7 +64,7 @@ class _LocationSelectorWidgetState extends State<LocationSelectorWidget> {
                           style: TextStyle(fontSize: 15, fontFamily: "Poppins"),
                         ),
                         style: ElevatedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
+                          shape: SmoothRectangleBorder(
                               borderRadius: BorderRadius.circular(12)),
                           elevation: 0,
                           shadowColor: AppColors.transparent,
@@ -94,7 +96,7 @@ class _LocationSelectorWidgetState extends State<LocationSelectorWidget> {
                         ),
                         style: ElevatedButton.styleFrom(
                           shadowColor: AppColors.transparent,
-                          shape: RoundedRectangleBorder(
+                          shape: SmoothRectangleBorder(
                               borderRadius: BorderRadius.circular(12)),
                           elevation: 0,
                           backgroundColor: widget.locationSharingMode ==
@@ -134,7 +136,8 @@ class _LocationSelectorWidgetState extends State<LocationSelectorWidget> {
               foregroundColor: AppColors.black,
               backgroundColor: AppColors.containerColor,
               padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
+              shape: SmoothRectangleBorder(
+                smoothness: 1,
                 borderRadius: BorderRadius.circular(16),
               ),
             ),
@@ -166,7 +169,7 @@ class _LocationSelectorWidgetState extends State<LocationSelectorWidget> {
   }
 
   Widget _buildSelectedLocationCard(BuildContext context) {
-    return ClipRRect(
+    return SmoothClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: Container(
         color: AppColors.containerColor,
@@ -177,7 +180,7 @@ class _LocationSelectorWidgetState extends State<LocationSelectorWidget> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ClipRRect(
+                  SmoothClipRRect(
                     borderRadius: BorderRadius.circular(16),
                     child: SizedBox(
                       width: 140,
@@ -242,7 +245,7 @@ class _LocationSelectorWidgetState extends State<LocationSelectorWidget> {
                           ),
                         ),
                         const SizedBox(height: 8),
-                        ClipRRect(
+                        SmoothClipRRect(
                           borderRadius: BorderRadius.circular(10),
                           child: InkWell(
                             onTap: () {
