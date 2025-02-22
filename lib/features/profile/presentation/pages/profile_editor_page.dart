@@ -140,61 +140,61 @@ class _ProfileEditorState extends State<ProfileEditor> {
   }
 
   void _handleSave() {
-    String? formattedFromTime;
-    String? formattedToTime;
+  String? formattedFromTime;
+  String? formattedToTime;
 
-    if (openingTime != null) {
-      final hour = openingTime!.hour.toString().padLeft(2, '0');
-      final minute = openingTime!.minute.toString().padLeft(2, '0');
-      formattedFromTime = '$hour:$minute';
-    }
-
-    if (closingTime != null) {
-      final hour = closingTime!.hour.toString().padLeft(2, '0');
-      final minute = closingTime!.minute.toString().padLeft(2, '0');
-      formattedToTime = '$hour:$minute';
-    }
-
-    final updatedProfile = UserProfileEntity(
-      nickName: _nameController.text,
-      phoneNumber: _phoneController.text,
-      biography: _bioController.text.isEmpty
-          ? null
-          : _bioController.text, // Add this line
-      isBusinessAccount: isBusinessAccount,
-      isGrantedForPreciseLocation: showExactLocation,
-      profileImagePath: _profileImagePath,
-      fromTime: formattedFromTime,
-      toTime: formattedToTime,
-      longitude: widget.userData.longitude,
-      latitude: widget.userData.latitude,
-      locationName: widget.userData.locationName,
-    );
-
-    // Check if data has changed
-    bool hasChanges = updatedProfile.nickName != widget.userData.nickName ||
-        updatedProfile.phoneNumber != widget.userData.phoneNumber ||
-        updatedProfile.biography != widget.userData.biography || // Add this line
-        updatedProfile.isBusinessAccount != widget.userData.isBusinessAccount ||
-        updatedProfile.isGrantedForPreciseLocation !=
-            widget.userData.isGrantedForPreciseLocation ||
-        updatedProfile.fromTime != widget.userData.fromTime ||
-        updatedProfile.toTime != widget.userData.toTime ||
-        _selectedImageFile != null;
-
-    if (!hasChanges) {
-      Navigator.pop(context);
-      return;
-    }
-
-    context.read<UserProfileBloc>().add(
-          UpdateUserProfileWithImage(
-            profile: updatedProfile,
-            imageFile: _selectedImageFile,
-          ),
-        );
+  if (openingTime != null) {
+    final hour = openingTime!.hour.toString().padLeft(2, '0');
+    final minute = openingTime!.minute.toString().padLeft(2, '0');
+    formattedFromTime = '$hour:$minute';
   }
 
+  if (closingTime != null) {
+    final hour = closingTime!.hour.toString().padLeft(2, '0');
+    final minute = closingTime!.minute.toString().padLeft(2, '0');
+    formattedToTime = '$hour:$minute';
+  }
+
+  final updatedProfile = UserProfileEntity(
+    nickName: _nameController.text,
+    phoneNumber: _phoneController.text,
+    biography: _bioController.text.isEmpty ? null : _bioController.text,
+    isBusinessAccount: isBusinessAccount,
+    isGrantedForPreciseLocation: showExactLocation,
+    profileImagePath: _profileImagePath,
+    fromTime: formattedFromTime,
+    toTime: formattedToTime,
+    // Use the new location values instead of the old ones
+    longitude: _longitude,
+    latitude: _latitude,
+    locationName: _locationName,
+  );
+
+  // Update the hasChanges check to include location changes
+  bool hasChanges = updatedProfile.nickName != widget.userData.nickName ||
+      updatedProfile.phoneNumber != widget.userData.phoneNumber ||
+      updatedProfile.biography != widget.userData.biography ||
+      updatedProfile.isBusinessAccount != widget.userData.isBusinessAccount ||
+      updatedProfile.isGrantedForPreciseLocation != widget.userData.isGrantedForPreciseLocation ||
+      updatedProfile.fromTime != widget.userData.fromTime ||
+      updatedProfile.toTime != widget.userData.toTime ||
+      updatedProfile.longitude != widget.userData.longitude ||  // Add location checks
+      updatedProfile.latitude != widget.userData.latitude ||
+      updatedProfile.locationName != widget.userData.locationName ||
+      _selectedImageFile != null;
+
+  if (!hasChanges) {
+    Navigator.pop(context);
+    return;
+  }
+
+  context.read<UserProfileBloc>().add(
+        UpdateUserProfileWithImage(
+          profile: updatedProfile,
+          imageFile: _selectedImageFile,
+        ),
+      );
+}
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<UserProfileBloc, UserProfileState>(
