@@ -420,7 +420,7 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
           style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
         ),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(12),
         ),
         selected: selectedFilters.contains(index),
         backgroundColor: AppColors.white,

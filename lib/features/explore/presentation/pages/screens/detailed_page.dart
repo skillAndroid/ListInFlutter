@@ -25,7 +25,6 @@ import 'package:list_in/features/explore/presentation/widgets/filters_widgets/se
 import 'package:list_in/features/explore/presentation/widgets/product_card/bb/boosted_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/product_card/bb/regular_product_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
-import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
 import 'package:list_in/features/post/data/models/attribute_model.dart';
 import 'package:list_in/features/post/data/models/attribute_value_model.dart';
 import 'package:list_in/features/post/data/models/nomeric_field_model.dart';
@@ -317,9 +316,8 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                     width: 1,
                                     color: AppColors.lightGray.withOpacity(0.7),
                                   ),
-                                  shape: SmoothRectangleBorder(
-                                    smoothness: 0.8,
-                                    borderRadius: BorderRadius.circular(10),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
                                   selected: state.priceFrom != null ||
                                       state.priceTo != null,
@@ -466,9 +464,8 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                       width: 1,
                                       color:
                                           AppColors.lightGray.withOpacity(0.7)),
-                                  shape: SmoothRectangleBorder(
-                                    smoothness: 0.8,
-                                    borderRadius: BorderRadius.circular(10),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
                                   selected: selectedValue != null,
                                   backgroundColor: AppColors.white,
@@ -503,9 +500,8 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                     width: 1,
                                     color: AppColors.lightGray.withOpacity(0.7),
                                   ),
-                                  shape: SmoothRectangleBorder(
-                                    smoothness: 0.8,
-                                    borderRadius: BorderRadius.circular(10),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
                                   selected: state.condition != 'ALL',
                                   backgroundColor: AppColors.white,
@@ -535,9 +531,8 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                       width: 1,
                                       color:
                                           AppColors.lightGray.withOpacity(0.7)),
-                                  shape: SmoothRectangleBorder(
-                                    smoothness: 0.8,
-                                    borderRadius: BorderRadius.circular(10),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
                                   selected: state.sellerType != SellerType.ALL,
                                   backgroundColor: AppColors.white,

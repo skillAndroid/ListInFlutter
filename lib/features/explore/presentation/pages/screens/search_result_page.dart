@@ -310,10 +310,9 @@ class _SearchResultPageState extends State<SearchResultPage> {
                                         width: 1,
                                         color: AppColors.lightGray,
                                       ),
-                                      shape: SmoothRectangleBorder(
-                                        smoothness: 0.8,
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
+                                      shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
                                       selected: state.priceFrom != null ||
                                           state.priceTo != null,
                                       backgroundColor: AppColors.white,
@@ -345,10 +344,9 @@ class _SearchResultPageState extends State<SearchResultPage> {
                                         color: AppColors.lightGray
                                             .withOpacity(0.7),
                                       ),
-                                      shape: SmoothRectangleBorder(
-                                        smoothness: 0.8,
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
+                                      shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
                                       selected: state.condition != 'ALL',
                                       backgroundColor: AppColors.white,
                                       selectedColor: AppColors.white,
@@ -399,9 +397,8 @@ class _SearchResultPageState extends State<SearchResultPage> {
                                       color:
                                           AppColors.lightGray.withOpacity(0.7),
                                     ),
-                                    shape: SmoothRectangleBorder(
-                                      smoothness: 0.8,
-                                      borderRadius: BorderRadius.circular(10),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
                                     selected:
                                         state.sellerType != SellerType.ALL,

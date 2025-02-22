@@ -490,9 +490,8 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
           state.catalogs![index].name,
           style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
         ),
-        shape: SmoothRectangleBorder(
-          smoothness: 0.8,
-          borderRadius: BorderRadius.circular(10),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
         ),
         selected: selectedFilters.contains(index),
         backgroundColor: AppColors.white,
@@ -768,7 +767,7 @@ class ErrorIndicator extends StatelessWidget {
                       ),
                   textAlign: TextAlign.center,
                 ),
-               
+
                 const SizedBox(height: 24),
 
                 // Try Again Button

@@ -174,7 +174,7 @@ class SwitchFilterChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 2.5),
       child: FilterChip(
         showCheckmark: false,
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
         label: Row(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -198,7 +198,7 @@ class SwitchFilterChip extends StatelessWidget {
           color: AppColors.lightGray.withOpacity(0.7),
         ),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(12),
         ),
         selected: value,
         backgroundColor: AppColors.white,
