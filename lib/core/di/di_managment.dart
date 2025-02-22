@@ -7,7 +7,6 @@ import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/retry.dart';
-import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:list_in/core/router/go_router.dart';
 import 'package:list_in/core/services/auth_service.dart';
 import 'package:list_in/features/auth/data/repositories/auth_repository_impl.dart';
@@ -228,7 +227,7 @@ Future<void> init() async {
 
   //! External
   sl.registerLazySingleton(() => sharedPreferences);
-  sl.registerLazySingleton(() => InternetConnectionChecker.createInstance());
+  
 
   sl.registerLazySingleton(() => AuthService(authLocalDataSource: sl()));
 
