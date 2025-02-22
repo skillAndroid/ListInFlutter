@@ -36,6 +36,7 @@ import 'package:list_in/global/global_bloc.dart';
 import 'package:list_in/global/global_event.dart';
 import 'package:list_in/global/global_state.dart';
 import 'package:list_in/global/global_status.dart';
+import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
@@ -381,16 +382,18 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   }) {
     return SizedBox(
       height: 50,
-      child: ClipRRect(
+      child: SmoothClipRRect(
+        smoothness: 0.9,
         borderRadius: BorderRadius.circular(12),
         child: Material(
           color: color,
           child: InkWell(
             onTap: onPressed,
             borderRadius: BorderRadius.circular(8),
-            child: ClipRRect(
+            child: SmoothClipRRect(
+              smoothness: 0.9,
               borderRadius: BorderRadius.circular(10),
-              // side: BorderSide(color: borderColor ?? AppColors.transparent),
+              side: BorderSide(color: borderColor ?? AppColors.transparent),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -525,7 +528,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           left: 0,
           right: 0,
           child: Center(
-            child: ClipRRect(
+            child: SmoothClipRRect(
               borderRadius: BorderRadius.circular(4),
               child: Container(
                 padding:
@@ -1000,7 +1003,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (context) {
-        return ClipRRect(
+        return SmoothClipRRect(
           borderRadius: BorderRadius.circular(16),
           child: Container(
             decoration: const BoxDecoration(
@@ -1096,7 +1099,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       style: TextButton.styleFrom(
                         backgroundColor: Colors.blue,
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
+                        shape: SmoothRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
                       ),
@@ -1126,7 +1129,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   }) {
     return Row(
       children: [
-        ClipRRect(
+        SmoothClipRRect(
           borderRadius: BorderRadius.circular(16),
           child: Container(
             padding: const EdgeInsets.all(10),
@@ -1176,7 +1179,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
       child: Row(
         children: [
-          ClipRRect(
+          SmoothClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: Container(
               color: AppColors.containerColor,
@@ -1496,7 +1499,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       context: context,
       backgroundColor: AppColors.white,
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(
+      shape: SmoothRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (context) => Container(
@@ -1563,7 +1566,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   Widget _buildBuyerProtection() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      child: ClipRRect(
+      child: SmoothClipRRect(
         borderRadius: BorderRadius.circular(16),
         child: Container(
           padding: const EdgeInsets.all(12), // Smaller height
@@ -1588,7 +1591,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   Widget _buildTrustAndSafety() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      child: ClipRRect(
+      child: SmoothClipRRect(
         borderRadius: BorderRadius.circular(16),
         child: Container(
           padding: const EdgeInsets.all(16),
