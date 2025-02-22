@@ -9,7 +9,6 @@ import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/post/data/models/category_model.dart';
-import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class CategoryCard extends StatefulWidget {
   final HomeTreeState state;
@@ -42,7 +41,6 @@ class CategoryCard extends StatefulWidget {
 class _CategoryCardState extends State<CategoryCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _scaleController;
-  bool _isPressed = false;
 
   @override
   void initState() {
@@ -82,66 +80,50 @@ class _CategoryCardState extends State<CategoryCard>
           });
         },
         onTapDown: (_) {
-          setState(() => _isPressed = true);
           _scaleController.reverse();
         },
         onTapUp: (_) {
-          setState(() => _isPressed = false);
           _scaleController.forward();
         },
         onTapCancel: () {
-          setState(() => _isPressed = false);
           _scaleController.forward();
         },
         child: ScaleTransition(
           scale: _scaleController,
           child: Stack(
             children: [
-              SmoothClipRRect(
-                smoothness: 0.8,
-                borderRadius: BorderRadius.circular(16),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 0),
-                  decoration: BoxDecoration(
-                    color: AppColors.containerColor,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(_isPressed ? 0.0 : 0.0),
-                        offset: Offset(0, _isPressed ? 1 : 2),
-                        blurRadius: _isPressed ? 2 : 4,
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 0),
+                decoration: BoxDecoration(
+                  color: AppColors.containerColor,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(width: 6),
+                    ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: widget.maxWidth,
                       ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const SizedBox(width: 6),
-                      ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxWidth: widget.maxWidth,
-                        ),
-                        child: Text(
-                          widget.category.name,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          softWrap: true,
-                          style: const TextStyle(
-                            fontSize: 11,
-                            color: AppColors.transparent,
-                            fontWeight: FontWeight.w500,
-                            fontFamily: 'Poppins',
-                          ),
+                      child: Text(
+                        widget.category.name,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: true,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: AppColors.transparent,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: 'Poppins',
                         ),
                       ),
-                      SmoothClipRRect(
-                        borderRadius: BorderRadius.circular(0),
-                        child: SizedBox(
-                            width: widget.maxWidth,
-                            height: widget.height,
-                            child: SizedBox()),
-                      ),
-                    ],
-                  ),
+                    ),
+                    SizedBox(
+                        width: widget.maxWidth,
+                        height: widget.height,
+                        child: SizedBox()),
+                  ],
                 ),
               ),
               Positioned(
@@ -168,19 +150,16 @@ class _CategoryCardState extends State<CategoryCard>
                 right: 0,
                 child: Transform.translate(
                   offset: widget.imageOffset,
-                  child: SmoothClipRRect(
-                    borderRadius: BorderRadius.circular(widget.radius),
-                    child: SizedBox(
-                      width: widget.width,
-                      height: widget.height,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(
-                          widget.radius,
-                        ),
-                        child: CachedNetworkImage(
-                          imageUrl: widget.category.logoUrl,
-                          fit: widget.imageFit,
-                        ),
+                  child: SizedBox(
+                    width: widget.width,
+                    height: widget.height,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(
+                        widget.radius,
+                      ),
+                      child: CachedNetworkImage(
+                        imageUrl: widget.category.logoUrl,
+                        fit: widget.imageFit,
                       ),
                     ),
                   ),

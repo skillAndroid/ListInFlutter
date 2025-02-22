@@ -17,6 +17,7 @@ import 'package:list_in/features/explore/presentation/widgets/filters_widgets/nu
 import 'package:list_in/features/post/data/models/attribute_model.dart';
 import 'package:list_in/features/post/data/models/attribute_value_model.dart';
 import 'package:list_in/features/post/data/models/nomeric_field_model.dart';
+import 'package:smooth_corner_updated/smooth_corner.dart';
 
 // ignore: must_be_immutable
 class FiltersPage extends StatefulWidget {
@@ -1414,23 +1415,25 @@ class _FiltersPageState extends State<FiltersPage>
         ),
         SizedBox(
           width: 250,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(14),
-            // side: BorderSide(width: 1, color: AppColors.containerColor),
-            child: Container(
-              decoration: BoxDecoration(
-                color: AppColors.white,
+          child: Container(
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              border: Border.all(
+                width: 1,
+                color: AppColors.containerColor, // Цвет рамки
               ),
-              padding: EdgeInsets.all(4),
-              child: Row(
-                children: [
-                  _buildSellerTypeOption('All', SellerType.ALL, state),
-                  _buildSellerTypeOption(
-                      'Individual', SellerType.INDIVIDUAL_SELLER, state),
-                  _buildSellerTypeOption(
-                      'Shop', SellerType.BUSINESS_SELLER, state),
-                ],
-              ),
+              borderRadius:
+                  BorderRadius.circular(14), // Чтобы границы были скруглёнными
+            ),
+            padding: EdgeInsets.all(4),
+            child: Row(
+              children: [
+                _buildSellerTypeOption('All', SellerType.ALL, state),
+                _buildSellerTypeOption(
+                    'Individual', SellerType.INDIVIDUAL_SELLER, state),
+                _buildSellerTypeOption(
+                    'Shop', SellerType.BUSINESS_SELLER, state),
+              ],
             ),
           ),
         ),
@@ -1622,8 +1625,8 @@ class _FiltersPageState extends State<FiltersPage>
                 width: 1,
                 color: AppColors.containerColor, // Цвет рамки
               ),
-              borderRadius: BorderRadius.circular(
-                  14), // Чтобы границы были скруглёнными
+              borderRadius:
+                  BorderRadius.circular(14), // Чтобы границы были скруглёнными
             ),
             padding: EdgeInsets.all(4),
             child: Row(
@@ -1694,32 +1697,36 @@ class _FiltersPageState extends State<FiltersPage>
           SizedBox(height: 12),
           AnimatedSize(
               duration: Duration(milliseconds: 200),
-              child: ClipRRect(
-                  // side: BorderSide(width: 1, color: AppColors.containerColor),
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    width: 1,
+                    color: AppColors.containerColor,
+                  ),
                   borderRadius: BorderRadius.circular(14),
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: 52,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Select Location',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: AppColors.darkGray,
-                            ),
-                          ),
-                          Icon(
-                            Icons.arrow_forward_ios_rounded,
-                            size: 16,
-                          )
-                        ],
+                ),
+                width: double.infinity,
+                height: 52,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Select Location',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: AppColors.darkGray,
+                        ),
                       ),
-                    ),
-                  ))),
+                      Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        size: 16,
+                      )
+                    ],
+                  ),
+                ),
+              )),
           // Popular locations chips
           //  if (_selectedLocation?.isEmpty ?? true)
           AnimatedContainer(
@@ -1909,7 +1916,8 @@ class _FiltersPageState extends State<FiltersPage>
                         backgroundColor: Colors.black,
                         foregroundColor: Colors.white,
                         padding: EdgeInsets.symmetric(vertical: 17),
-                        shape: RoundedRectangleBorder(
+                        shape: SmoothRectangleBorder(
+                          smoothness: 0.7,
                           borderRadius: BorderRadius.circular(14),
                         ),
                         elevation: 0,

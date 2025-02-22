@@ -77,7 +77,7 @@ class _SubcategoriesListState extends State<SubcategoriesList> {
         final category = entry.value;
 
         return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
+         padding: const EdgeInsets.symmetric(horizontal: 0.5),
           child: SubcategoryCard(
             state : state,
             category: category,

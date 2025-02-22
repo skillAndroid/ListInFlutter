@@ -34,7 +34,6 @@ class SubcategoryCard extends StatefulWidget {
 class _SubcategoryCardState extends State<SubcategoryCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _scaleController;
-  bool _isPressed = false;
 
   @override
   void initState() {
@@ -56,51 +55,42 @@ class _SubcategoryCardState extends State<SubcategoryCard>
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        context.read<HomeTreeCubit>().selectChildCategory(widget.category);
-        context.goNamed(RoutesByName.attributes, extra: {
-          'category': widget.categoryM,
-          'childCategory': widget.category,
-          'priceFrom': widget.state.priceFrom,
-          'priceTo': widget.state.priceTo,
-          'filterState': {
-            'bargain': widget.state.bargain,
-            'isFree': widget.state.isFree,
-            'condition': widget.state.condition,
-            'sellerType': widget.state.sellerType,
-          },
-        });
-      },
-      onTapDown: (_) {
-        setState(() => _isPressed = true);
-        _scaleController.reverse();
-      },
-      onTapUp: (_) {
-        setState(() => _isPressed = false);
-        _scaleController.forward();
-      },
-      onTapCancel: () {
-        setState(() => _isPressed = false);
-        _scaleController.forward();
-      },
-      child: ScaleTransition(
-        scale: _scaleController,
-        child: Stack(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: Container(
+    return Padding(
+      padding: const EdgeInsets.only(right: 5),
+      child: GestureDetector(
+        onTap: () {
+          context.read<HomeTreeCubit>().selectChildCategory(widget.category);
+          context.goNamed(RoutesByName.attributes, extra: {
+            'category': widget.categoryM,
+            'childCategory': widget.category,
+            'priceFrom': widget.state.priceFrom,
+            'priceTo': widget.state.priceTo,
+            'filterState': {
+              'bargain': widget.state.bargain,
+              'isFree': widget.state.isFree,
+              'condition': widget.state.condition,
+              'sellerType': widget.state.sellerType,
+            },
+          });
+        },
+        onTapDown: (_) {
+          _scaleController.reverse();
+        },
+        onTapUp: (_) {
+          _scaleController.forward();
+        },
+        onTapCancel: () {
+          _scaleController.forward();
+        },
+        child: ScaleTransition(
+          scale: _scaleController,
+          child: Stack(
+            children: [
+              Container(
                 padding: const EdgeInsets.symmetric(horizontal: 0),
                 decoration: BoxDecoration(
                   color: AppColors.containerColor,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(_isPressed ? 0.1 : 0.2),
-                      offset: Offset(0, _isPressed ? 1 : 2),
-                      blurRadius: _isPressed ? 2 : 4,
-                    ),
-                  ],
+                  borderRadius: BorderRadius.circular(16),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -123,49 +113,43 @@ class _SubcategoryCardState extends State<SubcategoryCard>
                         ),
                       ),
                     ),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(0),
-                      child: SizedBox(
-                        width: 70,
-                        height: 70,
-                        child: const SizedBox(),
-                      ),
+                    SizedBox(
+                      width: 70,
+                      height: 70,
+                      child: const SizedBox(),
                     ),
                   ],
                 ),
               ),
-            ),
-            Positioned(
-              top: 8,
-              left: 8,
-              child: SizedBox(
-                width: 75,
-                child: Text(
-                  widget.category.name,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  softWrap: true,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppColors.black,
-                    fontWeight: FontWeight.w500,
-                    fontFamily: 'Poppins',
+              Positioned(
+                top: 8,
+                left: 8,
+                child: SizedBox(
+                  width: 75,
+                  child: Text(
+                    widget.category.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    softWrap: true,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.black,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'Poppins',
+                    ),
                   ),
                 ),
               ),
-            ),
-            Positioned(
-              bottom: 0,
-              right: 0,
-              child: Transform.translate(
-                offset: Offset(-4, 4),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: SizedBox(
-                    width: 64,
-                    height: 64,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: Transform.translate(
+                  offset: Offset(-4, 4),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: SizedBox(
+                      width: 64,
+                      height: 64,
                       child: CachedNetworkImage(
                         imageUrl: widget.category.logoUrl,
                         fit: BoxFit.contain,
@@ -174,8 +158,8 @@ class _SubcategoryCardState extends State<SubcategoryCard>
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
