@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
+import 'package:list_in/features/explore/presentation/widgets/product_card/bb/regular_product_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_bloc.dart';
@@ -722,7 +723,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                 final publication = state.publications[index];
                 return Padding(
                   padding: const EdgeInsets.all(0),
-                  child: RemouteRegularProductCard2(
+                  child: ProductCardContainer(
                     product: publication,
                   ),
                 );

@@ -17,6 +17,7 @@ import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/explore/presentation/pages/filter/filter.dart';
 import 'package:list_in/features/explore/presentation/pages/screens/initial_page.dart';
 import 'package:list_in/features/explore/presentation/widgets/product_card/bb/boosted_card.dart';
+import 'package:list_in/features/explore/presentation/widgets/product_card/bb/regular_product_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
@@ -346,7 +347,7 @@ class _FilterHomeResultPageState extends State<FilterHomeResultPage> {
                   : Row(
                       children: [
                         Expanded(
-                          child: RemouteRegularProductCard2(
+                          child: ProductCardContainer(
                             key: ValueKey(
                                 'regular_${currentItem.firstPublication.id}'),
                             product: currentItem.firstPublication,
@@ -355,7 +356,7 @@ class _FilterHomeResultPageState extends State<FilterHomeResultPage> {
                         const SizedBox(width: 1),
                         Expanded(
                           child: currentItem.secondPublication != null
-                              ? RemouteRegularProductCard2(
+                              ? ProductCardContainer(
                                   key: ValueKey(
                                       'regular_${currentItem.secondPublication!.id}'),
                                   product: currentItem.secondPublication!,
