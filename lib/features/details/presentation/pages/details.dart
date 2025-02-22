@@ -941,32 +941,36 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           const SizedBox(height: 2),
           InkWell(
             onTap: () {
-              Navigator.of(context).push(
-                PageRouteBuilder(
-                  pageBuilder: (context, animation, secondaryAnimation) =>
-                      FullScreenMap(
-                    latitude: widget.product.latitude!,
-                    longitude: widget.product.longitude!,
-                    locationName: widget.product.seller.locationName,
+              if (widget.product.seller.isGrantedForPreciseLocation) {
+                Navigator.of(context).push(
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) =>
+                        FullScreenMap(
+                      latitude: widget.product.latitude!,
+                      longitude: widget.product.longitude!,
+                      locationName: widget.product.seller.locationName,
+                    ),
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) {
+                      const begin = Offset(1.0, 0.0);
+                      const end = Offset.zero;
+                      const curve = Curves.easeInOutQuart;
+
+                      var tween = Tween(begin: begin, end: end).chain(
+                        CurveTween(curve: curve),
+                      );
+
+                      return SlideTransition(
+                        position: animation.drive(tween),
+                        child: child,
+                      );
+                    },
+                    transitionDuration: const Duration(milliseconds: 500),
                   ),
-                  transitionsBuilder:
-                      (context, animation, secondaryAnimation, child) {
-                    const begin = Offset(1.0, 0.0);
-                    const end = Offset.zero;
-                    const curve = Curves.easeInOutQuart;
-
-                    var tween = Tween(begin: begin, end: end).chain(
-                      CurveTween(curve: curve),
-                    );
-
-                    return SlideTransition(
-                      position: animation.drive(tween),
-                      child: child,
-                    );
-                  },
-                  transitionDuration: const Duration(milliseconds: 500),
-                ),
-              );
+                );
+              } else {
+                showLocationPrivacySheet(context);
+              }
             },
             child: Row(
               children: [
@@ -989,6 +993,180 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  void showLocationPrivacySheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) {
+        return SmoothClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Handle bar at top
+                Container(
+                  margin: const EdgeInsets.only(top: 12),
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+
+                // Privacy Icon
+                Container(
+                  margin: const EdgeInsets.only(top: 24),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.privacy_tip_outlined,
+                    color: Colors.blue,
+                    size: 32,
+                  ),
+                ),
+
+                // Title
+                const Padding(
+                  padding: EdgeInsets.only(top: 16, bottom: 8),
+                  child: Text(
+                    'Location Privacy Enabled',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+
+                // Description
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                  child: Text(
+                    'This seller has chosen to keep their exact location private. '
+                    'This is a safety feature that helps protect our community members.\n\n'
+                    'You can still see their approximate location area for delivery planning.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Colors.grey[600],
+                      height: 1.4,
+                    ),
+                  ),
+                ),
+
+                // Privacy Points
+                Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    children: [
+                      _buildPrivacyPoint(
+                        icon: Icons.shield_outlined,
+                        title: 'Enhanced Safety',
+                        description: 'Protects personal privacy and security',
+                      ),
+                      const SizedBox(height: 16),
+                      _buildPrivacyPoint(
+                        icon: Icons.location_on_outlined,
+                        title: 'Area Visible',
+                        description: 'General location area is still shown',
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Got it button
+                Padding(
+                  padding: EdgeInsets.fromLTRB(
+                      24, 0, 24, MediaQuery.of(context).padding.bottom + 24),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: TextButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: SmoothRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: const Text(
+                        'Got it',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildPrivacyPoint({
+    required IconData icon,
+    required String title,
+    required String description,
+  }) {
+    return Row(
+      children: [
+        SmoothClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+            ),
+            child: Icon(
+              icon,
+              color: Colors.blue,
+              size: 24,
+            ),
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                description,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -1487,7 +1665,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       context.read<UserPublicationsBloc>().add(
             DeleteUserPublication(publicationId: widget.product.id),
           );
-          context.pop();
+      context.pop();
     }
   }
 
@@ -1536,21 +1714,38 @@ class FullScreenMap extends StatelessWidget {
     required this.locationName,
   });
 
+  Future<void> _openInMaps() async {
+    final Uri url = Uri.parse(
+      'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude',
+    );
+
+    try {
+      if (await canLaunchUrl(url)) {
+        await launchUrl(
+          url,
+          mode: LaunchMode.externalApplication,
+        );
+      } else {
+        throw 'Could not launch maps';
+      }
+    } catch (e) {
+      debugPrint('Error launching maps: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          locationName,
-          style: TextStyle(color: Colors.black, fontSize: 17),
-        ),
-      ),
+      appBar: PreferredSize(
+          preferredSize: Size(double.infinity, 56),
+          child: CustomLocationHeader(
+            locationName: locationName,
+            onBackPressed: () => Navigator.pop(context),
+            onMapsPressed: _openInMaps,
+            elevation: 2,
+            backgroundColor: Colors.white,
+            padding: EdgeInsets.symmetric(horizontal: 4, vertical: 16),
+          )),
       body: GoogleMap(
         zoomControlsEnabled: true,
         mapToolbarEnabled: true,
@@ -1562,11 +1757,102 @@ class FullScreenMap extends StatelessWidget {
         ),
         markers: {
           Marker(
-            markerId: MarkerId('selectedLocation'),
+            markerId: const MarkerId('selectedLocation'),
             position: LatLng(latitude, longitude),
             infoWindow: InfoWindow(title: locationName),
           ),
         },
+      ),
+    );
+  }
+}
+
+class CustomLocationHeader extends StatelessWidget {
+  final String locationName;
+  final VoidCallback onBackPressed;
+  final VoidCallback onMapsPressed;
+  final double elevation;
+  final Color backgroundColor;
+  final EdgeInsets padding;
+
+  const CustomLocationHeader({
+    super.key,
+    required this.locationName,
+    required this.onBackPressed,
+    required this.onMapsPressed,
+    this.elevation = 1,
+    this.backgroundColor = Colors.white,
+    this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: EdgeInsets.zero,
+      elevation: elevation,
+      color: backgroundColor,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(0),
+      ),
+      child: SafeArea(
+        child: Padding(
+          padding: padding,
+          child: Row(
+            children: [
+              // Back Button
+              IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.black),
+                onPressed: onBackPressed,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+              const SizedBox(width: 16),
+
+              // Location Section
+              Expanded(
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.location_on,
+                      color: Colors.black,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        locationName,
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 17,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Maps Button
+              TextButton(
+                onPressed: onMapsPressed,
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: const Text(
+                  'Goole Map',
+                  style: TextStyle(
+                    color: Colors.blue,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

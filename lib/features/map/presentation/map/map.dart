@@ -36,7 +36,7 @@ class _ListInMapState extends State<ListInMap> {
   GoogleMapController? _mapController;
   late final CameraPosition _initialCameraPosition;
 
-  // Tashkent coordinates: 41.2995, 69.2401
+  
   static const LatLng _defaultLocation = LatLng(41.2995, 69.2401);
 
   void _onMapCreated(GoogleMapController controller) {
