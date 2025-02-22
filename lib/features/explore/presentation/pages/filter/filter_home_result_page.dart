@@ -16,7 +16,7 @@ import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/explore/presentation/pages/filter/filter.dart';
 import 'package:list_in/features/explore/presentation/pages/screens/initial_page.dart';
-import 'package:list_in/features/explore/presentation/widgets/advertised_product_card.dart';
+import 'package:list_in/features/explore/presentation/widgets/product_card/bb/boosted_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
@@ -580,7 +580,7 @@ class _FilterHomeResultPageState extends State<FilterHomeResultPage> {
             product.id,
             info.visibleFraction,
           ),
-          child: AdvertisedProductCard(
+          child: OptimizedAdvertisedCard(
             product: product,
             currentlyPlayingId: _uiState.currentlyPlayingId,
           ),

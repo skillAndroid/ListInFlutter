@@ -15,7 +15,6 @@ import 'package:list_in/global/global_bloc.dart';
 import 'package:list_in/global/global_event.dart';
 import 'package:list_in/global/global_state.dart';
 import 'package:list_in/global/global_status.dart';
-import 'package:smooth_corner_updated/smooth_corner.dart';
 
 // Core entity model
 @immutable
@@ -170,7 +169,7 @@ class ProductImageSection extends StatelessWidget {
   }
 
   Widget _buildImage() {
-    return SmoothClipRRect(
+    return ClipRRect(
       borderRadius: BorderRadius.circular(10),
       child: imageUrl != null
           ? CachedNetworkImage(
@@ -477,7 +476,7 @@ class OwnerDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: SmoothRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16.0),
       ),
       child: Container(
@@ -628,8 +627,8 @@ abstract class CardDecoration {
     borderRadius: BorderRadius.all(Radius.circular(10)),
     boxShadow: [
       BoxShadow(
-        color: Colors.black26,
-        blurRadius: 5,
+        color: Colors.black12,
+        blurRadius: 4,
         offset: Offset(0, 2),
       ),
     ],

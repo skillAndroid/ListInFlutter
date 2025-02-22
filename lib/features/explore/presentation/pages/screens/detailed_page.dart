@@ -18,11 +18,11 @@ import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/explore/presentation/pages/filter/filter.dart';
 import 'package:list_in/features/explore/presentation/pages/filter/switch_filter_cheap.dart';
 import 'package:list_in/features/explore/presentation/pages/screens/initial_page.dart';
-import 'package:list_in/features/explore/presentation/widgets/advertised_product_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/filters_widgets/condition_bottom_sheet.dart';
 import 'package:list_in/features/explore/presentation/widgets/filters_widgets/numeric_fields_bototm_sheet.dart';
 import 'package:list_in/features/explore/presentation/widgets/filters_widgets/price_bottom_sheet.dart';
 import 'package:list_in/features/explore/presentation/widgets/filters_widgets/sellert_type_bottom_sheet.dart';
+import 'package:list_in/features/explore/presentation/widgets/product_card/bb/boosted_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
 import 'package:list_in/features/post/data/models/attribute_model.dart';
@@ -918,7 +918,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
             product.id,
             info.visibleFraction,
           ),
-          child: AdvertisedProductCard(
+          child: OptimizedAdvertisedCard(
             product: product,
             currentlyPlayingId: _uiState.currentlyPlayingId,
           ),
