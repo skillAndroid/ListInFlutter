@@ -347,61 +347,56 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
     return SliverPadding(
       padding: const EdgeInsets.only(left: 0, right: 0, bottom: 8),
       sliver: SliverToBoxAdapter(
-        child: SmoothClipRRect(
-          borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(16),
-              bottomRight: Radius.circular(16)),
-          child: Container(
-            color: AppColors.white,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(100),
-                        child: Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: AppColors.white,
-                          ),
-                          child: Center(
-                            child: Icon(
-                              Icons.play_arrow_rounded,
-                              size: 28,
-                            ),
+        child: Container(
+          color: AppColors.white,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(100),
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: AppColors.white,
+                        ),
+                        child: Center(
+                          child: Icon(
+                            Icons.play_arrow_rounded,
+                            size: 28,
                           ),
                         ),
                       ),
-                      SizedBox(
-                        width: 8,
-                      ),
-                      Text(
-                        "Video Posts",
-                        style: TextStyle(
-                            color: AppColors.darkBackground,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            fontFamily: "Poppins"),
-                      ),
-                    ],
+                    ),
+                    SizedBox(
+                      width: 8,
+                    ),
+                    Text(
+                      "Video Posts",
+                      style: TextStyle(
+                          color: AppColors.darkBackground,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: "Poppins"),
+                    ),
+                  ],
+                ),
+              ),
+              if (state.videoPublications.isNotEmpty) ...[
+                SizedBox(height: 4),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: VideoCarousel(
+                    items: state.videoPublications.sublist(0, 4),
                   ),
                 ),
-                if (state.videoPublications.isNotEmpty) ...[
-                  SizedBox(height: 4),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: VideoCarousel(
-                      items: state.videoPublications.sublist(0, 4),
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                ]
-              ],
-            ),
+                SizedBox(height: 8),
+              ]
+            ],
           ),
         ),
       ),

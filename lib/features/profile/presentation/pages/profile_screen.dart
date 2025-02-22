@@ -596,140 +596,141 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
       ),
     );
   }
-Widget _buildFilteredProductsGrid() {
-  return BlocConsumer<UserPublicationsBloc, UserPublicationsState>(
-    listener: (context, state) {
-      if (state.error != null) {
-        _showErrorSnackbar(context, state.error!);
-      }
-    },
-    builder: (context, state) {
-      // Loading state
-      if ((state.isLoading || state.isInitialLoading) &&
-          state.publications.isEmpty) {
-        return SliverFillRemaining(
-          hasScrollBody: false,
-          child: Center(
-            child: Progress(),
-          ),
-        );
-      }
-      
-      // Error state
-      if (state.error != null && state.publications.isEmpty) {
-        return SliverFillRemaining(
-          hasScrollBody: false,
-          child: Center(
-            child: FilledButton.icon(
-              onPressed: () {
-                context
-                    .read<UserPublicationsBloc>()
-                    .add(FetchUserPublications());
-              },
-              icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Try Again'),
+
+  Widget _buildFilteredProductsGrid() {
+    return BlocConsumer<UserPublicationsBloc, UserPublicationsState>(
+      listener: (context, state) {
+        if (state.error != null) {
+          _showErrorSnackbar(context, state.error!);
+        }
+      },
+      builder: (context, state) {
+        // Loading state
+        if ((state.isLoading || state.isInitialLoading) &&
+            state.publications.isEmpty) {
+          return SliverFillRemaining(
+            hasScrollBody: false,
+            child: Center(
+              child: Progress(),
             ),
-          ),
-        );
-      }
-      
-      // Empty state - check if we deleted everything
-      if (state.publications.isEmpty) {
-        return SliverFillRemaining(
-          hasScrollBody: false,
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.withOpacity(0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.inventory_2_outlined,
-                    size: 48,
-                    color: Colors.grey[600],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'No $selectedProductFilter products',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                FilledButton.icon(
-                  onPressed: () {
-                    context
-                        .read<UserPublicationsBloc>()
-                        .add(RefreshUserPublications());
-                  },
-                  icon: const Icon(Icons.refresh_rounded),
-                  label: const Text('Refresh'),
-                ),
-              ],
+          );
+        }
+
+        // Error state
+        if (state.error != null && state.publications.isEmpty) {
+          return SliverFillRemaining(
+            hasScrollBody: false,
+            child: Center(
+              child: FilledButton.icon(
+                onPressed: () {
+                  context
+                      .read<UserPublicationsBloc>()
+                      .add(FetchUserPublications());
+                },
+                icon: const Icon(Icons.refresh_rounded),
+                label: const Text('Try Again'),
+              ),
             ),
-          ),
-        );
-      }
-      
-      // Content state with grid
-      return SliverPadding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        sliver: SliverGrid(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              // Display loading indicator at the end if more content is loading
-              if (index >= state.publications.length) {
-                if (state.isLoading) {
-                  return const Center(child: Progress());
+          );
+        }
+
+        // Empty state - check if we deleted everything
+        if (state.publications.isEmpty) {
+          return SliverFillRemaining(
+            hasScrollBody: false,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.inventory_2_outlined,
+                      size: 48,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No $selectedProductFilter products',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  FilledButton.icon(
+                    onPressed: () {
+                      context
+                          .read<UserPublicationsBloc>()
+                          .add(RefreshUserPublications());
+                    },
+                    icon: const Icon(Icons.refresh_rounded),
+                    label: const Text('Refresh'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        // Content state with grid
+        return SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          sliver: SliverGrid(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                // Display loading indicator at the end if more content is loading
+                if (index >= state.publications.length) {
+                  if (state.isLoading) {
+                    return const Center(child: Progress());
+                  }
+                  return null;
                 }
-                return null;
-              }
-              
-              final publication = state.publications[index];
-              return Padding(
-                padding: const EdgeInsets.all(0),
-                child: ProfileProductCard(
-                  product: publication,
-                ),
-              );
-            },
-            childCount: state.publications.length + (state.isLoading ? 1 : 0),
+
+                final publication = state.publications[index];
+                return Padding(
+                  padding: const EdgeInsets.all(0),
+                  child: ProfileProductCard(
+                    product: publication,
+                  ),
+                );
+              },
+              childCount: state.publications.length + (state.isLoading ? 1 : 0),
+            ),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: 0.72,
+              crossAxisSpacing: 0,
+              mainAxisSpacing: 0,
+            ),
           ),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 0.625,
-            crossAxisSpacing: 0,
-            mainAxisSpacing: 0,
-          ),
-        ),
-      );
-    },
-  );
-}
+        );
+      },
+    );
+  }
 
 // Helper method for showing errors
-void _showErrorSnackbar(BuildContext context, String message) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text(message),
-      behavior: SnackBarBehavior.floating,
-      action: SnackBarAction(
-        label: 'Dismiss',
-        onPressed: () {
-          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        },
+  void _showErrorSnackbar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        behavior: SnackBarBehavior.floating,
+        action: SnackBarAction(
+          label: 'Dismiss',
+          onPressed: () {
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          },
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildEmptyTab({
     required IconData icon,

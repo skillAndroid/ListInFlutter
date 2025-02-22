@@ -849,7 +849,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               crossAxisCount: 2,
               crossAxisSpacing: 0,
               mainAxisSpacing: 0,
-              childAspectRatio: 0.64,
+              childAspectRatio: 0.735,
             ),
             itemCount:
                 state.publications.length + (state.isLoadingMore ? 1 : 0),

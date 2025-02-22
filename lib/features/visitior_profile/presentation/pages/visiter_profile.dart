@@ -649,8 +649,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
           );
         }
 
-        if (state.status == AnotherUserProfileStatus.failure &&
-            state.publications.isEmpty) {
+        if (state.status == AnotherUserProfileStatus.failure) {
           return SliverToBoxAdapter(
             child: Center(
               child: Column(
@@ -735,7 +734,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
               crossAxisCount: 2,
               crossAxisSpacing: 0,
               mainAxisSpacing: 0,
-              childAspectRatio: 0.64,
+              childAspectRatio: 0.72,
             ),
           ),
         );

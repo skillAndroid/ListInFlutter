@@ -262,37 +262,39 @@ class _VideoCarouselState extends State<VideoCarousel> {
             if (index == widget.items.length) {
               return Padding(
                 padding: const EdgeInsets.only(right: 2),
-                child: SmoothClipRRect(
-                  side: BorderSide(width: 2, color: AppColors.white),
-                  borderRadius: BorderRadius.circular(16),
-                  child: GestureDetector(
-                    onTap: () => context
-                        .read<HomeTreeCubit>()
-                        .handleVideoFeedNavigation(context, 0),
-                    child: Container(
-                      height: 160,
-                      width: 90,
-                      color: AppColors.containerColor,
-                      child: const Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            CupertinoIcons.play_circle_fill,
-                            size: 32,
-                            color: AppColors.primary,
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            'See All\nVideos',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: AppColors.primary,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
+                child: GestureDetector(
+                  onTap: () => context
+                      .read<HomeTreeCubit>()
+                      .handleVideoFeedNavigation(context, 0),
+                  child: Container(
+                    height: 160,
+                    width: 90,
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        width: 1,
+                        color: AppColors.containerColor,
                       ),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: const Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          CupertinoIcons.play_circle_fill,
+                          size: 32,
+                          color: AppColors.primary,
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'See All\nVideos',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: AppColors.primary,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -303,6 +305,7 @@ class _VideoCarouselState extends State<VideoCarousel> {
             return Padding(
               padding: const EdgeInsets.only(right: 2),
               child: SmoothClipRRect(
+                smoothness: 0.6,
                 side: BorderSide(width: 2, color: AppColors.containerColor),
                 borderRadius: BorderRadius.circular(16),
                 child: GestureDetector(
