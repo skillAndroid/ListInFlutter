@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:list_in/core/error/exeptions.dart';
 import 'package:list_in/core/error/failure.dart';
-import 'package:list_in/core/network/network_info.dart';
 import 'package:list_in/features/auth/domain/entities/auth_tokens.dart';
 import 'package:list_in/features/profile/data/model/user/user_profile_model.dart';
 import 'package:list_in/features/profile/data/sources/user_profile_remoute.dart';
@@ -13,19 +12,13 @@ import 'package:list_in/features/profile/domain/repository/user_profile_reposito
 
 class UserProfileRepositoryImpl implements UserProfileRepository {
   final UserProfileRemoute remoteDataSource;
-  final NetworkInfo networkInfo;
 
   UserProfileRepositoryImpl({
     required this.remoteDataSource,
-    required this.networkInfo,
   });
 
   @override
   Future<Either<Failure, List<String>>> uploadImages(List<XFile> images) async {
-    if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure());
-    }
-
     try {
       final result = await remoteDataSource.uploadImages(images);
       return Right(result);
@@ -41,9 +34,6 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
   @override
   Future<Either<Failure, (UserDataEntity, AuthToken?)>> updateUserData(
       UserProfileEntity user) async {
-    if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure());
-    }
     try {
       final userModel = UserProfileModel(
         profileImagePath: user.profileImagePath,
@@ -72,10 +62,6 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
   @override
   Future<Either<Failure, UserDataEntity>> getUserData() async {
     debugPrint('📡 Checking network connection...');
-    if (!await networkInfo.isConnected) {
-      debugPrint('❌ No network connection');
-      return Left(NetworkFailure());
-    }
 
     try {
       debugPrint('🔄 Fetching user data from remote source...');

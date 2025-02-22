@@ -1,6 +1,5 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
-import 'package:list_in/core/error/exeptions.dart';
 import 'package:list_in/features/auth/data/models/auth_token_model.dart';
 import 'package:list_in/features/auth/data/models/retrived_email_model.dart';
 import 'package:list_in/features/auth/domain/entities/login.dart';
@@ -19,50 +18,57 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final Dio dio;
   AuthRemoteDataSourceImpl({required this.dio});
 
- @override
-Future<Either<String, AuthTokenModel>> login(Login login) async {
-  try {
-    final response = await dio.post('/api/v1/auth/authenticate', data: {
-      'email': login.email,
-      'password': login.password,
-    });
-    
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      return right(AuthTokenModel.fromJson(response.data));
-    } else {
-      // Handle non-200/201 responses
-      return left(response.data['message'] ?? 'Server returned ${response.statusCode}');
-    }
-  } on DioException catch (e) {
-    // Handle 401 and other auth errors specifically
-    if (e.response?.statusCode == 401) {
-      return left('Invalid email or password');
-    }
+  @override
+  Future<Either<String, AuthTokenModel>> login(Login login) async {
+    try {
+      final startTime = DateTime.now();
+      print("⏳ Отправка запроса: $startTime");
+      final response = await dio.post('/api/v1/auth/authenticate', data: {
+        'email': login.email,
+        'password': login.password,
+      });
 
-     if (e.response?.statusCode == 401) {
-      return left('Not Authenticated');
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final endTime = DateTime.now();
+        print(
+            "✅ Ответ получен: $endTime, задержка: ${endTime.difference(startTime).inMilliseconds} мс");
+        return right(AuthTokenModel.fromJson(response.data));
+      } else {
+        // Handle non-200/201 responses
+        return left(response.data['message'] ??
+            'Server returned ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      // Handle 401 and other auth errors specifically
+      if (e.response?.statusCode == 401) {
+        return left('Invalid email or password');
+      }
+
+      if (e.response?.statusCode == 401) {
+        return left('Not Authenticated');
+      }
+
+      // Handle other DioError cases
+      switch (e.type) {
+        case DioExceptionType.connectionTimeout:
+        case DioExceptionType.receiveTimeout:
+        case DioExceptionType.sendTimeout:
+          return left('Connection timeout');
+        case DioExceptionType.badResponse:
+          // Get the error message from the response if available
+          final message = e.response?.data['message'];
+          if (message != null && message.toString().contains('credentials')) {
+            return left('Invalid credentials');
+          }
+          return left(
+              e.response?.data['message'] ?? 'Bad response from server');
+        default:
+          return left(e.message ?? 'Network error occurred');
+      }
+    } catch (e) {
+      return left('Unexpected error occurred');
     }
-    
-    // Handle other DioError cases
-    switch (e.type) {
-      case DioExceptionType.connectionTimeout:
-      case DioExceptionType.receiveTimeout:
-      case DioExceptionType.sendTimeout:
-        return left('Connection timeout');
-      case DioExceptionType.badResponse:
-        // Get the error message from the response if available
-        final message = e.response?.data['message'];
-        if (message != null && message.toString().contains('credentials')) {
-          return left('Invalid credentials');
-        }
-        return left(e.response?.data['message'] ?? 'Bad response from server');
-      default:
-        return left(e.message ?? 'Network error occurred');
-    }
-  } catch (e) {
-    return left('Unexpected error occurred');
   }
-}
 
   @override
   Future<Either<String, RetrivedEmailModel>> signup(Signup signup) async {

@@ -2,7 +2,6 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
 import 'package:list_in/core/error/exeptions.dart';
 import 'package:list_in/core/error/failure.dart';
-import 'package:list_in/core/network/network_info.dart';
 import 'package:list_in/features/visitior_profile/data/source/another_user_profile_remoute.dart';
 import 'package:list_in/features/visitior_profile/domain/entity/another_user_profile_entity.dart';
 import 'package:list_in/features/visitior_profile/domain/entity/another_user_publications_entity.dart';
@@ -10,11 +9,11 @@ import 'package:list_in/features/visitior_profile/domain/repository/another_user
 
 class AnotherUserProfileRepImpl implements AnotherUserProfileRepository {
   final AnotherUserProfileRemoute remoteDataSource;
-  final NetworkInfo networkInfo;
+
 
   AnotherUserProfileRepImpl({
     required this.remoteDataSource,
-    required this.networkInfo,
+   
   });
 
   @override
@@ -22,9 +21,7 @@ class AnotherUserProfileRepImpl implements AnotherUserProfileRepository {
     String userId,
     bool follow,
   ) async {
-    if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure());
-    }
+  
 
     try {
       final result = await remoteDataSource.followUser(
@@ -45,10 +42,7 @@ class AnotherUserProfileRepImpl implements AnotherUserProfileRepository {
   Future<Either<Failure, AnotherUserProfileEntity>> getUserData(
       String? userId) async {
     debugPrint('📡 Checking network connection...');
-    if (!await networkInfo.isConnected) {
-      debugPrint('❌ No network connection');
-      return Left(NetworkFailure());
-    }
+   
 
     try {
       debugPrint('🔄 Fetching user data from remote source...');
@@ -77,9 +71,7 @@ class AnotherUserProfileRepImpl implements AnotherUserProfileRepository {
   @override
   Future<Either<Failure, AnotherUserPublicationsEntity>> getUserPublications(
       {required int page, required int size, required String userId}) async {
-    if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure());
-    }
+   
 
     try {
       final remoteData = await remoteDataSource.getPublications(
@@ -110,9 +102,7 @@ class AnotherUserProfileRepImpl implements AnotherUserProfileRepository {
   @override
   Future<Either<Failure, void>> likePublication(
       String publicationId, bool like) async {
-    if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure());
-    }
+   
 
     try {
       final result = await remoteDataSource.likePublication(
@@ -132,9 +122,7 @@ class AnotherUserProfileRepImpl implements AnotherUserProfileRepository {
 
   @override
   Future<Either<Failure, void>> viewPublication(String publicationId) async {
-    if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure());
-    }
+   
 
     try {
       final result = await remoteDataSource.viewPublication(publicationId);

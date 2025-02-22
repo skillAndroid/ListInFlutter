@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:list_in/core/error/exeptions.dart';
 import 'package:list_in/core/error/failure.dart';
-import 'package:list_in/core/network/network_info.dart';
 import 'package:list_in/features/post/data/models/category_model.dart';
 import 'package:list_in/features/post/data/sources/post_remote_data_source.dart';
 import 'package:list_in/features/post/data/sources/post_local_data_source.dart';
@@ -15,12 +14,10 @@ import 'package:list_in/features/post/domain/repository/post_repository.dart';
 class PostRepositoryImpl implements PostRepository {
   final CatalogRemoteDataSource remoteDataSource;
   final CatalogLocalDataSource localDataSource;
-  final NetworkInfo networkInfo;
 
   PostRepositoryImpl({
     required this.remoteDataSource,
     required this.localDataSource,
-    required this.networkInfo,
   });
 
   @override
@@ -34,26 +31,19 @@ class PostRepositoryImpl implements PostRepository {
       }
 
       print("🌐 Проверяем подключение к интернету...");
-      final isConnected = await networkInfo.isConnected;
 
-      if (isConnected) {
-        try {
-          print("📡 Запрашиваем данные с сервера...");
-          final remoteCatalogs = await remoteDataSource.getCatalogs();
+      try {
+        print("📡 Запрашиваем данные с сервера...");
+        final remoteCatalogs = await remoteDataSource.getCatalogs();
 
-          print("💾 Кэшируем полученные данные...");
-          await localDataSource.cacheCatalogs(remoteCatalogs);
+        print("💾 Кэшируем полученные данные...");
+        await localDataSource.cacheCatalogs(remoteCatalogs);
 
-          print("✅ Данные успешно загружены с сервера и закэшированы.");
-          return Right(remoteCatalogs);
-        } catch (e) {
-          print("❌ Ошибка при получении данных с сервера: $e");
-          rethrow;
-        }
-      } else {
-        print(
-            "⚠️ Нет подключения к интернету. Возвращаем ошибку NetworkFailure.");
-        return Left(NetworkFailure());
+        print("✅ Данные успешно загружены с сервера и закэшированы.");
+        return Right(remoteCatalogs);
+      } catch (e) {
+        print("❌ Ошибка при получении данных с сервера: $e");
+        rethrow;
       }
     } on ServerExeption {
       print("🛑 Ошибка сервера! Возвращаем ServerFailure.");
@@ -69,57 +59,45 @@ class PostRepositoryImpl implements PostRepository {
 
   @override
   Future<Either<Failure, List<String>>> uploadImages(List<XFile> images) async {
-    if (await networkInfo.isConnected) {
-      try {
-        final listOfImages = await remoteDataSource.uploadImages(images);
-        debugPrint("This is the REPOSITORY_IMAGES : $listOfImages");
-        return Right(listOfImages);
-      } on ServerExeption {
-        debugPrint("Here is ther error Server Exeption");
-        return Left(ServerFailure());
-      } on ConnectiontTimeOutExeption {
-        debugPrint("Here is ther error  ConnectiontTimeOutExeption");
-        return Left(NetworkFailure());
-      } catch (e) {
-        debugPrint("Here is ther error $e");
-        return Left(UnexpectedFailure());
-      }
-    } else {
+    try {
+      final listOfImages = await remoteDataSource.uploadImages(images);
+      debugPrint("This is the REPOSITORY_IMAGES : $listOfImages");
+      return Right(listOfImages);
+    } on ServerExeption {
+      debugPrint("Here is ther error Server Exeption");
+      return Left(ServerFailure());
+    } on ConnectiontTimeOutExeption {
+      debugPrint("Here is ther error  ConnectiontTimeOutExeption");
       return Left(NetworkFailure());
+    } catch (e) {
+      debugPrint("Here is ther error $e");
+      return Left(UnexpectedFailure());
     }
   }
 
   @override
   Future<Either<Failure, String>> uploadVideo(XFile video) async {
-    if (await networkInfo.isConnected) {
-      try {
-        final url = await remoteDataSource.uploadVideo(video);
-        return Right(url);
-      } on ServerExeption {
-        return Left(ServerFailure());
-      } on ConnectiontTimeOutExeption {
-        return Left(NetworkFailure());
-      } catch (e) {
-        return Left(UnexpectedFailure());
-      }
-    } else {
+    try {
+      final url = await remoteDataSource.uploadVideo(video);
+      return Right(url);
+    } on ServerExeption {
+      return Left(ServerFailure());
+    } on ConnectiontTimeOutExeption {
       return Left(NetworkFailure());
+    } catch (e) {
+      return Left(UnexpectedFailure());
     }
   }
 
   @override
   Future<Either<Failure, String>> createPost(PostEntity post) async {
-    if (await networkInfo.isConnected) {
-      try {
-        final result = await remoteDataSource.createPost(post.toModel());
-        return Right(result);
-      } on ServerExeption {
-        return Left(ServerFailure());
-      } catch (e) {
-        return Left(UnexpectedFailure());
-      }
-    } else {
-      return Left(NetworkFailure());
+    try {
+      final result = await remoteDataSource.createPost(post.toModel());
+      return Right(result);
+    } on ServerExeption {
+      return Left(ServerFailure());
+    } catch (e) {
+      return Left(UnexpectedFailure());
     }
   }
 }

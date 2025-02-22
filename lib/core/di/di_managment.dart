@@ -8,8 +8,6 @@ import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/retry.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
-import 'package:list_in/core/network/network_info.dart';
-import 'package:list_in/core/network/network_info_impl.dart';
 import 'package:list_in/core/router/go_router.dart';
 import 'package:list_in/core/services/auth_service.dart';
 import 'package:list_in/features/auth/data/repositories/auth_repository_impl.dart';
@@ -51,30 +49,30 @@ import 'package:list_in/features/post/domain/usecases/get_catalogs_usecase.dart'
 import 'package:list_in/features/post/domain/usecases/upload_images_usecase.dart';
 import 'package:list_in/features/post/domain/usecases/upload_video_usecase.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
-import 'package:list_in/features/profile/domain/usecases/publication/delete_user_publication_usecase.dart';
-import 'package:list_in/features/visitior_profile/data/repository/another_user_profile_rep_impl.dart';
 import 'package:list_in/features/profile/data/repository/user_profile_rep_impl.dart';
 import 'package:list_in/features/profile/data/repository/user_publications_rep_impl.dart';
-import 'package:list_in/features/visitior_profile/data/source/another_user_profile_remoute.dart';
 import 'package:list_in/features/profile/data/sources/user_profile_remoute.dart';
 import 'package:list_in/features/profile/data/sources/user_publications_remote.dart';
-import 'package:list_in/features/visitior_profile/domain/repository/another_user_profile_repository.dart';
 import 'package:list_in/features/profile/domain/repository/user_profile_repository.dart';
 import 'package:list_in/features/profile/domain/repository/user_publications_repository.dart';
-import 'package:list_in/features/visitior_profile/domain/usecase/follow_usecase.dart';
-import 'package:list_in/features/visitior_profile/domain/usecase/get_another_user_profile_usecase.dart';
+import 'package:list_in/features/profile/domain/usecases/publication/delete_user_publication_usecase.dart';
 import 'package:list_in/features/profile/domain/usecases/publication/get_user_publications_usecase.dart';
 import 'package:list_in/features/profile/domain/usecases/publication/update_publication_usecase.dart';
 import 'package:list_in/features/profile/domain/usecases/user/get_user_data_usecase.dart';
 import 'package:list_in/features/profile/domain/usecases/user/update_user_image_usecase.dart';
 import 'package:list_in/features/profile/domain/usecases/user/update_user_profile_usecase.dart';
+import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
+import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_bloc.dart';
+import 'package:list_in/features/profile/presentation/bloc/user/user_profile_bloc.dart';
+import 'package:list_in/features/visitior_profile/data/repository/another_user_profile_rep_impl.dart';
+import 'package:list_in/features/visitior_profile/data/source/another_user_profile_remoute.dart';
+import 'package:list_in/features/visitior_profile/domain/repository/another_user_profile_repository.dart';
+import 'package:list_in/features/visitior_profile/domain/usecase/follow_usecase.dart';
+import 'package:list_in/features/visitior_profile/domain/usecase/get_another_user_profile_usecase.dart';
 import 'package:list_in/features/visitior_profile/domain/usecase/get_another_user_publications_usecase.dart';
 import 'package:list_in/features/visitior_profile/domain/usecase/like_publication_usecase.dart';
 import 'package:list_in/features/visitior_profile/domain/usecase/view_publication_usecase.dart';
 import 'package:list_in/features/visitior_profile/presentation/bloc/another_user_profile_bloc.dart';
-import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
-import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_bloc.dart';
-import 'package:list_in/features/profile/presentation/bloc/user/user_profile_bloc.dart';
 import 'package:list_in/global/global_bloc.dart';
 import 'package:path_provider/path_provider.dart' as path_provider;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -94,7 +92,6 @@ Future<void> init() async {
       ..sendTimeout = const Duration(minutes: 3);
 
     if (dio.httpClientAdapter is IOHttpClientAdapter) {
-      // ignore: deprecated_member_use
       (dio.httpClientAdapter as IOHttpClientAdapter).onHttpClientCreate =
           (client) {
         client
@@ -200,21 +197,19 @@ Future<void> init() async {
     () => AuthRepositoryImpl(
       authRemoteDataSource: sl(),
       authLocalDataSource: sl(),
-      networkInfo: sl(),
     ),
   );
 
   sl.registerLazySingleton<UserProfileRepository>(
     () => UserProfileRepositoryImpl(
       remoteDataSource: sl(),
-      networkInfo: sl(),
     ),
   );
 
   sl.registerLazySingleton<AnotherUserProfileRepository>(
     () => AnotherUserProfileRepImpl(
       remoteDataSource: sl(),
-      networkInfo: sl(),
+     
     ),
   );
 
@@ -230,9 +225,6 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<AuthLocalDataSource>(
       () => AuthLocalDataSourceImpl(sharedPreferences: sl()));
-
-  //! Core
-  sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
 
   //! External
   sl.registerLazySingleton(() => sharedPreferences);
@@ -259,7 +251,6 @@ Future<void> init() async {
   sl.registerLazySingleton<LocationRepository>(
     () => LocationRepositoryImpl(
       remoteDataSource: sl(),
-      networkInfo: sl(),
     ),
   );
 
@@ -278,7 +269,6 @@ Future<void> init() async {
   sl.registerLazySingleton<PublicationsRepository>(
     () => PublicationsRepositoryImpl(
       remoteDataSource: sl(),
-      networkInfo: sl(),
     ),
   );
 
@@ -319,7 +309,9 @@ Future<void> init() async {
 
   sl.registerLazySingleton<PostRepository>(
     () => PostRepositoryImpl(
-        remoteDataSource: sl(), localDataSource: sl(), networkInfo: sl()),
+      remoteDataSource: sl(),
+      localDataSource: sl(),
+    ),
   );
 
   sl.registerLazySingleton<CatalogRemoteDataSource>(
@@ -335,7 +327,6 @@ Future<void> init() async {
       ));
   sl.registerLazySingleton<UserPublicationsRepository>(
       () => UserPublicationsRepositoryImpl(
-            networkInfo: sl(),
             remoteDataSource: sl(),
           ));
 

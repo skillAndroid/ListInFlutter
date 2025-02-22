@@ -2,7 +2,6 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:list_in/core/error/exeptions.dart';
 import 'package:list_in/core/error/failure.dart';
-import 'package:list_in/core/network/network_info.dart';
 import 'package:list_in/features/profile/data/sources/user_publications_remote.dart';
 import 'package:list_in/features/profile/domain/entity/publication/paginated_publications_entity.dart';
 import 'package:list_in/features/profile/domain/entity/publication/update_post_entity.dart';
@@ -10,11 +9,9 @@ import 'package:list_in/features/profile/domain/repository/user_publications_rep
 
 class UserPublicationsRepositoryImpl implements UserPublicationsRepository {
   final UserPublicationsRemoteDataSource remoteDataSource;
-  final NetworkInfo networkInfo;
 
   UserPublicationsRepositoryImpl({
     required this.remoteDataSource,
-    required this.networkInfo,
   });
 
   @override
@@ -22,10 +19,6 @@ class UserPublicationsRepositoryImpl implements UserPublicationsRepository {
     required int page,
     required int size,
   }) async {
-    if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure());
-    }
-
     try {
       final remoteData = await remoteDataSource.getUserPublications(
         page: page,
@@ -54,9 +47,6 @@ class UserPublicationsRepositoryImpl implements UserPublicationsRepository {
   @override
   Future<Either<Failure, void>> updatePost(
       UpdatePostEntity post, String id) async {
-    if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure());
-    }
     try {
       await remoteDataSource.updatePublication(
           post.toModel(), id); // Убрали ненужный return
@@ -75,9 +65,6 @@ class UserPublicationsRepositoryImpl implements UserPublicationsRepository {
 
   @override
   Future<Either<Failure, void>> deletePost(String id) async {
-    if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure());
-    }
     try {
       await remoteDataSource.deletePublication(id);
       return Right(null);
