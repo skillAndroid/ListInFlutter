@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -138,13 +140,13 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
 
   @override
   Widget build(BuildContext context) {
-    // ignore: deprecated_member_use
     return WillPopScope(
       onWillPop: () async {
         _previousPage();
         return false;
       },
       child: Scaffold(
+        backgroundColor: AppColors.white,
         body: BlocConsumer<AuthBloc, AuthState>(
           listener: (context, state) {
             if (state is AuthSignUpError) {
@@ -232,9 +234,10 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                       ),
                       Expanded(
                         child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 4, vertical: 0),
-                            child: _buildPageViewBody()),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 4, vertical: 0),
+                          child: _buildPageViewBody(),
+                        ),
                       ),
                       Row(
                         children: [
@@ -250,7 +253,7 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                         : _nextPage,
                                 style: ElevatedButton.styleFrom(
                                   padding:
-                                      const EdgeInsets.symmetric(vertical: 20),
+                                      const EdgeInsets.symmetric(vertical: 17),
                                   backgroundColor: AppColors.primary,
                                 ),
                                 child: state is AuthLoading
@@ -266,8 +269,9 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                         _currentPage < 4
                                             ? 'Continue'
                                             : 'Submit',
-                                        style:
-                                            const TextStyle(fontFamily: 'Syne', color: AppColors.white),
+                                        style: const TextStyle(
+                                            fontFamily: 'Poppins',
+                                            color: AppColors.white),
                                       ),
                               ),
                             ),
@@ -481,7 +485,8 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
           style: const TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w700,
-            fontFamily: 'Syne',
+            fontFamily: 'Poppins',
+            color: AppColors.black
           ),
         ),
         const SizedBox(height: 12),
@@ -490,10 +495,10 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
           child: Text(
             subtitle,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w400,
-              color: AppColors.lightText,
+              color: AppColors.darkGray.withOpacity(0.75),
             ),
           ),
         ),

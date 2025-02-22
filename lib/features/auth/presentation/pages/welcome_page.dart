@@ -203,7 +203,7 @@ class _WelcomePageState extends State<WelcomePage> {
           style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w700,
-              fontFamily: 'Syne',
+              fontFamily: 'Poppins',
               color: textColor),
         ),
       ),

@@ -22,7 +22,8 @@ class AuthTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return SmoothClipRRect(
       smoothness: 1,
-      borderRadius: BorderRadius.circular(12),
+      side: BorderSide(width: 1, color: AppColors.containerColor),
+      borderRadius: BorderRadius.circular(16),
       child: TextFormField(
         style: const TextStyle(
           color: AppColors.black,
@@ -30,8 +31,12 @@ class AuthTextField extends StatelessWidget {
           fontSize: 15,
         ),
         cursorColor: AppColors.black,
+        cursorRadius: Radius.circular(2),
         controller: controller,
         decoration: InputDecoration(
+          labelStyle: TextStyle(color: AppColors.darkGray),
+          helperStyle: TextStyle(color: AppColors.darkGray),
+          fillColor: AppColors.bgColor,
           hintText: labelText,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,

@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -33,6 +35,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.white,
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthLoginError) {
@@ -91,18 +94,20 @@ class _LoginPageState extends State<LoginPage> {
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.w700,
-                        fontFamily: 'Syne',
+                        color: AppColors.black,
+                        fontFamily: 'Poppins',
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.symmetric(horizontal: 2.5),
                       child: Text(
                         'We happy to see you here again. Enter your email address and password',
                         style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w400,
-                            color: AppColors.lightText),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400,
+                          color: AppColors.darkGray.withOpacity(0.75),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -117,7 +122,7 @@ class _LoginPageState extends State<LoginPage> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 8),
                     AuthTextField(
                       controller: _passwordController,
                       labelText: 'Password',
@@ -140,7 +145,7 @@ class _LoginPageState extends State<LoginPage> {
                           ? null
                           : () {
                               if (_formKey.currentState!.validate()) {
-                                  FocusScope.of(context).unfocus();
+                                FocusScope.of(context).unfocus();
                                 context.read<AuthBloc>().add(
                                       LoginSubmitted(
                                         email: _emailController.text,
@@ -164,7 +169,7 @@ class _LoginPageState extends State<LoginPage> {
                               style: TextStyle(
                                 fontSize: 17,
                                 fontWeight: FontWeight.w700,
-                                fontFamily: 'Syne',
+                                fontFamily: 'Poppins',
                               ),
                             ),
                     ),
@@ -177,7 +182,7 @@ class _LoginPageState extends State<LoginPage> {
                           style: TextStyle(
                             color: AppColors.black,
                             fontSize: 16,
-                            fontFamily: 'Syne',
+                            fontFamily: 'Poppins',
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -233,7 +238,7 @@ class _LoginPageState extends State<LoginPage> {
                                 style: TextStyle(
                                   fontSize: 17,
                                   fontWeight: FontWeight.w700,
-                                  fontFamily: 'Syne',
+                                  fontFamily: 'Poppins',
                                 ),
                               ),
                             ),

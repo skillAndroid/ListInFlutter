@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -98,8 +100,9 @@ class _VerificationPageState extends State<VerificationPage> {
                       'Verify Email!',
                       style: TextStyle(
                         fontSize: 28,
+                        color: AppColors.black,
                         fontWeight: FontWeight.w700,
-                        fontFamily: 'Syne',
+                        fontFamily: 'Poppins',
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -109,14 +112,16 @@ class _VerificationPageState extends State<VerificationPage> {
                             fontFamily: "Poppins",
                             fontSize: 15,
                             fontWeight: FontWeight.w400,
-                            color: AppColors.grey // Default text color
+                            color: AppColors.darkGray
+                                .withOpacity(0.75) // Default text color
                             ),
                         children: [
                           TextSpan(
                             text: 'We send verification code to your ',
                           ),
                           TextSpan(
-                            text: _storedEmail ?? 'email', // Use the stored email here
+                            text: _storedEmail ??
+                                'email', // Use the stored email here
                             style: TextStyle(
                               fontFamily: 'Poppins',
                               fontSize: 14,
@@ -201,7 +206,6 @@ class _VerificationPageState extends State<VerificationPage> {
                           fontWeight: FontWeight.w600,
                         ),
                         decoration: BoxDecoration(
-                          // ignore: deprecated_member_use
                           color: AppColors.error.withOpacity(0.1),
                           border: Border.all(color: Colors.red, width: 2),
                           borderRadius: BorderRadius.circular(16),
@@ -242,7 +246,7 @@ class _VerificationPageState extends State<VerificationPage> {
                               style: TextStyle(
                                 fontSize: 17,
                                 fontWeight: FontWeight.w700,
-                                fontFamily: 'Syne',
+                                fontFamily: 'Poppins',
                               ),
                             ),
                     ),
@@ -265,7 +269,7 @@ class _VerificationPageState extends State<VerificationPage> {
                               'Resend',
                               style: TextStyle(
                                 fontSize: 16,
-                                fontFamily: "Syne",
+                                fontFamily: "Poppins",
                                 color: AppColors.primary,
                                 fontWeight: FontWeight.w500,
                               ),

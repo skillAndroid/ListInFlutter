@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -92,18 +94,19 @@ class _SignupPageState extends State<SignupPage> {
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.w700,
-                        fontFamily: 'Syne',
+                        color: AppColors.black,
+                        fontFamily: 'Poppins',
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.symmetric(horizontal: 2.5),
                       child: Text(
                         'Create an account, it takes less than a minute. Enter your email and password',
                         style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w400,
-                            color: AppColors.lightText),
+                            color: AppColors.darkGray.withOpacity(0.75)),
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -152,7 +155,7 @@ class _SignupPageState extends State<SignupPage> {
                               style: TextStyle(
                                 fontSize: 17,
                                 fontWeight: FontWeight.w700,
-                                fontFamily: 'Syne',
+                                fontFamily: 'Poppins',
                               ),
                             ),
                     ),
@@ -164,7 +167,6 @@ class _SignupPageState extends State<SignupPage> {
                           Expanded(
                             child: Container(
                               height: 1,
-                              // ignore: deprecated_member_use
                               color: AppColors.lightText.withOpacity(0.75),
                             ),
                           ),
@@ -181,7 +183,6 @@ class _SignupPageState extends State<SignupPage> {
                           Expanded(
                             child: Container(
                               height: 1,
-                              // ignore: deprecated_member_use
                               color: AppColors.lightText.withOpacity(0.75),
                             ),
                           ),
@@ -214,7 +215,7 @@ class _SignupPageState extends State<SignupPage> {
                                     style: TextStyle(
                                       fontSize: 17,
                                       fontWeight: FontWeight.w700,
-                                      fontFamily: 'Syne',
+                                      fontFamily: 'Poppins',
                                     ),
                                   ),
                                 ],
@@ -252,7 +253,7 @@ class _SignupPageState extends State<SignupPage> {
                                     style: TextStyle(
                                       fontSize: 17,
                                       fontWeight: FontWeight.w700,
-                                      fontFamily: 'Syne',
+                                      fontFamily: 'Poppins',
                                     ),
                                   ),
                                 ],
@@ -290,7 +291,7 @@ class _SignupPageState extends State<SignupPage> {
                                     style: TextStyle(
                                       fontSize: 17,
                                       fontWeight: FontWeight.w700,
-                                      fontFamily: 'Syne',
+                                      fontFamily: 'Poppins',
                                     ),
                                   ),
                                 ],
@@ -309,7 +310,7 @@ class _SignupPageState extends State<SignupPage> {
                           style: TextStyle(
                               color: AppColors.black,
                               fontSize: 16,
-                              fontFamily: 'Syne',
+                              fontFamily: 'Poppins',
                               fontWeight: FontWeight.bold),
                         ),
                         GestureDetector(
@@ -319,7 +320,7 @@ class _SignupPageState extends State<SignupPage> {
                             style: TextStyle(
                               color: AppColors.primary,
                               fontSize: 16,
-                              fontFamily: 'Syne',
+                              fontFamily: 'Poppins',
                               fontWeight: FontWeight.bold,
                             ),
                           ),
