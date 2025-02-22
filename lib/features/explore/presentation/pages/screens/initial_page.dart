@@ -17,10 +17,10 @@ import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/explore/presentation/pages/filter/filter.dart';
-import 'package:list_in/features/explore/presentation/widgets/advertised_product_card.dart';
+import 'package:list_in/features/explore/presentation/widgets/product_card/bb/boosted_card.dart';
+import 'package:list_in/features/explore/presentation/widgets/product_card/bb/regular_product_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/explore/presentation/widgets/recomendation_widget.dart';
-import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/top_app_recomendation.dart';
 import 'package:list_in/features/video/presentation/wigets/scrollable_list.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
@@ -425,7 +425,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                   : Row(
                       children: [
                         Expanded(
-                          child: RemouteRegularProductCard2(
+                          child: ProductCardContainer(
                             key: ValueKey(
                                 'regular_${currentItem.firstPublication.id}'),
                             product: currentItem.firstPublication,
@@ -434,7 +434,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                         const SizedBox(width: 1),
                         Expanded(
                           child: currentItem.secondPublication != null
-                              ? RemouteRegularProductCard2(
+                              ? ProductCardContainer(
                                   key: ValueKey(
                                       'regular_${currentItem.secondPublication!.id}'),
                                   product: currentItem.secondPublication!,
@@ -681,7 +681,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
             product.id,
             info.visibleFraction,
           ),
-          child: AdvertisedProductCard(
+          child: OptimizedAdvertisedCard(
             product: product,
             currentlyPlayingId: _uiState.currentlyPlayingId,
           ),
