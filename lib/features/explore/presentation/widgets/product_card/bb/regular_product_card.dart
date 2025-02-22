@@ -95,7 +95,7 @@ class OptimizedProductCard extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.all(3),
         child: DecoratedBox(
-          decoration: _CardDecoration.standard,
+          decoration: CardDecoration.standard,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -622,7 +622,7 @@ class _DialogActions extends StatelessWidget {
 }
 
 // Constants and Styles
-abstract class _CardDecoration {
+abstract class CardDecoration {
   static const standard = BoxDecoration(
     color: Colors.white,
     borderRadius: BorderRadius.all(Radius.circular(10)),

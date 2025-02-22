@@ -18,7 +18,6 @@ import 'package:list_in/global/global_event.dart';
 import 'package:list_in/global/global_state.dart';
 import 'package:list_in/global/global_status.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 @immutable
@@ -199,8 +198,7 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
     showDialog(
       context: context,
       builder: (context) => Dialog(
-        shape: SmoothRectangleBorder(
-          smoothness: 0.7,
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16.0),
         ),
         child: Padding(
@@ -236,7 +234,7 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
-              SmoothClipRRect(
+              ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: Container(
                   padding:
@@ -287,7 +285,7 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
                       foregroundColor: Colors.white,
-                      shape: SmoothRectangleBorder(
+                      shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
@@ -310,31 +308,27 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: _handleCardTap,
-      child: Card(
-        shadowColor: AppColors.black.withOpacity(0.5),
-        color: AppColors.white,
-        shape: SmoothRectangleBorder(
-          smoothness: 1,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        clipBehavior: Clip.hardEdge,
-        elevation: 4,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildMediaCarousel(),
-            _ProductInfo(
-              model: widget.model,
-              onCallPressed: () => _makeCall(context),
-            ),
-          ],
+      child: Padding(
+        padding: const EdgeInsets.all(3.0),
+        child: DecoratedBox(
+          decoration: CardDecoration.standard,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildMediaCarousel(),
+              _ProductInfo(
+                model: widget.model,
+                onCallPressed: () => _makeCall(context),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildMediaCarousel() {
-    return SmoothClipRRect(
+    return ClipRRect(
       borderRadius: BorderRadius.circular(10),
       child: AspectRatio(
         aspectRatio: 16 / 10.5,
@@ -353,8 +347,8 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
             ),
             if (widget.model.condition.isNotEmpty)
               _ConditionBadge(condition: widget.model.condition),
-            if(widget.model.isViewed || widget.model.isOwner)  
-            ViewsBadge(
+            if (widget.model.isViewed || widget.model.isOwner)
+              ViewsBadge(
                 views: widget.model.views,
                 isOwner: widget.model.isOwner,
               ),
@@ -497,7 +491,8 @@ class OptimizedLikeButton extends StatelessWidget {
   final bool isLiked;
   final LikeStatus likeStatus;
 
-  const OptimizedLikeButton({super.key, 
+  const OptimizedLikeButton({
+    super.key,
     required this.productId,
     required this.likes,
     required this.isOwner,
@@ -523,7 +518,7 @@ class OptimizedLikeButton extends StatelessWidget {
                   context: context,
                 ),
               ),
-      child: SmoothClipRRect(
+      child: ClipRRect(
         borderRadius: BorderRadius.circular(8),
         child: Container(
           color: isLiked ? AppColors.primary : AppColors.containerColor,
@@ -539,7 +534,7 @@ class OptimizedLikeButton extends StatelessWidget {
   }
 
   Widget _buildOwnerLikeButton() {
-    return SmoothClipRRect(
+    return ClipRRect(
       borderRadius: BorderRadius.circular(8),
       child: Container(
         color: AppColors.containerColor,
@@ -595,7 +590,7 @@ class _ConditionBadge extends StatelessWidget {
     return Positioned(
       top: 8,
       left: 8,
-      child: SmoothClipRRect(
+      child: ClipRRect(
         borderRadius: BorderRadius.circular(6),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -631,8 +626,7 @@ class _CallButton extends StatelessWidget {
       onPressed: isOwner ? null : onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: isOwner ? Colors.grey.shade200 : AppColors.primary,
-        shape: SmoothRectangleBorder(
-          smoothness: 1,
+        shape: RoundedRectangleBorder(
           side: BorderSide(
             width: 1.2,
             color: isOwner ? Colors.grey.shade400 : AppColors.primary,
