@@ -73,8 +73,8 @@ class ProductCardViewModel {
 
 // Main product card widget
 class OptimizedProductCard extends StatelessWidget {
-  static const double _imageAspectRatio = 1.1;
-  static const double _detailsHeight = 115.0;
+  static const double _imageAspectRatio = 1.15;
+  static const double _detailsHeight = 91.0;
 
   final ProductCardViewModel model;
   final VoidCallback? onTap;
@@ -177,8 +177,6 @@ class ProductImageSection extends StatelessWidget {
               fit: BoxFit.cover,
               width: double.infinity,
               height: double.infinity,
-              memCacheWidth: 400,
-              maxWidthDiskCache: 400,
               fadeInDuration: const Duration(milliseconds: 300),
               placeholder: _ImagePlaceholder.new,
               errorWidget: _ImageError.new,
@@ -272,7 +270,7 @@ class _ConditionBadge extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Colors.white.withOpacity(0.9),
           borderRadius: BorderRadius.circular(6),
         ),
         child: Text(
@@ -288,12 +286,12 @@ class _ConditionBadge extends StatelessWidget {
   }
 }
 
-// Views badge widget
 class ViewsBadge extends StatelessWidget {
   final int views;
   final bool isOwner;
 
-  const ViewsBadge({super.key, 
+  const ViewsBadge({
+    super.key,
     required this.views,
     required this.isOwner,
   });
@@ -304,28 +302,42 @@ class ViewsBadge extends StatelessWidget {
       top: 8,
       right: 8,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.5),
-          borderRadius: BorderRadius.circular(6),
+          color: Colors.black.withOpacity(0.7),
+          borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
-              Icons.visibility,
-              color: Colors.white,
-              size: 12,
-            ),
-            const SizedBox(width: 4),
-            Text(
-              isOwner ? '$views' : 'Viewed',
-              style: const TextStyle(
+            if (isOwner) ...[
+              const Icon(
+                Icons.visibility,
                 color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
+                size: 16,
               ),
-            ),
+              const SizedBox(width: 4),
+              Text(
+                views.toString(),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ] else
+              Row(
+                children: [
+                  const Text(
+                    '✓✓',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
           ],
         ),
       ),
@@ -354,13 +366,14 @@ class ProductDetailsSection extends StatelessWidget {
     required this.isOwner,
     required this.isLiked,
     required this.likeStatus,
-    this.onLikeChanged, required this.id,
+    this.onLikeChanged,
+    required this.id,
   });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -371,7 +384,7 @@ class ProductDetailsSection extends StatelessWidget {
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 2),
+          const SizedBox(height: 4),
           _buildBottomSection(),
         ],
       ),
@@ -384,19 +397,12 @@ class ProductDetailsSection extends StatelessWidget {
       children: [
         Text(
           location,
-          style: AppTextStyles.location,
+          style: TextStyle(
+            color: Colors.grey[600],
+            fontSize: 12,
+          ),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-        ),
-        Transform.translate(
-          offset: const Offset(0, 6),
-          child: const Text(
-            'Price',
-            style: TextStyle(
-              fontSize: 12,
-              color: AppColors.lightText,
-            ),
-          ),
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -468,8 +474,6 @@ class ProductCardContainer extends StatelessWidget {
     );
   }
 }
-
-// Owner Dialog Widget
 class OwnerDialog extends StatelessWidget {
   const OwnerDialog({super.key});
 
@@ -477,21 +481,80 @@ class OwnerDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return Dialog(
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16.0),
+        borderRadius: BorderRadius.circular(12.0),
       ),
       child: Container(
         width: MediaQuery.of(context).size.width * 0.85,
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.grey[50],
+          borderRadius: BorderRadius.circular(12.0),
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const _DialogHeader(),
+            const Icon(
+              Icons.engineering_outlined,
+              size: 48,
+              color: Colors.blue,
+            ),
             const SizedBox(height: 16),
-            const _DialogContent(),
-            const SizedBox(height: 16),
-            const _InfoBox(),
-            const SizedBox(height: 20),
-            const _DialogActions(),
+            const Text(
+              "Can't view own publication here",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Check your publications in profile',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontSize: 15,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    context.go(Routes.profile);
+                  },
+                  child: const Text(
+                    'Go to Profile',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
@@ -499,128 +562,6 @@ class OwnerDialog extends StatelessWidget {
   }
 }
 
-class _DialogHeader extends StatelessWidget {
-  const _DialogHeader();
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: const [
-        Text(
-          'Under Construction',
-          style: TextStyle(
-            fontFamily: 'Poppins',
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        SizedBox(width: 8),
-        Text('🚧', style: TextStyle(fontSize: 20)),
-      ],
-    );
-  }
-}
-
-class _DialogContent extends StatelessWidget {
-  const _DialogContent();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: const [
-        Text(
-          "We're sorry, but you can't view your own publication details from this page yet.",
-          style: TextStyle(fontSize: 14, fontFamily: 'Poppins'),
-          textAlign: TextAlign.center,
-        ),
-        SizedBox(height: 12),
-        Text(
-          "Our development team is working on this feature! 👨‍💻",
-          style: TextStyle(fontSize: 14, fontFamily: 'Poppins'),
-          textAlign: TextAlign.center,
-        ),
-      ],
-    );
-  }
-}
-
-class _InfoBox extends StatelessWidget {
-  const _InfoBox();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.blue.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: const [
-          Text('✨', style: TextStyle(fontSize: 16)),
-          SizedBox(width: 4),
-          Flexible(
-            child: Text(
-              'To view or edit your publication, please go to your profile.',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Poppins',
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          SizedBox(width: 4),
-          Text('✨', style: TextStyle(fontSize: 16)),
-        ],
-      ),
-    );
-  }
-}
-
-class _DialogActions extends StatelessWidget {
-  const _DialogActions();
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-            context.go(Routes.profile);
-          },
-          child: const Text(
-            'Go to Profile',
-            style: TextStyle(
-              fontFamily: 'Poppins',
-              color: Colors.blue,
-            ),
-          ),
-        ),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blue,
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text(
-            'OK, Got it',
-            style: TextStyle(fontFamily: 'Poppins'),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// Constants and Styles
 abstract class CardDecoration {
   static const standard = BoxDecoration(
     color: Colors.white,
@@ -637,20 +578,13 @@ abstract class CardDecoration {
 
 abstract class AppTextStyles {
   static const productTitle = TextStyle(
-    fontSize: 16,
-    fontWeight: FontWeight.w600,
-  );
-
-  static const location = TextStyle(
-    color: AppColors.lightText,
-    fontSize: 13,
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
   );
 
   static const price = TextStyle(
-    color: AppColors.primary,
-    fontSize: 18,
-    fontWeight: FontWeight.w800,
+    color: AppColors.black,
+    fontSize: 16,
+    fontWeight: FontWeight.w700,
   );
 }
-
-

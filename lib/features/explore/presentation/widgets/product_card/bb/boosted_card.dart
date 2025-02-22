@@ -401,20 +401,20 @@ class _ProductInfo extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 1),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              Text(
+                model.location,
+                style: TextStyle(
+                  color: AppColors.darkGray.withOpacity(0.7),
+                  fontSize: 13,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    model.location,
-                    style: TextStyle(
-                      color: AppColors.darkGray.withOpacity(0.7),
-                      fontSize: 13,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
                   Text(
                     formatPrice(model.price.toString()),
                     style: const TextStyle(
@@ -423,18 +423,17 @@ class _ProductInfo extends StatelessWidget {
                       color: AppColors.primary,
                     ),
                   ),
+                  OptimizedLikeButton(
+                    productId: model.id,
+                    likes: model.likes,
+                    isOwner: model.isOwner,
+                    isLiked: model.isLiked,
+                    likeStatus: model.likeStatus,
+                  ),
                 ],
-              ),
-              OptimizedLikeButton(
-                productId: model.id,
-                likes: model.likes,
-                isOwner: model.isOwner,
-                isLiked: model.isLiked,
-                likeStatus: model.likeStatus,
               ),
             ],
           ),
-          const SizedBox(height: 2),
           _CallButton(
             isOwner: model.isOwner,
             onPressed: onCallPressed,
@@ -484,7 +483,7 @@ class _SellerInfo extends StatelessWidget {
   }
 }
 
-class OptimizedLikeButton extends StatelessWidget {
+class OptimizedLikeButton extends StatefulWidget {
   final String productId;
   final int likes;
   final bool isOwner;
@@ -501,80 +500,114 @@ class OptimizedLikeButton extends StatelessWidget {
   });
 
   @override
+  State<OptimizedLikeButton> createState() => _OptimizedLikeButtonState();
+}
+
+class _OptimizedLikeButtonState extends State<OptimizedLikeButton>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.3).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.elasticIn),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _animateLike() {
+    _controller.forward().then((_) => _controller.reverse());
+  }
+
+  @override
   Widget build(BuildContext context) {
-    if (isOwner) {
+    if (widget.isOwner) {
       return _buildOwnerLikeButton();
     }
 
-    final isLoading = likeStatus == LikeStatus.inProgress;
+    final isLoading = widget.likeStatus == LikeStatus.inProgress;
 
     return InkWell(
       onTap: isLoading
           ? null
-          : () => context.read<GlobalBloc>().add(
-                UpdateLikeStatusEvent(
-                  publicationId: productId,
-                  isLiked: isLiked,
-                  context: context,
-                ),
+          : () {
+              _animateLike();
+              context.read<GlobalBloc>().add(
+                    UpdateLikeStatusEvent(
+                      publicationId: widget.productId,
+                      isLiked: widget.isLiked,
+                      context: context,
+                    ),
+                  );
+            },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: isLoading
+            ? ShimmerEffect(
+                isLiked: widget.isLiked,
+                child: _buildLikeIcon(),
+              )
+            : ScaleTransition(
+                scale: _scaleAnimation,
+                child: _buildLikeIcon(),
               ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: Container(
-          color: isLiked ? AppColors.primary : AppColors.containerColor,
-          child: isLoading
-              ? ShimmerEffect(
-                  isLiked: isLiked,
-                  child: _buildLikeIcon(),
-                )
-              : _buildLikeIcon(),
-        ),
       ),
     );
   }
 
   Widget _buildOwnerLikeButton() {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(8),
-      child: Container(
-        color: AppColors.containerColor,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            children: [
-              SizedBox(
-                width: 18,
-                height: 18,
-                child: Image.asset(
-                  AppIcons.favorite,
-                  color: AppColors.darkGray,
-                ),
-              ),
-              const SizedBox(width: 4),
-              Text(
-                '$likes',
-                style: const TextStyle(
-                  color: AppColors.darkGray,
-                  fontSize: 15,
-                ),
-              )
-            ],
+    return Padding(
+      padding: const EdgeInsets.all(4.0),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: 22,
+            height: 22,
+            child: Image.asset(
+              AppIcons.favorite,
+              color: AppColors.darkGray,
+            ),
           ),
-        ),
+          const SizedBox(width: 4),
+          Text(
+            '${widget.likes}',
+            style: const TextStyle(
+              color: AppColors.darkGray,
+              fontSize: 15,
+            ),
+          )
+        ],
       ),
     );
   }
 
   Widget _buildLikeIcon() {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: SizedBox(
-        width: 18,
-        height: 18,
-        child: Image.asset(
-          AppIcons.favorite,
-          color: isLiked ? Colors.white : AppColors.darkGray,
-        ),
+      padding: const EdgeInsets.all(4.0),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: 22,
+            height: 22,
+            child: Image.asset(
+              widget.isLiked ? AppIcons.favoriteBlack : AppIcons.favorite,
+              color: widget.isLiked ? Colors.red : AppColors.darkGray,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -733,8 +766,6 @@ class _MediaContent extends StatelessWidget {
       key: ValueKey('image_$productId'),
       imageUrl: _getFormattedUrl(imageUrl),
       fit: BoxFit.cover,
-      memCacheWidth: 700,
-      maxWidthDiskCache: 700,
       placeholder: (context, url) => Container(
         color: Colors.grey[200],
         child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
