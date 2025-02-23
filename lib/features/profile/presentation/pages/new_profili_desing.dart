@@ -1,0 +1,403 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:list_in/config/assets/app_icons.dart';
+import 'package:list_in/config/assets/app_images.dart';
+import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/router/routes.dart';
+import 'package:list_in/features/explore/presentation/widgets/progress.dart';
+import 'package:list_in/features/profile/domain/entity/user/user_profile_entity.dart';
+import 'package:list_in/features/profile/presentation/bloc/user/user_profile_bloc.dart';
+import 'package:list_in/features/profile/presentation/bloc/user/user_profile_event.dart';
+import 'package:list_in/features/profile/presentation/bloc/user/user_profile_state.dart';
+import 'package:list_in/features/profile/presentation/pages/favorites_screen.dart';
+import 'package:list_in/features/profile/presentation/pages/my_publications.dart';
+import 'package:smooth_corner_updated/smooth_corner.dart';
+
+class ProfileDashboard extends StatefulWidget {
+  const ProfileDashboard({super.key});
+
+  @override
+  State<ProfileDashboard> createState() => _ProfileDashboardState();
+}
+
+class _ProfileDashboardState extends State<ProfileDashboard> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<UserProfileBloc>().add(GetUserData());
+  }
+
+  void _navigateToEdit(UserProfileEntity userData) {
+    context.pushNamed(
+      RoutesByName.profileEdit,
+      extra: userData,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocConsumer<UserProfileBloc, UserProfileState>(
+      listener: (context, state) {
+        if (state.status == UserProfileStatus.failure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.errorMessage ?? 'An error occurred')),
+          );
+        }
+      },
+      builder: (context, state) {
+        if (state.status == UserProfileStatus.loading &&
+            state.userData == null) {
+          return Scaffold(body: Progress());
+        }
+        final userData = state.userData;
+        // Add null check validation to prevent null UI
+        if (userData == null) {
+          return const Scaffold(
+              body: Center(child: Text('No user data available')));
+        }
+        if (state.userData == null) {}
+        return Scaffold(
+          backgroundColor: Colors.white,
+          body: SafeArea(
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12.0, vertical: 16),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      IconButton(
+                        onPressed: () {},
+                        icon: Icon(
+                          Icons.arrow_back_rounded,
+                          color: AppColors.black,
+                        ),
+                      ),
+                      Text(
+                        'Profile',
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: AppColors.black,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {},
+                        icon: Icon(
+                          CupertinoIcons.moon,
+                          color: AppColors.black,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 16,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            SizedBox(
+                              width: 72,
+                              height: 72,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(50),
+                                child: userData.profileImagePath != null
+                                    ? CachedNetworkImage(
+                                        width: double.infinity,
+                                        height: double.infinity,
+                                        imageUrl:
+                                            'https://${userData.profileImagePath!}',
+                                        fit: BoxFit.cover,
+                                        placeholder: (context, url) =>
+                                            const Progress(),
+                                        errorWidget: (context, url, error) =>
+                                            Image.asset(AppImages.appLogo),
+                                      )
+                                    : Image.asset(AppImages.appLogo),
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${userData.nickName}',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    color: AppColors.black,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  userData.biography ?? "No biograpty yet!",
+                                  style: TextStyle(
+                                    color: AppColors.darkGray,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment
+                              .spaceBetween, // space children apart
+                          crossAxisAlignment: CrossAxisAlignment
+                              .center, // center them vertically
+                          children: [
+                            // Left side or main content
+                            Row(
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Follow',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: AppColors.black,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    SizedBox(height: 3),
+                                    Text(
+                                      userData.following.toString(),
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                        color: AppColors.black,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(width: 16),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Followers',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: AppColors.black,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    SizedBox(height: 3),
+                                    Text(
+                                      userData.followers.toString(),
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                        color: AppColors.black,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+
+                            // Right side icons
+                            Row(
+                              children: [
+                                Icon(CupertinoIcons.share),
+                                SizedBox(width: 16),
+                                IconButton(
+                                  onPressed: () {
+                                    _navigateToEdit(UserProfileEntity(
+                                      isBusinessAccount:
+                                          userData.role != "INDIVIDUAL_SELLER",
+                                      locationName: userData.locationName,
+                                      longitude: userData.longitude,
+                                      latitude: userData.latitude,
+                                      fromTime: userData.fromTime,
+                                      toTime: userData.toTime,
+                                      isGrantedForPreciseLocation:
+                                          userData.isGrantedForPreciseLocation,
+                                      nickName: userData.nickName,
+                                      phoneNumber: userData.phoneNumber,
+                                      profileImagePath:
+                                          userData.profileImagePath,
+                                    ));
+                                  },
+                                  icon: Icon(Icons.edit_outlined),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const UserPublicationsScreen(),
+                                    ),
+                                  );
+                                },
+                                child: _buildStatCard(
+                                  'Posts',
+                                  '⟶',
+                                  AppColors.containerColor,
+                                  Colors.black,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: _buildStatCard(
+                                'Reviews',
+                                '⟶',
+                                AppColors.containerColor,
+                                Colors.black,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const FavoritesScreen(),
+                                    ),
+                                  );
+                                },
+                                child: _buildStatCard(
+                                  'Favorites',
+                                  '⟶',
+                                  AppColors.containerColor,
+                                  Colors.black,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                      ],
+                    ),
+                  ),
+                  // balance, language, suppport,  logout,
+                  _buildMenuItem(userData.locationName ?? "Not Selected",
+                      AppIcons.homeLocationIc),
+                  _buildMenuItem('Language', AppIcons.languageIc),
+                  _buildMenuItem('Support', AppIcons.supportIc),
+                  _buildMenuItem('Logout', AppIcons.logoutIc),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildStatCard(
+      String value, String label, Color bgColor, Color textColor) {
+    return SmoothClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding:
+            const EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 16),
+        decoration: BoxDecoration(
+          color: bgColor,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              value,
+              style: TextStyle(
+                color: textColor,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            Row(
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: 25,
+                    height: 0.75,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMenuItem(String title, String image) {
+    return InkWell(
+      onTap: () {},
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 12),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            SizedBox(
+              height: 18,
+            ),
+            Row(
+              children: [
+                Image.asset(
+                  image,
+                  width: 20,
+                  height: 20,
+                  color: Colors.black,
+                ),
+                SizedBox(
+                  width: 16,
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 32),
+                    child: Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.black,
+                      ),
+                    ),
+                  ),
+                ),
+                Icon(Icons.chevron_right_rounded, color: Colors.black),
+              ],
+            ),
+            SizedBox(
+              height: 18,
+            ),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(1),
+              child: Divider(
+                height: 0.5,
+                color: AppColors.containerColor,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

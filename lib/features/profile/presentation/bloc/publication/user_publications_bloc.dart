@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/core/error/failure.dart';
 import 'package:list_in/features/profile/domain/usecases/publication/delete_user_publication_usecase.dart';
-import 'package:list_in/features/profile/domain/usecases/publication/get_user_liked_publications_usecase.dart';
 import 'package:list_in/features/profile/domain/usecases/publication/get_user_publications_usecase.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_event.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_state.dart';
@@ -10,14 +9,12 @@ import 'package:list_in/features/profile/presentation/bloc/publication/user_publ
 class UserPublicationsBloc
     extends Bloc<UserPublicationsEvent, UserPublicationsState> {
   final GetUserPublicationsUseCase getUserPublicationsUseCase;
-  final GetUserLikedPublicationsUseCase getUserLikedPublicationsUseCase;
   final DeleteUserPublicationUsecase deletePublicationUseCase;
   static const int _pageSize = 20;
 
   UserPublicationsBloc({
     required this.getUserPublicationsUseCase,
     required this.deletePublicationUseCase,
-    required this.getUserLikedPublicationsUseCase,
   }) : super(const UserPublicationsState()) {
     on<FetchUserPublications>(_onFetchUserPublications);
     on<LoadMoreUserPublications>(_onLoadMoreUserPublications);

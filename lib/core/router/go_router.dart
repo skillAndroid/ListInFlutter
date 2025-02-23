@@ -35,6 +35,7 @@ import 'package:list_in/features/post/data/models/nomeric_field_model.dart';
 import 'package:list_in/features/post/domain/usecases/get_catalogs_usecase.dart';
 import 'package:list_in/features/post/presentation/pages/post_screen.dart';
 import 'package:list_in/features/profile/domain/entity/user/user_profile_entity.dart';
+import 'package:list_in/features/profile/presentation/pages/new_profili_desing.dart';
 import 'package:list_in/features/profile/presentation/pages/profile_editor_page.dart';
 import 'package:list_in/features/profile/presentation/pages/profile_screen.dart';
 import 'package:list_in/features/profile/presentation/pages/publications_editor_page.dart';
@@ -604,7 +605,7 @@ class AppRouter {
                 path: Routes.profile,
                 name: RoutesByName.profile,
                 builder: (context, state) {
-                  return ProfileScreen(
+                  return ProfileDashboard(
                     key: state.pageKey,
                   );
                 },

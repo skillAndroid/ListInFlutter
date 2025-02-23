@@ -13,7 +13,6 @@ import 'package:list_in/global/global_event.dart';
 import 'package:list_in/global/global_state.dart';
 import 'package:list_in/global/global_status.dart';
 
-
 class GlobalBloc extends Bloc<GlobalEvent, GlobalState> {
   final FollowUserUseCase followUserUseCase;
   final LikePublicationUsecase likePublicationUsecase;
@@ -258,7 +257,6 @@ class GlobalBloc extends Bloc<GlobalEvent, GlobalState> {
           status: LikeStatus.success,
           errorMessage: existingStatus?.errorMessage,
         );
-        print('Updated status to success for $publicationId');
       }
     });
 
@@ -333,7 +331,3 @@ class GlobalBloc extends Bloc<GlobalEvent, GlobalState> {
     }
   }
 }
-
-
-
-

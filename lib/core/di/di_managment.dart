@@ -74,6 +74,7 @@ import 'package:list_in/features/visitior_profile/domain/usecase/like_publicatio
 import 'package:list_in/features/visitior_profile/domain/usecase/view_publication_usecase.dart';
 import 'package:list_in/features/visitior_profile/presentation/bloc/another_user_profile_bloc.dart';
 import 'package:list_in/global/global_bloc.dart';
+import 'package:list_in/global/likeds/liked_publications_bloc.dart';
 import 'package:path_provider/path_provider.dart' as path_provider;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -134,6 +135,11 @@ Future<void> init() async {
         likePublicationUsecase: sl(),
         viewPublicationUsecase: sl(),
         authLocalDataSource: sl(),
+      ));
+
+  sl.registerFactory(() => LikedPublicationsBloc(
+        getLikedPublicationsUseCase: sl(),
+        globalBloc: sl(),
       ));
   sl.registerLazySingleton(
     () => AppRouter(
@@ -322,7 +328,6 @@ Future<void> init() async {
   sl.registerFactory(() => UserPublicationsBloc(
         getUserPublicationsUseCase: sl(),
         deletePublicationUseCase: sl(),
-        getUserLikedPublicationsUseCase: sl(),
       ));
   sl.registerLazySingleton<UserPublicationsRepository>(
       () => UserPublicationsRepositoryImpl(

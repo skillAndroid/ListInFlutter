@@ -11,10 +11,14 @@ import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/formaters.dart';
 import 'package:list_in/features/explore/presentation/widgets/product_card/bb/boosted_card.dart';
 import 'package:list_in/features/profile/domain/usecases/user/get_user_data_usecase.dart';
+import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_bloc.dart';
+import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_event.dart';
 import 'package:list_in/global/global_bloc.dart';
 import 'package:list_in/global/global_event.dart';
 import 'package:list_in/global/global_state.dart';
 import 'package:list_in/global/global_status.dart';
+import 'package:list_in/global/likeds/liked_publications_bloc.dart';
+import 'package:list_in/global/likeds/liked_publications_event.dart';
 
 // Core entity model
 @immutable
@@ -458,6 +462,15 @@ class ProductCardContainer extends StatelessWidget {
   }
 
   void _handleLikeChanged(BuildContext context, String id, bool isLiked) {
+    // Update local state immediately
+    context.read<LikedPublicationsBloc>().add(
+          UpdateLocalLikedPublication(
+            publicationId: id,
+            isLiked: isLiked,
+          ),
+        );
+
+    // Update global state
     context.read<GlobalBloc>().add(
           UpdateLikeStatusEvent(
             publicationId: id,
@@ -474,6 +487,7 @@ class ProductCardContainer extends StatelessWidget {
     );
   }
 }
+
 class OwnerDialog extends StatelessWidget {
   const OwnerDialog({super.key});
 

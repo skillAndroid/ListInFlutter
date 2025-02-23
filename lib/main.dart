@@ -14,6 +14,7 @@ import 'package:list_in/features/profile/presentation/bloc/publication/publicati
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/user/user_profile_bloc.dart';
 import 'package:list_in/global/global_bloc.dart';
+import 'package:list_in/global/likeds/liked_publications_bloc.dart';
 import 'package:provider/provider.dart';
 
 import 'core/di/di_managment.dart' as di;
@@ -520,6 +521,8 @@ void main() async {
           BlocProvider<DetailsBloc>(
             create: (_) => di.sl<DetailsBloc>(),
           ),
+          BlocProvider<LikedPublicationsBloc>(
+              create: (_) => di.sl<LikedPublicationsBloc>())
         ],
         child: MyApp(router: di.sl<AppRouter>().router),
       ),

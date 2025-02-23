@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
+import 'package:list_in/features/explore/presentation/widgets/product_card/bb/regular_product_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
 import 'package:list_in/features/profile/domain/entity/user/user_data_entity.dart';
@@ -17,6 +18,9 @@ import 'package:list_in/features/profile/presentation/bloc/publication/user_publ
 import 'package:list_in/features/profile/presentation/bloc/user/user_profile_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/user/user_profile_event.dart';
 import 'package:list_in/features/profile/presentation/bloc/user/user_profile_state.dart';
+import 'package:list_in/global/likeds/liked_publications_bloc.dart';
+import 'package:list_in/global/likeds/liked_publications_event.dart';
+import 'package:list_in/global/likeds/liked_publications_state.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -49,6 +53,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
 
     context.read<UserProfileBloc>().add(GetUserData());
     context.read<UserPublicationsBloc>().add(FetchUserPublications());
+    context.read<LikedPublicationsBloc>().add(FetchLikedPublications());
   }
 
   @override
@@ -150,6 +155,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                         children: [
                           // First row: Image, Name and Role
                           Row(
+                            
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               // Profile image
@@ -210,12 +216,15 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                                 padding: const EdgeInsets.only(top: 4.0),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.center,
                                   children: [
                                     _buildStatItem(
                                       userData.rating.toString() == "null"
                                           ? '0'
-                                          : userData.rating.toInt().toString(),
+                                          : userData.rating
+                                              .toInt()
+                                              .toString(),
                                       'Rating',
                                     ),
                                     const SizedBox(width: 32),
@@ -418,15 +427,34 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                       ),
                     ),
                     // Posts Tab
-
+          
                     _buildEmptyTab(
                       icon: CupertinoIcons.star,
                       text: "No Reviews",
                     ),
-                    _buildEmptyTab(
-                      icon: CupertinoIcons.heart,
-                      text: "No Likes",
-                    ),
+                    NotificationListener<ScrollNotification>(
+                      onNotification: (ScrollNotification scrollInfo) {
+                        if (scrollInfo is ScrollEndNotification) {
+                          if (scrollInfo.metrics.pixels >=
+                              scrollInfo.metrics.maxScrollExtent * 0.7) {
+                            final likedPublicationsState =
+                                context.read<LikedPublicationsBloc>().state;
+                            if (!likedPublicationsState.hasReachedEnd &&
+                                !likedPublicationsState.isLoading) {
+                              context
+                                  .read<LikedPublicationsBloc>()
+                                  .add(LoadMoreLikedPublications());
+                            }
+                          }
+                        }
+                        return true;
+                      },
+                      child: CustomScrollView(
+                        slivers: [
+                          _buildLikedPublicationsGrid(),
+                        ],
+                      ),
+                    )
                   ],
                 ),
               ),
@@ -633,6 +661,8 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
             ),
           );
         }
+
+        // Empty state - check if we deleted everything
         if (state.publications.isEmpty) {
           return SliverFillRemaining(
             hasScrollBody: false,
@@ -696,6 +726,52 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                 return Padding(
                   padding: const EdgeInsets.all(0),
                   child: ProfileProductCard(
+                    product: publication,
+                  ),
+                );
+              },
+              childCount: state.publications.length + (state.isLoading ? 1 : 0),
+            ),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: 0.72,
+              crossAxisSpacing: 0,
+              mainAxisSpacing: 0,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildLikedPublicationsGrid() {
+    return BlocConsumer<LikedPublicationsBloc, LikedPublicationsState>(
+      listener: (context, state) {
+        if (state.error != null) {
+          _showErrorSnackbar(context, state.error!);
+        }
+      },
+      builder: (context, state) {
+        
+
+        return SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          sliver: SliverGrid(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                if (index >= state.publications.length) {
+                  if (state.isLoading) {
+                    return const Center(child: Progress());
+                  }
+                  return null;
+                }
+
+                final publication = state.publications[index];
+                return Padding(
+                  padding: const EdgeInsets.all(0),
+                  child: ProductCardContainer(
+                    key: ValueKey(
+                        publication.id), // Add key for better list updates
                     product: publication,
                   ),
                 );
