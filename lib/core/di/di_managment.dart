@@ -55,6 +55,7 @@ import 'package:list_in/features/profile/data/sources/user_publications_remote.d
 import 'package:list_in/features/profile/domain/repository/user_profile_repository.dart';
 import 'package:list_in/features/profile/domain/repository/user_publications_repository.dart';
 import 'package:list_in/features/profile/domain/usecases/publication/delete_user_publication_usecase.dart';
+import 'package:list_in/features/profile/domain/usecases/publication/get_user_liked_publications_usecase.dart';
 import 'package:list_in/features/profile/domain/usecases/publication/get_user_publications_usecase.dart';
 import 'package:list_in/features/profile/domain/usecases/publication/update_publication_usecase.dart';
 import 'package:list_in/features/profile/domain/usecases/user/get_user_data_usecase.dart';
@@ -208,7 +209,6 @@ Future<void> init() async {
   sl.registerLazySingleton<AnotherUserProfileRepository>(
     () => AnotherUserProfileRepImpl(
       remoteDataSource: sl(),
-     
     ),
   );
 
@@ -227,7 +227,6 @@ Future<void> init() async {
 
   //! External
   sl.registerLazySingleton(() => sharedPreferences);
-  
 
   sl.registerLazySingleton(() => AuthService(authLocalDataSource: sl()));
 
@@ -323,6 +322,7 @@ Future<void> init() async {
   sl.registerFactory(() => UserPublicationsBloc(
         getUserPublicationsUseCase: sl(),
         deletePublicationUseCase: sl(),
+        getUserLikedPublicationsUseCase: sl(),
       ));
   sl.registerLazySingleton<UserPublicationsRepository>(
       () => UserPublicationsRepositoryImpl(
@@ -330,6 +330,7 @@ Future<void> init() async {
           ));
 
   sl.registerLazySingleton(() => GetUserPublicationsUseCase(sl()));
+  sl.registerLazySingleton(() => GetUserLikedPublicationsUseCase(sl()));
 
   sl.registerLazySingleton(() => UpdatePostUseCase(sl()));
   sl.registerLazySingleton(() => DeleteUserPublicationUsecase(sl()));

@@ -8,6 +8,10 @@ abstract class UserPublicationsRepository {
     required int page,
     required int size,
   });
+  Future<Either<Failure, PaginatedPublicationsEntity>> getUserLikedPublications({
+    required int page,
+    required int size,
+  });
 
   Future<Either<Failure, void>> updatePost(UpdatePostEntity post, String id);
   Future<Either<Failure, void>> deletePost(String id);

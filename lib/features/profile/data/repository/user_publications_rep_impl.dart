@@ -44,6 +44,36 @@ class UserPublicationsRepositoryImpl implements UserPublicationsRepository {
     }
   }
 
+   @override
+  Future<Either<Failure, PaginatedPublicationsEntity>> getUserLikedPublications({
+    required int page,
+    required int size,
+  }) async {
+    try {
+      final remoteData = await remoteDataSource.getUserLikedPublications(
+        page: page,
+        size: size,
+      );
+
+      debugPrint(
+          'Repository received data: ${remoteData.content.length} items');
+
+      final entity = remoteData.toEntity();
+      debugPrint('Converted to entity: ${entity.content.length} items');
+
+      return Right(entity);
+    } on ServerExeption catch (e) {
+      debugPrint('Server exception in repository: ${e.message}');
+      return Left(ServerFailure());
+    } on NetworkFailure {
+      return Left(NetworkFailure());
+    } catch (e, stackTrace) {
+      debugPrint('Unexpected error in repository: $e');
+      debugPrint('Stack trace: $stackTrace');
+      return Left(ServerFailure());
+    }
+  }
+
   @override
   Future<Either<Failure, void>> updatePost(
       UpdatePostEntity post, String id) async {

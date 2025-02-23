@@ -633,8 +633,6 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
             ),
           );
         }
-
-        // Empty state - check if we deleted everything
         if (state.publications.isEmpty) {
           return SliverFillRemaining(
             hasScrollBody: false,
