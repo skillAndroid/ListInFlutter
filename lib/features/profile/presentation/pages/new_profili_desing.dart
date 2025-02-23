@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +9,7 @@ import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
+import 'package:list_in/features/details/presentation/pages/details.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/profile/domain/entity/user/user_profile_entity.dart';
 import 'package:list_in/features/profile/presentation/bloc/user/user_profile_bloc.dart';
@@ -37,13 +40,19 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
     );
   }
 
+  Future<bool> _onWillPop() async {
+    context.go(Routes.home);
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<UserProfileBloc, UserProfileState>(
       listener: (context, state) {
         if (state.status == UserProfileStatus.failure) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.errorMessage ?? 'An error occurred')),
+            SnackBar(
+                content: Text(state.errorMessage ?? 'An error occurred')),
           );
         }
       },
@@ -71,7 +80,9 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       IconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          _onWillPop();
+                        },
                         icon: Icon(
                           Icons.arrow_back_rounded,
                           color: AppColors.black,
@@ -103,24 +114,47 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                       children: [
                         Row(
                           children: [
-                            SizedBox(
-                              width: 72,
-                              height: 72,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(50),
-                                child: userData.profileImagePath != null
-                                    ? CachedNetworkImage(
-                                        width: double.infinity,
-                                        height: double.infinity,
-                                        imageUrl:
-                                            'https://${userData.profileImagePath!}',
-                                        fit: BoxFit.cover,
-                                        placeholder: (context, url) =>
-                                            const Progress(),
-                                        errorWidget: (context, url, error) =>
-                                            Image.asset(AppImages.appLogo),
-                                      )
-                                    : Image.asset(AppImages.appLogo),
+                            Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.06),
+                                    spreadRadius: 2,
+                                    blurRadius: 5,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Container(
+                                padding: const EdgeInsets.all(
+                                    2), // White border thickness
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: SizedBox(
+                                  width: 72,
+                                  height: 72,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(50),
+                                    child: userData.profileImagePath != null
+                                        ? CachedNetworkImage(
+                                            width: double.infinity,
+                                            height: double.infinity,
+                                            imageUrl:
+                                                'https://${userData.profileImagePath!}',
+                                            fit: BoxFit.cover,
+                                            placeholder: (context, url) =>
+                                                const Progress(),
+                                            errorWidget:
+                                                (context, url, error) =>
+                                                    Image.asset(
+                                                        AppImages.appLogo),
+                                          )
+                                        : Image.asset(AppImages.appLogo),
+                                  ),
+                                ),
                               ),
                             ),
                             const SizedBox(width: 16),
@@ -157,7 +191,8 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                             Row(
                               children: [
                                 Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       'Follow',
@@ -180,7 +215,8 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                 ),
                                 SizedBox(width: 16),
                                 Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       'Followers',
@@ -203,7 +239,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                 ),
                               ],
                             ),
-
+    
                             // Right side icons
                             Row(
                               children: [
@@ -212,15 +248,15 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                 IconButton(
                                   onPressed: () {
                                     _navigateToEdit(UserProfileEntity(
-                                      isBusinessAccount:
-                                          userData.role != "INDIVIDUAL_SELLER",
+                                      isBusinessAccount: userData.role !=
+                                          "INDIVIDUAL_SELLER",
                                       locationName: userData.locationName,
                                       longitude: userData.longitude,
                                       latitude: userData.latitude,
                                       fromTime: userData.fromTime,
                                       toTime: userData.toTime,
-                                      isGrantedForPreciseLocation:
-                                          userData.isGrantedForPreciseLocation,
+                                      isGrantedForPreciseLocation: userData
+                                          .isGrantedForPreciseLocation,
                                       nickName: userData.nickName,
                                       phoneNumber: userData.phoneNumber,
                                       profileImagePath:
@@ -291,11 +327,37 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                     ),
                   ),
                   // balance, language, suppport,  logout,
-                  _buildMenuItem(userData.locationName ?? "Not Selected",
-                      AppIcons.homeLocationIc),
-                  _buildMenuItem('Language', AppIcons.languageIc),
-                  _buildMenuItem('Support', AppIcons.supportIc),
-                  _buildMenuItem('Logout', AppIcons.logoutIc),
+                  _buildMenuItem(
+                    userData.locationName ?? "Not Selected",
+                    AppIcons.homeLocationIc,
+                    () {
+                      Navigator.of(context).push(
+                        CupertinoPageRoute(
+                          builder: (context) => FullScreenMap(
+                            latitude: userData.latitude!,
+                            longitude: userData.longitude!,
+                            locationName:
+                                userData.locationName ?? "No Location",
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildMenuItem(
+                    'Language',
+                    AppIcons.languageIc,
+                    () {},
+                  ),
+                  _buildMenuItem(
+                    'Support',
+                    AppIcons.supportIc,
+                    () {},
+                  ),
+                  _buildMenuItem(
+                    'Logout',
+                    AppIcons.logoutIc,
+                    () {},
+                  ),
                 ],
               ),
             ),
@@ -345,9 +407,9 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
     );
   }
 
-  Widget _buildMenuItem(String title, String image) {
+  Widget _buildMenuItem(String title, String image, VoidCallback onTap) {
     return InkWell(
-      onTap: () {},
+      onTap: onTap,
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 12),
         child: Column(

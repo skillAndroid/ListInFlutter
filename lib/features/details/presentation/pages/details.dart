@@ -944,31 +944,15 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             onTap: () {
               if (widget.product.seller.isGrantedForPreciseLocation) {
                 Navigator.of(context).push(
-                  PageRouteBuilder(
-                    pageBuilder: (context, animation, secondaryAnimation) =>
-                        FullScreenMap(
+                  CupertinoPageRoute(
+                    builder: (context) => FullScreenMap(
                       latitude: widget.product.latitude!,
                       longitude: widget.product.longitude!,
                       locationName: widget.product.seller.locationName,
                     ),
-                    transitionsBuilder:
-                        (context, animation, secondaryAnimation, child) {
-                      const begin = Offset(1.0, 0.0);
-                      const end = Offset.zero;
-                      const curve = Curves.easeInOutQuart;
-
-                      var tween = Tween(begin: begin, end: end).chain(
-                        CurveTween(curve: curve),
-                      );
-
-                      return SlideTransition(
-                        position: animation.drive(tween),
-                        child: child,
-                      );
-                    },
-                    transitionDuration: const Duration(milliseconds: 500),
                   ),
                 );
+                
               } else {
                 showLocationPrivacySheet(context);
               }
@@ -1789,12 +1773,10 @@ class CustomLocationHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
       margin: EdgeInsets.zero,
       elevation: elevation,
       color: backgroundColor,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(0),
-      ),
       child: SafeArea(
         child: Padding(
           padding: padding,
@@ -1802,29 +1784,23 @@ class CustomLocationHeader extends StatelessWidget {
             children: [
               // Back Button
               IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.black),
+                icon: const Icon(Icons.arrow_back_rounded, color: Colors.black),
                 onPressed: onBackPressed,
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 8),
 
               // Location Section
               Expanded(
                 child: Row(
                   children: [
-                    const Icon(
-                      Icons.location_on,
-                      color: Colors.black,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         locationName,
                         style: const TextStyle(
                           color: Colors.black,
-                          fontSize: 17,
+                          fontSize: 16,
                           fontWeight: FontWeight.w500,
                         ),
                         overflow: TextOverflow.ellipsis,
@@ -1832,6 +1808,10 @@ class CustomLocationHeader extends StatelessWidget {
                     ),
                   ],
                 ),
+              ),
+
+              SizedBox(
+                width: 16,
               ),
 
               // Maps Button
@@ -1843,10 +1823,10 @@ class CustomLocationHeader extends StatelessWidget {
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
                 child: const Text(
-                  'Goole Map',
+                  'Map',
                   style: TextStyle(
                     color: Colors.blue,
-                    fontSize: 15,
+                    fontSize: 16,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
