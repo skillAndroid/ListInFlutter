@@ -41,28 +41,21 @@ class _ListInShortsState extends State<ListInShorts> {
   late HomeTreeCubit _homeTreeCubit;
   List<GetPublicationEntity> _videos = [];
 
-  // Reduce to only 3 controllers
-  final List<VideoPlayerController?> _controllers = [
-    null, // previous
-    null, // current
-    null, // next
-  ];
+  VideoPlayerController? _currentController;
 
   int _currentIndex = 0;
   final Map<int, Duration> _videoPositions = {};
-
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-
     _currentIndex = widget.initialIndex;
     _videos = List.from(widget.initialVideos);
     _homeTreeCubit = context.read<HomeTreeCubit>();
     _pageController =
         PageController(initialPage: _currentIndex, viewportFraction: 0.95);
-    _initializeControllers(_currentIndex);
+    _initializeController(_currentIndex);
   }
 
   void _loadMoreVideos() {
@@ -73,67 +66,40 @@ class _ListInShortsState extends State<ListInShorts> {
       return;
     }
 
-    debugPrint('📥 Loading more videos:\n'
-        '└─ Current count: ${_videos.length}\n'
-        '└─ Loading page: ${(_videos.length ~/ 10)}');
-
     setState(() {
       _isLoading = true;
     });
 
-    // Calculate the correct page number based on current videos count
     final nextPage = (_videos.length ~/ 10);
     _homeTreeCubit.fetchVideoFeeds(nextPage);
   }
 
-  void _initializeControllers(int index) {
-    // Initialize current video with full load
-    _initializeController(1, index, fullLoad: true);
+  void _initializeController(int index) {
+    _disposeCurrentController();
 
-    // Preload previous video if available
-    if (index > 0) {
-      _initializeController(0, index - 1, fullLoad: false);
-    }
+    debugPrint('🎬 Starting video initialization for index: $index');
 
-    // Preload next video if available
-    if (index + 1 < widget.initialVideos.length) {
-      _initializeController(2, index + 1, fullLoad: false);
-    }
-  }
+    final controller = VideoPlayerController.network(
+      'https://${widget.initialVideos[index].videoUrl}',
+    );
 
-  void _initializeController(int position, int index,
-      {required bool fullLoad}) {
-    if (_controllers[position] == null) {
-      debugPrint(
-          '🎬 Starting video initialization for position: $position, index: $index');
+    _currentController = controller;
+    controller.initialize().then((_) async {
+      debugPrint('✅ Video initialized successfully:\n'
+          '└─ Index: $index\n'
+          '└─ Duration: ${controller.value.duration}\n'
+          '└─ Size: ${controller.value.size}\n');
 
-      final controller = VideoPlayerController.network(
-        'https://${widget.initialVideos[index].videoUrl}',
-        httpHeaders: {
-          if (!fullLoad) 'Range': 'bytes=0-300000',
-        },
-      );
-
-      _controllers[position] = controller;
-      controller.initialize().then((_) async {
-        debugPrint('✅ Video initialized successfully:\n'
-            '└─ Position: $position\n'
-            '└─ Index: $index\n'
-            '└─ Duration: ${controller.value.duration}\n'
-            '└─ Size: ${controller.value.size}\n');
-
-        if (mounted) setState(() {});
-        if (fullLoad) {
-          controller.play();
-          debugPrint('▶️ Starting playback for index: $index');
-        }
-      }).catchError((error) {
-        debugPrint('❌ Video initialization failed:\n'
-            '└─ Position: $position\n'
-            '└─ Index: $index\n'
-            '└─ Error: $error');
-      });
-    }
+      if (mounted) {
+        setState(() {});
+        controller.play();
+        debugPrint('▶️ Starting playback for index: $index');
+      }
+    }).catchError((error) {
+      debugPrint('❌ Video initialization failed:\n'
+          '└─ Index: $index\n'
+          '└─ Error: $error');
+    });
   }
 
   void _handlePageChange(int newIndex) {
@@ -143,68 +109,29 @@ class _ListInShortsState extends State<ListInShorts> {
         '└─ Current index: $_currentIndex\n'
         '└─ New index: $newIndex');
 
-    final currentController = _controllers[1];
-    if (currentController != null && currentController.value.isInitialized) {
-      _videoPositions[_currentIndex] = currentController.value.position;
+    // Store current position before changing
+    if (_currentController != null && _currentController!.value.isInitialized) {
+      _videoPositions[_currentIndex] = _currentController!.value.position;
     }
 
-    final previousIndex = _currentIndex;
     setState(() {
       _currentIndex = newIndex;
     });
 
-    if (newIndex > previousIndex) {
-      // Moving forward
-      _disposeController(0); // Dispose previous
-      _controllers[0] = _controllers[1]; // Current becomes previous
-      _controllers[1] = _controllers[2]; // Next becomes current
-      _controllers[2] = null; // Clear next
-
-      // Initialize new next if available
-      if (newIndex + 1 < widget.initialVideos.length) {
-        _initializeController(2, newIndex + 1, fullLoad: false);
-      }
-    } else {
-      // Moving backward
-      _disposeController(2); // Dispose next
-      _controllers[2] = _controllers[1]; // Current becomes next
-      _controllers[1] = _controllers[0]; // Previous becomes current
-      _controllers[0] = null; // Clear previous
-
-      // Initialize new previous if available
-      if (newIndex > 0) {
-        _initializeController(0, newIndex - 1, fullLoad: false);
-      }
-    }
-
-    // Play current video
-    if (_controllers[1] != null) {
-      _controllers[1]?.play().then((_) {
-        if (_videoPositions.containsKey(newIndex)) {
-          _controllers[1]?.seekTo(_videoPositions[newIndex]!);
-        }
-      });
-    }
-
-    _controllers[0]?.pause();
-    _controllers[2]?.pause();
+    _initializeController(newIndex);
   }
 
-  void _disposeController(int index) {
-    if (_controllers[index] != null) {
-      debugPrint('🗑️ Disposing controller:\n'
-          '└─ Position: $index\n'
-          '└─ Was initialized: ${_controllers[index]?.value.isInitialized}');
-      _controllers[index]?.dispose();
-      _controllers[index] = null;
+  void _disposeCurrentController() {
+    if (_currentController != null) {
+      debugPrint('🗑️ Disposing current controller');
+      _currentController!.dispose();
+      _currentController = null;
     }
   }
 
   @override
   void dispose() {
-    for (var controller in _controllers) {
-      controller?.dispose();
-    }
+    _disposeCurrentController();
     _videoPositions.clear();
     _pageController.dispose();
     context.read<HomeTreeCubit>().clearVideos();
@@ -212,42 +139,33 @@ class _ListInShortsState extends State<ListInShorts> {
   }
 
   Future<void> _navigateToNewScreen(GetPublicationEntity product) async {
-    final currentController = _controllers[2]; // Current playing controller
-
-    // Store the current position if video is initialized
-    if (currentController != null && currentController.value.isInitialized) {
-      _videoPositions[_currentIndex] = currentController.value.position;
-      await currentController.pause();
+    if (_currentController != null && _currentController!.value.isInitialized) {
+      _videoPositions[_currentIndex] = _currentController!.value.position;
+      await _currentController!.pause();
     }
 
     if (mounted) {
-      // Navigate and wait for return
       await context.push(
         Routes.productDetails,
         extra: product,
       );
 
-      // Resume video from stored position when returning
-      if (mounted) {
-        final controller = _controllers[2];
-        if (controller != null && controller.value.isInitialized) {
-          final storedPosition = _videoPositions[_currentIndex];
-          if (storedPosition != null) {
-            await controller.seekTo(storedPosition);
-            await controller.play();
-          }
+      if (mounted &&
+          _currentController != null &&
+          _currentController!.value.isInitialized) {
+        final storedPosition = _videoPositions[_currentIndex];
+        if (storedPosition != null) {
+          await _currentController!.seekTo(storedPosition);
+          await _currentController!.play();
         }
       }
     }
   }
 
   Future<void> _navigateToProfileScreen(String userId, bool isOwner) async {
-    final currentController = _controllers[2]; // Current playing controller
-
-    // Store the current position if video is initialized
-    if (currentController != null && currentController.value.isInitialized) {
-      _videoPositions[_currentIndex] = currentController.value.position;
-      await currentController.pause();
+    if (_currentController != null && _currentController!.value.isInitialized) {
+      _videoPositions[_currentIndex] = _currentController!.value.position;
+      await _currentController!.pause();
     }
 
     if (mounted) {
@@ -255,17 +173,15 @@ class _ListInShortsState extends State<ListInShorts> {
         context.push(Routes.anotherUserProfile, extra: {
           'userId': userId,
         });
-      } else {}
+      }
 
-      // Resume video from stored position when returning
-      if (mounted) {
-        final controller = _controllers[2];
-        if (controller != null && controller.value.isInitialized) {
-          final storedPosition = _videoPositions[_currentIndex];
-          if (storedPosition != null) {
-            await controller.seekTo(storedPosition);
-            await controller.play();
-          }
+      if (mounted &&
+          _currentController != null &&
+          _currentController!.value.isInitialized) {
+        final storedPosition = _videoPositions[_currentIndex];
+        if (storedPosition != null) {
+          await _currentController!.seekTo(storedPosition);
+          await _currentController!.play();
         }
       }
     }
@@ -304,17 +220,6 @@ class _ListInShortsState extends State<ListInShorts> {
             },
             scrollDirection: Axis.vertical,
             itemBuilder: (context, index) {
-              final videoController = _controllers[index == _currentIndex
-                      ? 1 // Current video is at index 1
-                      : index == _currentIndex - 1
-                          ? 0 // Previous video is at index 0
-                          : index == _currentIndex + 1
-                              ? 2 // Next video is at index 2
-                              : -1 // No controller for other indices
-                  ];
-              if (videoController == null) {
-                return Text("No Video $index");
-              }
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 2),
                 shape: SmoothRectangleBorder(
@@ -326,10 +231,11 @@ class _ListInShortsState extends State<ListInShorts> {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    if (videoController
-                        .value.isInitialized) // Changed condition here
+                    if (_currentController != null &&
+                        _currentController!.value.isInitialized &&
+                        index == _currentIndex)
                       ValueListenableBuilder<VideoPlayerValue>(
-                        valueListenable: videoController,
+                        valueListenable: _currentController!,
                         builder: (context, value, child) {
                           if (value.hasError) {
                             debugPrint('⚠️ Video playback error:\n'
@@ -353,12 +259,12 @@ class _ListInShortsState extends State<ListInShorts> {
                                     child: SizedBox(
                                       width: value.size.width,
                                       height: value.size.height,
-                                      child: VideoPlayer(videoController),
+                                      child: VideoPlayer(_currentController!),
                                     ),
                                   ),
                                 ),
                               ControlsOverlay(
-                                controller: videoController,
+                                controller: _currentController!,
                               ),
                               if (value.isBuffering)
                                 Center(
