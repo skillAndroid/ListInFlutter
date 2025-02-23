@@ -231,9 +231,9 @@ class _VideoCarouselState extends State<VideoCarousel> {
   }
 
   void _onVideoTap(int index) {
-    final homeTreeCubit = context.read<HomeTreeCubit>();
-    homeTreeCubit.handleVideoFeedNavigation(context, index);
-  }
+  final homeTreeCubit = context.read<HomeTreeCubit>();
+  homeTreeCubit.handleVideoFeedNavigation(context, index);
+}
 
   @override
   Widget build(BuildContext context) {

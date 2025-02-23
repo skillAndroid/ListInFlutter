@@ -53,7 +53,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     final Map<String, bool> userFollowStatuses = {};
     final Map<String, int> userFollowersCount = {};
     final Map<String, int> userFollowingCount = {};
-    final Map<String, bool> publicationViewedStatus = {}; 
+    final Map<String, bool> publicationViewedStatus = {};
 
     for (var publication in publications) {
       final seller = publication.seller;
@@ -143,6 +143,15 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     ));
   }
 
+  void clearVideos() {
+    emit(state.copyWith(
+      videoPublications: [],
+      videoCurrentPage: 0,
+      videoHasReachedMax: false,
+      videoPublicationsRequestState: RequestState.idle,
+    ));
+  }
+
   Future<void> getPredictions() async {
     // Cancel any previous timer
     _debounceTimer?.cancel();
@@ -220,16 +229,9 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
 
   void handleVideoFeedNavigation(BuildContext context, int selectedIndex) {
     if (state.videoPublications.isNotEmpty) {
-      final limitedVideos = state.videoPublications.length > 10
-          ? state.videoPublications.sublist(0, 10)
-          : state.videoPublications;
-
-      if (state.videoPublications.length > 10) {
-        emit(state.copyWith(videoPublications: limitedVideos));
-      }
-
+      final videos = state.videoPublications;
       context.push(Routes.videosFeed, extra: {
-        'videos': limitedVideos,
+        'videos': videos,
         'video_current_page': state.videoCurrentPage,
         'index': selectedIndex,
       });
@@ -950,33 +952,15 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
 
   Future<void> fetchVideoFeeds(int pageKey) async {
     if (state.videoPublicationsRequestState == RequestState.inProgress) {
-      debugPrint(
-          '🚫 Preventing duplicate video publications request for page: $pageKey');
       return;
     }
 
-    debugPrint(
-        '🔍 Fetching video page: $pageKey with search: ${state.searchText}');
-
-    if (pageKey == 0) {
-      emit(state.copyWith(
-        videoPublicationsRequestState: RequestState.inProgress,
-        errorVideoPublicationsFetch: null,
-        videoPublications: [],
-        videoHasReachedMax: false,
-        videoCurrentPage: 0,
-      ));
-    } else {
-      emit(state.copyWith(
-        videoPublicationsRequestState: RequestState.inProgress,
-        errorVideoPublicationsFetch: null,
-      ));
-    }
+    emit(state.copyWith(
+      videoPublicationsRequestState: RequestState.inProgress,
+      errorVideoPublicationsFetch: null,
+    ));
 
     try {
-      debugPrint("🐁🐁${state.selectedCatalog}");
-      debugPrint("🐁🐁${state.selectedCatalog?.id}");
-
       final result = await getVideoPublicationsUsecase(
         params: GetPublicationsParams(
           query: state.searchText,
@@ -990,25 +974,21 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
 
       result.fold(
         (failure) {
-          debugPrint("🐁🐁FAAAAAAAAAAAAAILLLL");
-          debugPrint("🐁🐁🐁🐁FAAAAAAAAAAAAAILLLL");
-
           emit(state.copyWith(
             videoPublicationsRequestState: RequestState.error,
             errorVideoPublicationsFetch: _mapFailureToMessage(failure),
           ));
         },
         (videoPublicationsEntity) {
-          final updatedPublications = pageKey == 0
-              ? videoPublicationsEntity.content
-              : videoPublicationsEntity.content;
-          _syncFollowStatusesForPublications(updatedPublications);
-          _syncLikeStatusesForPublications(updatedPublications);
+          final newPublications = videoPublicationsEntity.content;
+          _syncFollowStatusesForPublications(newPublications);
+          _syncLikeStatusesForPublications(newPublications);
+
           emit(
             state.copyWith(
               videoPublicationsRequestState: RequestState.completed,
               errorVideoPublicationsFetch: null,
-              videoPublications: updatedPublications,
+              videoPublications: newPublications,
               videoHasReachedMax: videoPublicationsEntity.isLast,
               videoCurrentPage: videoPublicationsEntity.number,
             ),
@@ -1016,7 +996,6 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
         },
       );
     } catch (e) {
-      debugPrint("🐁🐁FAAAAAAAAAAAAAILLLL REASON : $e");
       emit(state.copyWith(
         videoPublicationsRequestState: RequestState.error,
         errorVideoPublicationsFetch: 'An unexpected error occurred',
@@ -1044,16 +1023,6 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
         searchPage(0);
       }
     }
-  }
-
-  void clearVideos() {
-    emit(HomeTreeState(
-      videoPublications: [],
-      videoPublicationsRequestState: RequestState.idle,
-      videoHasReachedMax: false,
-      videoCurrentPage: 0,
-      errorVideoPublicationsFetch: null,
-    ));
   }
 
   void clearPriceRange() {

@@ -11,7 +11,12 @@ import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
+import 'package:list_in/features/profile/domain/usecases/user/get_user_data_usecase.dart';
 import 'package:list_in/features/video/presentation/wigets/video_controlls.dart';
+import 'package:list_in/global/global_bloc.dart';
+import 'package:list_in/global/global_event.dart';
+import 'package:list_in/global/global_state.dart';
+import 'package:list_in/global/global_status.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:video_player/video_player.dart';
 
@@ -34,6 +39,7 @@ class ListInShorts extends StatefulWidget {
 class _ListInShortsState extends State<ListInShorts> {
   late PageController _pageController;
   late HomeTreeCubit _homeTreeCubit;
+  List<GetPublicationEntity> _videos = [];
 
   // Reduce to only 3 controllers
   final List<VideoPlayerController?> _controllers = [
@@ -46,14 +52,13 @@ class _ListInShortsState extends State<ListInShorts> {
   final Map<int, Duration> _videoPositions = {};
 
   bool _isLoading = false;
-  List<GetPublicationEntity> _videos = [];
 
   @override
   void initState() {
     super.initState();
-   
+
     _currentIndex = widget.initialIndex;
-    _videos = widget.initialVideos;
+    _videos = List.from(widget.initialVideos);
     _homeTreeCubit = context.read<HomeTreeCubit>();
     _pageController =
         PageController(initialPage: _currentIndex, viewportFraction: 0.95);
@@ -70,13 +75,15 @@ class _ListInShortsState extends State<ListInShorts> {
 
     debugPrint('📥 Loading more videos:\n'
         '└─ Current count: ${_videos.length}\n'
-        '└─ Loading page: ${_videos.length ~/ 10}');
+        '└─ Loading page: ${(_videos.length ~/ 10)}');
 
     setState(() {
       _isLoading = true;
     });
 
-    _homeTreeCubit.fetchVideoFeeds(_videos.length ~/ 10);
+    // Calculate the correct page number based on current videos count
+    final nextPage = (_videos.length ~/ 10);
+    _homeTreeCubit.fetchVideoFeeds(nextPage);
   }
 
   void _initializeControllers(int index) {
@@ -234,6 +241,36 @@ class _ListInShortsState extends State<ListInShorts> {
     }
   }
 
+  Future<void> _navigateToProfileScreen(String userId, bool isOwner) async {
+    final currentController = _controllers[2]; // Current playing controller
+
+    // Store the current position if video is initialized
+    if (currentController != null && currentController.value.isInitialized) {
+      _videoPositions[_currentIndex] = currentController.value.position;
+      await currentController.pause();
+    }
+
+    if (mounted) {
+      if (!isOwner) {
+        context.push(Routes.anotherUserProfile, extra: {
+          'userId': userId,
+        });
+      } else {}
+
+      // Resume video from stored position when returning
+      if (mounted) {
+        final controller = _controllers[2];
+        if (controller != null && controller.value.isInitialized) {
+          final storedPosition = _videoPositions[_currentIndex];
+          if (storedPosition != null) {
+            await controller.seekTo(storedPosition);
+            await controller.play();
+          }
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
@@ -243,8 +280,12 @@ class _ListInShortsState extends State<ListInShorts> {
     return BlocListener<HomeTreeCubit, HomeTreeState>(
       listener: (context, state) {
         if (state.videoPublicationsRequestState == RequestState.completed) {
+          final newVideos = state.videoPublications;
+          final uniqueNewVideos = newVideos.where((newVideo) =>
+              !_videos.any((existingVideo) => existingVideo.id == newVideo.id));
+
           setState(() {
-            _videos.addAll(state.videoPublications);
+            _videos.addAll(uniqueNewVideos);
             _isLoading = false;
           });
         }
@@ -286,7 +327,7 @@ class _ListInShortsState extends State<ListInShorts> {
                   fit: StackFit.expand,
                   children: [
                     if (videoController
-                            .value.isInitialized) // Changed condition here
+                        .value.isInitialized) // Changed condition here
                       ValueListenableBuilder<VideoPlayerValue>(
                         valueListenable: videoController,
                         builder: (context, value, child) {
@@ -362,77 +403,167 @@ class _ListInShortsState extends State<ListInShorts> {
                       bottom: 64,
                       child: GestureDetector(
                         onTap: () {
-                          _navigateToNewScreen(widget.initialVideos[index]);
+                          final currentUserId =
+                              AppSession.currentUserId; // Get current user ID
+                          final isOwner = currentUserId ==
+                              widget.initialVideos[index].seller.id;
+                          if (!isOwner) {
+                            _navigateToNewScreen(widget.initialVideos[index]);
+                          }
                         },
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
-                              children: [
-                                SmoothClipRRect(
-                                  borderRadius: BorderRadius.circular(100),
-                                  side: BorderSide(
-                                      width: 2,
-                                      color: AppColors.white.withOpacity(0.8)),
-                                  child: CircleAvatar(
-                                    radius: 22,
-                                    backgroundImage: NetworkImage(
-                                      "https://${widget.initialVideos[index].seller.profileImagePath}",
+                            GestureDetector(
+                              onTap: () {
+                                final currentUserId = AppSession
+                                    .currentUserId; // Get current user ID
+                                final isOwner = currentUserId ==
+                                    widget.initialVideos[index].seller.id;
+
+                                _navigateToProfileScreen(
+                                  widget.initialVideos[index].seller.id,
+                                  isOwner,
+                                );
+                              },
+                              child: Row(
+                                children: [
+                                  SmoothClipRRect(
+                                    borderRadius: BorderRadius.circular(100),
+                                    side: BorderSide(
+                                        width: 2,
+                                        color:
+                                            AppColors.white.withOpacity(0.8)),
+                                    child: CircleAvatar(
+                                      radius: 22,
+                                      backgroundImage: NetworkImage(
+                                        "https://${widget.initialVideos[index].seller.profileImagePath}",
+                                      ),
                                     ),
                                   ),
-                                ),
-                                const SizedBox(width: 12),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    SizedBox(
-                                      width: 130,
-                                      child: Text(
-                                        widget.initialVideos[index].seller
-                                            .nickName,
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 16,
-                                          overflow: TextOverflow.ellipsis,
-                                          fontWeight: FontWeight.w600,
+                                  const SizedBox(width: 12),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      SizedBox(
+                                        width: 130,
+                                        child: Text(
+                                          widget.initialVideos[index].seller
+                                              .nickName,
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                            overflow: TextOverflow.ellipsis,
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    Text(
-                                      '2.5M followers',
-                                      style: TextStyle(
-                                        color: Colors.white.withOpacity(0.8),
-                                        fontSize: 14,
+                                      BlocBuilder<GlobalBloc, GlobalState>(
+                                        builder: (context, state) {
+                                          final followersCount =
+                                              state.getFollowersCount(widget
+                                                  .initialVideos[index]
+                                                  .seller
+                                                  .id);
+                                          return Text(
+                                            '$followersCount Followers',
+                                            style: TextStyle(
+                                              color:
+                                                  Colors.white.withOpacity(0.8),
+                                              fontSize: 14,
+                                            ),
+                                          );
+                                        },
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(width: 16),
-                                ElevatedButton(
-                                  onPressed: () {},
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        AppColors.primary.withOpacity(0.8),
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 6,
-                                      vertical: 4,
-                                    ),
-                                    shape: SmoothRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
+                                    ],
                                   ),
-                                  child: const Text(
-                                    'Follow',
-                                    style: TextStyle(
-                                      color: AppColors.white,
-                                      fontSize: 14,
-                                      fontFamily: "Poppins",
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                  const SizedBox(width: 16),
+                                  BlocBuilder<GlobalBloc, GlobalState>(
+                                    builder: (context, state) {
+                                      final isFollowed = state.isUserFollowed(
+                                          widget
+                                              .initialVideos[index].seller.id);
+                                      final followStatus =
+                                          state.getFollowStatus(widget
+                                              .initialVideos[index].seller.id);
+                                      final isLoading = followStatus ==
+                                          FollowStatus.inProgress;
+                                      final currentUserId = AppSession
+                                          .currentUserId; // Get current user ID
+                                      final isOwner = currentUserId ==
+                                          widget.initialVideos[index].seller
+                                              .id; // Check if user is owner
+                                      if (isOwner) {
+                                        // Option 1: Show "You" text
+                                        return Text(
+                                          'You',
+                                          style: TextStyle(
+                                            color: AppColors.white,
+                                            fontSize: 14,
+                                            fontFamily: "Poppins",
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        );
+
+                                        // Option 2: Return empty container to hide the button completely
+                                        // return const SizedBox.shrink();
+                                      } else {
+                                        return ElevatedButton(
+                                          onPressed: () {
+                                            context
+                                                .read<GlobalBloc>()
+                                                .add(UpdateFollowStatusEvent(
+                                                  userId: widget
+                                                      .initialVideos[index]
+                                                      .seller
+                                                      .id,
+                                                  isFollowed: isFollowed,
+                                                  context: context,
+                                                ));
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: AppColors.primary
+                                                .withOpacity(0.8),
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 6,
+                                              vertical: 4,
+                                            ),
+                                            shape: SmoothRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                          ),
+                                          child: isLoading
+                                              ? SizedBox(
+                                                  width: 20,
+                                                  height: 20,
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                    strokeWidth: 2,
+                                                    valueColor:
+                                                        AlwaysStoppedAnimation<
+                                                            Color>(Colors.blue),
+                                                  ),
+                                                )
+                                              : Text(
+                                                  isFollowed
+                                                      ? 'Unfollow'
+                                                      : 'Follow',
+                                                  style: TextStyle(
+                                                    color: AppColors.white,
+                                                    fontSize: 14,
+                                                    fontFamily: "Poppins",
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                        );
+                                      }
+                                    },
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                             const SizedBox(height: 8),
                             SizedBox(
