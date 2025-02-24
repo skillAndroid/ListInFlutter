@@ -11,6 +11,7 @@ import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/formaters.dart';
 import 'package:list_in/features/explore/presentation/widgets/product_card/bb/regular_product_card.dart';
+import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/profile/domain/usecases/user/get_user_data_usecase.dart';
 import 'package:list_in/features/undefined_screens_yet/video_player.dart';
 import 'package:list_in/global/global_bloc.dart';
@@ -18,6 +19,7 @@ import 'package:list_in/global/global_event.dart';
 import 'package:list_in/global/global_state.dart';
 import 'package:list_in/global/global_status.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 @immutable
@@ -308,55 +310,58 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: _handleCardTap,
-      child: Padding(
-        padding: const EdgeInsets.all(3.0),
-        child: DecoratedBox(
-          decoration: CardDecoration.standard,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildMediaCarousel(),
-              _ProductInfo(
-                model: widget.model,
-                onCallPressed: () => _makeCall(context),
-              ),
-            ],
-          ),
+      child: Card(
+        shadowColor: Colors.black.withOpacity(0.25),
+        color: AppColors.white,
+        elevation: 4,
+        margin: EdgeInsets.all(3),
+        shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildMediaCarousel(),
+            _ProductInfo(
+              model: widget.model,
+              onCallPressed: () => _makeCall(context),
+            ),
+          ],
         ),
       ),
     );
   }
 
   Widget _buildMediaCarousel() {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(10),
-      child: AspectRatio(
-        aspectRatio: 16 / 10.5,
-        child: Stack(
-          children: [
-            PageView.builder(
-              controller: _pageController,
-              itemCount: widget.model.images.length,
-              onPageChanged: (page) => setState(() => _currentPage = page),
-              itemBuilder: (context, index) => _MediaContent(
-                imageUrl: widget.model.images[index],
-                videoUrl: index == 0 ? widget.model.videoUrl : null,
-                isPlaying: widget.currentlyPlayingId.value == widget.model.id,
-                productId: widget.model.id,
+    return Padding(
+      padding: EdgeInsets.all(3),
+      child: SmoothClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: AspectRatio(
+          aspectRatio: 16 / 11,
+          child: Stack(
+            children: [
+              PageView.builder(
+                controller: _pageController,
+                itemCount: widget.model.images.length,
+                onPageChanged: (page) => setState(() => _currentPage = page),
+                itemBuilder: (context, index) => _MediaContent(
+                  imageUrl: widget.model.images[index],
+                  videoUrl: index == 0 ? widget.model.videoUrl : null,
+                  isPlaying: widget.currentlyPlayingId.value == widget.model.id,
+                  productId: widget.model.id,
+                ),
               ),
-            ),
-            if (widget.model.condition.isNotEmpty)
-              _ConditionBadge(condition: widget.model.condition),
-            if (widget.model.isViewed || widget.model.isOwner)
-              ViewsBadge(
-                views: widget.model.views,
-                isOwner: widget.model.isOwner,
+              if (widget.model.isViewed || widget.model.isOwner)
+                ViewsBadge(
+                  views: widget.model.views,
+                  isOwner: widget.model.isOwner,
+                ),
+              PageIndicator(
+                currentPage: _currentPage,
+                totalPages: widget.model.images.length,
               ),
-            PageIndicator(
-              currentPage: _currentPage,
-              totalPages: widget.model.images.length,
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -375,65 +380,72 @@ class _ProductInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 4),
-          _SellerInfo(model: model),
-          const SizedBox(height: 6),
-          Text(
-            model.title,
-            style: const TextStyle(
-              fontWeight: FontWeight.w500,
-              fontSize: 16,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          Text(
-            model.description,
-            style: TextStyle(
-              fontSize: 13,
-              color: AppColors.darkGray.withOpacity(0.7),
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 1),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          // Product title and like button row
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(
-                model.location,
-                style: TextStyle(
-                  color: AppColors.darkGray.withOpacity(0.7),
-                  fontSize: 13,
+              Expanded(
+                child: Text(
+                  model.title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: AppColors.black,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              const SizedBox(height: 2),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    formatPrice(model.price.toString()),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 18,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                  OptimizedLikeButton(
-                    productId: model.id,
-                    likes: model.likes,
-                    isOwner: model.isOwner,
-                    isLiked: model.isLiked,
-                    likeStatus: model.likeStatus,
-                  ),
-                ],
+              OptimizedLikeButton(
+                productId: model.id,
+                likes: model.likes,
+                isOwner: model.isOwner,
+                isLiked: model.isLiked,
+                likeStatus: model.likeStatus,
               ),
             ],
           ),
+          // Price with condition tag
+          Text(
+            formatPrice(model.price.toString()),
+            style: const TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+              color: AppColors.black,
+            ),
+          ),
+          Text(
+            model.condition == "NEW_PRODUCT" ? 'New' : "Used",
+            style: TextStyle(
+              fontSize: 13,
+              color: AppColors.black,
+            ),
+          ),
+
+          _SellerInfo(model: model),
+          Text(
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            model.description,
+            style: TextStyle(
+              color: AppColors.black,
+              fontSize: 13,
+            ),
+          ),
+          Text(
+            model.location,
+            style: TextStyle(
+              color: AppColors.darkGray.withOpacity(0.7),
+              fontSize: 13,
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // Call button
           _CallButton(
             isOwner: model.isOwner,
             onPressed: onCallPressed,
@@ -452,30 +464,39 @@ class _SellerInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        _SellerAvatar(imageUrl: model.seller.imageUrl),
-        const SizedBox(width: 8),
         Text(
           model.seller.name,
           style: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 14,
+            fontWeight: FontWeight.w400,
+            fontSize: 13,
             color: AppColors.black,
           ),
         ),
-        const SizedBox(width: 8),
+        const SizedBox(
+          width: 4,
+        ),
         const Icon(
           CupertinoIcons.star_fill,
           color: CupertinoColors.systemYellow,
-          size: 22,
+          size: 13,
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: 4),
         Text(
           model.seller.rating.toString(),
           style: const TextStyle(
             fontWeight: FontWeight.w500,
-            fontSize: 14,
+            fontSize: 13,
             color: AppColors.black,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          '(${model.views})',
+          style: TextStyle(
+            fontSize: 12,
+            color: AppColors.darkGray.withOpacity(0.7),
           ),
         ),
       ],
@@ -551,18 +572,15 @@ class _OptimizedLikeButtonState extends State<OptimizedLikeButton>
                     ),
                   );
             },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4),
-        child: isLoading
-            ? ShimmerEffect(
-                isLiked: widget.isLiked,
-                child: _buildLikeIcon(),
-              )
-            : ScaleTransition(
-                scale: _scaleAnimation,
-                child: _buildLikeIcon(),
-              ),
-      ),
+      child: isLoading
+          ? ShimmerEffect(
+              isLiked: widget.isLiked,
+              child: _buildLikeIcon(),
+            )
+          : ScaleTransition(
+              scale: _scaleAnimation,
+              child: _buildLikeIcon(),
+            ),
     );
   }
 
@@ -613,37 +631,6 @@ class _OptimizedLikeButtonState extends State<OptimizedLikeButton>
   }
 }
 
-class _ConditionBadge extends StatelessWidget {
-  final String condition;
-
-  const _ConditionBadge({required this.condition});
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      top: 8,
-      left: 8,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(6),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: const BoxDecoration(
-            color: AppColors.white,
-          ),
-          child: Text(
-            condition == "NEW_PRODUCT" ? 'New' : "Used",
-            style: const TextStyle(
-              fontSize: 13,
-              color: Colors.black,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class _CallButton extends StatelessWidget {
   final bool isOwner;
   final VoidCallback onPressed;
@@ -658,73 +645,28 @@ class _CallButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: isOwner ? null : onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: isOwner ? Colors.grey.shade200 : AppColors.primary,
-        shape: RoundedRectangleBorder(
-          side: BorderSide(
-            width: 1.2,
-            color: isOwner ? Colors.grey.shade400 : AppColors.primary,
-          ),
-          borderRadius: const BorderRadius.all(Radius.circular(10)),
-        ),
+        minimumSize: const Size.fromHeight(32),
+        padding: const EdgeInsets.symmetric(vertical: 0),
+        backgroundColor: isOwner ? Colors.grey.shade200 : Colors.white,
+        foregroundColor: Colors.white,
+        shape: SmoothRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+            side: BorderSide(width: 1, color: AppColors.primary)),
+        elevation: 0,
       ),
       child: SizedBox(
         width: double.infinity,
         child: Center(
           child: Text(
-            isOwner ? "You can't call your own number" : 'Call Now',
+            isOwner ? "You can't call your own number" : 'Call',
             style: TextStyle(
               fontSize: 14,
               fontFamily: "Poppins",
-              fontWeight: FontWeight.w700,
-              color: isOwner ? Colors.grey.shade600 : AppColors.white,
+              fontWeight: FontWeight.w600,
+              color: isOwner ? Colors.grey.shade600 : AppColors.primary,
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _SellerAvatar extends StatelessWidget {
-  final String? imageUrl;
-
-  const _SellerAvatar({required this.imageUrl});
-
-  String _getFormattedUrl(String? url) {
-    if (url == null || url.isEmpty) return '';
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-      return url;
-    }
-    return 'https://$url';
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 28,
-      height: 28,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(40),
-        child: imageUrl == null || imageUrl!.isEmpty
-            ? const Icon(Icons.person, color: Colors.grey)
-            : CachedNetworkImage(
-                imageUrl: _getFormattedUrl(imageUrl),
-                fit: BoxFit.cover,
-                memCacheWidth: 120,
-                maxWidthDiskCache: 120,
-                placeholder: (context, url) => Container(
-                  color: Colors.grey[200],
-                  child: const Center(
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
-                ),
-                errorWidget: (context, url, error) => Container(
-                  color: Colors.grey[200],
-                  child: const Center(
-                    child: Icon(Icons.error, color: Colors.red, size: 16),
-                  ),
-                ),
-              ),
       ),
     );
   }
@@ -743,8 +685,7 @@ class _MediaContent extends StatelessWidget {
     required this.productId,
   });
 
-  String _getFormattedUrl(String url) =>
-      url.startsWith('http') ? url : 'https://$url';
+  String _getFormattedUrl(String url) => 'https://$url';
 
   @override
   Widget build(BuildContext context) {
@@ -768,7 +709,7 @@ class _MediaContent extends StatelessWidget {
       fit: BoxFit.cover,
       placeholder: (context, url) => Container(
         color: Colors.grey[200],
-        child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+        child: const Progress(),
       ),
       errorWidget: (context, url, error) => Container(
         color: Colors.grey[200],
@@ -820,7 +761,7 @@ class PageIndicator extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(
             color: Colors.black.withOpacity(0.3),
-            borderRadius: BorderRadius.circular(6),
+            borderRadius: BorderRadius.circular(4),
           ),
           child: Text(
             '${currentPage + 1}/$totalPages',

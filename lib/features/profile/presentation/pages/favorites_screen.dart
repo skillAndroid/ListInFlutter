@@ -44,7 +44,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: AppColors.containerColor,
+        backgroundColor:  Color(0xFFFEC772),
         elevation: 0,
         automaticallyImplyLeading: false,
         scrolledUnderElevation: 0,
@@ -115,7 +115,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             ),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              childAspectRatio: 0.72,
+              childAspectRatio: 0.60,
               crossAxisSpacing: 0,
               mainAxisSpacing: 0,
             ),

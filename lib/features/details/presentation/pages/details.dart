@@ -849,7 +849,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               crossAxisCount: 2,
               crossAxisSpacing: 0,
               mainAxisSpacing: 0,
-              childAspectRatio: 0.735,
+              childAspectRatio: 0.599,
             ),
             itemCount:
                 state.publications.length + (state.isLoadingMore ? 1 : 0),
@@ -919,7 +919,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               const SizedBox(width: 8),
               RichText(
                 text: TextSpan(
-                  style: const TextStyle(fontSize: 13, color: Colors.grey),
+                  style: const TextStyle(color: AppColors.darkGray, fontSize: 13),
                   children: [
                     const TextSpan(
                       text: "Working hours: ",
@@ -930,7 +930,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                           "${widget.product.seller.fromTime} - ${widget.product.seller.toTime}",
                       style: const TextStyle(
                         color: Colors.black,
-                        fontWeight: FontWeight.w500,
                         fontFamily: "Poppins",
                       ),
                     ),
@@ -952,7 +951,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     ),
                   ),
                 );
-                
               } else {
                 showLocationPrivacySheet(context);
               }
@@ -1207,7 +1205,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       "${formatPrice(widget.product.price.toString())} Uz",
       style: const TextStyle(
         height: 1.2,
-        fontSize: 26,
+        fontSize: 24,
         fontWeight: FontWeight.w700,
       ),
     );
@@ -1235,18 +1233,14 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           Text(
             widget.product.seller.nickName,
             style: const TextStyle(
-              fontSize: 26,
+              fontSize: 24,
               fontWeight: FontWeight.w600,
             ),
-          ),
-          SizedBox(
-            height: 2,
           ),
           Text(
             'Created: ${DateFormat('dd MMMM yyyy').format(widget.product.seller.dateCreated)}',
             style: TextStyle(
               color: AppColors.darkGray,
-              fontSize: 14,
             ),
           ),
         ],
@@ -1264,7 +1258,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               Text(
                 '5.0',
                 style: const TextStyle(
-                  fontSize: 15,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -1279,7 +1272,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 color: Colors.amber,
               ),
               itemCount: 5,
-              itemSize: 18,
+              itemSize: 16,
             ),
           ],
           const SizedBox(width: 8),
@@ -1374,7 +1367,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           const Text(
             'Description',
             style: TextStyle(
-              fontSize: 26,
+              fontSize: 24,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -1447,7 +1440,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           const Text(
             'Characteristics',
             style: TextStyle(
-              fontSize: 26,
+              fontSize: 24,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -1495,7 +1488,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             const Text(
               'Characteristics',
               style: TextStyle(
-                fontSize: 26,
+                fontSize: 24,
                 fontWeight: FontWeight.w600,
               ),
             ),

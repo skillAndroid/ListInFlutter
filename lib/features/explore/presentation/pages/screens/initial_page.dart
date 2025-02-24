@@ -482,7 +482,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
       child: FilterChip(
         padding: EdgeInsets.symmetric(horizontal: 4, vertical: 12),
         label: Text(
-          state.catalogs![index].name,
+          state.catalogs?[index].name ?? '',
           style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
         ),
         shape: RoundedRectangleBorder(

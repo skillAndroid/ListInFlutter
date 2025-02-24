@@ -47,7 +47,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
     context.read<AnotherUserProfileBloc>().add(ClearUserData());
 
     _scrollController = ScrollController();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
 
     context
         .read<AnotherUserProfileBloc>()
@@ -123,14 +123,6 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                             size: 24,
                             color: Colors.black87,
                           ),
-                          // Text(
-                          //   'Back',
-                          //   style: TextStyle(
-                          //     color: Colors.black87,
-                          //     fontSize: 16,
-                          //     fontWeight: FontWeight.w500,
-                          //   ),
-                          // ),
                         ],
                       ),
                     ),
@@ -470,53 +462,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                                 width: 4,
                               ),
                               Text(
-                                '13',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                ),
-                              ),
-                              SizedBox(
-                                width: 4,
-                              ),
-                            ],
-                          ),
-                        ),
-                        Tab(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                CupertinoIcons.camera,
-                                size: 22,
-                              ),
-                              SizedBox(
-                                width: 4,
-                              ),
-                              Text(
-                                '13',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w600, fontSize: 13),
-                              ),
-                              SizedBox(
-                                width: 4,
-                              ),
-                            ],
-                          ),
-                        ),
-                        Tab(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                CupertinoIcons.play_circle,
-                                size: 22,
-                              ),
-                              SizedBox(
-                                width: 4,
-                              ),
-                              Text(
-                                '13',
+                                'Publications',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
@@ -541,7 +487,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                                 width: 4,
                               ),
                               Text(
-                                '13',
+                                'Reviews',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
@@ -592,15 +538,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                     ),
                   ),
                   _buildEmptyTab(
-                    icon: CupertinoIcons.video_camera,
-                    text: "Empty List",
-                  ),
-                  _buildEmptyTab(
-                    icon: CupertinoIcons.video_camera,
-                    text: "Empty List",
-                  ),
-                  _buildEmptyTab(
-                    icon: CupertinoIcons.video_camera,
+                    icon: CupertinoIcons.star,
                     text: "Empty List",
                   ),
                 ],
@@ -734,7 +672,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
               crossAxisCount: 2,
               crossAxisSpacing: 0,
               mainAxisSpacing: 0,
-              childAspectRatio: 0.72,
+              childAspectRatio: 0.59,
             ),
           ),
         );

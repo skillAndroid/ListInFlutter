@@ -10,15 +10,15 @@ import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/formaters.dart';
 import 'package:list_in/features/explore/presentation/widgets/product_card/bb/boosted_card.dart';
+import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/profile/domain/usecases/user/get_user_data_usecase.dart';
-import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_bloc.dart';
-import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_event.dart';
 import 'package:list_in/global/global_bloc.dart';
 import 'package:list_in/global/global_event.dart';
 import 'package:list_in/global/global_state.dart';
 import 'package:list_in/global/global_status.dart';
 import 'package:list_in/global/likeds/liked_publications_bloc.dart';
 import 'package:list_in/global/likeds/liked_publications_event.dart';
+import 'package:smooth_corner_updated/smooth_corner.dart';
 
 // Core entity model
 @immutable
@@ -77,8 +77,8 @@ class ProductCardViewModel {
 
 // Main product card widget
 class OptimizedProductCard extends StatelessWidget {
-  static const double _imageAspectRatio = 1.15;
-  static const double _detailsHeight = 91.0;
+  static const double _imageAspectRatio = 1;
+  static const double _detailsHeight = 124;
 
   final ProductCardViewModel model;
   final VoidCallback? onTap;
@@ -95,44 +95,46 @@ class OptimizedProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Padding(
-        padding: EdgeInsets.all(3),
-        child: DecoratedBox(
-          decoration: CardDecoration.standard,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ProductImageSection(
-                aspectRatio: _imageAspectRatio,
-                imageUrl: model.images.firstOrNull,
+      child: Card(
+        shadowColor: Colors.black.withOpacity(0.25),
+        color: AppColors.white,
+        elevation: 4,
+        margin: EdgeInsets.all(3),
+        shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ProductImageSection(
+              aspectRatio: _imageAspectRatio,
+              imageUrl: model.images.firstOrNull,
+              condition: model.condition,
+              views: model.views,
+              isOwner: model.isOwner,
+              isViewed: model.isViewed,
+            ),
+            SizedBox(
+              height: _detailsHeight,
+              child: ProductDetailsSection(
+                title: model.title,
+                location: model.location,
+                price: model.price,
                 condition: model.condition,
-                views: model.views,
+                likes: model.likes,
                 isOwner: model.isOwner,
-                isViewed: model.isViewed,
+                isLiked: model.isLiked,
+                id: model.id,
+                likeStatus: model.likeStatus,
+                onLikeChanged: onLikeChanged,
               ),
-              SizedBox(
-                height: _detailsHeight,
-                child: ProductDetailsSection(
-                  title: model.title,
-                  location: model.location,
-                  price: model.price,
-                  likes: model.likes,
-                  isOwner: model.isOwner,
-                  isLiked: model.isLiked,
-                  id: model.id,
-                  likeStatus: model.likeStatus,
-                  onLikeChanged: onLikeChanged,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-// Image section widget
 class ProductImageSection extends StatelessWidget {
   final double aspectRatio;
   final String? imageUrl;
@@ -155,39 +157,46 @@ class ProductImageSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return AspectRatio(
       aspectRatio: aspectRatio,
-      child: Padding(
-        padding: const EdgeInsets.all(3),
-        child: Stack(
-          children: [
-            _buildImage(),
-            if (condition.isNotEmpty) _ConditionBadge(condition: condition),
-            if (isViewed || isOwner)
-              ViewsBadge(
-                views: views,
-                isOwner: isOwner,
-              ),
-          ],
-        ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(3),
+            child: SmoothClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: _buildImage(),
+            ),
+          ),
+          if (isViewed || isOwner) _buildViewsBadge(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildViewsBadge() {
+    return Positioned(
+      top: 12,
+      right: 12,
+      child: ViewsBadge(
+        views: views,
+        isOwner: isOwner,
       ),
     );
   }
 
   Widget _buildImage() {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(10),
-      child: imageUrl != null
-          ? CachedNetworkImage(
-              imageUrl: 'https://$imageUrl',
-              fit: BoxFit.cover,
-              width: double.infinity,
-              height: double.infinity,
-              fadeInDuration: const Duration(milliseconds: 300),
-              placeholder: _ImagePlaceholder.new,
-              errorWidget: _ImageError.new,
-              filterQuality: FilterQuality.low,
-            )
-          : const _DefaultImage(),
-    );
+    return imageUrl != null
+        ? CachedNetworkImage(
+            imageUrl: 'https://$imageUrl',
+            fit: BoxFit.cover,
+            width: double.infinity,
+            height: double.infinity,
+            fadeInDuration: const Duration(milliseconds: 300),
+            placeholder: _ImagePlaceholder.new,
+            errorWidget: _ImageError.new,
+            filterQuality: FilterQuality.medium,
+          )
+        : const _DefaultImage();
   }
 }
 
@@ -199,7 +208,7 @@ class _ImagePlaceholder extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: Colors.grey[200],
-      child: const Center(child: CircularProgressIndicator()),
+      child: const Progress(),
     );
   }
 }
@@ -260,36 +269,6 @@ class _DefaultImage extends StatelessWidget {
   }
 }
 
-// Condition badge widget
-class _ConditionBadge extends StatelessWidget {
-  final String condition;
-
-  const _ConditionBadge({required this.condition});
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      top: 8,
-      left: 8,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.9),
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: Text(
-          condition == "NEW_PRODUCT" ? 'New' : 'Used',
-          style: const TextStyle(
-            color: Colors.black,
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class ViewsBadge extends StatelessWidget {
   final int views;
   final bool isOwner;
@@ -304,44 +283,27 @@ class ViewsBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Positioned(
       top: 8,
-      right: 8,
+      left: 8,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.7),
-          borderRadius: BorderRadius.circular(12),
+          color: Colors.black.withOpacity(0.5),
+          borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (isOwner) ...[
-              const Icon(
-                Icons.visibility,
-                color: Colors.white,
-                size: 16,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                views.toString(),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ] else
-              Row(
-                children: [
-                  const Text(
-                    '✓✓',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
+            Row(
+              children: [
+                const Text(
+                  'Viewed',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
                   ),
-                ],
-              ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
@@ -353,6 +315,7 @@ class ViewsBadge extends StatelessWidget {
 class ProductDetailsSection extends StatelessWidget {
   final String title;
   final String location;
+  final String condition;
   final double price;
   final int likes;
   final String id;
@@ -366,6 +329,7 @@ class ProductDetailsSection extends StatelessWidget {
     required this.title,
     required this.location,
     required this.price,
+    required this.condition,
     required this.likes,
     required this.isOwner,
     required this.isLiked,
@@ -377,18 +341,35 @@ class ProductDetailsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: AppTextStyles.productTitle,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: AppColors.black,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              OptimizedLikeButton(
+                productId: id,
+                likes: likes,
+                isOwner: isOwner,
+                isLiked: isLiked,
+                likeStatus: likeStatus,
+              ),
+            ],
           ),
-          const SizedBox(height: 4),
           _buildBottomSection(),
         ],
       ),
@@ -400,31 +381,28 @@ class ProductDetailsSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
+          formatPrice(price.toString()),
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 16,
+            color: AppColors.black,
+          ),
+        ),
+        Text(
+          condition == "NEW_PRODUCT" ? 'New' : "Used",
+          style: TextStyle(
+            fontSize: 13,
+            color: AppColors.black,
+          ),
+        ),
+        Text(
           location,
           style: TextStyle(
-            color: Colors.grey[600],
-            fontSize: 12,
+            color: AppColors.darkGray.withOpacity(0.7),
+            fontSize: 13,
           ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              formatPrice(price.toString()),
-              style: AppTextStyles.price,
-            ),
-            OptimizedLikeButton(
-              productId: id,
-              likes: likes,
-              isOwner: isOwner,
-              isLiked: isLiked,
-              likeStatus: likeStatus,
-            ),
-          ],
-        ),
+        const SizedBox(height: 12),
       ],
     );
   }
@@ -579,7 +557,7 @@ class OwnerDialog extends StatelessWidget {
 abstract class CardDecoration {
   static const standard = BoxDecoration(
     color: Colors.white,
-    borderRadius: BorderRadius.all(Radius.circular(10)),
+    borderRadius: BorderRadius.all(Radius.circular(4)),
     boxShadow: [
       BoxShadow(
         color: Colors.black12,
@@ -593,12 +571,11 @@ abstract class CardDecoration {
 abstract class AppTextStyles {
   static const productTitle = TextStyle(
     fontSize: 14,
-    fontWeight: FontWeight.w500,
   );
 
   static const price = TextStyle(
     color: AppColors.black,
     fontSize: 16,
-    fontWeight: FontWeight.w700,
+    fontWeight: FontWeight.w600,
   );
 }

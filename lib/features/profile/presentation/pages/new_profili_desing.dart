@@ -51,8 +51,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
       listener: (context, state) {
         if (state.status == UserProfileStatus.failure) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content: Text(state.errorMessage ?? 'An error occurred')),
+            SnackBar(content: Text(state.errorMessage ?? 'An error occurred')),
           );
         }
       },
@@ -91,9 +90,9 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                       Text(
                         'Profile',
                         style: TextStyle(
-                          fontSize: 20,
+                          fontSize: 22,
                           color: AppColors.black,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                       IconButton(
@@ -147,10 +146,9 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                             fit: BoxFit.cover,
                                             placeholder: (context, url) =>
                                                 const Progress(),
-                                            errorWidget:
-                                                (context, url, error) =>
-                                                    Image.asset(
-                                                        AppImages.appLogo),
+                                            errorWidget: (context, url,
+                                                    error) =>
+                                                Image.asset(AppImages.appLogo),
                                           )
                                         : Image.asset(AppImages.appLogo),
                                   ),
@@ -164,7 +162,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                 Text(
                                   '${userData.nickName}',
                                   style: TextStyle(
-                                    fontSize: 18,
+                                    fontSize: 22,
                                     color: AppColors.black,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -173,7 +171,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                   userData.biography ?? "No biograpty yet!",
                                   style: TextStyle(
                                     color: AppColors.darkGray,
-                                    fontSize: 14,
+                                    fontSize: 17,
                                   ),
                                 ),
                               ],
@@ -191,15 +189,14 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                             Row(
                               children: [
                                 Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       'Follow',
                                       style: TextStyle(
-                                        fontSize: 16,
+                                        fontSize: 17,
                                         color: AppColors.black,
-                                        fontWeight: FontWeight.w600,
+                                        fontWeight: FontWeight.w500,
                                       ),
                                     ),
                                     SizedBox(height: 3),
@@ -215,15 +212,14 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                 ),
                                 SizedBox(width: 16),
                                 Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       'Followers',
                                       style: TextStyle(
                                         fontSize: 16,
                                         color: AppColors.black,
-                                        fontWeight: FontWeight.w600,
+                                        fontWeight: FontWeight.w500,
                                       ),
                                     ),
                                     SizedBox(height: 3),
@@ -239,7 +235,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                 ),
                               ],
                             ),
-    
+
                             // Right side icons
                             Row(
                               children: [
@@ -248,15 +244,15 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                 IconButton(
                                   onPressed: () {
                                     _navigateToEdit(UserProfileEntity(
-                                      isBusinessAccount: userData.role !=
-                                          "INDIVIDUAL_SELLER",
+                                      isBusinessAccount:
+                                          userData.role != "INDIVIDUAL_SELLER",
                                       locationName: userData.locationName,
                                       longitude: userData.longitude,
                                       latitude: userData.latitude,
                                       fromTime: userData.fromTime,
                                       toTime: userData.toTime,
-                                      isGrantedForPreciseLocation: userData
-                                          .isGrantedForPreciseLocation,
+                                      isGrantedForPreciseLocation:
+                                          userData.isGrantedForPreciseLocation,
                                       nickName: userData.nickName,
                                       phoneNumber: userData.phoneNumber,
                                       profileImagePath:
@@ -286,7 +282,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                 child: _buildStatCard(
                                   'Posts',
                                   '⟶',
-                                  AppColors.containerColor,
+                                  Color(0xFFB2EAB8),
                                   Colors.black,
                                 ),
                               ),
@@ -296,7 +292,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                               child: _buildStatCard(
                                 'Reviews',
                                 '⟶',
-                                AppColors.containerColor,
+                                Color(0xFFB6EEF5),
                                 Colors.black,
                               ),
                             ),
@@ -315,7 +311,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                 child: _buildStatCard(
                                   'Favorites',
                                   '⟶',
-                                  AppColors.containerColor,
+                                  Color(0xFFFEC772),
                                   Colors.black,
                                 ),
                               ),
@@ -395,7 +391,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                   style: TextStyle(
                     color: textColor,
                     fontSize: 25,
-                    height: 0.75,
+                    height: 1,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
@@ -437,7 +433,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        fontSize: 15,
+                        fontSize: 16,
                         fontWeight: FontWeight.w500,
                         color: AppColors.black,
                       ),

@@ -194,7 +194,11 @@ class _WelcomePageState extends State<WelcomePage> {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 20),
+        shape: SmoothRectangleBorder(
+          smoothness: 0.8,
+          borderRadius: BorderRadius.circular(16)
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 18),
         backgroundColor: color,
       ),
       child: Center(

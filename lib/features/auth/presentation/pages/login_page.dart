@@ -137,7 +137,10 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 24),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        shape: SmoothRectangleBorder(
+                            smoothness: 0.8,
+                            borderRadius: BorderRadius.circular(16)),
+                        padding: const EdgeInsets.symmetric(vertical: 18),
                         foregroundColor: AppColors.white,
                         backgroundColor: AppColors.primary,
                       ),
@@ -196,7 +199,6 @@ class _LoginPageState extends State<LoginPage> {
                           Expanded(
                             child: Container(
                               height: 1,
-                              // ignore: deprecated_member_use
                               color: AppColors.lightText.withOpacity(0.75),
                             ),
                           ),
@@ -213,7 +215,6 @@ class _LoginPageState extends State<LoginPage> {
                           Expanded(
                             child: Container(
                               height: 1,
-                              // ignore: deprecated_member_use
                               color: AppColors.lightText.withOpacity(0.75),
                             ),
                           ),
@@ -226,7 +227,10 @@ class _LoginPageState extends State<LoginPage> {
                         Expanded(
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 20),
+                              shape: SmoothRectangleBorder(
+                                  smoothness: 0.8,
+                                  borderRadius: BorderRadius.circular(16)),
+                              padding: const EdgeInsets.symmetric(vertical: 18),
                               foregroundColor: AppColors.white,
                               backgroundColor: AppColors.black,
                             ),

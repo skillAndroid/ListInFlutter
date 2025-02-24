@@ -19,6 +19,7 @@ import 'package:list_in/features/profile/presentation/bloc/publication/publicati
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_event.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:smooth_corner_updated/smooth_corner.dart';
 
 import '../../../profile/presentation/widgets/action_sheet_menu.dart';
 import '../../../profile/presentation/widgets/delete_confirmation.dart';
@@ -256,8 +257,14 @@ class ProfileProductCard extends StatelessWidget {
       },
       child: Padding(
         padding: EdgeInsets.all(3),
-        child: DecoratedBox(
-          decoration: CardDecoration.standard,
+        child: Card(
+          shadowColor: Colors.black.withOpacity(0.25),
+          color: AppColors.white,
+          elevation: 4,
+          margin: EdgeInsets.all(3),
+          shape: SmoothRectangleBorder(
+              smoothness: 0.8, borderRadius: BorderRadius.circular(10)),
+          clipBehavior: Clip.antiAlias,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -265,7 +272,7 @@ class ProfileProductCard extends StatelessWidget {
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(2),
-                    child: ClipRRect(
+                    child: SmoothClipRRect(
                       borderRadius: BorderRadius.circular(10),
                       child: AspectRatio(
                         aspectRatio: 1.15,

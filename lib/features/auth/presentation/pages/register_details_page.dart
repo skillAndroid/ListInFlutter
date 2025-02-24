@@ -252,6 +252,10 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                         ? _submitRegistration
                                         : _nextPage,
                                 style: ElevatedButton.styleFrom(
+                                  shape: SmoothRectangleBorder(
+                                    smoothness: 0.8,
+                                    borderRadius: BorderRadius.circular(16)
+                                  ),
                                   padding:
                                       const EdgeInsets.symmetric(vertical: 17),
                                   backgroundColor: AppColors.primary,

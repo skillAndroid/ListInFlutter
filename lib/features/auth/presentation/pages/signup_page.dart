@@ -124,7 +124,10 @@ class _SignupPageState extends State<SignupPage> {
                     const SizedBox(height: 24),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        shape: SmoothRectangleBorder(
+                            smoothness: 0.8,
+                            borderRadius: BorderRadius.circular(16)),
+                        padding: const EdgeInsets.symmetric(vertical: 18),
                         foregroundColor: AppColors.white,
                         backgroundColor: AppColors.primary,
                       ),
@@ -195,7 +198,10 @@ class _SignupPageState extends State<SignupPage> {
                         Expanded(
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 20),
+                              shape: SmoothRectangleBorder(
+                                  smoothness: 0.8,
+                                  borderRadius: BorderRadius.circular(16)),
+                              padding: const EdgeInsets.symmetric(vertical: 18),
                             ),
                             onPressed: () {},
                             child: const Padding(
@@ -231,7 +237,10 @@ class _SignupPageState extends State<SignupPage> {
                         Expanded(
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 20),
+                              shape: SmoothRectangleBorder(
+                                  smoothness: 0.8,
+                                  borderRadius: BorderRadius.circular(16)),
+                              padding: const EdgeInsets.symmetric(vertical: 18),
                             ),
                             onPressed: () {
                               // Handle Continue with Facebook
@@ -269,7 +278,10 @@ class _SignupPageState extends State<SignupPage> {
                         Expanded(
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 20),
+                              shape: SmoothRectangleBorder(
+                                  smoothness: 0.8,
+                                  borderRadius: BorderRadius.circular(16)),
+                              padding: const EdgeInsets.symmetric(vertical: 18),
                             ),
                             onPressed: () {
                               // Handle Continue with Apple
