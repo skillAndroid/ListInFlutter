@@ -195,7 +195,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                                   child: Stack(
                                     children: [
                                       SmoothClipRRect(
-                                        borderRadius: BorderRadius.circular(24),
+                                        borderRadius: BorderRadius.circular(36),
                                         child: userData.profileImagePath != null
                                             ? CachedNetworkImage(
                                                 width: double.infinity,
