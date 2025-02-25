@@ -282,7 +282,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                 child: _buildStatCard(
                                   'Posts',
                                   '⟶',
-                                  Color(0xFFB2EAB8),
+                                  Color(0xFFADE8B4),
                                   Colors.black,
                                 ),
                               ),
@@ -292,7 +292,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                               child: _buildStatCard(
                                 'Reviews',
                                 '⟶',
-                                Color(0xFFB6EEF5),
+                                Color(0xFFB1E1F2),
                                 Colors.black,
                               ),
                             ),
@@ -311,7 +311,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                 child: _buildStatCard(
                                   'Favorites',
                                   '⟶',
-                                  Color(0xFFFEC772),
+                                  Color(0xFFD0F0E4),
                                   Colors.black,
                                 ),
                               ),
@@ -345,10 +345,16 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                     () {},
                   ),
                   _buildMenuItem(
+                    'Help us with your idea',
+                    AppIcons.ideaIc,
+                    () {},
+                  ),
+                  _buildMenuItem(
                     'Support',
                     AppIcons.supportIc,
                     () {},
                   ),
+
                   _buildMenuItem(
                     'Logout',
                     AppIcons.logoutIc,

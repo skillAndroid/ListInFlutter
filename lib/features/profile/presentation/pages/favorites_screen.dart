@@ -44,7 +44,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor:  Color(0xFFFEC772),
+        backgroundColor:  Color(0xFFD0F0E4),
         elevation: 0,
         automaticallyImplyLeading: false,
         scrolledUnderElevation: 0,
