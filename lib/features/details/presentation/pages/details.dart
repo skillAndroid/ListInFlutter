@@ -111,11 +111,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         currentUserId == widget.product.seller.id; // Check if user is owner
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.white,
       appBar: AppBar(
         elevation: 0,
         scrolledUnderElevation: 0,
-        backgroundColor: AppColors.white,
+        backgroundColor: AppColors.containerColor,
         flexibleSpace: _buildTopBar(isOwner),
       ),
       bottomNavigationBar: AnimatedSwitcher(
@@ -234,7 +234,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                     width: 24,
                                     height: 24,
                                     color: isLiked
-                                        ? AppColors.primary
+                                        ? AppColors.error
                                         : AppColors.black,
                                     fit: BoxFit.contain,
                                   ),
@@ -383,8 +383,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     return SizedBox(
       height: 50,
       child: SmoothClipRRect(
-        smoothness: 0.9,
-        borderRadius: BorderRadius.circular(12),
+        smoothness: 0.8,
+        borderRadius: BorderRadius.circular(13),
         child: Material(
           color: color,
           child: InkWell(
@@ -393,7 +393,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             child: SmoothClipRRect(
               smoothness: 0.9,
               borderRadius: BorderRadius.circular(10),
-              side: BorderSide(color: borderColor ?? AppColors.transparent),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -639,20 +638,21 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           ),
         ),
         _buildTitle(),
-        const SizedBox(height: 12),
-        _buildShopInfo(isOwner),
-        const SizedBox(height: 20),
-        InkWell(
-            onTap: () {
-              if (!isOwner) {
-                context.push(Routes.anotherUserProfile, extra: {
-                  'userId': widget.product.seller.id,
-                });
-              } else {}
-            },
-            child: _buildLocation()),
-        _buildSellerInfo(),
+        const SizedBox(height: 8),
+        //   InkWell(
+        //       onTap: () {
+        //         if (!isOwner) {
+        //           context.push(Routes.anotherUserProfile, extra: {
+        //             'userId': widget.product.seller.id,
+        //           });
+        //         } else {}
+        //       },
+        //       child: _buildLocation()),
+        //  // _buildSellerInfo(),
         _buildCalMessageButtons(isOwner),
+        const SizedBox(
+          height: 8,
+        ),
         _buildLocationInfo(isOwner),
         SizedBox(
           height: 4,
@@ -893,85 +893,24 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              const Icon(
-                Icons.location_on,
-                color: Colors.red,
-                size: 19,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                widget.product.seller.locationName,
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-              ),
-            ],
-          ),
-          const SizedBox(height: 2),
-          Row(
-            children: [
-              const Icon(
-                Icons.access_time,
-                color: Colors.blue,
-                size: 19,
-              ),
-              const SizedBox(width: 8),
-              RichText(
-                text: TextSpan(
-                  style: const TextStyle(color: AppColors.darkGray, fontSize: 13),
-                  children: [
-                    const TextSpan(
-                      text: "Working hours: ",
-                      style: TextStyle(fontFamily: "Poppins"),
-                    ),
-                    TextSpan(
-                      text:
-                          "${widget.product.seller.fromTime} - ${widget.product.seller.toTime}",
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontFamily: "Poppins",
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 2),
           InkWell(
-            onTap: () {
-              if (widget.product.seller.isGrantedForPreciseLocation) {
-                Navigator.of(context).push(
-                  CupertinoPageRoute(
-                    builder: (context) => FullScreenMap(
-                      latitude: widget.product.latitude!,
-                      longitude: widget.product.longitude!,
-                      locationName: widget.product.seller.locationName,
-                    ),
-                  ),
-                );
-              } else {
-                showLocationPrivacySheet(context);
-              }
-            },
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.arrow_right_alt,
-                  color: Colors.blue,
-                  size: 19,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'Show in map',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.blue,
-                  ),
-                ),
-              ],
+            child: Text(
+              widget.product.seller.locationName,
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w400,
+                color: AppColors.black,
+              ),
+            ),
+          ),
+          InkWell(
+            child: Text(
+              'Show in map',
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Colors.blue,
+              ),
             ),
           ),
         ],
@@ -1202,11 +1141,12 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
   Widget _buildPrice() {
     return Text(
-      "${formatPrice(widget.product.price.toString())} Uz",
+      "${formatPrice(widget.product.price.toString())} so'm",
       style: const TextStyle(
         height: 1.2,
-        fontSize: 24,
-        fontWeight: FontWeight.w700,
+        fontSize: 30,
+        fontWeight: FontWeight.w600,
+        color: AppColors.black,
       ),
     );
   }
@@ -1217,7 +1157,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       child: Text(
         widget.product.title,
         style: const TextStyle(
-          fontSize: 20,
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
           color: Colors.black,
         ),
       ),
@@ -1227,23 +1168,13 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   Widget _buildLocation() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            widget.product.seller.nickName,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          Text(
-            'Created: ${DateFormat('dd MMMM yyyy').format(widget.product.seller.dateCreated)}',
-            style: TextStyle(
-              color: AppColors.darkGray,
-            ),
-          ),
-        ],
+      child: Text(
+        widget.product.seller.nickName,
+        style: const TextStyle(
+          fontSize: 24,
+          color: AppColors.black,
+          fontWeight: FontWeight.w700,
+        ),
       ),
     );
   }
@@ -1258,7 +1189,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               Text(
                 '5.0',
                 style: const TextStyle(
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.black,
                 ),
               ),
             ],
@@ -1279,7 +1211,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           Text(
             '0 отзыв',
             style: TextStyle(
-              color: Colors.grey[600],
+              fontWeight: FontWeight.w500,
+              color: AppColors.black,
             ),
           ),
         ],
@@ -1292,7 +1225,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       key: Key('cal_message_visibility'),
       onVisibilityChanged: _onVisibilityChanged,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
         child: Row(
           children: [
             if (!isOwner) ...[
@@ -1300,7 +1233,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 child: _buildButton(
                   icon: EvaIcons.phoneCall,
                   label: 'Call',
-                  color: AppColors.primary,
+                  color: CupertinoColors.activeGreen,
                   textColor: Colors.white,
                   onPressed: () {
                     _makeCall(context, widget.product.seller.phoneNumber);
@@ -1369,42 +1302,16 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w600,
+              color: AppColors.black,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             widget.product.description,
-            maxLines: isMore == true ? 100 : 5,
             style: TextStyle(
               color: AppColors.darkBackground,
               fontSize: 14,
               height: 1.5,
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              if (isMore) {
-                setState(() {
-                  isMore = false;
-                });
-              } else {
-                setState(() {
-                  isMore = true;
-                });
-              }
-            },
-            style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-            child: Text(
-              isMore == true ? "Less" : 'More',
-              style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.blue,
-                  fontFamily: "Poppins"),
             ),
           ),
         ],
@@ -1442,6 +1349,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w600,
+              color: AppColors.black,
             ),
           ),
           const SizedBox(height: 6),
@@ -1451,7 +1359,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 feature.value,
               )),
           // Show "See All" button if there are more items
-          if (features.length > 5)
+          if (features.length > 12)
             Padding(
               padding: const EdgeInsets.only(top: 0),
               child: GestureDetector(
@@ -1514,25 +1422,19 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            flex: 2,
-            child: Text(
-              label,
-              style: TextStyle(
-                color: AppColors.darkGray,
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
+          Text(
+            '$label: ',
+            style: TextStyle(
+              color: AppColors.darkGray,
+              fontSize: 14,
             ),
           ),
-          Expanded(
-            flex: 3,
-            child: Text(
-              value,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: AppColors.black,
             ),
           ),
         ],
