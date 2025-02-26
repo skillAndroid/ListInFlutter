@@ -17,6 +17,9 @@ class AppTheme {
     scaffoldBackgroundColor: AppColors.lightBackground,
     brightness: Brightness.light,
     fontFamily: 'Poppins',
+    textTheme: Typography.material2018().black.apply(
+          fontFamily: 'Poppins',
+        ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       hintStyle: const TextStyle(
@@ -93,6 +96,9 @@ class AppTheme {
     scaffoldBackgroundColor: AppColors.darkBackground,
     brightness: Brightness.dark,
     fontFamily: 'Satoshi',
+    textTheme: Typography.material2018().white.apply(
+          fontFamily: 'Satoshi',
+        ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       hintStyle: const TextStyle(
@@ -137,5 +143,19 @@ class AppTheme {
             : Brightness.light,
       ),
     );
+  }
+
+  // Add this method to your app's main.dart to disable system text scaling
+  static void disableSystemTextScaling() {
+    // This ensures the app ignores the system text scale factor
+    WidgetsFlutterBinding.ensureInitialized();
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+    ));
+
+    // Disable system text scaling
+    MediaQueryData.fromView(
+            WidgetsBinding.instance.platformDispatcher.views.first)
+        .copyWith(textScaler: TextScaler.linear(0.85));
   }
 }

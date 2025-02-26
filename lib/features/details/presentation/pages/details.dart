@@ -115,7 +115,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       appBar: AppBar(
         elevation: 0,
         scrolledUnderElevation: 0,
-        backgroundColor: AppColors.white,
+        backgroundColor: AppColors.containerColor,
         flexibleSpace: _buildTopBar(isOwner),
       ),
       bottomNavigationBar: AnimatedSwitcher(

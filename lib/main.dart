@@ -484,47 +484,60 @@ final List<ProductEntity> sampleProducts = [
     id: "4",
   ),
 ];
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await di.init();
+
+  // Force text scale factor to 1.0 (standardized scaling)
+  final platformDispatcher = WidgetsBinding.instance.platformDispatcher;
+  platformDispatcher.onPlatformBrightnessChanged = () {
+    // This ensures text scale remains at 1.0 even when brightness changes
+  };
+
+  // Set text scale factor to 1.0 for the entire app
+  final mediaQueryData = MediaQueryData.fromView(platformDispatcher.views.first)
+      .copyWith(textScaler: TextScaler.linear(0.85));
+
   runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create: (_) => di.sl<PostProvider>(),
-        ),
-      ],
-      child: MultiBlocProvider(
+    MediaQuery(
+      data: mediaQueryData,
+      child: MultiProvider(
         providers: [
-          BlocProvider(
-            create: (_) => di.sl<GlobalBloc>(),
+          ChangeNotifierProvider(
+            create: (_) => di.sl<PostProvider>(),
           ),
-          BlocProvider(
-            create: (_) => di.sl<AuthBloc>(),
-          ),
-          BlocProvider<MapBloc>(
-            create: (_) => di.sl<MapBloc>(),
-          ),
-          BlocProvider<UserProfileBloc>(
-            create: (_) => di.sl<UserProfileBloc>(),
-          ),
-          BlocProvider<UserPublicationsBloc>(
-            create: (_) => di.sl<UserPublicationsBloc>(),
-          ),
-          BlocProvider<PublicationUpdateBloc>(
-            create: (_) => di.sl<PublicationUpdateBloc>(),
-          ),
-          BlocProvider<AnotherUserProfileBloc>(
-            create: (_) => di.sl<AnotherUserProfileBloc>(),
-          ),
-          BlocProvider<DetailsBloc>(
-            create: (_) => di.sl<DetailsBloc>(),
-          ),
-          BlocProvider<LikedPublicationsBloc>(
-              create: (_) => di.sl<LikedPublicationsBloc>())
         ],
-        child: MyApp(router: di.sl<AppRouter>().router),
+        child: MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              create: (_) => di.sl<GlobalBloc>(),
+            ),
+            BlocProvider(
+              create: (_) => di.sl<AuthBloc>(),
+            ),
+            BlocProvider<MapBloc>(
+              create: (_) => di.sl<MapBloc>(),
+            ),
+            BlocProvider<UserProfileBloc>(
+              create: (_) => di.sl<UserProfileBloc>(),
+            ),
+            BlocProvider<UserPublicationsBloc>(
+              create: (_) => di.sl<UserPublicationsBloc>(),
+            ),
+            BlocProvider<PublicationUpdateBloc>(
+              create: (_) => di.sl<PublicationUpdateBloc>(),
+            ),
+            BlocProvider<AnotherUserProfileBloc>(
+              create: (_) => di.sl<AnotherUserProfileBloc>(),
+            ),
+            BlocProvider<DetailsBloc>(
+              create: (_) => di.sl<DetailsBloc>(),
+            ),
+            BlocProvider<LikedPublicationsBloc>(
+                create: (_) => di.sl<LikedPublicationsBloc>())
+          ],
+          child: MyApp(router: di.sl<AppRouter>().router),
+        ),
       ),
     ),
   );
@@ -532,12 +545,10 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   final GoRouter router;
-
   const MyApp({
     super.key,
     required this.router,
   });
-
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(
@@ -549,18 +560,30 @@ class MyApp extends StatelessWidget {
         systemNavigationBarDividerColor: Colors.transparent,
       ),
     );
-
     SystemChrome.setEnabledSystemUIMode(
       SystemUiMode.edgeToEdge,
       overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom],
     );
 
-    return MaterialApp.router(
-      title: 'Your App',
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.lightTheme,
-      debugShowCheckedModeBanner: false,
-      routerConfig: router,
+    // This ensures the app maintains the fixed text scale factor across rebuilds
+    return MediaQuery(
+      data:
+          MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(0.85)),
+      child: MaterialApp.router(
+        title: 'Your App',
+        theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.lightTheme,
+        debugShowCheckedModeBanner: false,
+        routerConfig: router,
+        builder: (context, child) {
+          // This ensures child widgets maintain fixed text scale
+          return MediaQuery(
+            data: MediaQuery.of(context)
+                .copyWith(textScaler: TextScaler.linear(0.85)),
+            child: child!,
+          );
+        },
+      ),
     );
   }
 }

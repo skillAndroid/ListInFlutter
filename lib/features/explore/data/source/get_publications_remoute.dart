@@ -5,7 +5,7 @@ import 'package:list_in/core/services/auth_service.dart';
 import 'package:list_in/features/explore/data/models/filter_publications_values_model.dart';
 import 'package:list_in/features/explore/data/models/prediction_model.dart';
 import 'package:list_in/features/explore/data/models/publication_model.dart';
-
+//
 abstract class PublicationsRemoteDataSource {
   Future<List<PublicationPairModel>> getPublications({
     String? sellerType,
