@@ -4,7 +4,6 @@ import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/auth/data/models/auth_token_model.dart';
 import 'package:list_in/features/auth/data/models/retrived_email_model.dart';
 import 'package:list_in/features/auth/domain/entities/retrived_email.dart';
-import 'package:list_in/features/profile/domain/usecases/user/get_user_data_usecase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 abstract class AuthLocalDataSource {
   Future<void> cacheAuthToken(AuthTokenModel authToken);
@@ -85,25 +84,5 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   @override
   Future<String?> getProfileImagePath() async {
     return sharedPreferences.getString(Constants.CACHED_PROFILE_IMAGE_PATH);
-  }
-  
-  // Helper method to load profile image into AppSession (call this during app initialization)
-  Future<void> loadCachedProfileImage() async {
-    String? profileImagePath = await getProfileImagePath();
-    String? userId = await getUserId();
-    
-    if (userId != null) {
-      AppSession.currentUserId = userId;
-    }
-    
-    if (profileImagePath != null && profileImagePath.isNotEmpty) {
-      AppSession.profileImagePath = profileImagePath;
-      
-      if (profileImagePath.startsWith('http')) {
-        AppSession.profileImageUrl = profileImagePath;
-      } else {
-        AppSession.profileImageUrl = "https://$profileImagePath";
-      }
-    }
   }
 }

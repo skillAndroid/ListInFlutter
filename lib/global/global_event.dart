@@ -25,6 +25,7 @@ class UpdateViewStatusEvent extends GlobalEvent {
 
 
 class FetchUserIdEvent extends GlobalEvent {}
+class FetchUserImageEvent extends GlobalEvent {}
 
 
 class UpdateLikeStatusEvent extends GlobalEvent {

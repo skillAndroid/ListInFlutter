@@ -19,6 +19,7 @@ class GlobalBloc extends Bloc<GlobalEvent, GlobalState> {
   final ViewPublicationUsecase viewPublicationUsecase;
   final AuthLocalDataSource authLocalDataSource;
   String? userId;
+  String? profileImagePath;
   GlobalBloc({
     required this.followUserUseCase,
     required this.likePublicationUsecase,
@@ -31,7 +32,9 @@ class GlobalBloc extends Bloc<GlobalEvent, GlobalState> {
     on<SyncLikeStatusesEvent>(_onSyncLikeStatuses);
     on<UpdateViewStatusEvent>(_onUpdateViewStatus);
     on<FetchUserIdEvent>(_onFetchUserId);
+    on<FetchUserImageEvent>(_onFetchUserImage);
     add(FetchUserIdEvent());
+    add(FetchUserImageEvent());
   }
 
   Future<void> _onFetchUserId(
@@ -49,9 +52,30 @@ class GlobalBloc extends Bloc<GlobalEvent, GlobalState> {
     debugPrint('🎯 GlobalBloc fetched userId: $userId');
   }
 
+  Future<void> _onFetchUserImage(
+      FetchUserImageEvent event, Emitter<GlobalState> emit) async {
+    profileImagePath = AppSession.profileImagePath;
+
+    if (profileImagePath == null) {
+      profileImagePath = await authLocalDataSource.getProfileImagePath();
+
+      if (profileImagePath != null) {
+        AppSession.profileImagePath = profileImagePath;
+      }
+    }
+
+    debugPrint('🎯 GlobalBloc fetched userId: $userId');
+  }
+
   String? getUserId() {
     return userId;
   }
+
+  String? getUserProfileImage() {
+    return profileImagePath;
+  }
+  
+  
 
   Future<void> _onUpdateViewStatus(
     UpdateViewStatusEvent event,
