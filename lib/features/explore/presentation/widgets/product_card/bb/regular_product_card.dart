@@ -78,7 +78,7 @@ class ProductCardViewModel {
 // Main product card widget
 class OptimizedProductCard extends StatelessWidget {
   static const double _imageAspectRatio = 1;
-  static const double _detailsHeight = 124;
+  static const double _detailsHeight = 118;
 
   final ProductCardViewModel model;
   final VoidCallback? onTap;
