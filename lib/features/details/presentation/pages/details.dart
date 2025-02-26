@@ -6,7 +6,6 @@ import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ionicons/ionicons.dart';
@@ -14,14 +13,11 @@ import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/details/presentation/bloc/details_bloc.dart';
-import 'package:list_in/features/details/presentation/bloc/details_state.dart';
 import 'package:list_in/features/details/presentation/pages/product_images_detailed.dart';
 import 'package:list_in/features/details/presentation/pages/video_details.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/formaters.dart';
-import 'package:list_in/features/explore/presentation/widgets/product_card/bb/regular_product_card.dart';
-import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
 import 'package:list_in/features/profile/domain/usecases/user/get_user_data_usecase.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
@@ -36,7 +32,6 @@ import 'package:list_in/global/global_state.dart';
 import 'package:list_in/global/global_status.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:visibility_detector/visibility_detector.dart';
 
 import '../bloc/details_event.dart';
 
@@ -58,18 +53,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
   bool isMore = false;
-
-  bool _isBottomButtonVisible = false;
-
-  void _onVisibilityChanged(VisibilityInfo info) {
-    bool shouldShowBottomButton = info.visibleFraction < 0.1;
-
-    if (_isBottomButtonVisible != shouldShowBottomButton) {
-      setState(() {
-        _isBottomButtonVisible = shouldShowBottomButton;
-      });
-    }
-  }
 
   @override
   void initState() {
@@ -116,19 +99,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         automaticallyImplyLeading: false,
         backgroundColor: AppColors.white,
         flexibleSpace: _buildTopBar(isOwner),
-      ),
-      bottomNavigationBar: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
-        transitionBuilder: (child, animation) => SlideTransition(
-          position: Tween(
-            begin: Offset(0, 1),
-            end: Offset(0, 0),
-          ).animate(animation),
-          child: child,
-        ),
-        child: _isBottomButtonVisible
-            ? _buildBottomButtons(isOwner)
-            : SizedBox.shrink(),
       ),
       body: Stack(
         children: [
@@ -258,121 +228,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           icon,
           color: Colors.black,
           size: 22,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBottomButtons(bool isOwner) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 16, right: 16, top: 6, bottom: 16),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-        ),
-        child: Row(
-          children: [
-            if (!isOwner) ...[
-              Expanded(
-                child: _buildButton(
-                  icon: EvaIcons.phoneCall,
-                  label: 'Call',
-                  color: AppColors.primary,
-                  textColor: Colors.white,
-                  onPressed: () {
-                    _makeCall(context, widget.product.seller.phoneNumber);
-                  },
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _buildButton(
-                  icon: EvaIcons.messageSquare,
-                  label: 'Message',
-                  color: Colors.blue,
-                  textColor: AppColors.white,
-                  borderColor: AppColors.containerColor,
-                  onPressed: () {/* Message logic */},
-                ),
-              ),
-            ],
-            if (isOwner) ...[
-              Expanded(
-                child: _buildButton(
-                  icon: EvaIcons.edit,
-                  label: 'Edit',
-                  color: AppColors.primary,
-                  textColor: Colors.white,
-                  onPressed: () {
-                    context
-                        .read<PublicationUpdateBloc>()
-                        .add(InitializePublication(widget.product));
-                    context.push(
-                      Routes.publicationsEdit,
-                      extra: widget.product,
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _buildButton(
-                  icon: CupertinoIcons.delete,
-                  label: 'Delete',
-                  color: AppColors.error,
-                  textColor: AppColors.white,
-                  borderColor: AppColors.containerColor,
-                  onPressed: () {
-                    _showDeleteConfirmation(context);
-                  },
-                ),
-              ),
-            ]
-          ],
-        ),
-        //
-      ),
-    );
-  }
-
-  Widget _buildButton({
-    required IconData icon,
-    required String label,
-    required Color color,
-    required Color textColor,
-    Color? borderColor,
-    required VoidCallback onPressed,
-  }) {
-    return SizedBox(
-      height: 50,
-      child: SmoothClipRRect(
-        smoothness: 0.8,
-        borderRadius: BorderRadius.circular(13),
-        child: Material(
-          color: color,
-          child: InkWell(
-            onTap: onPressed,
-            borderRadius: BorderRadius.circular(8),
-            child: SmoothClipRRect(
-              smoothness: 0.9,
-              borderRadius: BorderRadius.circular(10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(icon, color: textColor, size: 20),
-                  const SizedBox(width: 6),
-                  Text(
-                    label,
-                    style: TextStyle(
-                      color: textColor,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
         ),
       ),
     );
