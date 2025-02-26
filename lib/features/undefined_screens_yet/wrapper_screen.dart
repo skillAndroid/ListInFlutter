@@ -1,10 +1,14 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:list_in/config/assets/app_icons.dart';
+import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
+import 'package:list_in/features/profile/domain/usecases/user/get_user_data_usecase.dart';
 
 class MainWrapper extends StatefulWidget {
   final StatefulNavigationShell navigationShell;
@@ -77,31 +81,72 @@ class _MainWrapperState extends State<MainWrapper> {
                   ),
                 ),
                 child: SizedBox(
-                  height: 75,
+                  height: 73,
                   child: BottomNavigationBar(
                     backgroundColor: AppColors.white,
-                    selectedItemColor: AppColors.primary,
+                    selectedItemColor: AppColors.black,
                     unselectedItemColor: CupertinoColors.inactiveGray,
                     currentIndex: _selectedIndex,
                     onTap: (index) => _goToBranch(index),
                     type: BottomNavigationBarType.fixed,
                     showSelectedLabels: true,
                     showUnselectedLabels: true,
-                    selectedLabelStyle:
-                        const TextStyle(fontWeight: FontWeight.bold),
-                    unselectedLabelStyle:
-                        const TextStyle(fontWeight: FontWeight.bold),
-                    items: const [
+                    selectedLabelStyle: const TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 13,
+                    ),
+                    unselectedLabelStyle: const TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 13,
+                    ),
+                    items: [
+                      // Home with custom image
                       BottomNavigationBarItem(
-                        icon: Icon(CupertinoIcons.home, size: 23),
-                        label: 'Home',
+                        icon: Image.asset(
+                          AppIcons.bg_icon,
+                          height: 24,
+                          width: 24,
+                          color: _selectedIndex == 0
+                              ? AppColors.black
+                              : CupertinoColors.inactiveGray,
+                        ),
+                        label: 'Search',
                       ),
-                      BottomNavigationBarItem(
+                      // Add Post - keeping the original icon
+                      const BottomNavigationBarItem(
                         icon: Icon(CupertinoIcons.plus_circled, size: 28),
                         label: 'Add Post',
                       ),
+                      // Profile with user avatar
                       BottomNavigationBarItem(
-                        icon: Icon(CupertinoIcons.person_fill, size: 23),
+                        icon: ClipRRect(
+                          borderRadius: BorderRadius.circular(15),
+                          child: SizedBox(
+                            height: 24,
+                            width: 24,
+                            child: AppSession.profileImageUrl != null &&
+                                    AppSession.profileImageUrl!.isNotEmpty
+                                ? CachedNetworkImage(
+                                    imageUrl: AppSession.profileImageUrl!,
+                                    placeholder: (context, url) => Container(
+                                      color: Colors.grey[300],
+                                    ),
+                                    errorWidget: (context, url, error) => Icon(
+                                      CupertinoIcons.person_fill,
+                                      size: 23,
+                                      color: _selectedIndex == 2
+                                          ? AppColors.black
+                                          : CupertinoColors.inactiveGray,
+                                    ),
+                                    fit: BoxFit.cover,
+                                  )
+                                : Image.asset(
+                                    AppImages.appLogo,
+                                    height: 24,
+                                    width: 24,
+                                  ),
+                          ),
+                        ),
                         label: 'Profile',
                       ),
                     ],

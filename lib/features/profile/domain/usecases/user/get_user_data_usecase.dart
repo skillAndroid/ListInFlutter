@@ -5,31 +5,50 @@ import 'package:list_in/core/usecases/usecases.dart';
 import 'package:list_in/features/auth/data/sources/auth_local_data_source.dart';
 import 'package:list_in/features/profile/domain/entity/user/user_data_entity.dart';
 import 'package:list_in/features/profile/domain/repository/user_profile_repository.dart';
-
 class GetUserDataUseCase extends UseCase2<UserDataEntity, NoParams> {
   final UserProfileRepository repository;
   final AuthLocalDataSource authLocalDataSource;
-
+  
   GetUserDataUseCase(this.repository, this.authLocalDataSource);
-
+  
   @override
   Future<Either<Failure, UserDataEntity>> call({NoParams? params}) async {
     debugPrint('🎯 GetUserDataUseCase called');
     final result = await repository.getUserData();
-
-    String? userId;
+    
     result.fold(
       (failure) => null,
       (userData) async {
-        userId = userData.id;
-        await authLocalDataSource.cacheUserId(userId!);
-
-        // Here's the key part - immediately update a global static variable
+        // Cache user ID
+        String userId = userData.id;
+        await authLocalDataSource.cacheUserId(userId);
+        
+        // Update global session variables
         AppSession.currentUserId = userId;
+        
+        // Cache profile image if available
+        if (userData.profileImagePath != null && userData.profileImagePath!.isNotEmpty) {
+          await authLocalDataSource.cacheProfileImagePath(userData.profileImagePath!);
+          AppSession.profileImagePath = userData.profileImagePath;
+          
+          // Create full URL if needed (adjust the URL formation according to your API structure)
+          if (userData.profileImagePath!.startsWith('http')) {
+            AppSession.profileImageUrl = userData.profileImagePath;
+          } else {
+            AppSession.profileImageUrl = "https://${userData.profileImagePath}";
+          }
+        } else {
+          // Clear profile image cache if none available
+          await authLocalDataSource.cacheProfileImagePath('');
+          AppSession.profileImagePath = null;
+          AppSession.profileImageUrl = null;
+        }
+        
         debugPrint('🎯 User ID set in AppSession: $userId');
+        debugPrint('🎯 Profile image set in AppSession: ${AppSession.profileImageUrl}');
       },
     );
-
+    
     debugPrint('🎯 GetUserDataUseCase result: $result');
     return result;
   }
@@ -37,8 +56,18 @@ class GetUserDataUseCase extends UseCase2<UserDataEntity, NoParams> {
 
 class AppSession {
   static String? currentUserId;
+  static String? profileImagePath;
+  static String? profileImageUrl;
 
   // You can add more session-related variables here
-
   static bool get isLoggedIn => currentUserId != null;
+
+  // Helper to get profile image URL
+  static String get userAvatar {
+    if (profileImageUrl != null && profileImageUrl!.isNotEmpty) {
+      return profileImageUrl!;
+    }
+
+    return 'assets/images/list_in.png';
+  }
 }

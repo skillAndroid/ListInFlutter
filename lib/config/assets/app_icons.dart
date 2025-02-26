@@ -27,5 +27,6 @@ class AppIcons {
   static const cardIc = '${_basePath}card_ic$_format';
 
   static const ideaIc = '${_basePath}idea_ic$_format';
-  
+
+  static const bg_icon = '${_basePath}bg_transparent_list_in$_format';
 }
