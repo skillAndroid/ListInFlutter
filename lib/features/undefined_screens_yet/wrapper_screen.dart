@@ -3,14 +3,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/profile/domain/usecases/user/get_user_data_usecase.dart';
-import 'package:list_in/global/global_bloc.dart';
 
 class MainWrapper extends StatefulWidget {
   final StatefulNavigationShell navigationShell;
@@ -54,13 +52,8 @@ class _MainWrapperState extends State<MainWrapper> {
     return true; // Allow app to close if already on home
   }
 
-  
-
   @override
   Widget build(BuildContext context) {
-    final String location = GoRouterState.of(context).matchedLocation;
-    final bool showBottomNav = !location.startsWith(Routes.post);
-
     if (_selectedIndex != widget.navigationShell.currentIndex &&
         widget.navigationShell.currentIndex != 1) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -71,111 +64,153 @@ class _MainWrapperState extends State<MainWrapper> {
     }
 
     return WillPopScope(
-      onWillPop: _onWillPop, // Handle back button behavior
+      onWillPop: _onWillPop,
       child: Scaffold(
         backgroundColor: AppColors.white,
         body: widget.navigationShell,
-        bottomNavigationBar: showBottomNav
-            ? Container(
-                decoration: BoxDecoration(
-                  border: Border(
-                    top: BorderSide(
-                      color: Colors.white,
-                      width: 0.5,
-                    ),
-                  ),
-                ),
-                child: SizedBox(
-                  height: 64,
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        height: 60,
-                        child: BottomNavigationBar(
-                          backgroundColor: AppColors.white,
-                          selectedItemColor: AppColors.black,
-                          unselectedItemColor: CupertinoColors.inactiveGray,
-                          currentIndex: _selectedIndex,
-                          onTap: (index) => _goToBranch(index),
-                          type: BottomNavigationBarType.fixed,
-                          showSelectedLabels: true,
-                          showUnselectedLabels: true,
-                          selectedLabelStyle: const TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 13,
-                          ),
-                          unselectedLabelStyle: const TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 13,
-                          ),
-                          items: [
-                            // Home with custom image
-                            BottomNavigationBarItem(
-                              icon: Image.asset(
-                                AppIcons.bg_icon,
-                                height: 24,
-                                width: 24,
-                                color: _selectedIndex == 0
-                                    ? AppColors.black
-                                    : CupertinoColors.inactiveGray,
-                              ),
-                              label: 'Search',
-                            ),
-                            // Add Post - keeping the original icon
-                            const BottomNavigationBarItem(
-                              icon: Icon(CupertinoIcons.plus_circled, size: 28),
-                              label: 'Add Post',
-                            ),
-                            // Profile with user avatar
-                            BottomNavigationBarItem(
-                              icon: ClipRRect(
-                                borderRadius: BorderRadius.circular(15),
-                                child: SizedBox(
-                                    height: 24,
-                                    width: 24,
-                                    child: AppSession.profileImagePath != null &&
-                                            AppSession
-                                                .profileImagePath!.isNotEmpty
-                                        ? CachedNetworkImage(
-                                            imageUrl:
-                                                "https://${AppSession.profileImagePath}",
-                                            placeholder: (context, url) =>
-                                                Container(
-                                              color: Colors.grey[300],
-                                            ),
-                                            errorWidget:
-                                                (context, url, error) => Icon(
-                                              CupertinoIcons.person_fill,
-                                              size: 23,
-                                              color: _selectedIndex == 2
-                                                  ? AppColors.black
-                                                  : CupertinoColors
-                                                      .inactiveGray,
-                                            ),
-                                            fit: BoxFit.cover,
-                                          )
-                                        : Icon(
-                                            Ionicons.person_circle,
-                                            size: 24,
-                                            color: _selectedIndex == 2
-                                                ? AppColors.black
-                                                : CupertinoColors.inactiveGray,
-                                          )),
-                              ),
-                              label: 'Profile',
-                            ),
-                          ],
+        bottomNavigationBar: Container(
+          height: 65, // Updated height to 65
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            border: Border(
+              top: BorderSide(
+                color: Colors.grey,
+                width: 0.5,
+              ),
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            crossAxisAlignment: CrossAxisAlignment.start, // Align to top
+            children: [
+              _buildNavItem(0, 'Search', AppIcons.bg_icon),
+              _buildAddPostButton(),
+              _buildProfileItem(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Custom method to build navigation items
+  Widget _buildNavItem(int index, String label, String iconAsset) {
+    bool isSelected = _selectedIndex == index;
+    return InkWell(
+      onTap: () => _goToBranch(index),
+      child: Padding(
+        padding: const EdgeInsets.only(
+            top: 10), // Add padding to push content to top
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(
+              iconAsset,
+              height: 24,
+              width: 24,
+              color: isSelected ? Colors.green : CupertinoColors.inactiveGray,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 12.5,
+                color:
+                    isSelected ? AppColors.black : CupertinoColors.inactiveGray,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Add post button
+  Widget _buildAddPostButton() {
+    return InkWell(
+      onTap: () => _goToBranch(1),
+      child: Padding(
+        padding:
+            const EdgeInsets.only(top: 6), // Add padding to push content to top
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              CupertinoIcons.plus_circled,
+              size: 28,
+              color: CupertinoColors.inactiveGray,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Add Post',
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 12.5,
+                color: _selectedIndex == 1
+                    ? AppColors.black
+                    : CupertinoColors.inactiveGray,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Profile item
+  Widget _buildProfileItem() {
+    bool isSelected = _selectedIndex == 2;
+    return InkWell(
+      onTap: () => _goToBranch(2),
+      child: Padding(
+        padding: const EdgeInsets.only(
+            top: 10), // Add padding to push content to top
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(15),
+              child: SizedBox(
+                height: 24,
+                width: 24,
+                child: AppSession.profileImagePath != null &&
+                        AppSession.profileImagePath!.isNotEmpty
+                    ? CachedNetworkImage(
+                        imageUrl: "https://${AppSession.profileImagePath}",
+                        placeholder: (context, url) => Container(
+                          color: Colors.grey[300],
                         ),
+                        errorWidget: (context, url, error) => Icon(
+                          CupertinoIcons.person_fill,
+                          size: 23,
+                          color: isSelected
+                              ? AppColors.black
+                              : CupertinoColors.inactiveGray,
+                        ),
+                        fit: BoxFit.cover,
+                      )
+                    : Icon(
+                        Ionicons.person_circle,
+                        size: 24,
+                        color: isSelected
+                            ? AppColors.black
+                            : CupertinoColors.inactiveGray,
                       ),
-                      Container(
-                        color: AppColors.white,
-                        height: 4,
-                      ),
-                    ],
-                  ),
-                ),
-              )
-            : null,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Profile',
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 12.5,
+                color:
+                    isSelected ? AppColors.black : CupertinoColors.inactiveGray,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
