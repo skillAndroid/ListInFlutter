@@ -16,38 +16,28 @@ class GetUserDataUseCase extends UseCase2<UserDataEntity, NoParams> {
   Future<Either<Failure, UserDataEntity>> call({NoParams? params}) async {
     debugPrint('🎯 GetUserDataUseCase called');
     final result = await repository.getUserData();
-
     result.fold(
       (failure) => null,
       (userData) async {
-        // Cache user ID
         String userId = userData.id;
         await authLocalDataSource.cacheUserId(userId);
-
-        // Update global session variables
         AppSession.currentUserId = userId;
-
-        // Cache profile image if available
         if (userData.profileImagePath != null &&
             userData.profileImagePath!.isNotEmpty) {
           await authLocalDataSource
               .cacheProfileImagePath(userData.profileImagePath!);
           AppSession.profileImagePath = userData.profileImagePath;
-
           AppSession.profileImageUrl = "https://${userData.profileImagePath}";
-        } else {
-          // Clear profile image cache if none available
+        } else {         
           await authLocalDataSource.cacheProfileImagePath('');
           AppSession.profileImagePath = null;
           AppSession.profileImageUrl = null;
         }
-
         debugPrint('🎯 User ID set in AppSession: $userId');
         debugPrint(
             '🎯 Profile image set in AppSession: ${AppSession.profileImageUrl}');
       },
     );
-
     debugPrint('🎯 GetUserDataUseCase result: $result');
     return result;
   }
@@ -57,8 +47,5 @@ class AppSession {
   static String? currentUserId;
   static String? profileImagePath;
   static String? profileImageUrl;
-
-  // You can add more session-related variables here
   static bool get isLoggedIn => currentUserId != null;
-
 }

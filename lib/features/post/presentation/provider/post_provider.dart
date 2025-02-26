@@ -252,7 +252,6 @@ class PostProvider extends ChangeNotifier {
       }
     }
 
-    // Debug printing
     debugPrint("Attribute requests:");
     for (var request in attributeRequests) {
       print("Attribute ID: ${request.attributeId}");
@@ -261,7 +260,6 @@ class PostProvider extends ChangeNotifier {
     }
   }
 
-//
   bool _validatePost() {
     return _postTitle.isNotEmpty &&
         _postDescription.isNotEmpty &&
@@ -883,3 +881,4 @@ class PostProvider extends ChangeNotifier {
     notifyListeners();
   }
 }
+//

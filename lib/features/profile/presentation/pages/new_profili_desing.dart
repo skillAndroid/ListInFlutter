@@ -282,7 +282,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                 child: _buildStatCard(
                                   'Posts',
                                   '⟶',
-                                  Color(0xFFADE8B4),
+                                   Colors.white,
                                   Colors.black,
                                 ),
                               ),
@@ -292,7 +292,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                               child: _buildStatCard(
                                 'Reviews',
                                 '⟶',
-                                Color(0xFFB1E1F2),
+                                Colors.white,
                                 Colors.black,
                               ),
                             ),
@@ -311,7 +311,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                 child: _buildStatCard(
                                   'Favorites',
                                   '⟶',
-                                  Color(0xFFD0F0E4),
+                                  Colors.white,
                                   Colors.black,
                                 ),
                               ),
@@ -372,6 +372,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
   Widget _buildStatCard(
       String value, String label, Color bgColor, Color textColor) {
     return SmoothClipRRect(
+      side: BorderSide(width: 1, color: AppColors.containerColor),
       borderRadius: BorderRadius.circular(16),
       child: Container(
         padding:

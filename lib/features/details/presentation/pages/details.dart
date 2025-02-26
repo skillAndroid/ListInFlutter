@@ -17,7 +17,6 @@ import 'package:list_in/features/details/presentation/bloc/details_bloc.dart';
 import 'package:list_in/features/details/presentation/bloc/details_state.dart';
 import 'package:list_in/features/details/presentation/pages/product_images_detailed.dart';
 import 'package:list_in/features/details/presentation/pages/video_details.dart';
-import 'package:list_in/features/details/presentation/widgets/follow_button.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/formaters.dart';
@@ -114,7 +113,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       appBar: AppBar(
         elevation: 0,
         scrolledUnderElevation: 0,
-        backgroundColor: AppColors.containerColor,
+        automaticallyImplyLeading: false,
+        backgroundColor: AppColors.white,
         flexibleSpace: _buildTopBar(isOwner),
       ),
       bottomNavigationBar: AnimatedSwitcher(
@@ -155,8 +155,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     return SafeArea(
       child: Card(
         margin: EdgeInsets.all(0),
-        elevation: 4,
-        shadowColor: AppColors.blue.withOpacity(0.25),
+        elevation: 0,
         child: Container(
           height: 56,
           padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -166,6 +165,27 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              Row(
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      context.pop();
+                    },
+                    icon: Icon(
+                      Icons.arrow_back_rounded,
+                      color: AppColors.black,
+                    ),
+                  ),
+                  Text(
+                    'Post',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.black,
+                    ),
+                  )
+                ],
+              ),
               SizedBox(
                 width: 1,
               ),
@@ -173,73 +193,12 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 children: [
                   if (!isOwner) ...[
                     _buildTopBarButton(
-                      icon: CupertinoIcons.doc_on_doc,
-                      onTap: () {},
-                    ),
-                    _buildTopBarButton(
                       icon: CupertinoIcons.share,
                       onTap: () {},
                     ),
                     _buildTopBarButton(
                       icon: CupertinoIcons.ellipsis,
                       onTap: () {},
-                    ),
-                    BlocBuilder<GlobalBloc, GlobalState>(
-                      builder: (context, state) {
-                        final isLiked =
-                            state.isPublicationLiked(widget.product.id);
-                        final likeStatus =
-                            state.getLikeStatus(widget.product.id);
-                        final isLoading = likeStatus == LikeStatus.inProgress;
-
-                        return SizedBox(
-                          width: 40,
-                          height: 40,
-                          child: isLoading
-                              ? Center(
-                                  child: ShimmerEffect(
-                                    isLiked: isLiked,
-                                    child: Container(
-                                      width: 24,
-                                      height: 24,
-                                      alignment: Alignment.center,
-                                      child: Image.asset(
-                                        isLiked
-                                            ? AppIcons.favoriteBlack
-                                            : AppIcons.favorite,
-                                        width: 24,
-                                        height: 24,
-                                        fit: BoxFit.contain,
-                                      ),
-                                    ),
-                                  ),
-                                )
-                              : IconButton(
-                                  onPressed: () {
-                                    if (!isLoading) {
-                                      context.read<GlobalBloc>().add(
-                                            UpdateLikeStatusEvent(
-                                              publicationId: widget.product.id,
-                                              isLiked: isLiked,
-                                              context: context,
-                                            ),
-                                          );
-                                    }
-                                  },
-                                  icon: Image.asset(
-                                    isLiked
-                                        ? AppIcons.favoriteBlack
-                                        : AppIcons.favorite,
-                                    width: 24,
-                                    height: 24,
-                                    color: isLiked
-                                        ? AppColors.error
-                                        : AppColors.black,
-                                    fit: BoxFit.contain,
-                                  ),
-                                ),
-                        );
-                      },
                     ),
                   ],
                   if (isOwner) ...[
@@ -283,17 +242,22 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     required VoidCallback onTap,
   }) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 4),
+      height: 40,
+      width: 40,
+      margin: const EdgeInsets.symmetric(
+        horizontal: 4,
+        vertical: 4,
+      ),
       decoration: BoxDecoration(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(8),
+        color: AppColors.containerColor,
+        borderRadius: BorderRadius.circular(40),
       ),
       child: IconButton(
         onPressed: onTap,
         icon: Icon(
           icon,
           color: Colors.black,
-          size: 24,
+          size: 22,
         ),
       ),
     );
@@ -420,98 +384,292 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         ? widget.product.productImages.length + 1
         : widget.product.productImages.length;
 
-    return Stack(
+    return Column(
       children: [
-        Container(
-          color: AppColors.containerColor,
-          child: AspectRatio(
-            aspectRatio: 4 / 3,
-            child: PageView.builder(
-              controller: _pageController,
-              onPageChanged: (index) => setState(() => _currentPage = index),
-              itemCount: totalItems,
-              itemBuilder: (context, index) {
-                // Show video thumbnail as first item if video exists
-                if (hasVideo && index == 0) {
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => VideoPlayerScreen(
-                            videoUrl: widget.product.videoUrl!,
-                            thumbnailUrl:
-                                'https://${widget.product.productImages[0].url}',
-                          ),
+        Stack(
+          children: [
+            Container(
+              color: AppColors.containerColor,
+              child: AspectRatio(
+                aspectRatio: 4 / 4.6,
+                child: PageView.builder(
+                  controller: _pageController,
+                  onPageChanged: (index) =>
+                      setState(() => _currentPage = index),
+                  itemCount: totalItems,
+                  itemBuilder: (context, index) {
+                    // Show video thumbnail as first item if video exists
+                    if (hasVideo && index == 0) {
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => VideoPlayerScreen(
+                                videoUrl: widget.product.videoUrl!,
+                                thumbnailUrl:
+                                    'https://${widget.product.productImages[0].url}',
+                              ),
+                            ),
+                          );
+                        },
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            CachedNetworkImage(
+                              imageUrl:
+                                  'https://${widget.product.productImages[0].url}',
+                              fit: BoxFit.contain,
+                              filterQuality: FilterQuality.high,
+                            ),
+                            Center(
+                              child: Container(
+                                width: 60,
+                                height: 60,
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.7),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.play_arrow_rounded,
+                                  color: Colors.white,
+                                  size: 40,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       );
-                    },
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        CachedNetworkImage(
-                          imageUrl:
-                              'https://${widget.product.productImages[0].url}',
-                          fit: BoxFit.contain,
-                          filterQuality: FilterQuality.high,
-                        ),
-                        Center(
-                          child: Container(
-                            width: 60,
-                            height: 60,
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.7),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.play_arrow_rounded,
-                              color: Colors.white,
-                              size: 40,
+                    }
+
+                    // Show regular images after video
+                    final imageIndex = hasVideo ? index - 1 : index;
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ProductImagesDetailed(
+                              images: widget.product.productImages,
+                              initialIndex: index,
+                              heroTag: widget.product.id,
+                              videoUrl: widget.product.videoUrl,
                             ),
                           ),
+                        );
+                      },
+                      child: CachedNetworkImage(
+                        imageUrl:
+                            'https://${widget.product.productImages[imageIndex].url}',
+                        fit: BoxFit.cover,
+                        filterQuality: FilterQuality.high,
+                        errorWidget: (context, url, error) => Container(
+                          color: Colors.grey[100],
+                          child: const Icon(Icons.error_outline,
+                              color: Colors.red),
                         ),
-                      ],
-                    ),
-                  );
-                }
-
-                // Show regular images after video
-                final imageIndex = hasVideo ? index - 1 : index;
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ProductImagesDetailed(
-                          images: widget.product.productImages,
-                          initialIndex: index, // Adjust index for video
-                          heroTag: widget.product.id,
-                          videoUrl: widget.product.videoUrl,
+                        cacheKey: '${widget.product.id}_$imageIndex',
+                        useOldImageOnUrlChange: true,
+                        fadeOutDuration: const Duration(milliseconds: 100),
+                        imageBuilder: (context, imageProvider) => Container(
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: imageProvider,
+                              fit: BoxFit.contain,
+                            ),
+                          ),
                         ),
                       ),
                     );
                   },
-                  child: CachedNetworkImage(
-                    imageUrl:
-                        'https://${widget.product.productImages[imageIndex].url}',
-                    fit: BoxFit
-                        .cover, // Better than contain for most product images
-                    filterQuality: FilterQuality
-                        .high, // Balance between quality and performance
-                    errorWidget: (context, url, error) => Container(
-                      color: Colors.grey[100],
-                      child: const Icon(Icons.error_outline, color: Colors.red),
+                ),
+              ),
+            ),
+            Positioned(
+              top: 16,
+              right: 8,
+              child: Center(
+                child: SmoothClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.5),
                     ),
-                    cacheKey:
-                        '${widget.product.id}_$imageIndex', // Unique cache key
-                    useOldImageOnUrlChange:
-                        true, // Show old image while loading new one
-                    fadeOutDuration: const Duration(milliseconds: 100),
-                    imageBuilder: (context, imageProvider) => Container(
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: imageProvider,
-                          fit: BoxFit.contain,
+                    child: Text(
+                      '${_currentPage + 1} of $totalItems',
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: 32,
+              right: 8,
+              child: Card(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(40)),
+                color: AppColors.white,
+                shadowColor: AppColors.primary.withOpacity(0.3),
+                elevation: 4,
+                child: BlocBuilder<GlobalBloc, GlobalState>(
+                  builder: (context, state) {
+                    final isLiked = state.isPublicationLiked(widget.product.id);
+                    final likeStatus = state.getLikeStatus(widget.product.id);
+                    final isLoading = likeStatus == LikeStatus.inProgress;
+
+                    return Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          SizedBox(
+                            width: 8,
+                          ),
+                          Text(
+                            widget.product.likes.toString(),
+                            style: TextStyle(
+                              fontSize: 18,
+                            ),
+                          ),
+                          SizedBox(
+                            width: 40,
+                            height: 40,
+                            child: isLoading
+                                ? Center(
+                                    child: ShimmerEffect(
+                                      isLiked: isLiked,
+                                      child: Container(
+                                        width: 22,
+                                        height: 22,
+                                        alignment: Alignment.center,
+                                        child: Image.asset(
+                                          isLiked
+                                              ? AppIcons.favoriteBlack
+                                              : AppIcons.favorite,
+                                          width: 22,
+                                          height: 22,
+                                          fit: BoxFit.contain,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                : IconButton(
+                                    onPressed: () {
+                                      if (!isLoading) {
+                                        context.read<GlobalBloc>().add(
+                                              UpdateLikeStatusEvent(
+                                                publicationId:
+                                                    widget.product.id,
+                                                isLiked: isLiked,
+                                                context: context,
+                                              ),
+                                            );
+                                      }
+                                    },
+                                    icon: Image.asset(
+                                      isLiked
+                                          ? AppIcons.favoriteBlack
+                                          : AppIcons.favorite,
+                                      width: 26,
+                                      height: 26,
+                                      color: isLiked
+                                          ? AppColors.error
+                                          : AppColors.black,
+                                      fit: BoxFit.contain,
+                                    ),
+                                  ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            )
+          ],
+        ),
+        // Thumbnail strip
+        Container(
+          height: 100,
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: 8,
+            ),
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: totalItems,
+              itemBuilder: (context, index) {
+                final bool isSelected = index == _currentPage;
+                final imageIndex = hasVideo && index > 0 ? index - 1 : index;
+
+                return Padding(
+                  padding: const EdgeInsets.all(1.8),
+                  child: GestureDetector(
+                    onTap: () {
+                      _pageController.animateToPage(
+                        index,
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      );
+                    },
+                    child: SmoothClipRRect(
+                      smoothness: 0.8,
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(
+                        color:
+                            isSelected ? AppColors.black : Colors.transparent,
+                        width: 2,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(2),
+                        child: SizedBox(
+                          width: 76,
+                          child: SmoothClipRRect(
+                            smoothness: 0.8,
+                            borderRadius: BorderRadius.circular(10),
+                            child: hasVideo && index == 0
+                                ? Stack(
+                                    fit: StackFit.expand,
+                                    children: [
+                                      CachedNetworkImage(
+                                        imageUrl:
+                                            'https://${widget.product.productImages[0].url}',
+                                        fit: BoxFit.cover,
+                                      ),
+                                      Center(
+                                        child: Container(
+                                          width: 32,
+                                          height: 32,
+                                          decoration: BoxDecoration(
+                                            color:
+                                                Colors.black.withOpacity(0.7),
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: const Icon(
+                                            Icons.play_arrow_rounded,
+                                            color: Colors.white,
+                                            size: 24,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                : CachedNetworkImage(
+                                    imageUrl:
+                                        'https://${widget.product.productImages[imageIndex].url}',
+                                    fit: BoxFit.cover,
+                                  ),
+                          ),
                         ),
                       ),
                     ),
@@ -521,37 +679,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             ),
           ),
         ),
-        Positioned(
-          bottom: 16,
-          left: 0,
-          right: 0,
-          child: Center(
-            child: SmoothClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.5),
-                ),
-                child: Text(
-                  '${_currentPage + 1} - $totalItems',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-        Positioned(
-          bottom: 0,
-          child: Divider(
-            color: AppColors.black,
-            height: 2,
-          ),
-        )
       ],
     );
   }
@@ -561,6 +688,96 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        const SizedBox(
+          height: 10,
+        ),
+        _buildTitle(),
+        const SizedBox(
+          height: 16,
+        ),
+        // Seller Profile Row with Actions
+        Row(
+          children: [
+            // Profile Image
+            Padding(
+              padding: const EdgeInsets.only(
+                left: 16,
+                right: 16,
+              ),
+              child: InkWell(
+                onTap: () {},
+                child: widget.product.seller.profileImagePath != null
+                    ? ClipOval(
+                        child: CachedNetworkImage(
+                          imageUrl:
+                              'https://${widget.product.seller.profileImagePath!}',
+                          fit: BoxFit.cover,
+                          width: 50,
+                          height: 50,
+                          placeholder: (context, url) =>
+                              CircularProgressIndicator(),
+                          errorWidget: (context, url, error) =>
+                              Icon(Icons.error, color: Colors.red),
+                        ),
+                      )
+                    : Icon(Icons.person, size: 50, color: Colors.white),
+              ),
+            ),
+
+            // Seller Info with Follow Button
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.product.seller.nickName,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      height: 1,
+                    ),
+                  ),
+                  Text(
+                    '${widget.product.seller.rating} rating (0 reviews) ',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Message Button
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.containerColor,
+                  shape: BoxShape.circle,
+                ),
+                child: ClipOval(
+                  child: Material(
+                    color: AppColors.containerColor,
+                    child: InkWell(
+                      onTap: () {},
+                      child: Padding(
+                        padding: const EdgeInsets.all(11.0),
+                        child: Text(
+                          "Follow",
+                          style: TextStyle(
+                            color: Colors.blue,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 12, 0),
           child: Row(
@@ -568,94 +785,124 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               _buildPrice(),
-              if (isOwner) ...[
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: AppColors.containerColor.withOpacity(0.25),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Image.asset(
-                            AppIcons.favorite,
-                            width: 22,
-                            height: 22,
-                            color: AppColors.darkGray,
-                            fit: BoxFit.contain,
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            widget.product.likes.toString(),
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.darkGray,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(width: 4),
-                    // Views counter
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: AppColors.containerColor.withOpacity(0.25),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            CupertinoIcons.eye,
-                            size: 24,
-                            color: AppColors.darkGray,
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            widget.product.views.toString(),
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.darkGray,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                )
-              ],
             ],
           ),
         ),
-        _buildTitle(),
-        const SizedBox(height: 8),
-        //   InkWell(
-        //       onTap: () {
-        //         if (!isOwner) {
-        //           context.push(Routes.anotherUserProfile, extra: {
-        //             'userId': widget.product.seller.id,
-        //           });
-        //         } else {}
-        //       },
-        //       child: _buildLocation()),
-        //  // _buildSellerInfo(),
-        _buildCalMessageButtons(isOwner),
-        const SizedBox(
-          height: 8,
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+          child: Text(
+            widget.product.seller.locationName,
+            style: TextStyle(
+              color: AppColors.black,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ),
-        _buildLocationInfo(isOwner),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Condition',
+                style: TextStyle(
+                  color: AppColors.blue,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              Text(
+                'New',
+                style: TextStyle(
+                  color: AppColors.black,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Text(
+                'Condition',
+                style: TextStyle(
+                  color: AppColors.transparent,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+          child: Row(
+            children: [
+              // Call Now Button (Main CTA)
+              Expanded(
+                flex: 3,
+                child: ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    shape: SmoothRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                        16,
+                      ),
+                    ),
+                    backgroundColor: CupertinoColors.activeBlue,
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(
+                      vertical: 14,
+                    ),
+                  ),
+                  child: Text(
+                    'Write to Telegram',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontFamily: "Poppins",
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+          child: Row(
+            children: [
+              // Call Now Button (Main CTA)
+              Expanded(
+                flex: 3,
+                child: ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    shape: SmoothRectangleBorder(
+                      side: BorderSide(
+                          width: 1,
+                          color: CupertinoColors.activeBlue,
+                          strokeAlign: BorderSide.strokeAlignCenter),
+                      borderRadius: BorderRadius.circular(
+                        16,
+                      ),
+                    ),
+                    backgroundColor: CupertinoColors.white,
+                    foregroundColor: CupertinoColors.activeBlue,
+                    padding: EdgeInsets.symmetric(
+                      vertical: 14,
+                    ),
+                  ),
+                  child: Text(
+                    'Call Now',
+                    style: TextStyle(
+                      fontFamily: "Poppins",
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
         SizedBox(
-          height: 4,
+          height: 16,
         ),
+
         if (enAttributes.isNotEmpty ||
             widget.product.attributeValue.numericValues.isNotEmpty)
           buildCharacteristics(enAttributes),
@@ -664,256 +911,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         ),
         _buildDescription(),
         SizedBox(
-          height: 16,
+          height: 32,
         ),
-        _buildTrustAndSafety(),
-        _buildBuyerProtection(),
-        SizedBox(
-          height: 20,
-        ),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  InkWell(
-                    onTap: () {
-                      if (!isOwner) {
-                        context.push(Routes.anotherUserProfile, extra: {
-                          'userId': widget.product.seller.id,
-                        });
-                      } else {}
-                    },
-                    child: _buildLocation(),
-                  ),
-                  _buildSellerInfo(),
-                  if (!isOwner)
-                    FollowButton(
-                      userId: widget.product.seller.id,
-                    ),
-                  if (isOwner)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4, left: 16),
-                      child: Text(
-                        'IT IS YOU',
-                        style: const TextStyle(
-                          color: Colors.blue,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    )
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(
-                left: 16,
-                right: 16,
-              ),
-              child: InkWell(
-                child: CircleAvatar(
-                  radius: 32,
-                  backgroundColor: Colors.grey[300], // Фон, если нет фото
-                  child: widget.product.seller.profileImagePath != null
-                      ? ClipOval(
-                          child: CachedNetworkImage(
-                            imageUrl:
-                                'https://${widget.product.seller.profileImagePath!}', // Исправил ошибку в URL
-                            fit: BoxFit.cover,
-                            width: 64, // Диаметр 2 * radius
-                            height: 64,
-                            placeholder: (context, url) =>
-                                CircularProgressIndicator(),
-                            errorWidget: (context, url, error) =>
-                                Icon(Icons.error, color: Colors.red),
-                          ),
-                        )
-                      : Icon(Icons.person, size: 32, color: Colors.white),
-                ),
-              ),
-            ),
-          ],
-        ),
-        _buildSimilarProducts(isOwner),
       ],
-    );
-  }
-
-  Widget _buildSimilarProducts(bool isOwner) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          height: 16,
-        ),
-        Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: 16,
-          ),
-          child: InkWell(
-            onTap: () {
-              if (!isOwner) {
-                context.push(Routes.anotherUserProfile, extra: {
-                  'userId': widget.product.seller.id,
-                });
-              }
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  isOwner ? "Your post" : 'Other posts',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                Icon(
-                  Icons.arrow_right_alt,
-                  size: 44,
-                )
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        buildProductsGrid(isOwner),
-      ],
-    );
-  }
-
-  Widget buildProductsGrid(bool isOwner) {
-    return BlocBuilder<DetailsBloc, DetailsState>(
-      builder: (context, state) {
-        if (state.status == DetailsStatus.loading &&
-            state.publications.isEmpty) {
-          return Progress();
-        }
-
-        if (state.status == DetailsStatus.failure &&
-            state.publications.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TextButton(
-                  onPressed: () {
-                    context.read<DetailsBloc>().add(
-                          FetchPublications(
-                            userId: state.profile?.id ?? '',
-                            isInitialFetch: true,
-                          ),
-                        );
-                  },
-                  child: Text("Retry"),
-                ),
-                if (state.errorMessage != null) Text(state.errorMessage!),
-              ],
-            ),
-          );
-        }
-
-        if (state.publications.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const SizedBox(height: 32),
-                Icon(Icons.inventory, size: 72, color: Colors.grey[400]),
-                const SizedBox(height: 16),
-                Text(
-                  'No publications available',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          );
-        }
-
-        return Padding(
-          padding: EdgeInsets.only(bottom: 24, left: 8, right: 8),
-          child: GridView.builder(
-            // If this grid is inside a ScrollView, you might want to set this to false
-            shrinkWrap: true,
-            // If this grid is inside a ScrollView, you might want to set this
-            physics: ScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 0,
-              mainAxisSpacing: 0,
-              childAspectRatio: 0.599,
-            ),
-            itemCount:
-                state.publications.length + (state.isLoadingMore ? 1 : 0),
-            itemBuilder: (context, index) {
-              // Check if we need to load more
-              if (index >= state.publications.length - 4 &&
-                  !state.isLoadingMore &&
-                  !state.hasReachedEnd) {
-                context.read<DetailsBloc>().add(
-                      FetchPublications(
-                        userId: state.profile?.id ?? '',
-                      ),
-                    );
-              }
-
-              if (index == state.publications.length) {
-                if (state.isLoadingMore) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                return null;
-              }
-
-              final publication = state.publications[index];
-              return Padding(
-                padding: const EdgeInsets.all(0),
-                child: ProductCardContainer(
-                  product: publication,
-                ),
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
-
-// Modify the _buildLocationInfo() method in ProductDetailsScreen
-  Widget _buildLocationInfo(bool isOwner) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          InkWell(
-            child: Text(
-              widget.product.seller.locationName,
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w400,
-                color: AppColors.black,
-              ),
-            ),
-          ),
-          InkWell(
-            child: Text(
-              'Show in map',
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: Colors.blue,
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -1091,61 +1091,14 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
-  Widget _buildShopInfo(bool isOwner) {
-    bool isBusinessSeller = widget.product.seller.role == "BUSINESS_SELLER";
-    bool isBargain = widget.product.bargain;
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-      child: Row(
-        children: [
-          SmoothClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Container(
-              color: AppColors.containerColor,
-              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-              child: Row(
-                children: [
-                  Text(
-                    isBusinessSeller ? 'Store' : 'Individual',
-                    style: const TextStyle(fontWeight: FontWeight.w500),
-                  ),
-                  const SizedBox(width: 4),
-                  Icon(
-                    isBusinessSeller ? Icons.store : Icons.person_4,
-                    size: 24,
-                    color: isBusinessSeller ? Colors.green : Colors.blue,
-                  ),
-                  if (isBargain) ...[
-                    const SizedBox(width: 8),
-                    const Text(
-                      'Bargain',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.orange,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    const Icon(Icons.handshake, size: 20, color: Colors.orange),
-                  ]
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildPrice() {
     return Text(
       "${formatPrice(widget.product.price.toString())} so'm",
       style: const TextStyle(
         height: 1.2,
-        fontSize: 30,
-        fontWeight: FontWeight.w600,
-        color: AppColors.black,
+        fontSize: 26,
+        fontWeight: FontWeight.w700,
+        //color: AppColors.darkBackground,
       ),
     );
   }
@@ -1156,136 +1109,10 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       child: Text(
         widget.product.title,
         style: const TextStyle(
-          fontSize: 18,
+          fontSize: 22,
           fontWeight: FontWeight.w600,
           color: Colors.black,
         ),
-      ),
-    );
-  }
-
-  Widget _buildLocation() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Text(
-        widget.product.seller.nickName,
-        style: const TextStyle(
-          fontSize: 24,
-          color: AppColors.black,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSellerInfo() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        children: [
-          Row(
-            children: [
-              Text(
-                '5.0',
-                style: const TextStyle(
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.black,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(width: 8),
-          if (widget.product.seller.rating != null) ...[
-            RatingBarIndicator(
-              rating: widget.product.seller.rating!,
-              itemBuilder: (context, index) => const Icon(
-                Icons.star,
-                color: Colors.amber,
-              ),
-              itemCount: 5,
-              itemSize: 16,
-            ),
-          ],
-          const SizedBox(width: 8),
-          Text(
-            '0 отзыв',
-            style: TextStyle(
-              fontWeight: FontWeight.w500,
-              color: AppColors.black,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCalMessageButtons(bool isOwner) {
-    return VisibilityDetector(
-      key: Key('cal_message_visibility'),
-      onVisibilityChanged: _onVisibilityChanged,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-        child: Row(
-          children: [
-            if (!isOwner) ...[
-              Expanded(
-                child: _buildButton(
-                  icon: EvaIcons.phoneCall,
-                  label: 'Call',
-                  color: CupertinoColors.activeGreen,
-                  textColor: Colors.white,
-                  onPressed: () {
-                    _makeCall(context, widget.product.seller.phoneNumber);
-                  },
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _buildButton(
-                  icon: EvaIcons.messageSquare,
-                  label: 'Message',
-                  color: Colors.blue,
-                  textColor: AppColors.white,
-                  borderColor: AppColors.containerColor,
-                  onPressed: () {/* Message logic */},
-                ),
-              ),
-            ],
-            if (isOwner) ...[
-              Expanded(
-                child: _buildButton(
-                  icon: EvaIcons.edit,
-                  label: 'Edit',
-                  color: AppColors.primary,
-                  textColor: Colors.white,
-                  onPressed: () {
-                    context
-                        .read<PublicationUpdateBloc>()
-                        .add(InitializePublication(widget.product));
-                    context.push(
-                      Routes.publicationsEdit,
-                      extra: widget.product,
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _buildButton(
-                  icon: CupertinoIcons.delete,
-                  label: 'Delete',
-                  color: AppColors.error,
-                  textColor: AppColors.white,
-                  borderColor: AppColors.containerColor,
-                  onPressed: () {
-                    _showDeleteConfirmation(context);
-                  },
-                ),
-              ),
-            ]
-          ],
-        ),
-        //
       ),
     );
   }
@@ -1299,8 +1126,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           const Text(
             'Description',
             style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w600,
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
               color: AppColors.black,
             ),
           ),
@@ -1346,8 +1173,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           const Text(
             'Characteristics',
             style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w600,
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
               color: AppColors.black,
             ),
           ),
@@ -1437,69 +1264,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildBuyerProtection() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      child: SmoothClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          padding: const EdgeInsets.all(12), // Smaller height
-          color: AppColors.containerColor,
-          child: Row(
-            children: [
-              Icon(Icons.shield_outlined, color: Colors.orange),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'Use verified payment methods and meet in safe locations to avoid scams.',
-                  style: TextStyle(color: Colors.grey[600], fontSize: 14),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTrustAndSafety() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      child: SmoothClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          color: AppColors.containerColor,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Transaction Safety',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Icon(Icons.verified, color: Colors.green),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Always check the item before buying. Avoid upfront payments without guarantees!',
-                      style: TextStyle(color: Colors.grey[600], fontSize: 14),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
