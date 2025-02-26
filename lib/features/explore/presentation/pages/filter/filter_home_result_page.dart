@@ -503,12 +503,18 @@ class _FilterHomeResultPageState extends State<FilterHomeResultPage> {
                               ),
                               Expanded(
                                 child: Text(
-                                  "What are you looking for?", // Show current search text or default
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  "What are you looking for?", 
                                   style: TextStyle(
+                                    fontSize: 15,
                                     color: AppColors.darkGray.withOpacity(0.8),
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
+                              ),
+                              SizedBox(
+                                width: 2,
                               ),
                             ],
                           ),

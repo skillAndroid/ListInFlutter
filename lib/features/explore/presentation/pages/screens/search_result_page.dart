@@ -311,8 +311,8 @@ class _SearchResultPageState extends State<SearchResultPage> {
                                         color: AppColors.lightGray,
                                       ),
                                       shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
                                       selected: state.priceFrom != null ||
                                           state.priceTo != null,
                                       backgroundColor: AppColors.white,
@@ -345,8 +345,8 @@ class _SearchResultPageState extends State<SearchResultPage> {
                                             .withOpacity(0.7),
                                       ),
                                       shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
                                       selected: state.condition != 'ALL',
                                       backgroundColor: AppColors.white,
                                       selectedColor: AppColors.white,
@@ -517,14 +517,20 @@ class _SearchResultPageState extends State<SearchResultPage> {
                                 ),
                                 Expanded(
                                   child: Text(
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                     state.searchText != null
                                         ? state.searchText.toString()
-                                        : "What are you looking for?", // Show current search text or default
+                                        : "What are you looking for?",
                                     style: TextStyle(
+                                      fontSize: 15,
                                       color: AppColors.black,
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
+                                ),
+                                SizedBox(
+                                  width: 2,
                                 ),
                               ],
                             ),

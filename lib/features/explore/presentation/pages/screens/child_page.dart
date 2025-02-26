@@ -515,13 +515,19 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
                                 ),
                                 Expanded(
                                   child: Text(
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                     "What are you looking for?", // Show current search text or default
                                     style: TextStyle(
+                                      fontSize: 15,
                                       color:
                                           AppColors.darkGray.withOpacity(0.8),
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
+                                ),
+                                SizedBox(
+                                  width: 2,
                                 ),
                               ],
                             ),
