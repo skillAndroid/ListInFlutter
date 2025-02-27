@@ -521,7 +521,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                         width: 2,
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.all(2),
+                        padding: const EdgeInsets.all(2.5),
                         child: SizedBox(
                           width: 76,
                           child: SmoothClipRRect(
@@ -579,11 +579,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(
-          height: 10,
+          height: 4,
         ),
         _buildTitle(),
         const SizedBox(
-          height: 16,
+          height: 14,
         ),
         // Seller Profile Row with Actions
         Row(
@@ -1132,7 +1132,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         height: 1.2,
         fontSize: 26,
         fontWeight: FontWeight.w700,
-        //color: AppColors.darkBackground,
       ),
     );
   }
@@ -1143,7 +1142,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       child: Text(
         widget.product.title,
         style: const TextStyle(
-          fontSize: 22,
+          fontSize: 21,
           fontWeight: FontWeight.w600,
           color: Colors.black,
         ),
