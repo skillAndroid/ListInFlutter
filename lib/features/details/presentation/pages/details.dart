@@ -255,7 +255,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         Stack(
           children: [
             Container(
-              color: AppColors.containerColor,
+              color: AppColors.white,
               child: AspectRatio(
                 aspectRatio: 4 / 4.6,
                 child: PageView.builder(
@@ -1166,8 +1166,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       child: Text(
         widget.product.title,
         style: const TextStyle(
-          fontSize: 23,
-          fontWeight: FontWeight.bold,
+          fontSize: 21,
+          fontWeight: FontWeight.w600,
           color: Colors.black,
         ),
       ),
@@ -1181,7 +1181,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Post desciption from the seller',
+            'Desciption',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w700,
