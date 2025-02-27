@@ -13,11 +13,14 @@ import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/details/presentation/bloc/details_bloc.dart';
+import 'package:list_in/features/details/presentation/bloc/details_state.dart';
 import 'package:list_in/features/details/presentation/pages/product_images_detailed.dart';
 import 'package:list_in/features/details/presentation/pages/video_details.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/formaters.dart';
+import 'package:list_in/features/explore/presentation/widgets/product_card/bb/regular_product_card.dart';
+import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
 import 'package:list_in/features/profile/domain/usecases/user/get_user_data_usecase.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
@@ -553,14 +556,19 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         // Seller Profile Row with Actions
         Row(
           children: [
-            // Profile Image
             Padding(
               padding: const EdgeInsets.only(
                 left: 16,
                 right: 16,
               ),
               child: InkWell(
-                onTap: () {},
+                onTap: () {
+                  if (!isOwner) {
+                    context.push(Routes.anotherUserProfile, extra: {
+                      'userId': widget.product.seller.id,
+                    });
+                  } else {}
+                },
                 child: widget.product.seller.profileImagePath != null
                     ? ClipOval(
                         child: CachedNetworkImage(
@@ -581,56 +589,109 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
             // Seller Info with Follow Button
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.product.seller.nickName,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      height: 1,
-                    ),
-                  ),
-                  Text(
-                    '${widget.product.seller.rating} rating (0 reviews) ',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Message Button
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: AppColors.containerColor,
-                  shape: BoxShape.circle,
-                ),
-                child: ClipOval(
-                  child: Material(
-                    color: AppColors.containerColor,
-                    child: InkWell(
-                      onTap: () {},
-                      child: Padding(
-                        padding: const EdgeInsets.all(11.0),
-                        child: Text(
-                          "Follow",
-                          style: TextStyle(
-                            color: Colors.blue,
-                            fontWeight: FontWeight.w600,
+              child: InkWell(
+                onTap: () {
+                  if (!isOwner) {
+                    context.push(Routes.anotherUserProfile, extra: {
+                      'userId': widget.product.seller.id,
+                    });
+                  } else {}
+                },
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: Colors.black,
+                            width: 1.2,
                           ),
                         ),
                       ),
+                      child: Text(
+                        widget.product.seller.nickName,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                          height: 1,
+                        ),
+                      ),
                     ),
-                  ),
+                    Text(
+                      '${widget.product.seller.rating} rating (0 reviews) ',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 13.5,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
+            if (!isOwner)
+
+              // Message Button
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: BlocBuilder<GlobalBloc, GlobalState>(
+                  builder: (context, state) {
+                    final isFollowed =
+                        state.isUserFollowed(widget.product.seller.id);
+                    final followStatus =
+                        state.getFollowStatus(widget.product.seller.id);
+                    final isLoading = followStatus == FollowStatus.inProgress;
+                    return Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.containerColor,
+                        shape: BoxShape.circle,
+                      ),
+                      child: ClipOval(
+                        child: Material(
+                          color: AppColors.containerColor,
+                          child: InkWell(
+                            onTap: () {
+                              context.read<GlobalBloc>().add(
+                                    UpdateFollowStatusEvent(
+                                      userId: widget.product.seller.id,
+                                      isFollowed: isFollowed,
+                                      context: context,
+                                    ),
+                                  );
+                            },
+                            child: isLoading
+                                ? const Padding(
+                                    padding: EdgeInsets.only(
+                                        top: 4, left: 16, right: 16, bottom: 4),
+                                    child: SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                          Colors.black,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                : Padding(
+                                    padding: const EdgeInsets.all(11.0),
+                                    child: Text(
+                                      isFollowed ? "UnFollow" : "Follow",
+                                      style: TextStyle(
+                                        color: CupertinoColors.activeGreen,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
           ],
         ),
         Padding(
@@ -681,78 +742,163 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             ],
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-          child: Row(
-            children: [
-              // Call Now Button (Main CTA)
-              Expanded(
-                flex: 3,
-                child: ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    shape: SmoothRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                        16,
+        if (!isOwner) ...[
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: ElevatedButton(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      shape: SmoothRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          24,
+                        ),
+                      ),
+                      backgroundColor: CupertinoColors.activeGreen,
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(
+                        vertical: 14,
                       ),
                     ),
-                    backgroundColor: CupertinoColors.activeBlue,
-                    foregroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(
-                      vertical: 14,
-                    ),
-                  ),
-                  child: Text(
-                    'Write to Telegram',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontFamily: "Poppins",
-                      fontWeight: FontWeight.bold,
+                    child: Text(
+                      'Write to Telegram',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontFamily: "Poppins",
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
-          child: Row(
-            children: [
-              // Call Now Button (Main CTA)
-              Expanded(
-                flex: 3,
-                child: ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    shape: SmoothRectangleBorder(
-                      side: BorderSide(
-                          width: 1,
-                          color: CupertinoColors.activeBlue,
-                          strokeAlign: BorderSide.strokeAlignCenter),
-                      borderRadius: BorderRadius.circular(
-                        16,
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      _makeCall(context, widget.product.seller.phoneNumber);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      shape: SmoothRectangleBorder(
+                        side: BorderSide(
+                            width: 1,
+                            color: CupertinoColors.activeGreen,
+                            strokeAlign: BorderSide.strokeAlignCenter),
+                        borderRadius: BorderRadius.circular(
+                          24,
+                        ),
+                      ),
+                      backgroundColor: CupertinoColors.white,
+                      foregroundColor: CupertinoColors.activeGreen,
+                      padding: EdgeInsets.symmetric(
+                        vertical: 14,
                       ),
                     ),
-                    backgroundColor: CupertinoColors.white,
-                    foregroundColor: CupertinoColors.activeBlue,
-                    padding: EdgeInsets.symmetric(
-                      vertical: 14,
-                    ),
-                  ),
-                  child: Text(
-                    'Call Now',
-                    style: TextStyle(
-                      fontFamily: "Poppins",
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
+                    child: Text(
+                      'Call Now',
+                      style: TextStyle(
+                        fontFamily: "Poppins",
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
+        ],
+
+        if (isOwner) ...[
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      context
+                          .read<PublicationUpdateBloc>()
+                          .add(InitializePublication(widget.product));
+                      context.push(
+                        Routes.publicationsEdit,
+                        extra: widget.product,
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      shape: SmoothRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          24,
+                        ),
+                      ),
+                      backgroundColor: CupertinoColors.activeGreen,
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(
+                        vertical: 14,
+                      ),
+                    ),
+                    child: Text(
+                      'Edit Post',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontFamily: "Poppins",
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      _showDeleteConfirmation(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      shape: SmoothRectangleBorder(
+                        side: BorderSide(
+                            width: 1,
+                            color: CupertinoColors.activeGreen,
+                            strokeAlign: BorderSide.strokeAlignCenter),
+                        borderRadius: BorderRadius.circular(
+                          24,
+                        ),
+                      ),
+                      backgroundColor: CupertinoColors.white,
+                      foregroundColor: CupertinoColors.activeGreen,
+                      padding: EdgeInsets.symmetric(
+                        vertical: 14,
+                      ),
+                    ),
+                    child: Text(
+                      'Delete',
+                      style: TextStyle(
+                        fontFamily: "Poppins",
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
 
         SizedBox(
           height: 16,
@@ -768,6 +914,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         SizedBox(
           height: 32,
         ),
+        _buildSimilarProducts(isOwner),
       ],
     );
   }
@@ -979,14 +1126,14 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Description',
+            'Post desciption from the seller',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w700,
-              color: AppColors.black,
+              color: AppColors.darkBackground,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 8),
           Text(
             widget.product.description,
             style: TextStyle(
@@ -1026,14 +1173,14 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Characteristics',
+            'About this item ',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w700,
-              color: AppColors.black,
+              color: AppColors.darkBackground,
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           // Show first 5 items
           ...features.take(5).map((feature) => _buildCharacteristicItem(
                 feature.key,
@@ -1103,19 +1250,25 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '$label: ',
-            style: TextStyle(
-              color: AppColors.darkGray,
-              fontSize: 14,
+          Expanded(
+            flex: 5,
+            child: Text(
+              '$label: ',
+              style: TextStyle(
+                color: AppColors.darkGray,
+                fontSize: 14,
+              ),
             ),
           ),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: AppColors.black,
+          Expanded(
+            flex: 6,
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: AppColors.black,
+              ),
             ),
           ),
         ],
@@ -1149,15 +1302,36 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   }
 
   void _showDeleteConfirmation(BuildContext context) async {
-    final shouldDelete = await ConfirmationDialog.show(
-      context: context,
-      title: 'Delete Publication',
-      message:
-          'Are you sure you want to delete this publication? This action cannot be undone.',
-      confirmText: 'Delete',
-      cancelText: 'Cancel',
-      isDestructiveAction: true,
-    );
+    final shouldDelete = await showDialog<bool>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              backgroundColor: AppColors.white,
+              title: Text('Delete Publication'),
+              content: Text(
+                'Are you sure you want to delete this publication? This action cannot be undone.',
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(false);
+                  },
+                  child: Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(true);
+                  },
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.red,
+                  ),
+                  child: Text('Delete'),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false;
 
     if (shouldDelete) {
       context.read<UserPublicationsBloc>().add(
@@ -1197,6 +1371,130 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         SnackBar(content: Text("Exception: $e")),
       );
     }
+  }
+
+  Widget _buildSimilarProducts(bool isOwner) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          height: 16,
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            isOwner ? "Your post" : 'User other posts',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        buildProductsGrid(isOwner),
+      ],
+    );
+  }
+
+  Widget buildProductsGrid(bool isOwner) {
+    return BlocBuilder<DetailsBloc, DetailsState>(
+      builder: (context, state) {
+        if (state.status == DetailsStatus.loading &&
+            state.publications.isEmpty) {
+          return Progress();
+        }
+        if (state.status == DetailsStatus.failure &&
+            state.publications.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    context.read<DetailsBloc>().add(
+                          FetchPublications(
+                            userId: state.profile?.id ?? '',
+                            isInitialFetch: true,
+                          ),
+                        );
+                  },
+                  child: Text("Retry"),
+                ),
+                if (state.errorMessage != null) Text(state.errorMessage!),
+              ],
+            ),
+          );
+        }
+        if (state.publications.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 32),
+                Icon(Icons.inventory, size: 72, color: Colors.grey[400]),
+                const SizedBox(height: 16),
+                Text(
+                  'No publications available',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return Padding(
+          padding: EdgeInsets.only(bottom: 24, left: 0),
+          child: SizedBox(
+            height: 300, // Adjust height based on your product card height
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              itemCount:
+                  state.publications.length + (state.isLoadingMore ? 1 : 0),
+              itemBuilder: (context, index) {
+                // Check if we need to load more
+                if (index >= state.publications.length - 4 &&
+                    !state.isLoadingMore &&
+                    !state.hasReachedEnd) {
+                  context.read<DetailsBloc>().add(
+                        FetchPublications(
+                          userId: state.profile?.id ?? '',
+                        ),
+                      );
+                }
+
+                if (index == state.publications.length) {
+                  if (state.isLoadingMore) {
+                    return const Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
+                  }
+                  return null;
+                }
+
+                final publication = state.publications[index];
+                return Padding(
+                  padding: EdgeInsets.only(left: index == 0 ? 16 : 4),
+                  child: SizedBox(
+                    width: 180, // Adjust width based on your design
+                    child: ProductCardContainer(
+                      product: publication,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
   }
 }
 
