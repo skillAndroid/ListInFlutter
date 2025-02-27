@@ -931,15 +931,14 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             ),
           ),
         ],
-
+        SizedBox(
+          height: 24,
+        ),
         if (enAttributes.isNotEmpty ||
             widget.product.attributeValue.numericValues.isNotEmpty) ...[
-          SizedBox(
-            height: 16,
-          ),
           buildCharacteristics(enAttributes),
           SizedBox(
-            height: 4,
+            height: 12,
           ),
         ],
 
@@ -1201,7 +1200,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     }
 
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
