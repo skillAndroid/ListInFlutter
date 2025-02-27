@@ -488,7 +488,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         ),
         // Thumbnail strip with auto-scrolling functionality
         Container(
-          height: 100,
+          height: 98,
           padding: const EdgeInsets.symmetric(vertical: 8),
           child: Padding(
             padding: EdgeInsets.symmetric(
@@ -503,7 +503,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 final imageIndex = hasVideo && index > 0 ? index - 1 : index;
 
                 return Padding(
-                  padding: const EdgeInsets.all(1.8),
+                  padding: const EdgeInsets.all(1.2),
                   child: GestureDetector(
                     onTap: () {
                       _pageController.animateToPage(
@@ -523,7 +523,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       child: Padding(
                         padding: const EdgeInsets.all(2.5),
                         child: SizedBox(
-                          width: 76,
+                          width: 74,
                           child: SmoothClipRRect(
                             smoothness: 0.8,
                             borderRadius: BorderRadius.circular(10),
@@ -579,7 +579,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(
-          height: 4,
+          height: 3,
         ),
         _buildTitle(),
         const SizedBox(
@@ -737,13 +737,22 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-          child: Text(
-            widget.product.seller.locationName,
-            style: TextStyle(
-              color: AppColors.black,
-              fontWeight: FontWeight.w600,
-            ),
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
+          child: Row(
+            children: [
+              Text(
+                widget.product.seller.locationName,
+                style: TextStyle(
+                  color: AppColors.darkGray,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+              Icon(
+                Icons.info_outline,
+                color: AppColors.black,
+                size: 20,
+              ),
+            ],
           ),
         ),
         Padding(
@@ -1140,7 +1149,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             style: TextStyle(
               fontSize: 18, // Smaller font size
               fontWeight: FontWeight.w400, // Lighter weight
-              color: Colors.grey, // Brighter color
+              color: AppColors.darkGray, // Brighter color
             ),
           ),
         ],
