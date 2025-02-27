@@ -786,7 +786,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         ),
         if (!isOwner) ...[
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 2),
             child: Row(
               children: [
                 Expanded(
@@ -819,7 +819,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+            padding: const EdgeInsets.fromLTRB(16, 3, 16, 2),
             child: Row(
               children: [
                 Expanded(
@@ -861,7 +861,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
         if (isOwner) ...[
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 2),
             child: Row(
               children: [
                 Expanded(
@@ -901,7 +901,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 2),
             child: Row(
               children: [
                 Expanded(
