@@ -360,10 +360,13 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
                   productId: widget.model.id,
                 ),
               ),
-              if (widget.model.isViewed || widget.model.isOwner)
-                ViewsBadge(
-                  views: widget.model.views,
+              if (!widget.model.isOwner)
+                OptimizedLikeButton(
+                  productId: widget.model.id,
+                  likes: widget.model.likes,
                   isOwner: widget.model.isOwner,
+                  isLiked: widget.model.isLiked,
+                  likeStatus: widget.model.likeStatus,
                 ),
               PageIndicator(
                 currentPage: _currentPage,
@@ -389,11 +392,10 @@ class _ProductInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+      padding: const EdgeInsets.only(left: 8, right: 8, top: 4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Product title and like button row
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -402,19 +404,13 @@ class _ProductInfo extends StatelessWidget {
                 child: Text(
                   model.title,
                   style: const TextStyle(
-                    fontSize: 14,
+                    fontSize: 14.5,
                     color: AppColors.black,
+                    fontWeight: FontWeight.w500,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-              ),
-              OptimizedLikeButton(
-                productId: model.id,
-                likes: model.likes,
-                isOwner: model.isOwner,
-                isLiked: model.isLiked,
-                likeStatus: model.likeStatus,
               ),
             ],
           ),
@@ -422,16 +418,17 @@ class _ProductInfo extends StatelessWidget {
           Text(
             formatPrice(model.price.toString()),
             style: const TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              fontSize: 17,
               color: AppColors.black,
             ),
           ),
           Text(
             model.condition == "NEW_PRODUCT" ? 'New' : "Used",
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 13.5,
               color: AppColors.black,
+              fontWeight: FontWeight.w300,
             ),
           ),
 
@@ -442,14 +439,15 @@ class _ProductInfo extends StatelessWidget {
             model.description,
             style: TextStyle(
               color: AppColors.black,
-              fontSize: 13,
+              fontSize: 13.5,
             ),
           ),
           Text(
             model.location,
             style: TextStyle(
-              color: AppColors.darkGray.withOpacity(0.7),
+              color: AppColors.darkGray,
               fontSize: 13,
+              fontWeight: FontWeight.w300,
             ),
           ),
           const SizedBox(height: 12),
@@ -479,7 +477,7 @@ class _SellerInfo extends StatelessWidget {
           model.seller.name,
           style: const TextStyle(
             fontWeight: FontWeight.w400,
-            fontSize: 13,
+            fontSize: 13.5,
             color: AppColors.black,
           ),
         ),
@@ -496,7 +494,7 @@ class _SellerInfo extends StatelessWidget {
           model.seller.rating.toString(),
           style: const TextStyle(
             fontWeight: FontWeight.w500,
-            fontSize: 13,
+            fontSize: 13.5,
             color: AppColors.black,
           ),
         ),
@@ -504,7 +502,7 @@ class _SellerInfo extends StatelessWidget {
         Text(
           '(${model.views})',
           style: TextStyle(
-            fontSize: 12,
+            fontSize: 12.5,
             color: AppColors.darkGray.withOpacity(0.7),
           ),
         ),
@@ -563,59 +561,36 @@ class _OptimizedLikeButtonState extends State<OptimizedLikeButton>
   @override
   Widget build(BuildContext context) {
     if (widget.isOwner) {
-      return _buildOwnerLikeButton();
+      return SizedBox();
     }
 
     final isLoading = widget.likeStatus == LikeStatus.inProgress;
 
-    return InkWell(
-      onTap: isLoading
-          ? null
-          : () {
-              _animateLike();
-              context.read<GlobalBloc>().add(
-                    UpdateLikeStatusEvent(
-                      publicationId: widget.productId,
-                      isLiked: widget.isLiked,
-                      context: context,
-                    ),
-                  );
-            },
-      child: isLoading
-          ? ShimmerEffect(
-              isLiked: widget.isLiked,
-              child: _buildLikeIcon(),
-            )
-          : ScaleTransition(
-              scale: _scaleAnimation,
-              child: _buildLikeIcon(),
-            ),
-    );
-  }
-
-  Widget _buildOwnerLikeButton() {
-    return Padding(
-      padding: const EdgeInsets.all(4.0),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(
-            width: 22,
-            height: 22,
-            child: Image.asset(
-              AppIcons.favorite,
-              color: AppColors.darkGray,
-            ),
-          ),
-          const SizedBox(width: 4),
-          Text(
-            '${widget.likes}',
-            style: const TextStyle(
-              color: AppColors.darkGray,
-              fontSize: 15,
-            ),
-          )
-        ],
+    return Positioned(
+      bottom: 8,
+      right: 8,
+      child: InkWell(
+        onTap: isLoading
+            ? null
+            : () {
+                _animateLike();
+                context.read<GlobalBloc>().add(
+                      UpdateLikeStatusEvent(
+                        publicationId: widget.productId,
+                        isLiked: widget.isLiked,
+                        context: context,
+                      ),
+                    );
+              },
+        child: isLoading
+            ? ShimmerEffect(
+                isLiked: widget.isLiked,
+                child: _buildLikeIcon(),
+              )
+            : ScaleTransition(
+                scale: _scaleAnimation,
+                child: _buildLikeIcon(),
+              ),
       ),
     );
   }
@@ -626,12 +601,19 @@ class _OptimizedLikeButtonState extends State<OptimizedLikeButton>
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(
-            width: 22,
-            height: 22,
-            child: Image.asset(
-              widget.isLiked ? AppIcons.favoriteBlack : AppIcons.favorite,
-              color: widget.isLiked ? Colors.red : AppColors.darkGray,
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(40),
+              color: AppColors.bgColor.withOpacity(0.5),
+            ),
+            width: 32,
+            height: 32,
+            child: Padding(
+              padding: const EdgeInsets.all(6),
+              child: Image.asset(
+                widget.isLiked ? AppIcons.favoriteBlack : AppIcons.favorite,
+                color: widget.isLiked ? Colors.red : AppColors.black,
+              ),
             ),
           ),
         ],
@@ -658,8 +640,8 @@ class _CallButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 0),
         backgroundColor: isOwner ? Colors.grey.shade200 : Colors.white,
         foregroundColor: Colors.white,
-        shape: SmoothRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
             side: BorderSide(width: 1, color: AppColors.primary)),
         elevation: 0,
       ),
@@ -762,20 +744,19 @@ class PageIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      bottom: 8,
-      left: 0,
-      right: 0,
+      top: 8,
+      right: 8,
       child: Center(
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.3),
-            borderRadius: BorderRadius.circular(4),
+            color: Colors.white.withOpacity(0.5),
+            borderRadius: BorderRadius.circular(10),
           ),
           child: Text(
-            '${currentPage + 1}/$totalPages',
+            '${currentPage + 1} of $totalPages',
             style: const TextStyle(
-              color: Colors.white,
+              color: Colors.black,
               fontSize: 13,
               fontWeight: FontWeight.bold,
             ),

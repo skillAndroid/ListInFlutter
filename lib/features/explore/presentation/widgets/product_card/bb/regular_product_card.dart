@@ -78,7 +78,7 @@ class ProductCardViewModel {
 // Main product card widget
 class OptimizedProductCard extends StatelessWidget {
   static const double _imageAspectRatio = 1;
-  static const double _detailsHeight = 118;
+  static const double _detailsHeight = 110;
 
   final ProductCardViewModel model;
   final VoidCallback? onTap;
@@ -109,9 +109,11 @@ class OptimizedProductCard extends StatelessWidget {
               aspectRatio: _imageAspectRatio,
               imageUrl: model.images.firstOrNull,
               condition: model.condition,
-              views: model.views,
+              likes: model.likes,
               isOwner: model.isOwner,
-              isViewed: model.isViewed,
+              isLiked: model.isLiked,
+              id: model.id,
+              likeStatus: model.likeStatus,
             ),
             SizedBox(
               height: _detailsHeight,
@@ -139,18 +141,22 @@ class ProductImageSection extends StatelessWidget {
   final double aspectRatio;
   final String? imageUrl;
   final String condition;
-  final int views;
+  final int likes;
   final bool isOwner;
-  final bool isViewed;
+  final bool isLiked;
+  final String id;
+  final LikeStatus likeStatus;
 
   const ProductImageSection({
     super.key,
     required this.aspectRatio,
     required this.imageUrl,
     required this.condition,
-    required this.views,
+    required this.likes,
     required this.isOwner,
-    required this.isViewed,
+    required this.isLiked,
+    required this.id,
+    required this.likeStatus,
   });
 
   @override
@@ -167,19 +173,19 @@ class ProductImageSection extends StatelessWidget {
               child: _buildImage(),
             ),
           ),
-          if (isViewed || isOwner) _buildViewsBadge(),
+          if (!isOwner)
+            Positioned(
+              bottom: 8,
+              right: 8,
+              child: OptimizedLikeButton(
+                productId: id,
+                likes: likes,
+                isOwner: isOwner,
+                isLiked: isLiked,
+                likeStatus: likeStatus,
+              ),
+            ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildViewsBadge() {
-    return Positioned(
-      top: 12,
-      right: 12,
-      child: ViewsBadge(
-        views: views,
-        isOwner: isOwner,
       ),
     );
   }
@@ -269,48 +275,6 @@ class _DefaultImage extends StatelessWidget {
   }
 }
 
-class ViewsBadge extends StatelessWidget {
-  final int views;
-  final bool isOwner;
-
-  const ViewsBadge({
-    super.key,
-    required this.views,
-    required this.isOwner,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      top: 8,
-      left: 8,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-        decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.5),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                const Text(
-                  'Viewed',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 // Details section widget
 class ProductDetailsSection extends StatelessWidget {
   final String title;
@@ -354,19 +318,13 @@ class ProductDetailsSection extends StatelessWidget {
                 child: Text(
                   title,
                   style: const TextStyle(
-                    fontSize: 14,
+                    fontSize: 14.5,
+                    fontWeight: FontWeight.w500,
                     color: AppColors.black,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-              ),
-              OptimizedLikeButton(
-                productId: id,
-                likes: likes,
-                isOwner: isOwner,
-                isLiked: isLiked,
-                likeStatus: likeStatus,
               ),
             ],
           ),
@@ -383,26 +341,30 @@ class ProductDetailsSection extends StatelessWidget {
         Text(
           formatPrice(price.toString()),
           style: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            fontSize: 17,
             color: AppColors.black,
           ),
         ),
         Text(
           condition == "NEW_PRODUCT" ? 'New' : "Used",
           style: TextStyle(
-            fontSize: 13,
+            fontSize: 13.5,
             color: AppColors.black,
+            fontWeight: FontWeight.w300,
           ),
         ),
         Text(
           location,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            color: AppColors.darkGray.withOpacity(0.7),
+            color: AppColors.darkGray,
             fontSize: 13,
+            fontWeight: FontWeight.w300,
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 8),
       ],
     );
   }
