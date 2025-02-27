@@ -286,359 +286,327 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                         color: AppColors.bgColor,
                         height: 50,
                         child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          itemCount:
-                              attributes.length + numericFields.length + 5,
-                          itemBuilder: (context, index) {
-                            debugPrint("😤😤${numericFields.length}");
-                            if (index == 0) {
-                              return Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 2.5),
-                                child: FilterChip(
-                                  showCheckmark: false,
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 2,
-                                    vertical: 10,
-                                  ),
-                                  label: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        "Price",
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  labelStyle: TextStyle(
-                                    color: (state.priceFrom != null ||
-                                            state.priceTo != null)
-                                        ? AppColors.white
-                                        : AppColors.black,
-                                  ),
-                                  side: BorderSide(
-                                    width: 1,
-                                    color: AppColors.transparent,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  selected: state.priceFrom != null ||
-                                      state.priceTo != null,
-                                  backgroundColor: AppColors.containerColor,
-                                  selectedColor: AppColors.black,
-                                  onSelected: (_) =>
-                                      _showPriceRangeBottomSheet(context),
-                                ),
-                              );
-                            }
+  scrollDirection: Axis.horizontal,
+  padding: const EdgeInsets.symmetric(horizontal: 8),
+  itemCount: attributes.length + numericFields.length + 5,
+  itemBuilder: (context, index) {
+    // Price filter chip
+    if (index == 0) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 2.5),
+        child: FilterChip(
+          showCheckmark: false,
+          padding: EdgeInsets.symmetric(
+            horizontal: 2,
+            vertical: 10,
+          ),
+          label: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "Price",
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+          labelStyle: TextStyle(
+            color: (state.priceFrom != null || state.priceTo != null)
+                ? AppColors.white
+                : AppColors.black,
+          ),
+          side: BorderSide(
+            width: 1,
+            color: AppColors.transparent,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          selected: state.priceFrom != null || state.priceTo != null,
+          backgroundColor: AppColors.containerColor,
+          selectedColor: AppColors.black,
+          onSelected: (_) => _showPriceRangeBottomSheet(context),
+        ),
+      );
+    }
 
-                            if (index <= attributes.length) {
-                              final attribute = attributes[index - 1];
-                              final cubit = context.read<HomeTreeCubit>();
-                              final selectedValue =
-                                  cubit.getSelectedAttributeValue(attribute);
-                              final selectedValues =
-                                  cubit.getSelectedValues(attribute);
+    // Attribute filter chips
+    if (index > 0 && index <= attributes.length) {
+      final attribute = attributes[index - 1];
+      final cubit = context.read<HomeTreeCubit>();
+      final selectedValue = cubit.getSelectedAttributeValue(attribute);
+      final selectedValues = cubit.getSelectedValues(attribute);
 
-                              // Color mapping
-                              final Map<String, Color> colorMap = {
-                                'Silver': Colors.grey[300]!,
-                                'Pink': Colors.pink,
-                                'Rose Gold': Color(0xFFB76E79),
-                                'Space Gray': Color(0xFF4A4A4A),
-                                'Blue': Colors.blue,
-                                'Yellow': Colors.yellow,
-                                'Green': Colors.green,
-                                'Purple': Colors.purple,
-                                'White': Colors.white,
-                                'Red': Colors.red,
-                                'Black': Colors.black,
-                              };
+      // Color mapping
+      final Map<String, Color> colorMap = {
+        'Silver': Colors.grey[300]!,
+        'Pink': Colors.pink,
+        'Rose Gold': Color(0xFFB76E79),
+        'Space Gray': Color(0xFF4A4A4A),
+        'Blue': Colors.blue,
+        'Yellow': Colors.yellow,
+        'Green': Colors.green,
+        'Purple': Colors.purple,
+        'White': Colors.white,
+        'Red': Colors.red,
+        'Black': Colors.black,
+      };
 
-                              // Determine chip label based on selection type and count
-                              String chipLabel;
-                              if (attribute.filterWidgetType ==
-                                  'oneSelectable') {
-                                // For single select, show selected value name if selected
-                                chipLabel = selectedValue?.value ??
-                                    attribute.filterText;
-                              } else {
-                                // For multi-select types
-                                if (selectedValues.isEmpty) {
-                                  chipLabel = attribute.filterText;
-                                } else if (selectedValues.length == 1) {
-                                  // Show single selected value name
-                                  chipLabel = selectedValues.first.value;
-                                } else {
-                                  // Show count for multiple selections
-                                  chipLabel =
-                                      '${attribute.filterText}(${selectedValues.length})';
-                                }
-                              }
+      // Determine chip label based on selection type and count
+      String chipLabel;
+      if (attribute.filterWidgetType == 'oneSelectable') {
+        // For single select, show selected value name if selected
+        chipLabel = selectedValue?.value ?? attribute.filterText;
+      } else {
+        // For multi-select types
+        if (selectedValues == null || selectedValues.isEmpty) {
+          chipLabel = attribute.filterText;
+        } else if (selectedValues.length == 1) {
+          // Show single selected value name
+          chipLabel = selectedValues.first.value;
+        } else {
+          // Show count for multiple selections
+          chipLabel = '${attribute.filterText}(${selectedValues.length})';
+        }
+      }
 
-                              Widget? colorIndicator;
-                              if (attribute.filterWidgetType ==
-                                      'colorMultiSelectable' &&
-                                  selectedValues.isNotEmpty) {
-                                if (selectedValues.length == 1) {
-                                  // Single color indicator
-                                  colorIndicator = Container(
-                                    width: 16,
-                                    height: 16,
-                                    decoration: BoxDecoration(
-                                      color: colorMap[
-                                              selectedValues.first.value] ??
-                                          Colors.grey,
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: (colorMap[selectedValues
-                                                    .first.value] ==
-                                                Colors.white)
-                                            ? Colors.grey
-                                            : Colors.transparent,
-                                        width: 1,
-                                      ),
-                                    ),
-                                  );
-                                } else {
-                                  // Stacked color indicators
-                                  colorIndicator = SizedBox(
-                                    width: 40,
-                                    height: 20,
-                                    child: Stack(
-                                      children: [
-                                        for (int i = 0;
-                                            i < selectedValues.length;
-                                            i++)
-                                          Positioned(
-                                            top: 0,
-                                            bottom: 0,
-                                            left: i * 7.0,
-                                            child: Container(
-                                              width: 16,
-                                              height: 16,
-                                              decoration: BoxDecoration(
-                                                color: colorMap[
-                                                        selectedValues[i]
-                                                            .value] ??
-                                                    Colors.grey,
-                                                shape: BoxShape.circle,
-                                                border: Border.all(
-                                                  color: (colorMap[
-                                                              selectedValues[i]
-                                                                  .value] ==
-                                                          Colors.white)
-                                                      ? Colors.grey
-                                                      : Colors.white,
-                                                  width: 1,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                  );
-                                }
-                              }
-
-                              return Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 2.5),
-                                child: FilterChip(
-                                  showCheckmark: false,
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 4, vertical: 10),
-                                  label: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      if (colorIndicator != null) ...[
-                                        colorIndicator,
-                                        const SizedBox(width: 4),
-                                      ],
-                                      Text(
-                                        chipLabel,
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w500,
-                                          color: selectedValue != null ||
-                                                  selectedValues.length > 0
-                                              ? AppColors.white
-                                              : AppColors.black,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  side: BorderSide(
-                                      width: 1, color: AppColors.transparent),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  selected: selectedValue != null ||
-                                      selectedValues.length > 0,
-                                  backgroundColor: AppColors.containerColor,
-                                  selectedColor: AppColors.black,
-                                  onSelected: (_) {
-                                    if (attribute.values.isNotEmpty &&
-                                        mounted) {
-                                      _showAttributeSelectionUI(
-                                          context, attribute);
-                                    }
-                                  },
-                                ),
-                              );
-                            }
-
-                            if (index ==
-                                attributes.length + numericFields.length + 1) {
-                              return Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 2.5),
-                                child: FilterChip(
-                                  showCheckmark: false,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 4,
-                                    vertical: 10,
-                                  ),
-                                  label: Text(
-                                    _getConditionText(state.condition),
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      color: state.condition != 'ALL'
-                                          ? AppColors.white
-                                          : AppColors.black,
-                                    ),
-                                  ),
-                                  side: BorderSide(
-                                    width: 1,
-                                    color: AppColors.transparent,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  selected: state.condition != 'ALL',
-                                  backgroundColor: AppColors.containerColor,
-                                  selectedColor: AppColors.black,
-                                  onSelected: (_) =>
-                                      _showConditionBottomSheet(context),
-                                ),
-                              );
-                            }
-
-                            if (index ==
-                                attributes.length + numericFields.length + 2) {
-                              return Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 2.5),
-                                child: FilterChip(
-                                  showCheckmark: false,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 4, vertical: 10),
-                                  label: Text(
-                                    _getSellerTypeText(state.sellerType),
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      color: state.sellerType != SellerType.ALL
-                                          ? AppColors.white
-                                          : AppColors.black,
-                                    ),
-                                  ),
-                                  side: BorderSide(
-                                      width: 1, color: AppColors.transparent),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  selected: state.sellerType != SellerType.ALL,
-                                  backgroundColor: AppColors.containerColor,
-                                  selectedColor: AppColors.black,
-                                  onSelected: (_) =>
-                                      _showSellerTypeBottomSheet(context),
-                                ),
-                              );
-                            }
-
-                            if (index ==
-                                attributes.length + numericFields.length + 3) {
-                              return SwitchFilterChip(
-                                label: 'Bargain',
-                                value: state.bargain,
-                                onChanged: (value) => context
-                                    .read<HomeTreeCubit>()
-                                    .toggleBargain(value, false, "CHILD"),
-                              );
-                            }
-
-                            if (index ==
-                                attributes.length + numericFields.length + 4) {
-                              return SwitchFilterChip(
-                                label: 'Is Free',
-                                value: state.isFree,
-                                onChanged: (value) => context
-                                    .read<HomeTreeCubit>()
-                                    .toggleIsFree(value, false, "CHILD"),
-                              );
-                            }
-
-                            final numericFieldIndex =
-                                index - attributes.length - 1;
-                            final numericField =
-                                numericFields[numericFieldIndex];
-                            final fieldValues =
-                                state.numericFieldValues[numericField.id];
-
-                            String chipLabel = numericField.fieldName;
-                            if (fieldValues != null) {
-                              final from = fieldValues['from'];
-                              final to = fieldValues['to'];
-
-                              if (from != null && to != null) {
-                                chipLabel = '$from - $to';
-                              } else if (from != null) {
-                                chipLabel = '≥ $from';
-                              } else if (to != null) {
-                                chipLabel = '≤ $to';
-                              }
-                            }
-
-                            return Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 2.5),
-                              child: FilterChip(
-                                showCheckmark: false,
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 4, vertical: 10),
-                                label: Text(
-                                  chipLabel,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    color: fieldValues != null
-                                        ? AppColors.white
-                                        : AppColors.black,
-                                  ),
-                                ),
-                                side: BorderSide(
-                                    width: 1, color: AppColors.transparent),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                selected: fieldValues != null,
-                                backgroundColor: AppColors.containerColor,
-                                selectedColor: AppColors.black,
-                                onSelected: (_) {
-                                  _showNumericFieldBottomSheet(
-                                      context, numericField);
-                                },
-                              ),
-                            );
-                          },
+      Widget? colorIndicator;
+      if (attribute.filterWidgetType == 'colorMultiSelectable' &&
+          selectedValues != null && 
+          selectedValues.isNotEmpty) {
+        if (selectedValues.length == 1) {
+          // Single color indicator
+          colorIndicator = Container(
+            width: 16,
+            height: 16,
+            decoration: BoxDecoration(
+              color: colorMap[selectedValues.first.value] ?? Colors.grey,
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: (colorMap[selectedValues.first.value] == Colors.white)
+                    ? Colors.grey
+                    : Colors.transparent,
+                width: 1,
+              ),
+            ),
+          );
+        } else {
+          // Stacked color indicators
+          colorIndicator = SizedBox(
+            width: 40,
+            height: 20,
+            child: Stack(
+              children: [
+                for (int i = 0; i < selectedValues.length; i++)
+                  Positioned(
+                    top: 0,
+                    bottom: 0,
+                    left: i * 7.0,
+                    child: Container(
+                      width: 16,
+                      height: 16,
+                      decoration: BoxDecoration(
+                        color: colorMap[selectedValues[i].value] ?? Colors.grey,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: (colorMap[selectedValues[i].value] == Colors.white)
+                              ? Colors.grey
+                              : Colors.white,
+                          width: 1,
                         ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          );
+        }
+      }
+
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 2.5),
+        child: FilterChip(
+          showCheckmark: false,
+          padding: EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+          label: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (colorIndicator != null) ...[
+                colorIndicator,
+                const SizedBox(width: 4),
+              ],
+              Text(
+                chipLabel,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: selectedValue != null || 
+                         (selectedValues != null && selectedValues.isNotEmpty)
+                      ? AppColors.white
+                      : AppColors.black,
+                ),
+              ),
+            ],
+          ),
+          side: BorderSide(width: 1, color: AppColors.transparent),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          selected: selectedValue != null || 
+                   (selectedValues != null && selectedValues.isNotEmpty),
+          backgroundColor: AppColors.containerColor,
+          selectedColor: AppColors.black,
+          onSelected: (_) {
+            if (attribute.values != null && 
+                attribute.values.isNotEmpty && 
+                mounted) {
+              _showAttributeSelectionUI(context, attribute);
+            }
+          },
+        ),
+      );
+    }
+
+    // Numeric field filter chips
+    if (index > attributes.length && index <= attributes.length + numericFields.length) {
+      final numericFieldIndex = index - attributes.length - 1;
+      
+      // Safety check to prevent index out of range errors
+      if (numericFieldIndex >= 0 && numericFieldIndex < numericFields.length) {
+        final numericField = numericFields[numericFieldIndex];
+        final fieldValues = state.numericFieldValues != null ? 
+                           state.numericFieldValues[numericField.id] : null;
+
+        String chipLabel = numericField.fieldName;
+        if (fieldValues != null) {
+          final from = fieldValues['from'];
+          final to = fieldValues['to'];
+
+          if (from != null && to != null) {
+            chipLabel = '$from - $to';
+          } else if (from != null) {
+            chipLabel = '≥ $from';
+          } else if (to != null) {
+            chipLabel = '≤ $to';
+          }
+        }
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 2.5),
+          child: FilterChip(
+            showCheckmark: false,
+            padding: EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+            label: Text(
+              chipLabel,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: fieldValues != null ? AppColors.white : AppColors.black,
+              ),
+            ),
+            side: BorderSide(width: 1, color: AppColors.transparent),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            selected: fieldValues != null,
+            backgroundColor: AppColors.containerColor,
+            selectedColor: AppColors.black,
+            onSelected: (_) {
+              _showNumericFieldBottomSheet(context, numericField);
+            },
+          ),
+        );
+      }
+    }
+
+    // Condition filter chip
+    if (index == attributes.length + numericFields.length + 1) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 2.5),
+        child: FilterChip(
+          showCheckmark: false,
+          padding: const EdgeInsets.symmetric(
+            horizontal: 4,
+            vertical: 10,
+          ),
+          label: Text(
+            _getConditionText(state.condition),
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: state.condition != 'ALL' ? AppColors.white : AppColors.black,
+            ),
+          ),
+          side: BorderSide(
+            width: 1,
+            color: AppColors.transparent,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          selected: state.condition != 'ALL',
+          backgroundColor: AppColors.containerColor,
+          selectedColor: AppColors.black,
+          onSelected: (_) => _showConditionBottomSheet(context),
+        ),
+      );
+    }
+
+    // Seller type filter chip
+    if (index == attributes.length + numericFields.length + 2) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 2.5),
+        child: FilterChip(
+          showCheckmark: false,
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+          label: Text(
+            _getSellerTypeText(state.sellerType),
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: state.sellerType != SellerType.ALL ? AppColors.white : AppColors.black,
+            ),
+          ),
+          side: BorderSide(width: 1, color: AppColors.transparent),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          selected: state.sellerType != SellerType.ALL,
+          backgroundColor: AppColors.containerColor,
+          selectedColor: AppColors.black,
+          onSelected: (_) => _showSellerTypeBottomSheet(context),
+        ),
+      );
+    }
+
+    // Bargain filter chip
+    if (index == attributes.length + numericFields.length + 3) {
+      return SwitchFilterChip(
+        label: 'Bargain',
+        value: state.bargain,
+        onChanged: (value) => context
+            .read<HomeTreeCubit>()
+            .toggleBargain(value, false, "CHILD"),
+      );
+    }
+
+    // Is Free filter chip
+    if (index == attributes.length + numericFields.length + 4) {
+      return SwitchFilterChip(
+        label: 'Is Free',
+        value: state.isFree,
+        onChanged: (value) => context
+            .read<HomeTreeCubit>()
+            .toggleIsFree(value, false, "CHILD"),
+      );
+    }
+
+    // Return an empty widget for any other indices that might occur
+    return const SizedBox.shrink();
+  },
+),
                       ),
                     ],
                   ),

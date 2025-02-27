@@ -1,3 +1,6 @@
+// ignore_for_file: deprecated_member_use
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/config/theme/app_colors.dart';
@@ -42,7 +45,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+     backgroundColor: CupertinoColors.extraLightBackgroundGray.withOpacity(0.5),
       appBar: AppBar(
         backgroundColor: AppColors.containerColor,
         elevation: 0,
@@ -115,7 +118,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             ),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              childAspectRatio: 0.60,
+              childAspectRatio: 0.63,
               crossAxisSpacing: 0,
               mainAxisSpacing: 0,
             ),

@@ -256,7 +256,7 @@ class ProfileProductCard extends StatelessWidget {
         );
       },
       child: Padding(
-        padding: EdgeInsets.all(3),
+        padding: EdgeInsets.all(0),
         child: Card(
           shadowColor: Colors.black.withOpacity(0.25),
           color: AppColors.white,

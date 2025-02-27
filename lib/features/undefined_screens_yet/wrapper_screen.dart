@@ -74,7 +74,7 @@ class _MainWrapperState extends State<MainWrapper> {
             color: AppColors.white,
             border: Border(
               top: BorderSide(
-                color: Colors.grey,
+                color: AppColors.containerColor,
                 width: 0.5,
               ),
             ),

@@ -1,3 +1,6 @@
+// ignore_for_file: deprecated_member_use
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/config/theme/app_colors.dart';
@@ -43,7 +46,7 @@ class _UserPublicationsScreenState extends State<UserPublicationsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: CupertinoColors.extraLightBackgroundGray.withOpacity(0.5),
       appBar: AppBar(
         backgroundColor: AppColors.containerColor,
         elevation: 0,

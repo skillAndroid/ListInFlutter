@@ -387,7 +387,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
               value,
               style: TextStyle(
                 color: textColor,
-                fontSize: 16,
+                fontSize: 15,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -440,7 +440,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        fontSize: 16,
+                        fontSize: 15,
                         fontWeight: FontWeight.w500,
                         color: AppColors.black,
                       ),
