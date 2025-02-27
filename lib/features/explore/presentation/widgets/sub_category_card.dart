@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
+import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/post/data/models/category_model.dart';
@@ -109,7 +110,7 @@ class _SubcategoryCardState extends State<SubcategoryCard>
                           fontSize: 11,
                           color: AppColors.transparent,
                           fontWeight: FontWeight.w500,
-                          fontFamily: 'Poppins',
+                         fontFamily: Constants.Arial,
                         ),
                       ),
                     ),
@@ -135,7 +136,7 @@ class _SubcategoryCardState extends State<SubcategoryCard>
                       fontSize: 12,
                       color: AppColors.black,
                       fontWeight: FontWeight.w500,
-                      fontFamily: 'Poppins',
+                      fontFamily: Constants.Arial,
                     ),
                   ),
                 ),

@@ -11,6 +11,7 @@ import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
+import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
@@ -1247,7 +1248,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                 style: const TextStyle(
                   fontSize: 16,
                   color: AppColors.white,
-                  fontFamily: "Poppins",
+                  fontFamily: Constants.Arial,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -1616,7 +1617,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                               style: const TextStyle(
                                 fontSize: 16,
                                 color: AppColors.white,
-                                fontFamily: "Poppins",
+                               fontFamily: Constants.Arial,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),

@@ -12,6 +12,7 @@ import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
+import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/details/presentation/bloc/details_bloc.dart';
 import 'package:list_in/features/details/presentation/bloc/details_state.dart';
 import 'package:list_in/features/details/presentation/pages/product_images_detailed.dart';
@@ -102,12 +103,12 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         currentUserId == widget.product.seller.id; // Check if user is owner
 
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: AppColors.bgColor,
       appBar: AppBar(
         elevation: 0,
         scrolledUnderElevation: 0,
         automaticallyImplyLeading: false,
-        backgroundColor: AppColors.white,
+        backgroundColor: AppColors.bgColor,
         flexibleSpace: _buildTopBar(isOwner),
       ),
       body: Stack(
@@ -401,7 +402,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               child: Card(
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(40)),
-                color: AppColors.white,
+                color: AppColors.bgColor,
                 shadowColor: AppColors.primary.withOpacity(0.3),
                 elevation: 4,
                 child: BlocBuilder<GlobalBloc, GlobalState>(
@@ -591,7 +592,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             Padding(
               padding: const EdgeInsets.only(
                 left: 16,
-                right: 16,
+                right: 8,
               ),
               child: InkWell(
                 onTap: () {
@@ -678,7 +679,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                         color: AppColors.containerColor,
                         shape: BoxShape.circle,
                       ),
-                      child: ClipOval(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(100),
                         child: Material(
                           color: AppColors.containerColor,
                           child: InkWell(
@@ -693,8 +695,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                             },
                             child: isLoading
                                 ? const Padding(
-                                    padding: EdgeInsets.only(
-                                        top: 4, left: 16, right: 16, bottom: 4),
+                                    padding: EdgeInsets.all(8),
                                     child: SizedBox(
                                       width: 20,
                                       height: 20,
@@ -708,7 +709,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                     ),
                                   )
                                 : Padding(
-                                    padding: const EdgeInsets.all(11.0),
+                                    padding: const EdgeInsets.all(8),
                                     child: Text(
                                       isFollowed ? "UnFollow" : "Follow",
                                       style: TextStyle(
@@ -807,8 +808,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     child: Text(
                       'Write to Telegram',
                       style: TextStyle(
-                        fontSize: 16,
-                        fontFamily: "Poppins",
+                        fontSize: 17,
+                        fontFamily: Constants.Arial,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -846,8 +847,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     child: Text(
                       'Call Now',
                       style: TextStyle(
-                        fontFamily: "Poppins",
-                        fontSize: 16,
+                        fontFamily: Constants.Arial,
+                        fontSize: 17,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -891,7 +892,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       'Edit Post',
                       style: TextStyle(
                         fontSize: 16,
-                        fontFamily: "Poppins",
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -929,7 +929,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     child: Text(
                       'Delete',
                       style: TextStyle(
-                        fontFamily: "Poppins",
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                       ),
@@ -1140,7 +1139,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         text: "${formatPrice(widget.product.price.toString())} ", // Main price
         style: const TextStyle(
           fontSize: 26,
-          fontWeight: FontWeight.w700,
+          color: AppColors.black,
+          fontWeight: FontWeight.w800,
+          fontFamily: Constants.Arial,
           height: 1.2,
         ),
         children: [
@@ -1149,7 +1150,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             style: TextStyle(
               fontSize: 18, // Smaller font size
               fontWeight: FontWeight.w400, // Lighter weight
-              color: AppColors.darkGray, // Brighter color
+              color: AppColors.darkGray,
+              fontFamily: Constants.Arial,
+              // Brighter color
             ),
           ),
         ],
@@ -1163,8 +1166,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       child: Text(
         widget.product.title,
         style: const TextStyle(
-          fontSize: 21,
-          fontWeight: FontWeight.w600,
+          fontSize: 23,
+          fontWeight: FontWeight.bold,
           color: Colors.black,
         ),
       ),

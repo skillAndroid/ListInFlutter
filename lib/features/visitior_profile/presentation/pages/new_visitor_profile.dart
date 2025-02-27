@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/utils/const.dart';
 
 class StoreProfilePage extends StatelessWidget {
   const StoreProfilePage({super.key});
@@ -326,11 +327,11 @@ class StoreProfilePage extends StatelessWidget {
                       indicatorWeight: 0.1,
                       dividerColor: AppColors.transparent,
                       labelStyle: const TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: Constants.Arial,
                         fontWeight: FontWeight.bold,
                       ),
                       unselectedLabelStyle: const TextStyle(
-                        fontFamily: 'Poppins',
+                          fontFamily: Constants.Arial,
                         fontWeight: FontWeight.w500,
                       ),
                       tabs: [
@@ -375,6 +376,8 @@ class StoreProfilePage extends StatelessWidget {
 
 // Rest of the classes remain unchanged
 class ShopTabContent extends StatelessWidget {
+  const ShopTabContent({super.key});
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -450,10 +453,10 @@ class CategoryCard extends StatelessWidget {
   final String title;
 
   const CategoryCard({
-    Key? key,
+    super.key,
     required this.image,
     required this.title,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

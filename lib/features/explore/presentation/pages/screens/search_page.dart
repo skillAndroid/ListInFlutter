@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
+import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
@@ -236,7 +237,9 @@ class _SearchPageState extends State<SearchPage> {
                       child: const Text(
                         'Cansel',
                         style: TextStyle(
-                            fontFamily: "Poppins", color: Colors.blue),
+                          fontFamily: Constants.Arial,
+                          color: Colors.blue,
+                        ),
                       ),
                     ),
                   ],

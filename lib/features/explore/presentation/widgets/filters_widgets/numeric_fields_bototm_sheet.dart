@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/post/data/models/nomeric_field_model.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
@@ -233,7 +234,7 @@ class _NumericFieldBottomSheetState extends State<NumericFieldBottomSheet> {
                         style: TextStyle(
                           fontSize: 16,
                           color: AppColors.white,
-                          fontFamily: "Poppins",
+                          fontFamily: Constants.Arial,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

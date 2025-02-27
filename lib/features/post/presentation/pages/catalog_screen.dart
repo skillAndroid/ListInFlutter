@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/post/presentation/pages/atributes_releted/atributes_page.dart';
 import 'package:list_in/features/post/presentation/pages/atributes_releted/catalog_page.dart';
 import 'package:list_in/features/post/presentation/pages/atributes_releted/child_category_page.dart';
@@ -279,7 +280,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
         'Create Post',
         style: TextStyle(
           fontWeight: FontWeight.w700,
-          fontFamily: "Poppins",
+          fontFamily: Constants.Arial,
           fontSize: 20,
           color: AppColors.black,
         ),
@@ -375,7 +376,9 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
                           SnackBar(
                             content: Text(
                               "Publication created successfuly!",
-                              style: TextStyle(fontFamily: "Poppins"),
+                              style: TextStyle(
+                                fontFamily: Constants.Arial,
+                              ),
                             ),
                             backgroundColor: Colors.blue,
                           ),

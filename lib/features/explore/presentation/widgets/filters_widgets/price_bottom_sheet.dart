@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/explore/presentation/widgets/formaters.dart';
@@ -234,7 +235,7 @@ class _PriceRangeBottomSheetState extends State<PriceRangeBottomSheet> {
                         style: TextStyle(
                           fontSize: 16,
                           color: AppColors.white,
-                          fontFamily: "Poppins",
+                       fontFamily: Constants.Arial,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

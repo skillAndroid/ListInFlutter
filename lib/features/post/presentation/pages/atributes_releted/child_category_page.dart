@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/post/data/models/child_category_model.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
@@ -70,7 +71,7 @@ class ChildCategoryListPage extends StatelessWidget {
                           style: const TextStyle(
                               fontWeight: FontWeight.w600,
                               fontSize: 16,
-                              fontFamily: "Poppins"),
+                                fontFamily: Constants.Arial,),
                         ),
                         const SizedBox(
                           height: 2,
@@ -87,7 +88,7 @@ class ChildCategoryListPage extends StatelessWidget {
                                 color: Colors.grey,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w400,
-                                fontFamily: "Poppins",
+                                 fontFamily: Constants.Arial,
                               ),
                             ),
                           ),

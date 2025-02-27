@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
+import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/formaters.dart';
 import 'package:list_in/features/explore/presentation/widgets/product_card/bb/regular_product_card.dart';
@@ -214,7 +215,7 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
                   Text(
                     'Under Construction',
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: Constants.Arial,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
@@ -226,13 +227,19 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
               const SizedBox(height: 16),
               const Text(
                 "We're sorry, but you can't view your own publication details from this page yet.",
-                style: TextStyle(fontSize: 14, fontFamily: 'Poppins'),
+                style: TextStyle(
+                  fontSize: 14,
+                  fontFamily: Constants.Arial,
+                ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 12),
               const Text(
                 "Our development team is working on this feature! 👨‍💻",
-                style: TextStyle(fontSize: 14, fontFamily: 'Poppins'),
+                style: TextStyle(
+                  fontSize: 14,
+                  fontFamily: Constants.Arial,
+                ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
@@ -255,7 +262,7 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
-                            fontFamily: 'Poppins',
+                            fontFamily: Constants.Arial,
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -278,7 +285,7 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
                     child: const Text(
                       'Go to Profile',
                       style: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: Constants.Arial,
                         color: Colors.blue,
                       ),
                     ),
@@ -294,7 +301,9 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
                     onPressed: () => Navigator.of(context).pop(),
                     child: const Text(
                       'OK, Got it',
-                      style: TextStyle(fontFamily: 'Poppins'),
+                      style: TextStyle(
+                        fontFamily: Constants.Arial,
+                      ),
                     ),
                   ),
                 ],
@@ -661,7 +670,7 @@ class _CallButton extends StatelessWidget {
             isOwner ? "You can't call your own number" : 'Call',
             style: TextStyle(
               fontSize: 14,
-              fontFamily: "Poppins",
+              fontFamily: Constants.Arial,
               fontWeight: FontWeight.w600,
               color: isOwner ? Colors.grey.shade600 : AppColors.primary,
             ),

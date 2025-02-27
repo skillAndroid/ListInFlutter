@@ -16,9 +16,9 @@ class AppTheme {
     secondaryHeaderColor: AppColors.secondaryColor,
     scaffoldBackgroundColor: AppColors.lightBackground,
     brightness: Brightness.light,
-    fontFamily: 'Poppins',
+    fontFamily: 'Arial',
     textTheme: Typography.material2018().black.apply(
-          fontFamily: 'Poppins',
+          fontFamily: 'Arial',
         ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
@@ -36,7 +36,7 @@ class AppTheme {
         ),
       ),
       errorStyle: const TextStyle(
-        fontFamily: 'Poppins',
+        fontFamily: 'Arial',
         fontSize: 14,
         fontWeight: FontWeight.w400,
       ),

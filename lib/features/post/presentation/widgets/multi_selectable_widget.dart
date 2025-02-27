@@ -1,6 +1,7 @@
 // ignore: file_names
 import 'package:flutter/material.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/post/data/models/attribute_model.dart';
 import 'package:list_in/features/post/data/models/attribute_value_model.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
@@ -84,7 +85,7 @@ class MultiSelectableWidget extends StatelessWidget {
               const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
-                  fontFamily: 'Poppins'),
+                    fontFamily: Constants.Arial,),
             ),
             padding: WidgetStateProperty.all(EdgeInsets.zero),
             elevation: WidgetStateProperty.all(0),
@@ -226,7 +227,7 @@ class MultiSelectableWidget extends StatelessWidget {
                                 const TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w400,
-                                    fontFamily: 'Poppins'),
+                                      fontFamily: Constants.Arial,),
                               ),
                               elevation: WidgetStateProperty.all(0),
                               backgroundColor:

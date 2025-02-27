@@ -12,6 +12,7 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
+import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
@@ -378,10 +379,11 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                     Text(
                       "Video Posts",
                       style: TextStyle(
-                          color: AppColors.darkBackground,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          fontFamily: "Poppins"),
+                        color: AppColors.darkBackground,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: Constants.Arial,
+                      ),
                     ),
                   ],
                 ),

@@ -11,6 +11,7 @@ import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/go_router.dart';
 import 'package:list_in/core/router/routes.dart';
+import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/explore/presentation/widgets/filters_widgets/numeric_fields_bototm_sheet.dart';
@@ -875,7 +876,7 @@ class _FiltersPageState extends State<FiltersPage>
                 style: const TextStyle(
                   fontSize: 16,
                   color: AppColors.white,
-                  fontFamily: "Poppins",
+                  fontFamily: Constants.Arial,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -1224,7 +1225,7 @@ class _FiltersPageState extends State<FiltersPage>
                               style: const TextStyle(
                                 fontSize: 16,
                                 color: AppColors.white,
-                                fontFamily: "Poppins",
+                                fontFamily: Constants.Arial,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -1463,14 +1464,16 @@ class _FiltersPageState extends State<FiltersPage>
               duration: Duration(milliseconds: 100),
               curve: Curves.easeInOut,
               style: TextStyle(
-                fontFamily: 'Poppins',
+                fontFamily: Constants.Arial,
                 fontSize: 15,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.normal,
                 color: isSelected ? AppColors.primary : AppColors.darkGray,
               ),
               child: Text(
                 label,
-                style: TextStyle(fontFamily: "Poppins"),
+                style: TextStyle(
+                  fontFamily: Constants.Arial,
+                ),
               ),
             ),
           ),
@@ -1664,14 +1667,16 @@ class _FiltersPageState extends State<FiltersPage>
               duration: Duration(milliseconds: 100),
               curve: Curves.easeInOut,
               style: TextStyle(
-                fontFamily: 'Poppins',
+                fontFamily: Constants.Arial,
                 fontSize: 15,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.normal,
                 color: isSelected ? AppColors.primary : AppColors.darkGray,
               ),
               child: Text(
                 label,
-                style: TextStyle(fontFamily: "Poppins"),
+                style: TextStyle(
+                  fontFamily: Constants.Arial,
+                ),
               ),
             ),
           ),
@@ -1945,7 +1950,7 @@ class _FiltersPageState extends State<FiltersPage>
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                                 letterSpacing: 0.5,
-                                fontFamily: "Poppins",
+                                fontFamily: Constants.Arial,
                               ),
                             ),
                         ],

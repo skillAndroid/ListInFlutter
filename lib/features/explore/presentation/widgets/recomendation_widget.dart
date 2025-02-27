@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/utils/const.dart';
 
 class RecommendationsRow extends StatelessWidget {
   final List<RecommendationItem> recommendations;
@@ -67,7 +68,7 @@ class RecommendationCard extends StatelessWidget {
               fontSize: 13,
               fontWeight: FontWeight.w500,
               color: AppColors.black,
-              fontFamily: 'Poppins',
+              fontFamily: Constants.Arial,
             ),
           ),
         ],

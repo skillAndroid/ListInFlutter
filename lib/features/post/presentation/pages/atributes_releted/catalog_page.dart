@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/post/data/models/category_model.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
 import 'package:provider/provider.dart';
@@ -63,12 +64,13 @@ class CatalogListPage extends StatelessWidget {
                         Text(
                           catalog.name,
                           style: const TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16,
-                              fontFamily: "Poppins"),
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                            fontFamily: Constants.Arial,
+                          ),
                         ),
                         const SizedBox(height: 2),
-                         Padding(
+                        Padding(
                           padding: EdgeInsets.only(right: 16),
                           child: SizedBox(
                             width: 250,
@@ -80,7 +82,7 @@ class CatalogListPage extends StatelessWidget {
                                 color: Colors.grey,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w400,
-                                fontFamily: "Poppins",
+                                fontFamily: Constants.Arial,
                               ),
                             ),
                           ),

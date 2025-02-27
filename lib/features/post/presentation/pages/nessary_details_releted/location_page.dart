@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/auth/presentation/pages/register_details_page.dart';
 import 'package:list_in/features/map/domain/entities/location_entity.dart';
 import 'package:list_in/features/map/presentation/map/map.dart';
@@ -78,7 +79,7 @@ class _LocationSelectionPageState extends State<LocationSelectionPage> {
                             label: const Text(
                               'Exact Location',
                               style: TextStyle(
-                                  fontSize: 15, fontFamily: "Poppins"),
+                                  fontSize: 15,   fontFamily: Constants.Arial,),
                             ),
                             style: ElevatedButton.styleFrom(
                               elevation: 0,
@@ -110,7 +111,7 @@ class _LocationSelectionPageState extends State<LocationSelectionPage> {
                             label: const Text(
                               'Region Only',
                               style: TextStyle(
-                                  fontSize: 15, fontFamily: "Poppins"),
+                                  fontSize: 15,   fontFamily: Constants.Arial,),
                             ),
                             style: ElevatedButton.styleFrom(
                               shadowColor: AppColors.transparent,
