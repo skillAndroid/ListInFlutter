@@ -27,7 +27,6 @@ import 'package:list_in/features/profile/presentation/bloc/publication/publicati
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_event.dart';
 import 'package:list_in/features/profile/presentation/widgets/action_sheet_menu.dart';
-import 'package:list_in/features/profile/presentation/widgets/delete_confirmation.dart';
 import 'package:list_in/features/profile/presentation/widgets/info_dialog.dart';
 import 'package:list_in/global/global_bloc.dart';
 import 'package:list_in/global/global_event.dart';

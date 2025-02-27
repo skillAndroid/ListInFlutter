@@ -45,7 +45,7 @@ class _UserPublicationsScreenState extends State<UserPublicationsScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Color(0xFFADE8B4),
+        backgroundColor: AppColors.containerColor,
         elevation: 0,
         automaticallyImplyLeading: false,
         scrolledUnderElevation: 0,
