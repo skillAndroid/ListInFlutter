@@ -901,19 +901,20 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           ),
         ],
 
-        SizedBox(
-          height: 16,
-        ),
-
         if (enAttributes.isNotEmpty ||
-            widget.product.attributeValue.numericValues.isNotEmpty)
+            widget.product.attributeValue.numericValues.isNotEmpty) ...[
+          SizedBox(
+            height: 16,
+          ),
           buildCharacteristics(enAttributes),
-        SizedBox(
-          height: 4,
-        ),
+          SizedBox(
+            height: 4,
+          ),
+        ],
+
         _buildDescription(),
         SizedBox(
-          height: 32,
+          height: 16,
         ),
         _buildSimilarProducts(isOwner),
       ],
