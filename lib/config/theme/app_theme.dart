@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/utils/const.dart';
 
 class AppTheme {
   static final lightTheme = ThemeData(
@@ -16,9 +17,9 @@ class AppTheme {
     secondaryHeaderColor: AppColors.secondaryColor,
     scaffoldBackgroundColor: AppColors.lightBackground,
     brightness: Brightness.light,
-    fontFamily: 'Arial',
+    fontFamily: Constants.Arial,
     textTheme: Typography.material2018().black.apply(
-          fontFamily: 'Arial',
+          fontFamily: Constants.Arial,
         ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
@@ -36,7 +37,7 @@ class AppTheme {
         ),
       ),
       errorStyle: const TextStyle(
-        fontFamily: 'Arial',
+        fontFamily: Constants.Arial,
         fontSize: 14,
         fontWeight: FontWeight.w400,
       ),
