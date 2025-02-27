@@ -53,6 +53,7 @@ class ProductDetailsScreen extends StatefulWidget {
 
 class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   final PageController _pageController = PageController();
+  final ScrollController _thumbnailScrollController = ScrollController();
   int _currentPage = 0;
   bool isMore = false;
 
@@ -85,6 +86,13 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         );
       }
     }
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    _thumbnailScrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -251,8 +259,30 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 aspectRatio: 4 / 4.6,
                 child: PageView.builder(
                   controller: _pageController,
-                  onPageChanged: (index) =>
-                      setState(() => _currentPage = index),
+                  onPageChanged: (index) {
+                    setState(() => _currentPage = index);
+
+                    // Auto-scroll the thumbnail strip to center the current thumbnail
+                    if (_thumbnailScrollController.hasClients) {
+                      final thumbnailWidth = 76.0 + 3.6; // width + padding
+                      final screenWidth = MediaQuery.of(context).size.width;
+                      final offset = index * thumbnailWidth -
+                          (screenWidth / 2) +
+                          (thumbnailWidth / 2);
+
+                      // Ensure the offset is within bounds
+                      final maxScroll =
+                          _thumbnailScrollController.position.maxScrollExtent;
+                      final scrollOffset = offset.clamp(0.0, maxScroll);
+
+                      // Animate to the new position
+                      _thumbnailScrollController.animateTo(
+                        scrollOffset,
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      );
+                    }
+                  },
                   itemCount: totalItems,
                   itemBuilder: (context, index) {
                     // Show video thumbnail as first item if video exists
@@ -456,7 +486,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             )
           ],
         ),
-        // Thumbnail strip
+        // Thumbnail strip with auto-scrolling functionality
         Container(
           height: 100,
           padding: const EdgeInsets.symmetric(vertical: 8),
@@ -465,6 +495,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               horizontal: 8,
             ),
             child: ListView.builder(
+              controller: _thumbnailScrollController, // Add the controller here
               scrollDirection: Axis.horizontal,
               itemCount: totalItems,
               itemBuilder: (context, index) {
