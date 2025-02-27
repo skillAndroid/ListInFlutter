@@ -299,7 +299,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
 
   Widget _buildMainScreen(HomeTreeState state) {
     return Scaffold(
-      backgroundColor: CupertinoColors.extraLightBackgroundGray,
+      backgroundColor: CupertinoColors.extraLightBackgroundGray.withOpacity(0.5),
       extendBody: true,
       appBar: _buildAppBar(state),
       body: RefreshIndicator(

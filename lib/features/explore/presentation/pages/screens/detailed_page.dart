@@ -258,7 +258,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
         if (state.isLoading) return _buildLoadingScreen();
         if (state.error != null) return _buildErrorScreen(state.error!);
         return Scaffold(
-          backgroundColor: AppColors.white,
+          backgroundColor: CupertinoColors.extraLightBackgroundGray.withOpacity(0.5),
           appBar: _buildAppBar(state),
           body: RefreshIndicator(
             color: Colors.blue,
@@ -308,22 +308,29 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                       Text(
                                         "Price",
                                         style: TextStyle(
-                                          color: AppColors.black,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
                                         ),
                                       ),
                                     ],
                                   ),
+                                  labelStyle: TextStyle(
+                                    color: (state.priceFrom != null ||
+                                            state.priceTo != null)
+                                        ? AppColors.white
+                                        : AppColors.black,
+                                  ),
                                   side: BorderSide(
                                     width: 1,
-                                    color: AppColors.lightGray.withOpacity(0.7),
+                                    color: AppColors.transparent,
                                   ),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(16),
                                   ),
                                   selected: state.priceFrom != null ||
                                       state.priceTo != null,
-                                  backgroundColor: AppColors.white,
-                                  selectedColor: AppColors.white,
+                                  backgroundColor: AppColors.containerColor,
+                                  selectedColor: AppColors.black,
                                   onSelected: (_) =>
                                       _showPriceRangeBottomSheet(context),
                                 ),
@@ -427,7 +434,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                                                   .value] ==
                                                           Colors.white)
                                                       ? Colors.grey
-                                                      : Colors.transparent,
+                                                      : Colors.white,
                                                   width: 1,
                                                 ),
                                               ),
@@ -456,21 +463,25 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                       Text(
                                         chipLabel,
                                         style: TextStyle(
-                                          color: AppColors.black,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                          color: selectedValue != null ||
+                                                  selectedValues.length > 0
+                                              ? AppColors.white
+                                              : AppColors.black,
                                         ),
                                       ),
                                     ],
                                   ),
                                   side: BorderSide(
-                                      width: 1,
-                                      color:
-                                          AppColors.lightGray.withOpacity(0.7)),
+                                      width: 1, color: AppColors.transparent),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(16),
                                   ),
-                                  selected: selectedValue != null,
-                                  backgroundColor: AppColors.white,
-                                  selectedColor: AppColors.white,
+                                  selected: selectedValue != null ||
+                                      selectedValues.length > 0,
+                                  backgroundColor: AppColors.containerColor,
+                                  selectedColor: AppColors.black,
                                   onSelected: (_) {
                                     if (attribute.values.isNotEmpty &&
                                         mounted) {
@@ -490,23 +501,29 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                 child: FilterChip(
                                   showCheckmark: false,
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 4, vertical: 10),
+                                    horizontal: 4,
+                                    vertical: 10,
+                                  ),
                                   label: Text(
                                     _getConditionText(state.condition),
                                     style: TextStyle(
-                                      color: AppColors.black,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      color: state.condition != 'ALL'
+                                          ? AppColors.white
+                                          : AppColors.black,
                                     ),
                                   ),
                                   side: BorderSide(
                                     width: 1,
-                                    color: AppColors.lightGray.withOpacity(0.7),
+                                    color: AppColors.transparent,
                                   ),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(16),
                                   ),
                                   selected: state.condition != 'ALL',
-                                  backgroundColor: AppColors.white,
-                                  selectedColor: AppColors.white,
+                                  backgroundColor: AppColors.containerColor,
+                                  selectedColor: AppColors.black,
                                   onSelected: (_) =>
                                       _showConditionBottomSheet(context),
                                 ),
@@ -525,19 +542,21 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                   label: Text(
                                     _getSellerTypeText(state.sellerType),
                                     style: TextStyle(
-                                      color: AppColors.black,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      color: state.sellerType != SellerType.ALL
+                                          ? AppColors.white
+                                          : AppColors.black,
                                     ),
                                   ),
                                   side: BorderSide(
-                                      width: 1,
-                                      color:
-                                          AppColors.lightGray.withOpacity(0.7)),
+                                      width: 1, color: AppColors.transparent),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(16),
                                   ),
                                   selected: state.sellerType != SellerType.ALL,
-                                  backgroundColor: AppColors.white,
-                                  selectedColor: AppColors.white,
+                                  backgroundColor: AppColors.containerColor,
+                                  selectedColor: AppColors.black,
                                   onSelected: (_) =>
                                       _showSellerTypeBottomSheet(context),
                                 ),
@@ -597,20 +616,21 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                 label: Text(
                                   chipLabel,
                                   style: TextStyle(
-                                    color: AppColors.black,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    color: fieldValues != null
+                                        ? AppColors.white
+                                        : AppColors.black,
                                   ),
                                 ),
                                 side: BorderSide(
-                                    width: 1,
-                                    color:
-                                        AppColors.lightGray.withOpacity(0.7)),
-                                shape: SmoothRectangleBorder(
-                                  smoothness: 0.8,
-                                  borderRadius: BorderRadius.circular(10),
+                                    width: 1, color: AppColors.transparent),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
                                 ),
                                 selected: fieldValues != null,
-                                backgroundColor: AppColors.white,
-                                selectedColor: AppColors.white,
+                                backgroundColor: AppColors.containerColor,
+                                selectedColor: AppColors.black,
                                 onSelected: (_) {
                                   _showNumericFieldBottomSheet(
                                       context, numericField);
@@ -772,9 +792,8 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                             },
                           );
                         },
-                        child: SmoothClipRRect(
-                          smoothness: 0.8,
-                          borderRadius: BorderRadius.circular(16),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
                           child: Container(
                             height: 52,
                             decoration: BoxDecoration(
@@ -794,11 +813,10 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                   child: Text(
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                    "What are you looking for?", 
+                                    "What are you looking for?",
                                     style: TextStyle(
                                       fontSize: 15,
-                                      color:
-                                          AppColors.darkGray.withOpacity(0.8),
+                                      color: AppColors.black,
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
@@ -1617,7 +1635,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                               style: const TextStyle(
                                 fontSize: 16,
                                 color: AppColors.white,
-                               fontFamily: Constants.Arial,
+                                fontFamily: Constants.Arial,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),

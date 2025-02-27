@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/config/theme/app_colors.dart';
-import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
-import 'package:list_in/features/explore/presentation/widgets/location_bar.dart';
 import 'package:list_in/features/explore/presentation/widgets/sub_category_list.dart';
 
 class TopAppRecomendationSubCategory extends StatelessWidget {
@@ -26,7 +24,7 @@ class TopAppRecomendationSubCategory extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               SubcategoriesList(
-                state : state,
+                state: state,
                 categoryModel: state.selectedCatalog!,
                 subcategories: state.selectedCatalog!.childCategories,
                 title: state.selectedCatalog!.name,
@@ -34,23 +32,6 @@ class TopAppRecomendationSubCategory extends StatelessWidget {
                     selectedCatalogIndex != -1 ? selectedCatalogIndex : 0,
               ),
               const SizedBox(height: 12),
-              const LocationBar(),
-              const SizedBox(height: 12),
-              Padding(
-                padding: const EdgeInsets.only(left: 8.0, bottom: 8),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: Text(
-                    "Recomendations",
-                    textAlign: TextAlign.start,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: Constants.Arial,
-                    ),
-                  ),
-                ),
-              ),
             ],
           ),
         );

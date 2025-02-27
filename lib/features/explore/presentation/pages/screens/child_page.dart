@@ -3,6 +3,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -294,7 +295,8 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
 
   Widget _buildMainScreen(HomeTreeState state) {
     return Scaffold(
-      backgroundColor: AppColors.bgColor,
+      backgroundColor:
+          CupertinoColors.extraLightBackgroundGray.withOpacity(0.5),
       extendBody: true,
       appBar: _buildAppBar(state),
       body: RefreshIndicator(
@@ -391,7 +393,7 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
       builder: (context, selectedFilters, _) {
         return Container(
           color: AppColors.bgColor,
-          height: 50,
+          height: 46,
           child: ListView.builder(
             physics: BouncingScrollPhysics(),
             scrollDirection: Axis.horizontal,
@@ -414,16 +416,16 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 2.5),
       child: FilterChip(
-        padding: EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+        padding: EdgeInsets.symmetric(horizontal: 4, vertical: 10),
         label: Text(
           state.selectedCatalog!.childCategories[index].name,
-          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
         ),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
         ),
         selected: selectedFilters.contains(index),
-        backgroundColor: AppColors.white,
+        backgroundColor: AppColors.containerColor,
         selectedColor: AppColors.green,
         labelStyle: TextStyle(
           color: selectedFilters.contains(index)
@@ -444,7 +446,7 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
             },
           });
         },
-        side: BorderSide(width: 1, color: AppColors.lightGray),
+        side: BorderSide(width: 1, color: AppColors.transparent),
       ),
     );
   }
@@ -497,7 +499,7 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
                           );
                         },
                         child: ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(20),
                           child: Container(
                             height: 52,
                             decoration: BoxDecoration(
@@ -520,8 +522,6 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
                                     "What are you looking for?", // Show current search text or default
                                     style: TextStyle(
                                       fontSize: 15,
-                                      color:
-                                          AppColors.darkGray.withOpacity(0.8),
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),

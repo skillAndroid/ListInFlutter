@@ -105,11 +105,11 @@ class IOSStyleSwitch extends StatelessWidget {
   final Color activeColor;
 
   const IOSStyleSwitch({
-    Key? key,
+    super.key,
     required this.value,
     required this.onChanged,
     this.activeColor = Colors.blue,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -182,7 +182,9 @@ class SwitchFilterChip extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                color: AppColors.black,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: value ? AppColors.white : AppColors.black,
               ),
             ),
             const SizedBox(width: 6),
@@ -195,14 +197,14 @@ class SwitchFilterChip extends StatelessWidget {
         ),
         side: BorderSide(
           width: 1,
-          color: AppColors.lightGray.withOpacity(0.7),
+          color: AppColors.transparent,
         ),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
         ),
         selected: value,
-        backgroundColor: AppColors.white,
-        selectedColor: AppColors.white,
+        backgroundColor: AppColors.containerColor,
+        selectedColor: AppColors.black,
         onSelected: onChanged,
       ),
     );
