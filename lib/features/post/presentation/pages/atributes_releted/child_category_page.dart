@@ -68,15 +68,29 @@ class ChildCategoryListPage extends StatelessWidget {
                         Text(
                           childCategory.name,
                           style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16),
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                              fontFamily: "Poppins"),
                         ),
                         const SizedBox(
-                          height: 6,
+                          height: 2,
                         ),
-                        Text(
-                          childCategory.description,
-                          style:
-                              const TextStyle(color: Colors.grey, fontSize: 14),
+                        Padding(
+                          padding: EdgeInsets.only(right: 16),
+                          child: SizedBox(
+                            width: 250,
+                            child: Text(
+                              childCategory.description,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: const TextStyle(
+                                color: Colors.grey,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                                fontFamily: "Poppins",
+                              ),
+                            ),
+                          ),
                         ),
                       ],
                     ),

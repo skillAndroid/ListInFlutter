@@ -60,9 +60,31 @@ class CatalogListPage extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(catalog.name),
-                        const SizedBox(height: 6),
-                        Text(catalog.description),
+                        Text(
+                          catalog.name,
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                              fontFamily: "Poppins"),
+                        ),
+                        const SizedBox(height: 2),
+                         Padding(
+                          padding: EdgeInsets.only(right: 16),
+                          child: SizedBox(
+                            width: 250,
+                            child: Text(
+                              catalog.description,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: const TextStyle(
+                                color: Colors.grey,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                                fontFamily: "Poppins",
+                              ),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ],

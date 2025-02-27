@@ -1126,12 +1126,24 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   }
 
   Widget _buildPrice() {
-    return Text(
-      "${formatPrice(widget.product.price.toString())} so'm",
-      style: const TextStyle(
-        height: 1.2,
-        fontSize: 26,
-        fontWeight: FontWeight.w700,
+    return Text.rich(
+      TextSpan(
+        text: "${formatPrice(widget.product.price.toString())} ", // Main price
+        style: const TextStyle(
+          fontSize: 26,
+          fontWeight: FontWeight.w700,
+          height: 1.2,
+        ),
+        children: [
+          TextSpan(
+            text: "so'm", // Currency text
+            style: TextStyle(
+              fontSize: 18, // Smaller font size
+              fontWeight: FontWeight.w400, // Lighter weight
+              color: Colors.grey, // Brighter color
+            ),
+          ),
+        ],
       ),
     );
   }
