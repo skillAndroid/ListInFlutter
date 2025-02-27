@@ -111,7 +111,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      _buildImageSlider(),
+                      _buildImageSlider(isOwner),
                       _buildMainContent(isOwner),
                     ],
                   ),
@@ -236,7 +236,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
-  Widget _buildImageSlider() {
+  Widget _buildImageSlider(bool isOwner) {
     final hasVideo = widget.product.videoUrl != null;
     final totalItems = hasVideo
         ? widget.product.productImages.length + 1
@@ -422,15 +422,17 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                   )
                                 : IconButton(
                                     onPressed: () {
-                                      if (!isLoading) {
-                                        context.read<GlobalBloc>().add(
-                                              UpdateLikeStatusEvent(
-                                                publicationId:
-                                                    widget.product.id,
-                                                isLiked: isLiked,
-                                                context: context,
-                                              ),
-                                            );
+                                      if (!isOwner) {
+                                        if (!isLoading) {
+                                          context.read<GlobalBloc>().add(
+                                                UpdateLikeStatusEvent(
+                                                  publicationId:
+                                                      widget.product.id,
+                                                  isLiked: isLiked,
+                                                  context: context,
+                                                ),
+                                              );
+                                        }
                                       }
                                     },
                                     icon: Image.asset(
@@ -1182,64 +1184,12 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           ),
           const SizedBox(height: 8),
           // Show first 5 items
-          ...features.take(5).map((feature) => _buildCharacteristicItem(
+          ...features.map((feature) => _buildCharacteristicItem(
                 feature.key,
                 feature.value,
               )),
           // Show "See All" button if there are more items
-          if (features.length > 12)
-            Padding(
-              padding: const EdgeInsets.only(top: 0),
-              child: GestureDetector(
-                onTap: () => _showAllCharacteristics(features),
-                child: const Text(
-                  'Show All',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.blue,
-                  ),
-                ),
-              ),
-            ),
         ],
-      ),
-    );
-  }
-
-  void _showAllCharacteristics(List<MapEntry<String, String>> features) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: AppColors.white,
-      isScrollControlled: true,
-      shape: SmoothRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (context) => Container(
-        height: 700, // Set fixed height (adjust as needed)
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Characteristics',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              height: 600, // Fixed height for the list
-              child: ListView(
-                children: features
-                    .map((feature) =>
-                        _buildCharacteristicItem(feature.key, feature.value))
-                    .toList(),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
