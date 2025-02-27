@@ -97,7 +97,7 @@ class _CategoryCardState extends State<CategoryCard>
                 padding: const EdgeInsets.symmetric(horizontal: 0),
                 decoration: BoxDecoration(
                   color: AppColors.containerColor,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
