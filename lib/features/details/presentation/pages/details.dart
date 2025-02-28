@@ -10,6 +10,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/assets/app_icons.dart';
+import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/core/utils/const.dart';
@@ -586,29 +587,26 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 right: 8,
               ),
               child: InkWell(
-                onTap: () {
-                  if (!isOwner) {
-                    context.push(Routes.anotherUserProfile, extra: {
-                      'userId': widget.product.seller.id,
-                    });
-                  } else {}
-                },
-                child: widget.product.seller.profileImagePath != null
-                    ? ClipOval(
-                        child: CachedNetworkImage(
-                          imageUrl:
-                              'https://${widget.product.seller.profileImagePath!}',
-                          fit: BoxFit.cover,
-                          width: 50,
-                          height: 50,
-                          placeholder: (context, url) =>
-                              CircularProgressIndicator(),
-                          errorWidget: (context, url, error) =>
-                              Icon(Icons.error, color: Colors.red),
-                        ),
-                      )
-                    : Icon(Icons.person, size: 50, color: Colors.white),
-              ),
+                  onTap: () {
+                    if (!isOwner) {
+                      context.push(Routes.anotherUserProfile, extra: {
+                        'userId': widget.product.seller.id,
+                      });
+                    } else {}
+                  },
+                  child: ClipOval(
+                    child: CachedNetworkImage(
+                      imageUrl:
+                          'https://${widget.product.seller.profileImagePath}',
+                      fit: BoxFit.cover,
+                      width: 50,
+                      height: 50,
+                      placeholder: (context, url) =>
+                          CircularProgressIndicator(),
+                      errorWidget: (context, url, error) =>
+                          Image.asset(AppImages.appLogo),
+                    ),
+                  )),
             ),
 
             // Seller Info with Follow Button
