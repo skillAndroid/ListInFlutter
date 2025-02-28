@@ -25,9 +25,9 @@ import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class VisitorProfileScreen extends StatefulWidget {
   final String userId;
-  final List<ProductEntity> products; // ID of the profile being viewed
+  
   const VisitorProfileScreen(
-      {super.key, required this.userId, required this.products});
+      {super.key, required this.userId});
 
   @override
   State<VisitorProfileScreen> createState() => _VisitorProfileScreenState();

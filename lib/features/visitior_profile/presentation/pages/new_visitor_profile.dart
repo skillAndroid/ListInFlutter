@@ -7,11 +7,18 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/utils/const.dart';
+import 'package:list_in/features/explore/presentation/widgets/product_card/bb/regular_product_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
+import 'package:list_in/features/visitior_profile/domain/entity/another_user_profile_entity.dart';
 import 'package:list_in/features/visitior_profile/presentation/bloc/another_user_profile_bloc.dart';
 import 'package:list_in/features/visitior_profile/presentation/bloc/another_user_profile_event.dart';
 import 'package:list_in/features/visitior_profile/presentation/bloc/another_user_profile_state.dart';
+import 'package:list_in/global/global_bloc.dart';
+import 'package:list_in/global/global_event.dart';
+import 'package:list_in/global/global_state.dart';
+import 'package:list_in/global/global_status.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class StoreProfilePage extends StatefulWidget {
   final String userId;
@@ -74,7 +81,9 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
               actions: [
                 IconButton(
                   icon: Icon(CupertinoIcons.phone, color: Colors.black),
-                  onPressed: () {},
+                  onPressed: () {
+                    _makeCall(context, "${userData.phoneNumber}");
+                  },
                 ),
                 IconButton(
                   icon: Icon(CupertinoIcons.bubble_left, color: Colors.black),
@@ -234,9 +243,7 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                             // Profile Image with parallax
                                             Transform.translate(
                                               offset: Offset(
-                                                  0,
-                                                  -parallaxOffset *
-                                                      0.3), // Avatar moves up too
+                                                  0, -parallaxOffset * 0.3),
                                               child: ClipRRect(
                                                 borderRadius:
                                                     BorderRadius.circular(100),
@@ -278,156 +285,241 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
 
                                             SizedBox(width: 16),
                                             // Store Info with parallax
-                                            Expanded(
-                                              child: Transform.translate(
-                                                offset: Offset(
-                                                    0,
-                                                    -parallaxOffset *
-                                                        0.2), // Text moves up slightly
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      userData.nickName ??
-                                                          "No user name",
-                                                      style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 21,
-                                                        height: 1.3,
-                                                        fontFamily:
-                                                            Constants.Arial,
-                                                        color: Colors.black,
-                                                      ),
+                                            BlocBuilder<GlobalBloc,
+                                                GlobalState>(
+                                              builder: (context, state) {
+                                                final followersCount =
+                                                    state.getFollowersCount(
+                                                        userData.id ?? '');
+                                                final followingCount =
+                                                    state.getFollowingCount(
+                                                        userData.id ?? '');
+                                                return Expanded(
+                                                  child: Transform.translate(
+                                                    offset: Offset(
+                                                        0,
+                                                        -parallaxOffset *
+                                                            0.2), // Text moves up slightly
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Text(
+                                                          userData.nickName ??
+                                                              "No user name",
+                                                          style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontSize: 21,
+                                                            height: 1.3,
+                                                            fontFamily:
+                                                                Constants.Arial,
+                                                            color: Colors.black,
+                                                          ),
+                                                        ),
+                                                        SizedBox(height: 4),
+                                                        RichText(
+                                                          text: TextSpan(
+                                                            children: [
+                                                              TextSpan(
+                                                                text:
+                                                                    '$followersCount ',
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  color: Colors
+                                                                      .black,
+                                                                  fontFamily:
+                                                                      Constants
+                                                                          .Arial,
+                                                                  fontSize: 12,
+                                                                ),
+                                                              ),
+                                                              TextSpan(
+                                                                text:
+                                                                    'followers',
+                                                                style:
+                                                                    TextStyle(
+                                                                  color: Colors
+                                                                      .black54,
+                                                                  fontFamily:
+                                                                      Constants
+                                                                          .Arial,
+                                                                  fontSize: 12,
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        RichText(
+                                                          text: TextSpan(
+                                                            children: [
+                                                              TextSpan(
+                                                                text:
+                                                                    '${userData.rating}',
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontFamily:
+                                                                      Constants
+                                                                          .Arial,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  color: Colors
+                                                                      .black,
+                                                                  fontSize: 12,
+                                                                ),
+                                                              ),
+                                                              TextSpan(
+                                                                text:
+                                                                    ' rating (0 reviews)',
+                                                                style:
+                                                                    TextStyle(
+                                                                  color: Colors
+                                                                      .black54,
+                                                                  fontFamily:
+                                                                      Constants
+                                                                          .Arial,
+                                                                  fontSize: 12,
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        // "items sold" part removed
+                                                      ],
                                                     ),
-                                                    SizedBox(height: 4),
-                                                    RichText(
-                                                      text: TextSpan(
-                                                        children: [
-                                                          TextSpan(
-                                                            text:
-                                                                '${userData.followers} ',
-                                                            style: TextStyle(
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                              color:
-                                                                  Colors.black,
-                                                              fontFamily:
-                                                                  Constants
-                                                                      .Arial,
-                                                              fontSize: 12,
-                                                            ),
-                                                          ),
-                                                          TextSpan(
-                                                            text: 'followers',
-                                                            style: TextStyle(
-                                                              color: Colors
-                                                                  .black54,
-                                                              fontFamily:
-                                                                  Constants
-                                                                      .Arial,
-                                                              fontSize: 12,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    RichText(
-                                                      text: TextSpan(
-                                                        children: [
-                                                          TextSpan(
-                                                            text:
-                                                                '${userData.rating} rating ',
-                                                            style: TextStyle(
-                                                              fontFamily:
-                                                                  Constants
-                                                                      .Arial,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                              color:
-                                                                  Colors.black,
-                                                              fontSize: 12,
-                                                            ),
-                                                          ),
-                                                          TextSpan(
-                                                            text: '(0 reviews)',
-                                                            style: TextStyle(
-                                                              color: Colors
-                                                                  .black54,
-                                                              fontFamily:
-                                                                  Constants
-                                                                      .Arial,
-                                                              fontSize: 12,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    // "items sold" part removed
-                                                  ],
-                                                ),
-                                              ),
+                                                  ),
+                                                );
+                                              },
                                             ),
                                             // Follow Button - replacing the favorite button
-                                            Transform.translate(
-                                              offset: Offset(
-                                                  0, -parallaxOffset * 0.3),
-                                              child: Container(
-                                                margin: EdgeInsets.only(top: 8),
-                                                height: 36,
-                                                child: ElevatedButton(
-                                                  onPressed: () {},
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                    backgroundColor:
-                                                        CupertinoColors.white,
-                                                    foregroundColor:
-                                                        Colors.white,
-                                                    elevation: 0,
-                                                    shape:
-                                                        SmoothRectangleBorder(
-                                                      side: BorderSide(
-                                                          width: 1,
-                                                          color:
-                                                              AppColors.black),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              18),
-                                                    ),
-                                                    padding:
-                                                        EdgeInsets.symmetric(
-                                                      horizontal: 16,
-                                                    ),
-                                                  ),
-                                                  child: Row(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    children: [
-                                                      Icon(
-                                                        Icons.add,
-                                                        size: 16,
-                                                        color: AppColors.black,
-                                                      ),
-                                                      SizedBox(width: 4),
-                                                      Text(
-                                                        'Follow',
-                                                        style: TextStyle(
-                                                          fontFamily:
-                                                              Constants.Arial,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          color:
-                                                              AppColors.black,
-                                                          fontSize: 14,
+                                            BlocBuilder<GlobalBloc,
+                                                GlobalState>(
+                                              builder: (context, state) {
+                                                final isFollowed =
+                                                    state.isUserFollowed(
+                                                        widget.userId);
+                                                final followStatus =
+                                                    state.getFollowStatus(
+                                                        widget.userId);
+                                                final isLoading =
+                                                    followStatus ==
+                                                        FollowStatus.inProgress;
+                                                return Transform.translate(
+                                                  offset: Offset(
+                                                      0, -parallaxOffset * 0.3),
+                                                  child: Container(
+                                                    margin:
+                                                        EdgeInsets.only(top: 8),
+                                                    height: 36,
+                                                    child: ElevatedButton(
+                                                      onPressed: isLoading
+                                                          ? null
+                                                          : () {
+                                                              context
+                                                                  .read<
+                                                                      GlobalBloc>()
+                                                                  .add(
+                                                                    UpdateFollowStatusEvent(
+                                                                      userId: widget
+                                                                          .userId,
+                                                                      isFollowed:
+                                                                          isFollowed,
+                                                                      context:
+                                                                          context,
+                                                                    ),
+                                                                  );
+                                                            },
+                                                      style: ElevatedButton
+                                                          .styleFrom(
+                                                        backgroundColor:
+                                                            CupertinoColors
+                                                                .white,
+                                                        foregroundColor:
+                                                            Colors.white,
+                                                        elevation: 0,
+                                                        shape:
+                                                            SmoothRectangleBorder(
+                                                          side: BorderSide(
+                                                              width: 1,
+                                                              color: AppColors
+                                                                  .black),
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(18),
+                                                        ),
+                                                        padding: EdgeInsets
+                                                            .symmetric(
+                                                          horizontal: 16,
                                                         ),
                                                       ),
-                                                    ],
+                                                      child: isLoading
+                                                          ? const Padding(
+                                                              padding:
+                                                                  EdgeInsets
+                                                                      .all(8),
+                                                              child: SizedBox(
+                                                                width: 20,
+                                                                height: 20,
+                                                                child:
+                                                                    CircularProgressIndicator(
+                                                                  strokeWidth:
+                                                                      2,
+                                                                  valueColor:
+                                                                      AlwaysStoppedAnimation<
+                                                                          Color>(
+                                                                    Colors
+                                                                        .black,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            )
+                                                          : Row(
+                                                              mainAxisSize:
+                                                                  MainAxisSize
+                                                                      .min,
+                                                              children: [
+                                                                Icon(
+                                                                  isFollowed
+                                                                      ? Icons
+                                                                          .remove
+                                                                      : Icons
+                                                                          .add,
+                                                                  size: 16,
+                                                                  color:
+                                                                      AppColors
+                                                                          .black,
+                                                                ),
+                                                                SizedBox(
+                                                                    width: 4),
+                                                                Text(
+                                                                  isFollowed
+                                                                      ? "Unfollow"
+                                                                      : 'Follow',
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontFamily:
+                                                                        Constants
+                                                                            .Arial,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    color: AppColors
+                                                                        .black,
+                                                                    fontSize:
+                                                                        14,
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                    ),
                                                   ),
-                                                ),
-                                              ),
+                                                );
+                                              },
                                             ),
                                           ],
                                         ),
@@ -526,7 +618,8 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                                       text: TextSpan(
                                                         children: [
                                                           TextSpan(
-                                                            text: '${userData.rating} rating ',
+                                                            text:
+                                                                '${userData.rating} ',
                                                             style: TextStyle(
                                                               fontFamily:
                                                                   Constants
@@ -540,7 +633,8 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                                             ),
                                                           ),
                                                           TextSpan(
-                                                            text: '(0 reviews)',
+                                                            text:
+                                                                'rating (0 reviews)',
                                                             style: TextStyle(
                                                               color: Colors
                                                                   .black54,
@@ -557,52 +651,120 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                                 )
                                               ],
                                             ),
-                                            Container(
-                                              margin: EdgeInsets.only(top: 0),
-                                              height: 36,
-                                              child: ElevatedButton(
-                                                onPressed: () {},
-                                                style: ElevatedButton.styleFrom(
-                                                  backgroundColor:
-                                                      CupertinoColors.white,
-                                                  foregroundColor: Colors.white,
-                                                  elevation: 0,
-                                                  shape: SmoothRectangleBorder(
-                                                    side: BorderSide(
-                                                        width: 1,
-                                                        color: AppColors.black),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            18),
-                                                  ),
-                                                  padding: EdgeInsets.symmetric(
-                                                    horizontal: 16,
-                                                  ),
-                                                ),
-                                                child: Row(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    Icon(
-                                                      Icons.add,
-                                                      size: 16,
-                                                      color: AppColors.black,
-                                                    ),
-                                                    SizedBox(width: 4),
-                                                    Text(
-                                                      'Follow',
-                                                      style: TextStyle(
-                                                        fontFamily:
-                                                            Constants.Arial,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        color: AppColors.black,
-                                                        fontSize: 14,
+                                            BlocBuilder<GlobalBloc,
+                                                GlobalState>(
+                                              builder: (context, state) {
+                                                final isFollowed =
+                                                    state.isUserFollowed(
+                                                        widget.userId);
+                                                final followStatus =
+                                                    state.getFollowStatus(
+                                                        widget.userId);
+                                                final isLoading =
+                                                    followStatus ==
+                                                        FollowStatus.inProgress;
+                                                return Container(
+                                                  margin:
+                                                      EdgeInsets.only(top: 0),
+                                                  height: 36,
+                                                  child: ElevatedButton(
+                                                    onPressed: isLoading
+                                                        ? null
+                                                        : () {
+                                                            context
+                                                                .read<
+                                                                    GlobalBloc>()
+                                                                .add(
+                                                                  UpdateFollowStatusEvent(
+                                                                    userId: widget
+                                                                        .userId,
+                                                                    isFollowed:
+                                                                        isFollowed,
+                                                                    context:
+                                                                        context,
+                                                                  ),
+                                                                );
+                                                          },
+                                                    style: ElevatedButton
+                                                        .styleFrom(
+                                                      backgroundColor:
+                                                          CupertinoColors.white,
+                                                      foregroundColor:
+                                                          Colors.white,
+                                                      elevation: 0,
+                                                      shape:
+                                                          SmoothRectangleBorder(
+                                                        side: BorderSide(
+                                                            width: 1,
+                                                            color: AppColors
+                                                                .black),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(18),
+                                                      ),
+                                                      padding:
+                                                          EdgeInsets.symmetric(
+                                                        horizontal: 16,
                                                       ),
                                                     ),
-                                                  ],
-                                                ),
-                                              ),
+                                                    child: isLoading
+                                                        ? const Padding(
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                    8),
+                                                            child: SizedBox(
+                                                              width: 20,
+                                                              height: 20,
+                                                              child:
+                                                                  CircularProgressIndicator(
+                                                                strokeWidth: 2,
+                                                                valueColor:
+                                                                    AlwaysStoppedAnimation<
+                                                                        Color>(
+                                                                  Colors.black,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          )
+                                                        : Row(
+                                                            mainAxisSize:
+                                                                MainAxisSize
+                                                                    .min,
+                                                            children: [
+                                                              Icon(
+                                                                isFollowed
+                                                                    ? Icons
+                                                                        .remove
+                                                                    : Icons.add,
+                                                                size: 16,
+                                                                color: AppColors
+                                                                    .black,
+                                                              ),
+                                                              SizedBox(
+                                                                  width: 4),
+                                                              Text(
+                                                                isFollowed
+                                                                    ? "Unfollow"
+                                                                    : 'Follow',
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontFamily:
+                                                                      Constants
+                                                                          .Arial,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  color:
+                                                                      AppColors
+                                                                          .black,
+                                                                  fontSize: 14,
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                  ),
+                                                );
+                                              },
                                             ),
                                           ],
                                         ),
@@ -641,9 +803,8 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                           ),
                           tabs: [
                             Tab(text: 'Shop'),
-                            Tab(text: 'Sale'),
                             Tab(text: 'About'),
-                            Tab(text: 'Feedback'),
+                            Tab(text: 'Reviews'),
                           ],
                         ),
                       ),
@@ -654,14 +815,15 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                 // Tab content that scrolls underneath
                 body: TabBarView(
                   children: [
-                    // Shop Tab Content
-                    ShopTabContent(),
-                    // Sale Tab Content
-                    Center(child: Text('Sale Content')),
-                    // About Tab Content
-                    Center(child: Text('About Content')),
-                    // Feedback Tab Content
-                    Center(child: Text('Feedback Content')),
+                    // Use unique PageStorageKey for each tab
+                    ShopTabContent(key: PageStorageKey('shop_tab')),
+                    AboutTabContent(
+                      key: PageStorageKey('about_tab'),
+                      user: userData,
+                    ),
+                    Center(
+                        key: PageStorageKey('feedback_tab'),
+                        child: Text('Feedback Content')),
                   ],
                 ),
               ),
@@ -671,6 +833,29 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
       },
     );
   }
+
+  Future<void> _makeCall(BuildContext context, String phoneNumber) async {
+    final cleanPhoneNumber = phoneNumber.replaceAll(RegExp(r'[^\d+]'), '');
+    final String uriString = 'tel:$cleanPhoneNumber';
+
+    try {
+      if (await canLaunchUrl(Uri.parse(uriString))) {
+        await launchUrl(Uri.parse(uriString));
+      } else {
+        debugPrint("🤙Cannot launch URL: $uriString");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content:
+                  Text("Error: Unable to launch call to $cleanPhoneNumber")),
+        );
+      }
+    } catch (e) {
+      debugPrint("🤙Cannot launch URL: $uriString");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Exception: $e")),
+      );
+    }
+  }
 }
 
 // Rest of the classes remain unchanged
@@ -679,162 +864,142 @@ class ShopTabContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Featured categories',
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(height: 16),
-          // Categories Row
-          Row(
-            children: [
-              Expanded(
-                child: CategoryCard(
-                  image: 'assets/boots.jpg',
-                  title: 'Boots',
+    return NotificationListener<ScrollNotification>(
+      onNotification: (ScrollNotification scrollInfo) {
+        // Check if we're near the bottom
+        if (scrollInfo is ScrollEndNotification) {
+          if (scrollInfo.metrics.pixels >=
+              scrollInfo.metrics.maxScrollExtent * 0.7) {
+            final state = context.read<AnotherUserProfileBloc>().state;
+            if (!state.hasReachedEnd && !state.isLoadingMore) {
+              context.read<AnotherUserProfileBloc>().add(
+                    FetchPublications(
+                      userId: state.profile?.id ?? '',
+                    ),
+                  );
+            }
+          }
+        }
+        return true;
+      },
+      child: CustomScrollView(
+        slivers: [
+          SliverPadding(
+            padding: const EdgeInsets.all(16.0),
+            sliver: SliverToBoxAdapter(
+              child: Text(
+                'User Posts',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(width: 12),
-              Expanded(
-                child: CategoryCard(
-                  image: 'assets/athletic_shoes.jpg',
-                  title: 'Athletic Shoes',
-                ),
-              ),
-              SizedBox(width: 12),
-              Expanded(
-                child: CategoryCard(
-                  image: 'assets/sandals.jpg',
-                  title: 'Sandals',
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 24),
-          // Add more content here
-          Text(
-            'New arrivals',
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
             ),
           ),
-          SizedBox(height: 16),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 0.75,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-            ),
-            itemCount: 6,
-            itemBuilder: (context, index) {
-              return ProductCard();
-            },
-          ),
+          _buildProductsGrid(context),
         ],
       ),
     );
   }
-}
 
-class CategoryCard extends StatelessWidget {
-  final String image;
-  final String title;
+  Widget _buildProductsGrid(BuildContext context) {
+    return BlocBuilder<AnotherUserProfileBloc, AnotherUserProfileState>(
+      builder: (context, state) {
+        if (state.status == AnotherUserProfileStatus.loading &&
+            state.publications.isEmpty) {
+          return SliverToBoxAdapter(
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
 
-  const CategoryCard({
-    super.key,
-    required this.image,
-    required this.title,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        AspectRatio(
-          aspectRatio: 1,
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              image: DecorationImage(
-                image: AssetImage(image),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-        ),
-        SizedBox(height: 8),
-        Text(
-          title,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class ProductCard extends StatelessWidget {
-  const ProductCard({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Product Image
-          AspectRatio(
-            aspectRatio: 1,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
-                color: Colors.grey[200],
-              ),
-              child: Center(
-                child: Icon(Icons.shopping_bag, size: 40, color: Colors.grey),
-              ),
-            ),
-          ),
-          // Product Details
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Sample Product',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                SizedBox(height: 4),
-                Text(
-                  '\$99.99',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
+        if (state.status == AnotherUserProfileStatus.failure) {
+          return SliverToBoxAdapter(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      context.read<AnotherUserProfileBloc>().add(
+                            FetchPublications(
+                              userId: state.profile?.id ?? '',
+                              isInitialFetch: true,
+                            ),
+                          );
+                    },
+                    child: Text("Retry"),
                   ),
-                ),
-              ],
+                  if (state.errorMessage != null) Text(state.errorMessage!),
+                ],
+              ),
+            ),
+          );
+        }
+
+        if (state.publications.isEmpty) {
+          return SliverToBoxAdapter(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 32),
+                  Icon(Icons.inventory, size: 72, color: Colors.grey[400]),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No publications available',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        return SliverPadding(
+          padding: EdgeInsets.only(bottom: 16, left: 12, right: 12),
+          sliver: SliverGrid(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                // Check if we need to load more
+                if (index >= state.publications.length - 4 &&
+                    !state.isLoadingMore &&
+                    !state.hasReachedEnd) {
+                  context.read<AnotherUserProfileBloc>().add(
+                        FetchPublications(
+                          userId: state.profile?.id ?? '',
+                        ),
+                      );
+                }
+
+                if (index == state.publications.length) {
+                  if (state.isLoadingMore) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  return null;
+                }
+
+                final publication = state.publications[index];
+                return Padding(
+                  padding: const EdgeInsets.all(0),
+                  child: ProductCardContainer(product: publication),
+                );
+              },
+              childCount:
+                  state.publications.length + (state.isLoadingMore ? 1 : 0),
+            ),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 0,
+              mainAxisSpacing: 0,
+              childAspectRatio: 0.62,
             ),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
@@ -862,5 +1027,218 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   @override
   bool shouldRebuild(SliverPersistentHeaderDelegate oldDelegate) {
     return false;
+  }
+}
+
+class AboutTabContent extends StatelessWidget {
+  final AnotherUserProfileEntity user;
+
+  const AboutTabContent({super.key, required this.user});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // About Us Section Header
+          const Text(
+            'About Us',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+
+          // About Us Content (using biography field)
+          Text(
+            user.biography ?? 'No information available',
+            style: const TextStyle(
+              fontSize: 16,
+              color: Colors.black87,
+              height: 1.5,
+            ),
+          ),
+
+          const SizedBox(height: 30),
+
+          // Contact Information Section
+          const Text(
+            'Contact Information',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Email
+          if (user.email != null)
+            _buildInfoRow(CupertinoIcons.mail, user.email!),
+
+          // Phone
+          if (user.phoneNumber != null)
+            _buildInfoRow(CupertinoIcons.phone, user.phoneNumber!),
+
+          // Location
+          if (user.locationName != null)
+            _buildInfoRow(Icons.location_on_outlined, user.locationName!),
+
+          const SizedBox(height: 30),
+
+          // Available Hours Section
+          if (user.fromTime != null && user.toTime != null) ...[
+            const Text(
+              'Available Hours',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            _buildInfoRow(
+                Icons.access_time, '${user.fromTime} - ${user.toTime}'),
+            const SizedBox(height: 8),
+          ],
+
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 0, 8, 2),
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: ElevatedButton(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      shape: SmoothRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          24,
+                        ),
+                      ),
+                      backgroundColor: CupertinoColors.activeGreen,
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(
+                        vertical: 14,
+                      ),
+                    ),
+                    child: Text(
+                      'Write to Telegram',
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontFamily: Constants.Arial,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 3, 8, 0),
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      _makeCall(context, "${user.phoneNumber}");
+                    },
+                    style: ElevatedButton.styleFrom(
+                      shape: SmoothRectangleBorder(
+                        side: BorderSide(
+                            width: 1,
+                            color: CupertinoColors.activeGreen,
+                            strokeAlign: BorderSide.strokeAlignCenter),
+                        borderRadius: BorderRadius.circular(
+                          24,
+                        ),
+                      ),
+                      backgroundColor: CupertinoColors.white,
+                      foregroundColor: CupertinoColors.activeGreen,
+                      padding: EdgeInsets.symmetric(
+                        vertical: 14,
+                      ),
+                    ),
+                    child: Text(
+                      'Call Now',
+                      style: TextStyle(
+                        fontFamily: Constants.Arial,
+                        fontSize: 17,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 24),
+
+          // Member Since Info
+          if (user.dateCreated != null)
+            Center(
+              child: Text(
+                'Member since: ${_formatDate(user.dateCreated!)}',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[600],
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _makeCall(BuildContext context, String phoneNumber) async {
+    final cleanPhoneNumber = phoneNumber.replaceAll(RegExp(r'[^\d+]'), '');
+    final String uriString = 'tel:$cleanPhoneNumber';
+
+    try {
+      if (await canLaunchUrl(Uri.parse(uriString))) {
+        await launchUrl(Uri.parse(uriString));
+      } else {
+        debugPrint("🤙Cannot launch URL: $uriString");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content:
+                  Text("Error: Unable to launch call to $cleanPhoneNumber")),
+        );
+      }
+    } catch (e) {
+      debugPrint("🤙Cannot launch URL: $uriString");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Exception: $e")),
+      );
+    }
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day}/${date.month}/${date.year}';
+  }
+
+  Widget _buildInfoRow(IconData icon, String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        children: [
+          Icon(icon, color: AppColors.primary, size: 22),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(
+                fontSize: 16,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
