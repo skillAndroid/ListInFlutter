@@ -1,9 +1,11 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/utils/const.dart';
+import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class StoreProfilePage extends StatelessWidget {
   const StoreProfilePage({super.key});
@@ -20,11 +22,11 @@ class StoreProfilePage extends StatelessWidget {
           backgroundColor: AppColors.white,
           actions: [
             IconButton(
-              icon: Icon(Icons.share, color: Colors.black),
+              icon: Icon(CupertinoIcons.phone, color: Colors.black),
               onPressed: () {},
             ),
             IconButton(
-              icon: Icon(Icons.shopping_cart, color: Colors.black),
+              icon: Icon(CupertinoIcons.bubble_left, color: Colors.black),
               onPressed: () {},
             ),
             IconButton(
@@ -263,20 +265,29 @@ class StoreProfilePage extends StatelessWidget {
                                             child: ElevatedButton(
                                               onPressed: () {},
                                               style: ElevatedButton.styleFrom(
-                                                backgroundColor: Colors.black,
+                                                backgroundColor:
+                                                    CupertinoColors.white,
                                                 foregroundColor: Colors.white,
                                                 elevation: 0,
-                                                shape: RoundedRectangleBorder(
+                                                shape: SmoothRectangleBorder(
+                                                  side: BorderSide(
+                                                      width: 1,
+                                                      color: AppColors.black),
                                                   borderRadius:
                                                       BorderRadius.circular(18),
                                                 ),
                                                 padding: EdgeInsets.symmetric(
-                                                    horizontal: 16),
+                                                  horizontal: 16,
+                                                ),
                                               ),
                                               child: Row(
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: [
-                                                  Icon(Icons.add, size: 16),
+                                                  Icon(
+                                                    Icons.add,
+                                                    size: 16,
+                                                    color: AppColors.black,
+                                                  ),
                                                   SizedBox(width: 4),
                                                   Text(
                                                     'Follow',
@@ -285,6 +296,7 @@ class StoreProfilePage extends StatelessWidget {
                                                           Constants.Arial,
                                                       fontWeight:
                                                           FontWeight.bold,
+                                                      color: AppColors.black,
                                                       fontSize: 14,
                                                     ),
                                                   ),
@@ -361,9 +373,48 @@ class StoreProfilePage extends StatelessWidget {
                                             )
                                           ],
                                         ),
-                                        IconButton(
-                                          icon: Icon(Icons.favorite_border),
-                                          onPressed: () {},
+                                        Container(
+                                          margin: EdgeInsets.only(top: 0),
+                                          height: 36,
+                                          child: ElevatedButton(
+                                            onPressed: () {},
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor:
+                                                  CupertinoColors.white,
+                                              foregroundColor: Colors.white,
+                                              elevation: 0,
+                                              shape: SmoothRectangleBorder(
+                                                side: BorderSide(
+                                                    width: 1,
+                                                    color: AppColors.black),
+                                                borderRadius:
+                                                    BorderRadius.circular(18),
+                                              ),
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: 16,
+                                              ),
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(
+                                                  Icons.add,
+                                                  size: 16,
+                                                  color: AppColors.black,
+                                                ),
+                                                SizedBox(width: 4),
+                                                Text(
+                                                  'Follow',
+                                                  style: TextStyle(
+                                                    fontFamily: Constants.Arial,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: AppColors.black,
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
                                         ),
                                       ],
                                     ),
