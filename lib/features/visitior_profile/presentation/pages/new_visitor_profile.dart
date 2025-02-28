@@ -1,484 +1,674 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/utils/const.dart';
+import 'package:list_in/features/explore/presentation/widgets/progress.dart';
+import 'package:list_in/features/visitior_profile/presentation/bloc/another_user_profile_bloc.dart';
+import 'package:list_in/features/visitior_profile/presentation/bloc/another_user_profile_event.dart';
+import 'package:list_in/features/visitior_profile/presentation/bloc/another_user_profile_state.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
-class StoreProfilePage extends StatelessWidget {
-  const StoreProfilePage({super.key});
+class StoreProfilePage extends StatefulWidget {
+  final String userId;
+  const StoreProfilePage({
+    super.key,
+    required this.userId,
+  });
+
+  @override
+  State<StoreProfilePage> createState() => _StoreProfilePageState();
+}
+
+class _StoreProfilePageState extends State<StoreProfilePage> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<AnotherUserProfileBloc>().add(ClearUserData());
+
+    context
+        .read<AnotherUserProfileBloc>()
+        .add(GetAnotherUserData(widget.userId));
+    context.read<AnotherUserProfileBloc>().add(
+          FetchPublications(
+            userId: widget.userId,
+            isInitialFetch: true,
+          ),
+        );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 4, // Number of tabs
-      child: Scaffold(
-        backgroundColor: AppColors.white,
-        appBar: AppBar(
-          elevation: 0,
-          scrolledUnderElevation: 0,
-          backgroundColor: AppColors.white,
-          actions: [
-            IconButton(
-              icon: Icon(CupertinoIcons.phone, color: Colors.black),
-              onPressed: () {},
-            ),
-            IconButton(
-              icon: Icon(CupertinoIcons.bubble_left, color: Colors.black),
-              onPressed: () {},
-            ),
-            IconButton(
-              icon: Icon(Icons.more_vert, color: Colors.black),
-              onPressed: () {},
-            ),
-          ],
-          title: Text(
-            'Store',
-            style: TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        body: Padding(
-          padding: const EdgeInsets.only(top: 8.0),
-          child: NestedScrollView(
-            headerSliverBuilder:
-                (BuildContext context, bool innerBoxIsScrolled) {
-              return <Widget>[
-                SliverAppBar(
-                  expandedHeight: 220,
-                  collapsedHeight: 84,
-                  floating: false,
-                  pinned: true,
-                  surfaceTintColor: AppColors.white,
-                  shadowColor: AppColors.transparent,
-                  backgroundColor: AppColors.containerColor2,
-                  automaticallyImplyLeading: false,
-                  flexibleSpace: LayoutBuilder(
-                    builder:
-                        (BuildContext context, BoxConstraints constraints) {
-                      // Get the top scroll position
-                      final double expandRatio =
-                          (constraints.maxHeight - kToolbarHeight) /
-                              (220 - kToolbarHeight);
-                      final double parallaxOffset =
-                          (1.0 - expandRatio.clamp(0.0, 1.0)) * 80;
+    return BlocConsumer<AnotherUserProfileBloc, AnotherUserProfileState>(
+      listener: (context, state) {
+        if (state.status == AnotherUserProfileStatus.failure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.errorMessage ?? 'An error occurred')),
+          );
+        }
+      },
+      builder: (context, state) {
+        if (state.status == AnotherUserProfileStatus.loading &&
+            state.profile == null) {
+          return const Scaffold(body: Progress());
+        }
 
-                      // Calculate opacity for the fixed animated container
-                      // Show when collapsed to 50% (expandRatio ≈ 0.5), hide when expanded to 55% (expandRatio ≈ 0.55)
-                      final double containerOpacity = expandRatio <= 0.5
-                          ? 1.0
-                          : expandRatio >= 0.55
+        final userData = state.profile;
+
+        if (userData == null) {
+          return const Scaffold(
+              body: Center(child: Text('No user data available')));
+        }
+        return DefaultTabController(
+          length: 4, // Number of tabs
+          child: Scaffold(
+            backgroundColor: AppColors.white,
+            appBar: AppBar(
+              elevation: 0,
+              scrolledUnderElevation: 0,
+              backgroundColor: AppColors.white,
+              actions: [
+                IconButton(
+                  icon: Icon(CupertinoIcons.phone, color: Colors.black),
+                  onPressed: () {},
+                ),
+                IconButton(
+                  icon: Icon(CupertinoIcons.bubble_left, color: Colors.black),
+                  onPressed: () {},
+                ),
+                IconButton(
+                  icon: Icon(Icons.more_vert, color: Colors.black),
+                  onPressed: () {},
+                ),
+              ],
+              title: Text(
+                'Store',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            body: Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: NestedScrollView(
+                headerSliverBuilder:
+                    (BuildContext context, bool innerBoxIsScrolled) {
+                  return <Widget>[
+                    SliverAppBar(
+                      expandedHeight: 220,
+                      collapsedHeight: 84,
+                      floating: false,
+                      pinned: true,
+                      surfaceTintColor: AppColors.white,
+                      shadowColor: AppColors.transparent,
+                      backgroundColor: AppColors.containerColor2,
+                      automaticallyImplyLeading: false,
+                      flexibleSpace: LayoutBuilder(
+                        builder:
+                            (BuildContext context, BoxConstraints constraints) {
+                          // Get the top scroll position
+                          final double expandRatio =
+                              (constraints.maxHeight - kToolbarHeight) /
+                                  (220 - kToolbarHeight);
+                          final double parallaxOffset =
+                              (1.0 - expandRatio.clamp(0.0, 1.0)) * 80;
+
+                          // Calculate opacity for the fixed animated container
+                          // Show when collapsed to 50% (expandRatio ≈ 0.5), hide when expanded to 55% (expandRatio ≈ 0.55)
+                          final double containerOpacity = expandRatio <= 0.5
+                              ? 1.0
+                              : expandRatio >= 0.55
+                                  ? 0.0
+                                  : (0.55 - expandRatio) *
+                                      20; // Smooth transition in the 0.5-0.55 range
+
+                          final double titleOpacity = expandRatio > 0.7
                               ? 0.0
-                              : (0.55 - expandRatio) *
-                                  20; // Smooth transition in the 0.5-0.55 range
+                              : ((0.7 - expandRatio) * (10 / 3))
+                                  .clamp(0.0, 1.0);
 
-                      final double titleOpacity = expandRatio > 0.7
-                          ? 0.0
-                          : ((0.7 - expandRatio) * (10 / 3)).clamp(0.0, 1.0);
-
-                      return Stack(
-                        children: [
-                          FlexibleSpaceBar(
-                            background: Stack(
-                              fit: StackFit.expand,
-                              children: [
-                                // Banner with parallax effect
-                                Positioned(
-                                  top: -parallaxOffset,
-                                  left: 0,
-                                  right: 0,
-                                  height: 220 - 120,
-                                  child: Image.asset(
-                                    AppImages.closes,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-
-                                // Top white container with opacity animation
-                                Positioned(
-                                  top: 0,
-                                  left: 0,
-                                  right: 0,
-                                  height: 60, // Height for top container
-                                  child: AnimatedOpacity(
-                                    opacity:
-                                        titleOpacity, // Using same opacity logic as title
-                                    duration: Duration(milliseconds: 150),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                          begin: Alignment.topCenter,
-                                          end: Alignment.bottomCenter,
-                                          colors: [
-                                            AppColors.containerColor2,
-                                            AppColors.containerColor2
-                                                .withOpacity(0.0),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-
-                                // Gradient overlay
-                                AnimatedOpacity(
-                                  opacity:
-                                      (1.0 - expandRatio.clamp(0.0, 1.0)) * 0.5,
-                                  duration: Duration(milliseconds: 150),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        begin: Alignment.topCenter,
-                                        end: Alignment.bottomCenter,
-                                        colors: [
-                                          Colors.black.withOpacity(0.3),
-                                          Colors.transparent,
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-
-                                // Profile section with parallax effect
-                                Positioned(
-                                  bottom: 0 + (parallaxOffset * 0.5),
-                                  left: 0,
-                                  right: 0,
-                                  height: 130,
-                                  child: Container(
-                                    color: AppColors.containerColor2,
-                                    padding: const EdgeInsets.only(
-                                      left: 16.0,
-                                      right: 16,
-                                      top: 16,
-                                    ),
-                                    child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        // Profile Image with parallax
-                                        Transform.translate(
-                                          offset: Offset(
-                                              0,
-                                              -parallaxOffset *
-                                                  0.3), // Avatar moves up too
-                                          child: CircleAvatar(
-                                            radius: 44,
-                                            backgroundColor: Colors.black,
-                                            backgroundImage: AssetImage(
-                                              AppImages.appLogo,
-                                            ),
-                                          ),
-                                        ),
-                                        SizedBox(width: 16),
-                                        // Store Info with parallax
-                                        Expanded(
-                                          child: Transform.translate(
-                                            offset: Offset(
-                                                0,
-                                                -parallaxOffset *
-                                                    0.2), // Text moves up slightly
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  'Plique Luxury Boutique',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 21,
-                                                    height: 1.3,
-                                                    fontFamily: Constants.Arial,
-                                                    color: Colors.black,
-                                                  ),
+                          return Stack(
+                            children: [
+                              FlexibleSpaceBar(
+                                background: Stack(
+                                  fit: StackFit.expand,
+                                  children: [
+                                    // Banner with parallax effect
+                                    Positioned(
+                                      top: -parallaxOffset,
+                                      left: 0,
+                                      right: 0,
+                                      height: 220 - 120,
+                                      child: userData.profileImagePath != null
+                                          ? CachedNetworkImage(
+                                              width: double.infinity,
+                                              height: double.infinity,
+                                              imageUrl:
+                                                  'https://${userData.profileImagePath!}',
+                                              fit: BoxFit.cover,
+                                              placeholder: (context, url) =>
+                                                  const Center(
+                                                child:
+                                                    CircularProgressIndicator(
+                                                  color: Colors.lightGreen,
+                                                  strokeWidth: 2,
                                                 ),
-                                                SizedBox(height: 4),
-                                                RichText(
-                                                  text: TextSpan(
-                                                    children: [
-                                                      TextSpan(
-                                                        text: '85 ',
-                                                        style: TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          color: Colors.black,
-                                                          fontFamily:
-                                                              Constants.Arial,
-                                                          fontSize: 12,
-                                                        ),
-                                                      ),
-                                                      TextSpan(
-                                                        text: 'followers',
-                                                        style: TextStyle(
-                                                          color: Colors.black54,
-                                                          fontFamily:
-                                                              Constants.Arial,
-                                                          fontSize: 12,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                                RichText(
-                                                  text: TextSpan(
-                                                    children: [
-                                                      TextSpan(
-                                                        text: '100% ',
-                                                        style: TextStyle(
-                                                          fontFamily:
-                                                              Constants.Arial,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          color: Colors.black,
-                                                          fontSize: 12,
-                                                        ),
-                                                      ),
-                                                      TextSpan(
-                                                        text:
-                                                            'positive feedback',
-                                                        style: TextStyle(
-                                                          color: Colors.black54,
-                                                          fontFamily:
-                                                              Constants.Arial,
-                                                          fontSize: 12,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                                // "items sold" part removed
+                                              ),
+                                              errorWidget:
+                                                  (context, url, error) =>
+                                                      Image.asset(
+                                                          AppImages.appLogo),
+                                            )
+                                          : Image.asset(AppImages.appLogo),
+                                    ),
+
+                                    // Top white container with opacity animation
+                                    Positioned(
+                                      top: 0,
+                                      left: 0,
+                                      right: 0,
+                                      height: 60, // Height for top container
+                                      child: AnimatedOpacity(
+                                        opacity:
+                                            titleOpacity, // Using same opacity logic as title
+                                        duration: Duration(milliseconds: 150),
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            gradient: LinearGradient(
+                                              begin: Alignment.topCenter,
+                                              end: Alignment.bottomCenter,
+                                              colors: [
+                                                AppColors.containerColor2,
+                                                AppColors.containerColor2
+                                                    .withOpacity(0.0),
                                               ],
                                             ),
                                           ),
                                         ),
-                                        // Follow Button - replacing the favorite button
-                                        Transform.translate(
-                                          offset:
-                                              Offset(0, -parallaxOffset * 0.3),
-                                          child: Container(
-                                            margin: EdgeInsets.only(top: 8),
-                                            height: 36,
-                                            child: ElevatedButton(
-                                              onPressed: () {},
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor:
-                                                    CupertinoColors.white,
-                                                foregroundColor: Colors.white,
-                                                elevation: 0,
-                                                shape: SmoothRectangleBorder(
-                                                  side: BorderSide(
-                                                      width: 1,
-                                                      color: AppColors.black),
-                                                  borderRadius:
-                                                      BorderRadius.circular(18),
-                                                ),
-                                                padding: EdgeInsets.symmetric(
-                                                  horizontal: 16,
+                                      ),
+                                    ),
+
+                                    // Gradient overlay
+                                    AnimatedOpacity(
+                                      opacity:
+                                          (1.0 - expandRatio.clamp(0.0, 1.0)) *
+                                              0.5,
+                                      duration: Duration(milliseconds: 150),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            begin: Alignment.topCenter,
+                                            end: Alignment.bottomCenter,
+                                            colors: [
+                                              Colors.black.withOpacity(0.3),
+                                              Colors.transparent,
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+
+                                    // Profile section with parallax effect
+                                    Positioned(
+                                      bottom: 0 + (parallaxOffset * 0.5),
+                                      left: 0,
+                                      right: 0,
+                                      height: 130,
+                                      child: Container(
+                                        color: AppColors.containerColor2,
+                                        padding: const EdgeInsets.only(
+                                          left: 16.0,
+                                          right: 16,
+                                          top: 16,
+                                        ),
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            // Profile Image with parallax
+                                            // Profile Image with parallax
+                                            Transform.translate(
+                                              offset: Offset(
+                                                  0,
+                                                  -parallaxOffset *
+                                                      0.3), // Avatar moves up too
+                                              child: ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(100),
+                                                child: SizedBox(
+                                                  width: 88,
+                                                  height: 88,
+                                                  child: userData
+                                                              .profileImagePath !=
+                                                          null
+                                                      ? CachedNetworkImage(
+                                                          width:
+                                                              double.infinity,
+                                                          height:
+                                                              double.infinity,
+                                                          imageUrl:
+                                                              'https://${userData.profileImagePath!}',
+                                                          fit: BoxFit.cover,
+                                                          placeholder:
+                                                              (context, url) =>
+                                                                  const Center(
+                                                            child:
+                                                                CircularProgressIndicator(
+                                                              color: Colors
+                                                                  .lightGreen,
+                                                              strokeWidth: 2,
+                                                            ),
+                                                          ),
+                                                          errorWidget: (context,
+                                                                  url, error) =>
+                                                              Image.asset(
+                                                                  AppImages
+                                                                      .appLogo),
+                                                        )
+                                                      : Image.asset(
+                                                          AppImages.appLogo),
                                                 ),
                                               ),
-                                              child: Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Icon(
-                                                    Icons.add,
-                                                    size: 16,
-                                                    color: AppColors.black,
-                                                  ),
-                                                  SizedBox(width: 4),
-                                                  Text(
-                                                    'Follow',
-                                                    style: TextStyle(
-                                                      fontFamily:
-                                                          Constants.Arial,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: AppColors.black,
-                                                      fontSize: 14,
+                                            ),
+
+                                            SizedBox(width: 16),
+                                            // Store Info with parallax
+                                            Expanded(
+                                              child: Transform.translate(
+                                                offset: Offset(
+                                                    0,
+                                                    -parallaxOffset *
+                                                        0.2), // Text moves up slightly
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      userData.nickName ??
+                                                          "No user name",
+                                                      style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 21,
+                                                        height: 1.3,
+                                                        fontFamily:
+                                                            Constants.Arial,
+                                                        color: Colors.black,
+                                                      ),
+                                                    ),
+                                                    SizedBox(height: 4),
+                                                    RichText(
+                                                      text: TextSpan(
+                                                        children: [
+                                                          TextSpan(
+                                                            text:
+                                                                '${userData.followers} ',
+                                                            style: TextStyle(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              color:
+                                                                  Colors.black,
+                                                              fontFamily:
+                                                                  Constants
+                                                                      .Arial,
+                                                              fontSize: 12,
+                                                            ),
+                                                          ),
+                                                          TextSpan(
+                                                            text: 'followers',
+                                                            style: TextStyle(
+                                                              color: Colors
+                                                                  .black54,
+                                                              fontFamily:
+                                                                  Constants
+                                                                      .Arial,
+                                                              fontSize: 12,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                    RichText(
+                                                      text: TextSpan(
+                                                        children: [
+                                                          TextSpan(
+                                                            text:
+                                                                '${userData.rating} rating ',
+                                                            style: TextStyle(
+                                                              fontFamily:
+                                                                  Constants
+                                                                      .Arial,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              color:
+                                                                  Colors.black,
+                                                              fontSize: 12,
+                                                            ),
+                                                          ),
+                                                          TextSpan(
+                                                            text: '(0 reviews)',
+                                                            style: TextStyle(
+                                                              color: Colors
+                                                                  .black54,
+                                                              fontFamily:
+                                                                  Constants
+                                                                      .Arial,
+                                                              fontSize: 12,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                    // "items sold" part removed
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                            // Follow Button - replacing the favorite button
+                                            Transform.translate(
+                                              offset: Offset(
+                                                  0, -parallaxOffset * 0.3),
+                                              child: Container(
+                                                margin: EdgeInsets.only(top: 8),
+                                                height: 36,
+                                                child: ElevatedButton(
+                                                  onPressed: () {},
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                    backgroundColor:
+                                                        CupertinoColors.white,
+                                                    foregroundColor:
+                                                        Colors.white,
+                                                    elevation: 0,
+                                                    shape:
+                                                        SmoothRectangleBorder(
+                                                      side: BorderSide(
+                                                          width: 1,
+                                                          color:
+                                                              AppColors.black),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              18),
+                                                    ),
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                      horizontal: 16,
                                                     ),
                                                   ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            collapseMode: CollapseMode.parallax,
-                            centerTitle: false,
-                          ),
-
-                          // FIXED container on top that's only affected by visibility animation
-                          // This container is completely separate from the collapsing content
-                          Positioned(
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            height: 70,
-                            child: AnimatedOpacity(
-                              opacity: containerOpacity,
-                              duration: Duration(
-                                  milliseconds: 100), // 100ms animation
-                              child: Container(
-                                color: AppColors.containerColor2,
-                                child: SafeArea(
-                                  top: true,
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 16.0),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            CircleAvatar(
-                                              radius: 24,
-                                              backgroundColor: Colors.black,
-                                              backgroundImage: AssetImage(
-                                                AppImages.appLogo,
-                                              ),
-                                            ),
-                                            SizedBox(width: 12),
-                                            Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  'Plique Luxury Boutique',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 16,
+                                                  child: Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      Icon(
+                                                        Icons.add,
+                                                        size: 16,
+                                                        color: AppColors.black,
+                                                      ),
+                                                      SizedBox(width: 4),
+                                                      Text(
+                                                        'Follow',
+                                                        style: TextStyle(
+                                                          fontFamily:
+                                                              Constants.Arial,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color:
+                                                              AppColors.black,
+                                                          fontSize: 14,
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ),
                                                 ),
-                                                Text(
-                                                  '100% positive feedback',
-                                                  style: TextStyle(
-                                                    color: Colors.black54,
-                                                    fontSize: 14,
-                                                  ),
-                                                ),
-                                              ],
-                                            )
+                                              ),
+                                            ),
                                           ],
                                         ),
-                                        Container(
-                                          margin: EdgeInsets.only(top: 0),
-                                          height: 36,
-                                          child: ElevatedButton(
-                                            onPressed: () {},
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor:
-                                                  CupertinoColors.white,
-                                              foregroundColor: Colors.white,
-                                              elevation: 0,
-                                              shape: SmoothRectangleBorder(
-                                                side: BorderSide(
-                                                    width: 1,
-                                                    color: AppColors.black),
-                                                borderRadius:
-                                                    BorderRadius.circular(18),
-                                              ),
-                                              padding: EdgeInsets.symmetric(
-                                                horizontal: 16,
-                                              ),
-                                            ),
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.min,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                collapseMode: CollapseMode.parallax,
+                                centerTitle: false,
+                              ),
+
+                              // FIXED container on top that's only affected by visibility animation
+                              // This container is completely separate from the collapsing content
+                              Positioned(
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                height: 70,
+                                child: AnimatedOpacity(
+                                  opacity: containerOpacity,
+                                  duration: Duration(
+                                      milliseconds: 100), // 100ms animation
+                                  child: Container(
+                                    color: AppColors.containerColor2,
+                                    child: SafeArea(
+                                      top: true,
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 16.0),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Row(
                                               children: [
-                                                Icon(
-                                                  Icons.add,
-                                                  size: 16,
-                                                  color: AppColors.black,
-                                                ),
-                                                SizedBox(width: 4),
-                                                Text(
-                                                  'Follow',
-                                                  style: TextStyle(
-                                                    fontFamily: Constants.Arial,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: AppColors.black,
-                                                    fontSize: 14,
+                                                ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                    100,
+                                                  ),
+                                                  child: SizedBox(
+                                                    width: 48,
+                                                    height: 48,
+                                                    child: userData
+                                                                .profileImagePath !=
+                                                            null
+                                                        ? CachedNetworkImage(
+                                                            width:
+                                                                double.infinity,
+                                                            height:
+                                                                double.infinity,
+                                                            imageUrl:
+                                                                'https://${userData.profileImagePath!}',
+                                                            fit: BoxFit.cover,
+                                                            placeholder:
+                                                                (context,
+                                                                        url) =>
+                                                                    const Center(
+                                                              child:
+                                                                  CircularProgressIndicator(
+                                                                color: Colors
+                                                                    .lightGreen,
+                                                                strokeWidth: 2,
+                                                              ),
+                                                            ),
+                                                            errorWidget: (context,
+                                                                    url,
+                                                                    error) =>
+                                                                Image.asset(
+                                                                    AppImages
+                                                                        .appLogo),
+                                                          )
+                                                        : Image.asset(
+                                                            AppImages.appLogo),
                                                   ),
                                                 ),
+                                                SizedBox(width: 12),
+                                                Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      userData.nickName ??
+                                                          'User',
+                                                      style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 16,
+                                                      ),
+                                                    ),
+                                                    RichText(
+                                                      text: TextSpan(
+                                                        children: [
+                                                          TextSpan(
+                                                            text: '${userData.rating} rating ',
+                                                            style: TextStyle(
+                                                              fontFamily:
+                                                                  Constants
+                                                                      .Arial,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              color:
+                                                                  Colors.black,
+                                                              fontSize: 12,
+                                                            ),
+                                                          ),
+                                                          TextSpan(
+                                                            text: '(0 reviews)',
+                                                            style: TextStyle(
+                                                              color: Colors
+                                                                  .black54,
+                                                              fontFamily:
+                                                                  Constants
+                                                                      .Arial,
+                                                              fontSize: 12,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                )
                                               ],
                                             ),
-                                          ),
+                                            Container(
+                                              margin: EdgeInsets.only(top: 0),
+                                              height: 36,
+                                              child: ElevatedButton(
+                                                onPressed: () {},
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor:
+                                                      CupertinoColors.white,
+                                                  foregroundColor: Colors.white,
+                                                  elevation: 0,
+                                                  shape: SmoothRectangleBorder(
+                                                    side: BorderSide(
+                                                        width: 1,
+                                                        color: AppColors.black),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            18),
+                                                  ),
+                                                  padding: EdgeInsets.symmetric(
+                                                    horizontal: 16,
+                                                  ),
+                                                ),
+                                                child: Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Icon(
+                                                      Icons.add,
+                                                      size: 16,
+                                                      color: AppColors.black,
+                                                    ),
+                                                    SizedBox(width: 4),
+                                                    Text(
+                                                      'Follow',
+                                                      style: TextStyle(
+                                                        fontFamily:
+                                                            Constants.Arial,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: AppColors.black,
+                                                        fontSize: 14,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                      ],
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                ),
-                SliverPersistentHeader(
-                  delegate: _SliverAppBarDelegate(
-                    TabBar(
-                      labelColor: Colors.black,
-                      unselectedLabelColor: Colors.grey,
-                      indicatorColor: Colors.black,
-                      indicatorWeight: 0.1,
-                      dividerColor: AppColors.transparent,
-                      isScrollable: true, // Makes tabs scrollable
-                      labelPadding: EdgeInsets.symmetric(
-                          horizontal: 20), // Padding between tabs
-                      indicatorSize: TabBarIndicatorSize
-                          .label, // Makes indicator match tab width
-                      tabAlignment:
-                          TabAlignment.start, // Aligns tabs to the start (left)
-                      labelStyle: const TextStyle(
-                        fontFamily: Constants.Arial,
-                        fontWeight: FontWeight.bold,
+                            ],
+                          );
+                        },
                       ),
-                      unselectedLabelStyle: const TextStyle(
-                        fontFamily: Constants.Arial,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      tabs: [
-                        Tab(text: 'Shop'),
-                        Tab(text: 'Sale'),
-                        Tab(text: 'About'),
-                        Tab(text: 'Feedback'),
-                      ],
                     ),
-                  ),
-                  pinned: true,
+                    SliverPersistentHeader(
+                      delegate: _SliverAppBarDelegate(
+                        TabBar(
+                          labelColor: Colors.black,
+                          unselectedLabelColor: Colors.grey,
+                          indicatorColor: Colors.black,
+                          indicatorWeight: 0.1,
+                          dividerColor: AppColors.transparent,
+                          isScrollable: true, // Makes tabs scrollable
+                          labelPadding: EdgeInsets.symmetric(
+                              horizontal: 20), // Padding between tabs
+                          indicatorSize: TabBarIndicatorSize
+                              .label, // Makes indicator match tab width
+                          tabAlignment: TabAlignment
+                              .start, // Aligns tabs to the start (left)
+                          labelStyle: const TextStyle(
+                            fontFamily: Constants.Arial,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          unselectedLabelStyle: const TextStyle(
+                            fontFamily: Constants.Arial,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          tabs: [
+                            Tab(text: 'Shop'),
+                            Tab(text: 'Sale'),
+                            Tab(text: 'About'),
+                            Tab(text: 'Feedback'),
+                          ],
+                        ),
+                      ),
+                      pinned: true,
+                    ),
+                  ];
+                },
+                // Tab content that scrolls underneath
+                body: TabBarView(
+                  children: [
+                    // Shop Tab Content
+                    ShopTabContent(),
+                    // Sale Tab Content
+                    Center(child: Text('Sale Content')),
+                    // About Tab Content
+                    Center(child: Text('About Content')),
+                    // Feedback Tab Content
+                    Center(child: Text('Feedback Content')),
+                  ],
                 ),
-              ];
-            },
-            // Tab content that scrolls underneath
-            body: TabBarView(
-              children: [
-                // Shop Tab Content
-                ShopTabContent(),
-                // Sale Tab Content
-                Center(child: Text('Sale Content')),
-                // About Tab Content
-                Center(child: Text('About Content')),
-                // Feedback Tab Content
-                Center(child: Text('Feedback Content')),
-              ],
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

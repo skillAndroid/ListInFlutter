@@ -179,8 +179,8 @@ class AppRouter {
           final extraData = state.extra as Map<String, dynamic>;
           final userId = extraData['userId'];
           return StoreProfilePage(
-          //  userId: userId,
-           // products: sampleProducts,
+            userId: userId,
+            // products: sampleProducts,
           );
         },
       ),
