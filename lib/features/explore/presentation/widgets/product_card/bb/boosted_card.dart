@@ -604,7 +604,7 @@ class _OptimizedLikeButtonState extends State<OptimizedLikeButton>
           Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(40),
-              color: AppColors.bgColor.withOpacity(0.5),
+              color: AppColors.white.withOpacity(0.75),
             ),
             width: 32,
             height: 32,
@@ -750,7 +750,7 @@ class PageIndicator extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.5),
+            color: Colors.white.withOpacity(0.75),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Text(

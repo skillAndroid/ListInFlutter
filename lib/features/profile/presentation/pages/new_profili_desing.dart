@@ -137,20 +137,17 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                   height: 72,
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(50),
-                                    child: userData.profileImagePath != null
-                                        ? CachedNetworkImage(
-                                            width: double.infinity,
-                                            height: double.infinity,
-                                            imageUrl:
-                                                'https://${userData.profileImagePath!}',
-                                            fit: BoxFit.cover,
-                                            placeholder: (context, url) =>
-                                                const Progress(),
-                                            errorWidget: (context, url,
-                                                    error) =>
-                                                Image.asset(AppImages.appLogo),
-                                          )
-                                        : Image.asset(AppImages.appLogo),
+                                    child: CachedNetworkImage(
+                                      width: double.infinity,
+                                      height: double.infinity,
+                                      imageUrl:
+                                          'https://${userData.profileImagePath!}',
+                                      fit: BoxFit.cover,
+                                      placeholder: (context, url) =>
+                                          const Progress(),
+                                      errorWidget: (context, url, error) =>
+                                          Image.asset(AppImages.appLogo),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -282,7 +279,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                 child: _buildStatCard(
                                   'Posts',
                                   '⟶',
-                                   Colors.white,
+                                  Colors.white,
                                   Colors.black,
                                 ),
                               ),

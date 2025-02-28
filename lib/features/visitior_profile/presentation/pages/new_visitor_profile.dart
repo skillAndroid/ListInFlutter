@@ -190,48 +190,107 @@ class StoreProfilePage extends StatelessWidget {
                                                     fontWeight: FontWeight.bold,
                                                     fontSize: 21,
                                                     height: 1.3,
+                                                    fontFamily: Constants.Arial,
                                                     color: Colors.black,
                                                   ),
                                                 ),
                                                 SizedBox(height: 4),
-                                                Text(
-                                                  '85 followers',
-                                                  style: TextStyle(
-                                                    color: Colors.black54,
-                                                    fontSize: 14,
+                                                RichText(
+                                                  text: TextSpan(
+                                                    children: [
+                                                      TextSpan(
+                                                        text: '85 ',
+                                                        style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color: Colors.black,
+                                                          fontFamily:
+                                                              Constants.Arial,
+                                                          fontSize: 12,
+                                                        ),
+                                                      ),
+                                                      TextSpan(
+                                                        text: 'followers',
+                                                        style: TextStyle(
+                                                          color: Colors.black54,
+                                                          fontFamily:
+                                                              Constants.Arial,
+                                                          fontSize: 12,
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ),
                                                 ),
-                                                Text(
-                                                  '100% positive feedback',
-                                                  style: TextStyle(
-                                                    color: Colors.black54,
-                                                    fontSize: 14,
+                                                RichText(
+                                                  text: TextSpan(
+                                                    children: [
+                                                      TextSpan(
+                                                        text: '100% ',
+                                                        style: TextStyle(
+                                                          fontFamily:
+                                                              Constants.Arial,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color: Colors.black,
+                                                          fontSize: 12,
+                                                        ),
+                                                      ),
+                                                      TextSpan(
+                                                        text:
+                                                            'positive feedback',
+                                                        style: TextStyle(
+                                                          color: Colors.black54,
+                                                          fontFamily:
+                                                              Constants.Arial,
+                                                          fontSize: 12,
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ),
                                                 ),
-                                                Text(
-                                                  '1.2K items sold',
-                                                  style: TextStyle(
-                                                    color: Colors.black54,
-                                                    fontSize: 14,
-                                                  ),
-                                                ),
+                                                // "items sold" part removed
                                               ],
                                             ),
                                           ),
                                         ),
-                                        // Favorite Button with parallax
+                                        // Follow Button - replacing the favorite button
                                         Transform.translate(
-                                          offset: Offset(
-                                              0,
-                                              -parallaxOffset *
-                                                  0.3), // Button moves up too
-                                          child: IconButton(
-                                            icon: Icon(
-                                              Icons.favorite_border,
-                                              color: Colors.black,
-                                              size: 28,
+                                          offset:
+                                              Offset(0, -parallaxOffset * 0.3),
+                                          child: Container(
+                                            margin: EdgeInsets.only(top: 8),
+                                            height: 36,
+                                            child: ElevatedButton(
+                                              onPressed: () {},
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: Colors.black,
+                                                foregroundColor: Colors.white,
+                                                elevation: 0,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(18),
+                                                ),
+                                                padding: EdgeInsets.symmetric(
+                                                    horizontal: 16),
+                                              ),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Icon(Icons.add, size: 16),
+                                                  SizedBox(width: 4),
+                                                  Text(
+                                                    'Follow',
+                                                    style: TextStyle(
+                                                      fontFamily:
+                                                          Constants.Arial,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 14,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
                                             ),
-                                            onPressed: () {},
                                           ),
                                         ),
                                       ],
@@ -326,27 +385,26 @@ class StoreProfilePage extends StatelessWidget {
                       indicatorColor: Colors.black,
                       indicatorWeight: 0.1,
                       dividerColor: AppColors.transparent,
+                      isScrollable: true, // Makes tabs scrollable
+                      labelPadding: EdgeInsets.symmetric(
+                          horizontal: 20), // Padding between tabs
+                      indicatorSize: TabBarIndicatorSize
+                          .label, // Makes indicator match tab width
+                      tabAlignment:
+                          TabAlignment.start, // Aligns tabs to the start (left)
                       labelStyle: const TextStyle(
                         fontFamily: Constants.Arial,
                         fontWeight: FontWeight.bold,
                       ),
                       unselectedLabelStyle: const TextStyle(
-                          fontFamily: Constants.Arial,
+                        fontFamily: Constants.Arial,
                         fontWeight: FontWeight.w500,
                       ),
                       tabs: [
-                        Tab(
-                          text: 'Shop',
-                        ),
-                        Tab(
-                          text: 'Sale',
-                        ),
-                        Tab(
-                          text: 'About',
-                        ),
-                        Tab(
-                          text: 'Feedback',
-                        ),
+                        Tab(text: 'Shop'),
+                        Tab(text: 'Sale'),
+                        Tab(text: 'About'),
+                        Tab(text: 'Feedback'),
                       ],
                     ),
                   ),
@@ -488,6 +546,8 @@ class CategoryCard extends StatelessWidget {
 }
 
 class ProductCard extends StatelessWidget {
+  const ProductCard({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Card(
