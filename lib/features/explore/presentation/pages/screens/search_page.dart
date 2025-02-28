@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -70,7 +71,7 @@ class _SearchPageState extends State<SearchPage> {
                     .toString(), // Add subtitle as shown in image
                 style: TextStyle(
                   fontSize: 12,
-                  color: Colors.blue,
+                  color: CupertinoColors.activeGreen,
                 ),
               ),
               onTap: () {
@@ -156,8 +157,7 @@ class _SearchPageState extends State<SearchPage> {
                   children: [
                     Expanded(
                       child: SmoothClipRRect(
-                        smoothness: 0.8,
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(20),
                         child: Container(
                           height: 52,
                           decoration: const BoxDecoration(
@@ -238,7 +238,7 @@ class _SearchPageState extends State<SearchPage> {
                         'Cansel',
                         style: TextStyle(
                           fontFamily: Constants.Arial,
-                          color: Colors.blue,
+                          color: CupertinoColors.activeGreen,
                         ),
                       ),
                     ),

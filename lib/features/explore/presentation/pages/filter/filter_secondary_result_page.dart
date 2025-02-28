@@ -385,7 +385,7 @@ class _FilterSecondaryResultPageState extends State<FilterSecondaryResultPage> {
       builder: (context, selectedFilters, _) {
         return Container(
           color: AppColors.white,
-          height: 50,
+          height: 46,
           child: ListView.builder(
             physics: BouncingScrollPhysics(),
             scrollDirection: Axis.horizontal,
@@ -408,17 +408,17 @@ class _FilterSecondaryResultPageState extends State<FilterSecondaryResultPage> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 2.5),
       child: FilterChip(
-        padding: EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+        padding: EdgeInsets.symmetric(horizontal: 4, vertical: 10),
         label: Text(
           state.selectedCatalog!.childCategories[index].name,
-          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
         ),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(16),
         ),
         selected: selectedFilters.contains(index),
-        backgroundColor: AppColors.white,
-        selectedColor: AppColors.green,
+       backgroundColor: AppColors.containerColor,
+        selectedColor: AppColors.black,
         labelStyle: TextStyle(
           color: selectedFilters.contains(index)
               ? AppColors.white
@@ -440,7 +440,7 @@ class _FilterSecondaryResultPageState extends State<FilterSecondaryResultPage> {
             },
           });
         },
-        side: BorderSide(width: 1, color: AppColors.lightGray.withOpacity(0.7)),
+        side: BorderSide(width: 1, color: AppColors.transparent),
       ),
     );
   }
@@ -493,7 +493,7 @@ class _FilterSecondaryResultPageState extends State<FilterSecondaryResultPage> {
                           );
                         },
                         child: ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(20),
                           child: Container(
                             height: 52,
                             decoration: BoxDecoration(
@@ -517,7 +517,7 @@ class _FilterSecondaryResultPageState extends State<FilterSecondaryResultPage> {
                                     style: TextStyle(
                                       fontSize: 15,
                                       color:
-                                          AppColors.darkGray.withOpacity(0.8),
+                                          AppColors.black,
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),

@@ -389,7 +389,6 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                                             ],
                                                           ),
                                                         ),
-                                                        // "items sold" part removed
                                                       ],
                                                     ),
                                                   ),
@@ -823,7 +822,7 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                     ),
                     Center(
                         key: PageStorageKey('feedback_tab'),
-                        child: Text('Feedback Content')),
+                        child: Text('No Reviews Yet!')),
                   ],
                 ),
               ),

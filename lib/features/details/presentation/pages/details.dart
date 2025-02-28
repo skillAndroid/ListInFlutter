@@ -402,8 +402,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               child: Card(
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(40)),
-                color: AppColors.bgColor,
-                shadowColor: AppColors.primary.withOpacity(0.3),
+                color: AppColors.containerColor,
+                shadowColor: AppColors.error.withOpacity(0.3),
                 elevation: 4,
                 child: BlocBuilder<GlobalBloc, GlobalState>(
                   builder: (context, state) {
@@ -414,20 +414,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     return Padding(
                       padding: EdgeInsets.symmetric(
                         horizontal: 8,
-                        vertical: 2,
+                        vertical: 8,
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          SizedBox(
-                            width: 8,
-                          ),
-                          Text(
-                            widget.product.likes.toString(),
-                            style: TextStyle(
-                              fontSize: 18,
-                            ),
-                          ),
                           SizedBox(
                             width: 40,
                             height: 40,
@@ -737,23 +728,43 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             ],
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
-          child: Row(
-            children: [
-              Text(
-                widget.product.seller.locationName,
-                style: TextStyle(
-                  color: AppColors.darkGray,
-                  fontWeight: FontWeight.w400,
+        InkWell(
+          onTap: () {
+            if (widget.product.seller.isGrantedForPreciseLocation) {
+              Navigator.of(context).push(
+                CupertinoModalPopupRoute(
+                  builder: (context) => FullScreenMap(
+                    locationName: widget.product.locationName,
+                    latitude: widget.product.latitude ?? 0,
+                    longitude: widget.product.longitude ?? 0,
+                  ),
                 ),
-              ),
-              Icon(
-                Icons.info_outline,
-                color: AppColors.black,
-                size: 20,
-              ),
-            ],
+              );
+            } else {
+              showLocationPrivacySheet(context);
+            }
+          },
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
+            child: Row(
+              children: [
+                Text(
+                  widget.product.seller.locationName,
+                  style: TextStyle(
+                    color: AppColors.darkGray,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+                SizedBox(
+                  width: 8,
+                ),
+                Icon(
+                  CupertinoIcons.location,
+                  color: AppColors.black,
+                  size: 20,
+                ),
+              ],
+            ),
           ),
         ),
         Padding(
@@ -990,12 +1001,12 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   margin: const EdgeInsets.only(top: 24),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.blue.withOpacity(0.1),
+                    color: CupertinoColors.activeGreen.withOpacity(0.1),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
                     Icons.privacy_tip_outlined,
-                    color: Colors.blue,
+                    color: CupertinoColors.activeGreen,
                     size: 32,
                   ),
                 ),
@@ -1059,10 +1070,10 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     child: TextButton(
                       onPressed: () => Navigator.pop(context),
                       style: TextButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor: CupertinoColors.activeGreen,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: SmoothRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(24),
                         ),
                       ),
                       child: const Text(
@@ -1071,6 +1082,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                           color: Colors.white,
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
+                          fontFamily: Constants.Arial,
                         ),
                       ),
                     ),
@@ -1100,7 +1112,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             ),
             child: Icon(
               icon,
-              color: Colors.blue,
+              color: CupertinoColors.activeGreen,
               size: 24,
             ),
           ),
