@@ -426,58 +426,62 @@ class ProductCardContainer extends StatelessWidget {
       builder: (BuildContext context) => const OwnerDialog(),
     );
   }
-}
-
-class OwnerDialog extends StatelessWidget {
+}class OwnerDialog extends StatelessWidget {
   const OwnerDialog({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Cupertino active green color
+    final Color cupertinoGreen = const Color(0xFF34C759);
+    
     return Dialog(
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.0),
+        borderRadius: BorderRadius.circular(16.0),
       ),
       child: Container(
-        width: MediaQuery.of(context).size.width * 0.85,
-        padding: const EdgeInsets.all(20),
+        width: MediaQuery.of(context).size.width * 0.8,
+        padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: Colors.grey[50],
-          borderRadius: BorderRadius.circular(12.0),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16.0),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
-              Icons.engineering_outlined,
-              size: 48,
-              color: Colors.blue,
-            ),
-            const SizedBox(height: 16),
             const Text(
-              "Can't view own publication here",
+              "Not Available",
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             Text(
-              'Check your publications in profile',
+              "View in Profile",
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.grey[600],
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
             Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: Text(
+                  style: TextButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
+                  ),
+                  child: const Text(
                     'Cancel',
                     style: TextStyle(
-                      color: Colors.grey[600],
+                      color: Colors.grey,
                       fontSize: 15,
                     ),
                   ),
@@ -485,22 +489,23 @@ class OwnerDialog extends StatelessWidget {
                 const SizedBox(width: 12),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: cupertinoGreen,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20,
-                      vertical: 12,
+                      vertical: 10,
                     ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(20),
                     ),
+                    elevation: 0,
                   ),
                   onPressed: () {
                     Navigator.of(context).pop();
                     context.go(Routes.profile);
                   },
                   child: const Text(
-                    'Go to Profile',
+                    'Profile',
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w500,
@@ -514,20 +519,6 @@ class OwnerDialog extends StatelessWidget {
       ),
     );
   }
-}
-
-abstract class CardDecoration {
-  static const standard = BoxDecoration(
-    color: Colors.white,
-    borderRadius: BorderRadius.all(Radius.circular(4)),
-    boxShadow: [
-      BoxShadow(
-        color: Colors.black12,
-        blurRadius: 4,
-        offset: Offset(0, 2),
-      ),
-    ],
-  );
 }
 
 abstract class AppTextStyles {

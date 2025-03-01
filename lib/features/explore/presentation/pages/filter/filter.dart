@@ -425,7 +425,7 @@ class _FiltersPageState extends State<FiltersPage>
                                                     AppColors.containerColor),
                                             shape: RoundedRectangleBorder(
                                               borderRadius:
-                                                  BorderRadius.circular(14),
+                                                  BorderRadius.circular(24),
                                             ),
                                             selected: selectedValue != null,
                                             backgroundColor: AppColors.white,
@@ -504,7 +504,7 @@ class _FiltersPageState extends State<FiltersPage>
                                                       AppColors.containerColor),
                                               shape: RoundedRectangleBorder(
                                                 borderRadius:
-                                                    BorderRadius.circular(14),
+                                                    BorderRadius.circular(24),
                                               ),
                                               selected: fieldValues != null,
                                               backgroundColor: AppColors.white,
@@ -1272,7 +1272,7 @@ class _FiltersPageState extends State<FiltersPage>
             label: Text(
               label,
               style: TextStyle(
-                color: isSelected ? AppColors.black : AppColors.blue,
+                color: isSelected ? AppColors.white : AppColors.blue,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
               ),
             ),
@@ -1280,12 +1280,12 @@ class _FiltersPageState extends State<FiltersPage>
             selected: isSelected,
             onSelected: onSelected,
             backgroundColor: Colors.white,
-            selectedColor: AppColors.primaryLight2,
-            checkmarkColor: Colors.black,
+            selectedColor: CupertinoColors.activeGreen,
+            checkmarkColor: Colors.white,
             elevation: 0,
             pressElevation: 4,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(20),
               side: BorderSide(
                 color:
                     isSelected ? Colors.transparent : AppColors.containerColor,
@@ -1311,7 +1311,7 @@ class _FiltersPageState extends State<FiltersPage>
               location,
               style: TextStyle(
                 color: _selectedLocation == location
-                    ? AppColors.black
+                    ? AppColors.white
                     : AppColors.blue,
                 fontWeight: _selectedLocation == location
                     ? FontWeight.w600
@@ -1326,12 +1326,12 @@ class _FiltersPageState extends State<FiltersPage>
               });
             },
             backgroundColor: Colors.white,
-            selectedColor: AppColors.primaryLight2,
-            checkmarkColor: Colors.black,
+            selectedColor: CupertinoColors.activeGreen,
+            checkmarkColor: Colors.white,
             elevation: 0,
             pressElevation: 4,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(20),
               side: BorderSide(
                 color: _selectedLocation == location
                     ? Colors.transparent
@@ -1424,7 +1424,7 @@ class _FiltersPageState extends State<FiltersPage>
                 color: AppColors.containerColor, // Цвет рамки
               ),
               borderRadius:
-                  BorderRadius.circular(14), // Чтобы границы были скруглёнными
+                  BorderRadius.circular(24), // Чтобы границы были скруглёнными
             ),
             padding: EdgeInsets.all(4),
             child: Row(
@@ -1451,7 +1451,7 @@ class _FiltersPageState extends State<FiltersPage>
           context.read<HomeTreeCubit>().updateSellerType(value, true, '');
         },
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(20),
           child: AnimatedContainer(
             duration: Duration(milliseconds: 100),
             curve: Curves.easeInOut,
@@ -1515,11 +1515,11 @@ class _FiltersPageState extends State<FiltersPage>
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
                     color: state.bargain
-                        ? AppColors.primaryLight2
+                        ? CupertinoColors.activeGreen
                         : Colors.transparent,
                     border: Border.all(
                       color: state.bargain
-                          ? AppColors.primaryLight2
+                          ? CupertinoColors.activeGreen
                           : AppColors.lighterGray,
                       width: 2.0,
                     ),
@@ -1567,11 +1567,11 @@ class _FiltersPageState extends State<FiltersPage>
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
                     color: state.isFree
-                        ? AppColors.primaryLight2
+                        ? CupertinoColors.activeGreen
                         : Colors.transparent,
                     border: Border.all(
                       color: state.isFree
-                          ? AppColors.primaryLight2
+                          ? CupertinoColors.activeGreen
                           : AppColors.lighterGray,
                       width: 2,
                     ),
@@ -1629,7 +1629,7 @@ class _FiltersPageState extends State<FiltersPage>
                 color: AppColors.containerColor, // Цвет рамки
               ),
               borderRadius:
-                  BorderRadius.circular(14), // Чтобы границы были скруглёнными
+                  BorderRadius.circular(24), // Чтобы границы были скруглёнными
             ),
             padding: EdgeInsets.all(4),
             child: Row(
@@ -1654,7 +1654,7 @@ class _FiltersPageState extends State<FiltersPage>
           context.read<HomeTreeCubit>().updateCondition(value, true, "");
         },
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(20),
           child: AnimatedContainer(
             duration: Duration(milliseconds: 100),
             curve: Curves.easeInOut,
@@ -1708,7 +1708,7 @@ class _FiltersPageState extends State<FiltersPage>
                     width: 1,
                     color: AppColors.containerColor,
                   ),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(24),
                 ),
                 width: double.infinity,
                 height: 52,
@@ -1923,7 +1923,7 @@ class _FiltersPageState extends State<FiltersPage>
                         padding: EdgeInsets.symmetric(vertical: 17),
                         shape: SmoothRectangleBorder(
                           smoothness: 0.7,
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(24),
                         ),
                         elevation: 0,
                       ),
@@ -1948,7 +1948,7 @@ class _FiltersPageState extends State<FiltersPage>
                                   state.predictedFoundPublications),
                               style: const TextStyle(
                                 fontSize: 16,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w500,
                                 letterSpacing: 0.5,
                                 fontFamily: Constants.Arial,
                               ),
@@ -1975,47 +1975,6 @@ class _FiltersPageState extends State<FiltersPage>
     } else {
       return 'Show ${count.toString()} publications';
     }
-  }
-}
-
-class CustomChipTheme extends ChipThemeData {
-  static ChipThemeData get theme => ChipThemeData(
-        backgroundColor: Colors.grey.shade100,
-        selectedColor: Colors.blue.shade400,
-        disabledColor: Colors.grey.shade200,
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        labelStyle: TextStyle(
-          color: Colors.grey.shade800,
-          fontSize: 14,
-          fontWeight: FontWeight.normal,
-        ),
-        secondaryLabelStyle: TextStyle(
-          color: Colors.white,
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-        ),
-        brightness: Brightness.light,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: BorderSide(color: Colors.grey.shade300),
-        ),
-      );
-}
-
-extension ColorUtils on Color {
-  Color darken([double amount = 0.1]) {
-    assert(amount >= 0 && amount <= 1);
-    final hsl = HSLColor.fromColor(this);
-    final hslDark = hsl.withLightness((hsl.lightness - amount).clamp(0.0, 1.0));
-    return hslDark.toColor();
-  }
-
-  Color lighten([double amount = 0.1]) {
-    assert(amount >= 0 && amount <= 1);
-    final hsl = HSLColor.fromColor(this);
-    final hslLight =
-        hsl.withLightness((hsl.lightness + amount).clamp(0.0, 1.0));
-    return hslLight.toColor();
   }
 }
 
@@ -2178,10 +2137,11 @@ class _PriceRangeSliderState extends State<PriceRangeSlider> {
         SliderTheme(
           data: SliderThemeData(
             trackHeight: 5,
-            activeTrackColor:
-                isDisabled ? AppColors.containerColor : AppColors.primaryLight2,
+            activeTrackColor: isDisabled
+                ? AppColors.containerColor
+                : CupertinoColors.activeGreen,
             inactiveTrackColor: AppColors.containerColor,
-            thumbColor: isDisabled ? Colors.grey[100] : Colors.white,
+            thumbColor: isDisabled ? AppColors.containerColor : Colors.white,
             overlayColor: Colors.transparent,
             thumbShape: const RoundSliderThumbShape(
               enabledThumbRadius: 8,

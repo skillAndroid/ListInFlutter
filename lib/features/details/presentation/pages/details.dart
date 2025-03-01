@@ -658,57 +658,70 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: BlocBuilder<GlobalBloc, GlobalState>(
                   builder: (context, state) {
-                    final isFollowed =
-                        state.isUserFollowed(widget.product.seller.id);
-                    final followStatus =
-                        state.getFollowStatus(widget.product.seller.id);
+                    final isFollowed = state.isUserFollowed(widget.product.seller.id);
+                    final followStatus = state.getFollowStatus(widget.product.seller.id);
                     final isLoading = followStatus == FollowStatus.inProgress;
                     return Container(
-                      decoration: BoxDecoration(
-                        color: AppColors.containerColor,
-                        shape: BoxShape.circle,
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(100),
-                        child: Material(
-                          color: AppColors.containerColor,
-                          child: InkWell(
-                            onTap: () {
-                              context.read<GlobalBloc>().add(
-                                    UpdateFollowStatusEvent(
-                                      userId: widget.product.seller.id,
-                                      isFollowed: isFollowed,
-                                      context: context,
-                                    ),
-                                  );
-                            },
-                            child: isLoading
-                                ? const Padding(
-                                    padding: EdgeInsets.all(8),
-                                    child: SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                          Colors.black,
-                                        ),
+                      margin: EdgeInsets.only(top: 0),
+                      height: 36,
+                      child: ElevatedButton(
+                        onPressed: isLoading
+                            ? null
+                            : () {
+                                context.read<GlobalBloc>().add(
+                                      UpdateFollowStatusEvent(
+                                        userId: widget.product.seller.id,
+                                        isFollowed: isFollowed,
+                                        context: context,
                                       ),
-                                    ),
-                                  )
-                                : Padding(
-                                    padding: const EdgeInsets.all(8),
-                                    child: Text(
-                                      isFollowed ? "UnFollow" : "Follow",
-                                      style: TextStyle(
-                                        color: CupertinoColors.activeGreen,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
+                                    );
+                              },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: CupertinoColors.white,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: SmoothRectangleBorder(
+                            side: BorderSide(width: 1, color: AppColors.black),
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16,
                           ),
                         ),
+                        child: isLoading
+                            ? const Padding(
+                                padding: EdgeInsets.all(8),
+                                child: SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.black,
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    isFollowed ? Icons.remove : Icons.add,
+                                    size: 16,
+                                    color: AppColors.black,
+                                  ),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    isFollowed ? "Unfollow" : 'Follow',
+                                    style: TextStyle(
+                                      fontFamily: Constants.Arial,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.black,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
                       ),
                     );
                   },
