@@ -579,6 +579,7 @@ class _FiltersPageState extends State<FiltersPage>
             initialValues: cubit.state.numericFieldValues[field.id],
             onRangeSelected: (from, to) {
               cubit.setNumericFieldRange(field.id, from, to);
+              cubit.fetchFilteredPredictionValues();
             },
           ),
         ),
@@ -681,6 +682,7 @@ class _FiltersPageState extends State<FiltersPage>
                                         cubit.clearSelectedAttribute(attribute);
 
                                         cubit.getAtributesForPost();
+                                        cubit.fetchFilteredPredictionValues();
                                         Navigator.pop(context);
                                       },
                                       style: TextButton.styleFrom(
@@ -704,6 +706,7 @@ class _FiltersPageState extends State<FiltersPage>
                                         cubit.clearSelectedAttribute(attribute);
 
                                         cubit.getAtributesForPost();
+                                        cubit.fetchFilteredPredictionValues();
                                         Navigator.pop(context);
                                       },
                                       style: TextButton.styleFrom(
@@ -860,6 +863,7 @@ class _FiltersPageState extends State<FiltersPage>
                   }
 
                   cubit.getAtributesForPost();
+                    cubit.fetchFilteredPredictionValues();
                 }
                 Navigator.pop(context);
               },
@@ -915,6 +919,7 @@ class _FiltersPageState extends State<FiltersPage>
               }
               Navigator.pop(context);
               cubit.getAtributesForPost();
+                cubit.fetchFilteredPredictionValues();
             },
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -1067,6 +1072,7 @@ class _FiltersPageState extends State<FiltersPage>
                                       onPressed: () {
                                         cubit.clearAllSelectedAttributes();
                                         cubit.getAtributesForPost();
+                                        cubit.fetchFilteredPredictionValues();
                                         Navigator.pop(context);
                                       },
                                       style: TextButton.styleFrom(
@@ -1208,7 +1214,8 @@ class _FiltersPageState extends State<FiltersPage>
                                   cubit.selectAttributeValue(attribute, value);
                                 }
 
-                                cubit.getAtributesForPost(); // Add this line
+                                cubit.getAtributesForPost();
+                                cubit.fetchFilteredPredictionValues();
                               }
                               Navigator.pop(context);
                             },

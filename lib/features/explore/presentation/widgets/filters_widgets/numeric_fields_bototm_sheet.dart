@@ -53,7 +53,6 @@ class _NumericFieldBottomSheetState extends State<NumericFieldBottomSheet> {
         color: Colors.white,
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          
           children: [
             Container(
               margin: const EdgeInsets.only(top: 8),
