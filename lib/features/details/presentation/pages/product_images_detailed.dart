@@ -3,8 +3,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/details/presentation/pages/video_details.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
+import 'package:photo_view/photo_view.dart';
+
 class ProductImagesDetailed extends StatefulWidget {
   final List<ProductImageEntity> images;
   final int initialIndex;
@@ -29,7 +33,8 @@ class _ProductImagesDetailedState extends State<ProductImagesDetailed> {
   final List<TransformationController> _transformationControllers = [];
 
   bool get hasVideo => widget.videoUrl != null;
-  int get totalItems => hasVideo ? widget.images.length + 1 : widget.images.length;
+  int get totalItems =>
+      hasVideo ? widget.images.length + 1 : widget.images.length;
 
   @override
   void initState() {
@@ -54,15 +59,31 @@ class _ProductImagesDetailedState extends State<ProductImagesDetailed> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: AppColors.white,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: _buildBackButton(),
+        automaticallyImplyLeading: false,
+        flexibleSpace: Padding(
+          padding: const EdgeInsets.only(top:40),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 16,
+              ),
+              _buildBackButton(),
+              SizedBox(
+                width: 16,
+              ),
+              _buildImageCounter(),
+            ],
+          ),
+        ),
         systemOverlayStyle: const SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,
-          statusBarIconBrightness: Brightness.light,
+          statusBarIconBrightness: Brightness.dark,
         ),
       ),
       body: Stack(
@@ -72,7 +93,8 @@ class _ProductImagesDetailedState extends State<ProductImagesDetailed> {
             onPageChanged: (index) {
               setState(() {
                 _currentIndex = index;
-                _transformationControllers[_currentIndex].value = Matrix4.identity();
+                _transformationControllers[_currentIndex].value =
+                    Matrix4.identity();
               });
             },
             itemCount: totalItems,
@@ -84,7 +106,6 @@ class _ProductImagesDetailedState extends State<ProductImagesDetailed> {
               return _buildImageViewer(imageIndex);
             },
           ),
-          _buildImageCounter(),
         ],
       ),
     );
@@ -96,7 +117,7 @@ class _ProductImagesDetailedState extends State<ProductImagesDetailed> {
         return Container(
           width: constraints.maxWidth,
           height: constraints.maxHeight,
-          color: Colors.black,
+          color: Colors.white,
           child: GestureDetector(
             onTap: () {
               Navigator.push(
@@ -122,12 +143,12 @@ class _ProductImagesDetailedState extends State<ProductImagesDetailed> {
                     width: 60,
                     height: 60,
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.7),
+                      color: Colors.white.withOpacity(0.7),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
                       Icons.play_arrow_rounded,
-                      color: Colors.white,
+                      color: Colors.black,
                       size: 40,
                     ),
                   ),
@@ -141,79 +162,70 @@ class _ProductImagesDetailedState extends State<ProductImagesDetailed> {
   }
 
   Widget _buildImageViewer(int index) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return Container(
-          width: constraints.maxWidth,
-          height: constraints.maxHeight,
-          color: Colors.black,
-          child: InteractiveViewer(
-            transformationController: _transformationControllers[hasVideo ? index + 1 : index],
-            minScale: 1.0,
-            maxScale: 4.0,
-            child: Center(
-              child: CachedNetworkImage(
-                imageUrl: "https://${widget.images[index].url}",
-                fit: BoxFit.contain,
-                filterQuality: FilterQuality.high,
-                placeholder: (context, url) => const Center(
-                  child: CircularProgressIndicator(
-                    color: Colors.white,
-                  ),
-                ),
-              ),
+  return LayoutBuilder(
+    builder: (context, constraints) {
+      return Container(
+        width: constraints.maxWidth,
+        height: constraints.maxHeight,
+        color: AppColors.bgColor,
+        child: PhotoView(
+          imageProvider: CachedNetworkImageProvider(
+            "https://${widget.images[index].url}",
+          ),
+          minScale: PhotoViewComputedScale.contained,
+          maxScale: PhotoViewComputedScale.covered * 2,
+          initialScale: PhotoViewComputedScale.contained,
+          backgroundDecoration: BoxDecoration(
+            color: AppColors.bgColor,
+          ),
+          loadingBuilder: (context, event) => Center(
+            child: CircularProgressIndicator(
+              color: Colors.white,
+              value: event == null
+                  ? 0
+                  : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
             ),
           ),
-        );
-      },
-    );
-  }
+          enableRotation: false,
+          tightMode: true,
+        ),
+      );
+    },
+  );
+}
 
   Widget _buildImageCounter() {
-    return Positioned(
-      bottom: 16,
-      left: 0,
-      right: 0,
-      child: Center(
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(6),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            color: Colors.black54,
-            child: Text(
-              '${_currentIndex + 1}/$totalItems',
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-        ),
+    return Text(
+      '${_currentIndex + 1} of $totalItems',
+      style: const TextStyle(
+        color: Colors.black,
+        fontWeight: FontWeight.w700,
+        fontSize: 18,
+        fontFamily: Constants.Arial,
       ),
     );
   }
 
-  Widget _buildBackButton() {
-    return Container(
-      margin: const EdgeInsets.only(left: 16, top: 8),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: Material(
-          color: Colors.white.withOpacity(0.2),
-          child: InkWell(
-            onTap: () => Navigator.pop(context),
-            child: const SizedBox(
-              height: 40,
-              width: 40,
-              child: Icon(
-                Icons.arrow_back,
-                color: Colors.white,
-                size: 20,
-              ),
-            ),
+ Widget _buildBackButton() {
+  return ClipRRect(
+    borderRadius: BorderRadius.circular(100),
+    child: Container(
+      width: 36,
+      height: 36,
+      color: AppColors.containerColor,
+      child: Center(
+        child: GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Icon(
+            Icons.close_rounded,
+            color: Colors.black,
+            size: 28,
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
