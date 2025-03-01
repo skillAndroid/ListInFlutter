@@ -459,8 +459,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
           backgroundColor: AppColors.containerColor,
           selectedColor: AppColors.black,
           onSelected: (_) {
-            if (attribute.values != null && 
-                attribute.values.isNotEmpty && 
+            if (attribute.values.isNotEmpty && 
                 mounted) {
               _showAttributeSelectionUI(context, attribute);
             }
@@ -476,6 +475,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
       // Safety check to prevent index out of range errors
       if (numericFieldIndex >= 0 && numericFieldIndex < numericFields.length) {
         final numericField = numericFields[numericFieldIndex];
+        // ignore: unnecessary_null_comparison
         final fieldValues = state.numericFieldValues != null ? 
                            state.numericFieldValues[numericField.id] : null;
 

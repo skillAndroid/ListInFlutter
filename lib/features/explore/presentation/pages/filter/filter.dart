@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use, invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
+// ignore_for_file: deprecated_member_use, invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member, constant_identifier_names
 
 import 'dart:async';
 
@@ -601,8 +601,8 @@ class _FiltersPageState extends State<FiltersPage>
     showModalBottomSheet(
       context: context,
       useRootNavigator: true,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+      shape: SmoothRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
       ),
       backgroundColor: Colors.white,
       isScrollControlled: true,
@@ -729,7 +729,7 @@ class _FiltersPageState extends State<FiltersPage>
                       ),
                       const Divider(
                         height: 1,
-                        color: AppColors.containerColor,
+                        color: AppColors.white,
                       ),
                       Expanded(
                         child: attribute.filterWidgetType == 'multiSelectable'
@@ -825,9 +825,10 @@ class _FiltersPageState extends State<FiltersPage>
                         Text(
                           value.value,
                           style: TextStyle(
-                              fontSize: 15,
-                              color: CupertinoColors.darkBackgroundGray,
-                              fontWeight: FontWeight.w600),
+                            fontSize: 15,
+                            color: CupertinoColors.darkBackgroundGray,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ],
                     ),
@@ -867,7 +868,7 @@ class _FiltersPageState extends State<FiltersPage>
                 padding:
                     const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(32),
                 ),
                 elevation: 0,
               ),
@@ -927,7 +928,7 @@ class _FiltersPageState extends State<FiltersPage>
                         color:
                             isSelected ? AppColors.black : AppColors.darkGray,
                         fontWeight:
-                            isSelected ? FontWeight.w700 : FontWeight.w600,
+                            isSelected ? FontWeight.w600 : FontWeight.w500,
                       ),
                     ),
                   ),
