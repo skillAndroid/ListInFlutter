@@ -10,6 +10,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/features/auth/presentation/pages/register_details_page.dart';
 import 'package:list_in/features/map/domain/entities/location_entity.dart';
 import 'package:list_in/features/map/presentation/map/map.dart';
 import 'package:list_in/features/profile/domain/entity/user/user_profile_entity.dart';
@@ -140,61 +141,69 @@ class _ProfileEditorState extends State<ProfileEditor> {
   }
 
   void _handleSave() {
-  String? formattedFromTime;
-  String? formattedToTime;
+    String? formattedFromTime;
+    String? formattedToTime;
 
-  if (openingTime != null) {
-    final hour = openingTime!.hour.toString().padLeft(2, '0');
-    final minute = openingTime!.minute.toString().padLeft(2, '0');
-    formattedFromTime = '$hour:$minute';
+    if (openingTime != null) {
+      final hour = openingTime!.hour.toString().padLeft(2, '0');
+      final minute = openingTime!.minute.toString().padLeft(2, '0');
+      formattedFromTime = '$hour:$minute';
+    }
+
+    if (closingTime != null) {
+      final hour = closingTime!.hour.toString().padLeft(2, '0');
+      final minute = closingTime!.minute.toString().padLeft(2, '0');
+      formattedToTime = '$hour:$minute';
+    }
+    final cleanedLocationName = cleanLocationName(_locationName.toString());
+    final locationDetails = parseLocationName(_locationName.toString());
+    final updatedProfile = UserProfileEntity(
+      nickName: _nameController.text,
+      phoneNumber: _phoneController.text,
+      biography: _bioController.text.isEmpty ? null : _bioController.text,
+      isBusinessAccount: isBusinessAccount,
+      isGrantedForPreciseLocation: showExactLocation,
+      profileImagePath: _profileImagePath,
+      fromTime: formattedFromTime,
+      toTime: formattedToTime,
+      // Use the new location values instead of the old ones
+      longitude: _longitude,
+      latitude: _latitude,
+      county: locationDetails['county'],
+      city: locationDetails['city'],
+      state: locationDetails['state'],
+      country: locationDetails['country'],
+      locationName: cleanedLocationName,
+    );
+
+    // Update the hasChanges check to include location changes
+    bool hasChanges = updatedProfile.nickName != widget.userData.nickName ||
+        updatedProfile.phoneNumber != widget.userData.phoneNumber ||
+        updatedProfile.biography != widget.userData.biography ||
+        updatedProfile.isBusinessAccount != widget.userData.isBusinessAccount ||
+        updatedProfile.isGrantedForPreciseLocation !=
+            widget.userData.isGrantedForPreciseLocation ||
+        updatedProfile.fromTime != widget.userData.fromTime ||
+        updatedProfile.toTime != widget.userData.toTime ||
+        updatedProfile.longitude !=
+            widget.userData.longitude || // Add location checks
+        updatedProfile.latitude != widget.userData.latitude ||
+        updatedProfile.locationName != widget.userData.locationName ||
+        _selectedImageFile != null;
+
+    if (!hasChanges) {
+      Navigator.pop(context);
+      return;
+    }
+
+    context.read<UserProfileBloc>().add(
+          UpdateUserProfileWithImage(
+            profile: updatedProfile,
+            imageFile: _selectedImageFile,
+          ),
+        );
   }
 
-  if (closingTime != null) {
-    final hour = closingTime!.hour.toString().padLeft(2, '0');
-    final minute = closingTime!.minute.toString().padLeft(2, '0');
-    formattedToTime = '$hour:$minute';
-  }
-
-  final updatedProfile = UserProfileEntity(
-    nickName: _nameController.text,
-    phoneNumber: _phoneController.text,
-    biography: _bioController.text.isEmpty ? null : _bioController.text,
-    isBusinessAccount: isBusinessAccount,
-    isGrantedForPreciseLocation: showExactLocation,
-    profileImagePath: _profileImagePath,
-    fromTime: formattedFromTime,
-    toTime: formattedToTime,
-    // Use the new location values instead of the old ones
-    longitude: _longitude,
-    latitude: _latitude,
-    locationName: _locationName,
-  );
-
-  // Update the hasChanges check to include location changes
-  bool hasChanges = updatedProfile.nickName != widget.userData.nickName ||
-      updatedProfile.phoneNumber != widget.userData.phoneNumber ||
-      updatedProfile.biography != widget.userData.biography ||
-      updatedProfile.isBusinessAccount != widget.userData.isBusinessAccount ||
-      updatedProfile.isGrantedForPreciseLocation != widget.userData.isGrantedForPreciseLocation ||
-      updatedProfile.fromTime != widget.userData.fromTime ||
-      updatedProfile.toTime != widget.userData.toTime ||
-      updatedProfile.longitude != widget.userData.longitude ||  // Add location checks
-      updatedProfile.latitude != widget.userData.latitude ||
-      updatedProfile.locationName != widget.userData.locationName ||
-      _selectedImageFile != null;
-
-  if (!hasChanges) {
-    Navigator.pop(context);
-    return;
-  }
-
-  context.read<UserProfileBloc>().add(
-        UpdateUserProfileWithImage(
-          profile: updatedProfile,
-          imageFile: _selectedImageFile,
-        ),
-      );
-}
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<UserProfileBloc, UserProfileState>(
@@ -213,7 +222,8 @@ class _ProfileEditorState extends State<ProfileEditor> {
               ],
             ),
           );
-        } else if (state.status == UserProfileStatus.success || state.status == UserProfileStatus.failure) {
+        } else if (state.status == UserProfileStatus.success ||
+            state.status == UserProfileStatus.failure) {
           // Navigate back on success
           Navigator.pop(context);
         }
@@ -386,7 +396,7 @@ class _ProfileEditorState extends State<ProfileEditor> {
                           _buildTappableRow(
                               'Select Location',
                               showExactLocation
-                                  ? _locationName.toString()
+                                  ? cleanLocationName(_locationName.toString())
                                   : _locationName.toString(), onTap: () {
                             _showMapSelector(context);
                           }),

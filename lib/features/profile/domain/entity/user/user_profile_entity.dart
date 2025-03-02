@@ -6,6 +6,10 @@ class UserProfileEntity {
   final String? locationName;
   final double? longitude;
   final double? latitude;
+  final String? city;
+  final String? country;
+  final String? county;
+  final String? state;
   final String? fromTime;
   final String? toTime;
   final bool? isBusinessAccount;
@@ -17,6 +21,10 @@ class UserProfileEntity {
     this.phoneNumber,
     this.isGrantedForPreciseLocation,
     this.locationName,
+    this.country,
+    this.state,
+    this.city,
+    this.county,
     this.longitude,
     this.latitude,
     this.fromTime,

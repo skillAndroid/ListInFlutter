@@ -3,6 +3,10 @@ import 'package:list_in/features/profile/domain/entity/user/user_profile_entity.
 class UserProfileModel {
   final String? profileImagePath;
   final String? nickName;
+  final String? city;
+  final String? country;
+  final String? county;
+  final String? state;
   final String? phoneNumber;
   final bool? isGrantedForPreciseLocation;
   final String? locationName;
@@ -19,6 +23,10 @@ class UserProfileModel {
     this.phoneNumber,
     this.isGrantedForPreciseLocation,
     this.locationName,
+    this.city,
+    this.country,
+    this.state,
+    this.county,
     this.longitude,
     this.latitude,
     this.fromTime,
@@ -50,6 +58,10 @@ class UserProfileModel {
       'phoneNumber': phoneNumber,
       'isGrantedForPreciseLocation': isGrantedForPreciseLocation,
       'locationName': locationName,
+      'country' : country,
+      'state' : state,
+      'city' : city,
+      'county' : county,
       'longitude': longitude,
       'latitude': latitude,
       'fromTime': fromTime,
