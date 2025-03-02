@@ -1,20 +1,19 @@
 import 'package:dio/dio.dart';
 import 'package:list_in/core/error/failure.dart';
+import 'package:list_in/features/map/data/models/address_data_model.dart';
 import 'package:list_in/features/map/data/models/coordinates_model.dart';
 import 'package:list_in/features/map/data/models/location_model.dart';
 
 abstract class LocationRemoteDatasource {
   Future<List<LocationModel>> searchLocations(String query);
-  Future<String> getRegionFromCoordinates(CoordinatesModel coordinates);
+  Future<AddressDetailsModel> getRegionFromCoordinates(CoordinatesModel coordinates);
 }
-
 class LocationRemoteDataSourceImpl extends LocationRemoteDatasource {
   final Dio dio;
-
   LocationRemoteDataSourceImpl({required this.dio});
-
+  
   @override
-  Future<String> getRegionFromCoordinates(CoordinatesModel coordinates) async {
+  Future<AddressDetailsModel> getRegionFromCoordinates(CoordinatesModel coordinates) async {
     try {
       final response = await dio.get(
         'https://nominatim.openstreetmap.org/reverse',
@@ -28,17 +27,29 @@ class LocationRemoteDataSourceImpl extends LocationRemoteDatasource {
           headers: {'User-Agent': 'ListIn/1.0 (sweetfoxnew@gmail.com)'},
         ),
       );
-
+      
       if (response.statusCode == 200) {
         final address = response.data['address'];
-        final addressParts = [
-          address['county'],
-          address['city'],
-          address['state'],
-          address['country'],
-        ].where((part) => part != null && part.isNotEmpty).toList();
-
-        return addressParts.join(', ');
+        
+        // Extract individual components
+        final county = address['county'] ?? '';
+        final city = address['city'] ?? '';
+        final state = address['state'] ?? '';
+        final country = address['country'] ?? '';
+        
+        // Create combined address string
+        final addressParts = [county, city, state, country]
+            .where((part) => part != null && part.isNotEmpty)
+            .toList();
+        final combinedAddress = addressParts.join(', ');
+        
+        return AddressDetailsModel(
+          combinedAddress: combinedAddress,
+          county: county,
+          city: city,
+          state: state,
+          country: country,
+        );
       } else {
         throw ServerFailure();
       }
@@ -46,7 +57,7 @@ class LocationRemoteDataSourceImpl extends LocationRemoteDatasource {
       throw NetworkFailure();
     }
   }
-
+  
   @override
   Future<List<LocationModel>> searchLocations(String query) async {
     try {
@@ -60,8 +71,7 @@ class LocationRemoteDataSourceImpl extends LocationRemoteDatasource {
           'key': apiKey,
         },
       );
-      //h
-
+      
       if (response.statusCode == 200) {
         final results = response.data['results'] as List;
         return results.map((result) {

@@ -15,6 +15,10 @@ class RegisterUserDataSubmitted extends AuthEvent {
   final String? email;
   final String password;
   final String locationName;
+  final String? country;
+  final String? state;
+  final String? city;
+  final String? county;
   final double latitude;
   final double longitude;
   final bool isGrantedForPreciseLocation;
@@ -22,6 +26,10 @@ class RegisterUserDataSubmitted extends AuthEvent {
   RegisterUserDataSubmitted({
     required this.nikeName,
     required this.phoneNumber,
+    this.country,
+    this.state,
+    this.city,
+    this.county,
     this.email,
     required this.password,
     required this.locationName,
@@ -45,7 +53,9 @@ class EmailVerificationSubmitted extends AuthEvent {
 class InputChanged extends AuthEvent {}
 
 enum UserType { individualSeller, storeSeller }
+
 abstract class RegistrationEvent {}
+
 class UpdateNikeName extends RegistrationEvent {
   final String nikeName;
   UpdateNikeName(this.nikeName);
@@ -70,4 +80,3 @@ class UpdateUserType extends RegistrationEvent {
   final UserType userType;
   UpdateUserType(this.userType);
 }
-

@@ -1,4 +1,5 @@
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:list_in/features/map/domain/entities/address_data_entity.dart';
 import 'package:list_in/features/map/domain/entities/location_entity.dart';
 
 abstract class MapState {}
@@ -6,8 +7,14 @@ abstract class MapState {}
 class MapIdleState extends MapState {
   final LatLng center;
   final String? locationName;
-  MapIdleState(this.center, {this.locationName});
+  final AddressDetailsEntity? addressDetails;
+  
+  MapIdleState(
+    this.center, 
+    {this.locationName, this.addressDetails}
+  );
 }
+
 
 class MapMovingState extends MapState {}
 
