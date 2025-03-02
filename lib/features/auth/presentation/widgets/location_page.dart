@@ -235,7 +235,7 @@ class _LocationSelectorWidgetState extends State<LocationSelectorWidget> {
                         SizedBox(
                           width: 150,
                           child: Text(
-                            widget.selectedLocation!.name,
+                            cleanLocationName(widget.selectedLocation!.name),
                             maxLines: 3,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(

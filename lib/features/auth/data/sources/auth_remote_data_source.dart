@@ -126,6 +126,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           'password': user.password,
           'roles': user.roles,
           'locationName': user.locationName,
+          'city': user.city,
+          'county': user.county,
+          'country': user.country,
+          'state': user.state,
           'isGrantedForPreciseLocation': user.isGrantedForPreciseLocation,
           'latitude': user.latitude,
           'longitude': user.longitude

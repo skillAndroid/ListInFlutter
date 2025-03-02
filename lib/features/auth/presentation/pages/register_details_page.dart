@@ -123,6 +123,9 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
       return;
     }
 
+    final cleanedLocationName = cleanLocationName(_location.name);
+    final locationDetails = parseLocationName(_location.name);
+
     context.read<AuthBloc>().add(
           RegisterUserDataSubmitted(
             nikeName: _nikeNameController.text,
@@ -130,10 +133,14 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
             password: _passwordController.text,
             isGrantedForPreciseLocation:
                 _locationSharingPreference == LocationSharingMode.precise,
-            locationName: _location.name,
+            locationName: cleanedLocationName, // Use the cleaned location name
             latitude: _location.coordinates.latitude,
             longitude: _location.coordinates.longitude,
             userType: _userType,
+            county: locationDetails['county'],
+            city: locationDetails['city'],
+            state: locationDetails['state'],
+            country: locationDetails['country'],
           ),
         );
   }
@@ -253,9 +260,8 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                         : _nextPage,
                                 style: ElevatedButton.styleFrom(
                                   shape: SmoothRectangleBorder(
-                                    smoothness: 0.8,
-                                    borderRadius: BorderRadius.circular(16)
-                                  ),
+                                      smoothness: 0.8,
+                                      borderRadius: BorderRadius.circular(16)),
                                   padding:
                                       const EdgeInsets.symmetric(vertical: 17),
                                   backgroundColor: AppColors.primary,
@@ -487,11 +493,10 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
         Text(
           title,
           style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.w700,
-            fontFamily: 'Poppins',
-            color: AppColors.black
-          ),
+              fontSize: 24,
+              fontWeight: FontWeight.w700,
+              fontFamily: 'Poppins',
+              color: AppColors.black),
         ),
         const SizedBox(height: 12),
         Padding(
@@ -548,4 +553,85 @@ class PageData {
     required this.subtitle,
     required this.content,
   });
+}
+
+String cleanLocationName(String locationName) {
+  // List of unwanted keywords or phrases to remove
+  final unwantedKeywords = ['county:', 'state:', 'country:', 'city:'];
+
+  // Remove unwanted keywords from the location name
+  for (final keyword in unwantedKeywords) {
+    locationName = locationName.replaceAll(keyword, '').trim();
+  }
+
+  // Remove extra spaces and commas
+  locationName = locationName.replaceAll(RegExp(r'\s+'), ' ').trim();
+  locationName = locationName.replaceAll(RegExp(r',+'), ',').trim();
+
+  return locationName;
+}
+
+Map<String, String?> parseLocationName(String locationName) {
+  // Initialize the result map with null values
+  Map<String, String?> result = {
+    'county': null,
+    'city': null,
+    'state': null,
+    'country': null,
+  };
+
+  print("🔍 Starting to parse location: '$locationName'");
+
+  // If locationName is empty, return the map with null values
+  if (locationName.isEmpty) {
+    print("⚠️ Location name is empty!");
+    return result;
+  }
+
+  // Split the location name by commas and trim whitespace
+  final parts = locationName.split(',').map((part) => part.trim()).toList();
+  print("📋 Split parts: $parts");
+
+  // Check each part for key identifiers
+  for (int i = 0; i < parts.length; i++) {
+    String part = parts[i];
+    if (part.isEmpty) {
+      print("⚠️ Part $i is empty, skipping");
+      continue;
+    }
+
+    print("🔎 Checking part [$i]: '$part'");
+
+    // Look for key identifiers in each part
+    if (part.toLowerCase().contains('county:')) {
+      final value = part
+          .substring(part.toLowerCase().indexOf('county:') + 'county:'.length)
+          .trim();
+      print("🏡 Found county: '$value'");
+      if (value.isNotEmpty) result['county'] = value;
+    } else if (part.toLowerCase().contains('city:')) {
+      final value = part
+          .substring(part.toLowerCase().indexOf('city:') + 'city:'.length)
+          .trim();
+      print("🏙️ Found city: '$value'");
+      if (value.isNotEmpty) result['city'] = value;
+    } else if (part.toLowerCase().contains('state:')) {
+      final value = part
+          .substring(part.toLowerCase().indexOf('state:') + 'state:'.length)
+          .trim();
+      print("🏛️ Found state: '$value'");
+      if (value.isNotEmpty) result['state'] = value;
+    } else if (part.toLowerCase().contains('country:')) {
+      final value = part
+          .substring(part.toLowerCase().indexOf('country:') + 'country:'.length)
+          .trim();
+      print("🌎 Found country: '$value'");
+      if (value.isNotEmpty) result['country'] = value;
+    } else {
+      print("❓ No identifier found in part [$i]: '$part'");
+    }
+  }
+
+  print("✅ Final parsed result: $result");
+  return result;
 }

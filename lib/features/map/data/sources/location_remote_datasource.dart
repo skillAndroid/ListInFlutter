@@ -12,7 +12,6 @@ class LocationRemoteDataSourceImpl extends LocationRemoteDatasource {
   final Dio dio;
 
   LocationRemoteDataSourceImpl({required this.dio});
-
   @override
   Future<String> getRegionFromCoordinates(CoordinatesModel coordinates) async {
     try {
@@ -31,14 +30,21 @@ class LocationRemoteDataSourceImpl extends LocationRemoteDatasource {
 
       if (response.statusCode == 200) {
         final address = response.data['address'];
-        final addressParts = [
-          address['county'],
-          address['city'],
-          address['state'],
-          address['country'],
-        ].where((part) => part != null && part.isNotEmpty).toList();
 
-        return addressParts.join(', ');
+        // Extract address parts, allowing for null values
+        final county = address['county'];
+        final city = address['city'];
+        final state = address['state'];
+        final country = address['country'];
+
+        final addressParts = [
+          if (county != null) 'county: $county',
+          if (city != null) 'city: $city',
+          if (state != null) 'state: $state',
+          if (country != null) 'country: $country',
+        ].join(', ');
+
+        return addressParts;
       } else {
         throw ServerFailure();
       }
