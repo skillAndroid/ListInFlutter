@@ -223,7 +223,7 @@ class _NumericFieldBottomSheetState extends State<NumericFieldBottomSheet> {
                       backgroundColor: AppColors.primary,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: SmoothRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(32),
                       ),
                     ),
                     child: Container(

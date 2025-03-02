@@ -141,7 +141,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                       width: double.infinity,
                                       height: double.infinity,
                                       imageUrl:
-                                          'https://${userData.profileImagePath!}',
+                                          'https://${userData.profileImagePath}',
                                       fit: BoxFit.cover,
                                       placeholder: (context, url) =>
                                           const Progress(),

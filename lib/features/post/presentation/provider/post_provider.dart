@@ -76,7 +76,7 @@ class PostProvider extends ChangeNotifier {
         }
       }
 
-      // Upload video if exists
+      
       if (_video != null) {
         _updatePostCreationState(PostCreationState.uploadingVideo);
         final videoResult = await uploadVideoRemoute(_video!);
@@ -159,36 +159,35 @@ class PostProvider extends ChangeNotifier {
     }
   }
 
-  void getAtributesForPost() {
-    attributeRequests.clear();
+ void getAtributesForPost() {
+  attributeRequests.clear();
 
-    // Set to track processed attribute-value combinations
-    final Set<String> processedCombinations = {};
+  // Set to track processed attribute-value combinations
+  final Set<String> processedCombinations = {};
 
-    // Handle single-selection attributes (oneSelectable and colorSelectable)
-    for (var entry in _selectedAttributeValues.entries) {
-      AttributeModel attribute = entry.key;
-      AttributeValueModel value = entry.value;
+  // Handle single-selection attributes (oneSelectable and colorSelectable)
+  for (var entry in _selectedAttributeValues.entries) {
+    AttributeModel attribute = entry.key;
+    AttributeValueModel value = entry.value;
 
-      // Only process single-selection attributes
-      if (attribute.widgetType == 'oneSelectable' ||
-          attribute.widgetType == 'colorSelectable') {
-        // Create unique key for this combination
-        String combinationKey =
-            '${value.attributeKeyId}_${value.attributeValueId}';
+    // Only process single-selection attributes
+    if (attribute.widgetType == 'oneSelectable' ||
+        attribute.widgetType == 'colorSelectable') {
+      // Create unique key for this combination
+      String combinationKey =
+          '${value.attributeKeyId}_${value.attributeValueId}';
 
-        // Only add if not processed
-        if (!processedCombinations.contains(combinationKey)) {
-          processedCombinations.add(combinationKey);
+      // Only add if not processed
+      if (!processedCombinations.contains(combinationKey)) {
+        processedCombinations.add(combinationKey);
 
-          // Add main attribute
-          if (value.attributeKeyId.isNotEmpty &&
-              value.attributeValueId.isNotEmpty) {
-            attributeRequests.add(AttributeRequestValue(
-              attributeId: value.attributeKeyId,
-              attributeValueIds: [value.attributeValueId],
-            ));
-          }
+        // Add main attribute
+        if (value.attributeKeyId.isNotEmpty &&
+            value.attributeValueId.isNotEmpty) {
+          attributeRequests.add(AttributeRequestValue(
+            attributeId: value.attributeKeyId,
+            attributeValueIds: [value.attributeValueId],
+          ));
 
           // Handle child attributes if they exist
           if (attribute.subHelperText != 'null' &&
@@ -211,54 +210,56 @@ class PostProvider extends ChangeNotifier {
         }
       }
     }
+  }
 
-    for (var entry in _selectedValues.entries) {
-      if (entry.value is List<AttributeValueModel>) {
-        List<AttributeValueModel> values =
-            entry.value as List<AttributeValueModel>;
-        if (values.isNotEmpty) {
-          // Add main multi-selection attribute
-          String attributeId = values.first.attributeKeyId;
-          List<String> valueIds =
-              values.map((v) => v.attributeValueId).toList();
+  // Handle multi-selection attributes
+  for (var entry in _selectedValues.entries) {
+    if (entry.value is List<AttributeValueModel>) {
+      List<AttributeValueModel> values =
+          entry.value as List<AttributeValueModel>;
+      if (values.isNotEmpty) {
+        // Add main multi-selection attribute
+        String attributeId = values.first.attributeKeyId;
+        List<String> valueIds =
+            values.map((v) => v.attributeValueId).toList();
 
-          if (attributeId.isNotEmpty && valueIds.isNotEmpty) {
-            attributeRequests.add(AttributeRequestValue(
-              attributeId: attributeId,
-              attributeValueIds: valueIds,
-            ));
+        if (attributeId.isNotEmpty && valueIds.isNotEmpty) {
+          attributeRequests.add(AttributeRequestValue(
+            attributeId: attributeId,
+            attributeValueIds: valueIds,
+          ));
 
-            // Handle child attributes for multi-selection if they exist
-            for (var value in values) {
-              if (value.list.isNotEmpty &&
-                  value.list.first.attributeId != null &&
-                  value.list.first.modelId != null) {
-                String childCombinationKey =
-                    '${value.list.first.attributeId}_${value.list.first.modelId}';
+          // Handle child attributes for multi-selection if they exist
+          for (var value in values) {
+            if (value.list.isNotEmpty &&
+                value.list.first.attributeId != null &&
+                value.list.first.modelId != null) {
+              String childCombinationKey =
+                  '${value.list.first.attributeId}_${value.list.first.modelId}';
 
-                if (!processedCombinations.contains(childCombinationKey) &&
-                    value.list.first.attributeId!.isNotEmpty &&
-                    value.list.first.modelId!.isNotEmpty) {
-                  processedCombinations.add(childCombinationKey);
-                  attributeRequests.add(AttributeRequestValue(
-                    attributeId: value.list.first.attributeId!,
-                    attributeValueIds: [value.list.first.modelId!],
-                  ));
-                }
+              if (!processedCombinations.contains(childCombinationKey) &&
+                  value.list.first.attributeId!.isNotEmpty &&
+                  value.list.first.modelId!.isNotEmpty) {
+                processedCombinations.add(childCombinationKey);
+                attributeRequests.add(AttributeRequestValue(
+                  attributeId: value.list.first.attributeId!,
+                  attributeValueIds: [value.list.first.modelId!],
+                ));
               }
             }
           }
         }
       }
     }
-
-    debugPrint("Attribute requests:");
-    for (var request in attributeRequests) {
-      print("Attribute ID: ${request.attributeId}");
-      print("Attribute Value IDs: ${request.attributeValueIds.join(', ')}");
-      print("------------");
-    }
   }
+
+  debugPrint("Attribute requests:");
+  for (var request in attributeRequests) {
+    print("Attribute ID: ${request.attributeId}");
+    print("Attribute Value IDs: ${request.attributeValueIds.join(', ')}");
+    print("------------");
+  }
+}
 
   bool _validatePost() {
     return _postTitle.isNotEmpty &&

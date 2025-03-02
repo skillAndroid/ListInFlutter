@@ -1224,7 +1224,7 @@ class _FiltersPageState extends State<FiltersPage>
                               padding: const EdgeInsets.symmetric(
                                   vertical: 16, horizontal: 16),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(24),
                               ),
                               elevation: 0,
                             ),
