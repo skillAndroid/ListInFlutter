@@ -16,7 +16,7 @@ import 'package:rxdart/rxdart.dart';
 class MapBloc extends Cubit<MapState> {
   final GetLocationUseCase getLocationUseCase;
   final SearchLocationsUseCase searchLocationsUseCase;
-  
+
   final _searchQueryController = BehaviorSubject<String>();
   final _cameraIdleController = BehaviorSubject<LatLng>();
   late final StreamSubscription _searchSubscription;
@@ -28,18 +28,18 @@ class MapBloc extends Cubit<MapState> {
   }) : super(
           MapIdleState(
             const LatLng(
-              41.3112128,
-              69.241796,
+              80.7749,
+              -122.4194,
             ),
           ),
         ) {
     _searchSubscription = _searchQueryController
         .debounceTime(
-            const Duration(milliseconds: 500)) 
+            const Duration(milliseconds: 500)) // Устанавливаем 500 мс дебаунса
         .listen((query) => _performSearch(query));
     _cameraIdleSubscription = _cameraIdleController
         .debounceTime(
-            const Duration(milliseconds: 800)) 
+            const Duration(milliseconds: 800)) // Устанавливаем 500 мс дебаунса
         .listen((currentCenter) => _handleCameraIdle(currentCenter));
   }
 
@@ -61,14 +61,9 @@ class MapBloc extends Cubit<MapState> {
       latitude: currentCenter.latitude,
       longitude: currentCenter.longitude,
     );
-    
     try {
-      final addressDetails = await getLocationUseCase(params: coordinates);
-      emit(MapIdleState(
-        currentCenter, 
-        locationName: addressDetails.combinedAddress,
-        addressDetails: addressDetails,
-      ));
+      final locationName = await getLocationUseCase(params: coordinates);
+      emit(MapIdleState(currentCenter, locationName: locationName));
     } on Failure catch (failure) {
       emit(MapErrorState(_mapFailureToMessage(failure)));
     } catch (exception) {

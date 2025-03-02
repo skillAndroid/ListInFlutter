@@ -1,7 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:list_in/core/error/failure.dart';
 import 'package:list_in/features/map/data/sources/location_remote_datasource.dart';
-import 'package:list_in/features/map/domain/entities/address_data_entity.dart';
 import 'package:list_in/features/map/domain/entities/coordinates_entity.dart';
 import 'package:list_in/features/map/domain/entities/location_entity.dart';
 import 'package:list_in/features/map/domain/repositories/location_repository.dart';
@@ -13,12 +12,13 @@ class LocationRepositoryImpl implements LocationRepository {
   });
 
   @override
-  Future<Either<Failure, AddressDetailsEntity>> getLocation(
+  Future<Either<Failure, String>> getLocation(
       CoordinatesEntity coordinates) async {
     try {
-      final addressDetails = await remoteDataSource
+      final region = await remoteDataSource
           .getRegionFromCoordinates(coordinates.toModel());
-      return Right(addressDetails.toEntity());
+
+      return Right(region);
     } on Failure catch (failure) {
       return Left(failure);
     }
