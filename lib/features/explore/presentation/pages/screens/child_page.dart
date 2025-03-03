@@ -119,11 +119,8 @@ class ChildPagingState {
 }
 
 class ChildHomeTreePage extends StatefulWidget {
-  final List<ProductEntity> regularProducts;
-
   const ChildHomeTreePage({
     super.key,
-    required this.regularProducts,
   });
 
   @override

@@ -117,11 +117,8 @@ class ChildPagingState {
 }
 
 class FilterSecondaryResultPage extends StatefulWidget {
-  final List<ProductEntity> regularProducts;
-
   const FilterSecondaryResultPage({
     super.key,
-    required this.regularProducts,
   });
 
   @override
@@ -417,7 +414,7 @@ class _FilterSecondaryResultPageState extends State<FilterSecondaryResultPage> {
           borderRadius: BorderRadius.circular(16),
         ),
         selected: selectedFilters.contains(index),
-       backgroundColor: AppColors.containerColor,
+        backgroundColor: AppColors.containerColor,
         selectedColor: AppColors.black,
         labelStyle: TextStyle(
           color: selectedFilters.contains(index)
@@ -516,8 +513,7 @@ class _FilterSecondaryResultPageState extends State<FilterSecondaryResultPage> {
                                     "What are you looking for?", // Show current search text or default
                                     style: TextStyle(
                                       fontSize: 15,
-                                      color:
-                                          AppColors.black,
+                                      color: AppColors.black,
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),

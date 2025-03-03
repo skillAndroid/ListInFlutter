@@ -18,7 +18,6 @@ import 'package:list_in/features/details/presentation/bloc/details_bloc.dart';
 import 'package:list_in/features/details/presentation/bloc/details_state.dart';
 import 'package:list_in/features/details/presentation/pages/product_images_detailed.dart';
 import 'package:list_in/features/details/presentation/pages/video_details.dart';
-import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/formaters.dart';
 import 'package:list_in/features/explore/presentation/widgets/product_card/bb/regular_product_card.dart';
@@ -41,12 +40,10 @@ import '../bloc/details_event.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
   final GetPublicationEntity product;
-  final List<ProductEntity> recommendedProducts;
 
   const ProductDetailsScreen({
     super.key,
     required this.product,
-    required this.recommendedProducts,
   });
 
   @override
@@ -658,8 +655,10 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: BlocBuilder<GlobalBloc, GlobalState>(
                   builder: (context, state) {
-                    final isFollowed = state.isUserFollowed(widget.product.seller.id);
-                    final followStatus = state.getFollowStatus(widget.product.seller.id);
+                    final isFollowed =
+                        state.isUserFollowed(widget.product.seller.id);
+                    final followStatus =
+                        state.getFollowStatus(widget.product.seller.id);
                     final isLoading = followStatus == FollowStatus.inProgress;
                     return Container(
                       margin: EdgeInsets.only(top: 0),

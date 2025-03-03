@@ -7,6 +7,9 @@ import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/retry.dart';
+import 'package:list_in/core/language/language_bloc.dart';
+import 'package:list_in/core/language/language_rep.dart';
+import 'package:list_in/core/local_data/shared_preferences.dart';
 import 'package:list_in/core/router/go_router.dart';
 import 'package:list_in/core/services/auth_service.dart';
 import 'package:list_in/features/auth/data/repositories/auth_repository_impl.dart';
@@ -82,7 +85,19 @@ final sl = GetIt.instance;
 
 Future<void> init() async {
   final sharedPreferences = await SharedPreferences.getInstance();
+  sl.registerLazySingleton<SharedPrefsService>(
+    () => SharedPrefsService(sharedPreferences),
+  );
 
+  // Register Language Repository
+  sl.registerLazySingleton<LanguageRepository>(
+    () => LanguageRepository(prefsService: sl()),
+  );
+
+  // Register Language BLoC
+  sl.registerFactory<LanguageBloc>(
+    () => LanguageBloc(repository: sl()),
+  );
   sl.registerLazySingleton<Dio>(() {
     final dio = Dio();
 

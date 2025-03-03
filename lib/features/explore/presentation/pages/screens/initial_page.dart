@@ -13,7 +13,6 @@ import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/core/utils/const.dart';
-import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
@@ -120,11 +119,8 @@ class PagingState {
 }
 
 class InitialHomeTreePage extends StatefulWidget {
-  final List<ProductEntity> regularProducts;
-
   const InitialHomeTreePage({
     super.key,
-    required this.regularProducts,
   });
 
   @override
@@ -299,7 +295,8 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
 
   Widget _buildMainScreen(HomeTreeState state) {
     return Scaffold(
-      backgroundColor: CupertinoColors.extraLightBackgroundGray.withOpacity(0.5),
+      backgroundColor:
+          CupertinoColors.extraLightBackgroundGray.withOpacity(0.5),
       extendBody: true,
       appBar: _buildAppBar(state),
       body: RefreshIndicator(

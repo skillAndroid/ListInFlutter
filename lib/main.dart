@@ -1,489 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
+import 'package:list_in/config/theme/app_language.dart';
 import 'package:list_in/config/theme/app_theme.dart';
+import 'package:list_in/core/language/language_bloc.dart';
 import 'package:list_in/core/router/go_router.dart';
 import 'package:list_in/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:list_in/features/details/presentation/bloc/details_bloc.dart';
-import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/map/presentation/bloc/MapBloc.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
-import 'package:list_in/features/visitior_profile/presentation/bloc/another_user_profile_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/user/user_profile_bloc.dart';
+import 'package:list_in/features/visitior_profile/presentation/bloc/another_user_profile_bloc.dart';
 import 'package:list_in/global/global_bloc.dart';
 import 'package:list_in/global/likeds/liked_publications_bloc.dart';
 import 'package:provider/provider.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'core/di/di_managment.dart' as di;
 
-final List<ProductEntity> sampleProducts = [
-  ProductEntity(
-    name: "iPhone 14 Pro Max for sale",
-    images: [
-      "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 905,
-    isNew: true,
-    id: "1",
-  ),
-  ProductEntity(
-    name: "Cow Available for Purchase",
-    images: [
-      "https://cdn.pixabay.com/photo/2024/09/03/08/56/dairy-cattle-9018750_640.jpg",
-      "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg",
-      "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg",
-      "https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_640.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 1999,
-    isNew: true,
-    id: "2",
-  ),
-  ProductEntity(
-    name: "Your New Home Awaits – For Sale",
-    images: [
-      "https://cdn.pixabay.com/photo/2017/03/27/15/17/apartment-2179337_640.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 205,
-    isNew: true,
-    id: "3",
-  ),
-  ProductEntity(
-    name: "Own a Piece of History – Retro Car for Sale",
-    images: [
-      "https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_640.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 205,
-    isNew: true,
-    id: "4",
-  ),
-  ProductEntity(
-    name: "iPhone 14 Pro Max for sale",
-    images: [
-      "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 905,
-    isNew: true,
-    id: "1",
-  ),
-  ProductEntity(
-    name: "Cow Available for Purchase",
-    images: [
-      "https://cdn.pixabay.com/photo/2024/09/03/08/56/dairy-cattle-9018750_640.jpg",
-      "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg",
-      "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg",
-      "https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_640.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 1999,
-    isNew: true,
-    id: "2",
-  ),
-  ProductEntity(
-    name: "Your New Home Awaits – For Sale",
-    images: [
-      "https://cdn.pixabay.com/photo/2017/03/27/15/17/apartment-2179337_640.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 205,
-    isNew: true,
-    id: "3",
-  ),
-  ProductEntity(
-    name: "Own a Piece of History – Retro Car for Sale",
-    images: [
-      "https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_640.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 205,
-    isNew: true,
-    id: "4",
-  ),
-  ProductEntity(
-    name: "Car",
-    images: [
-      "https://cdn.pixabay.com/photo/2024/09/03/08/56/dairy-cattle-9018750_640.jpg",
-      "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg",
-      "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg",
-      "https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_640.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 205,
-    isNew: true,
-    id: "2",
-  ),
-  ProductEntity(
-    name: "Green iPhone",
-    images: [
-      "https://cdn.pixabay.com/photo/2017/03/27/15/17/apartment-2179337_640.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 205,
-    isNew: true,
-    id: "3",
-  ),
-  ProductEntity(
-    name: "Apartments",
-    images: [
-      "https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_640.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 205,
-    isNew: true,
-    id: "4",
-  ),
-  ProductEntity(
-    name: "iPhone 4 Pro Max",
-    images: [
-      "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 205,
-    isNew: true,
-    id: "1",
-  ),
-  ProductEntity(
-    name: "Car",
-    images: [
-      "https://cdn.pixabay.com/photo/2024/09/03/08/56/dairy-cattle-9018750_640.jpg",
-      "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg",
-      "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg",
-      "https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_640.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 205,
-    isNew: true,
-    id: "2",
-  ),
-  ProductEntity(
-    name: "Green iPhone",
-    images: [
-      "https://cdn.pixabay.com/photo/2017/03/27/15/17/apartment-2179337_640.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 205,
-    isNew: true,
-    id: "3",
-  ),
-  ProductEntity(
-    name: "Apartments",
-    images: [
-      "https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_640.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 205,
-    isNew: true,
-    id: "4",
-  ),
-  ProductEntity(
-    name: "iPhone 4 Pro Max",
-    images: [
-      "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 205,
-    isNew: true,
-    id: "1",
-  ),
-  ProductEntity(
-    name: "Car",
-    images: [
-      "https://cdn.pixabay.com/photo/2024/09/03/08/56/dairy-cattle-9018750_640.jpg",
-      "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg",
-      "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg",
-      "https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_640.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 205,
-    isNew: true,
-    id: "2",
-  ),
-  ProductEntity(
-    name: "Green iPhone",
-    images: [
-      "https://cdn.pixabay.com/photo/2017/03/27/15/17/apartment-2179337_640.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 205,
-    isNew: true,
-    id: "3",
-  ),
-  ProductEntity(
-    name: "Apartments",
-    images: [
-      "https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_640.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 205,
-    isNew: true,
-    id: "4",
-  ),
-  ProductEntity(
-    name: "iPhone 4 Pro Max",
-    images: [
-      "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 205,
-    isNew: true,
-    id: "1",
-  ),
-  ProductEntity(
-    name: "Car",
-    images: [
-      "https://cdn.pixabay.com/photo/2024/09/03/08/56/dairy-cattle-9018750_640.jpg",
-      "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg",
-      "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg",
-      "https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_640.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 205,
-    isNew: true,
-    id: "2",
-  ),
-  ProductEntity(
-    name: "Green iPhone",
-    images: [
-      "https://cdn.pixabay.com/photo/2017/03/27/15/17/apartment-2179337_640.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 205,
-    isNew: true,
-    id: "3",
-  ),
-  ProductEntity(
-    name: "Apartments",
-    images: [
-      "https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_640.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 205,
-    isNew: true,
-    id: "4",
-  ),
-  ProductEntity(
-    name: "iPhone 4 Pro Max",
-    images: [
-      "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 205,
-    isNew: true,
-    id: "1",
-  ),
-  ProductEntity(
-    name: "Car",
-    images: [
-      "https://cdn.pixabay.com/photo/2024/09/03/08/56/dairy-cattle-9018750_640.jpg",
-      "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg",
-      "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg",
-      "https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_640.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 205,
-    isNew: true,
-    id: "2",
-  ),
-  ProductEntity(
-    name: "Green iPhone",
-    images: [
-      "https://cdn.pixabay.com/photo/2017/03/27/15/17/apartment-2179337_640.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 205,
-    isNew: true,
-    id: "3",
-  ),
-  ProductEntity(
-    name: "Apartments",
-    images: [
-      "https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_640.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 205,
-    isNew: true,
-    id: "4",
-  ),
-  ProductEntity(
-    name: "iPhone 4 Pro Max",
-    images: [
-      "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 205,
-    isNew: true,
-    id: "1",
-  ),
-  ProductEntity(
-    name: "Car",
-    images: [
-      "https://cdn.pixabay.com/photo/2024/09/03/08/56/dairy-cattle-9018750_640.jpg",
-      "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg",
-      "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg",
-      "https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_640.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 205,
-    isNew: true,
-    id: "2",
-  ),
-  ProductEntity(
-    name: "Green iPhone",
-    images: [
-      "https://cdn.pixabay.com/photo/2017/03/27/15/17/apartment-2179337_640.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 205,
-    isNew: true,
-    id: "3",
-  ),
-  ProductEntity(
-    name: "Apartments",
-    images: [
-      "https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_640.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 205,
-    isNew: true,
-    id: "4",
-  ),
-  ProductEntity(
-    name: "iPhone 4 Pro Max",
-    images: [
-      "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 205,
-    isNew: true,
-    id: "1",
-  ),
-  ProductEntity(
-    name: "Car",
-    images: [
-      "https://cdn.pixabay.com/photo/2024/09/03/08/56/dairy-cattle-9018750_640.jpg",
-      "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg",
-      "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg",
-      "https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_640.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 205,
-    isNew: true,
-    id: "2",
-  ),
-  ProductEntity(
-    name: "Green iPhone",
-    images: [
-      "https://cdn.pixabay.com/photo/2017/03/27/15/17/apartment-2179337_640.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 205,
-    isNew: true,
-    id: "3",
-  ),
-  ProductEntity(
-    name: "Apartments",
-    images: [
-      "https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_640.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 205,
-    isNew: true,
-    id: "4",
-  ),
-  ProductEntity(
-    name: "iPhone 4 Pro Max",
-    images: [
-      "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 205,
-    isNew: true,
-    id: "1",
-  ),
-  ProductEntity(
-    name: "Car",
-    images: [
-      "https://cdn.pixabay.com/photo/2024/09/03/08/56/dairy-cattle-9018750_640.jpg",
-      "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg",
-      "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg",
-      "https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_640.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 205,
-    isNew: true,
-    id: "2",
-  ),
-  ProductEntity(
-    name: "Green iPhone",
-    images: [
-      "https://cdn.pixabay.com/photo/2017/03/27/15/17/apartment-2179337_640.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 205,
-    isNew: true,
-    id: "3",
-  ),
-  ProductEntity(
-    name: "Apartments",
-    images: [
-      "https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_640.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 205,
-    isNew: true,
-    id: "4",
-  ),
-  ProductEntity(
-    name: "iPhone 4 Pro Max",
-    images: [
-      "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 205,
-    isNew: true,
-    id: "1",
-  ),
-  ProductEntity(
-    name: "Car",
-    images: [
-      "https://cdn.pixabay.com/photo/2024/09/03/08/56/dairy-cattle-9018750_640.jpg",
-      "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg",
-      "https://cdn.pixabay.com/photo/2022/09/25/22/25/iphones-7479304_1280.jpg",
-      "https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_640.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 205,
-    isNew: true,
-    id: "2",
-  ),
-  ProductEntity(
-    name: "Green iPhone",
-    images: [
-      "https://cdn.pixabay.com/photo/2017/03/27/15/17/apartment-2179337_640.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 205,
-    isNew: true,
-    id: "3",
-  ),
-  ProductEntity(
-    name: "Apartments",
-    images: [
-      "https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_640.jpg"
-    ],
-    location: "Tashkent, Yashnobod",
-    price: 205,
-    isNew: true,
-    id: "4",
-  ),
-];
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await di.init();
@@ -518,6 +56,9 @@ void main() async {
             BlocProvider<MapBloc>(
               create: (_) => di.sl<MapBloc>(),
             ),
+            BlocProvider(
+              create: (_) => di.sl<LanguageBloc>()..add(LoadLanguageEvent()),
+            ),
             BlocProvider<UserProfileBloc>(
               create: (_) => di.sl<UserProfileBloc>(),
             ),
@@ -542,13 +83,14 @@ void main() async {
     ),
   );
 }
-
 class MyApp extends StatelessWidget {
   final GoRouter router;
+  
   const MyApp({
     super.key,
     required this.router,
   });
+  
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(
@@ -560,30 +102,49 @@ class MyApp extends StatelessWidget {
         systemNavigationBarDividerColor: Colors.transparent,
       ),
     );
+    
     SystemChrome.setEnabledSystemUIMode(
       SystemUiMode.edgeToEdge,
       overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom],
     );
-
-    // This ensures the app maintains the fixed text scale factor across rebuilds
-    return MediaQuery(
-      data:
-          MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(0.85)),
-      child: MaterialApp.router(
-        title: 'Your App',
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.lightTheme,
-        debugShowCheckedModeBanner: false,
-        routerConfig: router,
-        builder: (context, child) {
-          // This ensures child widgets maintain fixed text scale
-          return MediaQuery(
-            data: MediaQuery.of(context)
-                .copyWith(textScaler: TextScaler.linear(0.85)),
-            child: child!,
-          );
-        },
-      ),
+    
+    return BlocBuilder<LanguageBloc, LanguageState>(
+      builder: (context, state) {
+        Locale locale = const Locale(AppLanguages.english);
+        
+        if (state is LanguageLoaded) {
+          locale = Locale(state.languageCode);
+        }
+                        
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(0.85)),
+          child: MaterialApp.router(
+            title: 'Your App',
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.lightTheme,
+            debugShowCheckedModeBanner: false,
+            routerConfig: router,
+            
+            // Add localization support
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: AppLanguages.supportedLocales,
+            locale: locale,
+            
+            builder: (context, child) {
+              return MediaQuery(
+                data: MediaQuery.of(context)
+                    .copyWith(textScaler: TextScaler.linear(0.85)),
+                child: child!,
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }

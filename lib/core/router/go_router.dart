@@ -11,7 +11,6 @@ import 'package:list_in/features/auth/presentation/pages/verification_page.dart'
 import 'package:list_in/features/auth/presentation/pages/welcome_page.dart';
 import 'package:list_in/features/details/presentation/bloc/details_bloc.dart';
 import 'package:list_in/features/details/presentation/pages/details.dart';
-import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/domain/usecase/get_filtered_publications_values_usecase.dart';
 import 'package:list_in/features/explore/domain/usecase/get_prediction_usecase.dart';
@@ -41,9 +40,7 @@ import 'package:list_in/features/profile/presentation/pages/publications_editor_
 import 'package:list_in/features/undefined_screens_yet/wrapper_screen.dart';
 import 'package:list_in/features/video/presentation/pages/video_feed_screen.dart';
 import 'package:list_in/features/visitior_profile/presentation/pages/new_visitor_profile.dart';
-import 'package:list_in/features/visitior_profile/presentation/pages/visiter_profile.dart';
 import 'package:list_in/global/global_bloc.dart';
-import 'package:list_in/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppRouter {
@@ -167,7 +164,6 @@ class AppRouter {
             child: ProductDetailsScreen(
               key: state.pageKey,
               product: product,
-              recommendedProducts: sampleProducts,
             ),
           );
         },
@@ -208,7 +204,6 @@ class AppRouter {
                     ),
                     child: InitialHomeTreePage(
                       key: state.pageKey,
-                      regularProducts: sampleProducts,
                     ),
                   );
                 },
@@ -370,7 +365,6 @@ class AppRouter {
                         },
                         child: FilterSecondaryResultPage(
                           key: state.pageKey,
-                          regularProducts: sampleProducts,
                         ),
                       );
                     },
@@ -430,7 +424,6 @@ class AppRouter {
                         },
                         child: ChildHomeTreePage(
                           key: state.pageKey,
-                          regularProducts: sampleProducts,
                         ),
                       );
                     },
@@ -580,7 +573,6 @@ class AppRouter {
                               },
                               child: DetailedHomeTreePage(
                                 key: state.pageKey,
-                                regularProducts: sampleProducts,
                               ),
                             );
                           }),
@@ -631,10 +623,4 @@ class AppRouter {
   );
 }
 
-// Helper functions
-ProductEntity findProductById(String id) {
-  return sampleProducts.firstWhere(
-    (product) => product.id == id,
-    orElse: () => throw Exception('Product not found'),
-  );
-}
+
