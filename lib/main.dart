@@ -83,6 +83,7 @@ void main() async {
     ),
   );
 }
+
 class MyApp extends StatelessWidget {
   final GoRouter router;
   
@@ -115,7 +116,7 @@ class MyApp extends StatelessWidget {
         if (state is LanguageLoaded) {
           locale = Locale(state.languageCode);
         }
-                        
+
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(0.85)),
           child: MaterialApp.router(
