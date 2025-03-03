@@ -8,8 +8,10 @@ import 'package:hugeicons/hugeicons.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
+import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/auth/presentation/widgets/auth_text_field.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../bloc/auth_bloc.dart';
 
@@ -34,6 +36,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColors.white,
       body: BlocConsumer<AuthBloc, AuthState>(
@@ -89,20 +92,20 @@ class _LoginPageState extends State<LoginPage> {
                       ],
                     ),
                     const SizedBox(height: 40),
-                    const Text(
-                      'Welcome Back',
-                      style: TextStyle(
+                     Text(
+                      localizations.welcomeBack,
+                      style: const TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.w700,
                         color: AppColors.black,
-                        fontFamily: 'Poppins',
+                        fontFamily: Constants.Arial,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 2.5),
                       child: Text(
-                        'We happy to see you here again. Enter your email address and password',
+                        localizations.welcomeMessage,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w400,
@@ -113,11 +116,11 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 24),
                     AuthTextField(
                       controller: _emailController,
-                      labelText: 'Email',
+                      labelText: localizations.email,
                       keyboardType: TextInputType.emailAddress,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your email';
+                          return localizations.enterEmail;
                         }
                         return null;
                       },
@@ -125,11 +128,11 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 8),
                     AuthTextField(
                       controller: _passwordController,
-                      labelText: 'Password',
+                      labelText: localizations.password,
                       obscureText: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your password';
+                          return localizations.enterPassword;
                         }
                         return null;
                       },
@@ -167,12 +170,12 @@ class _LoginPageState extends State<LoginPage> {
                                 color: Colors.black,
                               ),
                             )
-                          : const Text(
-                              'Log In',
-                              style: TextStyle(
+                          : Text(
+                              localizations.logIn,
+                              style: const TextStyle(
                                 fontSize: 17,
                                 fontWeight: FontWeight.w700,
-                                fontFamily: 'Poppins',
+                                fontFamily: Constants.Arial,
                               ),
                             ),
                     ),
@@ -180,12 +183,12 @@ class _LoginPageState extends State<LoginPage> {
                     Center(
                       child: GestureDetector(
                         onTap: () {},
-                        child: const Text(
-                          'Forgot Password?',
-                          style: TextStyle(
+                        child:  Text(
+                          localizations.forgotPassword,
+                          style:const TextStyle(
                             color: AppColors.black,
                             fontSize: 16,
-                            fontFamily: 'Poppins',
+                            fontFamily: Constants.Arial,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -202,11 +205,11 @@ class _LoginPageState extends State<LoginPage> {
                               color: AppColors.lightText.withOpacity(0.75),
                             ),
                           ),
-                          const Padding(
+                          Padding(
                             padding: EdgeInsets.symmetric(horizontal: 16),
                             child: Text(
-                              'or',
-                              style: TextStyle(
+                              localizations.or,
+                              style: const TextStyle(
                                 fontSize: 14,
                                 color: AppColors.grey,
                               ),
@@ -236,13 +239,13 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                             onPressed: () =>
                                 context.pushReplacement(Routes.signup),
-                            child: const Center(
+                            child: Center(
                               child: Text(
-                                'Create an Account',
-                                style: TextStyle(
+                                localizations.createAccount,
+                                style: const TextStyle(
                                   fontSize: 17,
                                   fontWeight: FontWeight.w700,
-                                  fontFamily: 'Poppins',
+                                  fontFamily: Constants.Arial,
                                 ),
                               ),
                             ),

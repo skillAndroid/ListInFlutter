@@ -2,5 +2,19 @@
   "language": "Language",
   "createAccount": "Create an Account",
   "logIn": "Log In",
-  "listInWorld": "Welcome to ListIn World"
+  "listInWorld": "Welcome to ListIn World",
+  "welcomeBack": "Welcome Back",
+  "welcomeMessage": "We are happy to see you here again. Enter your email address and password.",
+  "email": "Email",
+  "enterEmail": "Please enter your email",
+  "password": "Password",
+  "enterPassword": "Please enter your password",
+  "forgotPassword": "Forgot Password?",
+  "or": "or",
+  "alreadyHaveAccount": "Already have an account? ",
+  "continueWithApple": "Continue with Apple",
+  "continueWithFacebook": "Continue with Facebook",
+  "continueWithGoogle": "Continue with Google",
+  "continuee": "Continue",
+  "createAccountMessage": "Create an account, it takes less than a minute. Enter your email and password."
 }

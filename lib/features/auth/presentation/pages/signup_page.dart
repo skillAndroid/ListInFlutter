@@ -9,9 +9,11 @@ import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
+import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/auth/presentation/widgets/auth_text_field.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import '../bloc/auth_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -32,6 +34,7 @@ class _SignupPageState extends State<SignupPage> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColors.white,
       body: BlocConsumer<AuthBloc, AuthState>(
@@ -89,20 +92,20 @@ class _SignupPageState extends State<SignupPage> {
                       ],
                     ),
                     const SizedBox(height: 40),
-                    const Text(
-                      'Create an account',
-                      style: TextStyle(
+                    Text(
+                      localizations.createAccount,
+                      style: const TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.w700,
                         color: AppColors.black,
-                        fontFamily: 'Poppins',
+                        fontFamily: Constants.Arial,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 2.5),
                       child: Text(
-                        'Create an account, it takes less than a minute. Enter your email and password',
+                        localizations.createAccountMessage,
                         style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w400,
@@ -112,11 +115,11 @@ class _SignupPageState extends State<SignupPage> {
                     const SizedBox(height: 24),
                     AuthTextField(
                       controller: _emailController,
-                      labelText: 'Email',
+                      labelText: localizations.email,
                       keyboardType: TextInputType.emailAddress,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your email';
+                          return localizations.enterEmail;
                         }
                         return null;
                       },
@@ -144,7 +147,7 @@ class _SignupPageState extends State<SignupPage> {
                               }
                             },
                       child: state is AuthLoading
-                          ? const SizedBox(
+                          ?  SizedBox(
                               height: 18,
                               width: 18,
                               child: CircularProgressIndicator(
@@ -153,12 +156,12 @@ class _SignupPageState extends State<SignupPage> {
                                 color: Colors.black,
                               ),
                             )
-                          : const Text(
-                              'Continue',
-                              style: TextStyle(
+                          : Text(
+                              localizations.continuee,
+                              style: const TextStyle(
                                 fontSize: 17,
                                 fontWeight: FontWeight.w700,
-                                fontFamily: 'Poppins',
+                                fontFamily: Constants.Arial,
                               ),
                             ),
                     ),
@@ -173,11 +176,11 @@ class _SignupPageState extends State<SignupPage> {
                               color: AppColors.lightText.withOpacity(0.75),
                             ),
                           ),
-                          const Padding(
+                          Padding(
                             padding: EdgeInsets.symmetric(horizontal: 16),
                             child: Text(
-                              'or',
-                              style: TextStyle(
+                              localizations.or,
+                              style: const TextStyle(
                                 fontSize: 14,
                                 color: AppColors.grey,
                               ),
@@ -204,24 +207,24 @@ class _SignupPageState extends State<SignupPage> {
                               padding: const EdgeInsets.symmetric(vertical: 18),
                             ),
                             onPressed: () {},
-                            child: const Padding(
+                            child:  Padding(
                               padding: EdgeInsets.symmetric(horizontal: 24),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
-                                  Icon(
+                                const  Icon(
                                     Ionicons.logo_google,
                                     //color: AppColors.littleGreen,
                                     color: AppColors.black,
                                     size: 21,
                                   ),
-                                  SizedBox(width: 18),
+                                const  SizedBox(width: 18),
                                   Text(
-                                    'Continue with Google',
-                                    style: TextStyle(
+                                    localizations.continueWithGoogle,
+                                    style:const TextStyle(
                                       fontSize: 17,
                                       fontWeight: FontWeight.w700,
-                                      fontFamily: 'Poppins',
+                                      fontFamily: Constants.Arial,
                                     ),
                                   ),
                                 ],
@@ -245,24 +248,24 @@ class _SignupPageState extends State<SignupPage> {
                             onPressed: () {
                               // Handle Continue with Facebook
                             },
-                            child: const Padding(
+                            child:  Padding(
                               padding: EdgeInsets.symmetric(horizontal: 25),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
-                                  Icon(
+                                 const Icon(
                                     EvaIcons.facebook,
                                     size: 24,
                                     //color: AppColors.littleGreen,
                                     color: AppColors.black,
                                   ),
-                                  SizedBox(width: 15),
+                                const  SizedBox(width: 15),
                                   Text(
-                                    'Continue with Facebook',
-                                    style: TextStyle(
+                                     localizations.continueWithFacebook,
+                                    style:const TextStyle(
                                       fontSize: 17,
                                       fontWeight: FontWeight.w700,
-                                      fontFamily: 'Poppins',
+                                      fontFamily: Constants.Arial,
                                     ),
                                   ),
                                 ],
@@ -286,24 +289,24 @@ class _SignupPageState extends State<SignupPage> {
                             onPressed: () {
                               // Handle Continue with Apple
                             },
-                            child: const Padding(
+                            child:  Padding(
                               padding: EdgeInsets.symmetric(horizontal: 24),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
-                                  Icon(
+                                 const Icon(
                                     Ionicons.logo_apple,
                                     //color: AppColors.littleGreen,
                                     color: AppColors.black,
                                     size: 24,
                                   ),
-                                  SizedBox(width: 16),
+                                 const SizedBox(width: 16),
                                   Text(
-                                    'Continue with Apple',
-                                    style: TextStyle(
+                                    localizations.continueWithApple,
+                                    style:const TextStyle(
                                       fontSize: 17,
                                       fontWeight: FontWeight.w700,
-                                      fontFamily: 'Poppins',
+                                      fontFamily: Constants.Arial,
                                     ),
                                   ),
                                 ],
@@ -317,22 +320,22 @@ class _SignupPageState extends State<SignupPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
-                          'Already have an account? ',
-                          style: TextStyle(
+                         Text(
+                          localizations.alreadyHaveAccount,
+                          style:const TextStyle(
                               color: AppColors.black,
                               fontSize: 16,
-                              fontFamily: 'Poppins',
+                              fontFamily: Constants.Arial,
                               fontWeight: FontWeight.bold),
                         ),
                         GestureDetector(
                           onTap: () => context.pushReplacement(Routes.login),
-                          child: const Text(
-                            'Log In',
-                            style: TextStyle(
+                          child: Text(
+                            localizations.logIn,
+                            style: const TextStyle(
                               color: AppColors.primary,
                               fontSize: 16,
-                              fontFamily: 'Poppins',
+                              fontFamily: Constants.Arial,
                               fontWeight: FontWeight.bold,
                             ),
                           ),

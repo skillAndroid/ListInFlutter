@@ -8,6 +8,7 @@ import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/language/language_bloc.dart';
 import 'package:list_in/core/language/screen/language_picker_screen.dart';
 import 'package:list_in/core/router/routes.dart';
+import 'package:list_in/core/utils/const.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -280,7 +281,7 @@ class _WelcomePageState extends State<WelcomePage> {
           style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w700,
-              fontFamily: "Poppins",
+              fontFamily: Constants.Arial,
               color: textColor),
         ),
       ),

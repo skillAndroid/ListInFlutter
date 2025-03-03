@@ -2,5 +2,19 @@
   "language": "Язык",
   "createAccount": "Создать аккаунт",
   "logIn": "Войти",
-  "listInWorld": "Добро пожаловать в ListIn"
+  "listInWorld": "Добро пожаловать в ListIn",
+  "welcomeBack": "С возвращением",
+  "welcomeMessage": "Мы рады снова видеть вас здесь. Введите свой адрес электронной почты и пароль.",
+  "email": "Электронная почта",
+  "enterEmail": "Пожалуйста, введите вашу электронную почту",
+  "password": "Пароль",
+  "enterPassword": "Пожалуйста, введите ваш пароль",
+  "forgotPassword": "Забыли пароль?",
+  "or": "или",
+  "alreadyHaveAccount": "Уже есть аккаунт? ",
+  "continueWithApple": "Продолжить с Apple",
+  "continueWithFacebook": "Продолжить с Facebook",
+  "continueWithGoogle": "Продолжить с Google",
+  "continuee": "Продолжить",
+  "createAccountMessage": "Создайте аккаунт, это займет меньше минуты. Введите вашу электронную почту и пароль."
 }

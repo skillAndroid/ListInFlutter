@@ -2,5 +2,20 @@
   "language": "Til",
   "createAccount": "Akkaunt yaratish",
   "logIn": "Kirish",
-  "listInWorld": "ListIn-ga xush kelibsiz"
+  "listInWorld": "ListIn-ga xush kelibsiz",
+  "welcomeBack": "Yana qaytganingiz bilan",
+  "welcomeMessage": "Sizni qaytib ko‘rib turganimizdan xursandmiz. Elektron pochtangiz va parolingizni kiriting.",
+  "email": "Elektron pochta",
+  "enterEmail": "Iltimos, elektron pochtangizni kiriting",
+  "password": "Parol",
+  "enterPassword": "Iltimos, parolingizni kiriting",
+  "forgotPassword": "Parolni unutdingizmi?",
+  "or": "yoki",
+  "alreadyHaveAccount": "Allaqachon hisobingiz bormi? ",
+  "continueWithApple": "Apple orqali davom etish",
+  "continueWithFacebook": "Facebook orqali davom etish",
+  "continueWithGoogle": "Google orqali davom etish",
+  "continuee": "Davom etish",
+  "createAccountMessage": "Akkaunt yarating, bu bir daqiqadan kam vaqt oladi. Elektron pochtangiz va parolingizni kiriting."
 }
+

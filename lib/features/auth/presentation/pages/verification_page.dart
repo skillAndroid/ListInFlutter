@@ -8,9 +8,11 @@ import 'package:hugeicons/hugeicons.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
+import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:pinput/pinput.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class VerificationPage extends StatefulWidget {
   const VerificationPage({super.key});
@@ -43,6 +45,7 @@ class _VerificationPageState extends State<VerificationPage> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColors.white,
       body: BlocConsumer<AuthBloc, AuthState>(
@@ -102,14 +105,14 @@ class _VerificationPageState extends State<VerificationPage> {
                         fontSize: 28,
                         color: AppColors.black,
                         fontWeight: FontWeight.w700,
-                        fontFamily: 'Poppins',
+                        fontFamily: Constants.Arial,
                       ),
                     ),
                     const SizedBox(height: 8),
                     RichText(
                       text: TextSpan(
                         style: TextStyle(
-                            fontFamily: "Poppins",
+                            fontFamily: Constants.Arial,
                             fontSize: 15,
                             fontWeight: FontWeight.w400,
                             color: AppColors.darkGray
@@ -123,7 +126,7 @@ class _VerificationPageState extends State<VerificationPage> {
                             text: _storedEmail ??
                                 'email', // Use the stored email here
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: Constants.Arial,
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
                               color: AppColors.primary,
@@ -161,7 +164,7 @@ class _VerificationPageState extends State<VerificationPage> {
                       },
                       //
                       errorTextStyle: const TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: Constants.Arial,
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
                         color: Colors.red,
@@ -171,7 +174,7 @@ class _VerificationPageState extends State<VerificationPage> {
                         height: 56,
                         textStyle: const TextStyle(
                           fontSize: 20,
-                          fontFamily: 'Poppins',
+                          fontFamily: Constants.Arial,
                           color: AppColors.secondaryColor,
                           fontWeight: FontWeight.w600,
                         ),
@@ -185,7 +188,7 @@ class _VerificationPageState extends State<VerificationPage> {
                         height: 56,
                         textStyle: const TextStyle(
                           fontSize: 20,
-                          fontFamily: 'Poppins',
+                          fontFamily: Constants.Arial,
                           color: AppColors.lightText,
                           fontWeight: FontWeight.w600,
                         ),
@@ -201,7 +204,7 @@ class _VerificationPageState extends State<VerificationPage> {
                         height: 56,
                         textStyle: const TextStyle(
                           fontSize: 20,
-                          fontFamily: 'Poppins',
+                          fontFamily: Constants.Arial,
                           color: Colors.red,
                           fontWeight: FontWeight.w600,
                         ),
@@ -246,7 +249,7 @@ class _VerificationPageState extends State<VerificationPage> {
                               style: TextStyle(
                                 fontSize: 17,
                                 fontWeight: FontWeight.w700,
-                                fontFamily: 'Poppins',
+                                fontFamily: Constants.Arial,
                               ),
                             ),
                     ),
@@ -269,7 +272,7 @@ class _VerificationPageState extends State<VerificationPage> {
                               'Resend',
                               style: TextStyle(
                                 fontSize: 16,
-                                fontFamily: "Poppins",
+                                fontFamily: Constants.Arial,
                                 color: AppColors.primary,
                                 fontWeight: FontWeight.w500,
                               ),
