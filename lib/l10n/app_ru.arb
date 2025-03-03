@@ -1,7 +1,6 @@
 {
-  "appTitle": "Ваше приложение",
-  "welcome": "Добро пожаловать",
-  "settings": "Настройки",
   "language": "Язык",
-  "changeLanguage": "Сменить язык"
+  "createAccount": "Создать аккаунт",
+  "logIn": "Войти",
+  "listInWorld": "Добро пожаловать в ListIn"
 }

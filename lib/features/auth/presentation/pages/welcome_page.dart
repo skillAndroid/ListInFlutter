@@ -1,9 +1,15 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/language/language_bloc.dart';
+import 'package:list_in/core/language/screen/language_picker_screen.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key});
@@ -108,7 +114,6 @@ class _WelcomePageState extends State<WelcomePage> {
           stops: const [0.4, 0.5],
           colors: [
             AppColors.white,
-            // ignore: deprecated_member_use
             AppColors.white.withOpacity(0),
           ],
         ),
@@ -117,6 +122,7 @@ class _WelcomePageState extends State<WelcomePage> {
   }
 
   Widget _buildWelcomeOverlay(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Positioned(
       bottom: 16,
       left: 16,
@@ -125,6 +131,9 @@ class _WelcomePageState extends State<WelcomePage> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          // Add language selector button here
+          _buildLanguageSelector(context),
+
           SmoothClipRRect(
             smoothness: 1,
             borderRadius: BorderRadius.circular(24),
@@ -142,7 +151,7 @@ class _WelcomePageState extends State<WelcomePage> {
           const SizedBox(height: 24),
           _buildElevatedButton(
             context,
-            label: 'Create an Account',
+            label: localizations.createAccount,
             color: AppColors.primary,
             textColor: AppColors.white,
             onPressed: () => context.push(Routes.signup),
@@ -150,7 +159,7 @@ class _WelcomePageState extends State<WelcomePage> {
           const SizedBox(height: 8),
           _buildElevatedButton(
             context,
-            label: 'Log In',
+            label: localizations.logIn,
             color: AppColors.transparent,
             textColor: AppColors.black,
             onPressed: () => context.push(Routes.login),
@@ -161,9 +170,75 @@ class _WelcomePageState extends State<WelcomePage> {
     );
   }
 
+// Create a new method for the language selector
+  Widget _buildLanguageSelector(BuildContext context) {
+    return BlocBuilder<LanguageBloc, LanguageState>(
+      builder: (context, state) {
+        // Get current language code
+        String currentLang = 'en';
+        if (state is LanguageLoaded) {
+          currentLang = state.languageCode;
+        }
+
+        // Map language code to display text
+        final languageMap = {
+          'en': 'EN',
+          'ru': 'RU',
+          'uz': 'UZ',
+        };
+
+        return Align(
+          alignment: Alignment.topRight,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: InkWell(
+              onTap: () {
+                // Or, if you prefer to use Navigator:
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const LanguageSelectionScreen()),
+                );
+              },
+              child: SmoothClipRRect(
+                smoothness: 0.8,
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  color: AppColors.primary.withOpacity(0.2),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.language,
+                        size: 18,
+                        color: AppColors.primary,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        languageMap[currentLang] ?? 'EN',
+                        style: const TextStyle(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildWelcomeText() {
+     final localizations = AppLocalizations.of(context)!;
     return RichText(
-      text: const TextSpan(
+      text: TextSpan(
         style: TextStyle(
           fontFamily: 'Syne',
           fontSize: 21,
@@ -171,14 +246,14 @@ class _WelcomePageState extends State<WelcomePage> {
           color: Colors.black,
         ),
         children: [
-          TextSpan(text: 'Welcome to '),
-          TextSpan(
-            text: 'ListIn',
-            style: TextStyle(
-              color: AppColors.primary,
-            ),
-          ),
-          TextSpan(text: ' World'),
+          TextSpan(text: localizations.listInWorld ),
+          // TextSpan(
+          //   text: 'ListIn',
+          //   style: TextStyle(
+          //     color: AppColors.primary,
+          //   ),
+          // ),
+          // TextSpan(text: ' World'),
         ],
       ),
     );
@@ -195,9 +270,7 @@ class _WelcomePageState extends State<WelcomePage> {
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         shape: SmoothRectangleBorder(
-          smoothness: 0.8,
-          borderRadius: BorderRadius.circular(16)
-        ),
+            smoothness: 0.8, borderRadius: BorderRadius.circular(16)),
         padding: const EdgeInsets.symmetric(vertical: 18),
         backgroundColor: color,
       ),
@@ -207,7 +280,7 @@ class _WelcomePageState extends State<WelcomePage> {
           style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w700,
-              fontFamily: 'Poppins',
+              fontFamily: "Poppins",
               color: textColor),
         ),
       ),

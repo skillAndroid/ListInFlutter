@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/config/theme/app_language.dart';
 import 'package:list_in/core/language/language_bloc.dart';
 
@@ -11,6 +12,9 @@ class LanguageSelectionScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        elevation: 0,
+        shadowColor: AppColors.transparent,
+        backgroundColor: AppColors.white,
         title: Text(AppLocalizations.of(context)!.language),
       ),
       body: ListView(

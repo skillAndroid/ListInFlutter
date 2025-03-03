@@ -1,7 +1,6 @@
 {
-  "appTitle": "Your App",
-  "welcome": "Welcome",
-  "settings": "Settings",
   "language": "Language",
-  "changeLanguage": "Change Language"
+  "createAccount": "Create an Account",
+  "logIn": "Log In",
+  "listInWorld": "Welcome to ListIn World"
 }
