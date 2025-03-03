@@ -21,7 +21,7 @@ class LocationRemoteDataSourceImpl extends LocationRemoteDatasource {
           'format': 'json',
           'lat': coordinates.latitude,
           'lon': coordinates.longitude,
-          'accept-language': 'uz',
+          'accept-language': 'ru',
         },
         options: Options(
           headers: {'User-Agent': 'ListIn/1.0 (sweetfoxnew@gmail.com)'},
@@ -62,12 +62,11 @@ class LocationRemoteDataSourceImpl extends LocationRemoteDatasource {
         queryParameters: {
           'query': query,
           'region': 'UZ',
-          'language': 'uz',
+          'language': 'ru',
           'key': apiKey,
         },
       );
-      //h
-
+      
       if (response.statusCode == 200) {
         final results = response.data['results'] as List;
         return results.map((result) {
