@@ -60,11 +60,11 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
   @override
   void initState() {
     super.initState();
-    options[0]['title'] = AppLocalizations.of(context)!.sellPersonalItems;
-    options[0]['description'] =
-        AppLocalizations.of(context)!.sellPersonalItemsDesc;
-    options[1]['title'] = AppLocalizations.of(context)!.createStore;
-    options[1]['description'] = AppLocalizations.of(context)!.createStoreDesc;
+    // options[0]['title'] = AppLocalizations.of(context)!.sellPersonalItems;
+    // options[0]['description'] =
+    //     AppLocalizations.of(context)!.sellPersonalItemsDesc;
+    // options[1]['title'] = AppLocalizations.of(context)!.createStore;
+    // options[1]['description'] = AppLocalizations.of(context)!.createStoreDesc;
     _currentPage = 0;
   }
 

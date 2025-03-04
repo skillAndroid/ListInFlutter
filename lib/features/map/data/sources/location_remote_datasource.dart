@@ -12,44 +12,67 @@ class LocationRemoteDataSourceImpl extends LocationRemoteDatasource {
   final Dio dio;
 
   LocationRemoteDataSourceImpl({required this.dio});
+
   @override
   Future<String> getRegionFromCoordinates(CoordinatesModel coordinates) async {
     try {
       final response = await dio.get(
-        'https://nominatim.openstreetmap.org/reverse',
+        'https://geocode-maps.yandex.ru/1.x/',
         queryParameters: {
           'format': 'json',
-          'lat': coordinates.latitude,
-          'lon': coordinates.longitude,
-          'accept-language': 'en',
+          'geocode': '${coordinates.longitude},${coordinates.latitude}',
+          'apikey': "4230cbbd-2351-4199-abf8-08d61e81f0cd",
+          'lang': 'ru', // Optional: Set the language for the response
         },
-        options: Options(
-          headers: {'User-Agent': 'ListIn/1.0 (sweetfoxnew@gmail.com)'},
-        ),
       );
 
       if (response.statusCode == 200) {
-        final address = response.data['address'];
+        final featureMembers =
+            response.data['response']['GeoObjectCollection']['featureMember'];
+        if (featureMembers != null && featureMembers.isNotEmpty) {
+          final geoObject = featureMembers[0]['GeoObject'];
+          final addressDetails = geoObject['metaDataProperty']
+              ['GeocoderMetaData']['Address']['Components'];
 
-        // Extract address parts, allowing for null values
-        final county = address['county'];
-        final city = address['city'];
-        final state = address['state'];
-        final country = address['country'];
+          // Extract address parts
+          String? county;
+          String? city;
+          String? state;
+          String? country;
 
-        final addressParts = [
-          if (county != null) 'county: $county',
-          if (city != null) 'city: $city',
-          if (state != null) 'state: $state',
-          if (country != null) 'country: $country',
-        ].join(', ');
+          for (var component in addressDetails) {
+            final kind = component['kind'];
+            final name = component['name'];
 
-        return addressParts;
+            switch (kind) {
+              case 'province':
+                state = name;
+                break;
+              case 'area':
+                county = name;
+                break;
+              case 'country':
+                country = name;
+                break;
+            }
+          }
+
+          final addressParts = [
+            if (county != null) 'county: $county',
+            if (city != null) 'city: $city',
+            if (state != null) 'state: $state',
+            if (country != null) 'country: $country',
+          ].join(', ');
+
+          return addressParts;
+        } else {
+          throw ServerFailure(); // No results found
+        }
       } else {
-        throw ServerFailure();
+        throw ServerFailure(); // Non-200 status code
       }
     } catch (e) {
-      throw NetworkFailure();
+      throw NetworkFailure(); // Network or other errors
     }
   }
 
@@ -66,7 +89,7 @@ class LocationRemoteDataSourceImpl extends LocationRemoteDatasource {
           'key': apiKey,
         },
       );
-      
+
       if (response.statusCode == 200) {
         final results = response.data['results'] as List;
         return results.map((result) {

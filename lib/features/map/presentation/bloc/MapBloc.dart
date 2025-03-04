@@ -28,8 +28,7 @@ class MapBloc extends Cubit<MapState> {
   }) : super(
           MapIdleState(
             const LatLng(
-              80.7749,
-              -122.4194,
+             41.312128, 69.241796
             ),
           ),
         ) {
@@ -39,7 +38,7 @@ class MapBloc extends Cubit<MapState> {
         .listen((query) => _performSearch(query));
     _cameraIdleSubscription = _cameraIdleController
         .debounceTime(
-            const Duration(milliseconds: 800)) // Устанавливаем 500 мс дебаунса
+            const Duration(milliseconds: 4000)) // Устанавливаем 500 мс дебаунса
         .listen((currentCenter) => _handleCameraIdle(currentCenter));
   }
 
