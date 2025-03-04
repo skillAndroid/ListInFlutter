@@ -99,9 +99,9 @@ class _VerificationPageState extends State<VerificationPage> {
                     const SizedBox(
                       height: 32,
                     ),
-                    const Text(
-                      'Verify Email!',
-                      style: TextStyle(
+                     Text(
+                      localizations.verifyEmail,
+                      style: const TextStyle(
                         fontSize: 28,
                         color: AppColors.black,
                         fontWeight: FontWeight.w700,
@@ -120,11 +120,11 @@ class _VerificationPageState extends State<VerificationPage> {
                             ),
                         children: [
                           TextSpan(
-                            text: 'We send verification code to your ',
+                            text: localizations.verificationSent,
                           ),
                           TextSpan(
                             text: _storedEmail ??
-                                'email', // Use the stored email here
+                                localizations.email, // Use the stored email here
                             style: TextStyle(
                               fontFamily: Constants.Arial,
                               fontSize: 14,
@@ -151,9 +151,9 @@ class _VerificationPageState extends State<VerificationPage> {
                           state is AuthVerificationError ? state.message : null,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Verification code is empty';
+                          return localizations.verificationCodeEmpty;
                         } else if (value.length < 5 && value.isNotEmpty) {
-                          return "Fill all boxes";
+                          return localizations.fillAllBoxes;
                         }
 
                         if (_errorMessage != null) {
@@ -244,9 +244,9 @@ class _VerificationPageState extends State<VerificationPage> {
                                 color: AppColors.black,
                               ),
                             )
-                          : const Text(
-                              'Verify',
-                              style: TextStyle(
+                          :  Text(
+                              localizations.verify,
+                              style: const TextStyle(
                                 fontSize: 17,
                                 fontWeight: FontWeight.w700,
                                 fontFamily: Constants.Arial,
@@ -259,18 +259,18 @@ class _VerificationPageState extends State<VerificationPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          const Text(
-                            "Didn't get code?",
-                            style: TextStyle(
+                           Text(
+                            localizations.didntGetCode,
+                            style:const TextStyle(
                               fontSize: 14,
                               color: AppColors.black,
                             ),
                           ),
                           TextButton(
                             onPressed: () {},
-                            child: const Text(
-                              'Resend',
-                              style: TextStyle(
+                            child:  Text(
+                              localizations.resend,
+                              style:const TextStyle(
                                 fontSize: 16,
                                 fontFamily: Constants.Arial,
                                 color: AppColors.primary,

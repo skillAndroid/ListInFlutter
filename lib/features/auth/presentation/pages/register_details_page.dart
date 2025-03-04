@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
+import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:list_in/features/auth/presentation/widgets/location_page.dart';
 import 'package:list_in/features/auth/presentation/widgets/auth_text_field.dart';
@@ -14,6 +15,7 @@ import 'package:list_in/features/map/domain/entities/coordinates_entity.dart';
 import 'package:list_in/features/map/domain/entities/location_entity.dart';
 import 'package:list_in/features/map/presentation/map/map.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 enum LocationSharingMode { precise, region }
 
@@ -58,6 +60,11 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
   @override
   void initState() {
     super.initState();
+    options[0]['title'] = AppLocalizations.of(context)!.sellPersonalItems;
+    options[0]['description'] =
+        AppLocalizations.of(context)!.sellPersonalItemsDesc;
+    options[1]['title'] = AppLocalizations.of(context)!.createStore;
+    options[1]['description'] = AppLocalizations.of(context)!.createStoreDesc;
     _currentPage = 0;
   }
 
@@ -111,14 +118,15 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
   void _submitRegistration() {
     if (!_formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all required fields')),
+        SnackBar(
+            content: Text(AppLocalizations.of(context)!.fillRequiredFields)),
       );
       return;
     }
 
     if (_location.name.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please selection location')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.selectLocation)),
       );
       return;
     }
@@ -147,6 +155,7 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return WillPopScope(
       onWillPop: () async {
         _previousPage();
@@ -277,10 +286,10 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                       )
                                     : Text(
                                         _currentPage < 4
-                                            ? 'Continue'
-                                            : 'Submit',
+                                            ? localizations.continuee
+                                            : localizations.submit,
                                         style: const TextStyle(
-                                            fontFamily: 'Poppins',
+                                            fontFamily: Constants.Arial,
                                             color: AppColors.white),
                                       ),
                               ),
@@ -300,24 +309,25 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
   }
 
   Widget _buildPageViewBody() {
+    final localizations = AppLocalizations.of(context)!;
     final List<PageData> pages = [
       PageData(
-        title: 'What can we call you?',
-        subtitle: 'Please enter your name, company name, or a nickname.',
+        title: localizations.whatCanWeCallYou,
+        subtitle: localizations.enterYourName,
         content: AuthTextField(
           controller: _nikeNameController,
-          labelText: 'John Doe, Nike, or YourNickname',
+          labelText: localizations.exampleNames,
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return "Name can't be empty";
+              return localizations.nameEmpty;
             }
             return null;
           },
         ),
       ),
       PageData(
-        title: 'What are you looking for?',
-        subtitle: 'Please select your preference.',
+        title: localizations.whatAreYouLookingFor,
+        subtitle: localizations.selectPreference,
         content: Column(
           children: List.generate(
             options.length,
@@ -403,44 +413,44 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
         ),
       ),
       PageData(
-        title: 'Your Phone Number',
-        subtitle: 'Enter your phone number to stay connected.',
+        title: localizations.yourPhoneNumber,
+        subtitle: localizations.enterPhoneNumberPrompt,
         content: AuthTextField(
           controller: _phoneNumberController,
-          labelText: 'Phone Number',
+          labelText: localizations.phoneNumber,
           keyboardType: TextInputType.phone,
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return 'Please enter your phone number';
+              return localizations.enterPhoneNumberPrompt;
             }
             return null;
           },
         ),
       ),
       PageData(
-        title: 'Secure Your Account',
-        subtitle: 'Create a strong password.',
+        title: localizations.secureYourAccount,
+        subtitle: localizations.createStrongPassword,
         content: AuthTextField(
           controller: _passwordController,
-          labelText: 'Password',
+          labelText: localizations.password,
           obscureText: true,
           validator: (value) {
             if (_currentPage != 3) {
               return null;
             }
             if (value == null || value.isEmpty) {
-              return 'Please enter your password';
+              return localizations.enterPhoneNumberPrompt;
             }
             if (value.length < 6) {
-              return 'Password must be at least 6 characters';
+              return localizations.passwordMinLength;
             }
             return null;
           },
         ),
       ),
       PageData(
-        title: 'Select Your Location',
-        subtitle: 'Tap to select your location on the map.',
+        title: localizations.selectLocation,
+        subtitle: localizations.tapToSelectLocation,
         content: LocationSelectorWidget(
           selectedLocation: _location,
           locationSharingMode: _locationSharingPreference,
@@ -495,7 +505,7 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
           style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w700,
-              fontFamily: 'Poppins',
+              fontFamily: Constants.Arial,
               color: AppColors.black),
         ),
         const SizedBox(height: 12),
@@ -518,6 +528,7 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
   }
 
   Future<void> _showLocationPicker() async {
+    final localizations = AppLocalizations.of(context)!;
     final result = await showModalBottomSheet<LocationEntity>(
       context: context,
       enableDrag: false,
@@ -534,8 +545,8 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("No Location selected"),
+        SnackBar(
+          content: Text(localizations.noLocationSelected),
           duration: Duration(seconds: 2),
         ),
       );

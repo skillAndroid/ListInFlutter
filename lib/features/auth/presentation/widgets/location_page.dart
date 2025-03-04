@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/auth/presentation/pages/register_details_page.dart';
 import 'package:list_in/features/map/domain/entities/location_entity.dart';
 import 'package:list_in/features/map/presentation/widgets/map_direction_handler.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class LocationSelectorWidget extends StatefulWidget {
   final LocationEntity? selectedLocation;
@@ -31,6 +33,7 @@ class LocationSelectorWidget extends StatefulWidget {
 class _LocationSelectorWidgetState extends State<LocationSelectorWidget> {
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Column(
       children: [
         Card(
@@ -59,9 +62,10 @@ class _LocationSelectorWidgetState extends State<LocationSelectorWidget> {
                           Icons.location_on,
                           color: AppColors.primary,
                         ),
-                        label: const Text(
-                          'Exact Location',
-                          style: TextStyle(fontSize: 15, fontFamily: "Poppins"),
+                        label: Text(
+                          localizations.exactLocation,
+                          style: const TextStyle(
+                              fontSize: 15, fontFamily: Constants.Arial),
                         ),
                         style: ElevatedButton.styleFrom(
                           shape: SmoothRectangleBorder(
@@ -90,9 +94,10 @@ class _LocationSelectorWidgetState extends State<LocationSelectorWidget> {
                           Icons.location_city,
                           color: AppColors.primary,
                         ),
-                        label: const Text(
-                          'Region Only',
-                          style: TextStyle(fontSize: 15, fontFamily: "Poppins"),
+                        label: Text(
+                          localizations.regionOnly,
+                          style: const TextStyle(
+                              fontSize: 15, fontFamily: Constants.Arial),
                         ),
                         style: ElevatedButton.styleFrom(
                           shadowColor: AppColors.transparent,
@@ -115,8 +120,8 @@ class _LocationSelectorWidgetState extends State<LocationSelectorWidget> {
                 const SizedBox(height: 16),
                 Text(
                   widget.locationSharingMode == LocationSharingMode.precise
-                      ? '• Shares exact coordinates\n• Most accurate for precise services'
-                      : '• Shares general area\n• Protects specific location details',
+                      ? localizations.exactLocationDesc
+                      : localizations.regionOnlyDesc,
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.grey[700],
@@ -142,18 +147,18 @@ class _LocationSelectorWidgetState extends State<LocationSelectorWidget> {
               ),
             ),
             onPressed: widget.onOpenMap,
-            child: const Row(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
+                const Icon(
                   Ionicons.map,
                   size: 24,
                   color: AppColors.black,
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Text(
-                  'Open Map',
-                  style: TextStyle(
+                  localizations.openMap,
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
@@ -169,6 +174,7 @@ class _LocationSelectorWidgetState extends State<LocationSelectorWidget> {
   }
 
   Widget _buildSelectedLocationCard(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return SmoothClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: Container(
@@ -254,10 +260,9 @@ class _LocationSelectorWidgetState extends State<LocationSelectorWidget> {
                                 widget.selectedLocation!.coordinates.longitude,
                               ).catchError((error) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      'Could not open maps. Please check if you have Google Maps installed or try again later.',
-                                    ),
+                                  SnackBar(
+                                    content:
+                                        Text(localizations.couldNotOpenMaps),
                                   ),
                                 );
                               });
@@ -266,19 +271,19 @@ class _LocationSelectorWidgetState extends State<LocationSelectorWidget> {
                               color: AppColors.white,
                               margin: EdgeInsets.zero,
                               padding: EdgeInsets.zero,
-                              child: const Padding(
-                                padding: EdgeInsets.only(
+                              child:  Padding(
+                                padding: const EdgeInsets.only(
                                     top: 4, bottom: 4, left: 8, right: 8),
                                 child: Row(
                                   children: [
-                                    Icon(
+                                   const Icon(
                                       CupertinoIcons.location_fill,
                                       size: 17,
                                     ),
-                                    SizedBox(width: 4),
+                                   const SizedBox(width: 4),
                                     Text(
-                                      'Get Direction',
-                                      style: TextStyle(
+                                      localizations.getDirection,
+                                      style:const TextStyle(
                                         color: AppColors.black,
                                         fontSize: 12,
                                         fontWeight: FontWeight.w600,

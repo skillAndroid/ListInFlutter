@@ -9,6 +9,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/auth/presentation/pages/register_details_page.dart';
 import 'package:list_in/features/map/domain/entities/coordinates_entity.dart';
 import 'package:list_in/features/map/domain/entities/location_entity.dart';
@@ -18,6 +19,7 @@ import 'package:list_in/features/map/presentation/widgets/marker.dart';
 import 'package:list_in/features/map/presentation/widgets/search_text_field.dart';
 import 'package:list_in/features/map/presentation/widgets/show_custom_sheet.dart';
 import 'package:list_in/features/map/service/AppLocation.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 // ignore: must_be_immutable
 class ListInMap extends StatefulWidget {
@@ -105,6 +107,7 @@ class _ListInMapState extends State<ListInMap> {
   }
 
   Widget _buildSearchButton() {
+    final localizations = AppLocalizations.of(context)!;
     return ElevatedButton(
       onPressed: () => _showCustomBottomSheet(_currentLocationName),
       style: ElevatedButton.styleFrom(
@@ -132,13 +135,14 @@ class _ListInMapState extends State<ListInMap> {
             height: 22,
           ),
           const SizedBox(width: 10),
-          const Text(
-            'Search',
-            style: TextStyle(
-                color: AppColors.black,
-                fontSize: 17,
-                fontWeight: FontWeight.w600,
-                fontFamily: "Poppins"),
+          Text(
+            localizations.search,
+            style: const TextStyle(
+              color: AppColors.black,
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
+              fontFamily: Constants.Arial,
+            ),
           ),
         ],
       ),
@@ -229,6 +233,7 @@ class _ListInMapState extends State<ListInMap> {
   }
 
   Widget _buildLocationDetailsCard() {
+    final localizations = AppLocalizations.of(context)!;
     return BlocConsumer<MapBloc, MapState>(
       listener: (context, state) {
         if (state is MapErrorState) {
@@ -240,7 +245,8 @@ class _ListInMapState extends State<ListInMap> {
       builder: (context, state) {
         bool isLoading = false;
         if (state is MapIdleState) {
-          _currentLocationName = state.locationName ?? "Select Location";
+          _currentLocationName =
+              state.locationName ?? localizations.selectLocation;
           _selectedLocationCoordinates = CoordinatesEntity(
             latitude: state.center.latitude,
             longitude: state.center.longitude,
@@ -267,9 +273,9 @@ class _ListInMapState extends State<ListInMap> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Selected Location',
-                    style: TextStyle(
+                  Text(
+                    localizations.selectLocation,
+                    style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
                     ),
@@ -298,7 +304,7 @@ class _ListInMapState extends State<ListInMap> {
                                 child: Text(
                                   textAlign: TextAlign.start,
                                   isLoading
-                                      ? "Loading..."
+                                      ? localizations.loading
                                       : cleanLocationName(_currentLocationName),
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
@@ -321,7 +327,8 @@ class _ListInMapState extends State<ListInMap> {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
-                        if (_currentLocationName != "Select Location") {
+                        if (_currentLocationName !=
+                            localizations.selectLocation) {
                           final selectedLocation = LocationEntity(
                             name: _currentLocationName,
                             coordinates: _selectedLocationCoordinates,
@@ -332,8 +339,8 @@ class _ListInMapState extends State<ListInMap> {
                           Navigator.of(context).pop(selectedLocation);
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Please select a location first'),
+                            SnackBar(
+                              content: Text(localizations.selectLocationFirst),
                               duration: Duration(seconds: 2),
                             ),
                           );
@@ -344,11 +351,11 @@ class _ListInMapState extends State<ListInMap> {
                       ).copyWith(
                         elevation: WidgetStateProperty.all(0),
                       ),
-                      child: const Text(
+                      child: Text(
                         key: ValueKey('text'),
-                        "Ready",
-                        style: TextStyle(
-                          fontFamily: "Poppins",
+                        localizations.ready,
+                        style: const TextStyle(
+                          fontFamily: Constants.Arial,
                           fontWeight: FontWeight.w500,
                           color: AppColors.white,
                         ),
@@ -391,7 +398,8 @@ class _ListInMapState extends State<ListInMap> {
 
   Future<void> _fetchCurrentLocation() async {
     final location = await LocationService().getCurrentLocation().catchError(
-        (_) => const LatLng(41.2995, 69.2401)); // Changed to Tashkent default
+        (_) =>
+            const LatLng(41.312128, 69.241796)); // Changed to Tashkent default
 
     _moveToLocation(LatLng(location.lat, location.long), 20);
   }
@@ -405,6 +413,7 @@ class _ListInMapState extends State<ListInMap> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) {
+          final localizations = AppLocalizations.of(context)!;
           return Container(
             width: double.infinity,
             height: bottomSheetHeight,
@@ -470,7 +479,7 @@ class _ListInMapState extends State<ListInMap> {
                         offset: const Offset(0, -4),
                         child: SearchTextField(
                           controller: searchController,
-                          labelText: "Enter your location",
+                          labelText: localizations.enterYourLocation,
                           onChanged: (query) {
                             if (query.length >= 3) {
                               context.read<MapBloc>().searchLocations(query);

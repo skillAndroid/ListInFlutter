@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/utils/const.dart';
 
 class SearchTextField extends StatelessWidget {
   final TextEditingController controller;
@@ -50,7 +51,7 @@ class SearchTextField extends StatelessWidget {
             child: const Text(
               'Map',
               style: TextStyle(
-                fontFamily: 'Poppins',
+                fontFamily: Constants.Arial,
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
                 color: AppColors.primary,
@@ -61,7 +62,7 @@ class SearchTextField extends StatelessWidget {
           hintText: labelText,
           hintStyle: TextStyle(
             color: Colors.grey,
-            fontFamily: 'Poppins',
+            fontFamily: Constants.Arial,
             fontWeight: FontWeight.w500,
             fontSize: 15,
           ),
