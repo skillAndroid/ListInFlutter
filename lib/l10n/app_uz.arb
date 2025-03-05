@@ -130,5 +130,8 @@
   "video_posts": "Video postlar",
   "search_3dots": "Qidirish...",
   "is_free": "Bepul",
-  "price": "Narx"
+  "price": "Narx",
+  "from": "Dan",
+  "to": "Gacha",
+  "from_value_error": "'Dan' qiymati 'Gacha' qiymatidan kichik yoki teng bo‘lishi kerak"
 }

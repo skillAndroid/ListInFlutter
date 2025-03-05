@@ -11,7 +11,6 @@ import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/formaters.dart';
-import 'package:list_in/features/explore/presentation/widgets/product_card/bb/regular_product_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/profile/domain/usecases/user/get_user_data_usecase.dart';
 import 'package:list_in/features/undefined_screens_yet/video_player.dart';
@@ -22,6 +21,7 @@ import 'package:list_in/global/global_status.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 @immutable
 class AdvertisedProductViewModel {
@@ -424,7 +424,7 @@ class _ProductInfo extends StatelessWidget {
             ),
           ),
           Text(
-            model.condition == "NEW_PRODUCT" ? 'New' : "Used",
+            model.condition == "NEW_PRODUCT" ?  AppLocalizations.of(context)!.condition_new :  AppLocalizations.of(context)!.condition_used,
             style: TextStyle(
               fontSize: 13.5,
               color: AppColors.black,

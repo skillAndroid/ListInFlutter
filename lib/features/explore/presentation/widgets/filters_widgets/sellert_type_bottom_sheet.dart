@@ -4,6 +4,7 @@ import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/explore/presentation/pages/filter/filter.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SellerTypeBottomSheet extends StatefulWidget {
   final String page;
@@ -32,8 +33,8 @@ class _SellerTypeBottomSheetState extends State<SellerTypeBottomSheet> {
               children: [
                 SizedBox(
                   width: double.infinity,
-                  child: const Text(
-                    'Seller Type',
+                  child:  Text(
+                    AppLocalizations.of(context)!.seller_type,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 18,
@@ -45,7 +46,7 @@ class _SellerTypeBottomSheetState extends State<SellerTypeBottomSheet> {
                 const SizedBox(height: 20),
                 _buildSellerOption(
                   context: context,
-                  title: 'All',
+                  title: AppLocalizations.of(context)!.all,
                   isSelected: state.sellerType == SellerType.ALL,
                   onTap: () {
                     context.read<HomeTreeCubit>().updateSellerType(
@@ -59,7 +60,7 @@ class _SellerTypeBottomSheetState extends State<SellerTypeBottomSheet> {
                 const SizedBox(height: 8),
                 _buildSellerOption(
                   context: context,
-                  title: 'Individual',
+                  title: AppLocalizations.of(context)!.individual,
                   isSelected: state.sellerType == SellerType.INDIVIDUAL_SELLER,
                   onTap: () {
                     context.read<HomeTreeCubit>().updateSellerType(
@@ -73,7 +74,7 @@ class _SellerTypeBottomSheetState extends State<SellerTypeBottomSheet> {
                 const SizedBox(height: 8),
                 _buildSellerOption(
                   context: context,
-                  title: 'Shop',
+                  title: AppLocalizations.of(context)!.shop,
                   isSelected: state.sellerType == SellerType.BUSINESS_SELLER,
                   onTap: () {
                     context.read<HomeTreeCubit>().updateSellerType(

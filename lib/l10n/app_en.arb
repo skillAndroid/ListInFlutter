@@ -130,5 +130,8 @@
   "video_posts": "Video Posts",
   "search_3dots": "Search...",
   "is_free": "Is Free",
-  "price": "Price"
+  "price": "Price",
+  "from": "From",
+  "to": "To",
+  "from_value_error": "From value must be less than or equal to To value"
 }

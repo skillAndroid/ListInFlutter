@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
@@ -34,10 +35,10 @@ class _ConditionBottomSheetState extends State<ConditionBottomSheet> {
               children: [
                 SizedBox(
                   width: double.infinity,
-                  child: const Text(
-                    'Condition',
+                  child:  Text(
+                    AppLocalizations.of(context)!.condition,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style:const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
                       color: Colors.black,
@@ -47,7 +48,7 @@ class _ConditionBottomSheetState extends State<ConditionBottomSheet> {
                 const SizedBox(height: 20),
                 _buildConditionOption(
                   context: context,
-                  title: 'All',
+                  title: AppLocalizations.of(context)!.all,
                   isSelected: state.condition == 'ALL',
                   onTap: () {
                     context.read<HomeTreeCubit>().updateCondition(
@@ -61,7 +62,7 @@ class _ConditionBottomSheetState extends State<ConditionBottomSheet> {
                 const SizedBox(height: 8),
                 _buildConditionOption(
                   context: context,
-                  title: 'New',
+                  title: AppLocalizations.of(context)!.condition_new,
                   isSelected: state.condition == 'NEW_PRODUCT',
                   onTap: () {
                     context.read<HomeTreeCubit>().updateCondition(
@@ -75,7 +76,7 @@ class _ConditionBottomSheetState extends State<ConditionBottomSheet> {
                 const SizedBox(height: 8),
                 _buildConditionOption(
                   context: context,
-                  title: 'Used',
+                  title: AppLocalizations.of(context)!.condition_used,
                   isSelected: state.condition == 'USED_PRODUCT',
                   onTap: () {
                     context.read<HomeTreeCubit>().updateCondition(

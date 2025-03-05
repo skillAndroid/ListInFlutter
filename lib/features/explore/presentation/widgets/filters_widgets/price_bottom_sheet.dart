@@ -6,7 +6,7 @@ import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/explore/presentation/widgets/formaters.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 class PriceRangeBottomSheet extends StatefulWidget {
   final String page;
   const PriceRangeBottomSheet({
@@ -109,7 +109,7 @@ class _PriceRangeBottomSheetState extends State<PriceRangeBottomSheet> {
                         Navigator.pop(context);
                       },
                       child: Text(
-                        'Clear',
+                        AppLocalizations.of(context)!.clear_,
                         style: TextStyle(
                           color: Colors.grey[600],
                           fontSize: 16,
@@ -119,7 +119,7 @@ class _PriceRangeBottomSheetState extends State<PriceRangeBottomSheet> {
                   ),
                   // Centered title
                   Text(
-                    'Price Range',
+                    AppLocalizations.of(context)!.price_range,
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -143,7 +143,7 @@ class _PriceRangeBottomSheetState extends State<PriceRangeBottomSheet> {
                           keyboardType: TextInputType.number,
                           onChanged: _onFromChanged,
                           decoration: InputDecoration(
-                            labelText: 'From',
+                            labelText: AppLocalizations.of(context)!.from,
                             prefixText: '\$ ',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -176,7 +176,7 @@ class _PriceRangeBottomSheetState extends State<PriceRangeBottomSheet> {
                           keyboardType: TextInputType.number,
                           onChanged: _onToChanged,
                           decoration: InputDecoration(
-                            labelText: 'To',
+                            labelText: AppLocalizations.of(context)!.to,
                             prefixText: '\$ ',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -231,7 +231,7 @@ class _PriceRangeBottomSheetState extends State<PriceRangeBottomSheet> {
                       width: double.infinity,
                       alignment: Alignment.center,
                       child: Text(
-                        'Apply',
+                        AppLocalizations.of(context)!.apply,
                         style: TextStyle(
                           fontSize: 16,
                           color: AppColors.white,

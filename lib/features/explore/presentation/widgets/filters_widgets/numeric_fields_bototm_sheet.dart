@@ -3,6 +3,7 @@ import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/post/data/models/nomeric_field_model.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class NumericFieldBottomSheet extends StatefulWidget {
   final NomericFieldModel field;
@@ -89,7 +90,7 @@ class _NumericFieldBottomSheetState extends State<NumericFieldBottomSheet> {
                         Navigator.pop(context);
                       },
                       child: Text(
-                        'Clear',
+                        AppLocalizations.of(context)!.clear_,
                         style: TextStyle(
                           color: Colors.grey[600],
                           fontSize: 16,
@@ -122,7 +123,7 @@ class _NumericFieldBottomSheetState extends State<NumericFieldBottomSheet> {
                             signed: true,
                           ),
                           decoration: InputDecoration(
-                            labelText: 'From',
+                            labelText:   AppLocalizations.of(context)!.from,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -158,7 +159,7 @@ class _NumericFieldBottomSheetState extends State<NumericFieldBottomSheet> {
                             signed: true,
                           ),
                           decoration: InputDecoration(
-                            labelText: 'To',
+                            labelText:   AppLocalizations.of(context)!.to,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -211,7 +212,7 @@ class _NumericFieldBottomSheetState extends State<NumericFieldBottomSheet> {
                       if (from != null && to != null && from > to) {
                         setState(() {
                           _errorMessage =
-                              'From value must be less than or equal to To value';
+                                AppLocalizations.of(context)!.from_value_error;
                         });
                         return;
                       }
@@ -229,9 +230,9 @@ class _NumericFieldBottomSheetState extends State<NumericFieldBottomSheet> {
                     child: Container(
                       width: double.infinity,
                       alignment: Alignment.center,
-                      child: const Text(
-                        'Apply',
-                        style: TextStyle(
+                      child: Text(
+                        AppLocalizations.of(context)!.apply,
+                        style: const TextStyle(
                           fontSize: 16,
                           color: AppColors.white,
                           fontFamily: Constants.Arial,
