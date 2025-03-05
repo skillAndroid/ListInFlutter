@@ -34,7 +34,6 @@ class LocationRemoteDataSourceImpl extends LocationRemoteDatasource {
           final addressDetails = geoObject['metaDataProperty']
               ['GeocoderMetaData']['Address']['Components'];
 
-          // Extract address parts
           String? county;
           String? city;
           String? state;

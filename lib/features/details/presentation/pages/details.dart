@@ -35,6 +35,7 @@ import 'package:list_in/global/global_state.dart';
 import 'package:list_in/global/global_status.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../bloc/details_event.dart';
 
@@ -564,6 +565,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   }
 
   Widget _buildMainContent(bool isOwner) {
+    final localizations = AppLocalizations.of(context)!;
     final enAttributes = widget.product.attributeValue.attributes['en'] ?? {};
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -638,7 +640,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       ),
                     ),
                     Text(
-                      '${widget.product.seller.rating} rating (0 reviews) ',
+                      '${widget.product.seller.rating} ${localizations.rating} (0 ${localizations.reviews}) ',
                       style: TextStyle(
                         color: Colors.black,
                         fontSize: 13.5,
@@ -711,7 +713,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                   ),
                                   SizedBox(width: 4),
                                   Text(
-                                    isFollowed ? "Unfollow" : 'Follow',
+                                    isFollowed
+                                        ? localizations.unfollow
+                                        : localizations.follow,
                                     style: TextStyle(
                                       fontFamily: Constants.Arial,
                                       fontWeight: FontWeight.bold,
@@ -783,21 +787,21 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Condition',
+                localizations.condition,
                 style: TextStyle(
                   color: AppColors.blue,
                   fontWeight: FontWeight.w500,
                 ),
               ),
               Text(
-                'New',
+                localizations.condition_new,
                 style: TextStyle(
                   color: AppColors.black,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               Text(
-                'Condition',
+                localizations.condition_used,
                 style: TextStyle(
                   color: AppColors.transparent,
                 ),
@@ -827,8 +831,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       ),
                     ),
                     child: Text(
-                      'Write to Telegram',
-                      style: TextStyle(
+                      localizations.write_to_telegram,
+                      style: const TextStyle(
                         fontSize: 17,
                         fontFamily: Constants.Arial,
                         fontWeight: FontWeight.bold,
@@ -866,8 +870,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       ),
                     ),
                     child: Text(
-                      'Call Now',
-                      style: TextStyle(
+                      localizations.call_now,
+                      style: const TextStyle(
                         fontFamily: Constants.Arial,
                         fontSize: 17,
                         fontWeight: FontWeight.w500,
@@ -910,8 +914,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       ),
                     ),
                     child: Text(
-                      'Edit Post',
-                      style: TextStyle(
+                      localizations.edit_post,
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
@@ -948,8 +952,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       ),
                     ),
                     child: Text(
-                      'Delete',
-                      style: TextStyle(
+                      localizations.delete,
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                       ),
@@ -981,6 +985,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   }
 
   void showLocationPrivacySheet(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -1022,11 +1027,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 ),
 
                 // Title
-                const Padding(
+                Padding(
                   padding: EdgeInsets.only(top: 16, bottom: 8),
                   child: Text(
-                    'Location Privacy Enabled',
-                    style: TextStyle(
+                    localizations.location_privacy_enabled,
+                    style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
@@ -1039,9 +1044,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                   child: Text(
-                    'This seller has chosen to keep their exact location private. '
-                    'This is a safety feature that helps protect our community members.\n\n'
-                    'You can still see their approximate location area for delivery planning.',
+                    localizations.location_privacy_description,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 15,
@@ -1058,14 +1061,14 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     children: [
                       _buildPrivacyPoint(
                         icon: Icons.shield_outlined,
-                        title: 'Enhanced Safety',
-                        description: 'Protects personal privacy and security',
+                        title: localizations.enhanced_safety,
+                        description: localizations.protects_privacy,
                       ),
                       const SizedBox(height: 16),
                       _buildPrivacyPoint(
                         icon: Icons.location_on_outlined,
-                        title: 'Area Visible',
-                        description: 'General location area is still shown',
+                        title: localizations.area_visible,
+                        description: localizations.general_location_shown,
                       ),
                     ],
                   ),
@@ -1086,9 +1089,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                           borderRadius: BorderRadius.circular(24),
                         ),
                       ),
-                      child: const Text(
-                        'Got it',
-                        style: TextStyle(
+                      child: Text(
+                        localizations.got_it,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -1156,6 +1159,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   }
 
   Widget _buildPrice() {
+    final localizations = AppLocalizations.of(context)!;
     return Text.rich(
       TextSpan(
         text: "${formatPrice(widget.product.price.toString())} ", // Main price
@@ -1168,7 +1172,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         ),
         children: [
           TextSpan(
-            text: "so'm", // Currency text
+            text: localizations.currency, // Currency text
             style: TextStyle(
               fontSize: 18, // Smaller font size
               fontWeight: FontWeight.w400, // Lighter weight
@@ -1197,14 +1201,15 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   }
 
   Widget _buildDescription() {
+    final localizations = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Desciption',
-            style: TextStyle(
+          Text(
+            localizations.description,
+            style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w700,
               color: AppColors.darkBackground,
@@ -1213,7 +1218,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           const SizedBox(height: 8),
           Text(
             widget.product.description,
-            style: TextStyle(
+            style: const TextStyle(
               color: AppColors.darkBackground,
               fontSize: 14,
               height: 1.5,
@@ -1243,15 +1248,15 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             MapEntry(numericValue.numericField, numericValue.numericValue));
       }
     }
-
+    final localizations = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'About this item ',
-            style: TextStyle(
+          Text(
+            localizations.about_this_item,
+            style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w700,
               color: AppColors.darkBackground,
@@ -1302,15 +1307,16 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   }
 
   void _showPublicationOptions(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     final options = [
       ActionSheetOption(
-        title: 'Boost Publication',
+        title: localizations.boost_publication,
         icon: CupertinoIcons.rocket,
         iconColor: AppColors.primary,
         onPressed: () => _showBoostUnavailableMessage(context),
       ),
       ActionSheetOption(
-        title: 'Delete Publication',
+        title: localizations.delete_publication,
         icon: CupertinoIcons.delete,
         iconColor: AppColors.error,
         onPressed: () => _showDeleteConfirmation(context),
@@ -1320,28 +1326,29 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
     ActionSheetMenu.show(
       context: context,
-      title: 'Publication Options',
-      message: 'Choose an action for this publication',
+      title: localizations.publication_options,
+      message: localizations.choose_action,
       options: options,
     );
   }
 
   void _showDeleteConfirmation(BuildContext context) async {
+    final localizations = AppLocalizations.of(context)!;
     final shouldDelete = await showDialog<bool>(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
               backgroundColor: AppColors.white,
-              title: Text('Delete Publication'),
+              title: Text(localizations.delete_publication),
               content: Text(
-                'Are you sure you want to delete this publication? This action cannot be undone.',
+                localizations.delete_confirmation,
               ),
               actions: <Widget>[
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop(false);
                   },
-                  child: Text('Cancel'),
+                  child: Text(localizations.cancel),
                 ),
                 TextButton(
                   onPressed: () {
@@ -1350,7 +1357,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.red,
                   ),
-                  child: Text('Delete'),
+                  child: Text(localizations.delete),
                 ),
               ],
             );
@@ -1367,11 +1374,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   }
 
   void _showBoostUnavailableMessage(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     InfoDialog.show(
       context: context,
-      title: 'Boost Unavailable',
-      message:
-          'Publication boosting is a premium feature that is not yet supported. Stay tuned for updates!',
+      title: localizations.boost_unavailable,
+      message: localizations.boost_unavailable_description,
     );
   }
 
@@ -1399,6 +1406,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   }
 
   Widget _buildSimilarProducts(bool isOwner) {
+    final localizations = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1408,7 +1416,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
-            isOwner ? "Your post" : 'User other posts',
+            isOwner ? localizations.your_post : localizations.user_other_posts,
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w700,
@@ -1422,6 +1430,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   }
 
   Widget buildProductsGrid(bool isOwner) {
+    final localizations = AppLocalizations.of(context)!;
     return BlocBuilder<DetailsBloc, DetailsState>(
       builder: (context, state) {
         if (state.status == DetailsStatus.loading &&
@@ -1443,7 +1452,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                           ),
                         );
                   },
-                  child: Text("Retry"),
+                  child: Text(localizations.retry),
                 ),
                 if (state.errorMessage != null) Text(state.errorMessage!),
               ],
@@ -1459,7 +1468,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 Icon(Icons.inventory, size: 72, color: Colors.grey[400]),
                 const SizedBox(height: 16),
                 Text(
-                  'No publications available',
+                  localizations.no_publications_available,
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.grey[600],
@@ -1608,6 +1617,7 @@ class CustomLocationHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
       margin: EdgeInsets.zero,
@@ -1658,9 +1668,9 @@ class CustomLocationHeader extends StatelessWidget {
                   minimumSize: Size.zero,
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
-                child: const Text(
-                  'Map',
-                  style: TextStyle(
+                child: Text(
+                  localizations.map,
+                  style: const TextStyle(
                     color: Colors.blue,
                     fontSize: 16,
                     fontWeight: FontWeight.w500,

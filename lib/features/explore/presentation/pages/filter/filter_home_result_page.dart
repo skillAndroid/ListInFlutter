@@ -20,6 +20,7 @@ import 'package:list_in/features/explore/presentation/widgets/product_card/bb/bo
 import 'package:list_in/features/explore/presentation/widgets/product_card/bb/regular_product_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:visibility_detector/visibility_detector.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class HomePageUIState {
   final currentlyPlayingId = ValueNotifier<String?>(null);
@@ -242,8 +243,9 @@ class _FilterHomeResultPageState extends State<FilterHomeResultPage> {
   }
 
   void _handleError(HomeTreeState state) {
+    final localizations = AppLocalizations.of(context)!;
     _pagingState.pagingController.error =
-        state.errorInitialPublicationsFetch ?? 'An unknown error occurred';
+        state.errorInitialPublicationsFetch ?? localizations.unknown_error;
   }
 
   void _handleCompletedState(HomeTreeState state) {
@@ -334,44 +336,46 @@ class _FilterHomeResultPageState extends State<FilterHomeResultPage> {
       sliver: PagedSliverList(
         pagingController: _pagingState.pagingController,
         builderDelegate: PagedChildBuilderDelegate(
-          firstPageProgressIndicatorBuilder: (_) => const Progress(),
-          newPageProgressIndicatorBuilder: (_) => const Progress(),
-          itemBuilder: (context, item, index) {
-            final currentItem = item as PublicationPairEntity;
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 1),
-              child: currentItem.isSponsored
-                  ? _buildAdvertisedProduct(currentItem.firstPublication)
-                  : Row(
-                      children: [
-                        Expanded(
-                          child: ProductCardContainer(
-                            key: ValueKey(
-                                'regular_${currentItem.firstPublication.id}'),
-                            product: currentItem.firstPublication,
+            firstPageProgressIndicatorBuilder: (_) => const Progress(),
+            newPageProgressIndicatorBuilder: (_) => const Progress(),
+            itemBuilder: (context, item, index) {
+              final currentItem = item as PublicationPairEntity;
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 1),
+                child: currentItem.isSponsored
+                    ? _buildAdvertisedProduct(currentItem.firstPublication)
+                    : Row(
+                        children: [
+                          Expanded(
+                            child: ProductCardContainer(
+                              key: ValueKey(
+                                  'regular_${currentItem.firstPublication.id}'),
+                              product: currentItem.firstPublication,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 1),
-                        Expanded(
-                          child: currentItem.secondPublication != null
-                              ? ProductCardContainer(
-                                  key: ValueKey(
-                                      'regular_${currentItem.secondPublication!.id}'),
-                                  product: currentItem.secondPublication!,
-                                )
-                              : const SizedBox.shrink(),
-                        ),
-                      ],
-                    ),
-            );
-          },
-          firstPageErrorIndicatorBuilder: (context) => ErrorIndicator(
-            error: _pagingState.pagingController.error,
-            onTryAgain: () => _pagingState.pagingController.refresh(),
-          ),
-          noItemsFoundIndicatorBuilder: (context) =>
-              const Center(child: Text('No items found')),
-        ),
+                          const SizedBox(width: 1),
+                          Expanded(
+                            child: currentItem.secondPublication != null
+                                ? ProductCardContainer(
+                                    key: ValueKey(
+                                        'regular_${currentItem.secondPublication!.id}'),
+                                    product: currentItem.secondPublication!,
+                                  )
+                                : const SizedBox.shrink(),
+                          ),
+                        ],
+                      ),
+              );
+            },
+            firstPageErrorIndicatorBuilder: (context) => ErrorIndicator(
+                  error: _pagingState.pagingController.error,
+                  onTryAgain: () => _pagingState.pagingController.refresh(),
+                ),
+            noItemsFoundIndicatorBuilder: (context) {
+              return Center(
+                child: Text(AppLocalizations.of(context)!.no_items_found),
+              );
+            }),
       ),
     );
   }
@@ -441,6 +445,7 @@ class _FilterHomeResultPageState extends State<FilterHomeResultPage> {
   }
 
   PreferredSizeWidget _buildAppBar(HomeTreeState state) {
+    final localizations = AppLocalizations.of(context)!;
     return PreferredSize(
       preferredSize: const Size.fromHeight(65),
       child: AppBar(
@@ -505,7 +510,7 @@ class _FilterHomeResultPageState extends State<FilterHomeResultPage> {
                                 child: Text(
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  "What are you looking for?",
+                                  localizations.whatAreYouLookingFor,
                                   style: TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w500,

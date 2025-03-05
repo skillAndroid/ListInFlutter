@@ -11,7 +11,6 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
-import 'package:list_in/features/explore/domain/enties/product_entity.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
@@ -21,6 +20,7 @@ import 'package:list_in/features/explore/presentation/widgets/product_card/bb/bo
 import 'package:list_in/features/explore/presentation/widgets/product_card/bb/regular_product_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:visibility_detector/visibility_detector.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ChildPageUIState {
   final currentlyPlayingId = ValueNotifier<String?>(null);
@@ -239,7 +239,7 @@ class _FilterSecondaryResultPageState extends State<FilterSecondaryResultPage> {
 
   void _handleError(HomeTreeState state) {
     _pagingState.pagingController.error =
-        state.errorSecondaryPublicationsFetch ?? 'An unknown error occurred';
+        state.errorSecondaryPublicationsFetch ?? AppLocalizations.of(context)!.unknown_error;
   }
 
   void _handleCompletedState(HomeTreeState state) {
@@ -329,49 +329,50 @@ class _FilterSecondaryResultPageState extends State<FilterSecondaryResultPage> {
   }
 
   Widget _buildProductGrid() {
+    final localizations = AppLocalizations.of(context)!;
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       sliver: PagedSliverList(
         pagingController: _pagingState.pagingController,
         builderDelegate: PagedChildBuilderDelegate(
-          firstPageProgressIndicatorBuilder: (_) => const Progress(),
-          newPageProgressIndicatorBuilder: (_) => const Progress(),
-          itemBuilder: (context, item, index) {
-            final currentItem = item as PublicationPairEntity;
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 1),
-              child: currentItem.isSponsored
-                  ? _buildAdvertisedProduct(currentItem.firstPublication)
-                  : Row(
-                      children: [
-                        Expanded(
-                          child: ProductCardContainer(
-                            key: ValueKey(
-                                'regular_${currentItem.firstPublication.id}'),
-                            product: currentItem.firstPublication,
+            firstPageProgressIndicatorBuilder: (_) => const Progress(),
+            newPageProgressIndicatorBuilder: (_) => const Progress(),
+            itemBuilder: (context, item, index) {
+              final currentItem = item as PublicationPairEntity;
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 1),
+                child: currentItem.isSponsored
+                    ? _buildAdvertisedProduct(currentItem.firstPublication)
+                    : Row(
+                        children: [
+                          Expanded(
+                            child: ProductCardContainer(
+                              key: ValueKey(
+                                  'regular_${currentItem.firstPublication.id}'),
+                              product: currentItem.firstPublication,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 1),
-                        Expanded(
-                          child: currentItem.secondPublication != null
-                              ? ProductCardContainer(
-                                  key: ValueKey(
-                                      'regular_${currentItem.secondPublication!.id}'),
-                                  product: currentItem.secondPublication!,
-                                )
-                              : const SizedBox.shrink(),
-                        ),
-                      ],
-                    ),
-            );
-          },
-          firstPageErrorIndicatorBuilder: (context) => ErrorIndicator(
-            error: _pagingState.pagingController.error,
-            onTryAgain: () => _pagingState.pagingController.refresh(),
-          ),
-          noItemsFoundIndicatorBuilder: (context) =>
-              const Center(child: Text('No items found')),
-        ),
+                          const SizedBox(width: 1),
+                          Expanded(
+                            child: currentItem.secondPublication != null
+                                ? ProductCardContainer(
+                                    key: ValueKey(
+                                        'regular_${currentItem.secondPublication!.id}'),
+                                    product: currentItem.secondPublication!,
+                                  )
+                                : const SizedBox.shrink(),
+                          ),
+                        ],
+                      ),
+              );
+            },
+            firstPageErrorIndicatorBuilder: (context) => ErrorIndicator(
+                  error: _pagingState.pagingController.error,
+                  onTryAgain: () => _pagingState.pagingController.refresh(),
+                ),
+            noItemsFoundIndicatorBuilder: (context) {
+              return Center(child: Text(localizations.no_items_found));
+            }),
       ),
     );
   }
@@ -510,7 +511,8 @@ class _FilterSecondaryResultPageState extends State<FilterSecondaryResultPage> {
                                   child: Text(
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                    "What are you looking for?", // Show current search text or default
+                                    AppLocalizations.of(context)!
+                                        .whatAreYouLookingFor, // Show current search text or default
                                     style: TextStyle(
                                       fontSize: 15,
                                       color: AppColors.black,

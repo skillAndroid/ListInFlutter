@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use, empty_catches
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
@@ -29,7 +31,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
   Future<void> _initializeVideo() async {
     _controller = VideoPlayerController.network("https://${widget.videoUrl}");
-    
+
     try {
       await _controller.initialize();
       // Auto-play when initialized
@@ -37,10 +39,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
       setState(() {
         _isInitialized = true;
       });
-    } catch (e) {
-      print('Error initializing video: $e');
-      // Handle error appropriately
-    }
+    } catch (e) {}
   }
 
   void _toggleControls() {
@@ -64,7 +63,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     String hours = twoDigits(duration.inHours);
     String minutes = twoDigits(duration.inMinutes.remainder(60));
     String seconds = twoDigits(duration.inSeconds.remainder(60));
-    return duration.inHours > 0 ? "$hours:$minutes:$seconds" : "$minutes:$seconds";
+    return duration.inHours > 0
+        ? "$hours:$minutes:$seconds"
+        : "$minutes:$seconds";
   }
 
   @override
@@ -139,11 +140,15 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                           return IconButton(
                             iconSize: 64,
                             icon: Icon(
-                              value.isPlaying ? Icons.pause_circle_filled : Icons.play_circle_filled,
+                              value.isPlaying
+                                  ? Icons.pause_circle_filled
+                                  : Icons.play_circle_filled,
                               color: Colors.white,
                             ),
                             onPressed: () {
-                              value.isPlaying ? _controller.pause() : _controller.play();
+                              value.isPlaying
+                                  ? _controller.pause()
+                                  : _controller.play();
                             },
                           );
                         },
@@ -155,7 +160,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                       right: 0,
                       bottom: 0,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             begin: Alignment.bottomCenter,
@@ -169,21 +175,27 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                             // Progress bar
                             ValueListenableBuilder(
                               valueListenable: _controller,
-                              builder: (context, VideoPlayerValue value, child) {
+                              builder:
+                                  (context, VideoPlayerValue value, child) {
                                 return SliderTheme(
                                   data: SliderTheme.of(context).copyWith(
                                     activeTrackColor: Colors.red,
                                     inactiveTrackColor: Colors.white30,
                                     thumbColor: Colors.red,
-                                    thumbShape: RoundSliderThumbShape(enabledThumbRadius: 6),
-                                    overlayShape: RoundSliderOverlayShape(overlayRadius: 12),
+                                    thumbShape: RoundSliderThumbShape(
+                                        enabledThumbRadius: 6),
+                                    overlayShape: RoundSliderOverlayShape(
+                                        overlayRadius: 12),
                                   ),
                                   child: Slider(
-                                    value: value.position.inMilliseconds.toDouble(),
+                                    value: value.position.inMilliseconds
+                                        .toDouble(),
                                     min: 0,
-                                    max: value.duration.inMilliseconds.toDouble(),
+                                    max: value.duration.inMilliseconds
+                                        .toDouble(),
                                     onChanged: (position) {
-                                      _controller.seekTo(Duration(milliseconds: position.toInt()));
+                                      _controller.seekTo(Duration(
+                                          milliseconds: position.toInt()));
                                     },
                                   ),
                                 );
@@ -191,12 +203,15 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                             ),
                             // Time indicators
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16),
                               child: ValueListenableBuilder(
                                 valueListenable: _controller,
-                                builder: (context, VideoPlayerValue value, child) {
+                                builder:
+                                    (context, VideoPlayerValue value, child) {
                                   return Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
                                         _formatDuration(value.position),
