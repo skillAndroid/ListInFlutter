@@ -30,6 +30,7 @@ import 'package:list_in/features/post/data/models/attribute_value_model.dart';
 import 'package:list_in/features/post/data/models/nomeric_field_model.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:visibility_detector/visibility_detector.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class DetailedPageUIState {
   final currentlyPlayingId = ValueNotifier<String?>(null);
@@ -193,8 +194,8 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
   }
 
   void _handleError(HomeTreeState state) {
-    _pagingState.pagingController.error =
-        state.errorChildPublicationsFetch ?? 'An unknown error occurred';
+    _pagingState.pagingController.error = state.errorChildPublicationsFetch ??
+        AppLocalizations.of(context)!.unknown_error;
   }
 
   void _handleCompletedState(HomeTreeState state) {
@@ -304,7 +305,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Text(
-                                        "Price",
+                                        AppLocalizations.of(context)!.price,
                                         style: TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w500,
@@ -638,7 +639,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                             if (index ==
                                 attributes.length + numericFields.length + 3) {
                               return SwitchFilterChip(
-                                label: 'Bargain',
+                                label: AppLocalizations.of(context)!.bargain,
                                 value: state.bargain,
                                 onChanged: (value) => context
                                     .read<HomeTreeCubit>()
@@ -650,7 +651,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                             if (index ==
                                 attributes.length + numericFields.length + 4) {
                               return SwitchFilterChip(
-                                label: 'Is Free',
+                                label: AppLocalizations.of(context)!.bargain,
                                 value: state.isFree,
                                 onChanged: (value) => context
                                     .read<HomeTreeCubit>()
@@ -695,11 +696,11 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
   String _getConditionText(String? condition) {
     switch (condition) {
       case 'NEW_PRODUCT':
-        return 'New';
+        return AppLocalizations.of(context)!.condition_new;
       case 'USED_PRODUCT':
-        return 'Used';
+        return AppLocalizations.of(context)!.condition_used;
       default:
-        return 'Condition';
+        return AppLocalizations.of(context)!.condition;
     }
   }
 
@@ -836,7 +837,8 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                   child: Text(
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                    "What are you looking for?",
+                                    AppLocalizations.of(context)!
+                                        .whatAreYouLookingFor,
                                     style: TextStyle(
                                       fontSize: 15,
                                       color: AppColors.black,
@@ -944,7 +946,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
             onTryAgain: () => _pagingState.pagingController.refresh(),
           ),
           noItemsFoundIndicatorBuilder: (context) =>
-              const Center(child: Text('No items found')),
+              Center(child: Text(AppLocalizations.of(context)!.no_items_found)),
         ),
       ),
     );
@@ -1079,7 +1081,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                         foregroundColor: AppColors.black,
                                       ),
                                       child: Text(
-                                        'Clear',
+                                        AppLocalizations.of(context)!.clear_,
                                         style: TextStyle(
                                           color: Colors.grey[600],
                                           fontSize: 16,
@@ -1105,7 +1107,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                         foregroundColor: AppColors.black,
                                       ),
                                       child: Text(
-                                        'clear',
+                                        AppLocalizations.of(context)!.clear_,
                                         style: TextStyle(
                                           color: Colors.grey[600],
                                           fontSize: 16,
@@ -1153,11 +1155,11 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
   String _getSellerTypeText(SellerType type) {
     switch (type) {
       case SellerType.ALL:
-        return 'Shop Type';
+        return AppLocalizations.of(context)!.seller_type;
       case SellerType.INDIVIDUAL_SELLER:
-        return 'Individual';
+        return AppLocalizations.of(context)!.individual;
       case SellerType.BUSINESS_SELLER:
-        return 'Shop';
+        return AppLocalizations.of(context)!.shop;
     }
   }
 
@@ -1285,7 +1287,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                 elevation: 0,
               ),
               child: Text(
-                'Apply (${(temporarySelections[attribute.attributeKey] as List).length})',
+                '${AppLocalizations.of(context)!.apply} (${(temporarySelections[attribute.attributeKey] as List).length})',
                 style: const TextStyle(
                   fontSize: 16,
                   color: AppColors.white,
@@ -1498,7 +1500,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                         foregroundColor: AppColors.black,
                                       ),
                                       child: Text(
-                                        'Clear',
+                                        AppLocalizations.of(context)!.clear_,
                                         style: TextStyle(
                                           color: Colors.grey[600],
                                           fontSize: 16,
@@ -1654,7 +1656,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                               elevation: 0,
                             ),
                             child: Text(
-                              'Apply (${(temporarySelections[attribute.attributeKey] as List).length})',
+                              '${AppLocalizations.of(context)!.apply} (${(temporarySelections[attribute.attributeKey] as List).length})',
                               style: const TextStyle(
                                 fontSize: 16,
                                 color: AppColors.white,

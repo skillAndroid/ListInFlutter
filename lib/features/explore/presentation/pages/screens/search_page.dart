@@ -13,6 +13,7 @@ import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -195,11 +196,12 @@ class _SearchPageState extends State<SearchPage> {
                                           );
                                         }
                                       },
-                                      decoration: const InputDecoration(
-                                        hintStyle: TextStyle(
+                                      decoration: InputDecoration(
+                                        hintStyle: const TextStyle(
                                             color: AppColors.darkGray),
                                         contentPadding: EdgeInsets.zero,
-                                        hintText: "Search...",
+                                        hintText: AppLocalizations.of(context)!
+                                            .search_3dots,
                                         border: InputBorder.none,
                                       ),
                                     ),
@@ -234,9 +236,9 @@ class _SearchPageState extends State<SearchPage> {
                     ),
                     TextButton(
                       onPressed: () => context.pop(),
-                      child: const Text(
-                        'Cansel',
-                        style: TextStyle(
+                      child: Text(
+                        AppLocalizations.of(context)!.cancel,
+                        style: const TextStyle(
                           fontFamily: Constants.Arial,
                           color: CupertinoColors.activeGreen,
                         ),

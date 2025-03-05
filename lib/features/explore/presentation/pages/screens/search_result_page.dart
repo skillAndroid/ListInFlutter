@@ -23,6 +23,7 @@ import 'package:list_in/features/explore/presentation/widgets/product_card/bb/re
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:visibility_detector/visibility_detector.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SearchPageUIState {
   final currentlyPlayingId = ValueNotifier<String?>(null);
@@ -176,7 +177,7 @@ class _SearchResultPageState extends State<SearchResultPage> {
 
   void _handleError(HomeTreeState state) {
     _pagingState.pagingController.error =
-        state.errorSearchPublicationsFetch ?? 'An unknown error occurred';
+        state.errorSearchPublicationsFetch ?? AppLocalizations.of(context)!.unknown_error;
   }
 
   void _handleCompletedState(HomeTreeState state) {
@@ -299,7 +300,7 @@ class _SearchResultPageState extends State<SearchResultPage> {
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Text(
-                                            "Price",
+                                            AppLocalizations.of(context)!.price,
                                             style: TextStyle(
                                               color: AppColors.black,
                                             ),
@@ -358,7 +359,7 @@ class _SearchResultPageState extends State<SearchResultPage> {
 
                                 if (index == 3) {
                                   return SwitchFilterChip(
-                                    label: 'Bargain',
+                                    label:AppLocalizations.of(context)!.bargain,
                                     value: state.bargain,
                                     onChanged: (value) => context
                                         .read<HomeTreeCubit>()
@@ -427,22 +428,22 @@ class _SearchResultPageState extends State<SearchResultPage> {
   String _getConditionText(String? condition) {
     switch (condition) {
       case 'NEW_PRODUCT':
-        return 'New';
+        return AppLocalizations.of(context)!.condition_new;
       case 'USED_PRODUCT':
-        return 'Used';
+        return AppLocalizations.of(context)!.condition_used;
       default:
-        return 'Condition';
+        return AppLocalizations.of(context)!.condition;
     }
   }
 
   String _getSellerTypeText(SellerType type) {
     switch (type) {
       case SellerType.ALL:
-        return 'Shop Type';
+        return AppLocalizations.of(context)!.seller_type;
       case SellerType.INDIVIDUAL_SELLER:
-        return 'Individual';
+        return AppLocalizations.of(context)!.individual;
       case SellerType.BUSINESS_SELLER:
-        return 'Shop';
+        return AppLocalizations.of(context)!.shop;
     }
   }
 
@@ -521,7 +522,7 @@ class _SearchResultPageState extends State<SearchResultPage> {
                                     overflow: TextOverflow.ellipsis,
                                     state.searchText != null
                                         ? state.searchText.toString()
-                                        : "What are you looking for?",
+                                        : AppLocalizations.of(context)!.whatAreYouLookingFor,
                                     style: TextStyle(
                                       fontSize: 15,
                                       color: AppColors.black,
@@ -626,7 +627,7 @@ class _SearchResultPageState extends State<SearchResultPage> {
             onTryAgain: () => _pagingState.pagingController.refresh(),
           ),
           noItemsFoundIndicatorBuilder: (context) =>
-              const Center(child: Text('No items found')),
+               Center(child: Text(AppLocalizations.of(context)!.no_items_found)),
         ),
       ),
     );

@@ -120,5 +120,15 @@
   "publications": "E’lonlar",
   "show": "Ko'rsatish",
   "price_range": "Narx oralig‘i",
-  "no_results_in_range": "Bu oraliqda natijalar yo‘q"
+  "no_results_in_range": "Bu oraliqda natijalar yo‘q",
+  "recent": "Yaqinda",
+  "season_fashion": "Mavsumiy moda",
+  "for_free": "Bepul",
+  "gift_ideas": "Sovg'a g'oyalari",
+  "oops_something_went_wrong": "Voy! Nimadir xato ketdi",
+  "try_again": "Qayta urinib ko'ring",
+  "video_posts": "Video postlar",
+  "search_3dots": "Qidirish...",
+  "is_free": "Bepul",
+  "price": "Narx"
 }

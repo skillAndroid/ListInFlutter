@@ -120,5 +120,15 @@
   "publications": "Publications",
   "show": "Show",
   "price_range": "Price range",
-  "no_results_in_range": "No results in range"
+  "no_results_in_range": "No results in range",
+  "recent": "Recent",
+  "season_fashion": "Season Fashion",
+  "for_free": "For Free",
+  "gift_ideas": "Gift Ideas",
+  "oops_something_went_wrong": "Oops! Something went wrong",
+  "try_again": "Try Again",
+  "video_posts": "Video Posts",
+  "search_3dots": "Search...",
+  "is_free": "Is Free",
+  "price": "Price"
 }

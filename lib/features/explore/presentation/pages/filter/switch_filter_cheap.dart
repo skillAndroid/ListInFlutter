@@ -9,11 +9,11 @@ class MinimalToggleSwitch extends StatelessWidget {
   final Color activeColor;
 
   const MinimalToggleSwitch({
-    Key? key,
+    super.key,
     required this.value,
     required this.onChanged,
     this.activeColor = Colors.blue,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -51,11 +51,11 @@ class SlimToggleSwitch extends StatelessWidget {
   final Color activeColor;
 
   const SlimToggleSwitch({
-    Key? key,
+    super.key,
     required this.value,
     required this.onChanged,
     this.activeColor = Colors.blue,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

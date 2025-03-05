@@ -25,6 +25,7 @@ import 'package:list_in/features/explore/presentation/widgets/top_app_recomendat
 import 'package:list_in/features/video/presentation/wigets/scrollable_list.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:visibility_detector/visibility_detector.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class HomePageUIState {
   final currentlyPlayingId = ValueNotifier<String?>(null);
@@ -244,7 +245,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
 
   void _handleError(HomeTreeState state) {
     _pagingState.pagingController.error =
-        state.errorInitialPublicationsFetch ?? 'An unknown error occurred';
+        state.errorInitialPublicationsFetch ?? AppLocalizations.of(context)!.unknown_error;
   }
 
   void _handleCompletedState(HomeTreeState state) {
@@ -374,7 +375,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                       width: 8,
                     ),
                     Text(
-                      "Video Posts",
+                      AppLocalizations.of(context)!.video_posts,
                       style: TextStyle(
                         color: AppColors.darkBackground,
                         fontSize: 18,
@@ -444,7 +445,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
             onTryAgain: () => _pagingState.pagingController.refresh(),
           ),
           noItemsFoundIndicatorBuilder: (context) =>
-              const Center(child: Text('No items found')),
+               Center(child: Text(AppLocalizations.of(context)!.no_items_found)),
         ),
       ),
     );
@@ -568,7 +569,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                                 child: Text(
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  "What are you looking for?", // Show current search text or default
+                                  AppLocalizations.of(context)!.whatAreYouLookingFor, // Show current search text or default
                                   style: TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w500,
@@ -690,22 +691,22 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
   Widget _buildCategories(HomeTreeState state) {
     final recommendations = [
       RecommendationItem(
-        title: "Recent",
+        title: AppLocalizations.of(context)!.recent,
         icon: Icons.access_time_rounded,
         color: Colors.blue,
       ),
       RecommendationItem(
-        title: "Season Fashion",
+        title: AppLocalizations.of(context)!.season_fashion,
         icon: Icons.checkroom_rounded,
         color: Colors.purple,
       ),
       RecommendationItem(
-        title: "For Free",
+        title: AppLocalizations.of(context)!.for_free,
         icon: Icons.card_giftcard_rounded,
         color: Colors.red,
       ),
       RecommendationItem(
-        title: "Gift Ideas",
+        title: AppLocalizations.of(context)!.gift_ideas,
         icon: Icons.redeem_rounded,
         color: Colors.orange,
       ),
@@ -759,7 +760,7 @@ class ErrorIndicator extends StatelessWidget {
 
                 // Error Title
                 Text(
-                  'Oops! Something went wrong',
+                  AppLocalizations.of(context)!.oops_something_went_wrong,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -775,8 +776,8 @@ class ErrorIndicator extends StatelessWidget {
                     Icons.refresh_rounded,
                     color: AppColors.black,
                   ),
-                  label: const Text(
-                    'Try Again',
+                  label:  Text(
+                    AppLocalizations.of(context)!.try_again,
                     style: TextStyle(color: AppColors.black),
                   ),
                   style: FilledButton.styleFrom(

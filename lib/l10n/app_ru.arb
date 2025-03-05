@@ -120,5 +120,15 @@
   "publications": "Публикации",
   "show": "Показать",
   "price_range": "Ценовой диапазон",
-  "no_results_in_range": "Нет результатов в диапазоне"
+  "no_results_in_range": "Нет результатов в диапазоне",
+  "recent": "Недавние",
+  "season_fashion": "Сезонная мода",
+  "for_free": "Бесплатно",
+  "gift_ideas": "Идеи подарков",
+  "oops_something_went_wrong": "Ой! Что-то пошло не так",
+  "try_again": "Попробуйте снова",
+  "video_posts": "Видеопосты",
+  "search_3dots": "Поиск...",
+  "is_free": "Бесплатно",
+  "price": "Цена"
 }

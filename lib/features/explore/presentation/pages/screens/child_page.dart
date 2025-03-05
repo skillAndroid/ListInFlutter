@@ -23,6 +23,7 @@ import 'package:list_in/features/explore/presentation/widgets/product_card/bb/re
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/explore/presentation/widgets/top_app_bar_recomendation_sub.dart';
 import 'package:visibility_detector/visibility_detector.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ChildPageUIState {
   final currentlyPlayingId = ValueNotifier<String?>(null);
@@ -236,8 +237,9 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
   }
 
   void _handleError(HomeTreeState state) {
+     
     _pagingState.pagingController.error =
-        state.errorSecondaryPublicationsFetch ?? 'An unknown error occurred';
+        state.errorSecondaryPublicationsFetch ?? AppLocalizations.of(context)!.unknown_error;
   }
 
   void _handleCompletedState(HomeTreeState state) {
@@ -378,7 +380,7 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
             onTryAgain: () => _pagingState.pagingController.refresh(),
           ),
           noItemsFoundIndicatorBuilder: (context) =>
-              const Center(child: Text('No items found')),
+               Center(child: Text(AppLocalizations.of(context)!.no_items_found)),
         ),
       ),
     );
@@ -516,7 +518,7 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
                                   child: Text(
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                    "What are you looking for?", // Show current search text or default
+                                    AppLocalizations.of(context)!.whatAreYouLookingFor, // Show current search text or default
                                     style: TextStyle(
                                       fontSize: 15,
                                       fontWeight: FontWeight.w500,
