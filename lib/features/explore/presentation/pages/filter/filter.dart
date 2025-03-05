@@ -19,6 +19,7 @@ import 'package:list_in/features/post/data/models/attribute_model.dart';
 import 'package:list_in/features/post/data/models/attribute_value_model.dart';
 import 'package:list_in/features/post/data/models/nomeric_field_model.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 // ignore: must_be_immutable
 class FiltersPage extends StatefulWidget {
@@ -73,6 +74,7 @@ class _FiltersPageState extends State<FiltersPage>
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<HomeTreeCubit>();
+    final localizations = AppLocalizations.of(context)!;
     return WillPopScope(
       onWillPop: () async {
         cubit.emit(_initialState);
@@ -133,7 +135,7 @@ class _FiltersPageState extends State<FiltersPage>
                                           },
                                         ),
                                         Text(
-                                          "Clear",
+                                          localizations.clear_,
                                           style: TextStyle(
                                               fontSize: 15, color: Colors.blue),
                                         )
@@ -146,8 +148,8 @@ class _FiltersPageState extends State<FiltersPage>
                                           Padding(
                                             padding: EdgeInsets.only(top: 3),
                                             child: Text(
-                                              "Filter",
-                                              style: TextStyle(
+                                              localizations.filter,
+                                              style: const TextStyle(
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 18,
                                               ),
@@ -168,13 +170,13 @@ class _FiltersPageState extends State<FiltersPage>
                             children: [
                               if (widget.page != 'result_page') ...[
                                 Text(
-                                  'Category',
-                                  style: TextStyle(
+                                  localizations.category,
+                                  style: const TextStyle(
                                     fontSize: 19,
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   height: 16,
                                 ),
                                 _buildMainCategories(state, cubit),
@@ -184,12 +186,12 @@ class _FiltersPageState extends State<FiltersPage>
                                   ),
                                   Text(
                                     state.selectedCatalog!.name,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 19,
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     height: 16,
                                   ),
                                   _buildChildCategories(state, cubit),
@@ -198,8 +200,8 @@ class _FiltersPageState extends State<FiltersPage>
 
                               if (widget.page == "result_page") ...[
                                 Text(
-                                  'Searching',
-                                  style: TextStyle(
+                                  localizations.searching,
+                                  style: const TextStyle(
                                     fontSize: 19,
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -261,8 +263,8 @@ class _FiltersPageState extends State<FiltersPage>
                               if (state.selectedChildCategory != null)
                                 if (state.selectedChildCategory != null) ...[
                                   Text(
-                                    'Additional',
-                                    style: TextStyle(
+                                    localizations.additional,
+                                    style: const TextStyle(
                                       fontSize: 19,
                                       fontWeight: FontWeight.w500,
                                     ),
@@ -691,7 +693,7 @@ class _FiltersPageState extends State<FiltersPage>
                                         foregroundColor: AppColors.black,
                                       ),
                                       child: Text(
-                                        'Clear',
+                                        AppLocalizations.of(context)!.clear_,
                                         style: TextStyle(
                                           color: Colors.grey[600],
                                           fontSize: 16,
@@ -715,7 +717,7 @@ class _FiltersPageState extends State<FiltersPage>
                                         foregroundColor: AppColors.black,
                                       ),
                                       child: Text(
-                                        'clear',
+                                        AppLocalizations.of(context)!.clear_,
                                         style: TextStyle(
                                           color: Colors.grey[600],
                                           fontSize: 16,
@@ -863,7 +865,7 @@ class _FiltersPageState extends State<FiltersPage>
                   }
 
                   cubit.getAtributesForPost();
-                    cubit.fetchFilteredPredictionValues();
+                  cubit.fetchFilteredPredictionValues();
                 }
                 Navigator.pop(context);
               },
@@ -877,7 +879,7 @@ class _FiltersPageState extends State<FiltersPage>
                 elevation: 0,
               ),
               child: Text(
-                'Apply (${(temporarySelections[attribute.attributeKey] as List).length})',
+                '${AppLocalizations.of(context)!.apply} (${(temporarySelections[attribute.attributeKey] as List).length})',
                 style: const TextStyle(
                   fontSize: 16,
                   color: AppColors.white,
@@ -919,7 +921,7 @@ class _FiltersPageState extends State<FiltersPage>
               }
               Navigator.pop(context);
               cubit.getAtributesForPost();
-                cubit.fetchFilteredPredictionValues();
+              cubit.fetchFilteredPredictionValues();
             },
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -1081,7 +1083,7 @@ class _FiltersPageState extends State<FiltersPage>
                                         foregroundColor: AppColors.black,
                                       ),
                                       child: Text(
-                                        'Clear',
+                                        AppLocalizations.of(context)!.clear_,
                                         style: TextStyle(
                                           color: Colors.grey[600],
                                           fontSize: 16,
@@ -1229,7 +1231,7 @@ class _FiltersPageState extends State<FiltersPage>
                               elevation: 0,
                             ),
                             child: Text(
-                              'Apply (${(temporarySelections[attribute.attributeKey] as List).length})',
+                              '${AppLocalizations.of(context)!.clear_} (${(temporarySelections[attribute.attributeKey] as List).length})',
                               style: const TextStyle(
                                 fontSize: 16,
                                 color: AppColors.white,
@@ -1414,7 +1416,7 @@ class _FiltersPageState extends State<FiltersPage>
         Padding(
           padding: const EdgeInsets.only(left: 0, bottom: 8),
           child: Text(
-            'Seller Type',
+            AppLocalizations.of(context)!.seller_type,
             style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w500,
@@ -1438,10 +1440,10 @@ class _FiltersPageState extends State<FiltersPage>
             child: Row(
               children: [
                 _buildSellerTypeOption('All', SellerType.ALL, state),
-                _buildSellerTypeOption(
-                    'Individual', SellerType.INDIVIDUAL_SELLER, state),
-                _buildSellerTypeOption(
-                    'Shop', SellerType.BUSINESS_SELLER, state),
+                _buildSellerTypeOption(AppLocalizations.of(context)!.individual,
+                    SellerType.INDIVIDUAL_SELLER, state),
+                _buildSellerTypeOption(AppLocalizations.of(context)!.shop,
+                    SellerType.BUSINESS_SELLER, state),
               ],
             ),
           ),
@@ -1497,7 +1499,7 @@ class _FiltersPageState extends State<FiltersPage>
         Padding(
           padding: const EdgeInsets.only(left: 0, bottom: 12),
           child: Text(
-            'Sorting',
+            AppLocalizations.of(context)!.sorting,
             style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w500,
@@ -1545,7 +1547,7 @@ class _FiltersPageState extends State<FiltersPage>
               Padding(
                 padding: const EdgeInsets.only(left: 0, bottom: 1),
                 child: Text(
-                  'Borgain',
+                  AppLocalizations.of(context)!.bargain,
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w400,
@@ -1597,7 +1599,7 @@ class _FiltersPageState extends State<FiltersPage>
               Padding(
                 padding: const EdgeInsets.only(left: 0, bottom: 1),
                 child: Text(
-                  'For Free',
+                  AppLocalizations.of(context)!.for_free,
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w400,
@@ -1619,7 +1621,7 @@ class _FiltersPageState extends State<FiltersPage>
         Padding(
           padding: const EdgeInsets.only(left: 0, bottom: 8),
           child: Text(
-            'Condition',
+            AppLocalizations.of(context)!.condition,
             style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w500,
@@ -1642,9 +1644,14 @@ class _FiltersPageState extends State<FiltersPage>
             padding: EdgeInsets.all(4),
             child: Row(
               children: [
-                _buildSegmentOption('All', 'ALL', state),
-                _buildSegmentOption('New', 'NEW_PRODUCT', state),
-                _buildSegmentOption('Used', 'USED_PRODUCT', state),
+                _buildSegmentOption(
+                    AppLocalizations.of(context)!.all, 'ALL', state),
+                _buildSegmentOption(AppLocalizations.of(context)!.condition_new,
+                    'NEW_PRODUCT', state),
+                _buildSegmentOption(
+                    AppLocalizations.of(context)!.condition_used,
+                    'USED_PRODUCT',
+                    state),
               ],
             ),
           ),
@@ -1701,7 +1708,7 @@ class _FiltersPageState extends State<FiltersPage>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Location',
+            AppLocalizations.of(context)!.location,
             style: TextStyle(
               fontSize: 19,
               fontWeight: FontWeight.w500,
@@ -1726,7 +1733,7 @@ class _FiltersPageState extends State<FiltersPage>
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Select Location',
+                        AppLocalizations.of(context)!.selectLocation,
                         style: TextStyle(
                           fontSize: 16,
                           color: AppColors.darkGray,
@@ -1976,12 +1983,12 @@ class _FiltersPageState extends State<FiltersPage>
 
   String _getPublicationCountText(int count) {
     if (count == 0) {
-      return 'No publications found';
+      return AppLocalizations.of(context)!.no_items_found;
     } else if (count >= 1000) {
       final thousands = (count / 1000).floor();
-      return 'Show more than ${thousands}k publications';
+      return '${AppLocalizations.of(context)!.show_more_than} ${thousands}k ${AppLocalizations.of(context)!.publication_options}';
     } else {
-      return 'Show ${count.toString()} publications';
+      return '${AppLocalizations.of(context)!.show} ${count.toString()} ${AppLocalizations.of(context)!.publications}';
     }
   }
 }
@@ -2113,17 +2120,17 @@ class _PriceRangeSliderState extends State<PriceRangeSlider> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Price range',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.price_range,
+                style: const TextStyle(
                   fontSize: 19,
                   fontWeight: FontWeight.w500,
                 ),
               ),
               if (isDisabled)
-                const Text(
-                  'No results in range',
-                  style: TextStyle(
+                Text(
+                  AppLocalizations.of(context)!.no_results_in_range,
+                  style: const TextStyle(
                     color: Colors.grey,
                     fontSize: 17,
                     fontWeight: FontWeight.w400,
