@@ -1,8 +1,11 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
@@ -79,10 +82,10 @@ class _AddPricePageState extends State<AddPricePage> {
 
       final price = parsePrice(value);
       if (price <= 0) {
-        _errorText = 'Price must be greater than 0';
+        _errorText = AppLocalizations.of(context)!.price_greater_than_zero;
       } else if (price > 1000000000) {
         // Add your own maximum limit
-        _errorText = 'Price is too high';
+        _errorText = AppLocalizations.of(context)!.price_too_high;
       } else {
         _errorText = null;
       }
@@ -153,14 +156,14 @@ class _AddPricePageState extends State<AddPricePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Padding(
+            Padding(
               padding: EdgeInsets.only(bottom: 4.0),
               child: Text(
-                'Great! Please enter price',
+                AppLocalizations.of(context)!.enter_price,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  fontFamily: "Syne",
+                  fontFamily: Constants.Arial,
                 ),
               ),
             ),
@@ -184,7 +187,7 @@ class _AddPricePageState extends State<AddPricePage> {
                   decoration: InputDecoration(
                     fillColor: AppColors.containerColor.withOpacity(0.3),
                     border: OutlineInputBorder(),
-                    hintText: 'Currency: UZS',
+                    hintText: AppLocalizations.of(context)!.currency,
                     contentPadding: EdgeInsets.all(14),
                     counterText: '',
                   ),
@@ -199,13 +202,13 @@ class _AddPricePageState extends State<AddPricePage> {
                   style: const TextStyle(color: Colors.red, fontSize: 12),
                 ),
               ),
-            const Padding(
+            Padding(
               padding: EdgeInsets.symmetric(
                 vertical: 12,
               ),
               child: Text(
-                'You can set a fixed price or make it negatable. Enable this option if your are open to discussing the price with the buyer. ',
-                style: TextStyle(
+                AppLocalizations.of(context)!.negotiable_price_info,
+                style: const TextStyle(
                   fontSize: 13.5,
                   color: AppColors.darkGray,
                   fontWeight: FontWeight.w400,
@@ -216,14 +219,14 @@ class _AddPricePageState extends State<AddPricePage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Padding(
+                 Padding(
                   padding: EdgeInsets.only(bottom: 4.0),
                   child: Text(
-                    'Negatable Price?',
-                    style: TextStyle(
+                    AppLocalizations.of(context)!.negotiable_price,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      fontFamily: "Syne",
+                      fontFamily: Constants.Arial,
                     ),
                   ),
                 ),

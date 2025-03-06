@@ -3,6 +3,7 @@ import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/post/presentation/pages/catalog_screen.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class PostScreen extends StatefulWidget {
   const PostScreen({super.key});
@@ -45,7 +46,9 @@ class _PostScreenState extends State<PostScreen> {
                     },
                   )
                 },
-                child: const Text('Reget'),
+                child: Text(
+                  AppLocalizations.of(context)!.retry,
+                ),
               ),
               Center(
                 child: Text(provider.error!),

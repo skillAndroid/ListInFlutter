@@ -7,6 +7,7 @@ import 'package:list_in/features/post/data/models/attribute_value_model.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class MultiSelectableWidget extends StatelessWidget {
   final AttributeModel attribute;
@@ -83,9 +84,10 @@ class MultiSelectableWidget extends StatelessWidget {
           style: ButtonStyle(
             textStyle: WidgetStateProperty.all(
               const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                    fontFamily: Constants.Arial,),
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
+                fontFamily: Constants.Arial,
+              ),
             ),
             padding: WidgetStateProperty.all(EdgeInsets.zero),
             elevation: WidgetStateProperty.all(0),
@@ -108,7 +110,7 @@ class MultiSelectableWidget extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    'Selected (${selectedValues.length})',
+                    '${AppLocalizations.of(context)!.selected} (${selectedValues.length})',
                     style: TextStyle(
                       color: selectedValues.isNotEmpty
                           ? AppColors.black
@@ -225,9 +227,10 @@ class MultiSelectableWidget extends StatelessWidget {
                             style: ButtonStyle(
                               textStyle: WidgetStateProperty.all(
                                 const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w400,
-                                      fontFamily: Constants.Arial,),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w400,
+                                  fontFamily: Constants.Arial,
+                                ),
                               ),
                               elevation: WidgetStateProperty.all(0),
                               backgroundColor:
@@ -246,8 +249,8 @@ class MultiSelectableWidget extends StatelessWidget {
                               provider
                                   .toggleAttributeOptionsVisibility(attribute);
                             },
-                            child: const Text(
-                              'Confirm',
+                            child: Text(
+                              AppLocalizations.of(context)!.confirm,
                               style: TextStyle(
                                   fontSize: 12, fontWeight: FontWeight.w600),
                             ),

@@ -195,5 +195,7 @@
   "creating_post": "E'lon yaratilmoqda...",
   "please_wait": "Iltimos, kuting...",
   "retry": "Qayta urinish",
-  "confirm" : "Tasdiqlash"
+  "confirm" : "Tasdiqlash",
+  "currency_uzs" : "Valyuta: UZS",
+  "selected": "Tanlangan"
 }

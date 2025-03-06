@@ -195,5 +195,7 @@
   "creating_post": "Creating Post...",
   "please_wait": "Please wait...",
   "retry": "Retry",
-  "confirm" : "Confirm"
+  "confirm": "Confirm",
+  "currency_uzs": "Currency: UZS",
+  "selected": "Selected"
 }

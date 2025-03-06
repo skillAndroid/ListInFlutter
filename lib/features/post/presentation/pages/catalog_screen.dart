@@ -18,6 +18,7 @@ import 'package:list_in/features/profile/presentation/bloc/publication/user_publ
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_event.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CatalogPagerScreen extends StatefulWidget {
   const CatalogPagerScreen({super.key});
@@ -74,15 +75,15 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
   String _getValidationErrorMessage() {
     switch (_currentPage) {
       case 3:
-        return 'Title must be at least 10 characters long';
+        return AppLocalizations.of(context)!.title_min_length_warning;
       case 4:
-        return 'Description must be at least 45 characters long';
+        return AppLocalizations.of(context)!.description_min_length_warning;
       case 5:
-        return 'Please enter a valid price';
+        return AppLocalizations.of(context)!.enter_valid_price;
       case 6:
-        return 'Please select a condition';
+        return AppLocalizations.of(context)!.select_condition;
       case 7:
-        return 'Please add at least one image';
+        return AppLocalizations.of(context)!.add_at_least_one_image;
       default:
         return '';
     }
@@ -276,9 +277,9 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
       centerTitle: true,
-      title: const Text(
-        'Create Post',
-        style: TextStyle(
+      title: Text(
+        AppLocalizations.of(context)!.create_post,
+        style: const TextStyle(
           fontWeight: FontWeight.w700,
           fontFamily: Constants.Arial,
           fontSize: 20,
@@ -326,14 +327,16 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
           const SizedBox(width: 12),
           Text(
             _getLoadingText(provider.postCreationState),
-            style: const TextStyle(fontFamily: "Syne"),
+            style: const TextStyle(fontFamily: Constants.Arial),
           ),
         ],
       );
     } else {
       buttonChild = Text(
-        isLastPage ? 'Create Post' : 'Next',
-        style: const TextStyle(fontFamily: "Syne"),
+        isLastPage
+            ? AppLocalizations.of(context)!.create_post
+            : AppLocalizations.of(context)!.next,
+        style: const TextStyle(fontFamily: Constants.Arial),
       );
     }
 
@@ -362,8 +365,11 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
                       (failure) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text(provider.postCreationError ??
-                                'Failed to create post'),
+                            content: Text(
+                              provider.postCreationError ??
+                                  AppLocalizations.of(context)!
+                                      .post_creation_failed,
+                            ),
                             backgroundColor: Colors.red,
                           ),
                         );
@@ -375,7 +381,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
-                              "Publication created successfuly!",
+                              AppLocalizations.of(context)!.post_creation_success,
                               style: TextStyle(
                                 fontFamily: Constants.Arial,
                               ),
@@ -402,13 +408,13 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
   String _getLoadingText(PostCreationState state) {
     switch (state) {
       case PostCreationState.uploadingImages:
-        return 'Uploading Images...';
+        return AppLocalizations.of(context)!.uploading_images;
       case PostCreationState.uploadingVideo:
-        return 'Uploading Video...';
+        return AppLocalizations.of(context)!.uploading_video;
       case PostCreationState.creatingPost:
-        return 'Creating Post...';
+        return AppLocalizations.of(context)!.creating_post;
       default:
-        return 'Please wait...';
+        return AppLocalizations.of(context)!.please_wait;
     }
   }
 }
