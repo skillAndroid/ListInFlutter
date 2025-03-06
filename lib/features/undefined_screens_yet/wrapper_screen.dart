@@ -84,7 +84,7 @@ class _MainWrapperState extends State<MainWrapper> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             crossAxisAlignment: CrossAxisAlignment.start, // Align to top
             children: [
-              _buildNavItem(0, 'Search', AppIcons.bg_icon),
+              _buildNavItem(0, AppLocalizations.of(context)!.search, AppIcons.bg_icon),
               _buildAddPostButton(),
               _buildProfileItem(),
             ],
@@ -144,7 +144,7 @@ class _MainWrapperState extends State<MainWrapper> {
             ),
             const SizedBox(height: 4),
             Text(
-              'Add Post',
+              AppLocalizations.of(context)!.add_post,
               style: TextStyle(
                 fontWeight: FontWeight.w500,
                 fontSize: 12.5,
@@ -202,7 +202,7 @@ class _MainWrapperState extends State<MainWrapper> {
             ),
             const SizedBox(height: 4),
             Text(
-              'Profile',
+              AppLocalizations.of(context)!.profile,
               style: TextStyle(
                 fontWeight: FontWeight.w500,
                 fontSize: 12.5,

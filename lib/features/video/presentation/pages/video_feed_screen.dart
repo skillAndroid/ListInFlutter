@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
+import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
@@ -375,7 +376,7 @@ class _ListInShortsState extends State<ListInShorts> {
                                                   .seller
                                                   .id);
                                           return Text(
-                                            '$followersCount Followers',
+                                            '$followersCount ${AppLocalizations.of(context)!.followers}',
                                             style: TextStyle(
                                               color:
                                                   Colors.white.withOpacity(0.8),
@@ -405,11 +406,11 @@ class _ListInShortsState extends State<ListInShorts> {
                                       if (isOwner) {
                                         // Option 1: Show "You" text
                                         return Text(
-                                          'You',
+                                          AppLocalizations.of(context)!.you,
                                           style: TextStyle(
                                             color: AppColors.white,
                                             fontSize: 14,
-                                            fontFamily: "Poppins",
+                                            fontFamily: Constants.Arial,
                                             fontWeight: FontWeight.w600,
                                           ),
                                         );
@@ -456,12 +457,12 @@ class _ListInShortsState extends State<ListInShorts> {
                                                 )
                                               : Text(
                                                   isFollowed
-                                                      ? 'Unfollow'
-                                                      : 'Follow',
+                                                      ? AppLocalizations.of(context)!.unfollow
+                                                      : AppLocalizations.of(context)!.follow,
                                                   style: TextStyle(
                                                     color: AppColors.white,
                                                     fontSize: 14,
-                                                    fontFamily: "Poppins",
+                                                    fontFamily: Constants.Arial,
                                                     fontWeight: FontWeight.w600,
                                                   ),
                                                 ),

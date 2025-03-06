@@ -255,5 +255,20 @@
   "error": "Ошибка",
   "no_location": "Местоположение отсутствует",
   "not_selected": "Не выбрано",
-  "title_max_length": "Название не может превышать 100 символов"
+  "title_max_length": "Название не может превышать 100 символов",
+  "error_initializing_video": "Ошибка инициализации видео",
+  "add_post": "Добавить пост",
+  "you": "Вы",
+  "see_all_videos": "Смотреть все видео",
+  "store": "Магазин",
+  "no_user_name": "Нет имени пользователя",
+  "user": "Пользователь",
+  "about": "О нас",
+  "reviews_big": "Отзывы",
+  "no_reviews_yet": "Пока нет отзывов!",
+  "user_posts": "Посты пользователя",
+  "about_us": "О нас",
+  "no_information_available": "Информация отсутствует",
+  "available_hours": "Доступные часы",
+  "member_since": "Член с: "
 }

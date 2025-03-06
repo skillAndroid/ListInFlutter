@@ -256,5 +256,20 @@
   "error": "Xatolik",
   "no_location": "Joylashuv yo‘q",
   "not_selected": "Tanlanmagan",
-  "title_max_length": "Sarlavha 100 ta belgidan oshishi mumkin emas" 
+  "title_max_length": "Sarlavha 100 ta belgidan oshishi mumkin emas",
+  "error_initializing_video": "Video ishga tushirishda xato",
+  "add_post": "Post qo'shish",
+  "you": "Siz",
+  "see_all_videos": "Barcha videolarni ko'rish",
+  "store": "Do'kon",
+  "no_user_name": "Foydalanuvchi nomi yo'q",
+  "user": "Foydalanuvchi",
+  "about": "Biz haqimizda",
+  "reviews_big": "Sharhlar",
+  "no_reviews_yet": "Hali sharhlar yo‘q!",
+  "user_posts": "Foydalanuvchi postlari",
+  "about_us": "Biz haqimizda",
+  "no_information_available": "Ma'lumot mavjud emas",
+  "available_hours": "Ish vaqti",
+  "member_since": "A'zo bo'lgan sana: "
 }

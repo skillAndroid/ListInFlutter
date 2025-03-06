@@ -55,7 +55,9 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
       listener: (context, state) {
         if (state.status == AnotherUserProfileStatus.failure) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.errorMessage ?? 'An error occurred')),
+            SnackBar(
+                content: Text(state.errorMessage ??
+                    AppLocalizations.of(context)!.an_error_occurred)),
           );
         }
       },
@@ -68,8 +70,9 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
         final userData = state.profile;
 
         if (userData == null) {
-          return const Scaffold(
-              body: Center(child: Text('No user data available')));
+          return Scaffold(
+              body: Center(
+                  child: Text(AppLocalizations.of(context)!.no_user_data)));
         }
         return DefaultTabController(
           length: 4, // Number of tabs
@@ -96,7 +99,7 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                 ),
               ],
               title: Text(
-                'Store',
+                AppLocalizations.of(context)!.store,
                 style: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
@@ -308,7 +311,9 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                                       children: [
                                                         Text(
                                                           userData.nickName ??
-                                                              "No user name",
+                                                              AppLocalizations.of(
+                                                                      context)!
+                                                                  .no_user_name,
                                                           style: TextStyle(
                                                             fontWeight:
                                                                 FontWeight.bold,
@@ -340,8 +345,9 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                                                 ),
                                                               ),
                                                               TextSpan(
-                                                                text:
-                                                                    'followers',
+                                                                text: AppLocalizations.of(
+                                                                        context)!
+                                                                    .followers,
                                                                 style:
                                                                     TextStyle(
                                                                   color: Colors
@@ -376,7 +382,7 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                                               ),
                                                               TextSpan(
                                                                 text:
-                                                                    ' rating (0 reviews)',
+                                                                    ' ${AppLocalizations.of(context)!.rating} (0 ${AppLocalizations.of(context)!.reviews})',
                                                                 style:
                                                                     TextStyle(
                                                                   color: Colors
@@ -498,8 +504,12 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                                                     width: 4),
                                                                 Text(
                                                                   isFollowed
-                                                                      ? "Unfollow"
-                                                                      : 'Follow',
+                                                                      ? AppLocalizations.of(
+                                                                              context)!
+                                                                          .unfollow
+                                                                      : AppLocalizations.of(
+                                                                              context)!
+                                                                          .follow,
                                                                   style:
                                                                       TextStyle(
                                                                     fontFamily:
@@ -607,7 +617,9 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                                   children: [
                                                     Text(
                                                       userData.nickName ??
-                                                          'User',
+                                                          AppLocalizations.of(
+                                                                  context)!
+                                                              .user,
                                                       style: TextStyle(
                                                         fontWeight:
                                                             FontWeight.bold,
@@ -634,7 +646,7 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                                           ),
                                                           TextSpan(
                                                             text:
-                                                                'rating (0 reviews)',
+                                                                '${AppLocalizations.of(context)!.rating} (0 ${AppLocalizations.of(context)!.reviews})',
                                                             style: TextStyle(
                                                               color: Colors
                                                                   .black54,
@@ -744,8 +756,12 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                                                   width: 4),
                                                               Text(
                                                                 isFollowed
-                                                                    ? "Unfollow"
-                                                                    : 'Follow',
+                                                                    ? AppLocalizations.of(
+                                                                            context)!
+                                                                        .unfollow
+                                                                    : AppLocalizations.of(
+                                                                            context)!
+                                                                        .follow,
                                                                 style:
                                                                     TextStyle(
                                                                   fontFamily:
@@ -802,9 +818,11 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                             fontWeight: FontWeight.w500,
                           ),
                           tabs: [
-                            Tab(text: 'Shop'),
-                            Tab(text: 'About'),
-                            Tab(text: 'Reviews'),
+                            Tab(text: AppLocalizations.of(context)!.shop),
+                            Tab(text: AppLocalizations.of(context)!.about),
+                            Tab(
+                                text:
+                                    AppLocalizations.of(context)!.reviews_big),
                           ],
                         ),
                       ),
@@ -823,7 +841,8 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                     ),
                     Center(
                         key: PageStorageKey('feedback_tab'),
-                        child: Text('No Reviews Yet!')),
+                        child:
+                            Text(AppLocalizations.of(context)!.no_reviews_yet)),
                   ],
                 ),
               ),
@@ -888,7 +907,7 @@ class ShopTabContent extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             sliver: SliverToBoxAdapter(
               child: Text(
-                'User Posts',
+                AppLocalizations.of(context)!.user_posts,
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
@@ -927,7 +946,7 @@ class ShopTabContent extends StatelessWidget {
                             ),
                           );
                     },
-                    child: Text("Retry"),
+                    child: Text(AppLocalizations.of(context)!.retry),
                   ),
                   if (state.errorMessage != null) Text(state.errorMessage!),
                 ],
@@ -946,7 +965,7 @@ class ShopTabContent extends StatelessWidget {
                   Icon(Icons.inventory, size: 72, color: Colors.grey[400]),
                   const SizedBox(height: 16),
                   Text(
-                    'No publications available',
+                    AppLocalizations.of(context)!.no_publications_available,
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.grey[600],
@@ -1043,9 +1062,9 @@ class AboutTabContent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // About Us Section Header
-          const Text(
-            'About Us',
-            style: TextStyle(
+          Text(
+            AppLocalizations.of(context)!.about_us,
+            style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
@@ -1054,7 +1073,7 @@ class AboutTabContent extends StatelessWidget {
 
           // About Us Content (using biography field)
           Text(
-            user.biography ?? 'No information available',
+            user.biography ?? AppLocalizations.of(context)!.no_information_available,
             style: const TextStyle(
               fontSize: 16,
               color: Colors.black87,
@@ -1065,9 +1084,9 @@ class AboutTabContent extends StatelessWidget {
           const SizedBox(height: 30),
 
           // Contact Information Section
-          const Text(
-            'Contact Information',
-            style: TextStyle(
+          Text(
+            AppLocalizations.of(context)!.contact_information,
+            style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
@@ -1090,9 +1109,9 @@ class AboutTabContent extends StatelessWidget {
 
           // Available Hours Section
           if (user.fromTime != null && user.toTime != null) ...[
-            const Text(
-              'Available Hours',
-              style: TextStyle(
+            Text(
+              AppLocalizations.of(context)!.available_hours,
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
@@ -1124,7 +1143,7 @@ class AboutTabContent extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      'Write to Telegram',
+                     AppLocalizations.of(context)!.write_to_telegram,
                       style: TextStyle(
                         fontSize: 17,
                         fontFamily: Constants.Arial,
@@ -1163,7 +1182,7 @@ class AboutTabContent extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      'Call Now',
+                      AppLocalizations.of(context)!.call_now,
                       style: TextStyle(
                         fontFamily: Constants.Arial,
                         fontSize: 17,
@@ -1182,7 +1201,7 @@ class AboutTabContent extends StatelessWidget {
           if (user.dateCreated != null)
             Center(
               child: Text(
-                'Member since: ${_formatDate(user.dateCreated!)}',
+                '${AppLocalizations.of(context)!.member_since}${_formatDate(user.dateCreated!)}',
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.grey[600],

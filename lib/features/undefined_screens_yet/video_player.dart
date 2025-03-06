@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:video_player/video_player.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class VideoPlayerWidget extends StatefulWidget {
   final String videoUrl;

@@ -232,9 +232,9 @@ class _VideoCarouselState extends State<VideoCarousel> {
   }
 
   void _onVideoTap(int index) {
-  final homeTreeCubit = context.read<HomeTreeCubit>();
-  homeTreeCubit.handleVideoFeedNavigation(context, index);
-}
+    final homeTreeCubit = context.read<HomeTreeCubit>();
+    homeTreeCubit.handleVideoFeedNavigation(context, index);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -277,19 +277,19 @@ class _VideoCarouselState extends State<VideoCarousel> {
                       ),
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: const Column(
+                    child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
+                        const Icon(
                           CupertinoIcons.play_circle_fill,
                           size: 32,
                           color: AppColors.primary,
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Text(
-                          'See All\nVideos',
+                          AppLocalizations.of(context)!.see_all_videos,
                           textAlign: TextAlign.center,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: AppColors.primary,
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
