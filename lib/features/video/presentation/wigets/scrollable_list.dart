@@ -12,6 +12,7 @@ import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:video_player/video_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class VideoCarousel extends StatefulWidget {
   final List<GetPublicationEntity> items;

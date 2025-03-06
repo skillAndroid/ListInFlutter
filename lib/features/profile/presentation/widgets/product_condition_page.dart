@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:list_in/core/utils/const.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ProductConditionWidget extends StatefulWidget {
   const ProductConditionWidget({super.key});
@@ -38,11 +40,11 @@ class _ProductConditionPageState extends State<ProductConditionWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Padding(
-              padding: EdgeInsets.only(bottom: 12.0, left: 2),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12.0, left: 2),
               child: Text(
-                'What\'s the condition of your product?',
-                style: TextStyle(
+                AppLocalizations.of(context)!.product_condition,
+                style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
                   fontFamily: "Syne",
@@ -50,14 +52,14 @@ class _ProductConditionPageState extends State<ProductConditionWidget> {
               ),
             ),
             _buildConditionOption(
-              title: 'New',
-              description: 'Unused product with original packaging',
+              title: AppLocalizations.of(context)!.condition_new,
+              description: AppLocalizations.of(context)!.unused_product,
               value: 'NEW_PRODUCT',
             ),
             const SizedBox(height: 12),
             _buildConditionOption(
-              title: 'Used',
-              description: 'Product has been used before',
+              title: AppLocalizations.of(context)!.condition_used,
+              description: AppLocalizations.of(context)!.used_product,
               value: 'USED_PRODUCT',
             ),
           ],
@@ -96,7 +98,7 @@ class _ProductConditionPageState extends State<ProductConditionWidget> {
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        fontFamily: "Syne",
+                        fontFamily: Constants.Arial,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -105,7 +107,7 @@ class _ProductConditionPageState extends State<ProductConditionWidget> {
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey[600],
-                        fontFamily: "Syne",
+                        fontFamily: Constants.Arial,
                       ),
                     ),
                   ],

@@ -18,6 +18,7 @@ import 'package:list_in/features/profile/presentation/bloc/user/user_profile_sta
 import 'package:list_in/features/profile/presentation/pages/favorites_screen.dart';
 import 'package:list_in/features/profile/presentation/pages/my_publications.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ProfileDashboard extends StatefulWidget {
   const ProfileDashboard({super.key});
@@ -51,7 +52,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
       listener: (context, state) {
         if (state.status == UserProfileStatus.failure) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.errorMessage ?? 'An error occurred')),
+            SnackBar(content: Text(state.errorMessage ?? AppLocalizations.of(context)!.unknown_error)),
           );
         }
       },
@@ -63,8 +64,8 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
         final userData = state.userData;
         // Add null check validation to prevent null UI
         if (userData == null) {
-          return const Scaffold(
-              body: Center(child: Text('No user data available')));
+          return  Scaffold(
+              body: Center(child: Text(AppLocalizations.of(context)!.no_user_data)));
         }
         if (state.userData == null) {}
         return Scaffold(
@@ -88,7 +89,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                         ),
                       ),
                       Text(
-                        'Profile',
+                        AppLocalizations.of(context)!.profile,
                         style: TextStyle(
                           fontSize: 22,
                           color: AppColors.black,
@@ -165,7 +166,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                   ),
                                 ),
                                 Text(
-                                  userData.biography ?? "No biograpty yet!",
+                                  userData.biography ?? AppLocalizations.of(context)!.no_biography,
                                   style: TextStyle(
                                     color: AppColors.darkGray,
                                     fontSize: 17,
@@ -189,7 +190,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Follow',
+                                      AppLocalizations.of(context)!.follow,
                                       style: TextStyle(
                                         fontSize: 17,
                                         color: AppColors.black,
@@ -212,7 +213,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Followers',
+                                     AppLocalizations.of(context)!.followers,
                                       style: TextStyle(
                                         fontSize: 16,
                                         color: AppColors.black,
@@ -277,7 +278,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                   );
                                 },
                                 child: _buildStatCard(
-                                  'Posts',
+                                  AppLocalizations.of(context)!.posts,
                                   '⟶',
                                   Colors.white,
                                   Colors.black,
@@ -287,7 +288,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                             const SizedBox(width: 4),
                             Expanded(
                               child: _buildStatCard(
-                                'Reviews',
+                                AppLocalizations.of(context)!.reviews,
                                 '⟶',
                                 Colors.white,
                                 Colors.black,
@@ -306,7 +307,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                   );
                                 },
                                 child: _buildStatCard(
-                                  'Favorites',
+                                  AppLocalizations.of(context)!.favorites,
                                   '⟶',
                                   Colors.white,
                                   Colors.black,
@@ -321,7 +322,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                   ),
                   // balance, language, suppport,  logout,
                   _buildMenuItem(
-                    userData.locationName ?? "Not Selected",
+                    userData.locationName ?? AppLocalizations.of(context)!.not_selected,
                     AppIcons.homeLocationIc,
                     () {
                       Navigator.of(context).push(
@@ -330,30 +331,30 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                             latitude: userData.latitude!,
                             longitude: userData.longitude!,
                             locationName:
-                                userData.locationName ?? "No Location",
+                                userData.locationName ?? AppLocalizations.of(context)!.no_location,
                           ),
                         ),
                       );
                     },
                   ),
                   _buildMenuItem(
-                    'Language',
+                    AppLocalizations.of(context)!.language,
                     AppIcons.languageIc,
                     () {},
                   ),
                   _buildMenuItem(
-                    'Help us with your idea',
+                    AppLocalizations.of(context)!.help_idea,
                     AppIcons.ideaIc,
                     () {},
                   ),
                   _buildMenuItem(
-                    'Support',
+                   AppLocalizations.of(context)!.support,
                     AppIcons.supportIc,
                     () {},
                   ),
 
                   _buildMenuItem(
-                    'Logout',
+                    AppLocalizations.of(context)!.logout,
                     AppIcons.logoutIc,
                     () {},
                   ),

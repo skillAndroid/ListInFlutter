@@ -7,10 +7,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_state.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_event.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 
 class AddPriceWidget extends StatefulWidget {
   const AddPriceWidget({super.key});
@@ -68,9 +71,9 @@ class _AddPricePageState extends State<AddPriceWidget> {
 
       final price = parsePrice(value);
       if (price <= 0) {
-        _errorText = 'Price must be greater than 0';
+        _errorText = AppLocalizations.of(context)!.price_greater_than_zero;
       } else if (price > 1000000000) {
-        _errorText = 'Price is too high';
+        _errorText = AppLocalizations.of(context)!.price_too_high;
       } else {
         _errorText = null;
       }
@@ -117,14 +120,14 @@ class _AddPricePageState extends State<AddPriceWidget> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Padding(
+                 Padding(
                   padding: EdgeInsets.only(bottom: 4.0),
                   child: Text(
-                    'Great! Please enter price',
-                    style: TextStyle(
+                    AppLocalizations.of(context)!.enter_price,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
-                      fontFamily: "Syne",
+                      fontFamily: Constants.Arial,
                     ),
                   ),
                 ),
@@ -146,7 +149,7 @@ class _AddPricePageState extends State<AddPriceWidget> {
                       decoration: InputDecoration(
                         fillColor: AppColors.containerColor.withOpacity(0.3),
                         border: OutlineInputBorder(),
-                        hintText: 'Currency: UZS',
+                        hintText: AppLocalizations.of(context)!.currency_uzs,
                         contentPadding: EdgeInsets.all(14),
                         counterText: '',
                       ),
@@ -161,11 +164,11 @@ class _AddPricePageState extends State<AddPriceWidget> {
                       style: const TextStyle(color: Colors.red, fontSize: 12),
                     ),
                   ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 12),
+                 Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
                   child: Text(
-                    'You can set a fixed price or make it negotiable. Enable this option if you are open to discussing the price with the buyer.',
-                    style: TextStyle(
+                    AppLocalizations.of(context)!.negotiable_price_info,
+                    style: const TextStyle(
                       fontSize: 13.5,
                       color: AppColors.darkGray,
                       fontWeight: FontWeight.w400,
@@ -176,12 +179,12 @@ class _AddPricePageState extends State<AddPriceWidget> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const Text(
-                      'Negotiable Price?',
-                      style: TextStyle(
+                     Text(
+                      AppLocalizations.of(context)!.negotiable_price,
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        fontFamily: "Syne",
+                        fontFamily: Constants.Arial,
                       ),
                     ),
                     Transform.scale(

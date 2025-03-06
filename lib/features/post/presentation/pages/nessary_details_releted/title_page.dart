@@ -56,7 +56,7 @@ class _AddTitlePageState extends State<AddTitlePage> {
       } else if (value.length < _minLength) {
         _errorText = AppLocalizations.of(context)!.title_min_length;
       } else if (value.length > _maxLength) {
-        _errorText = AppLocalizations.of(context)!.title_min_length_warning;
+        _errorText = AppLocalizations.of(context)!.title_max_length;
       } else {
         _errorText = null;
       }

@@ -192,8 +192,6 @@ class ProfileProductCard extends StatelessWidget {
       context: context,
       title: AppLocalizations.of(context)!.delete_publication,
       message: AppLocalizations.of(context)!.delete_confirmation,
-      confirmText: AppLocalizations.of(context)!.delete,
-      cancelText: AppLocalizations.of(context)!.cancel,
       isDestructiveAction: true,
     );
 

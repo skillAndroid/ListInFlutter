@@ -3,10 +3,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_state.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_event.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 
 class AddTitleWidget extends StatefulWidget {
   const AddTitleWidget({super.key});
@@ -51,12 +54,12 @@ class _AddTitlePageState extends State<AddTitleWidget> {
 
   String? _validateInput(String value) {
     if (value.isEmpty) {
-      _errorText = 'Title is required';
+      _errorText = AppLocalizations.of(context)!.title_required;
     } else if (value.length < _minLength) {
       _errorText =
-          'Title must be at least $_minLength characters (${value.length}/$_minLength)';
+          AppLocalizations.of(context)!.title_min_length;
     } else if (value.length > _maxLength) {
-      _errorText = 'Title cannot exceed $_maxLength characters';
+      _errorText = AppLocalizations.of(context)!.title_max_length;
     } else {
       _errorText = null;
     }
@@ -86,14 +89,14 @@ class _AddTitlePageState extends State<AddTitleWidget> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 4.0, left: 2),
+                 Padding(
+                  padding: const EdgeInsets.only(bottom: 4.0, left: 2),
                   child: Text(
-                    'Ok! Add title now...',
-                    style: TextStyle(
+                    AppLocalizations.of(context)!.add_title_now,
+                    style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
-                      fontFamily: "Syne",
+                      fontFamily: Constants.Arial,
                     ),
                   ),
                 ),
@@ -127,7 +130,7 @@ class _AddTitlePageState extends State<AddTitleWidget> {
                           borderSide: BorderSide.none,
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        hintText: 'For example: Iphone 15 pro',
+                        hintText: AppLocalizations.of(context)!.example_title,
                         contentPadding: const EdgeInsets.all(14),
                         counterText: '',
                       ),
@@ -142,7 +145,7 @@ class _AddTitlePageState extends State<AddTitleWidget> {
                       style: const TextStyle(
                         color: Colors.red,
                         fontSize: 12,
-                        fontFamily: "Syne",
+                        fontFamily: Constants.Arial,
                       ),
                     ),
                   ),
@@ -156,7 +159,7 @@ class _AddTitlePageState extends State<AddTitleWidget> {
                         textAlign: TextAlign.end,
                         style: TextStyle(
                           fontSize: 13.5,
-                          fontFamily: "Syne",
+                          fontFamily: Constants.Arial,
                           color: _titleController.text.length > _maxLength
                               ? Colors.red
                               : Colors.grey[600],

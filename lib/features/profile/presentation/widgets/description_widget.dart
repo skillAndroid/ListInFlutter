@@ -5,10 +5,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_state.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_event.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AddDescriptionWidget extends StatefulWidget {
   const AddDescriptionWidget({super.key});
@@ -54,12 +56,11 @@ class _AddDescriptionPageState extends State<AddDescriptionWidget> {
 
   String? _validateInput(String value) {
     if (value.isEmpty) {
-      _errorText = 'Description is required';
+      _errorText = AppLocalizations.of(context)!.description_required;
     } else if (value.length < _minLength) {
-      _errorText =
-          'Description must be at least $_minLength characters (${value.length}/$_minLength)';
+      _errorText = AppLocalizations.of(context)!.description_min_length_warning;
     } else if (value.length > _maxLength) {
-      _errorText = 'Description cannot exceed $_maxLength characters';
+      _errorText = AppLocalizations.of(context)!.description_max_length;
     } else {
       _errorText = null;
     }
@@ -93,14 +94,14 @@ class _AddDescriptionPageState extends State<AddDescriptionWidget> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 4.0, left: 2),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 4.0, left: 2),
                   child: Text(
-                    'Next, add description',
-                    style: TextStyle(
+                    AppLocalizations.of(context)!.next_add_description,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
-                      fontFamily: "Syne",
+                      fontFamily: Constants.Arial,
                     ),
                   ),
                 ),
@@ -135,7 +136,8 @@ class _AddDescriptionPageState extends State<AddDescriptionWidget> {
                           borderSide: BorderSide.none,
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        hintText: 'For example: Iphone 15 pro',
+                        hintText:
+                            AppLocalizations.of(context)!.example_description,
                         contentPadding: const EdgeInsets.all(14),
                         counterText: '',
                       ),
@@ -150,7 +152,7 @@ class _AddDescriptionPageState extends State<AddDescriptionWidget> {
                       style: const TextStyle(
                         color: Colors.red,
                         fontSize: 12,
-                        fontFamily: "Syne",
+                        fontFamily: Constants.Arial,
                       ),
                     ),
                   ),
@@ -164,7 +166,7 @@ class _AddDescriptionPageState extends State<AddDescriptionWidget> {
                         textAlign: TextAlign.end,
                         style: TextStyle(
                           fontSize: 13.5,
-                          fontFamily: "Syne",
+                          fontFamily: Constants.Arial,
                           color: _descriptionController.text.length > _maxLength
                               ? Colors.red
                               : Colors.grey[600],

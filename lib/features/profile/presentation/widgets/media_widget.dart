@@ -9,11 +9,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_state.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_event.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:video_player/video_player.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class MediaWidget extends StatefulWidget {
   const MediaWidget({super.key});
@@ -61,25 +63,25 @@ class MediaWidgetState extends State<MediaWidget> {
             context: context,
             builder: (BuildContext context) {
               return CupertinoAlertDialog(
-                title: const Text(
-                  'Existing Images',
-                  style: TextStyle(
-                    fontFamily: "Poppins",
+                title: Text(
+                  AppLocalizations.of(context)!.existing_images,
+                  style: const TextStyle(
+                    fontFamily: Constants.Arial,
                   ),
                 ),
-                content: const Text(
-                  'Do you want to keep the existing images?',
-                  style: TextStyle(
-                    fontFamily: "Poppins",
+                content: Text(
+                  AppLocalizations.of(context)!.keep_existing_images,
+                  style: const TextStyle(
+                    fontFamily: Constants.Arial,
                   ),
                 ),
                 actions: [
                   CupertinoDialogAction(
                     isDestructiveAction: true,
-                    child: const Text(
-                      'Replace All',
-                      style: TextStyle(
-                        fontFamily: "Poppins",
+                    child: Text(
+                      AppLocalizations.of(context)!.replace_all,
+                      style: const TextStyle(
+                        fontFamily: Constants.Arial,
                         fontSize: 14,
                       ),
                     ),
@@ -87,10 +89,10 @@ class MediaWidgetState extends State<MediaWidget> {
                   ),
                   CupertinoDialogAction(
                     isDefaultAction: true,
-                    child: const Text(
-                      'Keep Both',
-                      style: TextStyle(
-                        fontFamily: "Poppins",
+                    child: Text(
+                      AppLocalizations.of(context)!.keep_both,
+                      style: const TextStyle(
+                        fontFamily: Constants.Arial,
                         fontSize: 14,
                       ),
                     ),
@@ -333,9 +335,9 @@ class MediaWidgetState extends State<MediaWidget> {
                               color: AppColors.error,
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: const Text(
-                              'Main',
-                              style: TextStyle(
+                            child: Text(
+                              AppLocalizations.of(context)!.main,
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
@@ -390,23 +392,24 @@ class MediaWidgetState extends State<MediaWidget> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 16),
-              const Text(
-                'Upload Images',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.upload_images,
+                style: const TextStyle(
                   fontSize: 18,
-                  fontFamily: "Syne",
+                  fontFamily: Constants.Arial,
                   color: AppColors.primary,
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              if (state.imageUrls!.isNotEmpty || state.newImages.isNotEmpty) ...[
+              if (state.imageUrls!.isNotEmpty ||
+                  state.newImages.isNotEmpty) ...[
                 const SizedBox(height: 8),
                 _buildDraggableImageList(context, state),
               ],
               const SizedBox(height: 8),
-              const Text(
-                'Tip: The first photo will be featured as your main image. Simply drag and drop photos to change their order.',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.upload_images_tip,
+                style: const TextStyle(
                   fontSize: 13.5,
                   color: AppColors.darkGray,
                   fontWeight: FontWeight.w400,
@@ -434,22 +437,22 @@ class MediaWidgetState extends State<MediaWidget> {
                     ),
                   ),
                   const SizedBox(width: 16),
-                  const Column(
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Upload product photo(s)',
-                        style: TextStyle(
+                        AppLocalizations.of(context)!.upload_product_photos,
+                        style: const TextStyle(
                           fontSize: 18,
-                          fontFamily: "Syne",
+                          fontFamily: Constants.Arial,
                           color: AppColors.primary,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Text(
-                        'Format JPG or PNG',
-                        style: TextStyle(
+                        AppLocalizations.of(context)!.image_format,
+                        style: const TextStyle(
                           fontSize: 13.5,
                           color: AppColors.darkGray,
                           fontWeight: FontWeight.w400,
@@ -460,11 +463,11 @@ class MediaWidgetState extends State<MediaWidget> {
                 ],
               ),
               const SizedBox(height: 24),
-              const Text(
-                'Upload Video',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.upload_video,
+                style: const TextStyle(
                   fontSize: 18,
-                  fontFamily: "Syne",
+                  fontFamily: Constants.Arial,
                   color: AppColors.primary,
                   fontWeight: FontWeight.w500,
                 ),
@@ -495,17 +498,17 @@ class MediaWidgetState extends State<MediaWidget> {
               ),
               // Rest of the UI remains the same but with bloc state
               const SizedBox(height: 8),
-              const Text(
-                'Attract more buyers with quick show case',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.upload_video_tip,
+                style: const TextStyle(
                   fontSize: 13.5,
                   color: AppColors.secondaryColor,
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              const Text(
-                'Tip: Use vertical (9:16) orientation for your videos to best suit for application',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.video_orientation_tip,
+                style: const TextStyle(
                   fontSize: 13.5,
                   color: AppColors.darkGray,
                   fontWeight: FontWeight.w400,
@@ -535,22 +538,22 @@ class MediaWidgetState extends State<MediaWidget> {
                     ),
                   ),
                   const SizedBox(width: 16),
-                  const Column(
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Upload product video',
-                        style: TextStyle(
+                        AppLocalizations.of(context)!.upload_product_video,
+                        style: const TextStyle(
                           fontSize: 18,
-                          fontFamily: "Syne",
+                          fontFamily: Constants.Arial,
                           color: AppColors.primary,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Text(
-                        'Max video duration 1:30 min',
-                        style: TextStyle(
+                        AppLocalizations.of(context)!.max_video_duration,
+                        style: const TextStyle(
                           fontSize: 13.5,
                           color: AppColors.darkGray,
                           fontWeight: FontWeight.w400,

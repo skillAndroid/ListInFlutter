@@ -1,5 +1,7 @@
 
 // ignore_for_file: deprecated_member_use
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 
 import 'package:flutter/material.dart';
 import 'package:list_in/config/theme/app_colors.dart';
@@ -157,7 +159,7 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
                 childCount: 2,
                 builder: (context, index) {
                   return _TimePickerItem(
-                    text: index == 0 ? 'am' : 'pm',
+                    text: index == 0 ? AppLocalizations.of(context)!.am : AppLocalizations.of(context)!.pm,
                     isSelected: (index == 0) == widget.controller.isAM,
                   );
                 },

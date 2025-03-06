@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/post/presentation/widgets/page_call_back_button.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_state.dart';
@@ -16,6 +17,7 @@ import 'package:list_in/features/profile/presentation/widgets/price_widget.dart'
 import 'package:list_in/features/profile/presentation/widgets/product_condition_page.dart';
 import 'package:list_in/features/profile/presentation/widgets/title_widget.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class PublicationsEditorPage extends StatefulWidget {
   const PublicationsEditorPage({super.key});
@@ -75,15 +77,15 @@ class _PublicationsEditorPageState extends State<PublicationsEditorPage> {
   String _getValidationMessage(PublicationUpdateState state) {
     switch (_currentPage) {
       case 0:
-        return 'Title must be at least 10 characters long';
+        return AppLocalizations.of(context)!.title_min_length;
       case 1:
-        return 'Description must be at least 45 characters long';
+        return AppLocalizations.of(context)!.description_min_length;
       case 2:
-        return 'Please enter a valid price';
+        return AppLocalizations.of(context)!.enter_valid_price;
       case 3:
-        return 'Please select a condition';
+        return AppLocalizations.of(context)!.select_condition;
       case 4:
-        return 'Please add at least one image';
+        return AppLocalizations.of(context)!.add_at_least_one_image;
       default:
         return '';
     }
@@ -168,8 +170,8 @@ class _PublicationsEditorPageState extends State<PublicationsEditorPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                "Publication updated successfuly!",
-                style: TextStyle(fontFamily: "Poppins"),
+                AppLocalizations.of(context)!.publication_updated,
+                style: TextStyle(fontFamily: Constants.Arial),
               ),
               backgroundColor: Colors.blue,
             ),
@@ -239,11 +241,11 @@ class _PublicationsEditorPageState extends State<PublicationsEditorPage> {
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
       centerTitle: true,
-      title: const Text(
-        'Update Post',
-        style: TextStyle(
+      title: Text(
+        AppLocalizations.of(context)!.update_post,
+        style: const TextStyle(
           fontWeight: FontWeight.w700,
-          fontFamily: "Poppins",
+          fontFamily: Constants.Arial,
           fontSize: 20,
           color: AppColors.black,
         ),
@@ -306,21 +308,23 @@ class _PublicationsEditorPageState extends State<PublicationsEditorPage> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                const Text(
-                  "Updating...",
-                  style: TextStyle(fontFamily: "Syne"),
+                Text(
+                  AppLocalizations.of(context)!.updating,
+                  style: const TextStyle(fontFamily: Constants.Arial),
                 ),
               ],
             )
-          : const Text(
+          : Text(
               'Update',
-              style: TextStyle(fontFamily: "Syne"),
+              style: const TextStyle(
+                fontFamily: Constants.Arial,
+              ),
             );
     } else {
-      buttonChild = const Text(
-        'Next',
-        style: TextStyle(
-          fontFamily: "Syne",
+      buttonChild = Text(
+        AppLocalizations.of(context)!.next,
+        style: const TextStyle(
+          fontFamily: Constants.Arial,
         ),
       );
     }

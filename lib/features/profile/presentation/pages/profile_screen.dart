@@ -22,6 +22,7 @@ import 'package:list_in/global/likeds/liked_publications_bloc.dart';
 import 'package:list_in/global/likeds/liked_publications_event.dart';
 import 'package:list_in/global/likeds/liked_publications_state.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -279,7 +280,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                           Padding(
                             padding: EdgeInsets.symmetric(horizontal: 2),
                             child: Text(
-                              userData.biography ?? "No biograpty yet!",
+                              userData.biography ?? AppLocalizations.of(context)!.no_biography,
                               maxLines: 1,
                               style: TextStyle(
                                 fontSize: 12.5,
@@ -319,7 +320,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                                   width: 4,
                                 ),
                                 Text(
-                                  'Posts',
+                                  AppLocalizations.of(context)!.posts,
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 13,

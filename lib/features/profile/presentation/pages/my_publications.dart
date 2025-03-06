@@ -9,6 +9,7 @@ import 'package:list_in/features/explore/presentation/widgets/regular_product_ca
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_event.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_state.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class UserPublicationsScreen extends StatefulWidget {
   const UserPublicationsScreen({super.key});
@@ -58,9 +59,9 @@ class _UserPublicationsScreenState extends State<UserPublicationsScreen> {
           color: Colors.black87,
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'My Publications',
-          style: TextStyle(
+        title:  Text(
+          AppLocalizations.of(context)!.my_publications,
+          style: const TextStyle(
             color: Colors.black,
             fontSize: 20,
             fontWeight: FontWeight.w600,

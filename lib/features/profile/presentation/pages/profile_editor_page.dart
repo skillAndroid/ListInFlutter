@@ -10,6 +10,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/auth/presentation/pages/register_details_page.dart';
 import 'package:list_in/features/map/domain/entities/location_entity.dart';
 import 'package:list_in/features/map/presentation/map/map.dart';
@@ -19,6 +20,7 @@ import 'package:list_in/features/profile/presentation/bloc/user/user_profile_eve
 import 'package:list_in/features/profile/presentation/bloc/user/user_profile_state.dart';
 import 'package:list_in/features/profile/presentation/widgets/cutom_time_picker.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ProfileEditor extends StatefulWidget {
   final UserProfileEntity userData;
@@ -53,7 +55,7 @@ class _ProfileEditorState extends State<ProfileEditor> {
     super.initState();
     _latitude = widget.userData.latitude;
     _longitude = widget.userData.longitude;
-    _locationName = widget.userData.locationName ?? 'No Location';
+    _locationName = widget.userData.locationName ?? AppLocalizations.of(context)!.no_location;
     _nameController.text = widget.userData.nickName ?? '';
     _bioController.text = widget.userData.biography ?? '';
     _phoneController.text = widget.userData.phoneNumber ?? '';
@@ -126,11 +128,11 @@ class _ProfileEditorState extends State<ProfileEditor> {
         showCupertinoDialog(
           context: context,
           builder: (BuildContext context) => CupertinoAlertDialog(
-            title: Text('Error'),
-            content: Text('Failed to pick image. Please try again.'),
+            title: Text(AppLocalizations.of(context)!.error),
+            content: Text(AppLocalizations.of(context)!.image_pick_failed),
             actions: [
               CupertinoDialogAction(
-                child: Text('OK'),
+                child: Text(AppLocalizations.of(context)!.ok),
                 onPressed: () => Navigator.pop(context),
               ),
             ],
@@ -212,11 +214,11 @@ class _ProfileEditorState extends State<ProfileEditor> {
           showCupertinoDialog(
             context: context,
             builder: (context) => CupertinoAlertDialog(
-              title: Text('Error'),
-              content: Text(state.errorMessage ?? 'An error occurred'),
+              title: Text(AppLocalizations.of(context)!.error),
+              content: Text(state.errorMessage ?? AppLocalizations.of(context)!.an_error_occurred),
               actions: [
                 CupertinoDialogAction(
-                  child: Text('OK'),
+                  child: Text(AppLocalizations.of(context)!.ok),
                   onPressed: () => Navigator.pop(context),
                 ),
               ],
@@ -242,7 +244,7 @@ class _ProfileEditorState extends State<ProfileEditor> {
                 navigationBar: CupertinoNavigationBar(
                   backgroundColor: AppColors.white,
                   middle: Text(
-                    'Edit Profile',
+                    AppLocalizations.of(context)!.edit_profile,
                     style: TextStyle(
                       color: AppColors.black,
                       fontWeight: FontWeight.w600,
@@ -250,7 +252,7 @@ class _ProfileEditorState extends State<ProfileEditor> {
                   ),
                   trailing: state.status == UserProfileStatus.loading
                       ? Text(
-                          "Updating...",
+                          AppLocalizations.of(context)!.updating,
                           style: TextStyle(
                             color: AppColors.primary,
                           ),
@@ -261,7 +263,7 @@ class _ProfileEditorState extends State<ProfileEditor> {
                               ? null // Disable button while loading
                               : _handleSave,
                           child: Text(
-                            'Done',
+                            AppLocalizations.of(context)!.done,
                             style: TextStyle(
                               color: AppColors.primary,
                               fontWeight: FontWeight.w600,
@@ -349,7 +351,8 @@ class _ProfileEditorState extends State<ProfileEditor> {
                               padding: EdgeInsets.zero,
                               onPressed: _showPhotoOptions,
                               child: Text(
-                                'Change Profile Photo',
+                                AppLocalizations.of(context)!
+                                    .change_profile_photo,
                                 style: TextStyle(
                                   color: AppColors.primary,
                                   fontSize: 16,
@@ -362,7 +365,7 @@ class _ProfileEditorState extends State<ProfileEditor> {
                       ),
 
                       _buildSection(
-                        title: "YOUR BIOGRAPHY!",
+                        title: AppLocalizations.of(context)!.your_biography,
                         children: [
                           _buildBioTextField(),
                         ],
@@ -371,11 +374,15 @@ class _ProfileEditorState extends State<ProfileEditor> {
                       SizedBox(height: 24),
                       // Profile Info Section
                       _buildSection(
-                        title: 'PROFILE INFORMATION',
+                        title: AppLocalizations.of(context)!.profile_info,
                         children: [
-                          _buildTextField('Name', 'Enter your name'),
+                          _buildTextField(
+                            AppLocalizations.of(context)!.name,
+                            AppLocalizations.of(context)!.enter_name,
+                          ),
                           _buildDivider(),
-                          _buildTextField('Phone', 'Enter phone number',
+                          _buildTextField(AppLocalizations.of(context)!.phone,
+                              AppLocalizations.of(context)!.enterPhoneNumber,
                               isPhone: true),
                         ],
                       ),
@@ -384,17 +391,17 @@ class _ProfileEditorState extends State<ProfileEditor> {
 
                       // Location Section
                       _buildSection(
-                        title: 'LOCATION',
+                        title: AppLocalizations.of(context)!.location_bg,
                         children: [
                           _buildSwitchRow(
-                            'Show Exact Location',
+                            AppLocalizations.of(context)!.show_exact_location,
                             showExactLocation,
                             (value) =>
                                 setState(() => showExactLocation = value),
                           ),
                           _buildDivider(),
                           _buildTappableRow(
-                              'Select Location',
+                              AppLocalizations.of(context)!.selectLocation,
                               showExactLocation
                                   ? cleanLocationName(_locationName.toString())
                                   : _locationName.toString(), onTap: () {
@@ -407,17 +414,19 @@ class _ProfileEditorState extends State<ProfileEditor> {
 
                       // Working Hours Section
                       _buildSection(
-                        title: 'WORKING HOURS',
+                        title: AppLocalizations.of(context)!.working_hours,
                         children: [
                           _buildTappableRow(
-                            'Opening Time',
-                            openingTime?.format(context) ?? 'Select Time',
+                            AppLocalizations.of(context)!.opening_time,
+                            openingTime?.format(context) ??
+                                AppLocalizations.of(context)!.select_time,
                             onTap: () => _showIOSTimePicker(true),
                           ),
                           _buildDivider(),
                           _buildTappableRow(
-                            'Closing Time',
-                            closingTime?.format(context) ?? 'Select Time',
+                            AppLocalizations.of(context)!.closing_time,
+                            closingTime?.format(context) ??
+                                AppLocalizations.of(context)!.select_time,
                             onTap: () => _showIOSTimePicker(false),
                           ),
                         ],
@@ -427,10 +436,10 @@ class _ProfileEditorState extends State<ProfileEditor> {
 
                       // Account Type Section
                       _buildSection(
-                        title: 'ACCOUNT TYPE',
+                        title: AppLocalizations.of(context)!.account_type,
                         children: [
                           _buildSwitchRow(
-                            'Business Account',
+                            AppLocalizations.of(context)!.business_account,
                             isBusinessAccount,
                             (value) =>
                                 setState(() => isBusinessAccount = value),
@@ -438,8 +447,10 @@ class _ProfileEditorState extends State<ProfileEditor> {
                         ],
                         footer: Text(
                           isBusinessAccount
-                              ? 'Business features are currently active'
-                              : 'Switch to business account to access additional features',
+                              ? AppLocalizations.of(context)!
+                                  .business_features_active
+                              : AppLocalizations.of(context)!
+                                  .switch_to_business,
                           style: TextStyle(
                             color: AppColors.lightText,
                             fontSize: 13,
@@ -506,16 +517,16 @@ class _ProfileEditorState extends State<ProfileEditor> {
             maxLength: 70,
             maxLines: 3,
             minLines: 1,
-            placeholder: "Write something about yourself...",
+            placeholder: AppLocalizations.of(context)!.write_about_yourself,
             placeholderStyle: TextStyle(
               color: AppColors.lightText,
               fontSize: 16,
-              fontFamily: "Poppins",
+              fontFamily: Constants.Arial,
             ),
             style: TextStyle(
               color: AppColors.black,
               fontSize: 16,
-              fontFamily: "Poppins",
+              fontFamily: Constants.Arial,
             ),
             onChanged: (value) {
               // Force refresh to update character count
@@ -578,13 +589,13 @@ class _ProfileEditorState extends State<ProfileEditor> {
                 keyboardType:
                     isPhone ? TextInputType.phone : TextInputType.text,
                 placeholderStyle: TextStyle(
-                  fontFamily: "Poppins",
+                  fontFamily: Constants.Arial,
                   color: AppColors.lightText,
                   fontSize: 16,
                 ),
                 style: TextStyle(
                   color: AppColors.lightText,
-                  fontFamily: "Poppins",
+                  fontFamily: Constants.Arial,
                   fontSize: 16,
                 ),
                 onTap: () {
@@ -633,9 +644,11 @@ class _ProfileEditorState extends State<ProfileEditor> {
   Widget _buildTappableRow(String label, String value, {VoidCallback? onTap}) {
     // Format the time display string
     String displayValue = value;
-    if (label == "Opening Time" && openingTime != null) {
+    if (label == AppLocalizations.of(context)!.opening_time &&
+        openingTime != null) {
       displayValue = _formatTimeOfDay(openingTime!);
-    } else if (label == "Closing Time" && closingTime != null) {
+    } else if (label == AppLocalizations.of(context)!.closing_time &&
+        closingTime != null) {
       displayValue = _formatTimeOfDay(closingTime!);
     }
 
@@ -684,7 +697,9 @@ class _ProfileEditorState extends State<ProfileEditor> {
   String _formatTimeOfDay(TimeOfDay time) {
     final hour = time.hourOfPeriod;
     final minute = time.minute.toString().padLeft(2, '0');
-    final period = time.period == DayPeriod.am ? 'am' : 'pm';
+    final period = time.period == DayPeriod.am
+        ? AppLocalizations.of(context)!.am
+        : AppLocalizations.of(context)!.pm;
     return '$hour:$minute $period';
   }
 
@@ -708,14 +723,14 @@ class _ProfileEditorState extends State<ProfileEditor> {
                 Navigator.pop(context);
                 _pickImage(ImageSource.camera);
               },
-              child: Text('Take Photo'),
+              child: Text(AppLocalizations.of(context)!.take_photo),
             ),
             CupertinoActionSheetAction(
               onPressed: () {
                 Navigator.pop(context);
                 _pickImage(ImageSource.gallery);
               },
-              child: Text('Choose from Library'),
+              child: Text(AppLocalizations.of(context)!.choose_from_library),
             ),
           ],
           cancelButton: CupertinoActionSheetAction(
@@ -723,7 +738,7 @@ class _ProfileEditorState extends State<ProfileEditor> {
             onPressed: () {
               Navigator.pop(context);
             },
-            child: Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
         ),
       );
@@ -754,14 +769,18 @@ class _ProfileEditorState extends State<ProfileEditor> {
         _longitude = result.coordinates.longitude;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Location updated to: ${result.name}")),
+        SnackBar(
+            content: Text(
+                "${AppLocalizations.of(context)!.location_updated} ${result.name}")),
       );
     }
   }
 
   void _showIOSTimePicker(bool isOpeningTime) {
     final CustomTimePickerController controller = CustomTimePickerController();
-    String currentPreset = isOpeningTime ? '9 am' : '5 pm';
+    String currentPreset = isOpeningTime
+        ? AppLocalizations.of(context)!.am_9
+        : AppLocalizations.of(context)!.pm_5;
 
     // Set initial time for the controller
     TimeOfDay? initialTime = isOpeningTime ? openingTime : closingTime;
@@ -816,7 +835,9 @@ class _ProfileEditorState extends State<ProfileEditor> {
                             ),
                           ),
                           Text(
-                            isOpeningTime ? 'Opening Time' : 'Closing Time',
+                            isOpeningTime
+                                ? AppLocalizations.of(context)!.opening_time
+                                : AppLocalizations.of(context)!.closing_time,
                             style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.w700,
@@ -864,7 +885,7 @@ class _ProfileEditorState extends State<ProfileEditor> {
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          'Presets',
+                          AppLocalizations.of(context)!.presets,
                           style: TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.w500,
@@ -909,7 +930,7 @@ class _ProfileEditorState extends State<ProfileEditor> {
                             ),
                           ),
                           child: Text(
-                            'Done',
+                            AppLocalizations.of(context)!.done,
                             style: TextStyle(
                               fontSize: 17,
                               color: AppColors.white,
@@ -954,8 +975,18 @@ class _ProfileEditorState extends State<ProfileEditor> {
     Function(String) onTap,
   ) {
     final List<String> presets = isOpeningTime
-        ? ['8 am', '9 am', '10 am', '11 am']
-        : ['5 pm', '6 pm', '7 pm', '8 pm'];
+        ? [
+            AppLocalizations.of(context)!.am_8,
+            AppLocalizations.of(context)!.am_9,
+            AppLocalizations.of(context)!.am_10,
+            AppLocalizations.of(context)!.am_11,
+          ]
+        : [
+            AppLocalizations.of(context)!.pm_5,
+            AppLocalizations.of(context)!.pm_6,
+            AppLocalizations.of(context)!.pm_7,
+            AppLocalizations.of(context)!.pm_8,
+          ];
 
     return presets
         .map((preset) => _buildPresetButton(

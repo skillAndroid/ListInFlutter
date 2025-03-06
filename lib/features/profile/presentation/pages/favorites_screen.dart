@@ -9,6 +9,8 @@ import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/global/likeds/liked_publications_bloc.dart';
 import 'package:list_in/global/likeds/liked_publications_event.dart';
 import 'package:list_in/global/likeds/liked_publications_state.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 
 class FavoritesScreen extends StatefulWidget {
   const FavoritesScreen({super.key});
@@ -57,8 +59,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           color: Colors.black87,
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Favorites',
+        title:  Text(
+          AppLocalizations.of(context)!.favorites,
           style: TextStyle(
             color: Colors.black,
             fontSize: 20,
