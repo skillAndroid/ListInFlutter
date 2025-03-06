@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class PhoneSettingsPage extends StatefulWidget {
   const PhoneSettingsPage({super.key});
@@ -39,9 +41,9 @@ class _PhoneSettingsPageState extends State<PhoneSettingsPage> {
 
   String? _validatePhone(String value) {
     if (value.isEmpty) {
-      _errorText = 'Phone number is not requirder';
+      _errorText = AppLocalizations.of(context)!.phone_number_not_required;
     } else if (value.length != 12 || !value.startsWith('+998')) {
-      _errorText = 'Enter valid Uzbekistan number: +998XXXXXXXXX';
+      _errorText = AppLocalizations.of(context)!.enter_valid_uzbekistan_number;
     } else {
       _errorText = null;
     }
@@ -101,17 +103,17 @@ class _PhoneSettingsPageState extends State<PhoneSettingsPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Contact Information',
-                      style: TextStyle(
+                    Text(
+                      AppLocalizations.of(context)!.contact_information,
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        fontFamily: "Syne",
+                        fontFamily: Constants.Arial,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Want to update your contact info? Changes here will sync with your profile (optional)',
+                      AppLocalizations.of(context)!.update_contact_info,
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey[700],
@@ -125,12 +127,13 @@ class _PhoneSettingsPageState extends State<PhoneSettingsPage> {
                       style: const ButtonStyle(
                           backgroundColor:
                               WidgetStatePropertyAll(AppColors.white)),
-                      child: const Text(
-                        'Update Profile Settings',
-                        style: TextStyle(
-                            color: AppColors.black,
-                            fontWeight: FontWeight.w600,
-                            fontFamily: "Syne"),
+                      child: Text(
+                        AppLocalizations.of(context)!.update_profile_settings,
+                        style: const TextStyle(
+                          color: AppColors.black,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: Constants.Arial,
+                        ),
                       ),
                     ),
                   ],
@@ -139,12 +142,12 @@ class _PhoneSettingsPageState extends State<PhoneSettingsPage> {
             ),
             const SizedBox(height: 16),
 
-            const Text(
-              'Phone Number(Optinal)',
+            Text(
+              AppLocalizations.of(context)!.phone_number_optional,
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
-                fontFamily: "Syne",
+                fontFamily: Constants.Arial,
               ),
             ),
             const SizedBox(height: 8),
@@ -205,12 +208,12 @@ class _PhoneSettingsPageState extends State<PhoneSettingsPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Call Settings',
+                    Text(
+                      AppLocalizations.of(context)!.call_settings,
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        fontFamily: "Syne",
+                        fontFamily: Constants.Arial,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -219,9 +222,9 @@ class _PhoneSettingsPageState extends State<PhoneSettingsPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          'Allow Calls',
-                          style: TextStyle(
+                        Text(
+                          AppLocalizations.of(context)!.allow_calls,
+                          style: const TextStyle(
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -237,9 +240,9 @@ class _PhoneSettingsPageState extends State<PhoneSettingsPage> {
                       const Divider(
                         color: AppColors.lightGray,
                       ),
-                      const Text(
-                        'Preferred Call Time',
-                        style: TextStyle(
+                      Text(
+                        AppLocalizations.of(context)!.preferred_call_time,
+                        style: const TextStyle(
                           fontSize: 14,
                           color: AppColors.darkGray,
                           fontWeight: FontWeight.w500,
@@ -259,7 +262,7 @@ class _PhoneSettingsPageState extends State<PhoneSettingsPage> {
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 16.0),
                                 child: Text(
-                                  'From: ${_startTime?.format(context) ?? 'Select'}',
+                                  '${AppLocalizations.of(context)!.from} ${_startTime?.format(context) ?? AppLocalizations.of(context)!.select}',
                                 ),
                               ),
                             ),
@@ -276,7 +279,7 @@ class _PhoneSettingsPageState extends State<PhoneSettingsPage> {
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 16.0),
                                 child: Text(
-                                  'To: ${_endTime?.format(context) ?? 'Select'}',
+                                  '${AppLocalizations.of(context)!.to}: ${_endTime?.format(context) ?? AppLocalizations.of(context)!.select}',
                                 ),
                               ),
                             ),
@@ -372,13 +375,13 @@ Future<TimeOfDay?> showCupertinoTimePicker({
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 CupertinoButton(
-                  child: const Text('Cancel'),
+                  child:  Text(AppLocalizations.of(context)!.cancel),
                   onPressed: () => Navigator.pop(context),
                 ),
                 CupertinoButton(
-                  child: const Text(
-                    'Confirm',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  child:  Text(
+                    AppLocalizations.of(context)!.confirm,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   onPressed: () => Navigator.pop(context, selectedTime),
                 ),

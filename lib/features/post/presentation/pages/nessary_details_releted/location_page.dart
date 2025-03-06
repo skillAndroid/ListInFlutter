@@ -11,6 +11,7 @@ import 'package:list_in/features/map/presentation/widgets/map_direction_handler.
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class LocationSelectionPage extends StatefulWidget {
   const LocationSelectionPage({super.key});
@@ -27,7 +28,7 @@ class _LocationSelectionPageState extends State<LocationSelectionPage> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+             Text(
               'Your current location',
               style: TextStyle(
                 fontFamily: "Syne",

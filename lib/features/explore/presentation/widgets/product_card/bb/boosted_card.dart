@@ -11,6 +11,7 @@ import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/formaters.dart';
+import 'package:list_in/features/explore/presentation/widgets/product_card/bb/regular_product_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/profile/domain/usecases/user/get_user_data_usecase.dart';
 import 'package:list_in/features/undefined_screens_yet/video_player.dart';
@@ -193,128 +194,16 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
     if (!widget.model.isOwner) {
       context.push(Routes.productDetails, extra: widget.product);
     } else {
-      _showOwnerDialog();
+      _showOwnerDialog(context);
     }
   }
-
-  void _showOwnerDialog() {
+  
+  void _showOwnerDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16.0),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Under Construction',
-                    style: TextStyle(
-                      fontFamily: Constants.Arial,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(width: 8),
-                  Text('🚧', style: TextStyle(fontSize: 20)),
-                ],
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                "We're sorry, but you can't view your own publication details from this page yet.",
-                style: TextStyle(
-                  fontSize: 14,
-                  fontFamily: Constants.Arial,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                "Our development team is working on this feature! 👨‍💻",
-                style: TextStyle(
-                  fontSize: 14,
-                  fontFamily: Constants.Arial,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.withOpacity(0.1),
-                  ),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text('✨', style: TextStyle(fontSize: 16)),
-                      SizedBox(width: 4),
-                      Flexible(
-                        child: Text(
-                          'To view or edit your publication, please go to your profile.',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: Constants.Arial,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                      SizedBox(width: 4),
-                      Text('✨', style: TextStyle(fontSize: 16)),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      context.go(Routes.profile);
-                    },
-                    child: const Text(
-                      'Go to Profile',
-                      style: TextStyle(
-                        fontFamily: Constants.Arial,
-                        color: Colors.blue,
-                      ),
-                    ),
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text(
-                      'OK, Got it',
-                      style: TextStyle(
-                        fontFamily: Constants.Arial,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
+      builder: (BuildContext context) => const OwnerDialog(),
     );
   }
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -649,7 +538,7 @@ class _CallButton extends StatelessWidget {
         width: double.infinity,
         child: Center(
           child: Text(
-            isOwner ? "You can't call your own number" : 'Call',
+            isOwner ? AppLocalizations.of(context)!.cant_call_own_number : AppLocalizations.of(context)!.call,
             style: TextStyle(
               fontSize: 14,
               fontFamily: Constants.Arial,

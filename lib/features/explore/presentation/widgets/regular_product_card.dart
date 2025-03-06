@@ -190,11 +190,10 @@ class ProfileProductCard extends StatelessWidget {
   void _showDeleteConfirmation(BuildContext context) async {
     final shouldDelete = await ConfirmationDialog.show(
       context: context,
-      title: 'Delete Publication',
-      message:
-          'Are you sure you want to delete this publication? This action cannot be undone.',
-      confirmText: 'Delete',
-      cancelText: 'Cancel',
+      title: AppLocalizations.of(context)!.delete_publication,
+      message: AppLocalizations.of(context)!.delete_confirmation,
+      confirmText: AppLocalizations.of(context)!.delete,
+      cancelText: AppLocalizations.of(context)!.cancel,
       isDestructiveAction: true,
     );
 
@@ -207,23 +206,21 @@ class ProfileProductCard extends StatelessWidget {
 
   void _showBoostUnavailableMessage(BuildContext context) {
     InfoDialog.show(
-      context: context,
-      title: 'Boost Unavailable',
-      message:
-          'Publication boosting is a premium feature that is not yet supported. Stay tuned for updates!',
-    );
+        context: context,
+        title: AppLocalizations.of(context)!.boost_unavailable,
+        message: AppLocalizations.of(context)!.boost_unavailable_description);
   }
 
   void _showPublicationOptions(BuildContext context) {
     final options = [
       ActionSheetOption(
-        title: 'Boost Publication',
+        title: AppLocalizations.of(context)!.boost_publication,
         icon: CupertinoIcons.rocket,
         iconColor: AppColors.primary,
         onPressed: () => _showBoostUnavailableMessage(context),
       ),
       ActionSheetOption(
-        title: 'Delete Publication',
+        title: AppLocalizations.of(context)!.delete_publication,
         icon: CupertinoIcons.delete,
         iconColor: AppColors.error,
         onPressed: () => _showDeleteConfirmation(context),
@@ -233,13 +230,12 @@ class ProfileProductCard extends StatelessWidget {
 
     ActionSheetMenu.show(
       context: context,
-      title: 'Publication Options',
-      message: 'Choose an action for this publication',
+      title: AppLocalizations.of(context)!.publication_options,
+      message: AppLocalizations.of(context)!.choose_action,
       options: options,
     );
   }
 }
-
 
 class ShimmerEffect extends StatelessWidget {
   final Widget child;

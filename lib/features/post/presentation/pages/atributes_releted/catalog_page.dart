@@ -22,7 +22,7 @@ class CatalogListPage extends StatelessWidget {
         for (var catalog in catalogs)
           Column(
             children: [
-              const SizedBox(
+              SizedBox(
                 height: 6,
               ),
               ElevatedButton(

@@ -234,7 +234,7 @@ class _ImageError extends StatelessWidget {
           Icon(Icons.error, color: Colors.grey[400], size: 32),
           const SizedBox(height: 8),
           Text(
-            'Image not found',
+            AppLocalizations.of(context)!.image_not_found,
             style: TextStyle(
               color: Colors.grey[600],
               fontSize: 12,
@@ -263,7 +263,7 @@ class _DefaultImage extends StatelessWidget {
             Icon(Icons.broken_image, color: Colors.grey[400], size: 32),
             const SizedBox(height: 8),
             Text(
-              'Logo not found',
+              AppLocalizations.of(context)!.logo_not_found,
               style: TextStyle(
                 color: Colors.grey[600],
                 fontSize: 12,
@@ -329,13 +329,13 @@ class ProductDetailsSection extends StatelessWidget {
               ),
             ],
           ),
-          _buildBottomSection(),
+          _buildBottomSection(context),
         ],
       ),
     );
   }
 
-  Widget _buildBottomSection() {
+  Widget _buildBottomSection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -348,7 +348,9 @@ class ProductDetailsSection extends StatelessWidget {
           ),
         ),
         Text(
-          condition == "NEW_PRODUCT" ? 'New' : "Used",
+          condition == "NEW_PRODUCT"
+              ? AppLocalizations.of(context)!.condition_new
+              : AppLocalizations.of(context)!.condition_used,
           style: TextStyle(
             fontSize: 13.5,
             color: AppColors.black,
@@ -427,14 +429,16 @@ class ProductCardContainer extends StatelessWidget {
       builder: (BuildContext context) => const OwnerDialog(),
     );
   }
-}class OwnerDialog extends StatelessWidget {
+}
+
+class OwnerDialog extends StatelessWidget {
   const OwnerDialog({super.key});
 
   @override
   Widget build(BuildContext context) {
     // Cupertino active green color
     final Color cupertinoGreen = const Color(0xFF34C759);
-    
+
     return Dialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16.0),
@@ -449,8 +453,8 @@ class ProductCardContainer extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
-              "Not Available",
+            Text(
+              AppLocalizations.of(context)!.not_available,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -458,7 +462,7 @@ class ProductCardContainer extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             Text(
-              "View in Profile",
+              AppLocalizations.of(context)!.view_in_profile,
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.grey[600],
@@ -479,8 +483,8 @@ class ProductCardContainer extends StatelessWidget {
                       vertical: 10,
                     ),
                   ),
-                  child: const Text(
-                    'Cancel',
+                  child: Text(
+                    AppLocalizations.of(context)!.cancel,
                     style: TextStyle(
                       color: Colors.grey,
                       fontSize: 15,
@@ -505,9 +509,9 @@ class ProductCardContainer extends StatelessWidget {
                     Navigator.of(context).pop();
                     context.go(Routes.profile);
                   },
-                  child: const Text(
-                    'Profile',
-                    style: TextStyle(
+                  child: Text(
+                    AppLocalizations.of(context)!.profile,
+                    style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w500,
                     ),

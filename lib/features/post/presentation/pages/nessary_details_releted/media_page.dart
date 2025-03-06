@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:video_player/video_player.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class MediaPage extends StatefulWidget {
   const MediaPage({super.key});
@@ -262,9 +264,9 @@ class MediaPageState extends State<MediaPage> {
                         color: AppColors.error,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Text(
-                        'Main',
-                        style: TextStyle(
+                      child: Text(
+                        AppLocalizations.of(context)!.main,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
@@ -316,11 +318,11 @@ class MediaPageState extends State<MediaPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 16),
-            const Text(
-              'Upload Images',
-              style: TextStyle(
+            Text(
+              AppLocalizations.of(context)!.upload_images,
+              style: const TextStyle(
                   fontSize: 18,
-                  fontFamily: "Syne",
+                  fontFamily: Constants.Arial,
                   color: AppColors.primary,
                   fontWeight: FontWeight.w500),
             ),
@@ -329,9 +331,9 @@ class MediaPageState extends State<MediaPage> {
               _buildDraggableImageList(provider.images, provider),
             ],
             const SizedBox(height: 8),
-            const Text(
-              'Tip: The first photo will be featured as your main image. Simply drag and drop photos to change their order.',
-              style: TextStyle(
+            Text(
+              AppLocalizations.of(context)!.upload_images_tip,
+              style: const TextStyle(
                 fontSize: 13.5,
                 color: AppColors.darkGray,
                 fontWeight: FontWeight.w400,
@@ -360,14 +362,14 @@ class MediaPageState extends State<MediaPage> {
                 const SizedBox(
                   width: 16,
                 ),
-                const Column(
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Upload product photo(s)',
+                      AppLocalizations.of(context)!.upload_images,
                       style: TextStyle(
                         fontSize: 18,
-                        fontFamily: "Syne",
+                        fontFamily: Constants.Arial,
                         color: AppColors.primary,
                         fontWeight: FontWeight.w500,
                       ),
@@ -376,7 +378,7 @@ class MediaPageState extends State<MediaPage> {
                       height: 4,
                     ),
                     Text(
-                      'Format JPG or PNG',
+                      AppLocalizations.of(context)!.image_format,
                       style: TextStyle(
                         fontSize: 13.5,
                         color: AppColors.darkGray,
@@ -388,11 +390,11 @@ class MediaPageState extends State<MediaPage> {
               ],
             ),
             const SizedBox(height: 24),
-            const Text(
-              'Upload Video',
+            Text(
+              AppLocalizations.of(context)!.upload_video,
               style: TextStyle(
                 fontSize: 18,
-                fontFamily: "Syne",
+                fontFamily: Constants.Arial,
                 color: AppColors.primary,
                 fontWeight: FontWeight.w500,
               ),
@@ -403,10 +405,9 @@ class MediaPageState extends State<MediaPage> {
                 if (provider.video != null) ...[
                   _buildVideoPreview(provider.video),
                   const SizedBox(
-                  width: 8,
-                ),
+                    width: 8,
+                  ),
                 ],
-                
                 SmoothClipRRect(
                   smoothness: 1,
                   borderRadius: BorderRadius.circular(16),
@@ -426,17 +427,17 @@ class MediaPageState extends State<MediaPage> {
               ],
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Attract more buyers with quick show case',
+            Text(
+              AppLocalizations.of(context)!.upload_video_tip,
               style: TextStyle(
                 fontSize: 13.5,
                 color: AppColors.secondaryColor,
                 fontWeight: FontWeight.w500,
               ),
             ),
-            const Text(
-              'Tip: Use vertical (9:16) orientation for your videos to best suit for application',
-              style: TextStyle(
+            Text(
+              AppLocalizations.of(context)!.video_orientation_tip,
+              style: const TextStyle(
                 fontSize: 13.5,
                 color: AppColors.darkGray,
                 fontWeight: FontWeight.w400,
@@ -468,21 +469,21 @@ class MediaPageState extends State<MediaPage> {
                 const SizedBox(
                   width: 16,
                 ),
-                const Column(
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Upload product video',
-                      style: TextStyle(
+                      AppLocalizations.of(context)!.upload_product_video,
+                      style: const TextStyle(
                         fontSize: 18,
-                        fontFamily: "Syne",
+                        fontFamily: Constants.Arial,
                         color: AppColors.primary,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                     SizedBox(height: 4),
                     Text(
-                      'Max video duration 1:30 min',
+                      AppLocalizations.of(context)!.max_video_duration,
                       style: TextStyle(
                         fontSize: 13.5,
                         color: AppColors.darkGray,

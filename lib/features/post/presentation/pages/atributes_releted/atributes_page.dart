@@ -10,6 +10,7 @@ import 'package:list_in/features/post/presentation/widgets/multi_selectable_widg
 import 'package:list_in/features/post/presentation/widgets/one_selectable-widget.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AttributesPage extends StatelessWidget {
   const AttributesPage({super.key});
@@ -121,7 +122,7 @@ class AttributesPage extends StatelessWidget {
                       horizontal: 16,
                     ),
                     border: const OutlineInputBorder(),
-                    hintText: 'Enter value',
+                    hintText: AppLocalizations.of(context)!.enter_value,
                     suffixIcon: IconButton(
                       icon: const Icon(
                         Icons.clear_rounded,

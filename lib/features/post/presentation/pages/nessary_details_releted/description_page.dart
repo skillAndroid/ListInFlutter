@@ -1,8 +1,12 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AddDescriptionPage extends StatefulWidget {
   const AddDescriptionPage({super.key});
@@ -49,12 +53,12 @@ class _AddDescriptionPageState extends State<AddDescriptionPage> {
   String? _validateInput(String value) {
     setState(() {
       if (value.isEmpty) {
-        _errorText = 'Description is required';
+        _errorText = AppLocalizations.of(context)!.description_required;
       } else if (value.length < _minLength) {
         _errorText =
-            'Description must be at least $_minLength characters (${value.length}/$_minLength)';
+            AppLocalizations.of(context)!.description_min_length_warning;
       } else if (value.length > _maxLength) {
-        _errorText = 'Description cannot exceed $_maxLength characters';
+        _errorText = AppLocalizations.of(context)!.description_max_length;
       } else {
         _errorText = null;
       }
@@ -72,12 +76,6 @@ class _AddDescriptionPageState extends State<AddDescriptionPage> {
         .changePostDescription(_descriptionController.text);
   }
 
-  Color _getBorderColor() {
-    if (!_isDirty && !_isFocused) return Colors.transparent;
-    if (_errorText != null) return Colors.red;
-    if (_isFocused) return AppColors.black;
-    return AppColors.containerColor;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,14 +86,14 @@ class _AddDescriptionPageState extends State<AddDescriptionPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Padding(
+             Padding(
               padding: EdgeInsets.only(bottom: 4.0, left: 2),
               child: Text(
-                'Next, add description',
-                style: TextStyle(
+                AppLocalizations.of(context)!.next_add_description,
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  fontFamily: "Syne",
+                  fontFamily: Constants.Arial,
                 ),
               ),
             ),
@@ -130,7 +128,7 @@ class _AddDescriptionPageState extends State<AddDescriptionPage> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     hintText:
-                        'For example: Selling iPhone 15 pro, unused and silver color',
+                        AppLocalizations.of(context)!.example_description,
                     contentPadding: const EdgeInsets.all(14),
                     counterText: '',
                   ),
@@ -145,7 +143,7 @@ class _AddDescriptionPageState extends State<AddDescriptionPage> {
                   style: const TextStyle(
                     color: Colors.red,
                     fontSize: 12,
-                    fontFamily: "Syne",
+                    fontFamily: Constants.Arial,
                   ),
                 ),
               ),
@@ -159,7 +157,7 @@ class _AddDescriptionPageState extends State<AddDescriptionPage> {
                     textAlign: TextAlign.end,
                     style: TextStyle(
                       fontSize: 13.5,
-                      fontFamily: "Syne",
+                      fontFamily: Constants.Arial,
                       color: _descriptionController.text.length > _maxLength
                           ? Colors.red
                           : Colors.grey[600],

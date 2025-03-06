@@ -82,8 +82,8 @@ class LocationBar extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        'Change',
-                        style: TextStyle(
+                        AppLocalizations.of(context)!.change,
+                        style: const TextStyle(
                           fontSize: 13,
                           color: AppColors.black,
                           fontWeight: FontWeight.w500,
