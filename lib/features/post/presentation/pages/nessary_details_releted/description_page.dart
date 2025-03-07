@@ -22,8 +22,16 @@ class _AddDescriptionPageState extends State<AddDescriptionPage> {
   String? _errorText;
   bool _isDirty = false;
 
+  // These could be moved to constants and potentially localized
   static const int _minLength = 45;
   static const int _maxLength = 500;
+
+  // Fallback texts in case localization fails
+  final String _fallbackDescriptionRequired = "Description is required";
+  final String _fallbackMinLengthWarning = "Description must be at least 45 characters";
+  final String _fallbackMaxLengthWarning = "Description must be less than 500 characters";
+  final String _fallbackAddDescription = "Add Description";
+  final String _fallbackExampleDescription = "Describe your post...";
 
   @override
   void initState() {
@@ -36,7 +44,14 @@ class _AddDescriptionPageState extends State<AddDescriptionPage> {
     _focusNode = FocusNode();
     _focusNode.addListener(_onFocusChange);
 
-    // Initial validation
+    // Initial validation will happen in first build
+    // to avoid context issues in initState
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Safe to do validation here as context is available
     _validateInput(_descriptionController.text);
   }
 
@@ -51,14 +66,15 @@ class _AddDescriptionPageState extends State<AddDescriptionPage> {
   }
 
   String? _validateInput(String value) {
+    final localizations = AppLocalizations.of(context);
+    
     setState(() {
       if (value.isEmpty) {
-        _errorText = AppLocalizations.of(context)!.description_required;
+        _errorText = localizations?.description_required ?? _fallbackDescriptionRequired;
       } else if (value.length < _minLength) {
-        _errorText =
-            AppLocalizations.of(context)!.description_min_length_warning;
+        _errorText = localizations?.description_min_length_warning ?? _fallbackMinLengthWarning;
       } else if (value.length > _maxLength) {
-        _errorText = AppLocalizations.of(context)!.description_max_length;
+        _errorText = localizations?.description_max_length ?? _fallbackMaxLengthWarning;
       } else {
         _errorText = null;
       }
@@ -76,9 +92,10 @@ class _AddDescriptionPageState extends State<AddDescriptionPage> {
         .changePostDescription(_descriptionController.text);
   }
 
-
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
+
     return Scaffold(
       backgroundColor: AppColors.white,
       body: Padding(
@@ -86,10 +103,10 @@ class _AddDescriptionPageState extends State<AddDescriptionPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-             Padding(
-              padding: EdgeInsets.only(bottom: 4.0, left: 2),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4.0, left: 2),
               child: Text(
-                AppLocalizations.of(context)!.next_add_description,
+                localizations?.next_add_description ?? _fallbackAddDescription,
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -113,7 +130,7 @@ class _AddDescriptionPageState extends State<AddDescriptionPage> {
                   maxLength: _maxLength,
                   maxLines: 15,
                   decoration: InputDecoration(
-                   fillColor: AppColors.containerColor.withOpacity(0.3),
+                    fillColor: AppColors.containerColor.withOpacity(0.3),
                     filled: true,
                     border: OutlineInputBorder(
                       borderSide: BorderSide.none,
@@ -127,8 +144,7 @@ class _AddDescriptionPageState extends State<AddDescriptionPage> {
                       borderSide: BorderSide.none,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    hintText:
-                        AppLocalizations.of(context)!.example_description,
+                    hintText: localizations?.example_description ?? _fallbackExampleDescription,
                     contentPadding: const EdgeInsets.all(14),
                     counterText: '',
                   ),

@@ -38,9 +38,7 @@ class GetPublicationEntity {
   final String description;
   final double price;
   final bool bargain;
-  final String locationName;
-  final double? latitude;
-  final double? longitude;
+
   final List<ProductImageEntity> productImages;
   final String? videoUrl;
   final String publicationType;
@@ -61,9 +59,6 @@ class GetPublicationEntity {
     required this.description,
     required this.price,
     required this.bargain,
-    required this.locationName,
-    required this.latitude,
-    required this.longitude,
     required this.productImages,
     this.videoUrl,
     required this.publicationType,
@@ -74,7 +69,6 @@ class GetPublicationEntity {
     required this.seller,
     required this.attributeValue,
   });
- 
 }
 
 class AttributeValueEntity {

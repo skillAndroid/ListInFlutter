@@ -15,6 +15,10 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 class AttributesPage extends StatelessWidget {
   const AttributesPage({super.key});
 
+  // Fallback texts in case localization fails
+  static const String _fallbackEnterValue = "Enter a value";
+  static const String _fallbackUnsupportedType = "Unsupported attribute type:";
+
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<PostProvider>(context);
@@ -61,14 +65,18 @@ class AttributesPage extends StatelessWidget {
       case 'multiSelectable':
         return MultiSelectableWidget(attribute: attribute);
       default:
+        final localizations = AppLocalizations.of(context);
+        final unsupportedText = '';
         return ListTile(
-          title: Text('Unsupported attribute type: ${attribute.widgetType}'),
+          title: Text('$unsupportedText ${attribute.widgetType}'),
         );
     }
   }
 
   Widget _buildNumericFieldWidget(BuildContext context, PostProvider provider,
       NomericFieldModel numericField) {
+    final localizations = AppLocalizations.of(context);
+    
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
       child: Column(
@@ -118,11 +126,11 @@ class AttributesPage extends StatelessWidget {
                   ],
                   decoration: InputDecoration(
                     fillColor: AppColors.white,
-                    contentPadding: EdgeInsets.symmetric(
+                    contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
                     ),
                     border: const OutlineInputBorder(),
-                    hintText: AppLocalizations.of(context)!.enter_value,
+                    hintText: localizations?.enter_value ?? _fallbackEnterValue,
                     suffixIcon: IconButton(
                       icon: const Icon(
                         Icons.clear_rounded,

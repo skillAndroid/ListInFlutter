@@ -748,9 +748,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               Navigator.of(context).push(
                 CupertinoModalPopupRoute(
                   builder: (context) => FullScreenMap(
-                    locationName: widget.product.locationName,
-                    latitude: widget.product.latitude ?? 0,
-                    longitude: widget.product.longitude ?? 0,
+                    locationName: widget.product.seller.locationName,
+                    latitude: widget.product.seller.latitude ?? 0,
+                    longitude: widget.product.seller.longitude ?? 0,
                   ),
                 ),
               );

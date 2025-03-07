@@ -233,13 +233,13 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
                   },
                 ),
               ),
-              // Padding(
-              //   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              //   child: const AttributesPage(),
-              // ),
-              // const AddTitlePage(),
-              // const AddDescriptionPage(),
-              // const AddPricePage(),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: const AttributesPage(),
+              ),
+              const AddTitlePage(),
+              const AddDescriptionPage(),
+              const AddPricePage(),
               const ProductConditionPage(),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),

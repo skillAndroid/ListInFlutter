@@ -25,6 +25,13 @@ class _AddTitlePageState extends State<AddTitlePage> {
   static const int _minLength = 10;
   static const int _maxLength = 100;
 
+  // Fallback texts in case localization fails
+  final String _fallbackTitleRequired = "Title is required";
+  final String _fallbackTitleMinLength = "Title must be at least 10 characters";
+  final String _fallbackTitleMaxLength = "Title must be less than 100 characters";
+  final String _fallbackAddTitleNow = "Add Title";
+  final String _fallbackExampleTitle = "Enter title here...";
+
   @override
   void initState() {
     super.initState();
@@ -35,7 +42,13 @@ class _AddTitlePageState extends State<AddTitlePage> {
     _focusNode = FocusNode();
     _focusNode.addListener(_onFocusChange);
 
-    // Initial validation
+    // Initial validation will be done in didChangeDependencies
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Safe to validate here as context is fully available
     _validateInput(_titleController.text);
   }
 
@@ -50,13 +63,15 @@ class _AddTitlePageState extends State<AddTitlePage> {
   }
 
   String? _validateInput(String value) {
+    final localizations = AppLocalizations.of(context);
+    
     setState(() {
       if (value.isEmpty) {
-        _errorText = AppLocalizations.of(context)!.title_required;
+        _errorText = localizations?.title_required ?? _fallbackTitleRequired;
       } else if (value.length < _minLength) {
-        _errorText = AppLocalizations.of(context)!.title_min_length;
+        _errorText = localizations?.title_min_length ?? _fallbackTitleMinLength;
       } else if (value.length > _maxLength) {
-        _errorText = AppLocalizations.of(context)!.title_max_length;
+        _errorText = localizations?.title_max_length ?? _fallbackTitleMaxLength;
       } else {
         _errorText = null;
       }
@@ -76,6 +91,8 @@ class _AddTitlePageState extends State<AddTitlePage> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
+
     return Scaffold(
       backgroundColor: AppColors.white,
       body: Padding(
@@ -83,10 +100,10 @@ class _AddTitlePageState extends State<AddTitlePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-             Padding(
-              padding: EdgeInsets.only(bottom: 4.0, left: 2),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4.0, left: 2),
               child: Text(
-                AppLocalizations.of(context)!.add_title_now,
+                localizations?.add_title_now ?? _fallbackAddTitleNow,
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
@@ -123,7 +140,7 @@ class _AddTitlePageState extends State<AddTitlePage> {
                       borderSide: BorderSide.none,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    hintText: AppLocalizations.of(context)!.example_title,
+                    hintText: localizations?.example_title ?? _fallbackExampleTitle,
                     contentPadding: const EdgeInsets.all(14),
                     counterText: '',
                   ),

@@ -61,7 +61,7 @@ class ProductCardViewModel {
     return ProductCardViewModel(
       id: publication.id,
       title: publication.title,
-      location: publication.locationName,
+      location: publication.seller.locationName,
       price: publication.price,
       condition: publication.productCondition,
       images: publication.productImages.map((img) => img.url).toList(),

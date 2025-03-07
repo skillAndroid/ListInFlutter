@@ -88,9 +88,6 @@ class GetPublicationModel {
   final String description;
   final double price;
   final bool bargain;
-  final String locationName;
-  final double? latitude;
-  final double? longitude;
   final List<ProductImageModel> productImages;
   final String? videoUrl;
   final String publicationType;
@@ -111,9 +108,7 @@ class GetPublicationModel {
     required this.price,
     required this.bargain,
     required this.isViewed,
-    required this.locationName,
-    this.latitude,
-    this.longitude,
+   
     required this.productImages,
     this.videoUrl,
     required this.publicationType,
@@ -169,9 +164,7 @@ class GetPublicationModel {
         description: json['description']?.toString() ?? '',
         price: price,
         bargain: json['bargain'] ?? false,
-        locationName: json['locationName']?.toString() ?? '',
-        latitude: json['latitude'] ?? '',
-        longitude: json['longitude'] ?? '',
+       
         productImages: images,
         videoUrl: json['videoUrl']?.toString(),
         publicationType: json['publicationType']?.toString() ?? '',
@@ -197,9 +190,7 @@ class GetPublicationModel {
       price: price,
       isViewed: isViewed,
       bargain: bargain,
-      locationName: locationName,
-      latitude: latitude,
-      longitude: longitude,
+      
       productImages: productImages.map((image) => image.toEntity()).toList(),
       videoUrl: videoUrl,
       publicationType: publicationType,
