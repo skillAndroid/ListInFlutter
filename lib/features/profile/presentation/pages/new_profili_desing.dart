@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/language/screen/language_picker_screen.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/details/presentation/pages/details.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
@@ -340,7 +341,14 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                   _buildMenuItem(
                     AppLocalizations.of(context)!.language,
                     AppIcons.languageIc,
-                    () {},
+                    () {
+                       // Or, if you prefer to use Navigator:
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const LanguageSelectionScreen()),
+                );
+                    },
                   ),
                   _buildMenuItem(
                     AppLocalizations.of(context)!.help_idea,
