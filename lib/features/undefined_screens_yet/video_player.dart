@@ -206,7 +206,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
         fadeOutDuration: Duration.zero,
         placeholder: (context, url) => Container(
           color:
-              Colors.grey[200], // Static placeholder color instead of animation
+              Colors.grey[200],
         ),
         errorWidget: (context, url, error) => const Center(
           child: Icon(Icons.error),
