@@ -233,28 +233,18 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
                   },
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: const AttributesPage(),
-              ),
-              const AddTitlePage(),
-              const AddDescriptionPage(),
-              const AddPricePage(),
+              // Padding(
+              //   padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              //   child: const AttributesPage(),
+              // ),
+              // const AddTitlePage(),
+              // const AddDescriptionPage(),
+              // const AddPricePage(),
               const ProductConditionPage(),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: const MediaPage(),
               ),
-              // Padding(
-              //   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              //   child: _buildPage(child: const PhoneSettingsPage()),
-              // ),
-              // Padding(
-              //   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              //   child: _buildPage(
-              //     child: const LocationSelectionPage(),
-              //   ),
-              // ),
             ],
           ),
         );
@@ -262,17 +252,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
     );
   }
 
-  Widget _buildPage({
-    required Widget child,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        const SizedBox(height: 24),
-        child,
-      ],
-    );
-  }
+
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(

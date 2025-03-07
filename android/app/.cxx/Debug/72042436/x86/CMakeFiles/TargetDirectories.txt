@@ -1,0 +1,2 @@
+C:/android/ListInFlutter/android/app/.cxx/Debug/72042436/x86/CMakeFiles/edit_cache.dir
+C:/android/ListInFlutter/android/app/.cxx/Debug/72042436/x86/CMakeFiles/rebuild_cache.dir
