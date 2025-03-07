@@ -22,7 +22,7 @@ class LocationRemoteDataSourceImpl extends LocationRemoteDatasource {
           'format': 'json',
           'geocode': '${coordinates.longitude},${coordinates.latitude}',
           'apikey': "4230cbbd-2351-4199-abf8-08d61e81f0cd",
-          'lang': 'ru', // Optional: Set the language for the response
+          'lang': 'en', // Optional: Set the language for the response
         },
       );
 
