@@ -14,6 +14,7 @@ import 'package:list_in/features/post/data/models/blabla.dart';
 import 'package:list_in/features/post/data/models/category_model.dart';
 import 'package:list_in/features/post/data/models/child_category_model.dart';
 import 'package:list_in/features/post/data/models/nomeric_field_model.dart';
+import 'package:list_in/features/post/data/models/sub_model.dart';
 import 'package:list_in/features/post/domain/entities/post_entity.dart';
 import 'package:list_in/features/post/domain/usecases/create_post_usecase.dart';
 import 'package:list_in/features/post/domain/usecases/get_catalogs_usecase.dart';
@@ -76,7 +77,6 @@ class PostProvider extends ChangeNotifier {
         }
       }
 
-      
       if (_video != null) {
         _updatePostCreationState(PostCreationState.uploadingVideo);
         final videoResult = await uploadVideoRemoute(_video!);
@@ -159,107 +159,157 @@ class PostProvider extends ChangeNotifier {
     }
   }
 
- void getAtributesForPost() {
-  attributeRequests.clear();
+  void getAtributesForPost() {
+    attributeRequests.clear();
 
-  // Set to track processed attribute-value combinations
-  final Set<String> processedCombinations = {};
+    // Set to track processed attribute-value combinations
+    final Set<String> processedCombinations = {};
 
-  // Handle single-selection attributes (oneSelectable and colorSelectable)
-  for (var entry in _selectedAttributeValues.entries) {
-    AttributeModel attribute = entry.key;
-    AttributeValueModel value = entry.value;
+    // Handle single-selection attributes (oneSelectable and colorSelectable)
+    for (var entry in _selectedAttributeValues.entries) {
+      AttributeModel attribute = entry.key;
+      AttributeValueModel value = entry.value;
 
-    // Only process single-selection attributes
-    if (attribute.widgetType == 'oneSelectable' ||
-        attribute.widgetType == 'colorSelectable') {
-      // Create unique key for this combination
-      String combinationKey =
-          '${value.attributeKeyId}_${value.attributeValueId}';
+      // Only process single-selection attributes
+      if (attribute.widgetType == 'oneSelectable' ||
+          attribute.widgetType == 'colorSelectable') {
+        // Create unique key for this combination
+        String combinationKey =
+            '${value.attributeKeyId}_${value.attributeValueId}';
 
-      // Only add if not processed
-      if (!processedCombinations.contains(combinationKey)) {
-        processedCombinations.add(combinationKey);
+        // Only add if not processed
+        if (!processedCombinations.contains(combinationKey)) {
+          processedCombinations.add(combinationKey);
 
-        // Add main attribute
-        if (value.attributeKeyId.isNotEmpty &&
-            value.attributeValueId.isNotEmpty) {
-          attributeRequests.add(AttributeRequestValue(
-            attributeId: value.attributeKeyId,
-            attributeValueIds: [value.attributeValueId],
-          ));
+          // Add main attribute
+          if (value.attributeKeyId.isNotEmpty &&
+              value.attributeValueId.isNotEmpty) {
+            attributeRequests.add(AttributeRequestValue(
+              attributeId: value.attributeKeyId,
+              attributeValueIds: [value.attributeValueId],
+            ));
 
-          // Handle child attributes if they exist
-          if (attribute.subHelperText != 'null' &&
-              value.list.isNotEmpty &&
-              value.list.first.attributeId != null &&
-              value.list.first.modelId != null) {
-            String childCombinationKey =
-                '${value.list.first.attributeId}_${value.list.first.modelId}';
+            // Handle child attributes if they exist
+            if (attribute.subHelperText != 'null' && value.list.isNotEmpty) {
+              // Get the selected child attribute value from the corresponding dynamic attribute
+              // Instead of always taking the first item from the list
+              AttributeValueModel? selectedChildValue;
 
-            if (!processedCombinations.contains(childCombinationKey) &&
-                value.list.first.attributeId!.isNotEmpty &&
-                value.list.first.modelId!.isNotEmpty) {
-              processedCombinations.add(childCombinationKey);
-              attributeRequests.add(AttributeRequestValue(
-                attributeId: value.list.first.attributeId!,
-                attributeValueIds: [value.list.first.modelId!],
-              ));
-            }
-          }
-        }
-      }
-    }
-  }
+              // Find the dynamic attribute that corresponds to this parent attribute
+              for (var dynamicAttr in dynamicAttributes) {
+                if (dynamicAttr.attributeKey == attribute.attributeKey &&
+                    dynamicAttr.subWidgetsType == 'null') {
+                  // Find the selected value for this dynamic attribute
+                  var dynamicAttrValue =
+                      _selectedValues[dynamicAttr.attributeKey];
+                  if (dynamicAttrValue is AttributeValueModel) {
+                    selectedChildValue = dynamicAttrValue;
+                    break;
+                  }
+                }
+              }
 
-  // Handle multi-selection attributes
-  for (var entry in _selectedValues.entries) {
-    if (entry.value is List<AttributeValueModel>) {
-      List<AttributeValueModel> values =
-          entry.value as List<AttributeValueModel>;
-      if (values.isNotEmpty) {
-        // Add main multi-selection attribute
-        String attributeId = values.first.attributeKeyId;
-        List<String> valueIds =
-            values.map((v) => v.attributeValueId).toList();
+              // If a child value was selected, use it; otherwise, fall back to the first one
+              SubModel childModel = selectedChildValue != null
+                  ? value.list.firstWhere(
+                      (subModel) => subModel.name == selectedChildValue!.value,
+                      orElse: () => value.list.first)
+                  : value.list.first;
 
-        if (attributeId.isNotEmpty && valueIds.isNotEmpty) {
-          attributeRequests.add(AttributeRequestValue(
-            attributeId: attributeId,
-            attributeValueIds: valueIds,
-          ));
+              if (childModel.attributeId != null &&
+                  childModel.modelId != null) {
+                String childCombinationKey =
+                    '${childModel.attributeId}_${childModel.modelId}';
 
-          // Handle child attributes for multi-selection if they exist
-          for (var value in values) {
-            if (value.list.isNotEmpty &&
-                value.list.first.attributeId != null &&
-                value.list.first.modelId != null) {
-              String childCombinationKey =
-                  '${value.list.first.attributeId}_${value.list.first.modelId}';
-
-              if (!processedCombinations.contains(childCombinationKey) &&
-                  value.list.first.attributeId!.isNotEmpty &&
-                  value.list.first.modelId!.isNotEmpty) {
-                processedCombinations.add(childCombinationKey);
-                attributeRequests.add(AttributeRequestValue(
-                  attributeId: value.list.first.attributeId!,
-                  attributeValueIds: [value.list.first.modelId!],
-                ));
+                if (!processedCombinations.contains(childCombinationKey) &&
+                    childModel.attributeId!.isNotEmpty &&
+                    childModel.modelId!.isNotEmpty) {
+                  processedCombinations.add(childCombinationKey);
+                  attributeRequests.add(AttributeRequestValue(
+                    attributeId: childModel.attributeId!,
+                    attributeValueIds: [childModel.modelId!],
+                  ));
+                }
               }
             }
           }
         }
       }
     }
-  }
 
-  debugPrint("Attribute requests:");
-  for (var request in attributeRequests) {
-    print("Attribute ID: ${request.attributeId}");
-    print("Attribute Value IDs: ${request.attributeValueIds.join(', ')}");
-    print("------------");
+    // Handle multi-selection attributes
+    for (var entry in _selectedValues.entries) {
+      if (entry.value is List<AttributeValueModel>) {
+        List<AttributeValueModel> values =
+            entry.value as List<AttributeValueModel>;
+        if (values.isNotEmpty) {
+          // Add main multi-selection attribute
+          String attributeId = values.first.attributeKeyId;
+          List<String> valueIds =
+              values.map((v) => v.attributeValueId).toList();
+
+          if (attributeId.isNotEmpty && valueIds.isNotEmpty) {
+            attributeRequests.add(AttributeRequestValue(
+              attributeId: attributeId,
+              attributeValueIds: valueIds,
+            ));
+
+            // Handle child attributes for multi-selection if they exist
+            for (var value in values) {
+              if (value.list.isNotEmpty) {
+                // Look for the corresponding selected child value
+                String dynamicAttrKey = '${entry.key} Model - ${value.value}';
+
+                AttributeValueModel? selectedChildValue;
+                // Find the corresponding dynamic attribute and its selected value
+                for (var dynamicAttr in dynamicAttributes) {
+                  if (dynamicAttr.attributeKey == dynamicAttrKey) {
+                    var dynamicAttrValue =
+                        _selectedValues[dynamicAttr.attributeKey];
+                    if (dynamicAttrValue is AttributeValueModel) {
+                      selectedChildValue = dynamicAttrValue;
+                      break;
+                    }
+                  }
+                }
+
+                // If a child value was selected, use it; otherwise, fall back to the first one
+                SubModel childModel = selectedChildValue != null
+                    ? value.list.firstWhere(
+                        (subModel) =>
+                            subModel.name == selectedChildValue!.value,
+                        orElse: () => value.list.first)
+                    : value.list.first;
+
+                if (childModel.attributeId != null &&
+                    childModel.modelId != null) {
+                  String childCombinationKey =
+                      '${childModel.attributeId}_${childModel.modelId}';
+
+                  if (!processedCombinations.contains(childCombinationKey) &&
+                      childModel.attributeId!.isNotEmpty &&
+                      childModel.modelId!.isNotEmpty) {
+                    processedCombinations.add(childCombinationKey);
+                    attributeRequests.add(AttributeRequestValue(
+                      attributeId: childModel.attributeId!,
+                      attributeValueIds: [childModel.modelId!],
+                    ));
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    debugPrint("Attribute requests:");
+    for (var request in attributeRequests) {
+      print("Attribute ID: ${request.attributeId}");
+      print("Attribute Value IDs: ${request.attributeValueIds.join(', ')}");
+      print("------------");
+    }
   }
-}
 
   bool _validatePost() {
     return _postTitle.isNotEmpty &&
