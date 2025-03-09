@@ -401,7 +401,7 @@ class _ProfileEditorState extends State<ProfileEditor> {
                           ),
                           _buildDivider(),
                           _buildTappableRow(
-                              AppLocalizations.of(context)!.selectLocation,
+                              AppLocalizations.of(context)!.location,
                               showExactLocation
                                   ? cleanLocationName(_locationName.toString())
                                   : _locationName.toString(), onTap: () {

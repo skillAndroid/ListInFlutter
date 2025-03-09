@@ -53,7 +53,9 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
       listener: (context, state) {
         if (state.status == UserProfileStatus.failure) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.errorMessage ?? AppLocalizations.of(context)!.unknown_error)),
+            SnackBar(
+                content: Text(state.errorMessage ??
+                    AppLocalizations.of(context)!.unknown_error)),
           );
         }
       },
@@ -65,8 +67,9 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
         final userData = state.userData;
         // Add null check validation to prevent null UI
         if (userData == null) {
-          return  Scaffold(
-              body: Center(child: Text(AppLocalizations.of(context)!.no_user_data)));
+          return Scaffold(
+              body: Center(
+                  child: Text(AppLocalizations.of(context)!.no_user_data)));
         }
         if (state.userData == null) {}
         return Scaffold(
@@ -167,7 +170,9 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                   ),
                                 ),
                                 Text(
-                                  userData.biography ?? AppLocalizations.of(context)!.no_biography,
+                                  userData.biography ??
+                                      AppLocalizations.of(context)!
+                                          .no_biography,
                                   style: TextStyle(
                                     color: AppColors.darkGray,
                                     fontSize: 17,
@@ -214,7 +219,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                     AppLocalizations.of(context)!.followers,
+                                      AppLocalizations.of(context)!.followers,
                                       style: TextStyle(
                                         fontSize: 16,
                                         color: AppColors.black,
@@ -323,7 +328,8 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                   ),
                   // balance, language, suppport,  logout,
                   _buildMenuItem(
-                    userData.locationName ?? AppLocalizations.of(context)!.not_selected,
+                    userData.locationName ??
+                        AppLocalizations.of(context)!.not_selected,
                     AppIcons.homeLocationIc,
                     () {
                       Navigator.of(context).push(
@@ -331,8 +337,8 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                           builder: (context) => FullScreenMap(
                             latitude: userData.latitude!,
                             longitude: userData.longitude!,
-                            locationName:
-                                userData.locationName ?? AppLocalizations.of(context)!.no_location,
+                            locationName: userData.locationName ??
+                                AppLocalizations.of(context)!.no_location,
                           ),
                         ),
                       );
@@ -342,12 +348,12 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                     AppLocalizations.of(context)!.language,
                     AppIcons.languageIc,
                     () {
-                       // Or, if you prefer to use Navigator:
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const LanguageSelectionScreen()),
-                );
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                const LanguageSelectionScreen()),
+                      );
                     },
                   ),
                   _buildMenuItem(
@@ -356,7 +362,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                     () {},
                   ),
                   _buildMenuItem(
-                   AppLocalizations.of(context)!.support,
+                    AppLocalizations.of(context)!.support,
                     AppIcons.supportIc,
                     () {},
                   ),

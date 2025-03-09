@@ -12,7 +12,6 @@ import 'package:list_in/features/map/domain/usecases/search_locations_usecase.da
 import 'package:list_in/features/map/presentation/bloc/MapState.dart';
 import 'package:rxdart/rxdart.dart';
 
-
 class MapBloc extends Cubit<MapState> {
   final GetLocationUseCase getLocationUseCase;
   final SearchLocationsUseCase searchLocationsUseCase;
@@ -27,18 +26,14 @@ class MapBloc extends Cubit<MapState> {
     required this.searchLocationsUseCase,
   }) : super(
           MapIdleState(
-            const LatLng(
-             41.312128, 69.241796
-            ),
+            const LatLng(41.312128, 69.241796),
           ),
         ) {
     _searchSubscription = _searchQueryController
-        .debounceTime(
-            const Duration(milliseconds: 500)) // Устанавливаем 500 мс дебаунса
+        .debounceTime(const Duration(milliseconds: 500))
         .listen((query) => _performSearch(query));
     _cameraIdleSubscription = _cameraIdleController
-        .debounceTime(
-            const Duration(milliseconds: 4000)) // Устанавливаем 500 мс дебаунса
+        .debounceTime(const Duration(milliseconds: 2000))
         .listen((currentCenter) => _handleCameraIdle(currentCenter));
   }
 
