@@ -9,16 +9,28 @@ class CategoryModel {
   @HiveField(1)
   String name;
   @HiveField(2)
-  String description;
+  String nameUz;
   @HiveField(3)
-  List<ChildCategoryModel> childCategories;
+  String nameRu;
   @HiveField(4)
+  String description;
+  @HiveField(5)
+  String descriptionUz;
+  @HiveField(6)
+  String descriptionRu;
+  @HiveField(7)
+  List<ChildCategoryModel> childCategories;
+  @HiveField(8)
   String logoUrl;
 
   CategoryModel({
     required this.id,
     required this.name,
+    required this.nameRu,
+    required this.nameUz,
     required this.description,
+    required this.descriptionUz,
+    required this.descriptionRu,
     required this.childCategories,
     required this.logoUrl,
   });
@@ -26,7 +38,11 @@ class CategoryModel {
     return CategoryModel(
       id: json['id'] as String,
       name: json['name'] as String,
+      nameUz: json['nameUz'] as String,
+      nameRu: json['nameRu'] as String,
       description: json['description'] as String? ?? '',
+      descriptionUz: json['descriptionUz'] as String? ?? '',
+      descriptionRu: json['descriptionRu'] as String? ?? '',
       logoUrl: json['logoUrl'] as String,
       childCategories: (json['childCategories'] as List?)
               ?.map(

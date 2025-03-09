@@ -20,14 +20,16 @@ class AttributeValueModelAdapter extends TypeAdapter<AttributeValueModel> {
       attributeValueId: fields[0] as String,
       attributeKeyId: fields[1] as String,
       value: fields[2] as String,
-      list: (fields[3] as List).cast<SubModel>(),
-    )..isMarkedForRemoval = fields[4] as bool;
+      valueUz: fields[3] as String,
+      valueRu: fields[4] as String,
+      list: (fields[5] as List).cast<SubModel>(),
+    )..isMarkedForRemoval = fields[6] as bool;
   }
 
   @override
   void write(BinaryWriter writer, AttributeValueModel obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.attributeValueId)
       ..writeByte(1)
@@ -35,8 +37,12 @@ class AttributeValueModelAdapter extends TypeAdapter<AttributeValueModel> {
       ..writeByte(2)
       ..write(obj.value)
       ..writeByte(3)
-      ..write(obj.list)
+      ..write(obj.valueUz)
       ..writeByte(4)
+      ..write(obj.valueRu)
+      ..writeByte(5)
+      ..write(obj.list)
+      ..writeByte(6)
       ..write(obj.isMarkedForRemoval);
   }
 

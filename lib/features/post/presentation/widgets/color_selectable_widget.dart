@@ -1,8 +1,12 @@
 // ignore: file_names
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/config/theme/app_language.dart';
+import 'package:list_in/core/language/language_bloc.dart';
 import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/post/data/models/attribute_model.dart';
+import 'package:list_in/features/post/presentation/pages/atributes_releted/child_category_page.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
@@ -31,13 +35,21 @@ class ColorSelectableWidget extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.only(left: 4),
-          child: Text(
-            attribute.helperText,
-            style: const TextStyle(
-              color: AppColors.black,
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
-            ),
+          child: BlocSelector<LanguageBloc, LanguageState, String>(
+            selector: (state) => state is LanguageLoaded
+                ? state.languageCode
+                : AppLanguages.english,
+            builder: (context, languageCode) {
+              return Text(
+                getLocalizedText(attribute.helperText, attribute.helperTextUz,
+                    attribute.helperTextRu, languageCode),
+                style: const TextStyle(
+                  color: AppColors.black,
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
+              );
+            },
           ),
         ),
         const SizedBox(height: 4),
@@ -54,12 +66,13 @@ class ColorSelectableWidget extends StatelessWidget {
                       const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
-                          fontFamily: Constants.Arial,
+                        fontFamily: Constants.Arial,
                       ),
                     ),
                     padding: WidgetStateProperty.all(EdgeInsets.zero),
                     elevation: WidgetStateProperty.all(0),
-                        backgroundColor: WidgetStateProperty.all(AppColors.containerColor),
+                    backgroundColor:
+                        WidgetStateProperty.all(AppColors.containerColor),
                     foregroundColor: WidgetStateProperty.all(Colors.black),
                     shape: WidgetStateProperty.all(
                       SmoothRectangleBorder(
@@ -78,13 +91,25 @@ class ColorSelectableWidget extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            Text(
-                              selectedValue?.value ?? attribute.attributeKey,
-                              style: TextStyle(
-                                color: selectedValue != null
-                                    ? AppColors.black
-                                    : AppColors.darkGray,
-                              ),
+                            BlocSelector<LanguageBloc, LanguageState, String>(
+                              selector: (state) => state is LanguageLoaded
+                                  ? state.languageCode
+                                  : AppLanguages.english,
+                              builder: (context, languageCode) {
+                                return Text(
+                                  selectedValue?.value ??
+                                      getLocalizedText(
+                                          attribute.attributeKey,
+                                          attribute.attributeKeyUz,
+                                          attribute.attributeKeyRu,
+                                          languageCode),
+                                  style: TextStyle(
+                                    color: selectedValue != null
+                                        ? AppColors.black
+                                        : AppColors.darkGray,
+                                  ),
+                                );
+                              },
                             ),
                             const SizedBox(width: 8),
                             SmoothClipRRect(
@@ -113,11 +138,11 @@ class ColorSelectableWidget extends StatelessWidget {
                   curve: Curves.easeInOut,
                   child: provider.isAttributeOptionsVisible(attribute)
                       ? Card(
-                           shape: SmoothRectangleBorder(
-                            smoothness: 1,
-                            borderRadius: BorderRadius.circular(16),
-                            side: BorderSide(width: 1, color: AppColors.containerColor)
-                          ),
+                          shape: SmoothRectangleBorder(
+                              smoothness: 1,
+                              borderRadius: BorderRadius.circular(16),
+                              side: BorderSide(
+                                  width: 1, color: AppColors.containerColor)),
                           margin: const EdgeInsets.symmetric(vertical: 4),
                           color: AppColors.containerColor,
                           elevation: 0,
@@ -148,7 +173,7 @@ class ColorSelectableWidget extends StatelessWidget {
                                             value.value,
                                             style: const TextStyle(
                                               fontSize: 13,
-                                                fontFamily: Constants.Arial,
+                                              fontFamily: Constants.Arial,
                                               fontWeight: FontWeight.w500,
                                               color: Colors.black,
                                             ),

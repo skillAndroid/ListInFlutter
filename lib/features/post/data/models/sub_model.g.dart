@@ -19,19 +19,25 @@ class SubModelAdapter extends TypeAdapter<SubModel> {
     return SubModel(
       modelId: fields[0] as String?,
       name: fields[1] as String?,
-      attributeId: fields[2] as String?,
+      nameUz: fields[2] as String?,
+      nameRu: fields[3] as String?,
+      attributeId: fields[4] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, SubModel obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.modelId)
       ..writeByte(1)
       ..write(obj.name)
       ..writeByte(2)
+      ..write(obj.nameUz)
+      ..writeByte(3)
+      ..write(obj.nameRu)
+      ..writeByte(4)
       ..write(obj.attributeId);
   }
 

@@ -1,6 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/config/theme/app_language.dart';
+import 'package:list_in/core/language/language_bloc.dart';
 import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/post/data/models/category_model.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
@@ -61,13 +64,35 @@ class CatalogListPage extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          catalog.name,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                            fontFamily: Constants.Arial,
-                          ),
+                        BlocBuilder<LanguageBloc, LanguageState>(
+                          builder: (context, state) {
+                            String nameToShow =
+                                catalog.nameUz; // Default fallback
+
+                            if (state is LanguageLoaded) {
+                              switch (state.languageCode) {
+                                case AppLanguages.russian:
+                                  nameToShow = catalog.nameRu;
+                                  break;
+                                case AppLanguages.uzbek:
+                                  nameToShow = catalog.nameUz;
+                                  break;
+                                case AppLanguages.english:
+                                  nameToShow = catalog
+                                      .name; // Assuming this is the English name
+                                  break;
+                              }
+                            }
+
+                            return Text(
+                              nameToShow,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                                fontFamily: Constants.Arial,
+                              ),
+                            );
+                          },
                         ),
                         const SizedBox(height: 2),
                         Padding(

@@ -1,6 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/config/theme/app_language.dart';
+import 'package:list_in/core/language/language_bloc.dart';
 import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/post/data/models/child_category_model.dart';
 import 'package:provider/provider.dart';
@@ -62,39 +65,55 @@ class ChildCategoryListPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          childCategory.name,
-                          style: const TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16,
-                                fontFamily: Constants.Arial,),
-                        ),
-                        const SizedBox(
-                          height: 2,
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(right: 16),
-                          child: SizedBox(
-                            width: 250,
-                            child: Text(
-                              childCategory.description,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
+                    BlocSelector<LanguageBloc, LanguageState, String>(
+                      selector: (state) => state is LanguageLoaded
+                          ? state.languageCode
+                          : AppLanguages.english,
+                      builder: (context, languageCode) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              getLocalizedText(
+                                  childCategory.name,
+                                  childCategory.nameUz,
+                                  childCategory.nameRu,
+                                  languageCode),
                               style: const TextStyle(
-                                color: Colors.grey,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w400,
-                                 fontFamily: Constants.Arial,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                                fontFamily: Constants.Arial,
                               ),
                             ),
-                          ),
-                        ),
-                      ],
-                    ),
+                            const SizedBox(
+                              height: 2,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(right: 16),
+                              child: SizedBox(
+                                width: 250,
+                                child: Text(
+                                  getLocalizedText(
+                                      childCategory.description,
+                                      childCategory.descriptionUz,
+                                      childCategory.descriptionRu,
+                                      languageCode),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                  style: const TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400,
+                                    fontFamily: Constants.Arial,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    )
                   ],
                 ),
               ),
@@ -104,4 +123,14 @@ class ChildCategoryListPage extends StatelessWidget {
     );
   }
 }
-//
+
+String getLocalizedText(String? eng, String? uz, String? ru, String languageCode) {
+  switch (languageCode) {
+    case AppLanguages.uzbek: 
+      return uz ?? eng ?? '';
+    case AppLanguages.russian: 
+      return ru ?? eng ?? '';
+    default: 
+      return eng ?? '';
+  }
+}

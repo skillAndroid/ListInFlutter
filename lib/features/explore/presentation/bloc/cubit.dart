@@ -1245,21 +1245,32 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
         value.list[0].name != null) {
       // Generate a unique key for the child attribute to prevent conflicts
       final childAttributeKey = '${attribute.attributeKey}_child';
+      final childAttributeKeyUz = '${attribute.attributeKeyUz}_child';
+      final childAttributeKeyRu = '${attribute.attributeKeyRu}_child';
 
-      // Remove any existing dynamic attributes for this parent attribute
       dynamicAttributes.removeWhere(
         (attr) => attr.attributeKey == childAttributeKey,
       );
 
       // Create new dynamic attribute without any selected values
       final newAttribute = AttributeModel(
-        attributeKey: childAttributeKey, // Use unique key
+        attributeKey: childAttributeKey,
+        attributeKeyUz: childAttributeKeyUz,
+        attributeKeyRu: childAttributeKeyRu,
         helperText: attribute.subHelperText,
+        helperTextUz: attribute.subHelperTextUz,
+        helperTextRu: attribute.subFilterTextRu,
         subHelperText: 'null',
+        subHelperTextUz: 'null',
+        subHelperTextRu: 'null',
         widgetType: attribute.subWidgetsType,
         subWidgetsType: 'null',
         filterText: attribute.subFilterText,
+        filterTextUz: attribute.subFilterTextUz,
+        filterTextRu: attribute.subFilterTextUz,
         subFilterText: 'null',
+        subFilterTextUz: 'null',
+        subFilterTextRu: 'null',
         filterWidgetType: attribute.subFilterWidgetType,
         subFilterWidgetType: 'null',
         dataType: 'string',
@@ -1268,6 +1279,8 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
             attributeValueId: subModel.modelId ?? '',
             attributeKeyId: subModel.attributeId ?? '',
             value: subModel.name ?? '',
+            valueUz: subModel.nameUz ?? '',
+            valueRu: subModel.nameRu ?? '',
             list: [],
           );
         }).toList(),

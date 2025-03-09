@@ -17,7 +17,6 @@ class AttributesPage extends StatelessWidget {
 
   // Fallback texts in case localization fails
   static const String _fallbackEnterValue = "Enter a value";
-  static const String _fallbackUnsupportedType = "Unsupported attribute type:";
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +64,7 @@ class AttributesPage extends StatelessWidget {
       case 'multiSelectable':
         return MultiSelectableWidget(attribute: attribute);
       default:
-        final localizations = AppLocalizations.of(context);
+        AppLocalizations.of(context);
         final unsupportedText = '';
         return ListTile(
           title: Text('$unsupportedText ${attribute.widgetType}'),

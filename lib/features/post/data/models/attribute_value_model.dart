@@ -11,14 +11,20 @@ class AttributeValueModel {
   @HiveField(2)
   String value;
   @HiveField(3)
-  List<SubModel> list;
+  String valueUz;
   @HiveField(4)
-  bool isMarkedForRemoval = false; 
+  String valueRu;
+  @HiveField(5)
+  List<SubModel> list;
+  @HiveField(6)
+  bool isMarkedForRemoval = false;
 
   AttributeValueModel({
     required this.attributeValueId,
     required this.attributeKeyId,
     required this.value,
+    required this.valueUz,
+    required this.valueRu,
     required this.list,
   });
 
@@ -27,6 +33,8 @@ class AttributeValueModel {
       attributeValueId: json['attributeValueId'],
       attributeKeyId: json['attributeKeyId'],
       value: json['value'],
+      valueUz: json['valueUz'],
+      valueRu: json['valueRu'],
       list: (json['list'] as List)
           .map((subJson) => SubModel.fromJson(subJson))
           .toList(),

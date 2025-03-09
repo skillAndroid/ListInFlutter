@@ -10,18 +10,30 @@ class ChildCategoryModel {
   @HiveField(1)
   String name;
   @HiveField(2)
-  String description;
+  String nameUz;
   @HiveField(3)
-  List<AttributeModel> attributes;
+  String nameRu;
   @HiveField(4)
-  String logoUrl;
+  String description;
   @HiveField(5)
+  String descriptionUz;
+  @HiveField(6)
+  String descriptionRu;
+  @HiveField(7)
+  List<AttributeModel> attributes;
+  @HiveField(8)
+  String logoUrl;
+  @HiveField(9)
   List<NomericFieldModel> numericFields;
 
   ChildCategoryModel({
     required this.id,
     required this.name,
+    required this.nameUz,
+    required this.nameRu,
     required this.description,
+    required this.descriptionUz,
+    required this.descriptionRu,
     required this.attributes,
     required this.logoUrl,
     required this.numericFields,
@@ -31,8 +43,12 @@ class ChildCategoryModel {
     return ChildCategoryModel(
       id: json['id'],
       name: json['name'],
+      nameUz: json['nameUz'],
+      nameRu: json['nameRu'],
       logoUrl: json['logoUrl'],
       description: json['description'],
+      descriptionUz: json['descriptionUz'],
+      descriptionRu: json['descriptionRu'],
       attributes: (json['attributes'] as List)
           .map((attrJson) => AttributeModel.fromJson(attrJson))
           .toList(),
