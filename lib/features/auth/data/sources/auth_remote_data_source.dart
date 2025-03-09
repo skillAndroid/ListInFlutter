@@ -119,6 +119,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     try {
       final responce = await dio.post(
         '/api/v1/auth/register',
+         options: Options(
+        headers: {
+          'Accept-Language': 'ru',  
+        },
+      ),
         data: {
           'nickName': user.nikeName,
           'phoneNumber': user.phoneNumber,
