@@ -234,6 +234,7 @@ class _FiltersPageState extends State<FiltersPage>
 
                                   if (state.predictedPriceFrom >= 0)
                                     PriceRangeSlider(
+                                      localizations: localizations,
                                       min: state.predictedPriceFrom,
                                       max: state.predictedPriceTo,
                                       initialRange: state.priceFrom != null &&
@@ -255,19 +256,19 @@ class _FiltersPageState extends State<FiltersPage>
                                     height: 24,
                                   ),
 
-                                  _buildConditionFilter(state),
+                                  _buildConditionFilter(state, localizations),
                                   SizedBox(
                                     height: 24,
                                   ),
-                                  _buildBargainToggle(state),
+                                  _buildBargainToggle(state, localizations),
                                   SizedBox(
                                     height: 24,
                                   ),
-                                  _buildSellerTypeFilter(state),
+                                  _buildSellerTypeFilter(state, localizations),
                                   SizedBox(
                                     height: 24,
                                   ),
-                                  _buildLocationFilter(),
+                                  _buildLocationFilter(localizations),
                                   SizedBox(
                                     height: 16,
                                   ),
@@ -474,7 +475,9 @@ class _FiltersPageState extends State<FiltersPage>
                                                           .values.isNotEmpty &&
                                                       mounted) {
                                                     _showAttributeSelectionUI(
-                                                        context, attribute);
+                                                        context,
+                                                        attribute,
+                                                        localizations);
                                                   }
                                                 },
                                               ),
@@ -594,7 +597,8 @@ class _FiltersPageState extends State<FiltersPage>
                           color: Colors.white,
                         ),
                         child: BlocBuilder<HomeTreeCubit, HomeTreeState>(
-                          builder: (context, state) => _buildApplyButton(state),
+                          builder: (context, state) =>
+                              _buildApplyButton(state, localizations),
                         ),
                       ),
                     ),
@@ -636,8 +640,8 @@ class _FiltersPageState extends State<FiltersPage>
     );
   }
 
-  void _showSelectionBottomSheet(
-      BuildContext context, AttributeModel attribute) {
+  void _showSelectionBottomSheet(BuildContext context, AttributeModel attribute,
+      AppLocalizations localizations) {
     Map<String, dynamic> temporarySelections = {};
     final cubit = context.read<HomeTreeCubit>();
 
@@ -751,8 +755,7 @@ class _FiltersPageState extends State<FiltersPage>
                                             foregroundColor: AppColors.black,
                                           ),
                                           child: Text(
-                                            AppLocalizations.of(context)!
-                                                .clear_,
+                                            localizations.clear_,
                                             style: TextStyle(
                                               color: Colors.grey[600],
                                               fontSize: 16,
@@ -778,8 +781,7 @@ class _FiltersPageState extends State<FiltersPage>
                                             foregroundColor: AppColors.black,
                                           ),
                                           child: Text(
-                                            AppLocalizations.of(context)!
-                                                .clear_,
+                                            localizations.clear_,
                                             style: TextStyle(
                                               color: Colors.grey[600],
                                               fontSize: 16,
@@ -807,7 +809,8 @@ class _FiltersPageState extends State<FiltersPage>
                                         scrollController,
                                         temporarySelections,
                                         setState,
-                                        languageCode)
+                                        languageCode,
+                                        localizations)
                                     : _buildSingleSelectList(
                                         context,
                                         attribute,
@@ -835,6 +838,7 @@ class _FiltersPageState extends State<FiltersPage>
     Map<String, dynamic> temporarySelections,
     StateSetter setState,
     String languageCode,
+    AppLocalizations localizations,
   ) {
     return Column(
       children: [
@@ -951,7 +955,7 @@ class _FiltersPageState extends State<FiltersPage>
                 elevation: 0,
               ),
               child: Text(
-                '${AppLocalizations.of(context)!.apply} (${(temporarySelections[attribute.attributeKey] as List).length})',
+                '${localizations.apply} (${(temporarySelections[attribute.attributeKey] as List).length})',
                 style: const TextStyle(
                   fontSize: 16,
                   color: AppColors.white,
@@ -1048,8 +1052,8 @@ class _FiltersPageState extends State<FiltersPage>
     );
   }
 
-  void _showColorMultiSelectDialog(
-      BuildContext context, AttributeModel attribute) {
+  void _showColorMultiSelectDialog(BuildContext context,
+      AttributeModel attribute, AppLocalizations localizations) {
     final cubit = context.read<HomeTreeCubit>();
     Map<String, dynamic> temporarySelections = {};
 
@@ -1158,8 +1162,7 @@ class _FiltersPageState extends State<FiltersPage>
                                             foregroundColor: AppColors.black,
                                           ),
                                           child: Text(
-                                            AppLocalizations.of(context)!
-                                                .clear_,
+                                            localizations.clear_,
                                             style: TextStyle(
                                               color: Colors.grey[600],
                                               fontSize: 16,
@@ -1313,7 +1316,7 @@ class _FiltersPageState extends State<FiltersPage>
                                   elevation: 0,
                                 ),
                                 child: Text(
-                                  '${AppLocalizations.of(context)!.clear_} (${(temporarySelections[attribute.attributeKey] as List).length})',
+                                  '${localizations.clear_} (${(temporarySelections[attribute.attributeKey] as List).length})',
                                   style: const TextStyle(
                                     fontSize: 16,
                                     color: AppColors.white,
@@ -1337,15 +1340,15 @@ class _FiltersPageState extends State<FiltersPage>
     );
   }
 
-  void _showAttributeSelectionUI(
-      BuildContext context, AttributeModel attribute) {
+  void _showAttributeSelectionUI(BuildContext context, AttributeModel attribute,
+      AppLocalizations localizations) {
     switch (attribute.filterWidgetType) {
       case 'colorMultiSelectable':
-        _showColorMultiSelectDialog(context, attribute);
+        _showColorMultiSelectDialog(context, attribute, localizations);
         break;
       case 'oneSelectable':
       case 'multiSelectable':
-        _showSelectionBottomSheet(context, attribute);
+        _showSelectionBottomSheet(context, attribute, localizations);
         break;
     }
   }
@@ -1497,14 +1500,15 @@ class _FiltersPageState extends State<FiltersPage>
     );
   }
 
-  Widget _buildSellerTypeFilter(HomeTreeState state) {
+  Widget _buildSellerTypeFilter(
+      HomeTreeState state, AppLocalizations localizations) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.only(left: 0, bottom: 8),
           child: Text(
-            AppLocalizations.of(context)!.seller_type,
+            localizations.seller_type,
             style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w500,
@@ -1528,11 +1532,11 @@ class _FiltersPageState extends State<FiltersPage>
             child: Row(
               children: [
                 _buildSellerTypeOption(
-                    AppLocalizations.of(context)!.all, SellerType.ALL, state),
-                _buildSellerTypeOption(AppLocalizations.of(context)!.individual,
+                    localizations.all, SellerType.ALL, state),
+                _buildSellerTypeOption(localizations.individual,
                     SellerType.INDIVIDUAL_SELLER, state),
-                _buildSellerTypeOption(AppLocalizations.of(context)!.shop,
-                    SellerType.BUSINESS_SELLER, state),
+                _buildSellerTypeOption(
+                    localizations.shop, SellerType.BUSINESS_SELLER, state),
               ],
             ),
           ),
@@ -1583,14 +1587,15 @@ class _FiltersPageState extends State<FiltersPage>
     );
   }
 
-  Widget _buildBargainToggle(HomeTreeState state) {
+  Widget _buildBargainToggle(
+      HomeTreeState state, AppLocalizations localizations) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.only(left: 0, bottom: 12),
           child: Text(
-            AppLocalizations.of(context)!.sorting,
+            localizations.sorting,
             style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w500,
@@ -1638,7 +1643,7 @@ class _FiltersPageState extends State<FiltersPage>
               Padding(
                 padding: const EdgeInsets.only(left: 0, bottom: 1),
                 child: Text(
-                  AppLocalizations.of(context)!.bargain,
+                  localizations.bargain,
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w400,
@@ -1690,7 +1695,7 @@ class _FiltersPageState extends State<FiltersPage>
               Padding(
                 padding: const EdgeInsets.only(left: 0, bottom: 1),
                 child: Text(
-                  AppLocalizations.of(context)!.for_free,
+                  localizations.for_free,
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w400,
@@ -1705,14 +1710,15 @@ class _FiltersPageState extends State<FiltersPage>
     );
   }
 
-  Widget _buildConditionFilter(HomeTreeState state) {
+  Widget _buildConditionFilter(
+      HomeTreeState state, AppLocalizations localizations) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.only(left: 0, bottom: 8),
           child: Text(
-            AppLocalizations.of(context)!.condition,
+            localizations.condition,
             style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w500,
@@ -1735,14 +1741,11 @@ class _FiltersPageState extends State<FiltersPage>
             padding: EdgeInsets.all(4),
             child: Row(
               children: [
+                _buildSegmentOption(localizations.all, 'ALL', state),
                 _buildSegmentOption(
-                    AppLocalizations.of(context)!.all, 'ALL', state),
-                _buildSegmentOption(AppLocalizations.of(context)!.condition_new,
-                    'NEW_PRODUCT', state),
+                    localizations.condition_new, 'NEW_PRODUCT', state),
                 _buildSegmentOption(
-                    AppLocalizations.of(context)!.condition_used,
-                    'USED_PRODUCT',
-                    state),
+                    localizations.condition_used, 'USED_PRODUCT', state),
               ],
             ),
           ),
@@ -1791,7 +1794,7 @@ class _FiltersPageState extends State<FiltersPage>
     );
   }
 
-  Widget _buildLocationFilter() {
+  Widget _buildLocationFilter(AppLocalizations localizations) {
     return AnimatedContainer(
       duration: Duration(milliseconds: 300),
       margin: EdgeInsets.only(bottom: 16),
@@ -1799,7 +1802,7 @@ class _FiltersPageState extends State<FiltersPage>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            AppLocalizations.of(context)!.location,
+            localizations.location,
             style: TextStyle(
               fontSize: 19,
               fontWeight: FontWeight.w500,
@@ -1824,7 +1827,7 @@ class _FiltersPageState extends State<FiltersPage>
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        AppLocalizations.of(context)!.selectLocation,
+                        localizations.selectLocation,
                         style: TextStyle(
                           fontSize: 16,
                           color: AppColors.darkGray,
@@ -1858,7 +1861,8 @@ class _FiltersPageState extends State<FiltersPage>
     );
   }
 
-  Widget _buildApplyButton(HomeTreeState state) {
+  Widget _buildApplyButton(
+      HomeTreeState state, AppLocalizations localizations) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -2051,7 +2055,8 @@ class _FiltersPageState extends State<FiltersPage>
                               RequestState.inProgress)
                             Text(
                               _getPublicationCountText(
-                                  state.predictedFoundPublications),
+                                  state.predictedFoundPublications,
+                                  localizations),
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
@@ -2072,14 +2077,14 @@ class _FiltersPageState extends State<FiltersPage>
     );
   }
 
-  String _getPublicationCountText(int count) {
+  String _getPublicationCountText(int count, AppLocalizations localizations) {
     if (count == 0) {
-      return AppLocalizations.of(context)!.no_items_found;
+      return localizations.no_items_found;
     } else if (count >= 1000) {
       final thousands = (count / 1000).floor();
-      return '${AppLocalizations.of(context)!.show_more_than} ${thousands}k ${AppLocalizations.of(context)!.publication_options}';
+      return '${localizations.show_more_than} ${thousands}k ${localizations.publication_options}';
     } else {
-      return '${AppLocalizations.of(context)!.show} ${count.toString()} ${AppLocalizations.of(context)!.publications}';
+      return '${localizations.show} ${count.toString()} ${localizations.publications}';
     }
   }
 }
@@ -2090,6 +2095,7 @@ class PriceRangeSlider extends StatefulWidget {
   final double min;
   final double max;
   final int totalResults;
+  final AppLocalizations localizations;
 
   const PriceRangeSlider({
     super.key,
@@ -2098,6 +2104,7 @@ class PriceRangeSlider extends StatefulWidget {
     required this.min,
     required this.max,
     required this.totalResults,
+    required this.localizations,
   });
 
   @override
@@ -2212,7 +2219,7 @@ class _PriceRangeSliderState extends State<PriceRangeSlider> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                AppLocalizations.of(context)!.price_range,
+                widget.localizations.price_range,
                 style: const TextStyle(
                   fontSize: 19,
                   fontWeight: FontWeight.w500,
@@ -2220,7 +2227,7 @@ class _PriceRangeSliderState extends State<PriceRangeSlider> {
               ),
               if (isDisabled)
                 Text(
-                  AppLocalizations.of(context)!.no_results_in_range,
+                  widget.localizations.no_results_in_range,
                   style: const TextStyle(
                     color: Colors.grey,
                     fontSize: 17,
