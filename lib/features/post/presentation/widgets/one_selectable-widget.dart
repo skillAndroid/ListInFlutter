@@ -181,7 +181,11 @@ class OneSelectableWidget extends StatelessWidget {
                                                     : AppLanguages.english,
                                             builder: (context, languageCode) {
                                               return Text(
-                                                value.value,
+                                                getLocalizedText(
+                                                    value.value,
+                                                    value.valueUz,
+                                                    value.valueRu,
+                                                    languageCode),
                                                 style: const TextStyle(
                                                   fontSize: 13,
                                                   fontFamily: Constants.Arial,

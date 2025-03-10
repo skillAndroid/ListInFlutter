@@ -1,9 +1,13 @@
 // Separate widget for Attributes Page
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/config/theme/app_language.dart';
+import 'package:list_in/core/language/language_bloc.dart';
 import 'package:list_in/features/post/data/models/attribute_model.dart';
 import 'package:list_in/features/post/data/models/nomeric_field_model.dart';
+import 'package:list_in/features/post/presentation/pages/atributes_releted/child_category_page.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
 import 'package:list_in/features/post/presentation/widgets/color_selectable_widget.dart';
 import 'package:list_in/features/post/presentation/widgets/multi_selectable_widget.dart';
@@ -75,84 +79,96 @@ class AttributesPage extends StatelessWidget {
   Widget _buildNumericFieldWidget(BuildContext context, PostProvider provider,
       NomericFieldModel numericField) {
     final localizations = AppLocalizations.of(context);
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            numericField.fieldName,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-          ),
-          if (numericField.description.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: 0),
-              child: Text(
-                numericField.description,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey[600],
+      child: BlocSelector<LanguageBloc, LanguageState, String>(
+        selector: (state) =>
+            state is LanguageLoaded ? state.languageCode : AppLanguages.english,
+        builder: (context, languageCode) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                numericField.fieldName,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
                     ),
               ),
-            ),
-          const SizedBox(height: 8),
-          SmoothClipRRect(
-            side: BorderSide(width: 1, color: AppColors.containerColor),
-            borderRadius: BorderRadius.circular(16),
-            child: Container(
-              color: AppColors.white,
-              width: double.infinity,
-              height: 52,
-              child: Center(
-                child: TextFormField(
-                  initialValue: provider
-                      .getNumericFieldValue(numericField.id)
-                      ?.toString(),
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    TextInputFormatter.withFunction((oldValue, newValue) {
-                      // If the first character is '0', reject the input
-                      if (newValue.text.startsWith('0') &&
-                          newValue.text.isNotEmpty) {
-                        return oldValue;
-                      }
-                      return newValue;
-                    }),
-                  ],
-                  decoration: InputDecoration(
-                    fillColor: AppColors.white,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
+              if (numericField.description.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 0),
+                  child: Text(
+                    getLocalizedText(
+                      numericField.description,
+                      numericField.descriptionUz,
+                      numericField.descriptionRu,
+                      languageCode,
                     ),
-                    border: const OutlineInputBorder(),
-                    hintText: localizations?.enter_value ?? _fallbackEnterValue,
-                    suffixIcon: IconButton(
-                      icon: const Icon(
-                        Icons.clear_rounded,
-                        size: 20,
-                        color: AppColors.black,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Colors.grey[600],
+                        ),
+                  ),
+                ),
+              const SizedBox(height: 8),
+              SmoothClipRRect(
+                side: BorderSide(width: 1, color: AppColors.containerColor),
+                borderRadius: BorderRadius.circular(16),
+                child: Container(
+                  color: AppColors.white,
+                  width: double.infinity,
+                  height: 52,
+                  child: Center(
+                    child: TextFormField(
+                      initialValue: provider
+                          .getNumericFieldValue(numericField.id)
+                          ?.toString(),
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        TextInputFormatter.withFunction((oldValue, newValue) {
+                          // If the first character is '0', reject the input
+                          if (newValue.text.startsWith('0') &&
+                              newValue.text.isNotEmpty) {
+                            return oldValue;
+                          }
+                          return newValue;
+                        }),
+                      ],
+                      decoration: InputDecoration(
+                        fillColor: AppColors.white,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                        ),
+                        border: const OutlineInputBorder(),
+                        hintText:
+                            localizations?.enter_value ?? _fallbackEnterValue,
+                        suffixIcon: IconButton(
+                          icon: const Icon(
+                            Icons.clear_rounded,
+                            size: 20,
+                            color: AppColors.black,
+                          ),
+                          onPressed: () {
+                            provider.setNumericFieldValue(numericField.id, '0');
+                          },
+                        ),
                       ),
-                      onPressed: () {
-                        provider.setNumericFieldValue(numericField.id, '0');
+                      onChanged: (value) {
+                        if (value.isNotEmpty) {
+                          final numericValue = value.toString();
+                          provider.setNumericFieldValue(
+                              numericField.id, numericValue);
+                        }
                       },
                     ),
                   ),
-                  onChanged: (value) {
-                    if (value.isNotEmpty) {
-                      final numericValue = value.toString();
-                      provider.setNumericFieldValue(
-                          numericField.id, numericValue);
-                    }
-                  },
                 ),
               ),
-            ),
-          ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }

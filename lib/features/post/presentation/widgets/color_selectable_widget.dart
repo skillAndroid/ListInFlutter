@@ -92,25 +92,47 @@ class ColorSelectableWidget extends StatelessWidget {
                         Row(
                           children: [
                             BlocSelector<LanguageBloc, LanguageState, String>(
-                              selector: (state) => state is LanguageLoaded
-                                  ? state.languageCode
-                                  : AppLanguages.english,
-                              builder: (context, languageCode) {
+                          selector: (state) => state is LanguageLoaded
+                              ? state.languageCode
+                              : AppLanguages.english,
+                          builder: (context, languageCode) {
+                            // Different text widgets based on language
+                            switch (languageCode) {
+                              case AppLanguages.uzbek:
                                 return Text(
-                                  selectedValue?.value ??
-                                      getLocalizedText(
-                                          attribute.attributeKey,
-                                          attribute.attributeKeyUz,
-                                          attribute.attributeKeyRu,
-                                          languageCode),
+                                  selectedValue?.valueUz ??
+                                      attribute.attributeKeyUz,
                                   style: TextStyle(
                                     color: selectedValue != null
                                         ? AppColors.black
                                         : AppColors.darkGray,
                                   ),
                                 );
-                              },
-                            ),
+
+                              case AppLanguages.russian:
+                                return Text(
+                                  selectedValue?.valueRu ??
+                                      attribute.attributeKeyRu,
+                                  style: TextStyle(
+                                    color: selectedValue != null
+                                        ? AppColors.black
+                                        : AppColors.darkGray,
+                                  ),
+                                );
+
+                              default: // English or fallback
+                                return Text(
+                                  selectedValue?.value ??
+                                      attribute.attributeKey,
+                                  style: TextStyle(
+                                    color: selectedValue != null
+                                        ? AppColors.black
+                                        : AppColors.darkGray,
+                                  ),
+                                );
+                            }
+                          },
+                        ),
                             const SizedBox(width: 8),
                             SmoothClipRRect(
                               smoothness: 1,
@@ -169,14 +191,27 @@ class ColorSelectableWidget extends StatelessWidget {
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text(
-                                            value.value,
-                                            style: const TextStyle(
-                                              fontSize: 13,
-                                              fontFamily: Constants.Arial,
-                                              fontWeight: FontWeight.w500,
-                                              color: Colors.black,
-                                            ),
+                                          BlocSelector<LanguageBloc,
+                                              LanguageState, String>(
+                                            selector: (state) =>
+                                                state is LanguageLoaded
+                                                    ? state.languageCode
+                                                    : AppLanguages.english,
+                                            builder: (context, languageCode) {
+                                              return Text(
+                                                getLocalizedText(
+                                                    value.value,
+                                                    value.valueUz,
+                                                    value.valueRu,
+                                                    languageCode),
+                                                style: const TextStyle(
+                                                  fontSize: 13,
+                                                  fontFamily: Constants.Arial,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Colors.black,
+                                                ),
+                                              );
+                                            },
                                           ),
                                           SmoothClipRRect(
                                             smoothness: 1,
