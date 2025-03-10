@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
@@ -20,9 +21,7 @@ import 'package:list_in/global/global_event.dart';
 import 'package:list_in/global/global_state.dart';
 import 'package:list_in/global/global_status.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 @immutable
 class AdvertisedProductViewModel {
@@ -197,24 +196,20 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
       _showOwnerDialog(context);
     }
   }
-  
+
   void _showOwnerDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) => const OwnerDialog(),
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: _handleCardTap,
-      child: Card(
-        shadowColor: Colors.black.withOpacity(0.25),
-        color: AppColors.white,
-        elevation: 4,
+      child: Container(
         margin: EdgeInsets.all(3),
-        shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        clipBehavior: Clip.antiAlias,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -232,8 +227,8 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
   Widget _buildMediaCarousel() {
     return Padding(
       padding: EdgeInsets.all(3),
-      child: SmoothClipRRect(
-        borderRadius: BorderRadius.circular(10),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
         child: AspectRatio(
           aspectRatio: 16 / 11,
           child: Stack(
@@ -313,7 +308,9 @@ class _ProductInfo extends StatelessWidget {
             ),
           ),
           Text(
-            model.condition == "NEW_PRODUCT" ?  AppLocalizations.of(context)!.condition_new :  AppLocalizations.of(context)!.condition_used,
+            model.condition == "NEW_PRODUCT"
+                ? AppLocalizations.of(context)!.condition_new
+                : AppLocalizations.of(context)!.condition_used,
             style: TextStyle(
               fontSize: 13.5,
               color: AppColors.black,
@@ -538,7 +535,9 @@ class _CallButton extends StatelessWidget {
         width: double.infinity,
         child: Center(
           child: Text(
-            isOwner ? AppLocalizations.of(context)!.cant_call_own_number : AppLocalizations.of(context)!.call,
+            isOwner
+                ? AppLocalizations.of(context)!.cant_call_own_number
+                : AppLocalizations.of(context)!.call,
             style: TextStyle(
               fontSize: 14,
               fontFamily: Constants.Arial,

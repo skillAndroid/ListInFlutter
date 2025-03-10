@@ -1,0 +1,1 @@
+C:\android\ListInFlutter\build\app\intermediates\cxx\RelWithDebInfo\5t5x621q\obj\armeabi-v7a

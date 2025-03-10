@@ -96,13 +96,8 @@ class OptimizedProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Card(
-        shadowColor: Colors.black.withOpacity(0.25),
-        color: AppColors.transparent,
-        elevation: 0,
+      child: Container(
         margin: EdgeInsets.all(3),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        clipBehavior: Clip.antiAlias,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -169,9 +164,9 @@ class ProductImageSection extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.all(3),
-            child: SmoothClipRRect(
-              smoothness: 0.8,
-              borderRadius: BorderRadius.circular(16),
+            child: ClipRRect(
+            
+              borderRadius: BorderRadius.circular(20),
               child: _buildImage(),
             ),
           ),
