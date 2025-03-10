@@ -169,13 +169,19 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                Text(
-                                  userData.biography ??
-                                      AppLocalizations.of(context)!
-                                          .no_biography,
-                                  style: TextStyle(
-                                    color: AppColors.darkGray,
-                                    fontSize: 17,
+                                SizedBox(
+                                  width: 250,
+                                  child: Text(
+                                    userData.biography ??
+                                        AppLocalizations.of(context)!
+                                            .no_biography,
+                                    style: TextStyle(
+                                      color: AppColors.darkGray,
+                                      fontSize: 17,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1, // Limit to 2 lines
+                                    softWrap: true,
                                   ),
                                 ),
                               ],
@@ -196,9 +202,9 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      AppLocalizations.of(context)!.follow,
+                                      AppLocalizations.of(context)!.followers,
                                       style: TextStyle(
-                                        fontSize: 17,
+                                        fontSize: 16,
                                         color: AppColors.black,
                                         fontWeight: FontWeight.w500,
                                       ),
