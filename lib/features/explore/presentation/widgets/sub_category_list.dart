@@ -6,7 +6,6 @@ import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/explore/presentation/widgets/sub_category_card.dart';
 import 'package:list_in/features/post/data/models/category_model.dart';
 import 'package:list_in/features/post/data/models/child_category_model.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 class SubcategoriesList extends StatefulWidget {
   final HomeTreeState state;
   final List<ChildCategoryModel> subcategories;

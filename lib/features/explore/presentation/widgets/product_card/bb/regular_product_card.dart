@@ -98,10 +98,10 @@ class OptimizedProductCard extends StatelessWidget {
       onTap: onTap,
       child: Card(
         shadowColor: Colors.black.withOpacity(0.25),
-        color: AppColors.white,
-        elevation: 4,
+        color: AppColors.transparent,
+        elevation: 0,
         margin: EdgeInsets.all(3),
-        shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         clipBehavior: Clip.antiAlias,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -170,7 +170,8 @@ class ProductImageSection extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(3),
             child: SmoothClipRRect(
-              borderRadius: BorderRadius.circular(10),
+              smoothness: 0.8,
+              borderRadius: BorderRadius.circular(16),
               child: _buildImage(),
             ),
           ),
