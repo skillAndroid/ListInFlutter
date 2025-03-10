@@ -10,6 +10,8 @@ import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/config/theme/app_language.dart';
+import 'package:list_in/core/language/language_bloc.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
@@ -19,6 +21,7 @@ import 'package:list_in/features/explore/presentation/pages/screens/initial_page
 import 'package:list_in/features/explore/presentation/widgets/product_card/bb/boosted_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/product_card/bb/regular_product_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
+import 'package:list_in/features/post/presentation/pages/atributes_releted/child_category_page.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -406,41 +409,54 @@ class _FilterHomeResultPageState extends State<FilterHomeResultPage> {
     int index,
     Set<int> selectedFilters,
   ) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 2.5),
-      child: FilterChip(
-        padding: EdgeInsets.symmetric(horizontal: 4, vertical: 10),
-        label: Text(
-          state.catalogs?[index].name ?? '',
-          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        selected: selectedFilters.contains(index),
-        backgroundColor: AppColors.containerColor,
-        selectedColor: AppColors.black,
-        labelStyle: TextStyle(
-          color: selectedFilters.contains(index)
-              ? AppColors.white
-              : AppColors.black,
-        ),
-        onSelected: (selected) {
-          context.read<HomeTreeCubit>().selectCatalog(state.catalogs![index]);
-          context.pushNamed(RoutesByName.subcategories, extra: {
-            'category': state.catalogs![index],
-            'priceFrom': state.priceFrom,
-            'priceTo': state.priceTo,
-            'filterState': {
-              'bargain': state.bargain,
-              'isFree': state.isFree,
-              'condition': state.condition,
-              'sellerType': state.sellerType,
+    return BlocSelector<LanguageBloc, LanguageState, String>(
+      selector: (state) =>
+          state is LanguageLoaded ? state.languageCode : AppLanguages.english,
+      builder: (context, languageCode) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 2.5),
+          child: FilterChip(
+            padding: EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+            label: Text(
+              getLocalizedText(
+                state.catalogs?[index].name,
+                state.catalogs?[index].nameUz,
+                state.catalogs?[index].nameRu,
+                languageCode,
+              ),
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            selected: selectedFilters.contains(index),
+            backgroundColor: AppColors.containerColor,
+            selectedColor: AppColors.black,
+            labelStyle: TextStyle(
+              color: selectedFilters.contains(index)
+                  ? AppColors.white
+                  : AppColors.black,
+            ),
+            onSelected: (selected) {
+              context
+                  .read<HomeTreeCubit>()
+                  .selectCatalog(state.catalogs![index]);
+              context.goNamed(RoutesByName.subcategories, extra: {
+                'category': state.catalogs![index],
+                'priceFrom': state.priceFrom,
+                'priceTo': state.priceTo,
+                'filterState': {
+                  'bargain': state.bargain,
+                  'isFree': state.isFree,
+                  'condition': state.condition,
+                  'sellerType': state.sellerType,
+                },
+              });
             },
-          });
-        },
-        side: BorderSide(width: 1, color: AppColors.transparent),
-      ),
+            side: BorderSide(width: 1, color: AppColors.transparent),
+          ),
+        );
+      },
     );
   }
 
