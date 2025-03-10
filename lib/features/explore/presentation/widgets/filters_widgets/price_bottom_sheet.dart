@@ -7,6 +7,7 @@ import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/explore/presentation/widgets/formaters.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 class PriceRangeBottomSheet extends StatefulWidget {
   final String page;
   const PriceRangeBottomSheet({
