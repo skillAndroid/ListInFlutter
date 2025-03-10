@@ -34,7 +34,7 @@ class FiltersPage extends StatefulWidget {
   State<FiltersPage> createState() => _FiltersPageState();
 }
 
-class _FiltersPageState extends State<FiltersPage>
+class _FiltersPageState extends State<FiltersPage>  
     with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late AnimationController _slideController;
@@ -66,7 +66,7 @@ class _FiltersPageState extends State<FiltersPage>
       vsync: this,
     );
     _fadeController.forward();
-  }
+  } 
 
   @override
   void dispose() {
