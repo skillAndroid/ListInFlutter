@@ -12,6 +12,8 @@ import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/config/theme/app_language.dart';
+import 'package:list_in/core/language/language_bloc.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/details/presentation/bloc/details_bloc.dart';
@@ -23,6 +25,7 @@ import 'package:list_in/features/explore/presentation/widgets/formaters.dart';
 import 'package:list_in/features/explore/presentation/widgets/product_card/bb/regular_product_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
+import 'package:list_in/features/post/presentation/pages/atributes_releted/child_category_page.dart';
 import 'package:list_in/features/profile/domain/usecases/user/get_user_data_usecase.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_bloc.dart';
@@ -1230,48 +1233,67 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   }
 
   Widget buildCharacteristics(Map<String, List<String>> enAttributes) {
-    // Combine all features into a single list
-    final List<MapEntry<String, String>> features = [];
+    // Get the current language code
+    return BlocSelector<LanguageBloc, LanguageState, String>(
+        selector: (state) =>
+            state is LanguageLoaded ? state.languageCode : AppLanguages.english,
+        builder: (context, languageCode) {
+          final localizations = AppLocalizations.of(context)!;
 
-    // Add regular attributes
-    enAttributes.forEach((key, values) {
-      if (values.isNotEmpty) {
-        final value = values.length == 1 ? values[0] : values.join(', ');
-        features.add(MapEntry(key, value));
-      }
-    });
+          // Combine all features into a single list
+          final List<MapEntry<String, String>> features = [];
 
-    // Add numeric values
-    for (var numericValue in widget.product.attributeValue.numericValues) {
-      if (numericValue.numericValue.isNotEmpty) {
-        features.add(
-            MapEntry(numericValue.numericField, numericValue.numericValue));
-      }
-    }
-    final localizations = AppLocalizations.of(context)!;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            localizations.about_this_item,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-              color: AppColors.darkBackground,
+          // Add attributes for the current language
+          final attributes =
+              widget.product.attributeValue.attributes[languageCode] ??
+                  widget.product.attributeValue.attributes['en'] ??
+                  {};
+
+          attributes.forEach((key, values) {
+            if (values.isNotEmpty) {
+              final value = values.length == 1 ? values[0] : values.join(', ');
+              features.add(MapEntry(key, value));
+            }
+          });
+
+          // Add numeric values
+          for (var numericValue
+              in widget.product.attributeValue.numericValues) {
+            if (numericValue.numericValue.isNotEmpty) {
+              // Get localized field name based on language
+              final fieldName = getLocalizedText(
+                numericValue.numericField,
+                numericValue.numericFieldUz,
+                numericValue.numericFieldRu,
+                languageCode,
+              );
+              features.add(MapEntry(fieldName, numericValue.numericValue));
+            }
+          }
+
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  localizations.about_this_item,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.darkBackground,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                // Show all items
+                ...features.map((feature) => _buildCharacteristicItem(
+                      feature.key,
+                      feature.value,
+                    )),
+              ],
             ),
-          ),
-          const SizedBox(height: 8),
-          // Show first 5 items
-          ...features.map((feature) => _buildCharacteristicItem(
-                feature.key,
-                feature.value,
-              )),
-          // Show "See All" button if there are more items
-        ],
-      ),
-    );
+          );
+        });
   }
 
   Widget _buildCharacteristicItem(String label, String value) {
