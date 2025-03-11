@@ -3,6 +3,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
@@ -18,8 +19,6 @@ import 'package:list_in/global/global_state.dart';
 import 'package:list_in/global/global_status.dart';
 import 'package:list_in/global/likeds/liked_publications_bloc.dart';
 import 'package:list_in/global/likeds/liked_publications_event.dart';
-import 'package:smooth_corner_updated/smooth_corner.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 // Core entity model
 @immutable
