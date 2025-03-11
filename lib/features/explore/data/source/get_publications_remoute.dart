@@ -5,9 +5,11 @@ import 'package:list_in/core/services/auth_service.dart';
 import 'package:list_in/features/explore/data/models/filter_publications_values_model.dart';
 import 'package:list_in/features/explore/data/models/prediction_model.dart';
 import 'package:list_in/features/explore/data/models/publication_model.dart';
+import 'package:list_in/features/profile/data/model/publication/paginated_publications_model.dart';
+
 //
 abstract class PublicationsRemoteDataSource {
-  Future<List<PublicationPairModel>> getPublications({
+  Future<PaginatedPublicationsModel> getPublications({
     String? sellerType,
     bool? isFree,
     String? categoryId,
@@ -63,7 +65,7 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
     required this.authService,
   });
   @override
-  Future<List<PublicationPairModel>> getPublications({
+  Future<PaginatedPublicationsModel> getPublications({
     String? categoryId,
     String? subcategoryId,
     String? sellerType,
@@ -110,12 +112,14 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
         options: options,
       );
 
-      final paginatedResponse = (response.data as List)
-          .map((item) => PublicationPairModel.fromJson(item))
-          .toList();
-
       debugPrint("😇😇Success");
-      return paginatedResponse;
+      if (response.data is Map<String, dynamic>) {
+        return PaginatedPublicationsModel.fromJson(response.data);
+      } else {
+        debugPrint(
+            "😇😇Unexpected response format: ${response.data.runtimeType}");
+        throw ServerExeption(message: 'Data format error');
+      }
     } on DioException catch (e) {
       debugPrint("😇😇Exception in fetching data remote DIO EXCEPTION $e");
       throw _handleDioException(e);

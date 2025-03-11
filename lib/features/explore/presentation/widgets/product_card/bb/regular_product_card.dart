@@ -19,6 +19,7 @@ import 'package:list_in/global/global_state.dart';
 import 'package:list_in/global/global_status.dart';
 import 'package:list_in/global/likeds/liked_publications_bloc.dart';
 import 'package:list_in/global/likeds/liked_publications_event.dart';
+import 'package:smooth_corner_updated/smooth_corner.dart';
 
 // Core entity model
 @immutable
@@ -78,7 +79,6 @@ class ProductCardViewModel {
 // Main product card widget
 class OptimizedProductCard extends StatelessWidget {
   static const double _imageAspectRatio = 1;
-  static const double _detailsHeight = 110;
 
   final ProductCardViewModel model;
   final VoidCallback? onTap;
@@ -111,7 +111,6 @@ class OptimizedProductCard extends StatelessWidget {
               likeStatus: model.likeStatus,
             ),
             SizedBox(
-              height: _detailsHeight,
               child: ProductDetailsSection(
                 title: model.title,
                 location: model.location,
@@ -163,8 +162,8 @@ class ProductImageSection extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.all(3),
-            child: ClipRRect(
-            
+            child: SmoothClipRRect(
+              smoothness: 0.8,
               borderRadius: BorderRadius.circular(20),
               child: _buildImage(),
             ),

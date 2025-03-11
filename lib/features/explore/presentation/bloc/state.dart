@@ -60,12 +60,12 @@ class HomeTreeState {
   final bool childIsPublicationsLoading;
   final bool childIsLoadingMore;
 
-  final List<PublicationPairEntity> initialPublications;
+  final List<GetPublicationEntity> initialPublications;
   final bool secondaryIsPublicationsLoading;
   final bool videoIsPublicationsLoading;
-  final List<PublicationPairEntity> childPublications;
+  final List<GetPublicationEntity> childPublications;
 
-  final List<PublicationPairEntity> searchPublications;
+  final List<GetPublicationEntity> searchPublications;
 
   final String? errorInitialPublicationsFetch;
   final String? errorSearchPublicationsFetch;
@@ -84,7 +84,7 @@ class HomeTreeState {
   // sec0ndary
 
   final bool secondaryIsLoadingMore;
-  final List<PublicationPairEntity> secondaryPublications;
+  final List<GetPublicationEntity> secondaryPublications;
 
   final bool videoIsLoadingMore;
   final List<GetPublicationEntity> videoPublications;
@@ -149,9 +149,9 @@ class HomeTreeState {
     this.errorChildPublicationsFetch,
     this.errorInitialPublicationsFetch,
     this.errorSearchPublicationsFetch,
-    List<PublicationPairEntity>? initialPublications,
-    List<PublicationPairEntity>? searchPublications,
-    List<PublicationPairEntity>? childPublications,
+    List<GetPublicationEntity>? initialPublications,
+    List<GetPublicationEntity>? searchPublications,
+    List<GetPublicationEntity>? childPublications,
     this.initialIsLoadingMore = false,
     this.initialHasReachedMax = false,
     this.initialCurrentPage = 0,
@@ -168,7 +168,7 @@ class HomeTreeState {
     this.searchIsPublicationsLoading = false,
     this.errorSecondaryPublicationsFetch,
     this.errorVideoPublicationsFetch,
-    List<PublicationPairEntity>? secondaryPublications,
+    List<GetPublicationEntity>? secondaryPublications,
     this.secondaryIsLoadingMore = false,
     this.secondaryHasReachedMax = false,
     this.secondaryCurrentPage = 0,
@@ -232,11 +232,11 @@ class HomeTreeState {
     double? priceFrom = double.nan,
     double? priceTo = double.nan,
     String? error,
-    List<PublicationPairEntity>? searchPublications,
-    List<PublicationPairEntity>? initialPublications,
-    List<PublicationPairEntity>? secondaryPublications,
+    List<GetPublicationEntity>? searchPublications,
+    List<GetPublicationEntity>? initialPublications,
+    List<GetPublicationEntity>? secondaryPublications,
     List<GetPublicationEntity>? videoPublications,
-    List<PublicationPairEntity>? childPublications,
+    List<GetPublicationEntity>? childPublications,
     bool? isLoading,
     bool? searchIsPublicationsLoading,
     bool? initialIsPublicationsLoading,

@@ -20,6 +20,7 @@ import 'package:list_in/global/global_event.dart';
 import 'package:list_in/global/global_state.dart';
 import 'package:list_in/global/global_status.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 @immutable
@@ -304,8 +305,9 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
       padding: EdgeInsets.symmetric(horizontal: 2),
       child: AspectRatio(
         aspectRatio: 9 / 16,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(24),
+        child: SmoothClipRRect(
+          smoothness: 0.8,
+          borderRadius: BorderRadius.circular(20),
           child: Stack(
             children: [
               PageView.builder(
@@ -369,14 +371,31 @@ class _UserInfoHeader extends StatelessWidget {
           // Profile image
           CircleAvatar(
             radius: 18,
-            backgroundImage: seller.imageUrl != null
-                ? CachedNetworkImageProvider('https://${seller.imageUrl}')
-                : null,
-            child: seller.imageUrl == null
-                ? const Icon(Icons.person, color: Colors.white)
-                : null,
+            backgroundColor: Colors.grey[300],
+            child: seller.imageUrl != null
+                ? ClipOval(
+                    child: CachedNetworkImage(
+                      imageUrl: 'https://${seller.imageUrl}',
+                      fit: BoxFit.cover,
+                      width: 36, // 2 * radius
+                      height: 36, // 2 * radius
+                      memCacheWidth:
+                          150, // Low resolution for performance (2x for high DPI)
+                      httpHeaders: const {
+                        'Accept': 'image/webp,image/jpeg'
+                      }, // Prefer optimized formats
+                      placeholder: (context, url) => const Icon(Icons.person,
+                          color: Colors.white70, size: 20),
+                      errorWidget: (context, url, error) => const Icon(
+                          Icons.person,
+                          color: Colors.white,
+                          size: 20),
+                      fadeInDuration: const Duration(milliseconds: 150),
+                    ),
+                  )
+                : const Icon(Icons.person, color: Colors.white, size: 20),
           ),
-        const  SizedBox(width: 10),
+          const SizedBox(width: 10),
 
           // User info
           Column(
@@ -389,9 +408,9 @@ class _UserInfoHeader extends StatelessWidget {
                     fontSize: 14,
                     color: AppColors.black),
               ),
-            const  SizedBox(
+              const SizedBox(
                 width: 70,
-                child: const Text(
+                child: Text(
                   "15:00",
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -404,7 +423,7 @@ class _UserInfoHeader extends StatelessWidget {
               ),
             ],
           ),
-        const  Spacer(),
+          const Spacer(),
 
           // Options button
           IconButton(

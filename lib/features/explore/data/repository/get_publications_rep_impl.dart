@@ -8,6 +8,7 @@ import 'package:list_in/features/explore/domain/enties/filter_prediction_values_
 import 'package:list_in/features/explore/domain/enties/prediction_entity.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/domain/repository/get_publications_repository.dart';
+import 'package:list_in/features/profile/domain/entity/publication/paginated_publications_entity.dart';
 
 class PublicationsRepositoryImpl implements PublicationsRepository {
   final PublicationsRemoteDataSource remoteDataSource;
@@ -17,7 +18,7 @@ class PublicationsRepositoryImpl implements PublicationsRepository {
   });
 
   @override
-  Future<Either<Failure, List<PublicationPairEntity>>>
+  Future<Either<Failure, PaginatedPublicationsEntity>>
       getPublicationsFiltered2({
     String? categoryId,
     String? subcategoryId,
@@ -50,7 +51,7 @@ class PublicationsRepositoryImpl implements PublicationsRepository {
         numeric: numeric,
       );
       return Right(
-        publications.map((pair) => pair.toEntity()).toList(),
+        publications.toEntity(),
       );
     } on ServerExeption {
       return Left(ServerFailure());

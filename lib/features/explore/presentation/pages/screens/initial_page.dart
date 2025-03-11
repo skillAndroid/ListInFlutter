@@ -115,7 +115,7 @@ class ScrollState {
 
 class PagingState {
   final pagingController =
-      PagingController<int, PublicationPairEntity>(firstPageKey: 0);
+      PagingController<int, GetPublicationEntity>(firstPageKey: 0);
 
   void dispose() {
     pagingController.dispose();
@@ -409,50 +409,26 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
   Widget _buildProductGrid() {
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 6),
-      sliver: PagedSliverList(
+      sliver: PagedSliverMasonryGrid.count(
+        crossAxisCount: 2,
+        mainAxisSpacing: 4,
+        crossAxisSpacing: 0,
         pagingController: _pagingState.pagingController,
-        builderDelegate: PagedChildBuilderDelegate(
+        builderDelegate: PagedChildBuilderDelegate<GetPublicationEntity>(
           firstPageProgressIndicatorBuilder: (_) => const Progress(),
           newPageProgressIndicatorBuilder: (_) => const Progress(),
-          itemBuilder: (context, item, index) {
-            final currentItem = item as PublicationPairEntity;
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 0),
-              child: currentItem.isSponsored
-                  ? Row(
-                      children: [
-                        Expanded(
-                          child: _buildAdvertisedProduct(
-                              currentItem.firstPublication),
-                        ),
-                        Expanded(
-                          child: _buildAdvertisedProduct(
-                              currentItem.firstPublication),
-                        )
-                      ],
-                    )
-                  : Row(
-                      children: [
-                        Expanded(
-                          child: ProductCardContainer(
-                            key: ValueKey(
-                                'regular_${currentItem.firstPublication.id}'),
-                            product: currentItem.firstPublication,
-                          ),
-                        ),
-                        const SizedBox(width: 1),
-                        Expanded(
-                          child: currentItem.secondPublication != null
-                              ? ProductCardContainer(
-                                  key: ValueKey(
-                                      'regular_${currentItem.secondPublication!.id}'),
-                                  product: currentItem.secondPublication!,
-                                )
-                              : const SizedBox.shrink(),
-                        ),
-                      ],
-                    ),
-            );
+          itemBuilder: (context, publication, index) {
+            // Determine if item should use advertised card based on video URL
+            final bool isAdvertised = publication.videoUrl != null;
+
+            return isAdvertised
+                ? _buildAdvertisedProduct(
+                    publication,
+                  )
+                : ProductCardContainer(
+                    key: ValueKey('regular_${publication.id}'),
+                    product: publication,
+                  );
           },
           firstPageErrorIndicatorBuilder: (context) => ErrorIndicator(
             error: _pagingState.pagingController.error,

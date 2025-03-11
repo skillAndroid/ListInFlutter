@@ -1,39 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 
-class PublicationPairModel {
-  final bool isSponsored;
-  final bool isLast;
-  final GetPublicationModel firstPublication;
-  final GetPublicationModel? secondPublication;
-
-  PublicationPairModel({
-    required this.isLast,
-    required this.isSponsored,
-    required this.firstPublication,
-    this.secondPublication,
-  });
-
-  factory PublicationPairModel.fromJson(Map<String, dynamic> json) {
-    return PublicationPairModel(
-      isLast: json['isLast'] ?? false,
-      isSponsored: json['isSponsored'] ?? false,
-      firstPublication:
-          GetPublicationModel.fromJson(json['firstPublication'] ?? {}),
-      secondPublication: json['secondPublication'] != null
-          ? GetPublicationModel.fromJson(json['secondPublication'])
-          : null,
-    );
-  }
-  PublicationPairEntity toEntity() {
-    return PublicationPairEntity(
-      isLast: isLast,
-      isSponsored: isSponsored,
-      firstPublication: firstPublication.toEntity(),
-      secondPublication: secondPublication?.toEntity(),
-    );
-  }
-}
 
 class VideoPublicationsModel {
   final bool isLast;

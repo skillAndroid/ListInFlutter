@@ -4,9 +4,10 @@ import 'package:list_in/core/error/failure.dart';
 import 'package:list_in/features/explore/domain/enties/filter_prediction_values_entity.dart';
 import 'package:list_in/features/explore/domain/enties/prediction_entity.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
+import 'package:list_in/features/profile/domain/entity/publication/paginated_publications_entity.dart';
 
 abstract class PublicationsRepository {
-  Future<Either<Failure, List<PublicationPairEntity>>>
+  Future<Either<Failure, PaginatedPublicationsEntity>>
       getPublicationsFiltered2({
     String? categoryId,
     String? subcategoryId,

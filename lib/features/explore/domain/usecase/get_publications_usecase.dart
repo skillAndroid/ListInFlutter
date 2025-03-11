@@ -3,6 +3,7 @@ import 'package:list_in/core/error/failure.dart';
 import 'package:list_in/core/usecases/usecases.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/domain/repository/get_publications_repository.dart';
+import 'package:list_in/features/profile/domain/entity/publication/paginated_publications_entity.dart';
 
 class GetPublicationsParams {
   final String? sellerType;
@@ -37,13 +38,13 @@ class GetPublicationsParams {
 }
 
 class GetPublicationsUsecase
-    extends UseCase2<List<PublicationPairEntity>, GetPublicationsParams> {
+    extends UseCase2<PaginatedPublicationsEntity, GetPublicationsParams> {
   final PublicationsRepository repository;
 
   GetPublicationsUsecase(this.repository);
 
   @override
-  Future<Either<Failure, List<PublicationPairEntity>>> call(
+  Future<Either<Failure, PaginatedPublicationsEntity>> call(
       {GetPublicationsParams? params}) {
     return repository.getPublicationsFiltered2(
       query: params?.query,

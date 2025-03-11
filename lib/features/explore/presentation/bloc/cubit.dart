@@ -73,41 +73,6 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     ));
   }
 
-  void _syncFollowStatuses(List<PublicationPairEntity> publications) {
-    final Map<String, bool> newFollowStatuses = {};
-    final Map<String, int> newFollowersCount = {};
-    final Map<String, int> newFollowingCount = {};
-    final Map<String, bool> publicationViewedStatus = {}; // Add this
-
-    for (var pair in publications) {
-      final firstSeller = pair.firstPublication.seller;
-      newFollowStatuses[firstSeller.id] = firstSeller.isFollowing;
-      newFollowersCount[firstSeller.id] = firstSeller.followers;
-      newFollowingCount[firstSeller.id] = firstSeller.followings;
-
-      publicationViewedStatus[pair.firstPublication.id] =
-          pair.firstPublication.isViewed;
-
-      if (pair.secondPublication != null) {
-        final secondSeller = pair.secondPublication!.seller;
-        newFollowStatuses[secondSeller.id] = secondSeller.isFollowing;
-        newFollowersCount[secondSeller.id] = secondSeller.followers;
-        newFollowingCount[secondSeller.id] = secondSeller.followings;
-
-        // Process second publication view status
-        publicationViewedStatus[pair.secondPublication!.id] =
-            pair.secondPublication!.isViewed;
-      }
-    }
-
-    globalBloc.add(SyncFollowStatusesEvent(
-      userFollowStatuses: newFollowStatuses,
-      userFollowersCount: newFollowersCount,
-      userFollowingCount: newFollowingCount,
-      publicationViewedStatus: publicationViewedStatus, // Include view status
-    ));
-  }
-
   void _syncLikeStatusesForPublications(
       List<GetPublicationEntity> publications) {
     final Map<String, bool> publicationLikeStatuses = {};
@@ -118,28 +83,6 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
 
     globalBloc.add(SyncLikeStatusesEvent(
       publicationLikeStatuses: publicationLikeStatuses,
-    ));
-  }
-
-  void _syncLikeStatuses(List<PublicationPairEntity> publications) {
-    // Create a map for new like statuses
-    final Map<String, bool> newLikeStatuses = {};
-
-    // Process all publications
-    for (var pair in publications) {
-      // Add first publication's like status
-      newLikeStatuses[pair.firstPublication.id] = pair.firstPublication.isLiked;
-
-      // Add second publication's like status if it exists
-      if (pair.secondPublication != null) {
-        newLikeStatuses[pair.secondPublication!.id] =
-            pair.secondPublication!.isLiked;
-      }
-    }
-
-    // Send the new statuses to be merged with existing ones
-    globalBloc.add(SyncLikeStatusesEvent(
-      publicationLikeStatuses: newLikeStatuses,
     ));
   }
 
@@ -446,15 +389,14 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
           final updatedPublications =
               pageKey == 0 ? paginatedData : paginatedData;
 
-          final isLastPage =
-              paginatedData.isNotEmpty ? paginatedData.last.isLast : true;
-          _syncFollowStatuses(updatedPublications);
-          _syncLikeStatuses(updatedPublications);
+          final isLastPage = paginatedData.last;
+          _syncFollowStatusesForPublications(updatedPublications.content);
+          _syncLikeStatusesForPublications(updatedPublications.content);
           emit(
             state.copyWith(
               searchPublicationsRequestState: RequestState.completed,
               errorSearchPublicationsFetch: null,
-              searchPublications: updatedPublications,
+              searchPublications: updatedPublications.content,
               searchHasReachedMax: isLastPage,
               searchCurrentPage: pageKey,
             ),
@@ -557,18 +499,17 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
         (paginatedData) {
           final updatedPublications =
               pageKey == 0 ? paginatedData : paginatedData;
-          final isLastPage =
-              paginatedData.isNotEmpty ? paginatedData.last.isLast : true;
+          final isLastPage = paginatedData.last;
 
           // Sync follow statuses
-          _syncFollowStatuses(updatedPublications);
-          _syncLikeStatuses(updatedPublications);
+          _syncFollowStatusesForPublications(updatedPublications.content);
+          _syncLikeStatusesForPublications(updatedPublications.content);
 
           emit(
             state.copyWith(
               initialPublicationsRequestState: RequestState.completed,
               errorInitialPublicationsFetch: null,
-              initialPublications: updatedPublications,
+              initialPublications: updatedPublications.content,
               initialHasReachedMax: isLastPage,
               initialCurrentPage: pageKey,
               filtersTrigered: false,
@@ -647,15 +588,14 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
           final updatedPublications =
               pageKey == 0 ? paginatedData : paginatedData;
 
-          final isLastPage =
-              paginatedData.isNotEmpty ? paginatedData.last.isLast : true;
-          _syncFollowStatuses(updatedPublications);
-          _syncLikeStatuses(updatedPublications);
+          final isLastPage = paginatedData.last;
+          _syncFollowStatusesForPublications(updatedPublications.content);
+          _syncLikeStatusesForPublications(updatedPublications.content);
           emit(
             state.copyWith(
               secondaryPublicationsRequestState: RequestState.completed,
               errorSecondaryPublicationsFetch: null,
-              secondaryPublications: updatedPublications,
+              secondaryPublications: updatedPublications.content,
               secondaryHasReachedMax: isLastPage,
               secondaryCurrentPage: pageKey,
               filtersTrigered: false,
@@ -741,12 +681,12 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
           final updatedPublications =
               pageKey == 0 ? paginatedData : paginatedData;
           final isLastPage =
-              paginatedData.isNotEmpty ? paginatedData.last.isLast : true;
-          _syncFollowStatuses(updatedPublications);
-          _syncLikeStatuses(updatedPublications);
+              paginatedData.last;
+          _syncFollowStatusesForPublications(updatedPublications.content);
+          _syncLikeStatusesForPublications(updatedPublications.content);
           emit(state.copyWith(
             childPublicationsRequestState: RequestState.completed,
-            childPublications: updatedPublications,
+            childPublications: updatedPublications.content,
             childHasReachedMax: isLastPage,
             childCurrentPage: pageKey,
             errorChildPublicationsFetch: null,
