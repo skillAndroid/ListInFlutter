@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -213,10 +215,10 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
         children: [
           // User info section at top
           _UserInfoHeader(seller: widget.model.seller),
-      
+
           // Media carousel
           _buildMediaCarousel(),
-      
+
           // Product info section
           Padding(
             padding: EdgeInsets.symmetric(vertical: 12, horizontal: 6),
@@ -233,7 +235,7 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
                       children: [
                         TextSpan(
                           text: "${widget.model.title} ",
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 12,
                             height: 1.2,
                             fontFamily: Constants.Arial,
@@ -243,7 +245,7 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
                         ),
                         TextSpan(
                           text: " ${widget.model.description}",
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 12,
                             height: 1.2,
                             fontFamily: Constants.Arial,
@@ -255,8 +257,8 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
                     ),
                   ),
                 ),
-                SizedBox(height: 8),
-      
+                const SizedBox(height: 8),
+
                 // Price and action buttons
                 Row(
                   children: [
@@ -266,40 +268,27 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
                         color: AppColors.littleGreen,
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       child: Text(
                         formatPrice(widget.model.price.toString()),
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 17,
                           color: AppColors.black,
                         ),
                       ),
                     ),
-                    Spacer(),
-      
-                    // // Write button
-                    // _ActionButton(
-                    //   icon: CupertinoIcons
-                    //       .bubble_left_fill, // Remove icon to match image
-                    //   color: Colors.blue,
-                    //   onPressed: () {
-                    //     // Add message action here
-                    //   },
-                    // ),
-                    // SizedBox(width: 4),
-      
+                    const Spacer(),
+
                     // Call button
                     _ActionButton(
-                      icon: CupertinoIcons
-                          .phone_fill, // Remove icon to match image
                       color: Colors.green,
                       onPressed: !widget.model.isOwner
                           ? () => _makeCall(context)
                           : null,
                     ),
-                    SizedBox(width: 4),
+                    const SizedBox(width: 4),
                   ],
                 ),
               ],
@@ -384,10 +373,10 @@ class _UserInfoHeader extends StatelessWidget {
                 ? CachedNetworkImageProvider('https://${seller.imageUrl}')
                 : null,
             child: seller.imageUrl == null
-                ? Icon(Icons.person, color: Colors.white)
+                ? const Icon(Icons.person, color: Colors.white)
                 : null,
           ),
-          SizedBox(width: 10),
+        const  SizedBox(width: 10),
 
           // User info
           Column(
@@ -395,14 +384,14 @@ class _UserInfoHeader extends StatelessWidget {
             children: [
               Text(
                 seller.name,
-                style: TextStyle(
+                style: const TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 14,
                     color: AppColors.black),
               ),
-              SizedBox(
+            const  SizedBox(
                 width: 70,
-                child: Text(
+                child: const Text(
                   "15:00",
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -415,11 +404,11 @@ class _UserInfoHeader extends StatelessWidget {
               ),
             ],
           ),
-          Spacer(),
+        const  Spacer(),
 
           // Options button
           IconButton(
-            icon: Icon(
+            icon: const Icon(
               Icons.more_horiz,
               color: AppColors.black,
             ),
@@ -434,12 +423,10 @@ class _UserInfoHeader extends StatelessWidget {
 }
 
 class _ActionButton extends StatelessWidget {
-  final IconData icon;
   final Color color;
   final VoidCallback? onPressed;
 
   const _ActionButton({
-    required this.icon,
     required this.color,
     this.onPressed,
   });
@@ -462,10 +449,11 @@ class _ActionButton extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(32),
           ),
-          minimumSize: Size(28, 28), // Set minimum size
+          minimumSize: const Size(28, 28), // Set minimum size
           tapTargetSize: MaterialTapTargetSize.shrinkWrap, // Reduce tap target
         ),
-        icon: Icon(icon, size: 16), // Smaller icon size
+        icon: const Icon(CupertinoIcons.phone_fill,
+            size: 16), // Smaller icon size
       ),
     );
   }
