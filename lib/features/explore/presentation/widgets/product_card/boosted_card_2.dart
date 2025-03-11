@@ -1,10 +1,11 @@
 
-
+// ignore_for_file: deprecated_member_use
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
@@ -86,7 +87,6 @@ class AdvertisedProductViewModel {
         name: publication.seller.nickName,
         imageUrl: publication.seller.profileImagePath,
         phoneNumber: publication.seller.phoneNumber,
-        locationName: publication.seller.locationName,
         rating: 4.5, // Hardcoded for now, should come from API
       ),
     );
@@ -100,7 +100,6 @@ class SellerInfo {
   final String? imageUrl;
   final String phoneNumber;
   final double rating;
-  final String? locationName;
 
   const SellerInfo({
     required this.id,
@@ -108,7 +107,6 @@ class SellerInfo {
     required this.imageUrl,
     required this.phoneNumber,
     required this.rating,
-    required this.locationName,
   });
 }
 
@@ -211,110 +209,15 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: _handleCardTap,
-      child: Card(
-        elevation: 0,
-        color: AppColors.white,
-        shape: RoundedRectangleBorder(
-          side: BorderSide(width: 1, color: AppColors.grey.withOpacity(0.5)),
-          borderRadius: BorderRadius.circular(28),
-        ),
-        margin: EdgeInsets.all(4),
+      child: Container(
+        margin: EdgeInsets.all(3),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // User info section at top
-            _UserInfoHeader(seller: widget.model.seller),
-
-            // Media carousel
             _buildMediaCarousel(),
-
-            // Product info section
-            Padding(
-              padding: EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Title and description in same line as rich text
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                    child: RichText(
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      text: TextSpan(
-                        children: [
-                          TextSpan(
-                            text: "${widget.model.title} ",
-                            style: TextStyle(
-                              fontSize: 12,
-                              height: 1.2,
-                              fontFamily: Constants.Arial,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black,
-                            ),
-                          ),
-                          TextSpan(
-                            text: " ${widget.model.description}",
-                            style: TextStyle(
-                              fontSize: 12,
-                              height: 1.2,
-                              fontFamily: Constants.Arial,
-                              fontWeight: FontWeight.w400,
-                              color: AppColors.darkGray,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 8),
-
-                  // Price and action buttons
-                  Row(
-                    children: [
-                      // Price
-                      Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.littleGreen,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        child: Text(
-                          formatPrice(widget.model.price.toString()),
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 17,
-                            color: AppColors.black,
-                          ),
-                        ),
-                      ),
-                      Spacer(),
-
-                      // Write button
-                      _ActionButton(
-                        icon: CupertinoIcons
-                            .bubble_left_fill, // Remove icon to match image
-                        color: Colors.blue,
-                        onPressed: () {
-                          // Add message action here
-                        },
-                      ),
-                      SizedBox(width: 4),
-
-                      // Call button
-                      _ActionButton(
-                        icon: CupertinoIcons
-                            .phone_fill, // Remove icon to match image
-                        color: Colors.green,
-                        onPressed: !widget.model.isOwner
-                            ? () => _makeCall(context)
-                            : null,
-                      ),
-                      SizedBox(width: 4),
-                    ],
-                  ),
-                ],
-              ),
+            _ProductInfo(
+              model: widget.model,
+              onCallPressed: () => _makeCall(context),
             ),
           ],
         ),
@@ -324,11 +227,11 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
 
   Widget _buildMediaCarousel() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 8),
-      child: AspectRatio(
-        aspectRatio: 16 / 11.5,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(24),
+      padding: EdgeInsets.all(3),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: AspectRatio(
+          aspectRatio: 16 / 11,
           child: Stack(
             children: [
               PageView.builder(
@@ -350,25 +253,9 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
                   isLiked: widget.model.isLiked,
                   likeStatus: widget.model.likeStatus,
                 ),
-              // Page indicator in top right of image
-              Positioned(
-                top: 10,
-                right: 14,
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.8),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    '${_currentPage + 1} of ${widget.model.images.length}',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
+              PageIndicator(
+                currentPage: _currentPage,
+                totalPages: widget.model.images.length,
               ),
             ],
           ),
@@ -378,66 +265,84 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
   }
 }
 
-class _UserInfoHeader extends StatelessWidget {
-  final SellerInfo seller;
+class _ProductInfo extends StatelessWidget {
+  final AdvertisedProductViewModel model;
+  final VoidCallback onCallPressed;
 
-  const _UserInfoHeader({required this.seller});
+  const _ProductInfo({
+    required this.model,
+    required this.onCallPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 6, horizontal: 14),
-      child: Row(
+      padding: const EdgeInsets.only(left: 8, right: 8, top: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Profile image
-          CircleAvatar(
-            radius: 18,
-            backgroundImage: seller.imageUrl != null
-                ? CachedNetworkImageProvider('https://${seller.imageUrl}')
-                : null,
-            child: seller.imageUrl == null
-                ? Icon(Icons.person, color: Colors.white)
-                : null,
-          ),
-          SizedBox(width: 10),
-
-          // User info
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(
-                seller.name,
-                style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                    color: AppColors.black),
-              ),
-              SizedBox(
-                width: 200,
+              Expanded(
                 child: Text(
-                  "${seller.locationName}",
-                  maxLines: 1,
+                  model.title,
+                  style: const TextStyle(
+                    fontSize: 14.5,
+                    color: AppColors.black,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                      height: 1,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 14,
-                      color: AppColors.darkGray),
                 ),
               ),
             ],
           ),
-          Spacer(),
-
-          // Options button
-          IconButton(
-            icon: Icon(
-              Icons.more_horiz,
+          // Price with condition tag
+          Text(
+            formatPrice(model.price.toString()),
+            style: const TextStyle(
+              fontWeight: FontWeight.w700,
+              fontSize: 17,
               color: AppColors.black,
             ),
-            onPressed: () {
-              // Add options menu here
-            },
+          ),
+          Text(
+            model.condition == "NEW_PRODUCT"
+                ? AppLocalizations.of(context)!.condition_new
+                : AppLocalizations.of(context)!.condition_used,
+            style: TextStyle(
+              fontSize: 13.5,
+              color: AppColors.black,
+              fontWeight: FontWeight.w300,
+            ),
+          ),
+
+          _SellerInfo(model: model),
+          Text(
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            model.description,
+            style: TextStyle(
+              color: AppColors.black,
+              fontSize: 13.5,
+            ),
+          ),
+          Text(
+            model.location,
+            style: TextStyle(
+              color: AppColors.darkGray,
+              fontSize: 13,
+              fontWeight: FontWeight.w300,
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // Call button
+          _CallButton(
+            isOwner: model.isOwner,
+            onPressed: onCallPressed,
           ),
         ],
       ),
@@ -445,40 +350,50 @@ class _UserInfoHeader extends StatelessWidget {
   }
 }
 
-class _ActionButton extends StatelessWidget {
-  final IconData icon;
-  final Color color;
-  final VoidCallback? onPressed;
+class _SellerInfo extends StatelessWidget {
+  final AdvertisedProductViewModel model;
 
-  const _ActionButton({
-    required this.icon,
-    required this.color,
-    this.onPressed,
-  });
+  const _SellerInfo({required this.model});
 
   @override
   Widget build(BuildContext context) {
-    final isDisabled = onPressed == null;
-
-    return SizedBox(
-      width: 30, // Control the overall width
-      height: 30, // Control the overall height
-      child: IconButton(
-        onPressed: onPressed,
-        padding: EdgeInsets.zero, // Remove padding
-        constraints: BoxConstraints(), // Remove default constraints
-        style: IconButton.styleFrom(
-          foregroundColor: isDisabled ? Colors.grey : color,
-          backgroundColor:
-              isDisabled ? Colors.grey[100] : color.withOpacity(0.1),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(32),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          model.seller.name,
+          style: const TextStyle(
+            fontWeight: FontWeight.w400,
+            fontSize: 13.5,
+            color: AppColors.black,
           ),
-          minimumSize: Size(28, 28), // Set minimum size
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap, // Reduce tap target
         ),
-        icon: Icon(icon, size: 16), // Smaller icon size
-      ),
+        const SizedBox(
+          width: 4,
+        ),
+        const Icon(
+          CupertinoIcons.star_fill,
+          color: CupertinoColors.systemYellow,
+          size: 13,
+        ),
+        const SizedBox(width: 4),
+        Text(
+          model.seller.rating.toString(),
+          style: const TextStyle(
+            fontWeight: FontWeight.w500,
+            fontSize: 13.5,
+            color: AppColors.black,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          '(${model.views})',
+          style: TextStyle(
+            fontSize: 12.5,
+            color: AppColors.darkGray.withOpacity(0.7),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -568,25 +483,69 @@ class _OptimizedLikeButtonState extends State<OptimizedLikeButton>
   }
 
   Widget _buildLikeIcon() {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(40),
-        color: AppColors.white.withOpacity(0.8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 4,
-            offset: Offset(0, 2),
+    return Padding(
+      padding: const EdgeInsets.all(4.0),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(40),
+              color: AppColors.white.withOpacity(0.75),
+            ),
+            width: 32,
+            height: 32,
+            child: Padding(
+              padding: const EdgeInsets.all(6),
+              child: Image.asset(
+                widget.isLiked ? AppIcons.favoriteBlack : AppIcons.favorite,
+                color: widget.isLiked ? Colors.red : AppColors.black,
+              ),
+            ),
           ),
         ],
       ),
-      width: 36,
-      height: 36,
-      child: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Image.asset(
-          widget.isLiked ? AppIcons.favoriteBlack : AppIcons.favorite,
-          color: widget.isLiked ? Colors.red : AppColors.black,
+    );
+  }
+}
+
+class _CallButton extends StatelessWidget {
+  final bool isOwner;
+  final VoidCallback onPressed;
+
+  const _CallButton({
+    required this.isOwner,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: isOwner ? null : onPressed,
+      style: ElevatedButton.styleFrom(
+        minimumSize: const Size.fromHeight(32),
+        padding: const EdgeInsets.symmetric(vertical: 0),
+        backgroundColor: isOwner ? Colors.grey.shade200 : Colors.white,
+        foregroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(width: 1, color: AppColors.primary)),
+        elevation: 0,
+      ),
+      child: SizedBox(
+        width: double.infinity,
+        child: Center(
+          child: Text(
+            isOwner
+                ? AppLocalizations.of(context)!.cant_call_own_number
+                : AppLocalizations.of(context)!.call,
+            style: TextStyle(
+              fontSize: 14,
+              fontFamily: Constants.Arial,
+              fontWeight: FontWeight.w600,
+              color: isOwner ? Colors.grey.shade600 : AppColors.primary,
+            ),
+          ),
         ),
       ),
     );
