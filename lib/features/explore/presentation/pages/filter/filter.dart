@@ -12,6 +12,7 @@ import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/config/theme/app_language.dart';
 import 'package:list_in/config/theme/color_map.dart';
 import 'package:list_in/core/language/language_bloc.dart';
+import 'package:list_in/core/language/localisation_cache.dart';
 import 'package:list_in/core/router/go_router.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/core/utils/const.dart';
@@ -34,11 +35,11 @@ class FiltersPage extends StatefulWidget {
   State<FiltersPage> createState() => _FiltersPageState();
 }
 
-class _FiltersPageState extends State<FiltersPage>  
+class _FiltersPageState extends State<FiltersPage>
     with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late AnimationController _slideController;
-
+  late LocalizationCache _localizationCache;
   String? _selectedLocation;
 
   late HomeTreeState _initialState;
@@ -66,7 +67,7 @@ class _FiltersPageState extends State<FiltersPage>
       vsync: this,
     );
     _fadeController.forward();
-  } 
+  }
 
   @override
   void dispose() {
@@ -79,6 +80,11 @@ class _FiltersPageState extends State<FiltersPage>
   Widget build(BuildContext context) {
     final cubit = context.read<HomeTreeCubit>();
     final localizations = AppLocalizations.of(context)!;
+    final languageCode = context.select<LanguageBloc, String>((bloc) =>
+        bloc.state is LanguageLoaded
+            ? (bloc.state as LanguageLoaded).languageCode
+            : AppLanguages.english);
+    _localizationCache = LocalizationCache(languageCode);
     return WillPopScope(
       onWillPop: () async {
         cubit.emit(_initialState);
@@ -101,511 +107,491 @@ class _FiltersPageState extends State<FiltersPage>
             }
           },
           builder: (context, state) {
-            return BlocSelector<LanguageBloc, LanguageState, String>(
-              selector: (state) => state is LanguageLoaded
-                  ? state.languageCode
-                  : AppLanguages.english,
-              builder: (context, languageCode) {
-                return Stack(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(top: 30),
-                      child: CustomScrollView(
-                        slivers: [
-                          // Sticky Header
-                          SliverAppBar(
-                              pinned: true,
-                              floating: false,
-                              automaticallyImplyLeading: false,
-                              scrolledUnderElevation: 0,
-                              elevation: 0,
-                              backgroundColor: Colors.white,
-                              flexibleSpace: Padding(
-                                padding: EdgeInsets.only(
-                                  top: 8,
-                                  left: 16,
-                                  right: 16,
-                                ),
-                                child: Column(
+            return Stack(
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(top: 30),
+                  child: CustomScrollView(
+                    slivers: [
+                      // Sticky Header
+                      SliverAppBar(
+                          pinned: true,
+                          floating: false,
+                          automaticallyImplyLeading: false,
+                          scrolledUnderElevation: 0,
+                          elevation: 0,
+                          backgroundColor: Colors.white,
+                          flexibleSpace: Padding(
+                            padding: EdgeInsets.only(
+                              top: 8,
+                              left: 16,
+                              right: 16,
+                            ),
+                            child: Column(
+                              children: [
+                                Stack(
                                   children: [
-                                    Stack(
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
                                       children: [
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            InkWell(
-                                              child: Icon(Icons.clear_rounded),
-                                              onTap: () {
-                                                cubit.emit(_initialState);
-                                                Navigator.pop(context);
-                                              },
-                                            ),
-                                            Text(
-                                              localizations.clear_,
-                                              style: TextStyle(
-                                                  fontSize: 15,
-                                                  color: Colors.blue),
-                                            )
-                                          ],
+                                        InkWell(
+                                          child: Icon(Icons.clear_rounded),
+                                          onTap: () {
+                                            cubit.emit(_initialState);
+                                            Navigator.pop(context);
+                                          },
                                         ),
-                                        Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Padding(
-                                                padding:
-                                                    EdgeInsets.only(top: 3),
-                                                child: Text(
-                                                  localizations.filter,
-                                                  style: const TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 18,
-                                                  ),
-                                                ),
-                                              ),
-                                            ]),
+                                        Text(
+                                          localizations.clear_,
+                                          style: TextStyle(
+                                              fontSize: 15, color: Colors.blue),
+                                        )
                                       ],
                                     ),
+                                    Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Padding(
+                                            padding: EdgeInsets.only(top: 3),
+                                            child: Text(
+                                              localizations.filter,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 18,
+                                              ),
+                                            ),
+                                          ),
+                                        ]),
                                   ],
                                 ),
-                              )),
+                              ],
+                            ),
+                          )),
 
-                          SliverToBoxAdapter(
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 16.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  if (widget.page != 'result_page') ...[
-                                    Text(
-                                      localizations.category,
-                                      style: const TextStyle(
-                                        fontSize: 19,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      height: 16,
-                                    ),
-                                    _buildMainCategories(
-                                        state, cubit, languageCode),
-                                    if (state.selectedCatalog != null) ...[
-                                      SizedBox(
-                                        height: 24,
-                                      ),
-                                      Text(
-                                        state.selectedCatalog!.name,
-                                        style: const TextStyle(
-                                          fontSize: 19,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                      const SizedBox(
-                                        height: 16,
-                                      ),
-                                      _buildChildCategories(
-                                          state, cubit, languageCode),
-                                    ],
-                                  ],
-
-                                  if (widget.page == "result_page") ...[
-                                    Text(
-                                      localizations.searching,
-                                      style: const TextStyle(
-                                        fontSize: 19,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    Text(
-                                      state.searchText!,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.blue,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-
-                                  if (state.predictedPriceFrom >= 0)
-                                    PriceRangeSlider(
-                                      localizations: localizations,
-                                      min: state.predictedPriceFrom,
-                                      max: state.predictedPriceTo,
-                                      initialRange: state.priceFrom != null &&
-                                              state.priceTo != null
-                                          ? RangeValues(
-                                              state.priceFrom!, state.priceTo!)
-                                          : null,
-                                      totalResults: state
-                                          .predictedFoundPublications, // Pass the total results
-
-                                      onChanged: (RangeValues values) {
-                                        context
-                                            .read<HomeTreeCubit>()
-                                            .setPriceRange(
-                                                values.start, values.end, "");
-                                      },
-                                    ),
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (widget.page != 'result_page') ...[
+                                Text(
+                                  localizations.category,
+                                  style: const TextStyle(
+                                    fontSize: 19,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 16,
+                                ),
+                                _buildMainCategories(
+                                    state, cubit, languageCode),
+                                if (state.selectedCatalog != null) ...[
                                   SizedBox(
                                     height: 24,
                                   ),
-
-                                  _buildConditionFilter(state, localizations),
-                                  SizedBox(
-                                    height: 24,
+                                  Text(
+                                    state.selectedCatalog!.name,
+                                    style: const TextStyle(
+                                      fontSize: 19,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
-                                  _buildBargainToggle(state, localizations),
-                                  SizedBox(
-                                    height: 24,
-                                  ),
-                                  _buildSellerTypeFilter(state, localizations),
-                                  SizedBox(
-                                    height: 24,
-                                  ),
-                                  _buildLocationFilter(localizations),
-                                  SizedBox(
+                                  const SizedBox(
                                     height: 16,
                                   ),
-
-                                  SizedBox(
-                                    height: 16,
-                                  ),
-                                  // Attributes Section
-                                  if (state.selectedChildCategory != null)
-                                    if (state.selectedChildCategory !=
-                                        null) ...[
-                                      Text(
-                                        localizations.additional,
-                                        style: const TextStyle(
-                                          fontSize: 19,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                      Column(
-                                        children: state.orderedAttributes
-                                            .map((attribute) {
-                                          final selectedValue =
-                                              cubit.getSelectedAttributeValue(
-                                                  attribute);
-                                          final selectedValues = cubit
-                                              .getSelectedValues(attribute);
-
-                                          // Determine chip label based on selection type and count
-                                          String chipLabel;
-                                          if (attribute.filterWidgetType ==
-                                              'oneSelectable') {
-                                            chipLabel =
-                                                selectedValue?.value != null
-                                                    ? getLocalizedText(
-                                                        selectedValue?.value,
-                                                        selectedValue?.valueUz,
-                                                        selectedValue?.valueRu,
-                                                        languageCode)
-                                                    : getLocalizedText(
-                                                        attribute.filterText,
-                                                        attribute.filterTextUz,
-                                                        attribute.filterTextRu,
-                                                        languageCode);
-                                          } else {
-                                            if (selectedValues.isEmpty) {
-                                              chipLabel = getLocalizedText(
-                                                  attribute.filterText,
-                                                  attribute.filterTextUz,
-                                                  attribute.filterTextRu,
-                                                  languageCode);
-                                            } else if (selectedValues.length ==
-                                                1) {
-                                              chipLabel = getLocalizedText(
-                                                  selectedValues.first.value,
-                                                  selectedValues.first.valueUz,
-                                                  selectedValues.first.valueRu,
-                                                  languageCode);
-                                            } else {
-                                              chipLabel = '${getLocalizedText(
-                                                attribute.filterText,
-                                                attribute.filterTextUz,
-                                                attribute.filterTextRu,
-                                                languageCode,
-                                              )}(${selectedValues.length})';
-                                            }
-                                          }
-
-                                          Widget? colorIndicator;
-                                          if (attribute.filterWidgetType ==
-                                                  'colorMultiSelectable' &&
-                                              selectedValues.isNotEmpty) {
-                                            if (selectedValues.length == 1) {
-                                              // Single color indicator
-                                              colorIndicator = Container(
-                                                width: 16,
-                                                height: 16,
-                                                decoration: BoxDecoration(
-                                                  color: colorMap[selectedValues
-                                                          .first.value] ??
-                                                      Colors.grey,
-                                                  shape: BoxShape.circle,
-                                                  border: Border.all(
-                                                    color: (colorMap[
-                                                                selectedValues
-                                                                    .first
-                                                                    .value] ==
-                                                            Colors.white)
-                                                        ? Colors.grey
-                                                        : Colors.transparent,
-                                                    width: 1,
-                                                  ),
-                                                ),
-                                              );
-                                            } else {
-                                              // Stacked color indicators
-                                              colorIndicator = SizedBox(
-                                                width: 40,
-                                                height: 20,
-                                                child: Stack(
-                                                  children: [
-                                                    for (int i = 0;
-                                                        i <
-                                                            selectedValues
-                                                                .length;
-                                                        i++)
-                                                      Positioned(
-                                                        top: 0,
-                                                        bottom: 0,
-                                                        left: i * 7.0,
-                                                        child: Container(
-                                                          width: 16,
-                                                          height: 16,
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color: colorMap[
-                                                                    selectedValues[
-                                                                            i]
-                                                                        .value] ??
-                                                                Colors.grey,
-                                                            shape:
-                                                                BoxShape.circle,
-                                                            border: Border.all(
-                                                              color: (colorMap[selectedValues[
-                                                                              i]
-                                                                          .value] ==
-                                                                      Colors
-                                                                          .white)
-                                                                  ? Colors.grey
-                                                                  : Colors
-                                                                      .transparent,
-                                                              width: 1,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                  ],
-                                                ),
-                                              );
-                                            }
-                                          }
-
-                                          return Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                vertical: 4),
-                                            child: SizedBox(
-                                              width: double.infinity,
-                                              child: FilterChip(
-                                                showCheckmark: false,
-                                                padding: EdgeInsets.symmetric(
-                                                    horizontal: 16,
-                                                    vertical: 16),
-                                                label: Row(
-                                                  mainAxisSize:
-                                                      MainAxisSize.max,
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                  children: [
-                                                    Row(
-                                                      children: [
-                                                        if (colorIndicator !=
-                                                            null) ...[
-                                                          colorIndicator,
-                                                          const SizedBox(
-                                                              width: 4),
-                                                        ],
-                                                        Text(
-                                                          chipLabel,
-                                                          style: TextStyle(
-                                                            color: selectedValue !=
-                                                                    null
-                                                                ? AppColors
-                                                                    .black
-                                                                : AppColors
-                                                                    .black,
-                                                            fontWeight:
-                                                                FontWeight.w400,
-                                                            fontSize: 16,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    Icon(
-                                                      Icons
-                                                          .arrow_forward_ios_rounded,
-                                                      size: 16,
-                                                    )
-                                                  ],
-                                                ),
-                                                side: BorderSide(
-                                                    width: 1,
-                                                    color: AppColors
-                                                        .containerColor),
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(24),
-                                                ),
-                                                selected: selectedValue != null,
-                                                backgroundColor:
-                                                    AppColors.white,
-                                                selectedColor: AppColors.white,
-                                                onSelected: (_) {
-                                                  if (attribute
-                                                          .values.isNotEmpty &&
-                                                      mounted) {
-                                                    _showAttributeSelectionUI(
-                                                        context,
-                                                        attribute,
-                                                        localizations);
-                                                  }
-                                                },
-                                              ),
-                                            ),
-                                          );
-                                        }).toList(),
-                                      ),
-                                      // Add this after the existing attributes Column
-                                      if (state.numericFields.isNotEmpty) ...[
-                                        Column(
-                                          children: state.numericFields
-                                              .map((numericField) {
-                                            final fieldValues =
-                                                state.numericFieldValues[
-                                                    numericField.id];
-
-                                            // Determine the display text based on selected values
-                                            String displayText =
-                                                numericField.fieldName;
-                                            if (fieldValues != null) {
-                                              final from = fieldValues['from'];
-                                              final to = fieldValues['to'];
-
-                                              if (from != null && to != null) {
-                                                displayText = '$from - $to';
-                                              } else if (from != null) {
-                                                displayText = '≥ $from';
-                                              } else if (to != null) {
-                                                displayText = '≤ $to';
-                                              }
-                                            }
-
-                                            return Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical: 4),
-                                              child: SizedBox(
-                                                width: double.infinity,
-                                                child: FilterChip(
-                                                  showCheckmark: false,
-                                                  padding: EdgeInsets.symmetric(
-                                                      horizontal: 16,
-                                                      vertical: 16),
-                                                  label: Row(
-                                                    mainAxisSize:
-                                                        MainAxisSize.max,
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
-                                                    children: [
-                                                      Text(
-                                                        displayText,
-                                                        style: TextStyle(
-                                                          color:
-                                                              AppColors.black,
-                                                          fontWeight:
-                                                              FontWeight.w400,
-                                                          fontSize: 16,
-                                                        ),
-                                                      ),
-                                                      Icon(
-                                                        Icons
-                                                            .arrow_forward_ios_rounded,
-                                                        size: 16,
-                                                      )
-                                                    ],
-                                                  ),
-                                                  side: BorderSide(
-                                                      width: 1,
-                                                      color: AppColors
-                                                          .containerColor),
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            24),
-                                                  ),
-                                                  selected: fieldValues != null,
-                                                  backgroundColor:
-                                                      AppColors.white,
-                                                  selectedColor:
-                                                      AppColors.white,
-                                                  onSelected: (_) {
-                                                    _showNumericFieldBottomSheet(
-                                                        context, numericField);
-                                                  },
-                                                ),
-                                              ),
-                                            );
-                                          }).toList(),
-                                        ),
-                                      ],
-                                    ],
+                                  _buildChildCategories(
+                                      state, cubit, languageCode),
                                 ],
+                              ],
+
+                              if (widget.page == "result_page") ...[
+                                Text(
+                                  localizations.searching,
+                                  style: const TextStyle(
+                                    fontSize: 19,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                Text(
+                                  state.searchText!,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.blue,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+
+                              if (state.predictedPriceFrom >= 0)
+                                PriceRangeSlider(
+                                  localizations: localizations,
+                                  min: state.predictedPriceFrom,
+                                  max: state.predictedPriceTo,
+                                  initialRange: state.priceFrom != null &&
+                                          state.priceTo != null
+                                      ? RangeValues(
+                                          state.priceFrom!, state.priceTo!)
+                                      : null,
+                                  totalResults: state
+                                      .predictedFoundPublications, // Pass the total results
+
+                                  onChanged: (RangeValues values) {
+                                    context.read<HomeTreeCubit>().setPriceRange(
+                                        values.start, values.end, "");
+                                  },
+                                ),
+                              SizedBox(
+                                height: 24,
                               ),
-                            ),
+
+                              _buildConditionFilter(state, localizations),
+                              SizedBox(
+                                height: 24,
+                              ),
+                              _buildBargainToggle(state, localizations),
+                              SizedBox(
+                                height: 24,
+                              ),
+                              _buildSellerTypeFilter(state, localizations),
+                              SizedBox(
+                                height: 24,
+                              ),
+                              _buildLocationFilter(localizations),
+                              SizedBox(
+                                height: 16,
+                              ),
+
+                              SizedBox(
+                                height: 16,
+                              ),
+                              // Attributes Section
+                              if (state.selectedChildCategory != null)
+                                if (state.selectedChildCategory != null) ...[
+                                  _buildAttributesSection(state, cubit,
+                                      languageCode, context, localizations),
+                                ],
+                            ],
                           ),
-                          SliverToBoxAdapter(
-                            child: SizedBox(
-                              height: 80,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      child: Container(
-                        padding: EdgeInsets.only(
-                          left: 16,
-                          right: 16,
-                          bottom: 16,
-                          top: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                        ),
-                        child: BlocBuilder<HomeTreeCubit, HomeTreeState>(
-                          builder: (context, state) =>
-                              _buildApplyButton(state, localizations),
                         ),
                       ),
+                      SliverToBoxAdapter(
+                        child: SizedBox(
+                          height: 80,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: Container(
+                    padding: EdgeInsets.only(
+                      left: 16,
+                      right: 16,
+                      bottom: 16,
+                      top: 8,
                     ),
-                  ],
-                );
-              },
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                    ),
+                    child: BlocBuilder<HomeTreeCubit, HomeTreeState>(
+                      builder: (context, state) =>
+                          _buildApplyButton(state, localizations),
+                    ),
+                  ),
+                ),
+              ],
             );
+          },
+        ),
+      ),
+    );
+  }
+
+// First, let's create a separate widget for the attributes section
+  Widget _buildAttributesSection(
+      HomeTreeState state,
+      HomeTreeCubit cubit,
+      String languageCode,
+      BuildContext context,
+      AppLocalizations localizations) {
+    if (state.selectedChildCategory == null) {
+      return SizedBox.shrink();
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          localizations.additional,
+          style: const TextStyle(
+            fontSize: 19,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        // Attributes list
+        Column(
+          children: state.orderedAttributes.map((attribute) {
+            return _buildAttributeChip(
+              attribute: attribute,
+              cubit: cubit,
+              languageCode: languageCode,
+              context: context,
+              localizations: localizations,
+            );
+          }).toList(),
+        ),
+        // Numeric fields
+        if (state.numericFields.isNotEmpty)
+          Column(
+            children: state.numericFields.map((numericField) {
+              return _buildNumericFieldChip(
+                numericField: numericField,
+                state: state,
+                context: context,
+              );
+            }).toList(),
+          ),
+      ],
+    );
+  }
+// Helper widget for attribute chips
+Widget _buildAttributeChip({
+  required AttributeModel attribute,
+  required HomeTreeCubit cubit,
+  required String languageCode,
+  required BuildContext context,
+  required AppLocalizations localizations,
+}) {
+  final selectedValue = cubit.getSelectedAttributeValue(attribute);
+  // Get selected values and ensure correct typing
+  final dynamic rawSelectedValues = cubit.getSelectedValues(attribute);
+  final List<AttributeValueModel> selectedValues;
+  
+  // Handle different possible types of rawSelectedValues
+  if (rawSelectedValues == null) {
+    selectedValues = <AttributeValueModel>[];
+  } else if (rawSelectedValues is List<AttributeValueModel>) {
+    selectedValues = rawSelectedValues;
+  } else if (rawSelectedValues is List) {
+    // Cast each element if possible
+    selectedValues = rawSelectedValues
+        .whereType<AttributeValueModel>()
+        .toList();
+  } else {
+    // Fallback to empty list if unexpected type
+    selectedValues = <AttributeValueModel>[];
+  }
+  
+  // Use the cache instead of calling getLocalizedText directly
+  String chipLabel;
+  if (attribute.filterWidgetType == 'oneSelectable') {
+    chipLabel = selectedValue?.value != null
+        ? _localizationCache.getText(
+            selectedValue?.value,
+            selectedValue?.valueUz,
+            selectedValue?.valueRu)
+        : _localizationCache.getText(
+            attribute.filterText,
+            attribute.filterTextUz,
+            attribute.filterTextRu);
+  } else {
+    if (selectedValues.isEmpty) {
+      chipLabel = _localizationCache.getText(
+          attribute.filterText,
+          attribute.filterTextUz,
+          attribute.filterTextRu);
+    } else if (selectedValues.length == 1) {
+      chipLabel = _localizationCache.getText(
+          selectedValues.first.value,
+          selectedValues.first.valueUz,
+          selectedValues.first.valueRu);
+    } else {
+      final baseText = _localizationCache.getText(
+          attribute.filterText,
+          attribute.filterTextUz,
+          attribute.filterTextRu);
+      chipLabel = '$baseText(${selectedValues.length})';
+    }
+  }
+
+  // Color indicator logic with proper typing
+  Widget? colorIndicator;
+  if (attribute.filterWidgetType == 'colorMultiSelectable' && selectedValues.isNotEmpty) {
+    colorIndicator = _buildColorIndicator(selectedValues);
+  }
+
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 4),
+    child: SizedBox(
+      width: double.infinity,
+      child: FilterChip(
+        showCheckmark: false,
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        label: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                if (colorIndicator != null) ...[
+                  colorIndicator,
+                  const SizedBox(width: 4),
+                ],
+                Text(
+                  chipLabel,
+                  style: TextStyle(
+                    color: AppColors.black,
+                    fontWeight: FontWeight.w400,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+            Icon(
+              Icons.arrow_forward_ios_rounded,
+              size: 16,
+            )
+          ],
+        ),
+        side: BorderSide(width: 1, color: AppColors.containerColor),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+        ),
+        selected: selectedValue != null,
+        backgroundColor: AppColors.white,
+        selectedColor: AppColors.white,
+        onSelected: (_) {
+          if (attribute.values.isNotEmpty && context.mounted) {
+            _showAttributeSelectionUI(context, attribute, localizations);
+          }
+        },
+      ),
+    ),
+  );
+}
+
+// Helper widget for color indicators (now accepts just the selected values)
+Widget? _buildColorIndicator(List<AttributeValueModel> selectedValues) {
+  if (selectedValues.isEmpty) {
+    return null;
+  }
+  
+  if (selectedValues.length == 1) {
+    // Single color indicator
+    return Container(
+      width: 16,
+      height: 16,
+      decoration: BoxDecoration(
+        color: colorMap[selectedValues.first.value] ?? Colors.grey,
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: (colorMap[selectedValues.first.value] == Colors.white)
+              ? Colors.grey
+              : Colors.transparent,
+          width: 1,
+        ),
+      ),
+    );
+  } else {
+    // Stacked color indicators
+    return SizedBox(
+      width: 40,
+      height: 20,
+      child: Stack(
+        children: [
+          for (int i = 0; i < selectedValues.length; i++)
+            Positioned(
+              top: 0,
+              bottom: 0,
+              left: i * 7.0,
+              child: Container(
+                width: 16,
+                height: 16,
+                decoration: BoxDecoration(
+                  color: colorMap[selectedValues[i].value] ?? Colors.grey,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: (colorMap[selectedValues[i].value] == Colors.white)
+                        ? Colors.grey
+                        : Colors.transparent,
+                    width: 1,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+// Helper widget for numeric field chips
+  Widget _buildNumericFieldChip({
+    required NomericFieldModel numericField,
+    required HomeTreeState state,
+    required BuildContext context,
+  }) {
+    final fieldValues = state.numericFieldValues[numericField.id];
+
+    // Determine the display text based on selected values
+    String displayText = numericField.fieldName;
+    if (fieldValues != null) {
+      final from = fieldValues['from'];
+      final to = fieldValues['to'];
+
+      if (from != null && to != null) {
+        displayText = '$from - $to';
+      } else if (from != null) {
+        displayText = '≥ $from';
+      } else if (to != null) {
+        displayText = '≤ $to';
+      }
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: SizedBox(
+        width: double.infinity,
+        child: FilterChip(
+          showCheckmark: false,
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          label: Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                displayText,
+                style: TextStyle(
+                  color: AppColors.black,
+                  fontWeight: FontWeight.w400,
+                  fontSize: 16,
+                ),
+              ),
+              Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 16,
+              )
+            ],
+          ),
+          side: BorderSide(width: 1, color: AppColors.containerColor),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          selected: fieldValues != null,
+          backgroundColor: AppColors.white,
+          selectedColor: AppColors.white,
+          onSelected: (_) {
+            _showNumericFieldBottomSheet(context, numericField);
           },
         ),
       ),
@@ -1452,9 +1438,12 @@ class _FiltersPageState extends State<FiltersPage>
         spacing: 5,
         runSpacing: 5,
         children: state.catalogs?.map((category) {
+              // Use the cache instead of calling getLocalizedText directly
+              final label = _localizationCache.getText(
+                  category.name, category.nameUz, category.nameRu);
+
               return _buildAnimatedFilterChip(
-                label: getLocalizedText(category.name, category.nameUz,
-                    category.nameRu, languageCode),
+                label: label,
                 onSelected: (selected) {
                   if (selected) {
                     cubit.selectCatalog(category);
@@ -1481,9 +1470,12 @@ class _FiltersPageState extends State<FiltersPage>
         spacing: 5,
         runSpacing: 5,
         children: state.selectedCatalog?.childCategories.map((childCategory) {
+              // Use the cache
+              final label = _localizationCache.getText(childCategory.name,
+                  childCategory.nameUz, childCategory.nameRu);
+
               return _buildAnimatedFilterChip(
-                label: getLocalizedText(childCategory.name,
-                    childCategory.nameUz, childCategory.nameRu, languageCode),
+                label: label,
                 onSelected: (selected) {
                   if (selected) {
                     cubit.selectChildCategory(childCategory);
