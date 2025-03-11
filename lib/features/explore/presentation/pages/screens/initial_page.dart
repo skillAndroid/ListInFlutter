@@ -300,7 +300,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
   Widget _buildMainScreen(HomeTreeState state) {
     return Scaffold(
       backgroundColor: AppColors.white,
-          // CupertinoColors.extraLightBackgroundGray.withOpacity(0.5),
+      // CupertinoColors.extraLightBackgroundGray.withOpacity(0.5),
       extendBody: true,
       appBar: _buildAppBar(state),
       body: RefreshIndicator(
@@ -419,7 +419,18 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 0),
               child: currentItem.isSponsored
-                  ? _buildAdvertisedProduct(currentItem.firstPublication)
+                  ? Row(
+                      children: [
+                        Expanded(
+                          child: _buildAdvertisedProduct(
+                              currentItem.firstPublication),
+                        ),
+                        Expanded(
+                          child: _buildAdvertisedProduct(
+                              currentItem.firstPublication),
+                        )
+                      ],
+                    )
                   : Row(
                       children: [
                         Expanded(

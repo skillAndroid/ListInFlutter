@@ -1,5 +1,3 @@
-
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -210,122 +208,113 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: _handleCardTap,
-      child: Card(
-        elevation: 0,
-        color: AppColors.white,
-        shape: RoundedRectangleBorder(
-          side: BorderSide(width: 1, color: AppColors.grey.withOpacity(0.5)),
-          borderRadius: BorderRadius.circular(28),
-        ),
-        margin: EdgeInsets.all(4),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // User info section at top
-            _UserInfoHeader(seller: widget.model.seller),
-
-            // Media carousel
-            _buildMediaCarousel(),
-
-            // Product info section
-            Padding(
-              padding: EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Title and description in same line as rich text
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                    child: RichText(
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      text: TextSpan(
-                        children: [
-                          TextSpan(
-                            text: "${widget.model.title} ",
-                            style: TextStyle(
-                              fontSize: 12,
-                              height: 1.2,
-                              fontFamily: Constants.Arial,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black,
-                            ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // User info section at top
+          _UserInfoHeader(seller: widget.model.seller),
+      
+          // Media carousel
+          _buildMediaCarousel(),
+      
+          // Product info section
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 6),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Title and description in same line as rich text
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                  child: RichText(
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: "${widget.model.title} ",
+                          style: TextStyle(
+                            fontSize: 12,
+                            height: 1.2,
+                            fontFamily: Constants.Arial,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black,
                           ),
-                          TextSpan(
-                            text: " ${widget.model.description}",
-                            style: TextStyle(
-                              fontSize: 12,
-                              height: 1.2,
-                              fontFamily: Constants.Arial,
-                              fontWeight: FontWeight.w400,
-                              color: AppColors.darkGray,
-                            ),
+                        ),
+                        TextSpan(
+                          text: " ${widget.model.description}",
+                          style: TextStyle(
+                            fontSize: 12,
+                            height: 1.2,
+                            fontFamily: Constants.Arial,
+                            fontWeight: FontWeight.w400,
+                            color: AppColors.darkGray,
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
-                  SizedBox(height: 8),
-
-                  // Price and action buttons
-                  Row(
-                    children: [
-                      // Price
-                      Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.littleGreen,
-                          borderRadius: BorderRadius.circular(20),
+                ),
+                SizedBox(height: 8),
+      
+                // Price and action buttons
+                Row(
+                  children: [
+                    // Price
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.littleGreen,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      child: Text(
+                        formatPrice(widget.model.price.toString()),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 17,
+                          color: AppColors.black,
                         ),
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        child: Text(
-                          formatPrice(widget.model.price.toString()),
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 17,
-                            color: AppColors.black,
-                          ),
-                        ),
                       ),
-                      Spacer(),
-
-                      // Write button
-                      _ActionButton(
-                        icon: CupertinoIcons
-                            .bubble_left_fill, // Remove icon to match image
-                        color: Colors.blue,
-                        onPressed: () {
-                          // Add message action here
-                        },
-                      ),
-                      SizedBox(width: 4),
-
-                      // Call button
-                      _ActionButton(
-                        icon: CupertinoIcons
-                            .phone_fill, // Remove icon to match image
-                        color: Colors.green,
-                        onPressed: !widget.model.isOwner
-                            ? () => _makeCall(context)
-                            : null,
-                      ),
-                      SizedBox(width: 4),
-                    ],
-                  ),
-                ],
-              ),
+                    ),
+                    Spacer(),
+      
+                    // // Write button
+                    // _ActionButton(
+                    //   icon: CupertinoIcons
+                    //       .bubble_left_fill, // Remove icon to match image
+                    //   color: Colors.blue,
+                    //   onPressed: () {
+                    //     // Add message action here
+                    //   },
+                    // ),
+                    // SizedBox(width: 4),
+      
+                    // Call button
+                    _ActionButton(
+                      icon: CupertinoIcons
+                          .phone_fill, // Remove icon to match image
+                      color: Colors.green,
+                      onPressed: !widget.model.isOwner
+                          ? () => _makeCall(context)
+                          : null,
+                    ),
+                    SizedBox(width: 4),
+                  ],
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildMediaCarousel() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 8),
+      padding: EdgeInsets.symmetric(horizontal: 2),
       child: AspectRatio(
-        aspectRatio: 16 / 11.5,
+        aspectRatio: 9 / 16,
         child: ClipRRect(
           borderRadius: BorderRadius.circular(24),
           child: Stack(
@@ -385,7 +374,7 @@ class _UserInfoHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 6, horizontal: 14),
+      padding: EdgeInsets.symmetric(vertical: 6, horizontal: 6),
       child: Row(
         children: [
           // Profile image
@@ -412,9 +401,9 @@ class _UserInfoHeader extends StatelessWidget {
                     color: AppColors.black),
               ),
               SizedBox(
-                width: 200,
+                width: 70,
                 child: Text(
-                  "${seller.locationName}",
+                  "15:00",
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
