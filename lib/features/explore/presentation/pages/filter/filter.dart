@@ -122,7 +122,7 @@ class _FiltersPageState extends State<FiltersPage>
                           elevation: 0,
                           backgroundColor: Colors.white,
                           flexibleSpace: Padding(
-                            padding: EdgeInsets.only(
+                            padding: const EdgeInsets.only(
                               top: 8,
                               left: 16,
                               right: 16,
@@ -138,7 +138,8 @@ class _FiltersPageState extends State<FiltersPage>
                                           CrossAxisAlignment.center,
                                       children: [
                                         InkWell(
-                                          child: Icon(Icons.clear_rounded),
+                                          child:
+                                              const Icon(Icons.clear_rounded),
                                           onTap: () {
                                             cubit.emit(_initialState);
                                             Navigator.pop(context);
@@ -146,8 +147,10 @@ class _FiltersPageState extends State<FiltersPage>
                                         ),
                                         Text(
                                           localizations.clear_,
-                                          style: TextStyle(
-                                              fontSize: 15, color: Colors.blue),
+                                          style: const TextStyle(
+                                            fontSize: 15,
+                                            color: Colors.blue,
+                                          ),
                                         )
                                       ],
                                     ),
@@ -156,7 +159,8 @@ class _FiltersPageState extends State<FiltersPage>
                                             MainAxisAlignment.center,
                                         children: [
                                           Padding(
-                                            padding: EdgeInsets.only(top: 3),
+                                            padding:
+                                                const EdgeInsets.only(top: 3),
                                             child: Text(
                                               localizations.filter,
                                               style: const TextStyle(
@@ -192,7 +196,7 @@ class _FiltersPageState extends State<FiltersPage>
                                 _buildMainCategories(
                                     state, cubit, languageCode),
                                 if (state.selectedCatalog != null) ...[
-                                  SizedBox(
+                                  const SizedBox(
                                     height: 24,
                                   ),
                                   Text(
@@ -248,28 +252,28 @@ class _FiltersPageState extends State<FiltersPage>
                                         values.start, values.end, "");
                                   },
                                 ),
-                              SizedBox(
+                              const SizedBox(
                                 height: 24,
                               ),
 
                               _buildConditionFilter(state, localizations),
-                              SizedBox(
+                              const SizedBox(
                                 height: 24,
                               ),
                               _buildBargainToggle(state, localizations),
-                              SizedBox(
+                              const SizedBox(
                                 height: 24,
                               ),
                               _buildSellerTypeFilter(state, localizations),
-                              SizedBox(
+                              const SizedBox(
                                 height: 24,
                               ),
                               _buildLocationFilter(localizations),
-                              SizedBox(
+                              const SizedBox(
                                 height: 16,
                               ),
 
-                              SizedBox(
+                              const SizedBox(
                                 height: 16,
                               ),
                               // Attributes Section
@@ -283,7 +287,7 @@ class _FiltersPageState extends State<FiltersPage>
                         ),
                       ),
                       SliverToBoxAdapter(
-                        child: SizedBox(
+                        child: const SizedBox(
                           height: 80,
                         ),
                       ),
@@ -295,7 +299,7 @@ class _FiltersPageState extends State<FiltersPage>
                   right: 0,
                   bottom: 0,
                   child: Container(
-                    padding: EdgeInsets.only(
+                    padding: const EdgeInsets.only(
                       left: 16,
                       right: 16,
                       bottom: 16,
@@ -326,7 +330,7 @@ class _FiltersPageState extends State<FiltersPage>
       BuildContext context,
       AppLocalizations localizations) {
     if (state.selectedChildCategory == null) {
-      return SizedBox.shrink();
+      return const SizedBox.shrink();
     }
 
     return Column(
@@ -365,176 +369,168 @@ class _FiltersPageState extends State<FiltersPage>
       ],
     );
   }
+
 // Helper widget for attribute chips
-Widget _buildAttributeChip({
-  required AttributeModel attribute,
-  required HomeTreeCubit cubit,
-  required String languageCode,
-  required BuildContext context,
-  required AppLocalizations localizations,
-}) {
-  final selectedValue = cubit.getSelectedAttributeValue(attribute);
-  // Get selected values and ensure correct typing
-  final dynamic rawSelectedValues = cubit.getSelectedValues(attribute);
-  final List<AttributeValueModel> selectedValues;
-  
-  // Handle different possible types of rawSelectedValues
-  if (rawSelectedValues == null) {
-    selectedValues = <AttributeValueModel>[];
-  } else if (rawSelectedValues is List<AttributeValueModel>) {
-    selectedValues = rawSelectedValues;
-  } else if (rawSelectedValues is List) {
-    // Cast each element if possible
-    selectedValues = rawSelectedValues
-        .whereType<AttributeValueModel>()
-        .toList();
-  } else {
-    // Fallback to empty list if unexpected type
-    selectedValues = <AttributeValueModel>[];
-  }
-  
-  // Use the cache instead of calling getLocalizedText directly
-  String chipLabel;
-  if (attribute.filterWidgetType == 'oneSelectable') {
-    chipLabel = selectedValue?.value != null
-        ? _localizationCache.getText(
-            selectedValue?.value,
-            selectedValue?.valueUz,
-            selectedValue?.valueRu)
-        : _localizationCache.getText(
-            attribute.filterText,
-            attribute.filterTextUz,
-            attribute.filterTextRu);
-  } else {
-    if (selectedValues.isEmpty) {
-      chipLabel = _localizationCache.getText(
-          attribute.filterText,
-          attribute.filterTextUz,
-          attribute.filterTextRu);
-    } else if (selectedValues.length == 1) {
-      chipLabel = _localizationCache.getText(
-          selectedValues.first.value,
-          selectedValues.first.valueUz,
-          selectedValues.first.valueRu);
+  Widget _buildAttributeChip({
+    required AttributeModel attribute,
+    required HomeTreeCubit cubit,
+    required String languageCode,
+    required BuildContext context,
+    required AppLocalizations localizations,
+  }) {
+    final selectedValue = cubit.getSelectedAttributeValue(attribute);
+    // Get selected values and ensure correct typing
+    final dynamic rawSelectedValues = cubit.getSelectedValues(attribute);
+    final List<AttributeValueModel> selectedValues;
+
+    // Handle different possible types of rawSelectedValues
+    if (rawSelectedValues == null) {
+      selectedValues = <AttributeValueModel>[];
+    } else if (rawSelectedValues is List<AttributeValueModel>) {
+      selectedValues = rawSelectedValues;
+    } else if (rawSelectedValues is List) {
+      // Cast each element if possible
+      selectedValues =
+          rawSelectedValues.whereType<AttributeValueModel>().toList();
     } else {
-      final baseText = _localizationCache.getText(
-          attribute.filterText,
-          attribute.filterTextUz,
-          attribute.filterTextRu);
-      chipLabel = '$baseText(${selectedValues.length})';
+      // Fallback to empty list if unexpected type
+      selectedValues = <AttributeValueModel>[];
     }
-  }
 
-  // Color indicator logic with proper typing
-  Widget? colorIndicator;
-  if (attribute.filterWidgetType == 'colorMultiSelectable' && selectedValues.isNotEmpty) {
-    colorIndicator = _buildColorIndicator(selectedValues);
-  }
+    // Use the cache instead of calling getLocalizedText directly
+    String chipLabel;
+    if (attribute.filterWidgetType == 'oneSelectable') {
+      chipLabel = selectedValue?.value != null
+          ? _localizationCache.getText(selectedValue?.value,
+              selectedValue?.valueUz, selectedValue?.valueRu)
+          : _localizationCache.getText(attribute.filterText,
+              attribute.filterTextUz, attribute.filterTextRu);
+    } else {
+      if (selectedValues.isEmpty) {
+        chipLabel = _localizationCache.getText(attribute.filterText,
+            attribute.filterTextUz, attribute.filterTextRu);
+      } else if (selectedValues.length == 1) {
+        chipLabel = _localizationCache.getText(selectedValues.first.value,
+            selectedValues.first.valueUz, selectedValues.first.valueRu);
+      } else {
+        final baseText = _localizationCache.getText(attribute.filterText,
+            attribute.filterTextUz, attribute.filterTextRu);
+        chipLabel = '$baseText(${selectedValues.length})';
+      }
+    }
 
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 4),
-    child: SizedBox(
-      width: double.infinity,
-      child: FilterChip(
-        showCheckmark: false,
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        label: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                if (colorIndicator != null) ...[
-                  colorIndicator,
-                  const SizedBox(width: 4),
-                ],
-                Text(
-                  chipLabel,
-                  style: TextStyle(
-                    color: AppColors.black,
-                    fontWeight: FontWeight.w400,
-                    fontSize: 16,
+    // Color indicator logic with proper typing
+    Widget? colorIndicator;
+    if (attribute.filterWidgetType == 'colorMultiSelectable' &&
+        selectedValues.isNotEmpty) {
+      colorIndicator = _buildColorIndicator(selectedValues);
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: SizedBox(
+        width: double.infinity,
+        child: FilterChip(
+          showCheckmark: false,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          label: Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  if (colorIndicator != null) ...[
+                    colorIndicator,
+                    const SizedBox(width: 4),
+                  ],
+                  Text(
+                    chipLabel,
+                    style: const TextStyle(
+                      color: AppColors.black,
+                      fontWeight: FontWeight.w400,
+                      fontSize: 16,
+                    ),
                   ),
-                ),
-              ],
-            ),
-            Icon(
-              Icons.arrow_forward_ios_rounded,
-              size: 16,
-            )
-          ],
-        ),
-        side: BorderSide(width: 1, color: AppColors.containerColor),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-        ),
-        selected: selectedValue != null,
-        backgroundColor: AppColors.white,
-        selectedColor: AppColors.white,
-        onSelected: (_) {
-          if (attribute.values.isNotEmpty && context.mounted) {
-            _showAttributeSelectionUI(context, attribute, localizations);
-          }
-        },
-      ),
-    ),
-  );
-}
-
-// Helper widget for color indicators (now accepts just the selected values)
-Widget? _buildColorIndicator(List<AttributeValueModel> selectedValues) {
-  if (selectedValues.isEmpty) {
-    return null;
-  }
-  
-  if (selectedValues.length == 1) {
-    // Single color indicator
-    return Container(
-      width: 16,
-      height: 16,
-      decoration: BoxDecoration(
-        color: colorMap[selectedValues.first.value] ?? Colors.grey,
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: (colorMap[selectedValues.first.value] == Colors.white)
-              ? Colors.grey
-              : Colors.transparent,
-          width: 1,
+                ],
+              ),
+            const  Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 16,
+              )
+            ],
+          ),
+          side: const BorderSide(width: 1, color: AppColors.containerColor),
+          shape:  RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          selected: selectedValue != null,
+          backgroundColor: AppColors.white,
+          selectedColor: AppColors.white,
+          onSelected: (_) {
+            if (attribute.values.isNotEmpty && context.mounted) {
+              _showAttributeSelectionUI(context, attribute, localizations);
+            }
+          },
         ),
       ),
     );
-  } else {
-    // Stacked color indicators
-    return SizedBox(
-      width: 40,
-      height: 20,
-      child: Stack(
-        children: [
-          for (int i = 0; i < selectedValues.length; i++)
-            Positioned(
-              top: 0,
-              bottom: 0,
-              left: i * 7.0,
-              child: Container(
-                width: 16,
-                height: 16,
-                decoration: BoxDecoration(
-                  color: colorMap[selectedValues[i].value] ?? Colors.grey,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: (colorMap[selectedValues[i].value] == Colors.white)
-                        ? Colors.grey
-                        : Colors.transparent,
-                    width: 1,
+  }
+
+// Helper widget for color indicators (now accepts just the selected values)
+  Widget? _buildColorIndicator(List<AttributeValueModel> selectedValues) {
+    if (selectedValues.isEmpty) {
+      return null;
+    }
+
+    if (selectedValues.length == 1) {
+      // Single color indicator
+      return Container(
+        width: 16,
+        height: 16,
+        decoration: BoxDecoration(
+          color: colorMap[selectedValues.first.value] ?? Colors.grey,
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: (colorMap[selectedValues.first.value] == Colors.white)
+                ? Colors.grey
+                : Colors.transparent,
+            width: 1,
+          ),
+        ),
+      );
+    } else {
+      // Stacked color indicators
+      return SizedBox(
+        width: 40,
+        height: 20,
+        child: Stack(
+          children: [
+            for (int i = 0; i < selectedValues.length; i++)
+              Positioned(
+                top: 0,
+                bottom: 0,
+                left: i * 7.0,
+                child: Container(
+                  width: 16,
+                  height: 16,
+                  decoration: BoxDecoration(
+                    color: colorMap[selectedValues[i].value] ?? Colors.grey,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: (colorMap[selectedValues[i].value] == Colors.white)
+                          ? Colors.grey
+                          : Colors.transparent,
+                      width: 1,
+                    ),
                   ),
                 ),
               ),
-            ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    }
   }
-}
+
 // Helper widget for numeric field chips
   Widget _buildNumericFieldChip({
     required NomericFieldModel numericField,
@@ -1343,7 +1339,6 @@ Widget? _buildColorIndicator(List<AttributeValueModel> selectedValues) {
     required String label,
     required Function(bool) onSelected,
     required bool isSelected,
-    Color? color,
   }) {
     return AnimatedSize(
       duration: Duration(milliseconds: 200),
@@ -1374,7 +1369,7 @@ Widget? _buildColorIndicator(List<AttributeValueModel> selectedValues) {
                     isSelected ? Colors.transparent : AppColors.containerColor,
               ),
             ),
-            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
         ),
@@ -1501,7 +1496,7 @@ Widget? _buildColorIndicator(List<AttributeValueModel> selectedValues) {
           padding: const EdgeInsets.only(left: 0, bottom: 8),
           child: Text(
             localizations.seller_type,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w500,
               color: Colors.black,
@@ -1520,7 +1515,7 @@ Widget? _buildColorIndicator(List<AttributeValueModel> selectedValues) {
               borderRadius:
                   BorderRadius.circular(24), // Чтобы границы были скруглёнными
             ),
-            padding: EdgeInsets.all(4),
+            padding: const EdgeInsets.all(4),
             child: Row(
               children: [
                 _buildSellerTypeOption(
@@ -1568,7 +1563,7 @@ Widget? _buildColorIndicator(List<AttributeValueModel> selectedValues) {
                 label,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
-                style: TextStyle(
+                style: const TextStyle(
                   fontFamily: Constants.Arial,
                 ),
               ),
@@ -1588,7 +1583,7 @@ Widget? _buildColorIndicator(List<AttributeValueModel> selectedValues) {
           padding: const EdgeInsets.only(left: 0, bottom: 12),
           child: Text(
             localizations.sorting,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w500,
               color: Colors.black,
@@ -1623,7 +1618,7 @@ Widget? _buildColorIndicator(List<AttributeValueModel> selectedValues) {
                     ),
                   ),
                   child: state.bargain
-                      ? Icon(
+                      ? const Icon(
                           Icons.check,
                           size: 16,
                           color: Colors.white,
@@ -1631,12 +1626,12 @@ Widget? _buildColorIndicator(List<AttributeValueModel> selectedValues) {
                       : null,
                 ),
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Padding(
                 padding: const EdgeInsets.only(left: 0, bottom: 1),
                 child: Text(
                   localizations.bargain,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w400,
                     color: AppColors.darkGray,
@@ -1646,7 +1641,7 @@ Widget? _buildColorIndicator(List<AttributeValueModel> selectedValues) {
             ],
           ),
         ),
-        SizedBox(
+        const SizedBox(
           height: 12,
         ),
         InkWell(
@@ -1675,7 +1670,7 @@ Widget? _buildColorIndicator(List<AttributeValueModel> selectedValues) {
                     ),
                   ),
                   child: state.isFree
-                      ? Icon(
+                      ? const Icon(
                           Icons.check,
                           size: 16,
                           color: Colors.white,
@@ -1683,12 +1678,12 @@ Widget? _buildColorIndicator(List<AttributeValueModel> selectedValues) {
                       : null,
                 ),
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Padding(
                 padding: const EdgeInsets.only(left: 0, bottom: 1),
                 child: Text(
                   localizations.for_free,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w400,
                     color: AppColors.darkGray,
@@ -1711,7 +1706,7 @@ Widget? _buildColorIndicator(List<AttributeValueModel> selectedValues) {
           padding: const EdgeInsets.only(left: 0, bottom: 8),
           child: Text(
             localizations.condition,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w500,
               color: Colors.black,
@@ -1730,7 +1725,7 @@ Widget? _buildColorIndicator(List<AttributeValueModel> selectedValues) {
               borderRadius:
                   BorderRadius.circular(24), // Чтобы границы были скруглёнными
             ),
-            padding: EdgeInsets.all(4),
+            padding: const EdgeInsets.all(4),
             child: Row(
               children: [
                 _buildSegmentOption(localizations.all, 'ALL', state),
@@ -1775,7 +1770,7 @@ Widget? _buildColorIndicator(List<AttributeValueModel> selectedValues) {
               ),
               child: Text(
                 label,
-                style: TextStyle(
+                style: const TextStyle(
                   fontFamily: Constants.Arial,
                 ),
               ),
@@ -1795,12 +1790,12 @@ Widget? _buildColorIndicator(List<AttributeValueModel> selectedValues) {
         children: [
           Text(
             localizations.location,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 19,
               fontWeight: FontWeight.w500,
             ),
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           AnimatedSize(
               duration: Duration(milliseconds: 200),
               child: Container(
@@ -1820,12 +1815,12 @@ Widget? _buildColorIndicator(List<AttributeValueModel> selectedValues) {
                     children: [
                       Text(
                         localizations.selectLocation,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 16,
                           color: AppColors.darkGray,
                         ),
                       ),
-                      Icon(
+                      const Icon(
                         Icons.arrow_forward_ios_rounded,
                         size: 16,
                       )
@@ -2229,7 +2224,7 @@ class _PriceRangeSliderState extends State<PriceRangeSlider> {
               else
                 Text(
                   '${_formatPrice(_currentRange.start)} - ${_formatPrice(_currentRange.end)}',
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: AppColors.darkGray,
                     fontSize: 19,
                     fontWeight: FontWeight.w500,
