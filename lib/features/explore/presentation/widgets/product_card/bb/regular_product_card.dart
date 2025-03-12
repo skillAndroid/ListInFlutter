@@ -96,7 +96,7 @@ class OptimizedProductCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: EdgeInsets.all(1),
+        margin: EdgeInsets.all(2),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
