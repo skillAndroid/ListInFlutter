@@ -32,6 +32,7 @@ import 'package:list_in/features/post/data/models/category_tree/category_model.d
 import 'package:list_in/features/post/data/models/category_tree/child_category_model.dart';
 import 'package:list_in/features/post/data/models/category_tree/nomeric_field_model.dart';
 import 'package:list_in/features/post/domain/usecases/get_catalogs_usecase.dart';
+import 'package:list_in/features/post/domain/usecases/get_locations_usecase.dart';
 import 'package:list_in/features/post/presentation/pages/post_screen.dart';
 import 'package:list_in/features/profile/domain/entity/user/user_profile_entity.dart';
 import 'package:list_in/features/profile/presentation/pages/new_profili_desing.dart';
@@ -53,12 +54,14 @@ class AppRouter {
   final GetPredictionsUseCase getPredictionsUseCase;
   final GetFilteredPublicationsValuesUsecase
       getFilteredPublicationsValuesUsecase;
+  final GetLocationsUsecase getLocationsUsecase;
   final GlobalBloc globalBloc;
 
   AppRouter({
     required this.sharedPreferences,
     required this.getGategoriesUsecase,
     required this.getPublicationsUsecase,
+    required this.getLocationsUsecase,
     required this.getPredictionsUseCase,
     required this.getVideoPublicationsUsecase,
     required this.getFilteredPublicationsValuesUsecase,
@@ -139,6 +142,7 @@ class AppRouter {
           return BlocProvider.value(
             value: HomeTreeCubit(
               getCatalogsUseCase: getGategoriesUsecase,
+              getLocationsUsecase: getLocationsUsecase,
               getPublicationsUseCase: getPublicationsUsecase,
               getPredictionsUseCase: getPredictionsUseCase,
               getVideoPublicationsUsecase: getVideoPublicationsUsecase,
@@ -195,6 +199,7 @@ class AppRouter {
                   return BlocProvider(
                     create: (_) => HomeTreeCubit(
                       getCatalogsUseCase: getGategoriesUsecase,
+                      getLocationsUsecase: getLocationsUsecase,
                       getPublicationsUseCase: getPublicationsUsecase,
                       getPredictionsUseCase: getPredictionsUseCase,
                       getVideoPublicationsUsecase: getVideoPublicationsUsecase,
@@ -221,6 +226,7 @@ class AppRouter {
                         create: (_) {
                           final cubit = HomeTreeCubit(
                             getCatalogsUseCase: getGategoriesUsecase,
+                            getLocationsUsecase: getLocationsUsecase,
                             getPublicationsUseCase: getPublicationsUsecase,
                             getPredictionsUseCase: getPredictionsUseCase,
                             getVideoPublicationsUsecase:
@@ -258,6 +264,7 @@ class AppRouter {
                       return BlocProvider(
                         create: (_) => HomeTreeCubit(
                           getCatalogsUseCase: getGategoriesUsecase,
+                          getLocationsUsecase: getLocationsUsecase,
                           getPublicationsUseCase: getPublicationsUsecase,
                           getPredictionsUseCase: getPredictionsUseCase,
                           getVideoPublicationsUsecase:
@@ -286,6 +293,7 @@ class AppRouter {
                             final cubit = HomeTreeCubit(
                               getCatalogsUseCase: getGategoriesUsecase,
                               getPublicationsUseCase: getPublicationsUsecase,
+                              getLocationsUsecase: getLocationsUsecase,
                               getPredictionsUseCase: getPredictionsUseCase,
                               getVideoPublicationsUsecase:
                                   getVideoPublicationsUsecase,
@@ -340,6 +348,7 @@ class AppRouter {
                             getCatalogsUseCase: getGategoriesUsecase,
                             getPublicationsUseCase: getPublicationsUsecase,
                             getPredictionsUseCase: getPredictionsUseCase,
+                            getLocationsUsecase: getLocationsUsecase,
                             getVideoPublicationsUsecase:
                                 getVideoPublicationsUsecase,
                             getFilteredPublicationsValuesUsecase:
@@ -396,6 +405,7 @@ class AppRouter {
                             getPredictionsUseCase: getPredictionsUseCase,
                             getVideoPublicationsUsecase:
                                 getVideoPublicationsUsecase,
+                            getLocationsUsecase: getLocationsUsecase,
                             getFilteredPublicationsValuesUsecase:
                                 getFilteredPublicationsValuesUsecase,
                             globalBloc: globalBloc,
@@ -474,6 +484,7 @@ class AppRouter {
                               create: (_) {
                                 final cubit = HomeTreeCubit(
                                   getCatalogsUseCase: getGategoriesUsecase,
+                                  getLocationsUsecase: getLocationsUsecase,
                                   getPublicationsUseCase:
                                       getPublicationsUsecase,
                                   getPredictionsUseCase: getPredictionsUseCase,
@@ -622,5 +633,3 @@ class AppRouter {
     ],
   );
 }
-
-

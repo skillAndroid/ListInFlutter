@@ -7,6 +7,7 @@ import 'package:list_in/features/post/data/models/category_tree/blabla.dart';
 import 'package:list_in/features/post/data/models/category_tree/category_model.dart';
 import 'package:list_in/features/post/data/models/category_tree/child_category_model.dart';
 import 'package:list_in/features/post/data/models/category_tree/nomeric_field_model.dart';
+import 'package:list_in/features/post/data/models/location_tree/location_model.dart';
 
 enum RequestState { idle, inProgress, completed, error }
 
@@ -27,6 +28,7 @@ class HomeTreeState {
   final RequestState searchPublicationsRequestState;
 
   final List<CategoryModel>? catalogs;
+  final List<Country>? locations;
   final CategoryModel? selectedCatalog;
   final ChildCategoryModel? selectedChildCategory;
   final List<AttributeModel> currentAttributes;
@@ -119,6 +121,7 @@ class HomeTreeState {
     this.childSearchRequestState = RequestState.idle,
     this.childPublicationsRequestState = RequestState.idle,
     this.catalogs,
+    this.locations,
     this.selectedCatalog,
     this.selectedChildCategory,
     this.predictedPriceFrom = 0,
@@ -215,6 +218,7 @@ class HomeTreeState {
     RequestState? childSearchRequestState,
     RequestState? childPublicationsRequestState,
     List<CategoryModel>? catalogs,
+    List<Country>? locations,
     CategoryModel? selectedCatalog,
     ChildCategoryModel? selectedChildCategory,
     List<AttributeModel>? currentAttributes,
@@ -305,6 +309,7 @@ class HomeTreeState {
       childPublicationsRequestState:
           childPublicationsRequestState ?? this.childPublicationsRequestState,
       catalogs: catalogs ?? this.catalogs,
+      locations: locations ?? this.locations,
       selectedCatalog: clearSelectedCatalog
           ? null
           : (selectedCatalog ?? this.selectedCatalog),

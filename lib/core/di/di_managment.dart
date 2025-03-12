@@ -51,6 +51,7 @@ import 'package:list_in/features/post/data/sources/post_remote_data_source.dart'
 import 'package:list_in/features/post/domain/repository/post_repository.dart';
 import 'package:list_in/features/post/domain/usecases/create_post_usecase.dart';
 import 'package:list_in/features/post/domain/usecases/get_catalogs_usecase.dart';
+import 'package:list_in/features/post/domain/usecases/get_locations_usecase.dart';
 import 'package:list_in/features/post/domain/usecases/upload_images_usecase.dart';
 import 'package:list_in/features/post/domain/usecases/upload_video_usecase.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
@@ -101,6 +102,7 @@ Future<void> init() async {
   sl.registerFactory<LanguageBloc>(
     () => LanguageBloc(repository: sl()),
   );
+
   sl.registerLazySingleton<Dio>(() {
     final dio = Dio();
     dio.options
@@ -162,6 +164,7 @@ Future<void> init() async {
     () => AppRouter(
         sharedPreferences: sl<SharedPreferences>(),
         getGategoriesUsecase: sl<GetGategoriesUsecase>(),
+        getLocationsUsecase: sl<GetLocationsUsecase>(),
         getPublicationsUsecase: sl<GetPublicationsUsecase>(),
         getPredictionsUseCase: sl<GetPredictionsUseCase>(),
         getVideoPublicationsUsecase: sl<GetVideoPublicationsUsecase>(),
@@ -277,6 +280,7 @@ Future<void> init() async {
   );
 
   sl.registerLazySingleton(() => GetGategoriesUsecase(sl()));
+  sl.registerLazySingleton(() => GetLocationsUsecase(sl()));
 // UseCases
   sl.registerLazySingleton(() => UploadImagesUseCase(sl()));
   sl.registerLazySingleton(() => UploadVideoUseCase(sl()));

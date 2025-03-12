@@ -24,6 +24,7 @@ import 'package:list_in/features/post/data/models/category_tree/blabla.dart';
 import 'package:list_in/features/post/data/models/category_tree/category_model.dart';
 import 'package:list_in/features/post/data/models/category_tree/child_category_model.dart';
 import 'package:list_in/features/post/domain/usecases/get_catalogs_usecase.dart';
+import 'package:list_in/features/post/domain/usecases/get_locations_usecase.dart';
 import 'package:list_in/global/global_bloc.dart';
 import 'package:list_in/global/global_event.dart';
 
@@ -31,6 +32,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
   final GetGategoriesUsecase getCatalogsUseCase;
   final GetPublicationsUsecase getPublicationsUseCase;
   final GetPredictionsUseCase getPredictionsUseCase;
+  final GetLocationsUsecase getLocationsUsecase;
   final GetVideoPublicationsUsecase getVideoPublicationsUsecase;
   final GetFilteredPublicationsValuesUsecase
       getFilteredPublicationsValuesUsecase;
@@ -43,6 +45,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     required this.getCatalogsUseCase,
     required this.getPublicationsUseCase,
     required this.getPredictionsUseCase,
+    required this.getLocationsUsecase,
     required this.getVideoPublicationsUsecase,
     required this.getFilteredPublicationsValuesUsecase,
     required this.globalBloc,
@@ -680,8 +683,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
         (paginatedData) {
           final updatedPublications =
               pageKey == 0 ? paginatedData : paginatedData;
-          final isLastPage =
-              paginatedData.last;
+          final isLastPage = paginatedData.last;
           _syncFollowStatusesForPublications(updatedPublications.content);
           _syncLikeStatusesForPublications(updatedPublications.content);
           emit(state.copyWith(
@@ -1096,6 +1098,24 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
       )),
       (catalogs) => emit(state.copyWith(
         catalogs: catalogs,
+        error: null,
+        isLoading: false,
+      )),
+    );
+  }
+
+  Future<void> fetchLocations() async {
+    emit(state.copyWith(isLoading: true, error: null));
+
+    final result = await getLocationsUsecase(params: NoParams());
+    result.fold(
+      (failure) => emit(state.copyWith(
+        error: _mapFailureToMessage(failure),
+        locations: null,
+        isLoading: false,
+      )),
+      (locations) => emit(state.copyWith(
+        locations: locations,
         error: null,
         isLoading: false,
       )),

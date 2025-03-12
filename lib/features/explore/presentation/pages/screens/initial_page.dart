@@ -171,6 +171,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
 
   void _fetchInitialData() {
     context.read<HomeTreeCubit>().fetchCatalogs();
+    context.read<HomeTreeCubit>().fetchLocations();
   }
 
   void _fetchVideoFeeds() {
