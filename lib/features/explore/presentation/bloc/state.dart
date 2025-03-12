@@ -9,6 +9,7 @@ import 'package:list_in/features/post/data/models/category_tree/child_category_m
 import 'package:list_in/features/post/data/models/category_tree/nomeric_field_model.dart';
 import 'package:list_in/features/post/data/models/location_tree/location_model.dart';
 
+//
 enum RequestState { idle, inProgress, completed, error }
 
 class HomeTreeState {
@@ -26,6 +27,9 @@ class HomeTreeState {
 
   final RequestState searchRequestState;
   final RequestState searchPublicationsRequestState;
+
+  final String? selectedStateId;
+  final String? selectedCountyId;
 
   final List<CategoryModel>? catalogs;
   final List<Country>? locations;
@@ -129,6 +133,8 @@ class HomeTreeState {
     this.predictedFoundPublications = 0,
     this.filteredValuesRequestState = RequestState.idle,
     this.errorFilteredValuesFetch,
+    this.selectedStateId,
+    this.selectedCountyId,
     bool? bargain,
     bool? isFree,
     String? condition,
@@ -287,8 +293,18 @@ class HomeTreeState {
     int? predictedFoundPublications,
     RequestState? filteredValuesRequestState,
     String? errorFilteredValuesFetch,
+    String? selectedStateId,
+    String? selectedCountyId,
+    bool clearSelectedState = false,
+    bool clearSelectedCounty = false,
+    State? selectedState,
   }) {
     return HomeTreeState(
+      selectedStateId:
+          clearSelectedState ? null : (selectedStateId ?? this.selectedStateId),
+      selectedCountyId: clearSelectedCounty
+          ? null
+          : (selectedCountyId ?? this.selectedCountyId),
       searchRequestState: searchRequestState ?? this.searchRequestState,
       searchPublicationsRequestState:
           searchPublicationsRequestState ?? this.searchPublicationsRequestState,

@@ -8,7 +8,7 @@ part of 'location_model.dart';
 
 class CountyAdapter extends TypeAdapter<County> {
   @override
-  final int typeId = 5;
+  final int typeId = 8;
 
   @override
   County read(BinaryReader reader) {
@@ -48,7 +48,7 @@ class CountyAdapter extends TypeAdapter<County> {
 
 class StateAdapter extends TypeAdapter<State> {
   @override
-  final int typeId = 4;
+  final int typeId = 7;
 
   @override
   State read(BinaryReader reader) {
@@ -91,7 +91,7 @@ class StateAdapter extends TypeAdapter<State> {
 
 class CountryAdapter extends TypeAdapter<Country> {
   @override
-  final int typeId = 3;
+  final int typeId = 6;
 
   @override
   Country read(BinaryReader reader) {

@@ -1,7 +1,8 @@
+import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-part 'location_model.g.dart';
+part 'location_model.g.dart'; // Make sure this file is generated
 
-@HiveType(typeId: 5)
+@HiveType(typeId: 8)
 class County {
   @HiveField(0)
   String? value;
@@ -9,19 +10,38 @@ class County {
   String? valueUz;
   @HiveField(2)
   String? valueRu;
+  @HiveField(3)
+  String? countyId;
 
-  County({this.value, this.valueUz, this.valueRu});
+  County({this.value, this.valueUz, this.valueRu, this.countyId});
 
   factory County.fromJson(Map<String, dynamic> json) {
-    return County(
-      value: json['value'],
-      valueUz: json['valueUz'],
-      valueRu: json['valueRu'],
-    );
+    try {
+      return County(
+          value: json['value'] as String?,
+          valueUz: json['valueUz'] as String?,
+          valueRu: json['valueRu'] as String?,
+          countyId: json['countyId'] as String?);
+    } catch (e) {
+      debugPrint("Error parsing County from JSON: $e");
+      debugPrint("JSON: $json");
+      rethrow;
+    }
   }
+
+  Map<String, dynamic> toJson() => {
+        'value': value,
+        'valueUz': valueUz,
+        'valueRu': valueRu,
+        'countyId': countyId,
+      };
+
+  @override
+  String toString() =>
+      'County(value: $value, valueUz: $valueUz, valueRu: $valueRu, countyId: $countyId)';
 }
 
-@HiveType(typeId: 4)
+@HiveType(typeId: 7)
 class State {
   @HiveField(0)
   String? value;
@@ -30,23 +50,56 @@ class State {
   @HiveField(2)
   String? valueRu;
   @HiveField(3)
+  String? stateId;
+  @HiveField(4)
   List<County>? counties;
 
-  State({this.value, this.valueUz, this.valueRu, this.counties});
+  State({this.value, this.valueUz, this.valueRu, this.counties, this.stateId});
 
   factory State.fromJson(Map<String, dynamic> json) {
-    return State(
-      value: json['value'],
-      valueUz: json['valueUz'],
-      valueRu: json['valueRu'],
-      counties: (json['counties'] as List?)
-          ?.map((e) => County.fromJson(e as Map<String, dynamic>))
-          .toList(),
-    );
+    try {
+      List<County>? countiesList;
+
+      if (json.containsKey('counties')) {
+        final countiesData = json['counties'];
+        if (countiesData is List) {
+          countiesList = countiesData
+              .map((e) => County.fromJson(e as Map<String, dynamic>))
+              .toList();
+        } else {
+          debugPrint("Warning: 'counties' is not a List: ${json['counties']}");
+          countiesList = [];
+        }
+      }
+
+      return State(
+        value: json['value'] as String?,
+        valueUz: json['valueUz'] as String?,
+        valueRu: json['valueRu'] as String?,
+        stateId: json['stateId'] as String?,
+        counties: countiesList ?? [],
+      );
+    } catch (e) {
+      debugPrint("Error parsing State from JSON: $e");
+      debugPrint("JSON: $json");
+      rethrow;
+    }
   }
+
+  Map<String, dynamic> toJson() => {
+        'value': value,
+        'valueUz': valueUz,
+        'valueRu': valueRu,
+        'stateId': stateId,
+        'counties': counties?.map((e) => e.toJson()).toList(),
+      };
+
+  @override
+  String toString() =>
+      'State(value: $value, valueUz: $valueUz, valueRu: $valueRu, stateId: $stateId counties: ${counties?.length})';
 }
 
-@HiveType(typeId: 3)
+@HiveType(typeId: 6)
 class Country {
   @HiveField(0)
   String? value;
@@ -55,18 +108,52 @@ class Country {
   @HiveField(2)
   String? valueRu;
   @HiveField(3)
+  String? countryId;
+  @HiveField(4)
   List<State>? states;
 
-  Country({this.value, this.valueUz, this.valueRu, this.states});
+  Country(
+      {this.value, this.valueUz, this.valueRu, this.states, this.countryId});
 
   factory Country.fromJson(Map<String, dynamic> json) {
-    return Country(
-      value: json['value'],
-      valueUz: json['valueUz'],
-      valueRu: json['valueRu'],
-      states: (json['states'] as List?)
-          ?.map((e) => State.fromJson(e as Map<String, dynamic>))
-          .toList(),
-    );
+    try {
+      List<State>? statesList;
+
+      if (json.containsKey('states')) {
+        final statesData = json['states'];
+        if (statesData is List) {
+          statesList = statesData
+              .map((e) => State.fromJson(e as Map<String, dynamic>))
+              .toList();
+        } else {
+          debugPrint("Warning: 'states' is not a List: ${json['states']}");
+          statesList = [];
+        }
+      }
+
+      return Country(
+        value: json['value'] as String?,
+        valueUz: json['valueUz'] as String?,
+        valueRu: json['valueRu'] as String?,
+        countryId: json['countryId'] as String?,
+        states: statesList ?? [],
+      );
+    } catch (e) {
+      debugPrint("Error parsing Country from JSON: $e");
+      debugPrint("JSON: $json");
+      rethrow;
+    }
   }
+
+  Map<String, dynamic> toJson() => {
+        'value': value,
+        'valueUz': valueUz,
+        'valueRu': valueRu,
+        'countryId': countryId,
+        'states': states?.map((e) => e.toJson()).toList(),
+      };
+
+  @override
+  String toString() =>
+      'Country(value: $value, valueUz: $valueUz, valueRu: $valueRu, countryId: $countryId states: ${states?.length})';
 }

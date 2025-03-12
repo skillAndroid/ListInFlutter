@@ -182,6 +182,9 @@ Future<void> init() async {
   Hive.registerAdapter(AttributeValueModelAdapter());
   Hive.registerAdapter(SubModelAdapter());
   Hive.registerAdapter(NomericFieldModelAdapter());
+  Hive.registerAdapter(CountryAdapter());
+  Hive.registerAdapter(StateAdapter());
+  Hive.registerAdapter(CountyAdapter());
 
   final catalogBox = await Hive.openBox<CategoryModel>('catalogs');
   final locationBox = await Hive.openBox<Country>('locations');

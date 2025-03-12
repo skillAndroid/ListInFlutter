@@ -51,6 +51,7 @@ abstract class PublicationsRepository {
     String? condition,
     double? priceFrom,
     double? priceTo,
+    String? locationIds,
     List<String>? filters,
     List<String>? numeric,
     CancelToken? cancelToken,

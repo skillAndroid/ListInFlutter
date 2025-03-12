@@ -45,6 +45,7 @@ abstract class PublicationsRemoteDataSource {
     String? subcategoryId,
     String? query,
     bool? bargain,
+    String? locationIds,
     bool? isFree,
     String? sellerType,
     String? condition,
@@ -246,6 +247,7 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
     String? condition,
     double? priceFrom,
     double? priceTo,
+    String? locationIds,
     List<String>? filters,
     List<String>? numeric,
     CancelToken? cancelToken,
@@ -256,6 +258,7 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
       final queryParams = {
         if (query != null && query.isNotEmpty) 'query': query,
         if (isFree != null) 'isFree': isFree.toString(),
+        if (locationIds != null) 'locationIds': locationIds,
         if (bargain != null) 'bargain': bargain.toString(),
         if (condition != null) 'condition': condition,
         if (sellerType != null) 'sellerType': sellerType,

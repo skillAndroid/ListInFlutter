@@ -124,7 +124,7 @@ class PostRepositoryImpl implements PostRepository {
         print("✅ Данные успешно загружены с сервера и закэшированы.");
         return Right(remoteCatalogs);
       } catch (e) {
-        print("❌ Ошибка при получении данных с сервера: $e");
+        print("❌ Ошибка при получении данных с сервера locations: $e");
         rethrow;
       }
     } on ServerExeption {

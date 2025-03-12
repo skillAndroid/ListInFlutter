@@ -13,6 +13,7 @@ class GetFilteredPublicationsValuesParams {
   final String? query;
   final bool? bargain;
   final String? condition;
+  final String? locationIds;
   final double? priceFrom;
   final double? priceTo;
   final List<String>? filters;
@@ -29,6 +30,7 @@ class GetFilteredPublicationsValuesParams {
     this.condition,
     this.priceFrom,
     this.priceTo,
+    this.locationIds,
     this.filters,
     this.numerics,
     this.cancelToken,
@@ -55,6 +57,7 @@ class GetFilteredPublicationsValuesUsecase extends UseCase2<
       priceFrom: params?.priceFrom,
       priceTo: params?.priceTo,
       filters: params?.filters,
+      locationIds: params?.locationIds,
       numeric: params?.numerics,
       cancelToken: params?.cancelToken,
     );

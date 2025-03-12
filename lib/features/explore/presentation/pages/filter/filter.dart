@@ -40,7 +40,6 @@ class _FiltersPageState extends State<FiltersPage>
   late AnimationController _fadeController;
   late AnimationController _slideController;
   late LocalizationCache _localizationCache;
-  String? _selectedLocation;
 
   late HomeTreeState _initialState;
 
@@ -268,7 +267,8 @@ class _FiltersPageState extends State<FiltersPage>
                               const SizedBox(
                                 height: 24,
                               ),
-                              _buildLocationFilter(localizations),
+                              buildLocationFilter(
+                                  context, localizations, state, cubit),
                               const SizedBox(
                                 height: 16,
                               ),
@@ -453,14 +453,14 @@ class _FiltersPageState extends State<FiltersPage>
                   ),
                 ],
               ),
-            const  Icon(
+              const Icon(
                 Icons.arrow_forward_ios_rounded,
                 size: 16,
               )
             ],
           ),
           side: const BorderSide(width: 1, color: AppColors.containerColor),
-          shape:  RoundedRectangleBorder(
+          shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
           ),
           selected: selectedValue != null,
@@ -1377,53 +1377,6 @@ class _FiltersPageState extends State<FiltersPage>
     );
   }
 
-  Widget _buildPopularLocationChip(String location) {
-    return AnimatedSize(
-      duration: Duration(milliseconds: 200),
-      child: Hero(
-        tag: 'chip_$location',
-        child: Material(
-          color: Colors.transparent,
-          child: FilterChip(
-            label: Text(
-              location,
-              style: TextStyle(
-                color: _selectedLocation == location
-                    ? AppColors.white
-                    : AppColors.blue,
-                fontWeight: _selectedLocation == location
-                    ? FontWeight.w600
-                    : FontWeight.normal,
-              ),
-            ),
-            showCheckmark: true,
-            selected: _selectedLocation == location,
-            onSelected: (selected) {
-              setState(() {
-                _selectedLocation = location;
-              });
-            },
-            backgroundColor: Colors.white,
-            selectedColor: CupertinoColors.activeGreen,
-            checkmarkColor: Colors.white,
-            elevation: 0,
-            pressElevation: 4,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-              side: BorderSide(
-                color: _selectedLocation == location
-                    ? Colors.transparent
-                    : AppColors.containerColor,
-              ),
-            ),
-            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildMainCategories(
       HomeTreeState state, HomeTreeCubit cubit, String languageCode) {
     return AnimatedOpacity(
@@ -1781,7 +1734,13 @@ class _FiltersPageState extends State<FiltersPage>
     );
   }
 
-  Widget _buildLocationFilter(AppLocalizations localizations) {
+// Location filter widget
+  Widget buildLocationFilter(
+      BuildContext context,
+      AppLocalizations localizations,
+      HomeTreeState state,
+      HomeTreeCubit cubit) {
+    debugPrint('loations ******** *** *** ${state.locations}');
     return AnimatedContainer(
       duration: Duration(milliseconds: 300),
       margin: EdgeInsets.only(bottom: 16),
@@ -1796,7 +1755,12 @@ class _FiltersPageState extends State<FiltersPage>
             ),
           ),
           const SizedBox(height: 12),
-          AnimatedSize(
+          // Location selection button
+          GestureDetector(
+            onTap: () {
+              _showLocationBottomSheet(context, localizations);
+            },
+            child: AnimatedSize(
               duration: Duration(milliseconds: 200),
               child: Container(
                 decoration: BoxDecoration(
@@ -1814,37 +1778,283 @@ class _FiltersPageState extends State<FiltersPage>
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        localizations.selectLocation,
-                        style: const TextStyle(
+                        state.locationDisplayName ??
+                            localizations.selectLocation,
+                        style: TextStyle(
                           fontSize: 16,
-                          color: AppColors.darkGray,
+                          color: state.locationDisplayName != null
+                              ? Colors.black
+                              : AppColors.darkGray,
                         ),
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      const Icon(
-                        Icons.arrow_forward_ios_rounded,
-                        size: 16,
-                      )
+                      Row(
+                        children: [
+                          if (state.locationDisplayName != null)
+                            GestureDetector(
+                              behavior: HitTestBehavior
+                                  .opaque, // Prevents tap from passing through
+                              onTap: () {
+                                cubit.clearLocationSelection();
+                              },
+
+                              child: Container(
+                                padding: EdgeInsets.all(4),
+                                margin: EdgeInsets.only(right: 8),
+                                decoration: BoxDecoration(
+                                  color: AppColors.lightGray,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Icon(
+                                  Icons.close,
+                                  size: 14,
+                                  color: AppColors.darkGray,
+                                ),
+                              ),
+                            ),
+                          const Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            size: 16,
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
-              )),
-          // Popular locations chips
-          //  if (_selectedLocation?.isEmpty ?? true)
-          AnimatedContainer(
-            duration: Duration(milliseconds: 300),
-            margin: EdgeInsets.only(top: 8),
-            child: Wrap(
-              spacing: 5,
-              runSpacing: 5,
+              ),
+            ),
+          ),
+
+          // Only show popular locations if no location is selected
+          if (state.locationDisplayName == null)
+            AnimatedContainer(
+              duration: Duration(milliseconds: 300),
+              margin: EdgeInsets.only(top: 8),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: _buildPopularLocations(context, state, cubit),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+// Popular locations chips
+  List<Widget> _buildPopularLocations(
+      BuildContext context, HomeTreeState state, HomeTreeCubit cubit) {
+    final popularStates = state.locations?.first.states?.take(5).toList() ?? [];
+
+    return popularStates.map((state) {
+      final stateName = state.valueRu ?? state.value ?? '';
+
+      return Padding(
+        padding: const EdgeInsets.only(right: 8),
+        child: GestureDetector(
+          onTap: () {
+            cubit.selectState(state.value!);
+          },
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: AppColors.lightGray,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Text(
+              stateName,
+              style: TextStyle(fontSize: 14),
+            ),
+          ),
+        ),
+      );
+    }).toList();
+  }
+
+// Replace the _showLocationBottomSheet method with this nested approach
+  void _showLocationBottomSheet(
+      BuildContext context, AppLocalizations localizations) {
+    final cubit = context.read<HomeTreeCubit>();
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: SmoothRectangleBorder(
+        smoothness: 0.8,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return BlocProvider.value(
+            value: cubit,
+            child:
+                _buildNestedSelectionContent(context, localizations, setState));
+      },
+    );
+  }
+
+  Widget _buildNestedSelectionContent(BuildContext context,
+      AppLocalizations localizations, StateSetter setSheetState) {
+    return BlocBuilder<HomeTreeCubit, HomeTreeState>(
+      builder: (context, state) {
+        final cubit = context.read<HomeTreeCubit>();
+        final states = state.selectedCountry?.states ?? [];
+
+        // Track which state is expanded to show counties
+        final expandedStateId = state.selectedStateId;
+        return SmoothClipRRect(
+          smoothness: 0.8,
+          borderRadius: BorderRadius.circular(20),
+          child: Container(
+            color: AppColors.white,
+            padding: EdgeInsets.all(16),
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.7,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                _buildPopularLocationChip('Toshkent'),
-                _buildPopularLocationChip('Buxoro'),
-                _buildPopularLocationChip('Andijon'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.close_rounded),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    Text(
+                      "Select location",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        Icons.close,
+                        color: AppColors.transparent,
+                      ),
+                      onPressed: () {},
+                    ),
+                  ],
+                ),
+                Divider(
+                  color: AppColors.containerColor,
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: states.length,
+                    itemBuilder: (context, index) {
+                      final stateItem = states[index];
+                      final isSelected =
+                          stateItem.value == state.selectedStateId;
+                      final isExpanded = stateItem.value == expandedStateId;
+                      final hasCounties =
+                          stateItem.counties?.isNotEmpty == true;
+
+                      return Column(
+                        children: [
+                          // State item
+                          ListTile(
+                            title: Text(
+                              stateItem.valueRu ?? stateItem.value ?? '',
+                              style: TextStyle(
+                                fontWeight: isSelected
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                                color: isSelected
+                                    ? Theme.of(context).primaryColor
+                                    : Colors.black,
+                              ),
+                            ),
+                            trailing: hasCounties
+                                ? Icon(
+                                    isExpanded
+                                        ? Icons.keyboard_arrow_up
+                                        : Icons.keyboard_arrow_down,
+                                    color: isSelected
+                                        ? Theme.of(context).primaryColor
+                                        : Colors.grey,
+                                  )
+                                : (isSelected
+                                    ? Icon(
+                                        Icons.check,
+                                        color: Theme.of(context).primaryColor,
+                                      )
+                                    : null),
+                            onTap: () {
+                              if (hasCounties) {
+                                // Toggle expansion
+                                if (isExpanded) {
+                                  //  cubit.clearStateSelection();
+                                } else {
+                                  cubit.selectState(stateItem.value!);
+                                }
+
+                                setSheetState(() {});
+                              } else {
+                                // No counties, just select the state and close
+                                cubit.selectState(stateItem.value!);
+                                Navigator.pop(context);
+                              }
+                            },
+                          ),
+
+                          // Counties list (animated expansion)
+                          if (hasCounties && isExpanded)
+                            AnimatedContainer(
+                              duration: Duration(milliseconds: 300),
+                              margin: EdgeInsets.only(left: 16),
+                              child: ListView.builder(
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemCount: stateItem.counties?.length ?? 0,
+                                itemBuilder: (context, countyIndex) {
+                                  final countyItem =
+                                      stateItem.counties![countyIndex];
+                                  final isCountySelected = countyItem.value ==
+                                      state.selectedCountyId;
+
+                                  return ListTile(
+                                    title: Text(
+                                      countyItem.valueRu ??
+                                          countyItem.value ??
+                                          '',
+                                      style: TextStyle(
+                                        fontWeight: isCountySelected
+                                            ? FontWeight.bold
+                                            : FontWeight.normal,
+                                        color: isCountySelected
+                                            ? Theme.of(context).primaryColor
+                                            : Colors.black87,
+                                        fontSize:
+                                            15, // Slightly smaller font for counties
+                                      ),
+                                    ),
+                                    trailing: isCountySelected
+                                        ? Icon(
+                                            Icons.check,
+                                            color:
+                                                Theme.of(context).primaryColor,
+                                          )
+                                        : null,
+                                    onTap: () {
+                                      cubit.selectCounty(countyItem.value!);
+                                      Navigator.pop(context);
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
               ],
             ),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 

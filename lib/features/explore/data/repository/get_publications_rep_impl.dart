@@ -125,6 +125,7 @@ class PublicationsRepositoryImpl implements PublicationsRepository {
     String? subcategoryId,
     String? sellerType,
     bool? isFree,
+    String? locationIds,
     String? query,
     bool? bargain,
     String? condition,
@@ -146,6 +147,7 @@ class PublicationsRepositoryImpl implements PublicationsRepository {
     debugPrint('priceTo: $priceTo');
     debugPrint('filters: $filters');
     debugPrint('numeric: $numeric');
+    debugPrint('locationIds: $locationIds');
 
     debugPrint('📶 Network is connected');
     try {
@@ -163,6 +165,7 @@ class PublicationsRepositoryImpl implements PublicationsRepository {
         priceTo: priceTo,
         filters: filters,
         numeric: numeric,
+        locationIds: locationIds,
         cancelToken: cancelToken,
       );
 

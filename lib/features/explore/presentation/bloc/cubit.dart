@@ -23,6 +23,9 @@ import 'package:list_in/features/post/data/models/category_tree/attribute_value_
 import 'package:list_in/features/post/data/models/category_tree/blabla.dart';
 import 'package:list_in/features/post/data/models/category_tree/category_model.dart';
 import 'package:list_in/features/post/data/models/category_tree/child_category_model.dart';
+import 'package:list_in/features/post/data/models/location_tree/location_model.dart';
+import 'package:list_in/features/post/data/models/location_tree/location_model.dart'
+    as models;
 import 'package:list_in/features/post/domain/usecases/get_catalogs_usecase.dart';
 import 'package:list_in/features/post/domain/usecases/get_locations_usecase.dart';
 import 'package:list_in/global/global_bloc.dart';
@@ -50,6 +53,29 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     required this.getFilteredPublicationsValuesUsecase,
     required this.globalBloc,
   }) : super(HomeTreeState());
+
+  void selectState(String stateId) {
+    emit(state.copyWith(
+      selectedStateId: stateId,
+      clearSelectedCounty: true,
+    ));
+    fetchFilteredPredictionValues();
+  }
+
+  void selectCounty(String countyId) {
+    emit(state.copyWith(
+      selectedCountyId: countyId,
+    ));
+    fetchFilteredPredictionValues();
+  }
+
+  void clearLocationSelection() {
+    emit(state.copyWith(
+      clearSelectedState: true,
+      clearSelectedCounty: true,
+    ));
+    fetchFilteredPredictionValues();
+  }
 
   void _syncFollowStatusesForPublications(
       List<GetPublicationEntity> publications) {
@@ -744,6 +770,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
               : null,
           priceFrom: state.priceFrom,
           priceTo: state.priceTo,
+          locationIds: state.locationDisplayName,
           filters: state.generateFilterParameters().isNotEmpty
               ? state.generateFilterParameters()
               : null,
@@ -1686,5 +1713,65 @@ extension HomeTreeStateFilterTracking on HomeTreeState {
     return selectedAttributeValues.isNotEmpty ||
         selectedValues.isNotEmpty ||
         numericFieldValues.isNotEmpty;
+  }
+}
+
+extension LocationSelectionState on HomeTreeState {
+  Country? get selectedCountry {
+    if (locations == null || locations!.isEmpty) return null;
+    return locations?.first;
+  }
+
+  models.State? get selectedState {
+    if (selectedStateId == null || selectedCountry == null) return null;
+    final states = selectedCountry!.states;
+    if (states == null) return null;
+
+    for (var state in states) {
+      if (state.value == selectedStateId) return state;
+    }
+    return null;
+  }
+
+  County? get selectedCounty {
+    if (selectedCountyId == null || selectedState == null) return null;
+    final counties = selectedState!.counties;
+    if (counties == null) return null;
+
+    for (var county in counties) {
+      if (county.value == selectedCountyId) return county;
+    }
+    return null;
+  }
+
+  // Helper method to get the full location name based on selections
+  String? get locationDisplayName {
+    final locale = 'ru'; // Default to Russian as per requirement
+
+    if (selectedCountyId != null &&
+        selectedState != null &&
+        selectedCounty != null) {
+      return locale == 'ru'
+          ? selectedCounty?.valueRu
+          : locale == 'uz'
+              ? selectedCounty?.valueUz
+              : selectedCounty?.value;
+    } else if (selectedStateId != null &&
+        selectedCountry != null &&
+        selectedState != null) {
+      return locale == 'ru'
+          ? selectedState?.valueRu
+          : locale == 'uz'
+              ? selectedState?.valueUz
+              : selectedState?.value;
+    } else if (selectedCountry != null) {
+      return locale == 'ru'
+          ? selectedCountry?.valueRu
+          : locale == 'uz'
+              ? selectedCountry?.valueUz
+              : selectedCountry?.value;
+    }
+
+    return null;
   }
 }
