@@ -36,7 +36,7 @@ class _VideoCarouselState extends State<VideoCarousel> {
   @override
   void initState() {
     super.initState();
-    _pageController = PageController(viewportFraction: 0.29, initialPage: 0);
+    _pageController = PageController(viewportFraction: 0.3, initialPage: 0);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_isVisible) {
         _initializeVideo(_currentIndex);
@@ -253,7 +253,7 @@ class _VideoCarouselState extends State<VideoCarousel> {
         }
       },
       child: SizedBox(
-        height: 170,
+        height: 185,
         child: PageView.builder(
           padEnds: false,
           controller: _pageController,
@@ -268,8 +268,8 @@ class _VideoCarouselState extends State<VideoCarousel> {
                       .read<HomeTreeCubit>()
                       .handleVideoFeedNavigation(context, 0),
                   child: Container(
-                    height: 160,
-                    width: 90,
+                    height: 182,
+                    width: 100,
                     decoration: BoxDecoration(
                       border: Border.all(
                         width: 1,

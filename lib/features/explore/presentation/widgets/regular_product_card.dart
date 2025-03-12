@@ -39,150 +39,138 @@ class ProfileProductCard extends StatelessWidget {
           extra: product,
         );
       },
-      child: Padding(
-        padding: EdgeInsets.all(0),
-        child: Card(
-          shadowColor: Colors.black.withOpacity(0.25),
-          color: AppColors.white,
-          elevation: 4,
-          margin: EdgeInsets.all(3),
-          shape: SmoothRectangleBorder(
-              smoothness: 0.8, borderRadius: BorderRadius.circular(10)),
-          clipBehavior: Clip.antiAlias,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Stack(
             children: [
-              Stack(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(2),
-                    child: SmoothClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: AspectRatio(
-                        aspectRatio: 1.15,
-                        child: CachedNetworkImage(
-                          imageUrl: "https://${product.productImages[0].url}",
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    top: 12,
-                    right: 12,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(7),
-                      child: Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        color: AppColors.white.withOpacity(0.9),
-                        child: Row(
-                          children: [
-                            Icon(Icons.remove_red_eye_rounded,
-                                size: 14, color: AppColors.black),
-                            SizedBox(width: 4),
-                            Text(
-                              product.views.toString(),
-                              style: TextStyle(
-                                color: AppColors.black,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      product.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTextStyles.productTitle,
+                padding: const EdgeInsets.all(3),
+                child: SmoothClipRRect(
+                  smoothness: 0.8,
+                  borderRadius: BorderRadius.circular(20),
+                  child: AspectRatio(
+                    aspectRatio: 1,
+                    child: CachedNetworkImage(
+                      imageUrl: "https://${product.productImages[0].url}",
+                      fit: BoxFit.cover,
                     ),
-                    SizedBox(height: 4),
-                    Text(
-                      formatPrice(product.price.toString()),
-                      style: AppTextStyles.price,
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 12,
+                right: 12,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(7),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    color: AppColors.white.withOpacity(0.9),
+                    child: Row(
+                      children: [
+                        Icon(Icons.remove_red_eye_rounded,
+                            size: 14, color: AppColors.black),
+                        SizedBox(width: 4),
+                        Text(
+                          product.views.toString(),
+                          style: TextStyle(
+                            color: AppColors.black,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  product.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.productTitle,
+                ),
+                SizedBox(height: 4),
+                Text(
+                  formatPrice(product.price.toString()),
+                  style: AppTextStyles.price,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.favorite_rounded,
+                            size: 16, color: AppColors.myRedBrown),
+                        SizedBox(width: 4),
+                        Text(
+                          product.likes.toString(),
+                          style: TextStyle(
+                            color: AppColors.darkGray,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
                     ),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
-                            Icon(Icons.favorite_rounded,
-                                size: 16, color: AppColors.myRedBrown),
-                            SizedBox(width: 4),
-                            Text(
-                              product.likes.toString(),
-                              style: TextStyle(
-                                color: AppColors.darkGray,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                              ),
+                        InkWell(
+                          onTap: () {
+                            context
+                                .read<PublicationUpdateBloc>()
+                                .add(InitializePublication(product));
+                            context.push(
+                              Routes.publicationsEdit,
+                              extra: product,
+                            );
+                          },
+                          child: Container(
+                            padding: EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: AppColors.containerColor,
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                          ],
+                            child: Icon(
+                              Icons.edit_rounded,
+                              color: AppColors.black,
+                              size: 16,
+                            ),
+                          ),
                         ),
-                        Row(
-                          children: [
-                            InkWell(
-                              onTap: () {
-                                context
-                                    .read<PublicationUpdateBloc>()
-                                    .add(InitializePublication(product));
-                                context.push(
-                                  Routes.publicationsEdit,
-                                  extra: product,
-                                );
-                              },
-                              child: Container(
-                                padding: EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: AppColors.containerColor,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Icon(
-                                  Icons.edit_rounded,
-                                  color: AppColors.black,
-                                  size: 16,
-                                ),
-                              ),
+                        SizedBox(
+                          width: 4,
+                        ),
+                        InkWell(
+                          onTap: () => _showPublicationOptions(context),
+                          child: Container(
+                            padding: EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: AppColors.containerColor,
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                            SizedBox(
-                              width: 4,
+                            child: Icon(
+                              Ionicons.ellipsis_vertical,
+                              color: AppColors.error,
+                              size: 16,
                             ),
-                            InkWell(
-                              onTap: () => _showPublicationOptions(context),
-                              child: Container(
-                                padding: EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: AppColors.containerColor,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Icon(
-                                  Ionicons.ellipsis_vertical,
-                                  color: AppColors.error,
-                                  size: 16,
-                                ),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       ],
                     ),
                   ],
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

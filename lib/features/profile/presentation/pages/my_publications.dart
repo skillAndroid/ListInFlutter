@@ -47,7 +47,8 @@ class _UserPublicationsScreenState extends State<UserPublicationsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: CupertinoColors.extraLightBackgroundGray.withOpacity(0.5),
+      backgroundColor:
+          CupertinoColors.white,
       appBar: AppBar(
         backgroundColor: AppColors.containerColor,
         elevation: 0,
@@ -59,7 +60,7 @@ class _UserPublicationsScreenState extends State<UserPublicationsScreen> {
           color: Colors.black87,
           onPressed: () => Navigator.pop(context),
         ),
-        title:  Text(
+        title: Text(
           AppLocalizations.of(context)!.my_publications,
           style: const TextStyle(
             color: Colors.black,
@@ -138,7 +139,7 @@ class _UserPublicationsScreenState extends State<UserPublicationsScreen> {
             ),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              childAspectRatio: 0.73,
+              childAspectRatio: 0.64,
               crossAxisSpacing: 0,
               mainAxisSpacing: 0,
             ),

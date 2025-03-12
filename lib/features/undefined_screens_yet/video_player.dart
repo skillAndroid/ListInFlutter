@@ -200,13 +200,8 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
       return CachedNetworkImage(
         imageUrl: widget.thumbnailUrl,
         fit: BoxFit.cover,
-        memCacheWidth: 700,
-        maxWidthDiskCache: 700,
-        fadeInDuration: Duration.zero,
-        fadeOutDuration: Duration.zero,
         placeholder: (context, url) => Container(
-          color:
-              Colors.grey[200],
+          color: Colors.grey[200],
         ),
         errorWidget: (context, url, error) => const Center(
           child: Icon(Icons.error),
