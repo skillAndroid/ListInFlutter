@@ -11,7 +11,7 @@ import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
-import 'package:list_in/features/post/data/models/category_model.dart';
+import 'package:list_in/features/post/data/models/category_tree/category_model.dart';
 import 'package:list_in/features/post/presentation/pages/atributes_releted/child_category_page.dart';
 
 class CategoryCard extends StatefulWidget {

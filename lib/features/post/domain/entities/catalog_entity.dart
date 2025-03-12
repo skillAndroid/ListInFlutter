@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:list_in/features/post/data/models/child_category_model.dart';
+import 'package:list_in/features/post/data/models/category_tree/child_category_model.dart';
 
 class CatalogEntity extends Equatable {
   final String id;

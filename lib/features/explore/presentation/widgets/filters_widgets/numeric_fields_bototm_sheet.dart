@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/utils/const.dart';
-import 'package:list_in/features/post/data/models/nomeric_field_model.dart';
+import 'package:list_in/features/post/data/models/category_tree/nomeric_field_model.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 

@@ -1,6 +1,6 @@
-import 'package:list_in/features/post/data/models/attribute_model.dart';
+import 'package:list_in/features/post/data/models/category_tree/attribute_model.dart';
 import 'package:hive/hive.dart';
-import 'package:list_in/features/post/data/models/nomeric_field_model.dart';
+import 'package:list_in/features/post/data/models/category_tree/nomeric_field_model.dart';
 part 'child_category_model.g.dart';
 
 @HiveType(typeId: 1)

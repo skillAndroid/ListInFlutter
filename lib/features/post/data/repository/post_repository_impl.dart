@@ -5,7 +5,8 @@ import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:list_in/core/error/exeptions.dart';
 import 'package:list_in/core/error/failure.dart';
-import 'package:list_in/features/post/data/models/category_model.dart';
+import 'package:list_in/features/post/data/models/category_tree/category_model.dart';
+import 'package:list_in/features/post/data/models/location_tree/location_model.dart';
 import 'package:list_in/features/post/data/sources/post_remote_data_source.dart';
 import 'package:list_in/features/post/data/sources/post_local_data_source.dart';
 import 'package:list_in/features/post/domain/entities/post_entity.dart';
@@ -24,7 +25,7 @@ class PostRepositoryImpl implements PostRepository {
   Future<Either<Failure, List<CategoryModel>>> getCategories() async {
     try {
       print("🔍 Проверяем кэшированные данные...");
-      if (await localDataSource.hasCachedData()) {
+      if (await localDataSource.hasCachedCategoriesData()) {
         final localCatalogs = await localDataSource.getCachedCategories();
         print("✅ Данные найдены в кэше. Возвращаем локальные данные.");
         return Right(localCatalogs);
@@ -97,6 +98,43 @@ class PostRepositoryImpl implements PostRepository {
     } on ServerExeption {
       return Left(ServerFailure());
     } catch (e) {
+      return Left(UnexpectedFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<Country>>> getLocationTree() async {
+    try {
+      print("🔍 Проверяем кэшированные данные...");
+      if (await localDataSource.hasCachedLocationsData()) {
+        final locationTree = await localDataSource.getCachedLocations();
+        print("✅ Данные найдены в кэше. Возвращаем локальные данные.");
+        return Right(locationTree);
+      }
+
+      print("🌐 Проверяем подключение к интернету...");
+
+      try {
+        print("📡 Запрашиваем данные с сервера...");
+        final remoteCatalogs = await remoteDataSource.getLocations();
+
+        print("💾 Кэшируем полученные данные...");
+        await localDataSource.cacheLocations(remoteCatalogs);
+
+        print("✅ Данные успешно загружены с сервера и закэшированы.");
+        return Right(remoteCatalogs);
+      } catch (e) {
+        print("❌ Ошибка при получении данных с сервера: $e");
+        rethrow;
+      }
+    } on ServerExeption {
+      print("🛑 Ошибка сервера! Возвращаем ServerFailure.");
+      return Left(ServerFailure());
+    } on CacheExeption {
+      print("🗄️ Ошибка кэша! Возвращаем CacheFailure.");
+      return Left(CacheFailure());
+    } catch (e) {
+      print("❓ Непредвиденная ошибка: $e. Возвращаем UnexpectedFailure.");
       return Left(UnexpectedFailure());
     }
   }

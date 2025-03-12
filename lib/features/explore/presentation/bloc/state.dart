@@ -1,12 +1,12 @@
 import 'package:list_in/features/explore/domain/enties/prediction_entity.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/pages/filter/filter.dart';
-import 'package:list_in/features/post/data/models/attribute_model.dart';
-import 'package:list_in/features/post/data/models/attribute_value_model.dart';
-import 'package:list_in/features/post/data/models/blabla.dart';
-import 'package:list_in/features/post/data/models/category_model.dart';
-import 'package:list_in/features/post/data/models/child_category_model.dart';
-import 'package:list_in/features/post/data/models/nomeric_field_model.dart';
+import 'package:list_in/features/post/data/models/category_tree/attribute_model.dart';
+import 'package:list_in/features/post/data/models/category_tree/attribute_value_model.dart';
+import 'package:list_in/features/post/data/models/category_tree/blabla.dart';
+import 'package:list_in/features/post/data/models/category_tree/category_model.dart';
+import 'package:list_in/features/post/data/models/category_tree/child_category_model.dart';
+import 'package:list_in/features/post/data/models/category_tree/nomeric_field_model.dart';
 
 enum RequestState { idle, inProgress, completed, error }
 

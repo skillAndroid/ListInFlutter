@@ -1,7 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:hive/hive.dart';
 
-import 'package:list_in/features/post/data/models/attribute_value_model.dart';
+import 'package:list_in/features/post/data/models/category_tree/attribute_value_model.dart';
 
 part 'attribute_model.g.dart';
 

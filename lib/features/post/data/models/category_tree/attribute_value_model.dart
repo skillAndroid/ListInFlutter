@@ -1,4 +1,4 @@
-import 'package:list_in/features/post/data/models/sub_model.dart';
+import 'package:list_in/features/post/data/models/category_tree/sub_model.dart';
 import 'package:hive/hive.dart';
 part 'attribute_value_model.g.dart';
 

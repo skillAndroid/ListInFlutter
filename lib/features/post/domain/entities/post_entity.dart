@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:list_in/features/auth/presentation/pages/register_details_page.dart';
-import 'package:list_in/features/post/data/models/blabla.dart';
-import 'package:list_in/features/post/data/models/post_model.dart';
+import 'package:list_in/features/post/data/models/category_tree/blabla.dart';
+import 'package:list_in/features/post/data/models/category_tree/post_model.dart';
 
 class PostEntity {
   final String title;

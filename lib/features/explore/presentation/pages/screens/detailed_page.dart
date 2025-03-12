@@ -29,9 +29,9 @@ import 'package:list_in/features/explore/presentation/widgets/filters_widgets/se
 import 'package:list_in/features/explore/presentation/widgets/product_card/bb/boosted_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/product_card/bb/regular_product_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
-import 'package:list_in/features/post/data/models/attribute_model.dart';
-import 'package:list_in/features/post/data/models/attribute_value_model.dart';
-import 'package:list_in/features/post/data/models/nomeric_field_model.dart';
+import 'package:list_in/features/post/data/models/category_tree/attribute_model.dart';
+import 'package:list_in/features/post/data/models/category_tree/attribute_value_model.dart';
+import 'package:list_in/features/post/data/models/category_tree/nomeric_field_model.dart';
 import 'package:list_in/features/post/presentation/pages/atributes_releted/child_category_page.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:visibility_detector/visibility_detector.dart';

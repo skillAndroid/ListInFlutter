@@ -3,11 +3,13 @@ import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:list_in/core/error/exeptions.dart';
 import 'package:list_in/core/services/auth_service.dart';
-import 'package:list_in/features/post/data/models/category_model.dart';
-import 'package:list_in/features/post/data/models/post_model.dart';
+import 'package:list_in/features/post/data/models/category_tree/category_model.dart';
+import 'package:list_in/features/post/data/models/category_tree/post_model.dart';
+import 'package:list_in/features/post/data/models/location_tree/location_model.dart';
 
 abstract class CatalogRemoteDataSource {
   Future<List<CategoryModel>> getCatalogs();
+  Future<List<Country>> getLocations();
   Future<List<String>> uploadImages(List<XFile> images);
   Future<String> uploadVideo(XFile video);
   Future<String> createPost(PostModel post);
@@ -161,6 +163,53 @@ class CatalogRemoteDataSourceImpl implements CatalogRemoteDataSource {
       throw ServerExeption(message: 'Failed to create post');
     } catch (e) {
       rethrow;
+    }
+  }
+
+  @override
+  Future<List<Country>> getLocations() async {
+    try {
+      final options = await authService.getAuthOptions();
+      final response = await dio.get(
+        '/api/v1/location-tree',
+        options: options,
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        if (response.data is List) {
+          try {
+            final locations = (response.data as List)
+                .map((json) => Country.fromJson(json as Map<String, dynamic>))
+                .toList();
+            debugPrint("😤😤 Success in remoute fetching data locations!");
+            debugPrint("😤😤 ${locations.length}");
+            return locations;
+          } catch (e) {
+            debugPrint("😤😤 Parsing data !$e");
+            throw ServerExeption(message: 'Error parsing catalog data: $e');
+          }
+        } else {
+          debugPrint("😤😤Invalid response format: expected a list");
+          throw ServerExeption(
+              message: 'Invalid response format: expected a list');
+        }
+      } else {
+        throw ServerExeption(message: 'Failed to fetch catalogs');
+      }
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
+        debugPrint("😤😤DIO ERROR: $e");
+        throw ServerExeption(message: 'Connection timeout');
+      } else if (e.response?.statusCode == 401) {
+        debugPrint("😤😤DIO ERROR: $e");
+        throw ServerExeption(message: 'Invalid or expired token');
+      }
+      debugPrint("😤😤DIO ERROR: $e");
+      throw ServerExeption(message: e.message ?? 'Server error');
+    } catch (e) {
+      debugPrint("😤😤Error try chatch : $e");
+      throw ServerExeption(message: e.toString());
     }
   }
 }

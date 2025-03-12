@@ -1,5 +1,5 @@
 import 'package:list_in/features/auth/presentation/pages/register_details_page.dart';
-import 'package:list_in/features/post/data/models/blabla.dart';
+import 'package:list_in/features/post/data/models/category_tree/blabla.dart';
 import 'package:list_in/features/post/domain/entities/post_entity.dart';
 
 class PostModel extends PostEntity {

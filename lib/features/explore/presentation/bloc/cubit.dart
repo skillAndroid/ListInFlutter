@@ -18,11 +18,11 @@ import 'package:list_in/features/explore/domain/usecase/get_publications_usecase
 import 'package:list_in/features/explore/domain/usecase/get_video_publications_usecase.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/explore/presentation/pages/filter/filter.dart';
-import 'package:list_in/features/post/data/models/attribute_model.dart';
-import 'package:list_in/features/post/data/models/attribute_value_model.dart';
-import 'package:list_in/features/post/data/models/blabla.dart';
-import 'package:list_in/features/post/data/models/category_model.dart';
-import 'package:list_in/features/post/data/models/child_category_model.dart';
+import 'package:list_in/features/post/data/models/category_tree/attribute_model.dart';
+import 'package:list_in/features/post/data/models/category_tree/attribute_value_model.dart';
+import 'package:list_in/features/post/data/models/category_tree/blabla.dart';
+import 'package:list_in/features/post/data/models/category_tree/category_model.dart';
+import 'package:list_in/features/post/data/models/category_tree/child_category_model.dart';
 import 'package:list_in/features/post/domain/usecases/get_catalogs_usecase.dart';
 import 'package:list_in/global/global_bloc.dart';
 import 'package:list_in/global/global_event.dart';

@@ -38,12 +38,13 @@ import 'package:list_in/features/map/domain/repositories/location_repository.dar
 import 'package:list_in/features/map/domain/usecases/get_location_usecase.dart';
 import 'package:list_in/features/map/domain/usecases/search_locations_usecase.dart';
 import 'package:list_in/features/map/presentation/bloc/MapBloc.dart';
-import 'package:list_in/features/post/data/models/attribute_model.dart';
-import 'package:list_in/features/post/data/models/attribute_value_model.dart';
-import 'package:list_in/features/post/data/models/category_model.dart';
-import 'package:list_in/features/post/data/models/child_category_model.dart';
-import 'package:list_in/features/post/data/models/nomeric_field_model.dart';
-import 'package:list_in/features/post/data/models/sub_model.dart';
+import 'package:list_in/features/post/data/models/category_tree/attribute_model.dart';
+import 'package:list_in/features/post/data/models/category_tree/attribute_value_model.dart';
+import 'package:list_in/features/post/data/models/category_tree/category_model.dart';
+import 'package:list_in/features/post/data/models/category_tree/child_category_model.dart';
+import 'package:list_in/features/post/data/models/category_tree/nomeric_field_model.dart';
+import 'package:list_in/features/post/data/models/category_tree/sub_model.dart';
+import 'package:list_in/features/post/data/models/location_tree/location_model.dart';
 import 'package:list_in/features/post/data/repository/post_repository_impl.dart';
 import 'package:list_in/features/post/data/sources/post_local_data_source.dart';
 import 'package:list_in/features/post/data/sources/post_remote_data_source.dart';
@@ -102,7 +103,6 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<Dio>(() {
     final dio = Dio();
-
     dio.options
       ..baseUrl = 'http://listin.uz'
       ..connectTimeout = const Duration(seconds: 5)
@@ -181,6 +181,7 @@ Future<void> init() async {
   Hive.registerAdapter(NomericFieldModelAdapter());
 
   final catalogBox = await Hive.openBox<CategoryModel>('catalogs');
+  final locationBox = await Hive.openBox<Country>('locations');
 
   sl.registerFactory(
     () => AuthBloc(
@@ -284,7 +285,10 @@ Future<void> init() async {
   sl.registerLazySingleton<LocationRemoteDatasource>(
       () => LocationRemoteDataSourceImpl(dio: sl()));
   sl.registerLazySingleton<CatalogLocalDataSource>(
-    () => CatalogLocalDataSourceImpl(categoryBox: catalogBox),
+    () => CatalogLocalDataSourceImpl(
+      categoryBox: catalogBox,
+      locationBox: locationBox,
+    ),
   );
 
   sl.registerLazySingleton<PublicationsRepository>(

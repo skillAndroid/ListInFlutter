@@ -1,4 +1,4 @@
-import 'package:list_in/features/post/data/models/child_category_model.dart';
+import 'package:list_in/features/post/data/models/category_tree/child_category_model.dart';
 import 'package:hive/hive.dart';
 part 'category_model.g.dart';
 

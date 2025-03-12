@@ -5,7 +5,7 @@ import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/config/theme/app_language.dart';
 import 'package:list_in/core/language/language_bloc.dart';
 import 'package:list_in/core/utils/const.dart';
-import 'package:list_in/features/post/data/models/category_model.dart';
+import 'package:list_in/features/post/data/models/category_tree/category_model.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
