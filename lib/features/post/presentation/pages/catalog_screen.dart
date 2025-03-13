@@ -31,7 +31,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
   late final PageController _pageController;
   late int _currentPage;
   late double _progressValue;
-  final int _pageCount = 8;
+  final int _pageCount = 9;
 
   @override
   void initState() {
@@ -57,7 +57,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
   bool _validateCurrentPage(PostProvider provider) {
     switch (_currentPage) {
       case 3: // Title page
-        return provider.postTitle.length >= 10;
+        return provider.postTitle.length >= 11;
       case 4: // Description page
         return provider.postDescription.length >= 45;
       case 5: // Price page
@@ -252,8 +252,6 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
     );
   }
 
-
-
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
       centerTitle: true,
@@ -284,7 +282,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
 
   Widget _buildBottomButton(
       BuildContext context, PostProvider provider, bool canProceed) {
-    final isLastPage = _currentPage == 7;
+    final isLastPage = _currentPage == 8;
     final isLoading = _isLoading;
 
     Widget buttonChild;
@@ -361,7 +359,8 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
-                              AppLocalizations.of(context)!.post_creation_success,
+                              AppLocalizations.of(context)!
+                                  .post_creation_success,
                               style: TextStyle(
                                 fontFamily: Constants.Arial,
                               ),
