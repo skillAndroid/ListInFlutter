@@ -172,9 +172,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                 SizedBox(
                                   width: 250,
                                   child: Text(
-                                    userData.biography ??
-                                        AppLocalizations.of(context)!
-                                            .no_biography,
+                                    userData.email.toString(),
                                     style: TextStyle(
                                       color: AppColors.darkGray,
                                       fontSize: 17,
@@ -297,16 +295,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 4),
-                            Expanded(
-                              child: _buildStatCard(
-                                AppLocalizations.of(context)!.reviews,
-                                '⟶',
-                                Colors.white,
-                                Colors.black,
-                              ),
-                            ),
-                            const SizedBox(width: 4),
+                            const SizedBox(width: 8),
                             Expanded(
                               child: InkWell(
                                 onTap: () {
@@ -394,7 +383,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
       borderRadius: BorderRadius.circular(16),
       child: Container(
         padding:
-            const EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 16),
+            const EdgeInsets.only(top: 24, left: 16, right: 16, bottom: 24),
         decoration: BoxDecoration(
           color: bgColor,
         ),
