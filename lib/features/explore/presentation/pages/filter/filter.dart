@@ -1740,7 +1740,10 @@ class _FiltersPageState extends State<FiltersPage>
       AppLocalizations localizations,
       HomeTreeState state,
       HomeTreeCubit cubit) {
-    debugPrint('loations ******** *** *** ${state.locations}');
+    debugPrint('locations: ${state.locations?.length}');
+    debugPrint('selected country: ${state.selectedCountry?.value}');
+    debugPrint('selected state: ${state.selectedState?.value}');
+    debugPrint('selected county: ${state.selectedCounty?.value}');
     return AnimatedContainer(
       duration: Duration(milliseconds: 300),
       margin: EdgeInsets.only(bottom: 16),
@@ -1826,7 +1829,7 @@ class _FiltersPageState extends State<FiltersPage>
           ),
 
           // Only show popular locations if no location is selected
-          if (state.locationDisplayName == null)
+          if (state.selectedState == null)
             AnimatedContainer(
               duration: Duration(milliseconds: 300),
               margin: EdgeInsets.only(top: 8),
@@ -1842,19 +1845,18 @@ class _FiltersPageState extends State<FiltersPage>
     );
   }
 
-// Popular locations chips
   List<Widget> _buildPopularLocations(
       BuildContext context, HomeTreeState state, HomeTreeCubit cubit) {
-    final popularStates = state.locations?.first.states?.take(5).toList() ?? [];
+    final popularStates = state.selectedCountry?.states?.take(5).toList() ?? [];
 
-    return popularStates.map((state) {
-      final stateName = state.valueRu ?? state.value ?? '';
+    return popularStates.map((stateItem) {
+      final stateName = stateItem.valueRu ?? stateItem.value ?? '';
 
       return Padding(
         padding: const EdgeInsets.only(right: 8),
         child: GestureDetector(
           onTap: () {
-            cubit.selectState(state.value!);
+            cubit.selectState(stateItem.stateId!);
           },
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -1899,8 +1901,11 @@ class _FiltersPageState extends State<FiltersPage>
         final cubit = context.read<HomeTreeCubit>();
         final states = state.selectedCountry?.states ?? [];
 
-        // Track which state is expanded to show counties
-        final expandedStateId = state.selectedStateId;
+        // Debug information to verify selections
+        debugPrint('Selected country: ${state.selectedCountry?.value}');
+        debugPrint('Selected state: ${state.selectedState?.value}');
+        debugPrint('Selected county: ${state.selectedCounty?.value}');
+
         return SmoothClipRRect(
           smoothness: 0.8,
           borderRadius: BorderRadius.circular(20),
@@ -1914,6 +1919,7 @@ class _FiltersPageState extends State<FiltersPage>
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
+                // Header
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -1928,26 +1934,24 @@ class _FiltersPageState extends State<FiltersPage>
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    IconButton(
-                      icon: Icon(
-                        Icons.close,
-                        color: AppColors.transparent,
-                      ),
-                      onPressed: () {},
-                    ),
+                    SizedBox(width: 48), // Balance the layout
                   ],
                 ),
-                Divider(
-                  color: AppColors.containerColor,
-                ),
+                Divider(color: AppColors.containerColor),
+
+                // States list
                 Expanded(
                   child: ListView.builder(
                     itemCount: states.length,
                     itemBuilder: (context, index) {
                       final stateItem = states[index];
-                      final isSelected =
-                          stateItem.value == state.selectedStateId;
-                      final isExpanded = stateItem.value == expandedStateId;
+
+                      // Strict comparison to ensure only the actually selected state appears selected
+                      final isSelected = state.selectedState != null &&
+                          state.selectedState!.stateId == stateItem.stateId;
+
+                      // Only expand if actually selected
+                      final isExpanded = isSelected;
                       final hasCounties =
                           stateItem.counties?.isNotEmpty == true;
 
@@ -1958,6 +1962,7 @@ class _FiltersPageState extends State<FiltersPage>
                             title: Text(
                               stateItem.valueRu ?? stateItem.value ?? '',
                               style: TextStyle(
+                                // Only apply bold/color if actually selected
                                 fontWeight: isSelected
                                     ? FontWeight.bold
                                     : FontWeight.normal,
@@ -1983,17 +1988,18 @@ class _FiltersPageState extends State<FiltersPage>
                                     : null),
                             onTap: () {
                               if (hasCounties) {
-                                // Toggle expansion
-                                if (isExpanded) {
-                                  //  cubit.clearStateSelection();
+                                if (isSelected) {
+                                  // If already selected, just toggle expansion
+                                  // In this implementation, we'll just deselect it
+                                  cubit.clearLocationSelection();
                                 } else {
-                                  cubit.selectState(stateItem.value!);
+                                  // Select this state
+                                  cubit.selectState(stateItem.stateId!);
                                 }
-
                                 setSheetState(() {});
                               } else {
                                 // No counties, just select the state and close
-                                cubit.selectState(stateItem.value!);
+                                cubit.selectState(stateItem.stateId!);
                                 Navigator.pop(context);
                               }
                             },
@@ -2011,8 +2017,12 @@ class _FiltersPageState extends State<FiltersPage>
                                 itemBuilder: (context, countyIndex) {
                                   final countyItem =
                                       stateItem.counties![countyIndex];
-                                  final isCountySelected = countyItem.value ==
-                                      state.selectedCountyId;
+
+                                  // Strict comparison for county selection
+                                  final isCountySelected =
+                                      state.selectedCounty != null &&
+                                          state.selectedCounty!.countyId ==
+                                              countyItem.countyId;
 
                                   return ListTile(
                                     title: Text(
@@ -2026,8 +2036,7 @@ class _FiltersPageState extends State<FiltersPage>
                                         color: isCountySelected
                                             ? Theme.of(context).primaryColor
                                             : Colors.black87,
-                                        fontSize:
-                                            15, // Slightly smaller font for counties
+                                        fontSize: 15,
                                       ),
                                     ),
                                     trailing: isCountySelected
@@ -2038,7 +2047,7 @@ class _FiltersPageState extends State<FiltersPage>
                                           )
                                         : null,
                                     onTap: () {
-                                      cubit.selectCounty(countyItem.value!);
+                                      cubit.selectCounty(countyItem.countyId!);
                                       Navigator.pop(context);
                                     },
                                   );
@@ -2058,6 +2067,7 @@ class _FiltersPageState extends State<FiltersPage>
     );
   }
 
+// debug
   Widget _buildApplyButton(
       HomeTreeState state, AppLocalizations localizations) {
     return Column(

@@ -258,7 +258,8 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
       final queryParams = {
         if (query != null && query.isNotEmpty) 'query': query,
         if (isFree != null) 'isFree': isFree.toString(),
-        if (locationIds != null) 'locationIds': locationIds,
+        if (locationIds != null && locationIds.isNotEmpty)
+          'locationIds': locationIds,
         if (bargain != null) 'bargain': bargain.toString(),
         if (condition != null) 'condition': condition,
         if (sellerType != null) 'sellerType': sellerType,

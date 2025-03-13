@@ -1,4 +1,6 @@
 // post_cubit.dart
+// ignore_for_file: cast_from_null_always_fails
+
 import 'dart:async';
 
 import 'package:dio/dio.dart';
@@ -24,8 +26,6 @@ import 'package:list_in/features/post/data/models/category_tree/blabla.dart';
 import 'package:list_in/features/post/data/models/category_tree/category_model.dart';
 import 'package:list_in/features/post/data/models/category_tree/child_category_model.dart';
 import 'package:list_in/features/post/data/models/location_tree/location_model.dart';
-import 'package:list_in/features/post/data/models/location_tree/location_model.dart'
-    as models;
 import 'package:list_in/features/post/domain/usecases/get_catalogs_usecase.dart';
 import 'package:list_in/features/post/domain/usecases/get_locations_usecase.dart';
 import 'package:list_in/global/global_bloc.dart';
@@ -55,22 +55,68 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
   }) : super(HomeTreeState());
 
   void selectState(String stateId) {
+    if (state.selectedCountry == null ||
+        state.selectedCountry!.states == null) {
+      return;
+    }
+
+    try {
+      final selectedState = state.selectedCountry!.states!.firstWhere(
+        (state) => state.stateId == stateId,
+      );
+
+      debugPrint('Selecting state: ${selectedState.value}');
+
+      emit(state.copyWith(
+        selectedState: selectedState,
+        clearSelectedCounty: true,
+      ));
+      fetchFilteredPredictionValues();
+    } catch (e) {
+      debugPrint('Error selecting state: $e');
+    }
+  }
+
+  void selectCounty(String countyId) {
+    if (state.selectedState == null || state.selectedState!.counties == null) {
+      return;
+    }
+
+    try {
+      final selectedCounty = state.selectedState!.counties!.firstWhere(
+        (county) => county.countyId == countyId,
+      );
+
+      debugPrint('Selecting county: ${selectedCounty.value}');
+
+      emit(state.copyWith(
+        selectedCounty: selectedCounty,
+      ));
+      fetchFilteredPredictionValues();
+    } catch (e) {
+      debugPrint('Error selecting county: $e');
+    }
+  }
+
+  void clearLocationSelection() {
+    debugPrint('Clearing location selection');
     emit(state.copyWith(
-      selectedStateId: stateId,
+      clearSelectedState: true,
       clearSelectedCounty: true,
     ));
     fetchFilteredPredictionValues();
   }
 
-  void selectCounty(String countyId) {
-    emit(state.copyWith(
-      selectedCountyId: countyId,
-    ));
-    fetchFilteredPredictionValues();
-  }
+  void selectCountry(String countryId) {
+    if (state.locations == null) return;
 
-  void clearLocationSelection() {
+    final selectedCountry = state.locations!.firstWhere(
+      (country) => country.countryId == countryId,
+      orElse: () => null as Country,
+    );
+
     emit(state.copyWith(
+      selectedCountry: selectedCountry,
       clearSelectedState: true,
       clearSelectedCounty: true,
     ));
@@ -756,7 +802,9 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
 
         // Create new cancel token for this request
         _filterPredictionCancelToken = CancelToken();
+
         debugPrint("🤩🤩${state.searchText}");
+
         final params = GetFilteredPublicationsValuesParams(
           query: state.searchText,
           categoryId: state.selectedCatalog?.id,
@@ -770,7 +818,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
               : null,
           priceFrom: state.priceFrom,
           priceTo: state.priceTo,
-          locationIds: state.locationDisplayName,
+          locationIds: buildLocationIds(),
           filters: state.generateFilterParameters().isNotEmpty
               ? state.generateFilterParameters()
               : null,
@@ -830,6 +878,22 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
         _filterPredictionCancelToken = null;
       }
     });
+  }
+
+  String buildLocationIds() {
+    List<String> ids = [];
+
+    if (state.selectedCountry?.countryId != null) {
+      ids.add(state.selectedCountry!.countryId!);
+    }
+    if (state.selectedState?.stateId != null) {
+      ids.add(state.selectedState!.stateId!);
+    }
+    if (state.selectedCounty?.countyId != null) {
+      ids.add(state.selectedCounty!.countyId!);
+    }
+
+    return ids.join('.'); // Ensures no extra dots
   }
 
   void filtersTrigered() {
@@ -1143,6 +1207,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
       )),
       (locations) => emit(state.copyWith(
         locations: locations,
+        selectedCountry: locations.first,
         error: null,
         isLoading: false,
       )),
@@ -1713,65 +1778,5 @@ extension HomeTreeStateFilterTracking on HomeTreeState {
     return selectedAttributeValues.isNotEmpty ||
         selectedValues.isNotEmpty ||
         numericFieldValues.isNotEmpty;
-  }
-}
-
-extension LocationSelectionState on HomeTreeState {
-  Country? get selectedCountry {
-    if (locations == null || locations!.isEmpty) return null;
-    return locations?.first;
-  }
-
-  models.State? get selectedState {
-    if (selectedStateId == null || selectedCountry == null) return null;
-    final states = selectedCountry!.states;
-    if (states == null) return null;
-
-    for (var state in states) {
-      if (state.value == selectedStateId) return state;
-    }
-    return null;
-  }
-
-  County? get selectedCounty {
-    if (selectedCountyId == null || selectedState == null) return null;
-    final counties = selectedState!.counties;
-    if (counties == null) return null;
-
-    for (var county in counties) {
-      if (county.value == selectedCountyId) return county;
-    }
-    return null;
-  }
-
-  // Helper method to get the full location name based on selections
-  String? get locationDisplayName {
-    final locale = 'ru'; // Default to Russian as per requirement
-
-    if (selectedCountyId != null &&
-        selectedState != null &&
-        selectedCounty != null) {
-      return locale == 'ru'
-          ? selectedCounty?.valueRu
-          : locale == 'uz'
-              ? selectedCounty?.valueUz
-              : selectedCounty?.value;
-    } else if (selectedStateId != null &&
-        selectedCountry != null &&
-        selectedState != null) {
-      return locale == 'ru'
-          ? selectedState?.valueRu
-          : locale == 'uz'
-              ? selectedState?.valueUz
-              : selectedState?.value;
-    } else if (selectedCountry != null) {
-      return locale == 'ru'
-          ? selectedCountry?.valueRu
-          : locale == 'uz'
-              ? selectedCountry?.valueUz
-              : selectedCountry?.value;
-    }
-
-    return null;
   }
 }

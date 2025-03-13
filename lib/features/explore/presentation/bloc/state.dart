@@ -28,11 +28,12 @@ class HomeTreeState {
   final RequestState searchRequestState;
   final RequestState searchPublicationsRequestState;
 
-  final String? selectedStateId;
-  final String? selectedCountyId;
+  final List<Country>? locations;
+  final Country? selectedCountry; // Store the whole Country object
+  final State? selectedState; // Store the whole State object
+  final County? selectedCounty; // Store the whole County object
 
   final List<CategoryModel>? catalogs;
-  final List<Country>? locations;
   final CategoryModel? selectedCatalog;
   final ChildCategoryModel? selectedChildCategory;
   final List<AttributeModel> currentAttributes;
@@ -125,7 +126,6 @@ class HomeTreeState {
     this.childSearchRequestState = RequestState.idle,
     this.childPublicationsRequestState = RequestState.idle,
     this.catalogs,
-    this.locations,
     this.selectedCatalog,
     this.selectedChildCategory,
     this.predictedPriceFrom = 0,
@@ -133,8 +133,10 @@ class HomeTreeState {
     this.predictedFoundPublications = 0,
     this.filteredValuesRequestState = RequestState.idle,
     this.errorFilteredValuesFetch,
-    this.selectedStateId,
-    this.selectedCountyId,
+    this.locations,
+    this.selectedCountry,
+    this.selectedState,
+    this.selectedCounty,
     bool? bargain,
     bool? isFree,
     String? condition,
@@ -213,6 +215,13 @@ class HomeTreeState {
         childPublications = childPublications ?? [];
 
   HomeTreeState copyWith({
+    List<Country>? locations,
+    Country? selectedCountry,
+    State? selectedState,
+    County? selectedCounty,
+    bool clearSelectedCountry = false,
+    bool clearSelectedState = false,
+    bool clearSelectedCounty = false,
     RequestState? searchRequestState,
     RequestState? searchPublicationsRequestState,
     RequestState? initialSearchRequestState,
@@ -224,7 +233,6 @@ class HomeTreeState {
     RequestState? childSearchRequestState,
     RequestState? childPublicationsRequestState,
     List<CategoryModel>? catalogs,
-    List<Country>? locations,
     CategoryModel? selectedCatalog,
     ChildCategoryModel? selectedChildCategory,
     List<AttributeModel>? currentAttributes,
@@ -293,18 +301,15 @@ class HomeTreeState {
     int? predictedFoundPublications,
     RequestState? filteredValuesRequestState,
     String? errorFilteredValuesFetch,
-    String? selectedStateId,
-    String? selectedCountyId,
-    bool clearSelectedState = false,
-    bool clearSelectedCounty = false,
-    State? selectedState,
   }) {
     return HomeTreeState(
-      selectedStateId:
-          clearSelectedState ? null : (selectedStateId ?? this.selectedStateId),
-      selectedCountyId: clearSelectedCounty
-          ? null
-          : (selectedCountyId ?? this.selectedCountyId),
+      locations: locations ?? this.locations,
+      selectedCountry:
+          clearSelectedCountry ? null : selectedCountry ?? this.selectedCountry,
+      selectedState:
+          clearSelectedState ? null : selectedState ?? this.selectedState,
+      selectedCounty:
+          clearSelectedCounty ? null : selectedCounty ?? this.selectedCounty,
       searchRequestState: searchRequestState ?? this.searchRequestState,
       searchPublicationsRequestState:
           searchPublicationsRequestState ?? this.searchPublicationsRequestState,
@@ -325,7 +330,6 @@ class HomeTreeState {
       childPublicationsRequestState:
           childPublicationsRequestState ?? this.childPublicationsRequestState,
       catalogs: catalogs ?? this.catalogs,
-      locations: locations ?? this.locations,
       selectedCatalog: clearSelectedCatalog
           ? null
           : (selectedCatalog ?? this.selectedCatalog),
@@ -403,5 +407,31 @@ class HomeTreeState {
       orderedAttributes.addAll(relatedDynamicAttrs);
     }
     return orderedAttributes;
+  }
+
+  String? get locationDisplayName {
+    final locale = 'ru'; // Default to Russian as per requirement
+
+    if (selectedCounty != null) {
+      return locale == 'ru'
+          ? selectedCounty?.valueRu
+          : locale == 'uz'
+              ? selectedCounty?.valueUz
+              : selectedCounty?.value;
+    } else if (selectedState != null) {
+      return locale == 'ru'
+          ? selectedState?.valueRu
+          : locale == 'uz'
+              ? selectedState?.valueUz
+              : selectedState?.value;
+    } else if (selectedCountry != null) {
+      return locale == 'ru'
+          ? selectedCountry?.valueRu
+          : locale == 'uz'
+              ? selectedCountry?.valueUz
+              : selectedCountry?.value;
+    }
+
+    return null;
   }
 }
