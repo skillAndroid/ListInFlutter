@@ -259,6 +259,7 @@ class _FilterSecondaryResultPageState extends State<FilterSecondaryResultPage> {
 
   void _fetchInitialData() {
     context.read<HomeTreeCubit>().fetchCatalogs();
+    context.read<HomeTreeCubit>().fetchLocations();
   }
 
   void _updatePagingControllerItems(HomeTreeState state) {
@@ -366,7 +367,7 @@ class _FilterSecondaryResultPageState extends State<FilterSecondaryResultPage> {
       ),
     );
   }
-  
+
   Widget _buildFiltersBar(HomeTreeState state) {
     return ValueListenableBuilder<Set<int>>(
       valueListenable: _uiState.selectedFilters,

@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:flutter/foundation.dart';
 import 'package:list_in/core/error/failure.dart';
 import 'package:list_in/core/usecases/usecases.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
@@ -19,6 +20,7 @@ class GetPublicationsParams {
   final String? subcategoryId;
   final List<String>? filters;
   final List<String>? numerics;
+  final String? locationIds;
 
   GetPublicationsParams({
     this.sellerType,
@@ -34,6 +36,7 @@ class GetPublicationsParams {
     this.subcategoryId,
     this.filters,
     this.numerics,
+    this.locationIds,
   });
 }
 
@@ -46,6 +49,7 @@ class GetPublicationsUsecase
   @override
   Future<Either<Failure, PaginatedPublicationsEntity>> call(
       {GetPublicationsParams? params}) {
+    // debugPrint('🔥🔥 Here is the locations IDS rep impl: $locationIds');
     return repository.getPublicationsFiltered2(
       query: params?.query,
       page: params?.page,
@@ -60,6 +64,7 @@ class GetPublicationsUsecase
       subcategoryId: params?.subcategoryId,
       filters: params?.filters,
       numeric: params?.numerics,
+      locationIds: params?.locationIds,
     );
   }
 }

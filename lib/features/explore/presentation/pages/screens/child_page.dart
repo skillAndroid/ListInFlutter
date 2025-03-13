@@ -257,6 +257,7 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
 
   void _fetchInitialData() {
     context.read<HomeTreeCubit>().fetchCatalogs();
+    context.read<HomeTreeCubit>().fetchLocations();
   }
 
   void _updatePagingControllerItems(HomeTreeState state) {
@@ -374,6 +375,7 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
       ),
     );
   }
+
   Widget _buildFiltersBar(HomeTreeState state) {
     return ValueListenableBuilder<Set<int>>(
       valueListenable: _uiState.selectedFilters,

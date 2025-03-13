@@ -438,6 +438,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
               : null,
           priceFrom: state.priceFrom,
           priceTo: state.priceTo,
+          locationIds: buildLocationIds(),
           // Include category IDs if selected
           categoryId: state.selectedCatalog?.id,
           subcategoryId: state.selectedChildCategory?.id,
@@ -523,6 +524,8 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     }
 
     debugPrint('🔍 Fetching page: $pageKey with search: ${state.searchText}');
+    debugPrint(
+        '🔍 Fetching page: $pageKey with locationIds: ${buildLocationIds()}');
 
     if (pageKey == 0) {
       emit(state.copyWith(
@@ -551,6 +554,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
           size: pageSize,
           priceFrom: state.priceFrom,
           priceTo: state.priceTo,
+          locationIds: buildLocationIds(),
           bargain: state.bargain == true ? true : null,
           condition: shouldIncludeFilter(state.condition, 'ALL')
               ? state.condition
@@ -646,6 +650,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
               ? state.condition
               : null,
           categoryId: state.selectedCatalog?.id,
+          locationIds: buildLocationIds(),
         ),
       );
 
@@ -733,6 +738,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
         categoryId: state.selectedCatalog?.id,
         subcategoryId: state.selectedChildCategory?.id,
         // Include filters if they exist
+        locationIds: buildLocationIds(),
         filters: state.generateFilterParameters().isNotEmpty
             ? state.generateFilterParameters()
             : null,

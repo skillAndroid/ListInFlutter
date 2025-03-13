@@ -33,8 +33,10 @@ class PublicationsRepositoryImpl implements PublicationsRepository {
     double? priceTo,
     List<String>? filters,
     List<String>? numeric,
+    String? locationIds,
   }) async {
     try {
+      debugPrint('🔥🔥 Here is the locations IDS rep impl: $locationIds');
       final publications = await remoteDataSource.getPublications(
         isFree: isFree,
         sellerType: sellerType,
@@ -49,6 +51,7 @@ class PublicationsRepositoryImpl implements PublicationsRepository {
         subcategoryId: subcategoryId,
         filters: filters,
         numeric: numeric,
+        locationIds: locationIds,
       );
       return Right(
         publications.toEntity(),

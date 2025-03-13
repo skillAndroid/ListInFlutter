@@ -20,19 +20,22 @@ class CountyAdapter extends TypeAdapter<County> {
       value: fields[0] as String?,
       valueUz: fields[1] as String?,
       valueRu: fields[2] as String?,
+      countyId: fields[3] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, County obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(4)
       ..writeByte(0)
       ..write(obj.value)
       ..writeByte(1)
       ..write(obj.valueUz)
       ..writeByte(2)
-      ..write(obj.valueRu);
+      ..write(obj.valueRu)
+      ..writeByte(3)
+      ..write(obj.countyId);
   }
 
   @override
@@ -60,14 +63,15 @@ class StateAdapter extends TypeAdapter<State> {
       value: fields[0] as String?,
       valueUz: fields[1] as String?,
       valueRu: fields[2] as String?,
-      counties: (fields[3] as List?)?.cast<County>(),
+      counties: (fields[4] as List?)?.cast<County>(),
+      stateId: fields[3] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, State obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.value)
       ..writeByte(1)
@@ -75,6 +79,8 @@ class StateAdapter extends TypeAdapter<State> {
       ..writeByte(2)
       ..write(obj.valueRu)
       ..writeByte(3)
+      ..write(obj.stateId)
+      ..writeByte(4)
       ..write(obj.counties);
   }
 
@@ -103,14 +109,15 @@ class CountryAdapter extends TypeAdapter<Country> {
       value: fields[0] as String?,
       valueUz: fields[1] as String?,
       valueRu: fields[2] as String?,
-      states: (fields[3] as List?)?.cast<State>(),
+      states: (fields[4] as List?)?.cast<State>(),
+      countryId: fields[3] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Country obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.value)
       ..writeByte(1)
@@ -118,6 +125,8 @@ class CountryAdapter extends TypeAdapter<Country> {
       ..writeByte(2)
       ..write(obj.valueRu)
       ..writeByte(3)
+      ..write(obj.countryId)
+      ..writeByte(4)
       ..write(obj.states);
   }
 

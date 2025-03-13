@@ -167,6 +167,7 @@ class _FilterHomeResultPageState extends State<FilterHomeResultPage> {
 
   void _fetchInitialData() {
     context.read<HomeTreeCubit>().fetchCatalogs();
+    context.read<HomeTreeCubit>().fetchLocations();
   }
 
   void _fetchVideoFeeds() {
@@ -332,6 +333,7 @@ class _FilterHomeResultPageState extends State<FilterHomeResultPage> {
       ),
     );
   }
+
   Widget _buildProductGrid() {
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 6),

@@ -28,17 +28,6 @@ class County {
       rethrow;
     }
   }
-
-  Map<String, dynamic> toJson() => {
-        'value': value,
-        'valueUz': valueUz,
-        'valueRu': valueRu,
-        'countyId': countyId,
-      };
-
-  @override
-  String toString() =>
-      'County(value: $value, valueUz: $valueUz, valueRu: $valueRu, countyId: $countyId)';
 }
 
 @HiveType(typeId: 7)
@@ -54,7 +43,13 @@ class State {
   @HiveField(4)
   List<County>? counties;
 
-  State({this.value, this.valueUz, this.valueRu, this.counties, this.stateId});
+  State({
+    this.value,
+    this.valueUz,
+    this.valueRu,
+    this.stateId,
+    this.counties,
+  });
 
   factory State.fromJson(Map<String, dynamic> json) {
     try {
@@ -85,18 +80,6 @@ class State {
       rethrow;
     }
   }
-
-  Map<String, dynamic> toJson() => {
-        'value': value,
-        'valueUz': valueUz,
-        'valueRu': valueRu,
-        'stateId': stateId,
-        'counties': counties?.map((e) => e.toJson()).toList(),
-      };
-
-  @override
-  String toString() =>
-      'State(value: $value, valueUz: $valueUz, valueRu: $valueRu, stateId: $stateId counties: ${counties?.length})';
 }
 
 @HiveType(typeId: 6)
@@ -112,8 +95,13 @@ class Country {
   @HiveField(4)
   List<State>? states;
 
-  Country(
-      {this.value, this.valueUz, this.valueRu, this.states, this.countryId});
+  Country({
+    this.value,
+    this.valueUz,
+    this.valueRu,
+    this.countryId,
+    this.states,
+  });
 
   factory Country.fromJson(Map<String, dynamic> json) {
     try {
@@ -144,16 +132,4 @@ class Country {
       rethrow;
     }
   }
-
-  Map<String, dynamic> toJson() => {
-        'value': value,
-        'valueUz': valueUz,
-        'valueRu': valueRu,
-        'countryId': countryId,
-        'states': states?.map((e) => e.toJson()).toList(),
-      };
-
-  @override
-  String toString() =>
-      'Country(value: $value, valueUz: $valueUz, valueRu: $valueRu, countryId: $countryId states: ${states?.length})';
 }

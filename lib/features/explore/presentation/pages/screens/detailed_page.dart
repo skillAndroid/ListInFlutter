@@ -132,6 +132,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
 
   void _fetchInitialData() {
     context.read<HomeTreeCubit>().fetchCatalogs();
+    context.read<HomeTreeCubit>().fetchLocations();
   }
 
   @override
@@ -944,6 +945,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
       ),
     );
   }
+
   Widget _buildProductGrid() {
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 6),
@@ -978,7 +980,6 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
       ),
     );
   }
-
 
   Widget _buildAdvertisedProduct(GetPublicationEntity product) {
     _uiState.ensureProductTrackers(product.id);
@@ -1746,4 +1747,3 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
     }
   }
 }
-

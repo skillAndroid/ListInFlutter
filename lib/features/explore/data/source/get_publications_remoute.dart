@@ -23,6 +23,7 @@ abstract class PublicationsRemoteDataSource {
     double? priceTo,
     List<String>? filters,
     List<String>? numeric,
+    String? locationIds,
   });
 
   Future<List<PredictionModel>> getPredictions(String? query);
@@ -80,7 +81,9 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
     double? priceTo,
     List? filters,
     List<String>? numeric,
+    String? locationIds,
   }) async {
+    debugPrint('🔥🔥 Here is the locations IDS : $locationIds');
     try {
       final options = await authService.getAuthOptions();
       final queryParams = {
@@ -95,6 +98,8 @@ class PublicationsRemoteDataSourceImpl implements PublicationsRemoteDataSource {
         if (priceTo != null) 'to': priceTo.toString(),
         if (filters != null && filters.isNotEmpty) 'filter': filters,
         if (numeric != null && numeric.isNotEmpty) 'numeric': numeric.join(','),
+        if (locationIds != null && locationIds.isNotEmpty)
+          'locationIds': locationIds,
       };
 
       String url = '/api/v1/publications/search';

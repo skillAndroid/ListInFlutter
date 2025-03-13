@@ -22,6 +22,7 @@ abstract class PublicationsRepository {
     double? priceTo,
     List<String>? filters,
     List<String>? numeric,
+    String? locationIds,
   });
 
   Future<Either<Failure, List<PredictionEntity>>> getPredictions(String? query);
