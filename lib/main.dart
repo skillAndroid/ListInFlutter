@@ -25,59 +25,46 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await di.init();
 
-  // Force text scale factor to 1.0 (standardized scaling)
-  final platformDispatcher = WidgetsBinding.instance.platformDispatcher;
-  platformDispatcher.onPlatformBrightnessChanged = () {
-    // This ensures text scale remains at 1.0 even when brightness changes
-  };
-
-  // Set text scale factor to 1.0 for the entire app
-  final mediaQueryData = MediaQueryData.fromView(platformDispatcher.views.first)
-      .copyWith(textScaler: TextScaler.linear(0.85));
-
   runApp(
-    MediaQuery(
-      data: mediaQueryData,
-      child: MultiProvider(
-        providers: [
-          ChangeNotifierProvider(
-            create: (_) => di.sl<PostProvider>(),
-          ),
-        ],
-        child: MultiBlocProvider(
-          providers: [
-            BlocProvider(
-              create: (_) => di.sl<GlobalBloc>(),
-            ),
-            BlocProvider(
-              create: (_) => di.sl<AuthBloc>(),
-            ),
-            BlocProvider<MapBloc>(
-              create: (_) => di.sl<MapBloc>(),
-            ),
-            BlocProvider(
-              create: (_) => di.sl<LanguageBloc>()..add(LoadLanguageEvent()),
-            ),
-            BlocProvider<UserProfileBloc>(
-              create: (_) => di.sl<UserProfileBloc>(),
-            ),
-            BlocProvider<UserPublicationsBloc>(
-              create: (_) => di.sl<UserPublicationsBloc>(),
-            ),
-            BlocProvider<PublicationUpdateBloc>(
-              create: (_) => di.sl<PublicationUpdateBloc>(),
-            ),
-            BlocProvider<AnotherUserProfileBloc>(
-              create: (_) => di.sl<AnotherUserProfileBloc>(),
-            ),
-            BlocProvider<DetailsBloc>(
-              create: (_) => di.sl<DetailsBloc>(),
-            ),
-            BlocProvider<LikedPublicationsBloc>(
-                create: (_) => di.sl<LikedPublicationsBloc>())
-          ],
-          child: MyApp(router: di.sl<AppRouter>().router),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => di.sl<PostProvider>(),
         ),
+      ],
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (_) => di.sl<GlobalBloc>(),
+          ),
+          BlocProvider(
+            create: (_) => di.sl<AuthBloc>(),
+          ),
+          BlocProvider<MapBloc>(
+            create: (_) => di.sl<MapBloc>(),
+          ),
+          BlocProvider(
+            create: (_) => di.sl<LanguageBloc>()..add(LoadLanguageEvent()),
+          ),
+          BlocProvider<UserProfileBloc>(
+            create: (_) => di.sl<UserProfileBloc>(),
+          ),
+          BlocProvider<UserPublicationsBloc>(
+            create: (_) => di.sl<UserPublicationsBloc>(),
+          ),
+          BlocProvider<PublicationUpdateBloc>(
+            create: (_) => di.sl<PublicationUpdateBloc>(),
+          ),
+          BlocProvider<AnotherUserProfileBloc>(
+            create: (_) => di.sl<AnotherUserProfileBloc>(),
+          ),
+          BlocProvider<DetailsBloc>(
+            create: (_) => di.sl<DetailsBloc>(),
+          ),
+          BlocProvider<LikedPublicationsBloc>(
+              create: (_) => di.sl<LikedPublicationsBloc>())
+        ],
+        child: MyApp(router: di.sl<AppRouter>().router),
       ),
     ),
   );
