@@ -21,7 +21,6 @@ import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'core/di/di_managment.dart' as di;
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await di.init();
@@ -86,12 +85,12 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   final GoRouter router;
-  
+
   const MyApp({
     super.key,
     required this.router,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(
@@ -103,29 +102,30 @@ class MyApp extends StatelessWidget {
         systemNavigationBarDividerColor: Colors.transparent,
       ),
     );
-    
+
     SystemChrome.setEnabledSystemUIMode(
       SystemUiMode.edgeToEdge,
       overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom],
     );
-    
+
     return BlocBuilder<LanguageBloc, LanguageState>(
       builder: (context, state) {
         Locale locale = const Locale(AppLanguages.english);
-        
+
         if (state is LanguageLoaded) {
           locale = Locale(state.languageCode);
         }
 
         return MediaQuery(
-          data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(0.85)),
+          data: MediaQuery.of(context)
+              .copyWith(textScaler: TextScaler.linear(0.85)),
           child: MaterialApp.router(
             title: 'Your App',
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.lightTheme,
             debugShowCheckedModeBanner: false,
             routerConfig: router,
-            
+
             // Add localization support
             localizationsDelegates: const [
               AppLocalizations.delegate,
@@ -135,14 +135,6 @@ class MyApp extends StatelessWidget {
             ],
             supportedLocales: AppLanguages.supportedLocales,
             locale: locale,
-            
-            builder: (context, child) {
-              return MediaQuery(
-                data: MediaQuery.of(context)
-                    .copyWith(textScaler: TextScaler.linear(0.85)),
-                child: child!,
-              );
-            },
           ),
         );
       },

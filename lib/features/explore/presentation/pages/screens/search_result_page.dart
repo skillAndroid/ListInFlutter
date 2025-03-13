@@ -176,8 +176,8 @@ class _SearchResultPageState extends State<SearchResultPage> {
   }
 
   void _handleError(HomeTreeState state) {
-    _pagingState.pagingController.error =
-        state.errorSearchPublicationsFetch ?? AppLocalizations.of(context)!.unknown_error;
+    _pagingState.pagingController.error = state.errorSearchPublicationsFetch ??
+        AppLocalizations.of(context)!.unknown_error;
   }
 
   void _handleCompletedState(HomeTreeState state) {
@@ -359,7 +359,8 @@ class _SearchResultPageState extends State<SearchResultPage> {
 
                                 if (index == 3) {
                                   return SwitchFilterChip(
-                                    label:AppLocalizations.of(context)!.bargain,
+                                    label:
+                                        AppLocalizations.of(context)!.bargain,
                                     value: state.bargain,
                                     onChanged: (value) => context
                                         .read<HomeTreeCubit>()
@@ -522,7 +523,8 @@ class _SearchResultPageState extends State<SearchResultPage> {
                                     overflow: TextOverflow.ellipsis,
                                     state.searchText != null
                                         ? state.searchText.toString()
-                                        : AppLocalizations.of(context)!.whatAreYouLookingFor,
+                                        : AppLocalizations.of(context)!
+                                            .whatAreYouLookingFor,
                                     style: TextStyle(
                                       fontSize: 15,
                                       color: AppColors.black,
@@ -584,6 +586,7 @@ class _SearchResultPageState extends State<SearchResultPage> {
       ),
     );
   }
+
   Widget _buildProductGrid() {
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 6),
@@ -618,7 +621,6 @@ class _SearchResultPageState extends State<SearchResultPage> {
       ),
     );
   }
-
 
   Widget _buildAdvertisedProduct(GetPublicationEntity product) {
     _uiState.ensureProductTrackers(product.id);

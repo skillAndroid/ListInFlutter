@@ -84,7 +84,8 @@ class _MainWrapperState extends State<MainWrapper> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             crossAxisAlignment: CrossAxisAlignment.start, // Align to top
             children: [
-              _buildNavItem(0, AppLocalizations.of(context)!.search, AppIcons.bg_icon),
+              _buildNavItem(
+                  0, AppLocalizations.of(context)!.search, AppIcons.bg_icon),
               _buildAddPostButton(),
               _buildProfileItem(),
             ],

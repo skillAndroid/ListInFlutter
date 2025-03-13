@@ -236,7 +236,7 @@ class _PriceRangeBottomSheetState extends State<PriceRangeBottomSheet> {
                         style: TextStyle(
                           fontSize: 16,
                           color: AppColors.white,
-                       fontFamily: Constants.Arial,
+                          fontFamily: Constants.Arial,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -247,7 +247,7 @@ class _PriceRangeBottomSheetState extends State<PriceRangeBottomSheet> {
             ),
             SizedBox(
               height: 24,
-            )
+            ),
           ],
         ),
       ),
