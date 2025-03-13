@@ -81,6 +81,9 @@ class _SubcategoryCardState extends State<SubcategoryCard>
                   'isFree': widget.state.isFree,
                   'condition': widget.state.condition,
                   'sellerType': widget.state.sellerType,
+                  'country': widget.state.selectedCountry,
+                  'state': widget.state.selectedState,
+                  'county': widget.state.selectedCounty,
                 },
               });
             },
@@ -112,7 +115,7 @@ class _SubcategoryCardState extends State<SubcategoryCard>
                             maxWidth: 75,
                           ),
                           child: Text(
-                         getLocalizedText(
+                            getLocalizedText(
                                 widget.category.name,
                                 widget.category.nameUz,
                                 widget.category.nameRu,
@@ -142,11 +145,11 @@ class _SubcategoryCardState extends State<SubcategoryCard>
                     child: SizedBox(
                       width: 75,
                       child: Text(
-                       getLocalizedText(
-                                widget.category.name,
-                                widget.category.nameUz,
-                                widget.category.nameRu,
-                                languageCode),
+                        getLocalizedText(
+                            widget.category.name,
+                            widget.category.nameUz,
+                            widget.category.nameRu,
+                            languageCode),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         softWrap: true,

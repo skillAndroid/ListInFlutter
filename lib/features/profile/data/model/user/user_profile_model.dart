@@ -58,10 +58,10 @@ class UserProfileModel {
       'phoneNumber': phoneNumber,
       'isGrantedForPreciseLocation': isGrantedForPreciseLocation,
       'locationName': locationName,
-      'country' : country,
-      'state' : state,
-      'city' : city,
-      'county' : county,
+      'country': country,
+      'state': state,
+      'city': city,
+      'county': county,
       'longitude': longitude,
       'latitude': latitude,
       'fromTime': fromTime,
@@ -82,7 +82,7 @@ class UserProfileModel {
       fromTime: fromTime,
       locationName: locationName,
       toTime: toTime,
-      biography : biography,
+      biography: biography,
     );
   }
 }

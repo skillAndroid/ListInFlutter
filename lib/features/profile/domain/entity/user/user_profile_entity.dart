@@ -45,6 +45,9 @@ class UserProfileEntity {
     double? latitude,
     String? locationName,
     String? biography,
+    String? country,
+    String? county,
+    String? state,
   }) {
     return UserProfileEntity(
       nickName: nickName ?? this.nickName,
@@ -59,6 +62,9 @@ class UserProfileEntity {
       latitude: latitude ?? this.latitude,
       locationName: locationName ?? this.locationName,
       biography: biography ?? this.biography,
+      country: country ?? this.country,
+      state: state ?? this.state,
+      county: county ?? this.county,
     );
   }
 }

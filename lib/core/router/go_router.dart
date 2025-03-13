@@ -31,6 +31,7 @@ import 'package:list_in/features/post/data/models/category_tree/blabla.dart';
 import 'package:list_in/features/post/data/models/category_tree/category_model.dart';
 import 'package:list_in/features/post/data/models/category_tree/child_category_model.dart';
 import 'package:list_in/features/post/data/models/category_tree/nomeric_field_model.dart';
+import 'package:list_in/features/post/data/models/location_tree/location_model.dart';
 import 'package:list_in/features/post/domain/usecases/get_catalogs_usecase.dart';
 import 'package:list_in/features/post/domain/usecases/get_locations_usecase.dart';
 import 'package:list_in/features/post/presentation/pages/post_screen.dart';
@@ -241,13 +242,20 @@ class AppRouter {
                           }
                           if (filterState != null) {
                             // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
-                            cubit.emit(cubit.state.copyWith(
-                              bargain: filterState['bargain'] as bool,
-                              isFree: filterState['isFree'] as bool,
-                              condition: filterState['condition'] as String,
-                              sellerType:
-                                  filterState['sellerType'] as SellerType,
-                            ));
+                            cubit.emit(
+                              cubit.state.copyWith(
+                                bargain: filterState['bargain'] as bool,
+                                isFree: filterState['isFree'] as bool,
+                                condition: filterState['condition'] as String,
+                                sellerType:
+                                    filterState['sellerType'] as SellerType,
+                                selectedCountry:
+                                    filterState['country'] as Country,
+                                selectedState: filterState['state'],
+                                selectedCounty:
+                                    filterState['county'] as County?,
+                              ),
+                            );
                           }
                           return cubit;
                         },
@@ -310,13 +318,20 @@ class AppRouter {
                             }
                             if (filterState != null) {
                               // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
-                              cubit.emit(cubit.state.copyWith(
-                                bargain: filterState['bargain'] as bool,
-                                isFree: filterState['isFree'] as bool,
-                                condition: filterState['condition'] as String,
-                                sellerType:
-                                    filterState['sellerType'] as SellerType,
-                              ));
+                              cubit.emit(
+                                cubit.state.copyWith(
+                                  bargain: filterState['bargain'] as bool,
+                                  isFree: filterState['isFree'] as bool,
+                                  condition: filterState['condition'] as String,
+                                  sellerType:
+                                      filterState['sellerType'] as SellerType,
+                                  selectedCountry:
+                                      filterState['country'] as Country,
+                                  selectedState: filterState['state'],
+                                  selectedCounty:
+                                      filterState['county'] as County?,
+                                ),
+                              );
                             }
                             return cubit;
                           },
@@ -362,13 +377,20 @@ class AppRouter {
                           }
                           if (filterState != null) {
                             // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
-                            cubit.emit(cubit.state.copyWith(
-                              bargain: filterState['bargain'] as bool,
-                              isFree: filterState['isFree'] as bool,
-                              condition: filterState['condition'] as String,
-                              sellerType:
-                                  filterState['sellerType'] as SellerType,
-                            ));
+                            cubit.emit(
+                              cubit.state.copyWith(
+                                bargain: filterState['bargain'] as bool,
+                                isFree: filterState['isFree'] as bool,
+                                condition: filterState['condition'] as String,
+                                sellerType:
+                                    filterState['sellerType'] as SellerType,
+                                selectedCountry:
+                                    filterState['country'] as Country,
+                                selectedState: filterState['state'],
+                                selectedCounty:
+                                    filterState['county'] as County?,
+                              ),
+                            );
                           }
                           return cubit;
                         },
@@ -422,13 +444,20 @@ class AppRouter {
 
                           if (filterState != null) {
                             // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
-                            cubit.emit(cubit.state.copyWith(
-                              bargain: filterState['bargain'] as bool,
-                              isFree: filterState['isFree'] as bool,
-                              condition: filterState['condition'] as String,
-                              sellerType:
-                                  filterState['sellerType'] as SellerType,
-                            ));
+                            cubit.emit(
+                              cubit.state.copyWith(
+                                bargain: filterState['bargain'] as bool,
+                                isFree: filterState['isFree'] as bool,
+                                condition: filterState['condition'] as String,
+                                sellerType:
+                                    filterState['sellerType'] as SellerType,
+                                selectedCountry:
+                                    filterState['country'] as Country,
+                                selectedState: filterState['state'],
+                                selectedCounty:
+                                    filterState['county'] as County?,
+                              ),
+                            );
                           }
                           return cubit;
                         },
@@ -570,14 +599,21 @@ class AppRouter {
 
                                 if (filterState != null) {
                                   // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
-                                  cubit.emit(cubit.state.copyWith(
-                                    bargain: filterState['bargain'] as bool,
-                                    isFree: filterState['isFree'] as bool,
-                                    condition:
-                                        filterState['condition'] as String,
-                                    sellerType:
-                                        filterState['sellerType'] as SellerType,
-                                  ));
+                                  cubit.emit(
+                                    cubit.state.copyWith(
+                                      bargain: filterState['bargain'] as bool,
+                                      isFree: filterState['isFree'] as bool,
+                                      condition:
+                                          filterState['condition'] as String,
+                                      sellerType: filterState['sellerType']
+                                          as SellerType,
+                                      selectedCountry:
+                                          filterState['country'] as Country,
+                                      selectedState: filterState['state'],
+                                      selectedCounty:
+                                          filterState['county'] as County?,
+                                    ),
+                                  );
                                 }
 
                                 return cubit;

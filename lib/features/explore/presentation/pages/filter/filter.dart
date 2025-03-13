@@ -1861,8 +1861,12 @@ class _FiltersPageState extends State<FiltersPage>
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: AppColors.lightGray,
+              color: AppColors.white,
               borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                width: 1,
+                color: AppColors.containerColor,
+              ),
             ),
             child: Text(
               stateName,
@@ -1883,7 +1887,7 @@ class _FiltersPageState extends State<FiltersPage>
       isScrollControlled: true,
       shape: SmoothRectangleBorder(
         smoothness: 0.8,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (context) {
         return BlocProvider.value(
@@ -1908,18 +1912,17 @@ class _FiltersPageState extends State<FiltersPage>
 
         return SmoothClipRRect(
           smoothness: 0.8,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(16),
           child: Container(
             color: AppColors.white,
-            padding: EdgeInsets.all(16),
+            padding: EdgeInsets.all(10),
             constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.7,
+              maxHeight: MediaQuery.of(context).size.height * 0.95,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Header
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -2118,6 +2121,9 @@ class _FiltersPageState extends State<FiltersPage>
                                 'isFree': state.isFree,
                                 'condition': state.condition,
                                 'sellerType': state.sellerType,
+                                'country': state.selectedCountry,
+                                'state': state.selectedState,
+                                'county': state.selectedCounty,
                               },
                             });
                             context
@@ -2145,6 +2151,9 @@ class _FiltersPageState extends State<FiltersPage>
                                 'isFree': state.isFree,
                                 'condition': state.condition,
                                 'sellerType': state.sellerType,
+                                'country': state.selectedCountry,
+                                'state': state.selectedState,
+                                'county': state.selectedCounty,
                               },
                             });
                             context
@@ -2163,6 +2172,9 @@ class _FiltersPageState extends State<FiltersPage>
                                     'isFree': state.isFree,
                                     'condition': state.condition,
                                     'sellerType': state.sellerType,
+                                    'country': state.selectedCountry,
+                                    'state': state.selectedState,
+                                    'county': state.selectedCounty,
                                   },
                                 });
                           } else if (widget.page != "child" &&
@@ -2184,6 +2196,9 @@ class _FiltersPageState extends State<FiltersPage>
                                     'isFree': state.isFree,
                                     'condition': state.condition,
                                     'sellerType': state.sellerType,
+                                    'country': state.selectedCountry,
+                                    'state': state.selectedState,
+                                    'county': state.selectedCounty,
                                   },
                                 });
                           } else {
@@ -2214,6 +2229,9 @@ class _FiltersPageState extends State<FiltersPage>
                                     'isFree': state.isFree,
                                     'condition': state.condition,
                                     'sellerType': state.sellerType,
+                                    'country': state.selectedCountry,
+                                    'state': state.selectedState,
+                                    'county': state.selectedCounty,
                                   },
                                 });
                           } else if (widget.page == 'result_page') {
@@ -2229,6 +2247,9 @@ class _FiltersPageState extends State<FiltersPage>
                                     'isFree': state.isFree,
                                     'condition': state.condition,
                                     'sellerType': state.sellerType,
+                                    'country': state.selectedCountry,
+                                    'state': state.selectedState,
+                                    'county': state.selectedCounty,
                                   },
                                 });
                           }
