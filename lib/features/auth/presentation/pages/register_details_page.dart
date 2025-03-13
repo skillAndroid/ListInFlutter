@@ -42,7 +42,7 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
   final int _totalPages = 5;
   final UserType _userType = UserType.individualSeller;
   int _selectedOption = 0;
-  LocationSharingMode _locationSharingPreference = LocationSharingMode.region;
+  LocationSharingMode _locationSharingPreference = LocationSharingMode.precise;
 
   final List<Map<String, String>> options = [
     {

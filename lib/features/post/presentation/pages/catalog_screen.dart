@@ -4,6 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/utils/const.dart';
+import 'package:list_in/features/auth/presentation/pages/register_details_page.dart';
+import 'package:list_in/features/auth/presentation/widgets/location_page.dart';
+import 'package:list_in/features/map/domain/entities/coordinates_entity.dart';
+import 'package:list_in/features/map/domain/entities/location_entity.dart';
+import 'package:list_in/features/map/presentation/map/map.dart';
 import 'package:list_in/features/post/presentation/pages/atributes_releted/atributes_page.dart';
 import 'package:list_in/features/post/presentation/pages/atributes_releted/catalog_page.dart';
 import 'package:list_in/features/post/presentation/pages/atributes_releted/child_category_page.dart';
@@ -32,7 +37,11 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
   late int _currentPage;
   late double _progressValue;
   final int _pageCount = 9;
-
+  LocationEntity _location = const LocationEntity(
+    name: '',
+    coordinates: CoordinatesEntity(latitude: 0, longitude: 0),
+  );
+  LocationSharingMode _locationSharingPreference = LocationSharingMode.precise;
   @override
   void initState() {
     super.initState();
@@ -245,11 +254,56 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: const MediaPage(),
               ),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16),
+                child: LocationSelectorWidget(
+                  selectedLocation: _location,
+                  locationSharingMode: _locationSharingPreference,
+                  onLocationSharingModeChanged: (mode) {
+                    setState(() {
+                      _locationSharingPreference = mode;
+                    });
+                  },
+                  onOpenMap: _showLocationPicker,
+                  onLocationSelected: (location) {
+                    setState(() {
+                      _location = location;
+                    });
+                  },
+                ),
+              ),
             ],
           ),
         );
       },
     );
+  }
+
+  Future<void> _showLocationPicker() async {
+    final localizations = AppLocalizations.of(context)!;
+    final result = await showModalBottomSheet<LocationEntity>(
+      context: context,
+      enableDrag: false,
+      isScrollControlled: true,
+      builder: (BuildContext context) => FractionallySizedBox(
+        heightFactor: 1.0,
+        child: Scaffold(body: ListInMap()),
+      ),
+    );
+
+    if (result != null) {
+      setState(() {
+        _location = result;
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(localizations.noLocationSelected),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
