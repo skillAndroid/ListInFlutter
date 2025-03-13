@@ -441,6 +441,9 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
                   'isFree': state.isFree,
                   'condition': state.condition,
                   'sellerType': state.sellerType,
+                  'country': state.selectedCountry,
+                  'state': state.selectedState,
+                  'county': state.selectedCounty,
                 },
               });
             },
@@ -494,6 +497,9 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
                                 'isFree': state.isFree,
                                 'condition': state.condition,
                                 'sellerType': state.sellerType,
+                                'country': state.selectedCountry,
+                                'state': state.selectedState,
+                                'county': state.selectedCounty,
                               },
                             },
                           );
