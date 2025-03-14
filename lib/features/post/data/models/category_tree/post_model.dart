@@ -1,4 +1,3 @@
-import 'package:list_in/features/auth/presentation/pages/register_details_page.dart';
 import 'package:list_in/features/post/data/models/category_tree/blabla.dart';
 import 'package:list_in/features/post/domain/entities/post_entity.dart';
 
@@ -12,7 +11,7 @@ class PostModel extends PostEntity {
     required super.locationName,
     required super.latitude,
     required super.longitude,
-    required super.locationSharingMode,
+    required super.isGrantedForPreciseLocation,
     required super.phoneNumber,
     required super.allowCalls,
     required super.callStartTime,
@@ -22,6 +21,9 @@ class PostModel extends PostEntity {
     required super.childCategoryId,
     required super.attributeValues,
     required super.numericValues,
+    required super.countryName,
+    required super.stateName,
+    required super.countyName,
   });
 
   factory PostModel.fromJson(Map<String, dynamic> json) {
@@ -38,8 +40,10 @@ class PostModel extends PostEntity {
       locationName: json['locationName'],
       longitude: json['longitude'],
       latitude: json['latitude'],
-      locationSharingMode: LocationSharingMode.values
-          .firstWhere((e) => e.toString() == json['locationSharingMode']),
+      isGrantedForPreciseLocation: json['isGrantedForPreciseLocation'],
+      countryName: json['countryName'] as String?,
+      stateName: json['stateName'] as String?,
+      countyName: json['countyName'] as String?,
       productCondition: json['productCondition'] as String,
       isNegatable: json['bargain'] as bool,
       childCategoryId: json['categoryId'] as String,
@@ -66,10 +70,13 @@ class PostModel extends PostEntity {
       'price': price,
       'imageUrls': imageUrls,
       'videoUrl': videoUrl,
+      "countryName": countryName,
+      "stateName": stateName,
+      "countyName": countyName,
       'locationName': locationName,
       'latitude': latitude,
       'longitude': longitude,
-      'locationSharingMode': locationSharingMode.toString(),
+      'isGrantedForPreciseLocation': isGrantedForPreciseLocation,
       'productCondition': productCondition,
       'bargain': isNegatable,
       'categoryId': childCategoryId,

@@ -9,6 +9,8 @@ import 'package:list_in/features/auth/presentation/widgets/location_page.dart';
 import 'package:list_in/features/map/domain/entities/coordinates_entity.dart';
 import 'package:list_in/features/map/domain/entities/location_entity.dart';
 import 'package:list_in/features/map/presentation/map/map.dart';
+import 'package:list_in/features/post/data/models/location_tree/location_model.dart'
+    as models;
 import 'package:list_in/features/post/presentation/pages/atributes_releted/atributes_page.dart';
 import 'package:list_in/features/post/presentation/pages/atributes_releted/catalog_page.dart';
 import 'package:list_in/features/post/presentation/pages/atributes_releted/child_category_page.dart';
@@ -254,6 +256,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: const MediaPage(),
               ),
+              //
               Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16),
@@ -392,6 +395,13 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
               ? null
               : () async {
                   if (isLastPage) {
+                    final locationDetails = parseLocationName(_location.name);
+                    context.read<PostProvider>().setCountry(
+                        models.Country(valueRu: locationDetails['country']));
+                    context.read<PostProvider>().setState(
+                        models.State(valueRu: locationDetails['state']));
+                    context.read<PostProvider>().setCounty(
+                        models.County(valueRu: locationDetails['county']));
                     final result = await provider.createPost();
                     result.fold(
                       (failure) {

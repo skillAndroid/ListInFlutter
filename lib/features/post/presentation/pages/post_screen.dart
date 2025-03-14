@@ -13,6 +13,12 @@ class PostScreen extends StatefulWidget {
 }
 
 class _PostScreenState extends State<PostScreen> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<PostProvider>().fetchStoredLocationData();
+  }
+
   bool calledFetch = false;
   @override
   Widget build(BuildContext context) {

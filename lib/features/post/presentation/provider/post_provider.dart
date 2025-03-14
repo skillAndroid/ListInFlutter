@@ -15,24 +15,73 @@ import 'package:list_in/features/post/data/models/category_tree/category_model.d
 import 'package:list_in/features/post/data/models/category_tree/child_category_model.dart';
 import 'package:list_in/features/post/data/models/category_tree/nomeric_field_model.dart';
 import 'package:list_in/features/post/data/models/category_tree/sub_model.dart';
+import 'package:list_in/features/post/data/models/location_tree/location_model.dart'
+    as models;
 import 'package:list_in/features/post/domain/entities/post_entity.dart';
 import 'package:list_in/features/post/domain/usecases/create_post_usecase.dart';
 import 'package:list_in/features/post/domain/usecases/get_catalogs_usecase.dart';
 import 'package:list_in/features/post/domain/usecases/upload_images_usecase.dart';
 import 'package:list_in/features/post/domain/usecases/upload_video_usecase.dart';
 import 'package:list_in/features/post/presentation/pages/catalog_screen.dart';
+import 'package:list_in/features/profile/domain/usecases/user/locations/cache_user_location_usecase.dart';
 
 class PostProvider extends ChangeNotifier {
   final GetGategoriesUsecase getCatalogsUseCase;
   final UploadImagesUseCase uploadImagesUseCase;
   final UploadVideoUseCase uploadVideoUseCase;
   final CreatePostUseCase createPostUseCase;
+  final GetUserLocationUseCase getUserLocationUsecase;
+
   PostProvider({
     required this.getCatalogsUseCase,
     required this.uploadImagesUseCase,
     required this.uploadVideoUseCase,
     required this.createPostUseCase,
+    required this.getUserLocationUsecase,
   });
+
+  Future<void> fetchStoredLocationData() async {
+    final locationResult = await getUserLocationUsecase(params: NoParams());
+
+    locationResult.fold(
+      (failure) {
+        // If there's a failure, use default values
+        _country = null;
+        _state = null;
+        _county = null;
+      },
+      (locationData) {
+        if (locationData != null) {
+          debugPrint('🤩🤩country : ${locationData['country']}');
+          debugPrint('🤩🤩state : ${locationData['state']}');
+          debugPrint('🤩🤩county : ${locationData['county']}');
+
+          // Convert Maps to proper class objects
+          if (locationData['country'] != null) {
+            _country = models.Country.fromJson(locationData['country']);
+          }
+
+          if (locationData['state'] != null) {
+            _state = models.State.fromJson(locationData['state']);
+          }
+
+          if (locationData['county'] != null) {
+            _county = models.County.fromJson(locationData['county']);
+          }
+
+          // Update location entity if we have location data
+          _location = LocationEntity(
+            name: _buildLocationName(),
+            coordinates: CoordinatesEntity(
+              latitude: locationData['latitude'] ?? 41.3227,
+              longitude: locationData['longitude'] ?? 69.2932,
+            ),
+          );
+        }
+        notifyListeners();
+      },
+    );
+  }
 
   Future<Either<Failure, List<String>>> uploadImagesRemoute(
       List<XFile> images) async {
@@ -44,6 +93,7 @@ class PostProvider extends ChangeNotifier {
   }
 
   List<AttributeRequestValue> attributeRequests = [];
+
   Future<Either<Failure, String>> createPost() async {
     getAtributesForPost();
 
@@ -119,6 +169,10 @@ class PostProvider extends ChangeNotifier {
 
       _updatePostCreationState(PostCreationState.creatingPost);
       getAtributesForPost();
+      debugPrint('🤩🤩locationNamr : ${location.name}');
+      debugPrint('🤩🤩country : ${_country?.valueRu}');
+      debugPrint('🤩🤩state : ${_state?.valueRu}');
+      debugPrint('🤩🤩county : ${_county?.valueRu}');
       final post = PostEntity(
         title: _postTitle,
         description: _postDescription,
@@ -130,9 +184,13 @@ class PostProvider extends ChangeNotifier {
         callStartTime: _callStartTime,
         callEndTime: _callEndTime,
         locationName: _location.name,
+        countryName: _country?.valueRu,
+        stateName: _state?.valueRu,
+        countyName: _county?.valueRu,
         longitude: _location.coordinates.latitude,
         latitude: _location.coordinates.longitude,
-        locationSharingMode: _locationSharingMode,
+        isGrantedForPreciseLocation:
+            _locationSharingMode == LocationSharingMode.region ? false : true,
         productCondition: _productCondition,
         isNegatable: isNegatable,
         childCategoryId: _selectedChildCategory!.id,
@@ -159,6 +217,7 @@ class PostProvider extends ChangeNotifier {
     }
   }
 
+//
   void getAtributesForPost() {
     attributeRequests.clear();
 
@@ -772,6 +831,29 @@ class PostProvider extends ChangeNotifier {
 
   // Post 2nd part : Seller informations, images & videos, nessary details
 
+  String _buildLocationName() {
+    List<String?> parts = [];
+
+    if (_county != null && _county!.valueRu != null) {
+      parts.add(_county!.valueRu);
+    }
+
+    if (_state != null && _state!.valueRu != null) {
+      parts.add(_state!.valueRu);
+    }
+
+    if (_country != null && _country!.valueRu != null) {
+      parts.add(_country!.valueRu);
+    }
+
+    // If no parts are available, return default
+    if (parts.isEmpty) {
+      return "Yashnobod Tumani, Toshkent";
+    }
+
+    return parts.where((part) => part != null && part.isNotEmpty).join(", ");
+  }
+
   String _postTitle = "";
   String _postDescription = "";
   double _price = 0.0;
@@ -786,6 +868,58 @@ class PostProvider extends ChangeNotifier {
     ),
   );
   LocationSharingMode _locationSharingMode = LocationSharingMode.region;
+
+  // New location details
+  models.Country? _country;
+  models.State? _state;
+  models.County? _county;
+  bool _isUsingStoredLocation = true;
+
+  // Getters for location details
+  models.Country? get country => _country;
+  models.State? get state => _state;
+  models.County? get county => _county;
+  bool get isUsingStoredLocation => _isUsingStoredLocation;
+
+  // Methods to update location details
+  void setCountry(models.Country? newCountry) {
+    if (newCountry != _country) {
+      _country = newCountry;
+      // When country changes, reset state and county
+      _state = null;
+      _county = null;
+      _isUsingStoredLocation = false;
+      _updateLocationFromComponents();
+      notifyListeners();
+    }
+  }
+
+  void setState(models.State? newState) {
+    if (newState != _state) {
+      _state = newState;
+      // When state changes, reset county
+      _county = null;
+      _isUsingStoredLocation = false;
+      _updateLocationFromComponents();
+      notifyListeners();
+    }
+  }
+
+  void setCounty(models.County? newCounty) {
+    if (newCounty != _county) {
+      _county = newCounty;
+      _isUsingStoredLocation = false;
+      _updateLocationFromComponents();
+      notifyListeners();
+    }
+  }
+
+  void _updateLocationFromComponents() {
+    _location = LocationEntity(
+      name: _buildLocationName(),
+      coordinates: _location.coordinates, // Keep existing coordinates
+    );
+  }
 
   String get postTitle => _postTitle;
   String get postDescription => _postDescription;
@@ -864,6 +998,7 @@ class PostProvider extends ChangeNotifier {
 
   void setLocation(LocationEntity newLocation) {
     _location = newLocation;
+    _isUsingStoredLocation = false;
     notifyListeners();
   }
 
@@ -936,21 +1071,17 @@ class PostProvider extends ChangeNotifier {
     _images = [];
     _video = null;
 
-    _location = const LocationEntity(
-      name: "Yashnobod Tumani, Toshkent",
-      coordinates: CoordinatesEntity(
-        latitude: 41.3227,
-        longitude: 69.2932,
-      ),
-    );
+    // Reset location to default, but keep stored location data
+
     _locationSharingMode = LocationSharingMode.region;
+    _isUsingStoredLocation = true;
 
     _phoneNumber = '+998901234567';
     _allowCalls = true;
     _callStartTime = const TimeOfDay(hour: 9, minute: 0);
     _callEndTime = const TimeOfDay(hour: 18, minute: 0);
 
-    _productCondition = 'new';
+    _productCondition = 'NEW_PRODUCT';
 
     _error = null;
     _isLoading = false;

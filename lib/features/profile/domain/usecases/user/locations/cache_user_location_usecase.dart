@@ -6,28 +6,6 @@ import 'package:list_in/features/post/data/models/location_tree/location_model.d
     as models;
 import 'package:list_in/features/profile/domain/repository/user_profile_repository.dart';
 
-// Use case for caching user location
-class CacheUserLocationUseCase extends UseCase2<void, CacheUserLocationParams> {
-  final UserProfileRepository repository;
-
-  CacheUserLocationUseCase(this.repository);
-
-  @override
-  Future<Either<Failure, void>> call({CacheUserLocationParams? params}) async {
-    if (params == null) return Left(ValidationFailure());
-
-    return await repository.cacheUserLocation(
-      country: params.country,
-      state: params.state,
-      county: params.county,
-      longitude: params.longitude,
-      latitude: params.latitude,
-      isGrantedForPreciseLocation: params.isGrantedForPreciseLocation,
-      locationName: params.locationName,
-    );
-  }
-}
-
 // Parameters class for the cache user location use case
 class CacheUserLocationParams {
   final models.Country? country;

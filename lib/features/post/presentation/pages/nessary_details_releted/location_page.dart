@@ -11,7 +11,6 @@ import 'package:list_in/features/map/presentation/widgets/map_direction_handler.
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class LocationSelectionPage extends StatefulWidget {
   const LocationSelectionPage({super.key});
@@ -28,7 +27,7 @@ class _LocationSelectionPageState extends State<LocationSelectionPage> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-             Text(
+            Text(
               'Your current location',
               style: TextStyle(
                 fontFamily: "Syne",
@@ -80,7 +79,9 @@ class _LocationSelectionPageState extends State<LocationSelectionPage> {
                             label: const Text(
                               'Exact Location',
                               style: TextStyle(
-                                  fontSize: 15,   fontFamily: Constants.Arial,),
+                                fontSize: 15,
+                                fontFamily: Constants.Arial,
+                              ),
                             ),
                             style: ElevatedButton.styleFrom(
                               elevation: 0,
@@ -112,7 +113,9 @@ class _LocationSelectionPageState extends State<LocationSelectionPage> {
                             label: const Text(
                               'Region Only',
                               style: TextStyle(
-                                  fontSize: 15,   fontFamily: Constants.Arial,),
+                                fontSize: 15,
+                                fontFamily: Constants.Arial,
+                              ),
                             ),
                             style: ElevatedButton.styleFrom(
                               shadowColor: AppColors.transparent,

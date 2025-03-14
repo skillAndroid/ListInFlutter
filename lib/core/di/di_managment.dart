@@ -225,7 +225,6 @@ Future<void> init() async {
   sl.registerLazySingleton(() => UploadUserImagesUseCase(sl()));
   sl.registerLazySingleton(() => GetAnotherUserDataUseCase(sl()));
 
-  sl.registerLazySingleton(() => CacheUserLocationUseCase(sl()));
   sl.registerLazySingleton(() => GetUserLocationUseCase(sl()));
 
   // Repository
@@ -322,11 +321,11 @@ Future<void> init() async {
   );
 
   sl.registerFactory(() => PostProvider(
-        getCatalogsUseCase: sl<GetGategoriesUsecase>(),
-        uploadImagesUseCase: sl<UploadImagesUseCase>(),
-        uploadVideoUseCase: sl<UploadVideoUseCase>(),
-        createPostUseCase: sl<CreatePostUseCase>(),
-      ));
+      getCatalogsUseCase: sl<GetGategoriesUsecase>(),
+      uploadImagesUseCase: sl<UploadImagesUseCase>(),
+      uploadVideoUseCase: sl<UploadVideoUseCase>(),
+      createPostUseCase: sl<CreatePostUseCase>(),
+      getUserLocationUsecase: sl<GetUserLocationUseCase>()));
 
   sl.registerFactory(
     () => UserProfileBloc(

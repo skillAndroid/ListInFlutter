@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:list_in/features/auth/presentation/pages/register_details_page.dart';
 import 'package:list_in/features/post/data/models/category_tree/blabla.dart';
 import 'package:list_in/features/post/data/models/category_tree/post_model.dart';
 
@@ -12,7 +11,7 @@ class PostEntity {
   final String? locationName;
   final double latitude;
   final double longitude;
-  final LocationSharingMode locationSharingMode;
+  final bool isGrantedForPreciseLocation;
   final String phoneNumber;
   final bool allowCalls;
   final TimeOfDay callStartTime;
@@ -21,7 +20,10 @@ class PostEntity {
   final String productCondition;
   final String childCategoryId;
   final List<AttributeRequestValue> attributeValues;
-  final List<NumericRequestValue> numericValues; 
+  final List<NumericRequestValue> numericValues;
+  final String? countryName;
+  final String? stateName;
+  final String? countyName;
 
   PostEntity({
     required this.isNegatable,
@@ -33,7 +35,7 @@ class PostEntity {
     required this.locationName,
     required this.latitude,
     required this.longitude,
-    required this.locationSharingMode,
+    required this.isGrantedForPreciseLocation,
     required this.phoneNumber,
     required this.allowCalls,
     required this.callStartTime,
@@ -42,25 +44,32 @@ class PostEntity {
     required this.childCategoryId,
     required this.attributeValues,
     required this.numericValues,
+    required this.countryName,
+    required this.stateName,
+    required this.countyName,
   });
 
   PostModel toModel() => PostModel(
-      title: title,
-      description: description,
-      price: price,
-      imageUrls: imageUrls,
-      videoUrl: videoUrl,
-      locationName: locationName,
-      latitude: latitude,
-      longitude: longitude,
-      locationSharingMode: locationSharingMode,
-      phoneNumber: phoneNumber,
-      allowCalls: allowCalls,
-      callStartTime: callStartTime,
-      callEndTime: callEndTime,
-      productCondition: productCondition,
-      isNegatable: isNegatable,
-      childCategoryId: childCategoryId,
-      attributeValues: attributeValues,
-      numericValues: numericValues,);
+        title: title,
+        description: description,
+        price: price,
+        imageUrls: imageUrls,
+        videoUrl: videoUrl,
+        locationName: locationName,
+        latitude: latitude,
+        longitude: longitude,
+        isGrantedForPreciseLocation: isGrantedForPreciseLocation,
+        phoneNumber: phoneNumber,
+        allowCalls: allowCalls,
+        callStartTime: callStartTime,
+        callEndTime: callEndTime,
+        productCondition: productCondition,
+        isNegatable: isNegatable,
+        childCategoryId: childCategoryId,
+        attributeValues: attributeValues,
+        numericValues: numericValues,
+        countryName: countryName,
+        stateName: stateName,
+        countyName: countyName,
+      );
 }
