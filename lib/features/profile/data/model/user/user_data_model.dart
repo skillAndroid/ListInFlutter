@@ -47,9 +47,9 @@ class UserDataModel {
     required this.following,
     this.isFollowing,
     this.biography,
-    required this.country,
-    required this.state,
-    required this.county,
+    this.country,
+    this.state,
+    this.county,
   });
 
   factory UserDataModel.fromJson(Map<String, dynamic> json) {
@@ -80,9 +80,15 @@ class UserDataModel {
       followers: json['followers'] as int,
       following: json['following'] as int,
       isFollowing: json['isFollowing'] as bool?,
-      country: json['country'] as Country?,
-      state: json['state'] as State?,
-      county: json['county'] as County,
+      country: json['country'] != null
+          ? Country.fromJson(json['country'] as Map<String, dynamic>)
+          : null,
+      state: json['state'] != null
+          ? State.fromJson(json['state'] as Map<String, dynamic>)
+          : null,
+      county: json['county'] != null
+          ? County.fromJson(json['county'] as Map<String, dynamic>)
+          : null,
     );
   }
 

@@ -45,7 +45,6 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
         latitude: user.latitude,
         country: user.country,
         state: user.state,
-        city: user.city,
         county: user.county,
         fromTime: user.fromTime,
         toTime: user.toTime,

@@ -35,6 +35,10 @@ class _ProfileEditorState extends State<ProfileEditor> {
   String? _locationName;
   double? _latitude;
   double? _longitude;
+  String? country;
+  String? state;
+  String? county;
+
   bool showExactLocation = false;
   bool isBusinessAccount = false;
   TimeOfDay? openingTime;
@@ -55,14 +59,16 @@ class _ProfileEditorState extends State<ProfileEditor> {
     super.initState();
     _latitude = widget.userData.latitude;
     _longitude = widget.userData.longitude;
-    _locationName = widget.userData.locationName ?? AppLocalizations.of(context)!.no_location;
+    _locationName = widget.userData.locationName ?? "";
     _nameController.text = widget.userData.nickName ?? '';
     _bioController.text = widget.userData.biography ?? '';
     _phoneController.text = widget.userData.phoneNumber ?? '';
     _profileImagePath = widget.userData.profileImagePath;
     isBusinessAccount = widget.userData.isBusinessAccount ?? false;
     showExactLocation = widget.userData.isGrantedForPreciseLocation ?? false;
-
+    country = widget.userData.country;
+    state = widget.userData.state;
+    county = widget.userData.county;
     if (widget.userData.fromTime != null) {
       final parts = widget.userData.fromTime!.split(':');
       openingTime = TimeOfDay(
@@ -158,7 +164,7 @@ class _ProfileEditorState extends State<ProfileEditor> {
       formattedToTime = '$hour:$minute';
     }
     final cleanedLocationName = cleanLocationName(_locationName.toString());
-    final locationDetails = parseLocationName(_locationName.toString());
+    debugPrint("user country: $country");
     final updatedProfile = UserProfileEntity(
       nickName: _nameController.text,
       phoneNumber: _phoneController.text,
@@ -168,13 +174,11 @@ class _ProfileEditorState extends State<ProfileEditor> {
       profileImagePath: _profileImagePath,
       fromTime: formattedFromTime,
       toTime: formattedToTime,
-      // Use the new location values instead of the old ones
       longitude: _longitude,
       latitude: _latitude,
-      county: locationDetails['county'],
-      city: locationDetails['city'],
-      state: locationDetails['state'],
-      country: locationDetails['country'],
+      county: county,
+      state: state,
+      country: country,
       locationName: cleanedLocationName,
     );
 
@@ -215,7 +219,8 @@ class _ProfileEditorState extends State<ProfileEditor> {
             context: context,
             builder: (context) => CupertinoAlertDialog(
               title: Text(AppLocalizations.of(context)!.error),
-              content: Text(state.errorMessage ?? AppLocalizations.of(context)!.an_error_occurred),
+              content: Text(state.errorMessage ??
+                  AppLocalizations.of(context)!.an_error_occurred),
               actions: [
                 CupertinoDialogAction(
                   child: Text(AppLocalizations.of(context)!.ok),

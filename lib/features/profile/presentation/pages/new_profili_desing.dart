@@ -251,21 +251,26 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                 SizedBox(width: 16),
                                 IconButton(
                                   onPressed: () {
-                                    _navigateToEdit(UserProfileEntity(
-                                      isBusinessAccount:
-                                          userData.role != "INDIVIDUAL_SELLER",
-                                      locationName: userData.locationName,
-                                      longitude: userData.longitude,
-                                      latitude: userData.latitude,
-                                      fromTime: userData.fromTime,
-                                      toTime: userData.toTime,
-                                      isGrantedForPreciseLocation:
-                                          userData.isGrantedForPreciseLocation,
-                                      nickName: userData.nickName,
-                                      phoneNumber: userData.phoneNumber,
-                                      profileImagePath:
-                                          userData.profileImagePath,
-                                    ));
+                                    _navigateToEdit(
+                                      UserProfileEntity(
+                                        isBusinessAccount: userData.role !=
+                                            "INDIVIDUAL_SELLER",
+                                        locationName: userData.locationName,
+                                        longitude: userData.longitude,
+                                        latitude: userData.latitude,
+                                        fromTime: userData.fromTime,
+                                        toTime: userData.toTime,
+                                        isGrantedForPreciseLocation: userData
+                                            .isGrantedForPreciseLocation,
+                                        nickName: userData.nickName,
+                                        phoneNumber: userData.phoneNumber,
+                                        profileImagePath:
+                                            userData.profileImagePath,
+                                        country: userData.country?.valueRu,
+                                        state: userData.state?.valueRu,
+                                        county: userData.county?.valueRu,
+                                      ),
+                                    );
                                   },
                                   icon: Icon(Icons.edit_outlined),
                                 ),

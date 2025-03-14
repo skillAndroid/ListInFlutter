@@ -46,9 +46,9 @@ class UserDataEntity {
     required this.following,
     this.isFollowing,
     this.biography,
-    required this.country,
-    required this.state,
-    required this.county,
+    this.country,
+    this.state,
+    this.county,
   });
 
   UserDataEntity copyWith({
