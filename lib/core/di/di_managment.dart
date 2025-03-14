@@ -57,6 +57,7 @@ import 'package:list_in/features/post/domain/usecases/upload_video_usecase.dart'
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
 import 'package:list_in/features/profile/data/repository/user_profile_rep_impl.dart';
 import 'package:list_in/features/profile/data/repository/user_publications_rep_impl.dart';
+import 'package:list_in/features/profile/data/sources/user_profile_location_local.dart';
 import 'package:list_in/features/profile/data/sources/user_profile_remoute.dart';
 import 'package:list_in/features/profile/data/sources/user_publications_remote.dart';
 import 'package:list_in/features/profile/domain/repository/user_profile_repository.dart';
@@ -66,6 +67,7 @@ import 'package:list_in/features/profile/domain/usecases/publication/get_user_li
 import 'package:list_in/features/profile/domain/usecases/publication/get_user_publications_usecase.dart';
 import 'package:list_in/features/profile/domain/usecases/publication/update_publication_usecase.dart';
 import 'package:list_in/features/profile/domain/usecases/user/get_user_data_usecase.dart';
+import 'package:list_in/features/profile/domain/usecases/user/locations/cache_user_location_usecase.dart';
 import 'package:list_in/features/profile/domain/usecases/user/update_user_image_usecase.dart';
 import 'package:list_in/features/profile/domain/usecases/user/update_user_profile_usecase.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
@@ -222,6 +224,10 @@ Future<void> init() async {
       UpdateUserProfileUseCase(repository: sl(), authLocalDataSource: sl()));
   sl.registerLazySingleton(() => UploadUserImagesUseCase(sl()));
   sl.registerLazySingleton(() => GetAnotherUserDataUseCase(sl()));
+
+  sl.registerLazySingleton(() => CacheUserLocationUseCase(sl()));
+  sl.registerLazySingleton(() => GetUserLocationUseCase(sl()));
+
   // Repository
   sl.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryImpl(
@@ -230,9 +236,16 @@ Future<void> init() async {
     ),
   );
 
+  sl.registerLazySingleton<UserLocalDataSource>(
+    () => UserProfileLocationLocalImpl(
+      sharedPreferences: sl(),
+    ),
+  );
+
   sl.registerLazySingleton<UserProfileRepository>(
     () => UserProfileRepositoryImpl(
       remoteDataSource: sl(),
+      localUserData: sl(),
     ),
   );
 
