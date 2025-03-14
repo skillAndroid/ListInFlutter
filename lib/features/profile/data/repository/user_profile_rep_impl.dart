@@ -35,7 +35,7 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
   Future<Either<Failure, (UserDataEntity, AuthToken?)>> updateUserData(
       UserProfileEntity user) async {
     try {
-      final userModel = UserProfileModel(
+      final userModel = UserDataModelForUpdate(
         profileImagePath: user.profileImagePath,
         nickName: user.nickName,
         phoneNumber: user.phoneNumber,

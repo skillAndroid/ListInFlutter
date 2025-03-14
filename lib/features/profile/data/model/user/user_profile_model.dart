@@ -1,6 +1,7 @@
 import 'package:list_in/features/profile/domain/entity/user/user_profile_entity.dart';
 
-class UserProfileModel {
+// fot updating the user data is correct!
+class UserDataModelForUpdate {
   final String? profileImagePath;
   final String? nickName;
   final String? city;
@@ -17,7 +18,7 @@ class UserProfileModel {
   final bool? isBusinessAccount;
   final String? biography;
 
-  UserProfileModel({
+  UserDataModelForUpdate({
     this.profileImagePath,
     this.nickName,
     this.phoneNumber,
@@ -35,8 +36,8 @@ class UserProfileModel {
     this.biography,
   });
 
-  factory UserProfileModel.fromJson(Map<String, dynamic> json) {
-    return UserProfileModel(
+  factory UserDataModelForUpdate.fromJson(Map<String, dynamic> json) {
+    return UserDataModelForUpdate(
         profileImagePath: json['profileImagePath'] as String?,
         nickName: json['nickName'] as String?,
         phoneNumber: json['phoneNumber'] as String?,

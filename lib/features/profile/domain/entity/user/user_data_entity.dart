@@ -1,3 +1,5 @@
+import 'package:list_in/features/post/data/models/location_tree/location_model.dart';
+
 class UserDataEntity {
   final String id;
   final String? nickName;
@@ -19,6 +21,9 @@ class UserDataEntity {
   final int following;
   final bool? isFollowing;
   final String? biography;
+  final Country? country;
+  final State? state;
+  final County? county;
 
   UserDataEntity({
     required this.id,
@@ -41,6 +46,9 @@ class UserDataEntity {
     required this.following,
     this.isFollowing,
     this.biography,
+    required this.country,
+    required this.state,
+    required this.county,
   });
 
   UserDataEntity copyWith({
@@ -64,6 +72,9 @@ class UserDataEntity {
     int? followers,
     bool? isFollowing,
     String? biography,
+    Country? country,
+    State? state,
+    County? county,
   }) {
     return UserDataEntity(
       id: id ?? this.id,
@@ -87,6 +98,9 @@ class UserDataEntity {
       followers: followers ?? this.followers,
       following: following ?? this.following,
       biography: biography ?? this.biography,
+      country: country ?? this.country,
+      state: state ?? this.state,
+      county: county ?? this.county,
     );
   }
 }

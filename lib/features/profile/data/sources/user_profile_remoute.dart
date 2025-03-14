@@ -9,10 +9,10 @@ import 'package:list_in/features/profile/data/model/user/user_profile_model.dart
 
 abstract class UserProfileRemoute {
   Future<List<String>> uploadImages(List<XFile> images);
-  Future<(UserDataModel, AuthTokenModel?)> updateUserData(UserProfileModel user);
+  Future<(UserDataModel, AuthTokenModel?)> updateUserData(
+      UserDataModelForUpdate user);
   Future<UserDataModel> getUserData();
 }
-
 
 class UserProfileRemouteImpl implements UserProfileRemoute {
   final Dio dio;
@@ -59,8 +59,9 @@ class UserProfileRemouteImpl implements UserProfileRemoute {
     }
   }
 
- @override
-  Future<(UserDataModel, AuthTokenModel?)> updateUserData(UserProfileModel user) async {
+  @override
+  Future<(UserDataModel, AuthTokenModel?)> updateUserData(
+      UserDataModelForUpdate user) async {
     final options = await authService.getAuthOptions();
     try {
       final response = await dio.patch(
@@ -68,13 +69,14 @@ class UserProfileRemouteImpl implements UserProfileRemoute {
         data: user.toJson(),
         options: options,
       );
-      
+
       if (response.statusCode == 200 || response.statusCode == 201) {
-        final userData = UserDataModel.fromJson(response.data['updatedUserDetails']);
-        final tokens = response.data['tokens'] != null 
-          ? AuthTokenModel.fromJson(response.data['tokens'])
-          : null;
-          
+        final userData =
+            UserDataModel.fromJson(response.data['updatedUserDetails']);
+        final tokens = response.data['tokens'] != null
+            ? AuthTokenModel.fromJson(response.data['tokens'])
+            : null;
+
         return (userData, tokens);
       } else {
         throw ServerExeption(message: 'Failed to update user data');
@@ -83,7 +85,6 @@ class UserProfileRemouteImpl implements UserProfileRemoute {
       rethrow;
     }
   }
-
 
   @override
   Future<UserDataModel> getUserData() async {
