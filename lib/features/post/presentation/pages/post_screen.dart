@@ -13,14 +13,22 @@ class PostScreen extends StatefulWidget {
 }
 
 class _PostScreenState extends State<PostScreen> {
+  // In your widget's initState or when building:
   @override
   void initState() {
     super.initState();
-    _fetchLocationData();
-  }
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      Provider.of<PostProvider>(context, listen: false)
+          .fetchStoredLocationData();
 
-  Future<void> _fetchLocationData() async {
-    await context.read<PostProvider>().fetchStoredLocationData();
+      // Check after a delay if values are set
+      Future.delayed(Duration(seconds: 1), () {
+        final provider = Provider.of<PostProvider>(context, listen: false);
+        debugPrint('UI CHECK - Country: ${provider.country?.value}');
+        debugPrint('UI CHECK - State: ${provider.state?.value}');
+        debugPrint('UI CHECK - County: ${provider.county?.value}');
+      });
+    });
   }
 
   bool calledFetch = false;

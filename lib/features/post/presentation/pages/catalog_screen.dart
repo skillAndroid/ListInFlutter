@@ -273,6 +273,16 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
                     setState(() {
                       _location = location;
                     });
+                    if (location.name.isNotEmpty) {
+                      final locationDetails = parseLocationName(_location.name);
+                      debugPrint(locationDetails.toString());
+                      context.read<PostProvider>().setCountry(
+                          models.Country(valueRu: locationDetails['country']));
+                      context.read<PostProvider>().setState(
+                          models.State(valueRu: locationDetails['state']));
+                      context.read<PostProvider>().setCounty(
+                          models.County(valueRu: locationDetails['county']));
+                    }
                   },
                 ),
               ),
@@ -395,13 +405,6 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
               ? null
               : () async {
                   if (isLastPage) {
-                    final locationDetails = parseLocationName(_location.name);
-                    context.read<PostProvider>().setCountry(
-                        models.Country(valueRu: locationDetails['country']));
-                    context.read<PostProvider>().setState(
-                        models.State(valueRu: locationDetails['state']));
-                    context.read<PostProvider>().setCounty(
-                        models.County(valueRu: locationDetails['county']));
                     final result = await provider.createPost();
                     result.fold(
                       (failure) {

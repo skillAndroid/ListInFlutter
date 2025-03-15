@@ -39,73 +39,74 @@ class PostProvider extends ChangeNotifier {
     required this.createPostUseCase,
     required this.getUserLocationUsecase,
   });
-
   Future<void> fetchStoredLocationData() async {
-    final locationResult = await getUserLocationUsecase(params: NoParams());
-    locationResult.fold(
-      (failure) {
-        // If there's a failure, use default values
-        _country = null;
-        _state = null;
-        _county = null;
-      },
-      (locationData) {
-        if (locationData != null) {
-          debugPrint('🤩🤩country : ${locationData['country']}');
-          debugPrint('🤩🤩state : ${locationData['state']}');
-          debugPrint('🤩🤩county : ${locationData['county']}');
+    debugPrint('STARTING fetchStoredLocationData');
+    try {
+      final locationResult = await getUserLocationUsecase(params: NoParams());
 
-          // Try creating the models first, then assign them
-          models.Country? countryModel;
-          models.State? stateModel;
-          models.County? countyModel;
+      debugPrint('LOCATION RESULT: $locationResult');
 
-          if (locationData['country'] != null) {
-            countryModel = models.Country.fromJson(locationData['country']);
-            debugPrint('📌 Created country model: ${countryModel.valueRu}');
+      locationResult.fold(
+        (failure) {
+          debugPrint('LOCATION FAILURE: $failure');
+        },
+        (locationData) {
+          debugPrint('LOCATION DATA: $locationData');
+
+          if (locationData != null) {
+            // BEFORE assignment
+            debugPrint('BEFORE - Country: $_country');
+            debugPrint('BEFORE - State: $_state');
+            debugPrint('BEFORE - County: $_county');
+
+            // Direct assignment without any checks
+            if (locationData['country'] != null) {
+              _country = models.Country.fromJson(locationData['country']);
+            }
+
+            if (locationData['state'] != null) {
+              _state = models.State.fromJson(locationData['state']);
+            }
+
+            if (locationData['county'] != null) {
+              _county = models.County.fromJson(locationData['county']);
+            }
+
+            // AFTER assignment
+            debugPrint('AFTER - Country: $_country');
+            debugPrint('AFTER - State: $_state');
+            debugPrint('AFTER - County: $_county');
+
+            // Update location with built name
+            _location = LocationEntity(
+              name: _buildLocationName(),
+              coordinates: CoordinatesEntity(
+                latitude: locationData['latitude'] ?? 41.3227,
+                longitude: locationData['longitude'] ?? 69.2932,
+              ),
+            );
+
+            debugPrint('Location updated: ${_location.name}');
           }
+        },
+      );
 
-          if (locationData['state'] != null) {
-            stateModel = models.State.fromJson(locationData['state']);
-            debugPrint('📌 Created state model: ${stateModel.valueRu}');
-          }
+      debugPrint('ABOUT TO NOTIFY LISTENERS');
+      notifyListeners();
+      debugPrint('NOTIFIED LISTENERS');
 
-          if (locationData['county'] != null) {
-            countyModel = models.County.fromJson(locationData['county']);
-            debugPrint('📌 Created county model: ${countyModel?.valueRu}');
-          }
-
-          // Now assign to class variables
-          _country = countryModel;
-          _state = stateModel;
-          _county = countyModel;
-
-          // Verify assignments immediately
-          debugPrint('📌 After assignment - country: ${_country?.valueRu}');
-          debugPrint('📌 After assignment - state: ${_state?.valueRu}');
-
-          // Force update location name
-          _location = LocationEntity(
-            name: _buildLocationName(),
-            coordinates: CoordinatesEntity(
-              latitude: locationData['latitude'] ?? 41.3227,
-              longitude: locationData['longitude'] ?? 69.2932,
-            ),
-          );
-
-          debugPrint('📌 Updated location name: ${_location.name}');
-        }
-
-        // Make sure to notify listeners after updating the state
-        notifyListeners();
-      },
-    );
-
-    // Debug check after everything is done
-    debugPrint('🔍 Final check - country: ${_country?.valueRu}');
-    debugPrint('🔍 Final check - state: ${_state?.valueRu}');
-    debugPrint('🔍 Final check - county: ${_county?.valueRu}');
-    debugPrint('🔍 Final check - location name: ${_location.name}');
+      // Add a delayed check to see if values are still set after some time
+      Future.delayed(Duration(milliseconds: 500), () {
+        debugPrint('DELAYED CHECK - Country: $_country');
+        debugPrint('DELAYED CHECK - State: $_state');
+        debugPrint('DELAYED CHECK - County: $_county');
+      });
+    } catch (e) {
+      debugPrint('ERROR in fetchStoredLocationData: $e');
+      debugPrint(e.toString());
+      // Include stack trace for more context
+      debugPrintStack();
+    }
   }
 
   Future<Either<Failure, List<String>>> uploadImagesRemoute(
@@ -855,28 +856,28 @@ class PostProvider extends ChangeNotifier {
   }
 
   // Post 2nd part : Seller informations, images & videos, nessary details
-
   String _buildLocationName() {
-    List<String?> parts = [];
+    // Build location name from components
+    List<String> components = [];
 
-    if (_county != null && _county!.valueRu != null) {
-      parts.add(_county!.valueRu);
+    if (_county != null && _county!.value != null) {
+      components.add(_county!.value!);
     }
 
-    if (_state != null && _state!.valueRu != null) {
-      parts.add(_state!.valueRu);
+    if (_state != null && _state!.value != null) {
+      components.add(_state!.value!);
     }
 
-    if (_country != null && _country!.valueRu != null) {
-      parts.add(_country!.valueRu);
+    if (_country != null && _country!.value != null) {
+      components.add(_country!.value!);
     }
 
-    // If no parts are available, return default
-    if (parts.isEmpty) {
+    // If no components are available, return a default value
+    if (components.isEmpty) {
       return "Yashnobod Tumani, Toshkent";
     }
 
-    return parts.where((part) => part != null && part.isNotEmpty).join(", ");
+    return components.join(", ");
   }
 
   String _postTitle = "";
