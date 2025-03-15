@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
-
+import 'package:list_in/features/post/data/models/location_tree/location_model.dart';
 
 class VideoPublicationsModel {
   final bool isLast;
@@ -64,6 +64,13 @@ class GetPublicationModel {
   final CategoryModel category;
   final SellerModel seller;
   final AttributeValueModel attributeValue;
+  // final Country? country;
+  // final State? state;
+  // final County? county;
+  // final bool isGrantedForPreciseLocation;
+  // final String locationName;
+  // final double? longitude;
+  // final double? latitude;
 
   GetPublicationModel({
     required this.id,
@@ -75,7 +82,6 @@ class GetPublicationModel {
     required this.price,
     required this.bargain,
     required this.isViewed,
-   
     required this.productImages,
     this.videoUrl,
     required this.publicationType,
@@ -85,6 +91,13 @@ class GetPublicationModel {
     required this.category,
     required this.seller,
     required this.attributeValue,
+    // required this.country,
+    // required this.state,
+    // this.county,
+    // required this.isGrantedForPreciseLocation,
+    // required this.locationName,
+    // this.longitude,
+    // this.latitude,
   });
 
   factory GetPublicationModel.fromJson(Map<String, dynamic> json) {
@@ -131,7 +144,6 @@ class GetPublicationModel {
         description: json['description']?.toString() ?? '',
         price: price,
         bargain: json['bargain'] ?? false,
-       
         productImages: images,
         videoUrl: json['videoUrl']?.toString(),
         publicationType: json['publicationType']?.toString() ?? '',
@@ -142,6 +154,14 @@ class GetPublicationModel {
             DateTime.now(),
         category: CategoryModel.fromJson(json['category'] ?? {}),
         seller: SellerModel.fromJson(json['seller'] ?? {}),
+        // country: json['country'],
+        // state: json['state'],
+        // county: json['county'],
+        // isGrantedForPreciseLocation:
+        //     json['isGrantedForPreciseLocation'] ?? false,
+        // locationName: json['locationName']?.toString() ?? '',
+        // longitude: json['longitude'] ?? "",
+        // latitude: json['latitude'] ?? "",
         attributeValue: attributeValue,
       );
     } catch (e) {
@@ -157,7 +177,6 @@ class GetPublicationModel {
       price: price,
       isViewed: isViewed,
       bargain: bargain,
-      
       productImages: productImages.map((image) => image.toEntity()).toList(),
       videoUrl: videoUrl,
       publicationType: publicationType,
