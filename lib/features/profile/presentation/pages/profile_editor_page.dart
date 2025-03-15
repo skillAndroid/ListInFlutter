@@ -164,7 +164,10 @@ class _ProfileEditorState extends State<ProfileEditor> {
       formattedToTime = '$hour:$minute';
     }
     final cleanedLocationName = cleanLocationName(_locationName.toString());
-    debugPrint("user country: $country");
+
+    debugPrint("✅user country: $country");
+    debugPrint("✅user state: $state");
+    debugPrint("✅user county: $county");
     final updatedProfile = UserProfileEntity(
       nickName: _nameController.text,
       phoneNumber: _phoneController.text,
@@ -195,6 +198,9 @@ class _ProfileEditorState extends State<ProfileEditor> {
             widget.userData.longitude || // Add location checks
         updatedProfile.latitude != widget.userData.latitude ||
         updatedProfile.locationName != widget.userData.locationName ||
+        updatedProfile.country != widget.userData.country ||
+        updatedProfile.state != widget.userData.state ||
+        updatedProfile.county != widget.userData.county ||
         _selectedImageFile != null;
 
     if (!hasChanges) {
@@ -772,6 +778,10 @@ class _ProfileEditorState extends State<ProfileEditor> {
         _locationName = result.name;
         _latitude = result.coordinates.latitude;
         _longitude = result.coordinates.longitude;
+        final locationDetails = parseLocationName(_locationName.toString());
+        country = locationDetails['country'];
+        state = locationDetails['state'];
+        county = locationDetails['county'];
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

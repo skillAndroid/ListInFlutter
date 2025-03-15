@@ -654,6 +654,9 @@ class AppRouter {
                     name: RoutesByName.profileEdit,
                     builder: (context, state) {
                       final userData = state.extra as UserProfileEntity;
+                      debugPrint("✅user country: ${userData.country}");
+                      debugPrint("✅user state: ${userData.state}");
+                      debugPrint("✅user county: ${userData.county}");
                       return ProfileEditor(
                         key: state.pageKey,
                         userData: userData,
