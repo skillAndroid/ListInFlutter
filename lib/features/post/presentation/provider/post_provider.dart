@@ -42,7 +42,6 @@ class PostProvider extends ChangeNotifier {
 
   Future<void> fetchStoredLocationData() async {
     final locationResult = await getUserLocationUsecase(params: NoParams());
-
     locationResult.fold(
       (failure) {
         // If there's a failure, use default values
@@ -56,20 +55,36 @@ class PostProvider extends ChangeNotifier {
           debugPrint('🤩🤩state : ${locationData['state']}');
           debugPrint('🤩🤩county : ${locationData['county']}');
 
-          // Convert Maps to proper class objects
+          // Try creating the models first, then assign them
+          models.Country? countryModel;
+          models.State? stateModel;
+          models.County? countyModel;
+
           if (locationData['country'] != null) {
-            _country = models.Country.fromJson(locationData['country']);
+            countryModel = models.Country.fromJson(locationData['country']);
+            debugPrint('📌 Created country model: ${countryModel.valueRu}');
           }
 
           if (locationData['state'] != null) {
-            _state = models.State.fromJson(locationData['state']);
+            stateModel = models.State.fromJson(locationData['state']);
+            debugPrint('📌 Created state model: ${stateModel.valueRu}');
           }
 
           if (locationData['county'] != null) {
-            _county = models.County.fromJson(locationData['county']);
+            countyModel = models.County.fromJson(locationData['county']);
+            debugPrint('📌 Created county model: ${countyModel?.valueRu}');
           }
 
-          // Update location entity if we have location data
+          // Now assign to class variables
+          _country = countryModel;
+          _state = stateModel;
+          _county = countyModel;
+
+          // Verify assignments immediately
+          debugPrint('📌 After assignment - country: ${_country?.valueRu}');
+          debugPrint('📌 After assignment - state: ${_state?.valueRu}');
+
+          // Force update location name
           _location = LocationEntity(
             name: _buildLocationName(),
             coordinates: CoordinatesEntity(
@@ -77,10 +92,20 @@ class PostProvider extends ChangeNotifier {
               longitude: locationData['longitude'] ?? 69.2932,
             ),
           );
+
+          debugPrint('📌 Updated location name: ${_location.name}');
         }
+
+        // Make sure to notify listeners after updating the state
         notifyListeners();
       },
     );
+
+    // Debug check after everything is done
+    debugPrint('🔍 Final check - country: ${_country?.valueRu}');
+    debugPrint('🔍 Final check - state: ${_state?.valueRu}');
+    debugPrint('🔍 Final check - county: ${_county?.valueRu}');
+    debugPrint('🔍 Final check - location name: ${_location.name}');
   }
 
   Future<Either<Failure, List<String>>> uploadImagesRemoute(
@@ -169,7 +194,7 @@ class PostProvider extends ChangeNotifier {
 
       _updatePostCreationState(PostCreationState.creatingPost);
       getAtributesForPost();
-      debugPrint('🤩🤩locationNamr : ${location.name}');
+      debugPrint('🤩🤩locationName : ${location.name}');
       debugPrint('🤩🤩country : ${_country?.valueRu}');
       debugPrint('🤩🤩state : ${_state?.valueRu}');
       debugPrint('🤩🤩county : ${_county?.valueRu}');

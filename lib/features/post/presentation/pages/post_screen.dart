@@ -16,7 +16,11 @@ class _PostScreenState extends State<PostScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<PostProvider>().fetchStoredLocationData();
+    _fetchLocationData();
+  }
+
+  Future<void> _fetchLocationData() async {
+    await context.read<PostProvider>().fetchStoredLocationData();
   }
 
   bool calledFetch = false;

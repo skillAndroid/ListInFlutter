@@ -33,7 +33,7 @@ class UserProfileLocationLocalImpl implements UserLocalDataSource {
   }) async {
     if (country != null) {
       final countryJson = {
-        'id': country.countryId,
+        'countryId': country.countryId,
         'value': country.value,
         'valueUz': country.valueUz,
         'valueRu': country.valueRu,
@@ -46,7 +46,7 @@ class UserProfileLocationLocalImpl implements UserLocalDataSource {
 
     if (state != null) {
       final stateJson = {
-        'id': state.stateId,
+        'stateId': state.stateId,
         'value': state.value,
         'valueUz': state.valueUz,
         'valueRu': state.valueRu,
@@ -59,7 +59,7 @@ class UserProfileLocationLocalImpl implements UserLocalDataSource {
 
     if (county != null) {
       final countyJson = {
-        'id': county.countyId,
+        'countyId': county.countyId,
         'value': county.value,
         'valueUz': county.valueUz,
         'valueRu': county.valueRu,
