@@ -69,7 +69,7 @@ class AdvertisedProductViewModel {
       id: publication.id,
       title: publication.title,
       description: publication.description,
-      location: publication.seller.locationName,
+      location: publication.locationName,
       price: publication.price,
       condition: publication.productCondition,
       images: publication.productImages.map((img) => img.url).toList(),
@@ -86,7 +86,7 @@ class AdvertisedProductViewModel {
         name: publication.seller.nickName,
         imageUrl: publication.seller.profileImagePath,
         phoneNumber: publication.seller.phoneNumber,
-        locationName: publication.seller.locationName,
+        locationName: publication.locationName,
         rating: 4.5, // Hardcoded for now, should come from API
       ),
     );

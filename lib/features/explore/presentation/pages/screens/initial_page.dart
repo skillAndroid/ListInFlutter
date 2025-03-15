@@ -25,6 +25,8 @@ import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/explore/presentation/widgets/recomendation_widget.dart';
 import 'package:list_in/features/explore/presentation/widgets/top_app_recomendation.dart';
 import 'package:list_in/features/post/presentation/pages/atributes_releted/child_category_page.dart';
+import 'package:list_in/features/profile/presentation/bloc/user/user_profile_bloc.dart';
+import 'package:list_in/features/profile/presentation/bloc/user/user_profile_event.dart';
 import 'package:list_in/features/video/presentation/wigets/scrollable_list.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -170,6 +172,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
   }
 
   void _fetchInitialData() {
+    context.read<UserProfileBloc>().add(GetUserData());
     context.read<HomeTreeCubit>().fetchCatalogs();
     context.read<HomeTreeCubit>().fetchLocations();
   }

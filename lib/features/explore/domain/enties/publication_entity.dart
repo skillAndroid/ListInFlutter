@@ -1,4 +1,5 @@
 import 'package:list_in/features/explore/data/models/publication_model.dart';
+import 'package:list_in/features/post/data/models/location_tree/location_model.dart';
 
 class PublicationPairEntity {
   final bool isSponsored;
@@ -49,6 +50,14 @@ class GetPublicationEntity {
   final SellerEntity seller;
   final AttributeValueEntity attributeValue;
 
+  final Country? country;
+  final State? state;
+  final County? county;
+  final bool isGrantedForPreciseLocation;
+  final String locationName;
+  final double? longitude;
+  final double? latitude;
+
   GetPublicationEntity({
     required this.id,
     required this.title,
@@ -68,6 +77,13 @@ class GetPublicationEntity {
     required this.category,
     required this.seller,
     required this.attributeValue,
+    required this.country,
+    required this.state,
+    this.county,
+    required this.isGrantedForPreciseLocation,
+    required this.locationName,
+    this.longitude,
+    this.latitude,
   });
 }
 
