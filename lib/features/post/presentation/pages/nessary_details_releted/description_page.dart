@@ -23,13 +23,15 @@ class _AddDescriptionPageState extends State<AddDescriptionPage> {
   bool _isDirty = false;
 
   // These could be moved to constants and potentially localized
-  static const int _minLength = 45;
-  static const int _maxLength = 500;
+  static const int _minLength = 30;
+  static const int _maxLength = 2500;
 
   // Fallback texts in case localization fails
   final String _fallbackDescriptionRequired = "Description is required";
-  final String _fallbackMinLengthWarning = "Description must be at least 45 characters";
-  final String _fallbackMaxLengthWarning = "Description must be less than 500 characters";
+  final String _fallbackMinLengthWarning =
+      "Description must be at least 30 characters";
+  final String _fallbackMaxLengthWarning =
+      "Description must be less than 2500 characters";
   final String _fallbackAddDescription = "Add Description";
   final String _fallbackExampleDescription = "Describe your post...";
 
@@ -67,14 +69,17 @@ class _AddDescriptionPageState extends State<AddDescriptionPage> {
 
   String? _validateInput(String value) {
     final localizations = AppLocalizations.of(context);
-    
+
     setState(() {
       if (value.isEmpty) {
-        _errorText = localizations?.description_required ?? _fallbackDescriptionRequired;
+        _errorText =
+            localizations?.description_required ?? _fallbackDescriptionRequired;
       } else if (value.length < _minLength) {
-        _errorText = localizations?.description_min_length_warning ?? _fallbackMinLengthWarning;
+        _errorText = localizations?.description_min_length_warning ??
+            _fallbackMinLengthWarning;
       } else if (value.length > _maxLength) {
-        _errorText = localizations?.description_max_length ?? _fallbackMaxLengthWarning;
+        _errorText =
+            localizations?.description_max_length ?? _fallbackMaxLengthWarning;
       } else {
         _errorText = null;
       }
@@ -144,7 +149,8 @@ class _AddDescriptionPageState extends State<AddDescriptionPage> {
                       borderSide: BorderSide.none,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    hintText: localizations?.example_description ?? _fallbackExampleDescription,
+                    hintText: localizations?.example_description ??
+                        _fallbackExampleDescription,
                     contentPadding: const EdgeInsets.all(14),
                     counterText: '',
                   ),

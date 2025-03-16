@@ -10,7 +10,6 @@ import 'package:list_in/features/profile/presentation/bloc/publication/user_publ
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-
 class AddTitleWidget extends StatefulWidget {
   const AddTitleWidget({super.key});
 
@@ -25,8 +24,8 @@ class _AddTitlePageState extends State<AddTitleWidget> {
   String? _errorText;
   bool _isDirty = false;
 
-  static const int _minLength = 10;
-  static const int _maxLength = 100;
+  static const int _minLength = 7;
+  static const int _maxLength = 70;
 
   @override
   void initState() {
@@ -56,8 +55,7 @@ class _AddTitlePageState extends State<AddTitleWidget> {
     if (value.isEmpty) {
       _errorText = AppLocalizations.of(context)!.title_required;
     } else if (value.length < _minLength) {
-      _errorText =
-          AppLocalizations.of(context)!.title_min_length;
+      _errorText = AppLocalizations.of(context)!.title_min_length;
     } else if (value.length > _maxLength) {
       _errorText = AppLocalizations.of(context)!.title_max_length;
     } else {
@@ -76,7 +74,6 @@ class _AddTitlePageState extends State<AddTitleWidget> {
         .add(UpdateTitle(_titleController.text));
   }
 
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<PublicationUpdateBloc, PublicationUpdateState>(
@@ -89,7 +86,7 @@ class _AddTitlePageState extends State<AddTitleWidget> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                 Padding(
+                Padding(
                   padding: const EdgeInsets.only(bottom: 4.0, left: 2),
                   child: Text(
                     AppLocalizations.of(context)!.add_title_now,

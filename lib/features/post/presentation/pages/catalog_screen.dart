@@ -68,9 +68,9 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
   bool _validateCurrentPage(PostProvider provider) {
     switch (_currentPage) {
       case 3: // Title page
-        return provider.postTitle.length >= 11;
+        return provider.postTitle.length >= 7;
       case 4: // Description page
-        return provider.postDescription.length >= 45;
+        return provider.postDescription.length >= 30;
       case 5: // Price page
         return provider.price > 0;
       case 6: // Condition page
@@ -260,30 +260,39 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
               Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16),
-                child: LocationSelectorWidget(
-                  selectedLocation: _location,
-                  locationSharingMode: _locationSharingPreference,
-                  onLocationSharingModeChanged: (mode) {
-                    setState(() {
-                      _locationSharingPreference = mode;
-                    });
-                  },
-                  onOpenMap: _showLocationPicker,
-                  onLocationSelected: (location) {
-                    setState(() {
-                      _location = location;
-                    });
-                    if (location.name.isNotEmpty) {
-                      final locationDetails = parseLocationName(_location.name);
-                      debugPrint(locationDetails.toString());
-                      context.read<PostProvider>().setCountry(
-                          models.Country(valueRu: locationDetails['country']));
-                      context.read<PostProvider>().setState(
-                          models.State(valueRu: locationDetails['state']));
-                      context.read<PostProvider>().setCounty(
-                          models.County(valueRu: locationDetails['county']));
-                    }
-                  },
+                child: Consumer<PostProvider>(
+                  builder: ((context, postProvider, child) {
+                    return LocationSelectorWidget(
+                        selectedLocation: _location.name.isNotEmpty
+                            ? _location
+                            : postProvider.location,
+                        locationSharingMode: _locationSharingPreference,
+                        onLocationSharingModeChanged: (mode) {
+                          setState(() {
+                            _locationSharingPreference = mode;
+                          });
+                        },
+                        onOpenMap: _showLocationPicker,
+                        onLocationSelected: (location) {
+                          provider.setLocation(location);
+                          setState(() {
+                            _location = location;
+                          });
+                          if (location.name.isNotEmpty) {
+                            final locationDetails =
+                                parseLocationName(_location.name);
+                            debugPrint(locationDetails.toString());
+                            context.read<PostProvider>().setCountry(
+                                models.Country(
+                                    valueRu: locationDetails['country']));
+                            context.read<PostProvider>().setState(models.State(
+                                valueRu: locationDetails['state']));
+                            context.read<PostProvider>().setCounty(
+                                models.County(
+                                    valueRu: locationDetails['county']));
+                          }
+                        });
+                  }),
                 ),
               ),
             ],

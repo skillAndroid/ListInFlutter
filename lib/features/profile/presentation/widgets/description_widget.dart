@@ -27,8 +27,8 @@ class _AddDescriptionPageState extends State<AddDescriptionWidget> {
   bool _isDirty = false;
   Timer? _debounceTimer;
 
-  static const int _minLength = 45;
-  static const int _maxLength = 500;
+  static const int _minLength = 30;
+  static const int _maxLength = 2500;
 
   @override
   void initState() {

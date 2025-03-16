@@ -36,11 +36,11 @@ class _PublicationsEditorPageState extends State<PublicationsEditorPage> {
       PublicationUpdatingState.initial;
 
   bool _isTitleValid(PublicationUpdateState state) {
-    return state.title.length >= 10;
+    return state.title.length >= 7;
   }
 
   bool _isDescriptionValid(PublicationUpdateState state) {
-    return state.description.length >= 45;
+    return state.description.length >= 30;
   }
 
   bool _isPriceValid(PublicationUpdateState state) {

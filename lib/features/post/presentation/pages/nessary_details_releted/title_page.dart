@@ -22,13 +22,14 @@ class _AddTitlePageState extends State<AddTitlePage> {
   String? _errorText;
   bool _isDirty = false;
 
-  static const int _minLength = 10;
-  static const int _maxLength = 100;
+  static const int _minLength = 7;
+  static const int _maxLength = 70;
 
   // Fallback texts in case localization fails
   final String _fallbackTitleRequired = "Title is required";
-  final String _fallbackTitleMinLength = "Title must be at least 10 characters";
-  final String _fallbackTitleMaxLength = "Title must be less than 100 characters";
+  final String _fallbackTitleMinLength = "Title must be at least 8 characters";
+  final String _fallbackTitleMaxLength =
+      "Title must be less than 71 characters";
   final String _fallbackAddTitleNow = "Add Title";
   final String _fallbackExampleTitle = "Enter title here...";
 
@@ -64,7 +65,7 @@ class _AddTitlePageState extends State<AddTitlePage> {
 
   String? _validateInput(String value) {
     final localizations = AppLocalizations.of(context);
-    
+
     setState(() {
       if (value.isEmpty) {
         _errorText = localizations?.title_required ?? _fallbackTitleRequired;
@@ -140,7 +141,8 @@ class _AddTitlePageState extends State<AddTitlePage> {
                       borderSide: BorderSide.none,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    hintText: localizations?.example_title ?? _fallbackExampleTitle,
+                    hintText:
+                        localizations?.example_title ?? _fallbackExampleTitle,
                     contentPadding: const EdgeInsets.all(14),
                     counterText: '',
                   ),
