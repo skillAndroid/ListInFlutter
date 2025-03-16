@@ -747,11 +747,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         ),
         InkWell(
           onTap: () {
-            if (widget.product.seller.isGrantedForPreciseLocation) {
+            if (widget.product.isGrantedForPreciseLocation) {
               Navigator.of(context).push(
                 CupertinoModalPopupRoute(
                   builder: (context) => FullScreenMap(
-                    locationName: widget.product.seller.locationName,
+                    locationName: widget.product.locationName,
                     latitude: widget.product.seller.latitude ?? 0,
                     longitude: widget.product.seller.longitude ?? 0,
                   ),
@@ -762,19 +762,22 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             }
           },
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
+            padding: const EdgeInsets.fromLTRB(16, 20, 24, 12),
             child: Row(
               children: [
-                Text(
-                  widget.product.seller.locationName,
-                  style: TextStyle(
-                    color: AppColors.darkGray,
-                    fontWeight: FontWeight.w400,
+                Flexible(
+                  child: Text(
+                    widget.product.locationName,
+                    style: TextStyle(
+                      color: AppColors.darkGray,
+                      fontWeight: FontWeight.w400,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow
+                        .ellipsis, // Включает перенос на новую строку
                   ),
                 ),
-                SizedBox(
-                  width: 8,
-                ),
+                SizedBox(width: 8),
                 Icon(
                   CupertinoIcons.location,
                   color: AppColors.black,

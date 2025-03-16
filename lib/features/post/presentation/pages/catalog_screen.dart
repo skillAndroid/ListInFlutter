@@ -279,20 +279,6 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
 
                         // Обновляем location через Provider
                         postProvider.setLocation(location);
-
-                        if (location.name.isNotEmpty) {
-                          final locationDetails =
-                              parseLocationName(location.name);
-                          debugPrint(
-                              "🔥🔥Parsed location details: $locationDetails");
-
-                          postProvider.setCountry(models.Country(
-                              valueRu: locationDetails['country']));
-                          postProvider.setState(
-                              models.State(valueRu: locationDetails['state']));
-                          postProvider.setCounty(models.County(
-                              valueRu: locationDetails['county']));
-                        }
                       },
                     );
                   },
@@ -417,53 +403,73 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
               ? null
               : () async {
                   if (isLastPage) {
-                    // final result = await provider.createPost();
-                    // result.fold(
-                    //   (failure) {
-                    //     ScaffoldMessenger.of(context).showSnackBar(
-                    //       SnackBar(
-                    //         content: Text(
-                    //           provider.postCreationError ??
-                    //               AppLocalizations.of(context)!
-                    //                   .post_creation_failed,
-                    //         ),
-                    //         backgroundColor: Colors.red,
-                    //       ),
-                    //     );
-                    //   },
-                    //   (success) {
-                    //     context
-                    //         .read<UserPublicationsBloc>()
-                    //         .add(RefreshUserPublications());
-                    //     ScaffoldMessenger.of(context).showSnackBar(
-                    //       SnackBar(
-                    //         content: Text(
-                    //           AppLocalizations.of(context)!
-                    //               .post_creation_success,
-                    //           style: TextStyle(
-                    //             fontFamily: Constants.Arial,
-                    //           ),
-                    //         ),
-                    //         backgroundColor: Colors.blue,
-                    //       ),
-                    //     );
-                    //     context.pop();
-                    //   },
-                    // );
+                    final postProvider = context.read<PostProvider>();
 
-                    debugPrint(_location.name);
-                    debugPrint(_location.coordinates.latitude.toString());
-                    debugPrint(_location.coordinates.longitude.toString());
+                    if (_location.name.isNotEmpty) {
+                      final locationDetails = parseLocationName(_location.name);
+                      debugPrint(
+                          "🔥🔥Parsed location details: $locationDetails");
 
-                    final postProvider = context
-                        .read<PostProvider>(); // Читаем провайдер без подписки
-
-                    debugPrint(
-                        "Country: ${postProvider.country?.valueRu ?? "Unknown"}");
-                    debugPrint(
-                        "State: ${postProvider.state?.valueRu ?? "Unknown"}");
-                    debugPrint(
-                        "County: ${postProvider.county?.valueRu ?? "Unknown"}");
+                      postProvider.setCountry(
+                        models.Country(
+                          valueRu: locationDetails['country'],
+                          value: null,
+                          valueUz: null,
+                          countryId: null,
+                          states: [],
+                        ),
+                      );
+                      postProvider.setState(
+                        models.State(
+                          valueRu: locationDetails['state'],
+                          value: null,
+                          valueUz: null,
+                          stateId: null,
+                          counties: [],
+                        ),
+                      );
+                      postProvider.setCounty(
+                        models.County(
+                          valueRu: locationDetails['county'],
+                          value: null,
+                          valueUz: null,
+                          countyId: null,
+                        ),
+                      );
+                    }
+                    final result = await provider.createPost();
+                    result.fold(
+                      (failure) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              provider.postCreationError ??
+                                  AppLocalizations.of(context)!
+                                      .post_creation_failed,
+                            ),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      },
+                      (success) {
+                        context
+                            .read<UserPublicationsBloc>()
+                            .add(RefreshUserPublications());
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              AppLocalizations.of(context)!
+                                  .post_creation_success,
+                              style: TextStyle(
+                                fontFamily: Constants.Arial,
+                              ),
+                            ),
+                            backgroundColor: Colors.blue,
+                          ),
+                        );
+                        context.pop();
+                      },
+                    );
                   } else {
                     _handleNextPage();
                   }
