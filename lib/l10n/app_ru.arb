@@ -270,5 +270,7 @@
   "about_us": "О нас",
   "no_information_available": "Информация отсутствует",
   "available_hours": "Доступные часы",
-  "member_since": "Член с: "
+  "member_since": "Член с: ",
+  "logoutConfirmation": "Вы уверены, что хотите выйти?",
+  "yes": "Да"
 }

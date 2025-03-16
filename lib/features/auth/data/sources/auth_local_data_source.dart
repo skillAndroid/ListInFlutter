@@ -13,9 +13,9 @@ abstract class AuthLocalDataSource {
   Future<void> cacheRetrivedEmail(RetrivedEmailModel retrivedEmail);
   Future<RetrivedEmail?> getRetrivedEmail();
   Future<void> deleteRetrivedEmail();
-  Future<void> cacheUserId(String userId);
+  Future<void> cacheUserId(String? userId);
   Future<String?> getUserId();
-  Future<void> cacheProfileImagePath(String profileImagePath);
+  Future<void> cacheProfileImagePath(String? profileImagePath);
   Future<String?> getProfileImagePath();
 }
 
@@ -66,8 +66,12 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   }
 
   @override
-  Future<void> cacheUserId(String userId) async {
-    await sharedPreferences.setString(Constants.CACHED_USER_ID, userId);
+  Future<void> cacheUserId(String? userId) async {
+    if (userId == null) {
+      await sharedPreferences.remove(Constants.CACHED_USER_ID);
+    } else {
+      await sharedPreferences.setString(Constants.CACHED_USER_ID, userId);
+    }
   }
 
   @override
@@ -77,9 +81,13 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
 
   // Implementation of new methods for profile image
   @override
-  Future<void> cacheProfileImagePath(String profileImagePath) async {
-    await sharedPreferences.setString(
-        Constants.CACHED_PROFILE_IMAGE_PATH, profileImagePath);
+  Future<void> cacheProfileImagePath(String? profileImagePath) async {
+    if (profileImagePath == null) {
+      await sharedPreferences.remove(Constants.CACHED_PROFILE_IMAGE_PATH);
+    } else {
+      await sharedPreferences.setString(
+          Constants.CACHED_PROFILE_IMAGE_PATH, profileImagePath);
+    }
   }
 
   @override

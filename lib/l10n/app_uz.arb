@@ -271,5 +271,7 @@
   "about_us": "Biz haqimizda",
   "no_information_available": "Ma'lumot mavjud emas",
   "available_hours": "Ish vaqti",
-  "member_since": "A'zo bo'lgan sana: "
+  "member_since": "A'zo bo'lgan sana: ",
+  "logoutConfirmation": "Tizimdan chiqishni xohlaysizmi?",
+  "yes": "Ha"
 }

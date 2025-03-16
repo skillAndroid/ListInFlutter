@@ -460,8 +460,11 @@ class _FiltersPageState extends State<FiltersPage>
             ],
           ),
           side: const BorderSide(width: 1, color: AppColors.containerColor),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
+          shape: SmoothRectangleBorder(
+            borderRadius: SmoothBorderRadius(
+              cornerRadius: 24,
+              cornerSmoothing: 0.8,
+            ),
           ),
           selected: selectedValue != null,
           backgroundColor: AppColors.white,
@@ -580,8 +583,11 @@ class _FiltersPageState extends State<FiltersPage>
             ],
           ),
           side: BorderSide(width: 1, color: AppColors.containerColor),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
+          shape: SmoothRectangleBorder(
+            borderRadius: SmoothBorderRadius(
+              cornerRadius: 24,
+              cornerSmoothing: 0.8,
+            ),
           ),
           selected: fieldValues != null,
           backgroundColor: AppColors.white,
@@ -1365,8 +1371,11 @@ class _FiltersPageState extends State<FiltersPage>
             checkmarkColor: Colors.white,
             elevation: 0,
             pressElevation: 4,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
+            shape: SmoothRectangleBorder(
+              borderRadius: SmoothBorderRadius(
+                cornerRadius: 16,
+                cornerSmoothing: 0.5,
+              ),
               side: BorderSide(
                 color:
                     isSelected ? Colors.transparent : AppColors.containerColor,
@@ -1462,14 +1471,18 @@ class _FiltersPageState extends State<FiltersPage>
         SizedBox(
           width: 250,
           child: Container(
-            decoration: BoxDecoration(
+            decoration: ShapeDecoration(
               color: AppColors.white,
-              border: Border.all(
-                width: 1,
-                color: AppColors.containerColor, // Цвет рамки
+              shape: SmoothRectangleBorder(
+                side: BorderSide(
+                  width: 1,
+                  color: AppColors.containerColor,
+                ),
+                borderRadius: SmoothBorderRadius(
+                  cornerRadius: 24,
+                  cornerSmoothing: 1,
+                ),
               ),
-              borderRadius:
-                  BorderRadius.circular(24), // Чтобы границы были скруглёнными
             ),
             padding: const EdgeInsets.all(4),
             child: Row(
@@ -1555,8 +1568,11 @@ class _FiltersPageState extends State<FiltersPage>
           child: Row(
             mainAxisSize: MainAxisSize.max,
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(6),
+              ClipSmoothRect(
+                radius: SmoothBorderRadius(
+                  cornerRadius: 6,
+                  cornerSmoothing: 0.8,
+                ),
                 child: AnimatedContainer(
                   duration: Duration(milliseconds: 200),
                   width: 24,
@@ -1607,8 +1623,11 @@ class _FiltersPageState extends State<FiltersPage>
           child: Row(
             mainAxisSize: MainAxisSize.max,
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(6),
+              ClipSmoothRect(
+                radius: SmoothBorderRadius(
+                  cornerRadius: 6,
+                  cornerSmoothing: 0.8,
+                ),
                 child: AnimatedContainer(
                   duration: Duration(milliseconds: 200),
                   width: 24,
@@ -1672,14 +1691,18 @@ class _FiltersPageState extends State<FiltersPage>
         SizedBox(
           width: 250,
           child: Container(
-            decoration: BoxDecoration(
+            decoration: ShapeDecoration(
               color: AppColors.white,
-              border: Border.all(
-                width: 1,
-                color: AppColors.containerColor, // Цвет рамки
+              shape: SmoothRectangleBorder(
+                side: BorderSide(
+                  width: 1,
+                  color: AppColors.containerColor,
+                ),
+                borderRadius: SmoothBorderRadius(
+                  cornerRadius: 24,
+                  cornerSmoothing: 1,
+                ),
               ),
-              borderRadius:
-                  BorderRadius.circular(24), // Чтобы границы были скруглёнными
             ),
             padding: const EdgeInsets.all(4),
             child: Row(

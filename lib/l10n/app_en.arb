@@ -271,5 +271,7 @@
   "about_us": "About Us",
   "no_information_available": "No information available",
   "available_hours": "Available Hours",
-  "member_since": "Member since: "
+  "member_since": "Member since: ",
+  "logoutConfirmation": "Are you sure you want to logout?",
+  "yes": "Yes"
 }

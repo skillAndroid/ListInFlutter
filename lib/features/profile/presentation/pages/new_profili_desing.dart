@@ -1,15 +1,21 @@
 // ignore_for_file: deprecated_member_use
 
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/di/di_managment.dart';
 import 'package:list_in/core/language/screen/language_picker_screen.dart';
 import 'package:list_in/core/router/routes.dart';
+import 'package:list_in/core/utils/const.dart';
+import 'package:list_in/features/auth/data/sources/auth_local_data_source.dart';
 import 'package:list_in/features/details/presentation/pages/details.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/profile/domain/entity/user/user_profile_entity.dart';
@@ -18,8 +24,9 @@ import 'package:list_in/features/profile/presentation/bloc/user/user_profile_eve
 import 'package:list_in/features/profile/presentation/bloc/user/user_profile_state.dart';
 import 'package:list_in/features/profile/presentation/pages/favorites_screen.dart';
 import 'package:list_in/features/profile/presentation/pages/my_publications.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProfileDashboard extends StatefulWidget {
   const ProfileDashboard({super.key});
@@ -200,7 +207,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      AppLocalizations.of(context)!.followers,
+                                      AppLocalizations.of(context)!.following,
                                       style: TextStyle(
                                         fontSize: 16,
                                         color: AppColors.black,
@@ -247,8 +254,32 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                             // Right side icons
                             Row(
                               children: [
-                                Icon(CupertinoIcons.share),
-                                SizedBox(width: 16),
+                                IconButton(
+                                  icon: Icon(CupertinoIcons.share),
+                                  onPressed: () => shareUserProfile(
+                                    context,
+                                    UserProfileEntity(
+                                      isBusinessAccount:
+                                          userData.role != "INDIVIDUAL_SELLER",
+                                      locationName: userData.locationName,
+                                      longitude: userData.longitude,
+                                      latitude: userData.latitude,
+                                      fromTime: userData.fromTime,
+                                      toTime: userData.toTime,
+                                      isGrantedForPreciseLocation:
+                                          userData.isGrantedForPreciseLocation,
+                                      nickName: userData.nickName,
+                                      phoneNumber: userData.phoneNumber,
+                                      profileImagePath:
+                                          userData.profileImagePath,
+                                      country: userData.country?.valueRu,
+                                      state: userData.state?.valueRu,
+                                      county: userData.county?.valueRu,
+                                    ),
+                                  ),
+                                  tooltip: "Share Profile",
+                                ),
+                                SizedBox(width: 4),
                                 IconButton(
                                   onPressed: () {
                                     _navigateToEdit(
@@ -356,23 +387,334 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                       );
                     },
                   ),
+
                   _buildMenuItem(
                     AppLocalizations.of(context)!.help_idea,
                     AppIcons.ideaIc,
-                    () {},
+                    () {
+                      final String languageCode =
+                          Localizations.localeOf(context).languageCode;
+                      String message;
+
+                      switch (languageCode) {
+                        case 'uz':
+                          message =
+                              "💡 Salom! Men ilova uchun ajoyib g'oyaga ega man: ";
+                          break;
+                        case 'en':
+                          message =
+                              "💡 Hello! I have a cool idea for the app: ";
+                          break;
+                        case 'ru':
+                        default:
+                          message =
+                              "💡 Привет! У меня есть отличная идея для приложения: ";
+                          break;
+                      }
+
+                      _openTelegram(context, message);
+                    },
                   ),
+
                   _buildMenuItem(
                     AppLocalizations.of(context)!.support,
                     AppIcons.supportIc,
-                    () {},
+                    () {
+                      final String languageCode =
+                          Localizations.localeOf(context).languageCode;
+                      String message;
+
+                      switch (languageCode) {
+                        case 'uz':
+                          message =
+                              "🆘 Yordam kerak! Men ilovada quyidagi muammoga duch kelmoqdaman: ";
+                          break;
+                        case 'en':
+                          message =
+                              "🆘 Help needed! I'm experiencing the following issue with the app: ";
+                          break;
+                        case 'ru':
+                        default:
+                          message =
+                              "🆘 Нужна помощь! У меня возникла следующая проблема с приложением: ";
+                          break;
+                      }
+
+                      _openTelegram(context, message);
+                    },
                   ),
 
                   _buildMenuItem(
                     AppLocalizations.of(context)!.logout,
                     AppIcons.logoutIc,
-                    () {},
-                  ),
+                    () => _handleLogout(context),
+                  )
                 ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> shareUserProfile(
+      BuildContext context, UserProfileEntity profile) async {
+    final AppLocalizations localizations = AppLocalizations.of(context)!;
+    final String appName = "ListIn";
+
+    // Show permission dialog
+    final permissionResult = await showModalBottomSheet<Map<String, bool>>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return SharePermissionSheet(profile: profile);
+      },
+    );
+
+    // If user canceled, return
+    if (permissionResult == null) return;
+
+    final bool shareLocation = permissionResult['location'] ?? false;
+    final bool sharePhone = permissionResult['phone'] ?? false;
+    final bool shareImage = permissionResult['image'] ?? false;
+
+    // Create base message with appropriate localization and enhanced stickers
+    String message = _getLocalizedGreeting(context, appName, profile.nickName);
+
+    // Add business information if applicable
+    if (profile.isBusinessAccount == true) {
+      message += _getLocalizedBusinessInfo(context, profile.nickName!);
+    }
+
+    // Add location if permitted
+    if (shareLocation &&
+        profile.locationName != null &&
+        profile.locationName!.isNotEmpty) {
+      message += _getLocalizedLocation(context, profile.locationName!);
+    }
+
+    // Add phone if permitted
+    if (sharePhone &&
+        profile.phoneNumber != null &&
+        profile.phoneNumber!.isNotEmpty) {
+      message += _getLocalizedPhone(context, profile.phoneNumber!);
+    }
+
+    // Add image URL if permitted
+    if (shareImage &&
+        profile.profileImagePath != null &&
+        profile.profileImagePath!.isNotEmpty) {
+      // Ensure the URL starts with 'https://'
+      String imageUrl = profile.profileImagePath!;
+      if (!imageUrl.startsWith('http')) {
+        imageUrl = 'https://' + imageUrl;
+      }
+      message += _getLocalizedProfileImage(context, imageUrl);
+    }
+
+    // Add app description and download link with enhanced stickers
+    message += _getLocalizedAppPromo(context, appName);
+
+    // App download links with attention-grabbing stickers
+    final String appLink = Platform.isAndroid
+        ? "https://play.google.com/store/apps/details?id=com.yourcompany.listin"
+        : "https://apps.apple.com/app/listin-marketplace/id123456789";
+
+    message += "\n\n⬇️ $appLink ⬇️";
+
+    // Final call-to-action with stickers
+    message += "\n\n" + _getLocalizedCallToAction(context);
+
+    // Text-only sharing
+    await Share.share(
+      message,
+      subject: "✨ Join me on $appName! ✨",
+    );
+  }
+
+// Helper method to get localized greeting with enhanced stickers
+  String _getLocalizedGreeting(
+      BuildContext context, String appName, String? nickName) {
+    final locale = Localizations.localeOf(context).languageCode;
+    switch (locale) {
+      case 'uz':
+        return "👋 Salom! 🌟 Men $appName ilovasida $nickName sifatida ro'yxatdan o'tdim. 🎉\n\n";
+      case 'en':
+        return "👋 Hello there! 🌟 I joined $appName as $nickName. 🎉\n\n";
+      case 'ru':
+      default:
+        return "👋 Привет! 🌟 Я присоединился к $appName как $nickName. 🎉\n\n";
+    }
+  }
+
+// Helper method to get localized business info with stickers
+  String _getLocalizedBusinessInfo(BuildContext context, String nickName) {
+    final locale = Localizations.localeOf(context).languageCode;
+    switch (locale) {
+      case 'uz':
+        return "🏢 Biznesim: $nickName\n";
+      case 'en':
+        return "🏢 My business: $nickName\n";
+      case 'ru':
+      default:
+        return "🏢 Мой бизнес: $nickName\n";
+    }
+  }
+
+// Helper method to get localized location with stickers
+  String _getLocalizedLocation(BuildContext context, String location) {
+    final locale = Localizations.localeOf(context).languageCode;
+    switch (locale) {
+      case 'uz':
+        return "📍 Manzil: $location\n";
+      case 'en':
+        return "📍 Location: $location\n";
+      case 'ru':
+      default:
+        return "📍 Адрес: $location\n";
+    }
+  }
+
+// Helper method to get localized phone with stickers
+  String _getLocalizedPhone(BuildContext context, String phone) {
+    final locale = Localizations.localeOf(context).languageCode;
+    switch (locale) {
+      case 'uz':
+        return "📱 Telefon: $phone\n\n";
+      case 'en':
+        return "📱 Phone: $phone\n\n";
+      case 'ru':
+      default:
+        return "📱 Телефон: $phone\n\n";
+    }
+  }
+
+// Helper method to get localized profile image with stickers
+  String _getLocalizedProfileImage(BuildContext context, String imageUrl) {
+    final locale = Localizations.localeOf(context).languageCode;
+    switch (locale) {
+      case 'uz':
+        return "🖼️ Profil rasmi: $imageUrl\n";
+      case 'en':
+        return "🖼️ Profile picture: $imageUrl\n";
+      case 'ru':
+      default:
+        return "🖼️ Фото профиля: $imageUrl\n";
+    }
+  }
+
+// Helper method to get localized app promo text with stickers
+  String _getLocalizedAppPromo(BuildContext context, String appName) {
+    final locale = Localizations.localeOf(context).languageCode;
+    switch (locale) {
+      case 'uz':
+        return "✨ $appName - eng yangi va qulay bozor ilova! 🛍️\n\n🔥 Tezkor savdo-sotiq! 💯 Qulay interfeysda! 🚀 Eng zo'r takliflar!\n\n";
+      case 'en':
+        return "✨ $appName - the newest and most interactive marketplace! 🛍️\n\n🔥 Fast trading! 💯 User-friendly interface! 🚀 Best deals!\n\n";
+      case 'ru':
+      default:
+        return "✨ $appName - самый новый и удобный маркетплейс! 🛍️\n\n🔥 Быстрая торговля! 💯 Удобный интерфейс! 🚀 Лучшие предложения!\n\n";
+    }
+  }
+
+// New helper method for call to action with stickers
+  String _getLocalizedCallToAction(BuildContext context) {
+    final locale = Localizations.localeOf(context).languageCode;
+    switch (locale) {
+      case 'uz':
+        return "🤝 Menga qo'shiling va bizni keng jamiyatimizning bir qismi bo'ling! 🌐\n💰 Eng yaxshi takliflarni toping va sotib oling! 🎁";
+      case 'en':
+        return "🤝 Join me and be part of our growing community! 🌐\n💰 Find and buy the best deals! 🎁";
+      case 'ru':
+      default:
+        return "🤝 Присоединяйтесь ко мне и станьте частью нашего растущего сообщества! 🌐\n💰 Находите и покупайте лучшие предложения! 🎁";
+    }
+  }
+
+  void _openTelegram(BuildContext context, String message) {
+    final String username = "FlyEnebo";
+    final String encodedMessage = Uri.encodeComponent(message);
+    final String url = "https://t.me/$username?text=$encodedMessage";
+
+    try {
+      launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+    } catch (e) {
+      // Handle error based on language
+      final String languageCode = Localizations.localeOf(context).languageCode;
+      String errorMessage;
+
+      switch (languageCode) {
+        case 'uz':
+          errorMessage = "Telegram ilovasini ochib bo'lmadi";
+          break;
+        case 'en':
+          errorMessage = "Could not open Telegram";
+          break;
+        case 'ru':
+        default:
+          errorMessage = "Не удалось открыть Telegram";
+          break;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(errorMessage,
+                style: TextStyle(fontFamily: Constants.Arial))),
+      );
+    }
+  }
+
+  void _handleLogout(BuildContext context) {
+    // Show iOS-style action sheet menu
+    showCupertinoModalPopup(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoActionSheet(
+          title: Text(
+            AppLocalizations.of(context)!.logout,
+            style: TextStyle(fontFamily: Constants.Arial),
+          ),
+          message: Text(
+            'Are you sure you want to logout?',
+            style: TextStyle(fontFamily: Constants.Arial),
+          ),
+          actions: [
+            CupertinoActionSheetAction(
+              isDestructiveAction: true,
+              onPressed: () async {
+                // Clear all cached data
+                final authLocalDataSource = sl<AuthLocalDataSource>();
+                await authLocalDataSource.clearAuthToken();
+                await authLocalDataSource.deleteRetrivedEmail();
+                await authLocalDataSource.cacheUserId(null);
+                await authLocalDataSource.cacheProfileImagePath(null);
+
+                // Close action sheet
+                Navigator.of(context).pop();
+
+                // Navigate to login page
+                context.go(Routes.login);
+              },
+              child: Text(
+                'Yes',
+                style: TextStyle(
+                  fontFamily: Constants.Arial,
+                  fontSize: 18,
+                ),
+              ),
+            ),
+          ],
+          cancelButton: CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text(
+              AppLocalizations.of(context)!.cancel,
+              style: TextStyle(
+                fontFamily: Constants.Arial,
+                fontSize: 18,
               ),
             ),
           ),
@@ -473,6 +815,193 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+// Updated iOS-style SharePermissionSheet widget
+class SharePermissionSheet extends StatefulWidget {
+  final UserProfileEntity profile;
+
+  const SharePermissionSheet({super.key, required this.profile});
+
+  @override
+  _SharePermissionSheetState createState() => _SharePermissionSheetState();
+}
+
+class _SharePermissionSheetState extends State<SharePermissionSheet> {
+  bool shareLocation = true;
+  bool sharePhone = true;
+  bool shareImage = true;
+
+  // Define green color theme
+  final Color primaryGreen = const Color(0xFF4CAF50);
+
+  @override
+  Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+
+    return Container(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(24),
+          topRight: Radius.circular(24),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 40,
+            height: 5,
+            margin: EdgeInsets.only(top: 12),
+            decoration: BoxDecoration(
+              color: Colors.grey.withOpacity(0.3),
+              borderRadius: BorderRadius.circular(2.5),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.all(16),
+            child: Text(
+              "Share Profile",
+              style: TextStyle(
+                fontFamily: 'Arial',
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: Colors.black.withOpacity(0.8),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Divider(
+              height: 1, thickness: 0.5, color: Colors.grey.withOpacity(0.3)),
+          SizedBox(height: 4),
+          _buildIOSStyleListTile(
+            icon: CupertinoIcons.location,
+            title: "Share Location",
+            value: shareLocation,
+            onChanged: (value) => setState(() => shareLocation = value),
+          ),
+          _buildDivider(),
+          _buildIOSStyleListTile(
+            icon: CupertinoIcons.phone,
+            title: "Share Phone Number",
+            value: sharePhone,
+            onChanged: (value) => setState(() => sharePhone = value),
+          ),
+          if (widget.profile.profileImagePath != null &&
+              widget.profile.profileImagePath!.isNotEmpty) ...[
+            _buildDivider(),
+            _buildIOSStyleListTile(
+              icon: CupertinoIcons.photo,
+              title: "Share Profile Image",
+              value: shareImage,
+              onChanged: (value) => setState(() => shareImage = value),
+            ),
+          ],
+          _buildDivider(),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildIOSStyleButton(
+                  label: localizations.cancel ?? "Cancel",
+                  isOutlined: true,
+                  onPressed: () => Navigator.pop(context),
+                ),
+                SizedBox(width: 16),
+                _buildIOSStyleButton(
+                  label: "Share",
+                  onPressed: () => Navigator.pop(context, {
+                    'location': shareLocation,
+                    'phone': sharePhone,
+                    'image': shareImage,
+                  }),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: MediaQuery.of(context).padding.bottom),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildIOSStyleListTile({
+    required IconData icon,
+    required String title,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 2),
+      child: ListTile(
+        leading: Icon(
+          icon,
+          color: primaryGreen,
+          size: 24,
+        ),
+        title: Text(
+          title,
+          style: TextStyle(
+            fontFamily: 'Arial',
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        trailing: CupertinoSwitch(
+          value: value,
+          onChanged: onChanged,
+          activeColor: primaryGreen,
+        ),
+        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+      ),
+    );
+  }
+
+  Widget _buildDivider() {
+    return Divider(
+      height: 1,
+      thickness: 0.5,
+      indent: 64,
+      endIndent: 16,
+      color: Colors.grey.withOpacity(0.3),
+    );
+  }
+
+  Widget _buildIOSStyleButton({
+    required String label,
+    required VoidCallback onPressed,
+    bool isOutlined = false,
+  }) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onPressed,
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: isOutlined ? Colors.transparent : primaryGreen,
+            borderRadius: BorderRadius.circular(10),
+            border:
+                isOutlined ? Border.all(color: primaryGreen, width: 1) : null,
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            label,
+            style: TextStyle(
+              fontFamily: 'Arial',
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: isOutlined ? primaryGreen : Colors.white,
+            ),
+          ),
         ),
       ),
     );
