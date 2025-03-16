@@ -222,7 +222,7 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
 
           // Product info section
           Padding(
-            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 6),
+            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -302,9 +302,9 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
 
   Widget _buildMediaCarousel() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 2),
+      padding: EdgeInsets.symmetric(horizontal: 3),
       child: AspectRatio(
-        aspectRatio: 9 / 16,
+        aspectRatio: 9 / 15,
         child: SmoothClipRRect(
           smoothness: 0.8,
           borderRadius: BorderRadius.circular(20),
@@ -422,18 +422,6 @@ class _UserInfoHeader extends StatelessWidget {
                 ),
               ),
             ],
-          ),
-          const Spacer(),
-
-          // Options button
-          IconButton(
-            icon: const Icon(
-              Icons.more_horiz,
-              color: AppColors.black,
-            ),
-            onPressed: () {
-              // Add options menu here
-            },
           ),
         ],
       ),
