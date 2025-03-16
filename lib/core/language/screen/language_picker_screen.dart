@@ -1,12 +1,12 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/config/theme/app_language.dart';
 import 'package:list_in/core/language/language_bloc.dart';
-import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class LanguageSelectionScreen extends StatelessWidget {
   const LanguageSelectionScreen({super.key});
@@ -48,12 +48,20 @@ class LanguageSelectionScreen extends StatelessWidget {
 
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4.0),
-                  child: SmoothClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    side: BorderSide(
-                      color:
-                          isSelected ? AppColors.primary : AppColors.lightGray,
-                      width: isSelected ? 2.0 : 1.0,
+                  child: Container(
+                    decoration: ShapeDecoration(
+                      shape: SmoothRectangleBorder(
+                        borderRadius: SmoothBorderRadius(
+                          cornerRadius: 16,
+                          cornerSmoothing: 0.7,
+                        ),
+                        side: BorderSide(
+                          color: isSelected
+                              ? AppColors.primary
+                              : AppColors.lightGray,
+                          width: isSelected ? 2.0 : 1.0,
+                        ),
+                      ),
                     ),
                     child: Material(
                       color: Colors.transparent,

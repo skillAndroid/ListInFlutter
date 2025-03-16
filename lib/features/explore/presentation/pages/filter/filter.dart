@@ -2,6 +2,7 @@
 
 import 'dart:async';
 
+import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +24,6 @@ import 'package:list_in/features/post/data/models/category_tree/attribute_model.
 import 'package:list_in/features/post/data/models/category_tree/attribute_value_model.dart';
 import 'package:list_in/features/post/data/models/category_tree/nomeric_field_model.dart';
 import 'package:list_in/features/post/presentation/pages/atributes_releted/child_category_page.dart';
-import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 // ignore: must_be_immutable
@@ -638,7 +638,10 @@ class _FiltersPageState extends State<FiltersPage>
       context: context,
       useRootNavigator: true,
       shape: SmoothRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: SmoothBorderRadius(
+          cornerRadius: 10,
+          cornerSmoothing: 0.7,
+        ),
       ),
       backgroundColor: Colors.white,
       isScrollControlled: true,
@@ -1886,8 +1889,10 @@ class _FiltersPageState extends State<FiltersPage>
       context: context,
       isScrollControlled: true,
       shape: SmoothRectangleBorder(
-        smoothness: 0.8,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: SmoothBorderRadius(
+          cornerRadius: 16,
+          cornerSmoothing: 0.7,
+        ),
       ),
       builder: (context) {
         return BlocProvider.value(
@@ -1910,9 +1915,11 @@ class _FiltersPageState extends State<FiltersPage>
         debugPrint('Selected state: ${state.selectedState?.value}');
         debugPrint('Selected county: ${state.selectedCounty?.value}');
 
-        return SmoothClipRRect(
-          smoothness: 0.8,
-          borderRadius: BorderRadius.circular(16),
+        return ClipSmoothRect(
+          radius: SmoothBorderRadius(
+            cornerRadius: 16,
+            cornerSmoothing: 0.8,
+          ),
           child: Container(
             color: AppColors.white,
             padding: EdgeInsets.all(10),
@@ -2260,8 +2267,10 @@ class _FiltersPageState extends State<FiltersPage>
                         foregroundColor: Colors.white,
                         padding: EdgeInsets.symmetric(vertical: 17),
                         shape: SmoothRectangleBorder(
-                          smoothness: 0.7,
-                          borderRadius: BorderRadius.circular(24),
+                          borderRadius: SmoothBorderRadius(
+                            cornerRadius: 24,
+                            cornerSmoothing: 0.7,
+                          ),
                         ),
                         elevation: 0,
                       ),

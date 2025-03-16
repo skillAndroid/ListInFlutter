@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,7 +18,6 @@ import 'package:list_in/global/global_bloc.dart';
 import 'package:list_in/global/global_event.dart';
 import 'package:list_in/global/global_state.dart';
 import 'package:list_in/global/global_status.dart';
-import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -455,8 +455,11 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                                               color: AppColors
                                                                   .black),
                                                           borderRadius:
-                                                              BorderRadius
-                                                                  .circular(18),
+                                                              SmoothBorderRadius(
+                                                            cornerRadius: 18,
+                                                            cornerSmoothing:
+                                                                0.7,
+                                                          ),
                                                         ),
                                                         padding: EdgeInsets
                                                             .symmetric(
@@ -711,8 +714,10 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                                             color: AppColors
                                                                 .black),
                                                         borderRadius:
-                                                            BorderRadius
-                                                                .circular(18),
+                                                            SmoothBorderRadius(
+                                                          cornerRadius: 18,
+                                                          cornerSmoothing: 0.7,
+                                                        ),
                                                       ),
                                                       padding:
                                                           EdgeInsets.symmetric(
@@ -1073,7 +1078,8 @@ class AboutTabContent extends StatelessWidget {
 
           // About Us Content (using biography field)
           Text(
-            user.biography ?? AppLocalizations.of(context)!.no_information_available,
+            user.biography ??
+                AppLocalizations.of(context)!.no_information_available,
             style: const TextStyle(
               fontSize: 16,
               color: Colors.black87,
@@ -1132,8 +1138,9 @@ class AboutTabContent extends StatelessWidget {
                     onPressed: () {},
                     style: ElevatedButton.styleFrom(
                       shape: SmoothRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                          24,
+                        borderRadius: SmoothBorderRadius(
+                          cornerRadius: 24,
+                          cornerSmoothing: 0.7,
                         ),
                       ),
                       backgroundColor: CupertinoColors.activeGreen,
@@ -1143,7 +1150,7 @@ class AboutTabContent extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                     AppLocalizations.of(context)!.write_to_telegram,
+                      AppLocalizations.of(context)!.write_to_telegram,
                       style: TextStyle(
                         fontSize: 17,
                         fontFamily: Constants.Arial,
@@ -1171,8 +1178,9 @@ class AboutTabContent extends StatelessWidget {
                             width: 1,
                             color: CupertinoColors.activeGreen,
                             strokeAlign: BorderSide.strokeAlignCenter),
-                        borderRadius: BorderRadius.circular(
-                          24,
+                        borderRadius: SmoothBorderRadius(
+                          cornerRadius: 24,
+                          cornerSmoothing: 0.7,
                         ),
                       ),
                       backgroundColor: CupertinoColors.white,

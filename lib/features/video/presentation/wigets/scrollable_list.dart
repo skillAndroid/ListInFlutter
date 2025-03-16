@@ -3,13 +3,13 @@
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
-import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:video_player/video_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -305,10 +305,19 @@ class _VideoCarouselState extends State<VideoCarousel> {
             final item = widget.items[index];
             return Padding(
               padding: const EdgeInsets.only(right: 2),
-              child: SmoothClipRRect(
-                smoothness: 0.6,
-                side: BorderSide(width: 2, color: AppColors.containerColor),
-                borderRadius: BorderRadius.circular(16),
+              child: Container(
+                decoration: ShapeDecoration(
+                  shape: SmoothRectangleBorder(
+                    borderRadius: SmoothBorderRadius(
+                      cornerRadius: 16,
+                      cornerSmoothing: 1,
+                    ),
+                    side: BorderSide(
+                      width: 2,
+                      color: AppColors.containerColor, // Your border color
+                    ),
+                  ),
+                ),
                 child: GestureDetector(
                   onTap: () => _onVideoTap(index),
                   child: SizedBox(

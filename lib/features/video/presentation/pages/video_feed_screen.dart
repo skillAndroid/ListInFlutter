@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,7 +19,6 @@ import 'package:list_in/global/global_bloc.dart';
 import 'package:list_in/global/global_event.dart';
 import 'package:list_in/global/global_state.dart';
 import 'package:list_in/global/global_status.dart';
-import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:video_player/video_player.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -225,8 +225,10 @@ class _ListInShortsState extends State<ListInShorts> {
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 2),
                 shape: SmoothRectangleBorder(
-                  smoothness: 0.85,
-                  borderRadius: BorderRadius.circular(28),
+                  borderRadius: SmoothBorderRadius(
+                    cornerRadius: 28,
+                    cornerSmoothing: 0.7,
+                  ),
                 ),
                 clipBehavior: Clip.antiAlias,
                 color: Colors.black,
@@ -337,12 +339,19 @@ class _ListInShortsState extends State<ListInShorts> {
                               },
                               child: Row(
                                 children: [
-                                  SmoothClipRRect(
-                                    borderRadius: BorderRadius.circular(100),
-                                    side: BorderSide(
-                                        width: 2,
-                                        color:
-                                            AppColors.white.withOpacity(0.8)),
+                                  Container(
+                                    decoration: ShapeDecoration(
+                                      shape: SmoothRectangleBorder(
+                                        borderRadius: SmoothBorderRadius(
+                                          cornerRadius: 10,
+                                          cornerSmoothing: 1,
+                                        ),
+                                        side: BorderSide(
+                                            width: 2,
+                                            color: AppColors.white
+                                                .withOpacity(0.8)),
+                                      ),
+                                    ),
                                     child: CircleAvatar(
                                       radius: 22,
                                       backgroundImage: NetworkImage(
@@ -439,8 +448,10 @@ class _ListInShortsState extends State<ListInShorts> {
                                               vertical: 4,
                                             ),
                                             shape: SmoothRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
+                                              borderRadius: SmoothBorderRadius(
+                                                cornerRadius: 14,
+                                                cornerSmoothing: 0.7,
+                                              ),
                                             ),
                                           ),
                                           child: isLoading
@@ -457,8 +468,12 @@ class _ListInShortsState extends State<ListInShorts> {
                                                 )
                                               : Text(
                                                   isFollowed
-                                                      ? AppLocalizations.of(context)!.unfollow
-                                                      : AppLocalizations.of(context)!.follow,
+                                                      ? AppLocalizations.of(
+                                                              context)!
+                                                          .unfollow
+                                                      : AppLocalizations.of(
+                                                              context)!
+                                                          .follow,
                                                   style: TextStyle(
                                                     color: AppColors.white,
                                                     fontSize: 14,
@@ -481,7 +496,10 @@ class _ListInShortsState extends State<ListInShorts> {
                                 elevation: 0,
                                 clipBehavior: Clip.antiAlias,
                                 shape: SmoothRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
+                                  borderRadius: SmoothBorderRadius(
+                                    cornerRadius: 14,
+                                    cornerSmoothing: 0.7,
+                                  ),
                                 ),
                                 color: AppColors.white.withOpacity(0.75),
                                 child: Column(
@@ -493,12 +511,20 @@ class _ListInShortsState extends State<ListInShorts> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          SmoothClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(16),
-                                            side: BorderSide(
-                                              width: 2,
-                                              color: AppColors.white,
+                                          Container(
+                                            decoration: ShapeDecoration(
+                                              shape: SmoothRectangleBorder(
+                                                borderRadius:
+                                                    SmoothBorderRadius(
+                                                  cornerRadius: 16,
+                                                  cornerSmoothing: 1,
+                                                ),
+                                                side: BorderSide(
+                                                  width: 2,
+                                                  color: AppColors
+                                                      .white, // Your border color
+                                                ),
+                                              ),
                                             ),
                                             child: SizedBox(
                                               width: 76,

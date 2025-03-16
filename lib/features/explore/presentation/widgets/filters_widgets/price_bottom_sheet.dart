@@ -1,3 +1,4 @@
+import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/config/theme/app_colors.dart';
@@ -5,7 +6,6 @@ import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/explore/presentation/widgets/formaters.dart';
-import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class PriceRangeBottomSheet extends StatefulWidget {
@@ -65,8 +65,11 @@ class _PriceRangeBottomSheetState extends State<PriceRangeBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return SmoothClipRRect(
-      borderRadius: BorderRadius.circular(14),
+    return ClipSmoothRect(
+      radius: SmoothBorderRadius(
+        cornerRadius: 14,
+        cornerSmoothing: 0.7,
+      ),
       child: Container(
         color: Colors.white,
         child: Column(
@@ -225,7 +228,10 @@ class _PriceRangeBottomSheetState extends State<PriceRangeBottomSheet> {
                       backgroundColor: AppColors.primary,
                       padding: EdgeInsets.symmetric(vertical: 16),
                       shape: SmoothRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: SmoothBorderRadius(
+                          cornerRadius: 12,
+                          cornerSmoothing: 0.7,
+                        ),
                       ),
                     ),
                     child: Container(

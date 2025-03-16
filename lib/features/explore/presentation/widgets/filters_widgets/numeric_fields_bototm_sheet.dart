@@ -1,8 +1,8 @@
+import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/material.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/post/data/models/category_tree/nomeric_field_model.dart';
-import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class NumericFieldBottomSheet extends StatefulWidget {
@@ -47,9 +47,11 @@ class _NumericFieldBottomSheetState extends State<NumericFieldBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return SmoothClipRRect(
-      smoothness: 0.8,
-      borderRadius: BorderRadius.circular(20),
+    return ClipSmoothRect(
+      radius: SmoothBorderRadius(
+        cornerRadius: 20,
+        cornerSmoothing: 0.7,
+      ),
       child: Container(
         color: Colors.white,
         child: Column(
@@ -123,7 +125,7 @@ class _NumericFieldBottomSheetState extends State<NumericFieldBottomSheet> {
                             signed: true,
                           ),
                           decoration: InputDecoration(
-                            labelText:   AppLocalizations.of(context)!.from,
+                            labelText: AppLocalizations.of(context)!.from,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -159,7 +161,7 @@ class _NumericFieldBottomSheetState extends State<NumericFieldBottomSheet> {
                             signed: true,
                           ),
                           decoration: InputDecoration(
-                            labelText:   AppLocalizations.of(context)!.to,
+                            labelText: AppLocalizations.of(context)!.to,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -212,7 +214,7 @@ class _NumericFieldBottomSheetState extends State<NumericFieldBottomSheet> {
                       if (from != null && to != null && from > to) {
                         setState(() {
                           _errorMessage =
-                                AppLocalizations.of(context)!.from_value_error;
+                              AppLocalizations.of(context)!.from_value_error;
                         });
                         return;
                       }
@@ -224,7 +226,10 @@ class _NumericFieldBottomSheetState extends State<NumericFieldBottomSheet> {
                       backgroundColor: AppColors.primary,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: SmoothRectangleBorder(
-                        borderRadius: BorderRadius.circular(32),
+                        borderRadius: SmoothBorderRadius(
+                          cornerRadius: 32,
+                          cornerSmoothing: 0.5,
+                        ),
                       ),
                     ),
                     child: Container(

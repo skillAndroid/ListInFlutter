@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,7 +13,6 @@ import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
-import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SearchPage extends StatefulWidget {
@@ -157,8 +157,11 @@ class _SearchPageState extends State<SearchPage> {
                 child: Row(
                   children: [
                     Expanded(
-                      child: SmoothClipRRect(
-                        borderRadius: BorderRadius.circular(20),
+                      child: ClipSmoothRect(
+                        radius: SmoothBorderRadius(
+                          cornerRadius: 20,
+                          cornerSmoothing: 0.7,
+                        ),
                         child: Container(
                           height: 52,
                           decoration: const BoxDecoration(

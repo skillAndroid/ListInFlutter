@@ -3,6 +3,7 @@
 
 import 'dart:async';
 
+import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -28,7 +29,6 @@ import 'package:list_in/features/post/presentation/pages/atributes_releted/child
 import 'package:list_in/features/profile/presentation/bloc/user/user_profile_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/user/user_profile_event.dart';
 import 'package:list_in/features/video/presentation/wigets/scrollable_list.dart';
-import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -750,7 +750,10 @@ class ErrorIndicator extends StatelessWidget {
           elevation: 0,
           color: AppColors.white,
           shape: SmoothRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: SmoothBorderRadius(
+              cornerRadius: 14,
+              cornerSmoothing: 0.7,
+            ),
           ),
           child: Padding(
             padding: const EdgeInsets.all(24.0),
@@ -798,7 +801,10 @@ class ErrorIndicator extends StatelessWidget {
                     minimumSize: const Size(120, 48),
                     backgroundColor: Colors.tealAccent,
                     shape: SmoothRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: SmoothBorderRadius(
+                        cornerRadius: 14,
+                        cornerSmoothing: 0.7,
+                      ),
                     ),
                   ),
                 ),

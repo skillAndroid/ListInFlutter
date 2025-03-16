@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,7 +21,7 @@ import 'package:list_in/global/global_event.dart';
 import 'package:list_in/global/global_state.dart';
 import 'package:list_in/global/global_status.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:smooth_corner_updated/smooth_corner.dart';
+
 import 'package:url_launcher/url_launcher.dart';
 
 @immutable
@@ -305,9 +306,11 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
       padding: EdgeInsets.symmetric(horizontal: 3),
       child: AspectRatio(
         aspectRatio: 9 / 15,
-        child: SmoothClipRRect(
-          smoothness: 0.8,
-          borderRadius: BorderRadius.circular(20),
+        child: ClipSmoothRect(
+          radius: SmoothBorderRadius(
+            cornerRadius: 20,
+            cornerSmoothing: 0.7,
+          ),
           child: Stack(
             children: [
               PageView.builder(

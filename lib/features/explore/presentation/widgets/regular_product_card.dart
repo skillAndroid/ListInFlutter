@@ -2,6 +2,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,7 +17,6 @@ import 'package:list_in/features/profile/presentation/bloc/publication/publicati
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_event.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:smooth_corner_updated/smooth_corner.dart';
 
 import '../../../profile/presentation/widgets/action_sheet_menu.dart';
 import '../../../profile/presentation/widgets/delete_confirmation.dart';
@@ -46,9 +46,11 @@ class ProfileProductCard extends StatelessWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.all(3),
-                child: SmoothClipRRect(
-                  smoothness: 0.8,
-                  borderRadius: BorderRadius.circular(20),
+                child: ClipSmoothRect(
+                  radius: SmoothBorderRadius(
+                    cornerRadius: 20,
+                    cornerSmoothing: 0.7,
+                  ),
                   child: AspectRatio(
                     aspectRatio: 1,
                     child: CachedNetworkImage(

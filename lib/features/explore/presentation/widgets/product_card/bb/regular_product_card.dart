@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -19,7 +20,6 @@ import 'package:list_in/global/global_state.dart';
 import 'package:list_in/global/global_status.dart';
 import 'package:list_in/global/likeds/liked_publications_bloc.dart';
 import 'package:list_in/global/likeds/liked_publications_event.dart';
-import 'package:smooth_corner_updated/smooth_corner.dart';
 
 // Core entity model
 @immutable
@@ -162,9 +162,11 @@ class ProductImageSection extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.all(3),
-            child: SmoothClipRRect(
-              smoothness: 0.8,
-              borderRadius: BorderRadius.circular(20),
+            child: ClipSmoothRect(
+              radius: SmoothBorderRadius(
+                cornerRadius: 20,
+                cornerSmoothing: 0.7,
+              ),
               child: _buildImage(),
             ),
           ),

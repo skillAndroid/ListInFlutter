@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use, invalid_use_of_protected_member
 
+import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,7 +22,6 @@ import 'package:list_in/features/explore/presentation/widgets/filters_widgets/se
 import 'package:list_in/features/explore/presentation/widgets/product_card/bb/boosted_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/product_card/bb/regular_product_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
-import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -498,9 +498,11 @@ class _SearchResultPageState extends State<SearchResultPage> {
                             },
                           );
                         },
-                        child: SmoothClipRRect(
-                          smoothness: 0.8,
-                          borderRadius: BorderRadius.circular(16),
+                        child: ClipSmoothRect(
+                          radius: SmoothBorderRadius(
+                            cornerRadius: 16,
+                            cornerSmoothing: 0.7,
+                          ),
                           child: Container(
                             height: 52,
                             decoration: BoxDecoration(
@@ -561,13 +563,19 @@ class _SearchResultPageState extends State<SearchResultPage> {
                           showDragHandle: false,
                           enableDrag: false,
                           shape: SmoothRectangleBorder(
-                            borderRadius: BorderRadius.circular(18),
+                            borderRadius: SmoothBorderRadius(
+                              cornerRadius: 14,
+                              cornerSmoothing: 0.7,
+                            ),
                           ),
                           builder: (context) => BlocProvider.value(
                             value:
                                 homeTreeCubit, // Provide the same cubit instance
-                            child: SmoothClipRRect(
-                              borderRadius: BorderRadius.circular(18),
+                            child: ClipSmoothRect(
+                              radius: SmoothBorderRadius(
+                                cornerRadius: 18,
+                                cornerSmoothing: 0.7,
+                              ),
                               child: FractionallySizedBox(
                                 heightFactor: 1,
                                 child: FiltersPage(page: "result_page"),
@@ -669,7 +677,12 @@ class _SearchResultPageState extends State<SearchResultPage> {
       context: context,
       useRootNavigator: true,
       backgroundColor: Colors.transparent,
-      shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      shape: SmoothRectangleBorder(
+        borderRadius: SmoothBorderRadius(
+          cornerRadius: 14,
+          cornerSmoothing: 0.7,
+        ),
+      ),
       builder: (context) => BlocProvider.value(
         value: cubit,
         child: const ConditionBottomSheet(
@@ -685,7 +698,12 @@ class _SearchResultPageState extends State<SearchResultPage> {
       context: context,
       useRootNavigator: true,
       backgroundColor: Colors.transparent,
-      shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      shape: SmoothRectangleBorder(
+        borderRadius: SmoothBorderRadius(
+          cornerRadius: 14,
+          cornerSmoothing: 0.7,
+        ),
+      ),
       builder: (context) => BlocProvider.value(
         value: cubit,
         child: const SellerTypeBottomSheet(

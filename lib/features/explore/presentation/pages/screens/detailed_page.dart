@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use, invalid_use_of_protected_member, unnecessary_null_comparison, equal_keys_in_map
 
+import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +34,6 @@ import 'package:list_in/features/post/data/models/category_tree/attribute_model.
 import 'package:list_in/features/post/data/models/category_tree/attribute_value_model.dart';
 import 'package:list_in/features/post/data/models/category_tree/nomeric_field_model.dart';
 import 'package:list_in/features/post/presentation/pages/atributes_releted/child_category_page.dart';
-import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 class DetailedPageUIState {
@@ -725,7 +725,12 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
       context: context,
       useRootNavigator: true,
       backgroundColor: Colors.transparent,
-      shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      shape: SmoothRectangleBorder(
+        borderRadius: SmoothBorderRadius(
+          cornerRadius: 14,
+          cornerSmoothing: 0.7,
+        ),
+      ),
       builder: (context) => BlocProvider.value(
         value: cubit,
         child: const ConditionBottomSheet(
@@ -752,7 +757,12 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
       context: context,
       useRootNavigator: true,
       backgroundColor: Colors.transparent,
-      shape: SmoothRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      shape: SmoothRectangleBorder(
+        borderRadius: SmoothBorderRadius(
+          cornerRadius: 14,
+          cornerSmoothing: 0.7,
+        ),
+      ),
       builder: (context) => BlocProvider.value(
         value: cubit,
         child: const SellerTypeBottomSheet(
@@ -920,13 +930,19 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                           showDragHandle: false,
                           enableDrag: false,
                           shape: SmoothRectangleBorder(
-                            borderRadius: BorderRadius.circular(18),
+                            borderRadius: SmoothBorderRadius(
+                              cornerRadius: 14,
+                              cornerSmoothing: 0.7,
+                            ),
                           ),
                           builder: (context) => BlocProvider.value(
                             value:
                                 homeTreeCubit, // Provide the same cubit instance
-                            child: SmoothClipRRect(
-                              borderRadius: BorderRadius.circular(18),
+                            child: ClipSmoothRect(
+                              radius: SmoothBorderRadius(
+                                cornerRadius: 18,
+                                cornerSmoothing: 0.7,
+                              ),
                               child: FractionallySizedBox(
                                 heightFactor: 1,
                                 child: FiltersPage(page: "detailed"),
@@ -1021,8 +1037,10 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
       context: context,
       useRootNavigator: true,
       shape: SmoothRectangleBorder(
-        smoothness: 0.8,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: SmoothBorderRadius(
+          cornerRadius: 14,
+          cornerSmoothing: 0.7,
+        ),
       ),
       backgroundColor: Colors.white,
       isScrollControlled: true,
@@ -1337,7 +1355,10 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                 padding:
                     const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                 shape: SmoothRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: SmoothBorderRadius(
+                    cornerRadius: 14,
+                    cornerSmoothing: 0.7,
+                  ),
                 ),
                 elevation: 0,
               ),
@@ -1454,8 +1475,10 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
       context: context,
       useRootNavigator: true,
       shape: SmoothRectangleBorder(
-        smoothness: 0.8,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: SmoothBorderRadius(
+          cornerRadius: 14,
+          cornerSmoothing: 0.7,
+        ),
       ),
       backgroundColor: Colors.white,
       isScrollControlled: true,
@@ -1708,7 +1731,10 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                   padding: const EdgeInsets.symmetric(
                                       vertical: 16, horizontal: 16),
                                   shape: SmoothRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: SmoothBorderRadius(
+                                      cornerRadius: 14,
+                                      cornerSmoothing: 0.7,
+                                    ),
                                   ),
                                   elevation: 0,
                                 ),
