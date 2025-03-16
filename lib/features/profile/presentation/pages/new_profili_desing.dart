@@ -279,7 +279,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                   ),
                                   tooltip: "Share Profile",
                                 ),
-                                SizedBox(width: 4),
+                                //  SizedBox(width: 4),
                                 IconButton(
                                   onPressed: () {
                                     _navigateToEdit(
@@ -466,6 +466,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
     // Show permission dialog
     final permissionResult = await showModalBottomSheet<Map<String, bool>>(
       context: context,
+      useRootNavigator: true,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
@@ -610,12 +611,12 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
     final locale = Localizations.localeOf(context).languageCode;
     switch (locale) {
       case 'uz':
-        return "✨ $appName - eng yangi va qulay bozor ilova! 🛍️\n\n🔥 Tezkor savdo-sotiq! 💯 Qulay interfeysda! 🚀 Eng zo'r takliflar!\n\n";
+        return "✨ $appName - eng yangi va qulay bozor ilova! 🛍️\n\n🔥 Tezkor savdo-sotiq! 💯 Qulay interfeysda! 🚀 Eng zo'r takliflar!";
       case 'en':
-        return "✨ $appName - the newest and most interactive marketplace! 🛍️\n\n🔥 Fast trading! 💯 User-friendly interface! 🚀 Best deals!\n\n";
+        return "✨ $appName - the newest and most interactive marketplace! 🛍️\n\n🔥 Fast trading! 💯 User-friendly interface! 🚀 Best deals!";
       case 'ru':
       default:
-        return "✨ $appName - самый новый и удобный маркетплейс! 🛍️\n\n🔥 Быстрая торговля! 💯 Удобный интерфейс! 🚀 Лучшие предложения!\n\n";
+        return "✨ $appName - самый новый и удобный маркетплейс! 🛍️\n\n🔥 Быстрая торговля! 💯 Удобный интерфейс! 🚀 Лучшие предложения!";
     }
   }
 
@@ -837,7 +838,7 @@ class _SharePermissionSheetState extends State<SharePermissionSheet> {
   bool shareImage = true;
 
   // Define green color theme
-  final Color primaryGreen = const Color(0xFF4CAF50);
+  final Color primaryGreen = AppColors.darkBackground;
 
   @override
   Widget build(BuildContext context) {
@@ -847,12 +848,13 @@ class _SharePermissionSheetState extends State<SharePermissionSheet> {
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
-      decoration: BoxDecoration(
+      decoration: ShapeDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(24),
-          topRight: Radius.circular(24),
-        ),
+        shape: SmoothRectangleBorder(
+            borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(16),
+          topRight: Radius.circular(16),
+        )),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -879,8 +881,7 @@ class _SharePermissionSheetState extends State<SharePermissionSheet> {
               textAlign: TextAlign.center,
             ),
           ),
-          Divider(
-              height: 1, thickness: 0.5, color: Colors.grey.withOpacity(0.3)),
+          Divider(height: 1, thickness: 0.5, color: AppColors.containerColor),
           SizedBox(height: 4),
           _buildIOSStyleListTile(
             icon: CupertinoIcons.location,
@@ -912,7 +913,7 @@ class _SharePermissionSheetState extends State<SharePermissionSheet> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 _buildIOSStyleButton(
-                  label: localizations.cancel ?? "Cancel",
+                  label: localizations.cancel,
                   isOutlined: true,
                   onPressed: () => Navigator.pop(context),
                 ),
@@ -972,7 +973,7 @@ class _SharePermissionSheetState extends State<SharePermissionSheet> {
       thickness: 0.5,
       indent: 64,
       endIndent: 16,
-      color: Colors.grey.withOpacity(0.3),
+      color: AppColors.containerColor,
     );
   }
 
@@ -986,12 +987,14 @@ class _SharePermissionSheetState extends State<SharePermissionSheet> {
         onTap: onPressed,
         child: Container(
           padding: EdgeInsets.symmetric(vertical: 12),
-          decoration: BoxDecoration(
-            color: isOutlined ? Colors.transparent : primaryGreen,
-            borderRadius: BorderRadius.circular(10),
-            border:
-                isOutlined ? Border.all(color: primaryGreen, width: 1) : null,
-          ),
+          decoration: ShapeDecoration(
+              color: isOutlined ? Colors.transparent : primaryGreen,
+              shape: SmoothRectangleBorder(
+                  smoothness: 0.8,
+                  borderRadius: BorderRadius.circular(10),
+                  side: BorderSide(
+                      color:
+                          isOutlined ? primaryGreen : AppColors.transparent))),
           alignment: Alignment.center,
           child: Text(
             label,
