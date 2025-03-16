@@ -256,43 +256,46 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: const MediaPage(),
               ),
-              //
               Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16),
                 child: Consumer<PostProvider>(
-                  builder: ((context, postProvider, child) {
+                  builder: (context, postProvider, child) {
                     return LocationSelectorWidget(
-                        selectedLocation: _location.name.isNotEmpty
-                            ? _location
-                            : postProvider.location,
-                        locationSharingMode: _locationSharingPreference,
-                        onLocationSharingModeChanged: (mode) {
-                          setState(() {
-                            _locationSharingPreference = mode;
-                          });
-                        },
-                        onOpenMap: _showLocationPicker,
-                        onLocationSelected: (location) {
-                          provider.setLocation(location);
-                          setState(() {
-                            _location = location;
-                          });
-                          if (location.name.isNotEmpty) {
-                            final locationDetails =
-                                parseLocationName(_location.name);
-                            debugPrint(locationDetails.toString());
-                            context.read<PostProvider>().setCountry(
-                                models.Country(
-                                    valueRu: locationDetails['country']));
-                            context.read<PostProvider>().setState(models.State(
-                                valueRu: locationDetails['state']));
-                            context.read<PostProvider>().setCounty(
-                                models.County(
-                                    valueRu: locationDetails['county']));
-                          }
+                      selectedLocation: _location,
+                      locationSharingMode: _locationSharingPreference,
+                      onLocationSharingModeChanged: (mode) {
+                        setState(() {
+                          _locationSharingPreference = mode;
                         });
-                  }),
+                      },
+                      onOpenMap: _showLocationPicker,
+                      onLocationSelected: (location) {
+                        final postProvider = context.read<PostProvider>();
+
+                        debugPrint("Selected location: ${location.name}");
+                        debugPrint("Lat: ${location.coordinates.latitude}");
+                        debugPrint("Lng: ${location.coordinates.longitude}");
+
+                        // Обновляем location через Provider
+                        postProvider.setLocation(location);
+
+                        if (location.name.isNotEmpty) {
+                          final locationDetails =
+                              parseLocationName(location.name);
+                          debugPrint(
+                              "🔥🔥Parsed location details: $locationDetails");
+
+                          postProvider.setCountry(models.Country(
+                              valueRu: locationDetails['country']));
+                          postProvider.setState(
+                              models.State(valueRu: locationDetails['state']));
+                          postProvider.setCounty(models.County(
+                              valueRu: locationDetails['county']));
+                        }
+                      },
+                    );
+                  },
                 ),
               ),
             ],
@@ -414,39 +417,53 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
               ? null
               : () async {
                   if (isLastPage) {
-                    final result = await provider.createPost();
-                    result.fold(
-                      (failure) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              provider.postCreationError ??
-                                  AppLocalizations.of(context)!
-                                      .post_creation_failed,
-                            ),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                      },
-                      (success) {
-                        context
-                            .read<UserPublicationsBloc>()
-                            .add(RefreshUserPublications());
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              AppLocalizations.of(context)!
-                                  .post_creation_success,
-                              style: TextStyle(
-                                fontFamily: Constants.Arial,
-                              ),
-                            ),
-                            backgroundColor: Colors.blue,
-                          ),
-                        );
-                        context.pop();
-                      },
-                    );
+                    // final result = await provider.createPost();
+                    // result.fold(
+                    //   (failure) {
+                    //     ScaffoldMessenger.of(context).showSnackBar(
+                    //       SnackBar(
+                    //         content: Text(
+                    //           provider.postCreationError ??
+                    //               AppLocalizations.of(context)!
+                    //                   .post_creation_failed,
+                    //         ),
+                    //         backgroundColor: Colors.red,
+                    //       ),
+                    //     );
+                    //   },
+                    //   (success) {
+                    //     context
+                    //         .read<UserPublicationsBloc>()
+                    //         .add(RefreshUserPublications());
+                    //     ScaffoldMessenger.of(context).showSnackBar(
+                    //       SnackBar(
+                    //         content: Text(
+                    //           AppLocalizations.of(context)!
+                    //               .post_creation_success,
+                    //           style: TextStyle(
+                    //             fontFamily: Constants.Arial,
+                    //           ),
+                    //         ),
+                    //         backgroundColor: Colors.blue,
+                    //       ),
+                    //     );
+                    //     context.pop();
+                    //   },
+                    // );
+
+                    debugPrint(_location.name);
+                    debugPrint(_location.coordinates.latitude.toString());
+                    debugPrint(_location.coordinates.longitude.toString());
+
+                    final postProvider = context
+                        .read<PostProvider>(); // Читаем провайдер без подписки
+
+                    debugPrint(
+                        "Country: ${postProvider.country?.valueRu ?? "Unknown"}");
+                    debugPrint(
+                        "State: ${postProvider.state?.valueRu ?? "Unknown"}");
+                    debugPrint(
+                        "County: ${postProvider.county?.valueRu ?? "Unknown"}");
                   } else {
                     _handleNextPage();
                   }
