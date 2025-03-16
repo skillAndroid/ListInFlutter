@@ -460,7 +460,6 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
 
   Future<void> shareUserProfile(
       BuildContext context, UserProfileEntity profile) async {
-    final AppLocalizations localizations = AppLocalizations.of(context)!;
     final String appName = "ListIn";
 
     // Show permission dialog
@@ -510,7 +509,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
       // Ensure the URL starts with 'https://'
       String imageUrl = profile.profileImagePath!;
       if (!imageUrl.startsWith('http')) {
-        imageUrl = 'https://' + imageUrl;
+        imageUrl = 'https://$imageUrl';
       }
       message += _getLocalizedProfileImage(context, imageUrl);
     }
@@ -520,7 +519,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
 
     // App download links with attention-grabbing stickers
     final String appLink = Platform.isAndroid
-        ? "https://play.google.com/store/apps/details?id=com.yourcompany.listin"
+        ? "https://play.google.com/store/apps/details?id=com.listIn.marketplace&pcampaignid=web_share"
         : "https://apps.apple.com/app/listin-marketplace/id123456789";
 
     message += "\n\n⬇️ $appLink ⬇️";
@@ -678,7 +677,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
             style: TextStyle(fontFamily: Constants.Arial),
           ),
           message: Text(
-            'Are you sure you want to logout?',
+            AppLocalizations.of(context)!.logout_confirmation,
             style: TextStyle(fontFamily: Constants.Arial),
           ),
           actions: [
@@ -699,7 +698,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                 context.go(Routes.login);
               },
               child: Text(
-                'Yes',
+                AppLocalizations.of(context)!.yes,
                 style: TextStyle(
                   fontFamily: Constants.Arial,
                   fontSize: 18,
@@ -871,7 +870,7 @@ class _SharePermissionSheetState extends State<SharePermissionSheet> {
           Padding(
             padding: EdgeInsets.all(16),
             child: Text(
-              "Share Profile",
+              AppLocalizations.of(context)!.share_profile,
               style: TextStyle(
                 fontFamily: 'Arial',
                 fontSize: 20,
@@ -885,14 +884,14 @@ class _SharePermissionSheetState extends State<SharePermissionSheet> {
           SizedBox(height: 4),
           _buildIOSStyleListTile(
             icon: CupertinoIcons.location,
-            title: "Share Location",
+            title: AppLocalizations.of(context)!.share_location,
             value: shareLocation,
             onChanged: (value) => setState(() => shareLocation = value),
           ),
           _buildDivider(),
           _buildIOSStyleListTile(
             icon: CupertinoIcons.phone,
-            title: "Share Phone Number",
+            title: AppLocalizations.of(context)!.share_phone_number,
             value: sharePhone,
             onChanged: (value) => setState(() => sharePhone = value),
           ),
@@ -901,7 +900,7 @@ class _SharePermissionSheetState extends State<SharePermissionSheet> {
             _buildDivider(),
             _buildIOSStyleListTile(
               icon: CupertinoIcons.photo,
-              title: "Share Profile Image",
+              title: AppLocalizations.of(context)!.share_profile_image,
               value: shareImage,
               onChanged: (value) => setState(() => shareImage = value),
             ),
@@ -919,7 +918,7 @@ class _SharePermissionSheetState extends State<SharePermissionSheet> {
                 ),
                 SizedBox(width: 16),
                 _buildIOSStyleButton(
-                  label: "Share",
+                  label: AppLocalizations.of(context)!.share,
                   onPressed: () => Navigator.pop(context, {
                     'location': shareLocation,
                     'phone': sharePhone,
