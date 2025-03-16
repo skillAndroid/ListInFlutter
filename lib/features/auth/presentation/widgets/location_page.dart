@@ -15,7 +15,6 @@ class LocationSelectorWidget extends StatefulWidget {
   final LocationSharingMode locationSharingMode;
   final Function(LocationSharingMode) onLocationSharingModeChanged;
   final Function() onOpenMap;
-  final Function(LocationEntity) onLocationSelected;
 
   const LocationSelectorWidget({
     super.key,
@@ -23,7 +22,6 @@ class LocationSelectorWidget extends StatefulWidget {
     required this.locationSharingMode,
     required this.onLocationSharingModeChanged,
     required this.onOpenMap,
-    required this.onLocationSelected,
   });
 
   @override
@@ -271,19 +269,19 @@ class _LocationSelectorWidgetState extends State<LocationSelectorWidget> {
                               color: AppColors.white,
                               margin: EdgeInsets.zero,
                               padding: EdgeInsets.zero,
-                              child:  Padding(
+                              child: Padding(
                                 padding: const EdgeInsets.only(
                                     top: 4, bottom: 4, left: 8, right: 8),
                                 child: Row(
                                   children: [
-                                   const Icon(
+                                    const Icon(
                                       CupertinoIcons.location_fill,
                                       size: 17,
                                     ),
-                                   const SizedBox(width: 4),
+                                    const SizedBox(width: 4),
                                     Text(
                                       localizations.getDirection,
-                                      style:const TextStyle(
+                                      style: const TextStyle(
                                         color: AppColors.black,
                                         fontSize: 12,
                                         fontWeight: FontWeight.w600,

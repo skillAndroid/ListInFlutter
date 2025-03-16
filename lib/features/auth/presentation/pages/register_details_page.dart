@@ -460,11 +460,11 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
             });
           },
           onOpenMap: _showLocationPicker,
-          onLocationSelected: (location) {
-            setState(() {
-              _location = location;
-            });
-          },
+          // onLocationSelected: (location) {
+          //   setState(() {
+          //     _location = location;
+          //   });
+          // },
         ),
       ),
     ];

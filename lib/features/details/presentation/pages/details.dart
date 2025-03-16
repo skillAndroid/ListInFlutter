@@ -748,13 +748,30 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         InkWell(
           onTap: () {
             if (widget.product.isGrantedForPreciseLocation) {
+              debugPrint(
+                  "🗺️ BEFORE MAP NAVIGATION - Location name: ${widget.product.locationName}");
+              debugPrint(
+                  "📍 BEFORE MAP NAVIGATION - Latitude: ${widget.product.latitude}");
+              debugPrint(
+                  "📍 BEFORE MAP NAVIGATION - Longitude: ${widget.product.longitude}");
+
               Navigator.of(context).push(
                 CupertinoModalPopupRoute(
-                  builder: (context) => FullScreenMap(
-                    locationName: widget.product.locationName,
-                    latitude: widget.product.seller.latitude ?? 0,
-                    longitude: widget.product.seller.longitude ?? 0,
-                  ),
+                  builder: (context) {
+                    // Additional debug inside the builder function
+                    debugPrint(
+                        "🚀 LAUNCHING MAP - Location name: ${widget.product.locationName}");
+                    debugPrint(
+                        "🌍 LAUNCHING MAP - Latitude: ${widget.product.latitude}");
+                    debugPrint(
+                        "🌍 LAUNCHING MAP - Longitude: ${widget.product.longitude}");
+
+                    return FullScreenMap(
+                      locationName: widget.product.locationName,
+                      latitude: widget.product.longitude!,
+                      longitude: widget.product.latitude!,
+                    );
+                  },
                 ),
               );
             } else {

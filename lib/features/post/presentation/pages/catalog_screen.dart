@@ -50,6 +50,15 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
     _pageController = PageController();
     _currentPage = 0;
     _progressValue = 0.0;
+
+    // Initialize from provider if available
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = context.read<PostProvider>();
+      setState(() {
+        _location = provider.location;
+        _locationSharingPreference = provider.locationSharingMode;
+      });
+    });
   }
 
   @override
@@ -262,24 +271,16 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
                 child: Consumer<PostProvider>(
                   builder: (context, postProvider, child) {
                     return LocationSelectorWidget(
-                      selectedLocation: _location,
+                      selectedLocation: postProvider.location,
                       locationSharingMode: _locationSharingPreference,
                       onLocationSharingModeChanged: (mode) {
                         setState(() {
                           _locationSharingPreference = mode;
+                          provider.setLocationSharingMode(
+                              _locationSharingPreference);
                         });
                       },
                       onOpenMap: _showLocationPicker,
-                      onLocationSelected: (location) {
-                        final postProvider = context.read<PostProvider>();
-
-                        debugPrint("Selected location: ${location.name}");
-                        debugPrint("Lat: ${location.coordinates.latitude}");
-                        debugPrint("Lng: ${location.coordinates.longitude}");
-
-                        // Обновляем location через Provider
-                        postProvider.setLocation(location);
-                      },
                     );
                   },
                 ),
@@ -304,9 +305,61 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
     );
 
     if (result != null) {
+      debugPrint("🔍 MAP SELECTION - Location name: ${result.name}");
+      debugPrint("🔍 MAP SELECTION - Latitude: ${result.coordinates.latitude}");
+      debugPrint(
+          "🔍 MAP SELECTION - Longitude: ${result.coordinates.longitude}");
+
       setState(() {
         _location = result;
       });
+
+      // Update the provider with the complete location entity
+      final postProvider = context.read<PostProvider>();
+      postProvider.setLocation(result);
+
+      // Add debug prints after setting the location in the provider
+      debugPrint(
+          "🔍 AFTER PROVIDER UPDATE - Location name: ${postProvider.location.name}");
+      debugPrint(
+          "🔍 AFTER PROVIDER UPDATE - Latitude: ${postProvider.location.coordinates.latitude}");
+      debugPrint(
+          "🔍 AFTER PROVIDER UPDATE - Longitude: ${postProvider.location.coordinates.longitude}");
+
+      // Parse the location name to extract country, state, county if possible
+      if (result.name.isNotEmpty) {
+        final locationDetails = parseLocationName(result.name);
+
+        // Update the provider with these details
+        postProvider.setCountry(
+          models.Country(
+            valueRu: locationDetails['country'],
+            value: locationDetails['country'],
+            valueUz: locationDetails['country'],
+            countryId: null,
+            states: [],
+          ),
+        );
+
+        postProvider.setState(
+          models.State(
+            valueRu: locationDetails['state'],
+            value: locationDetails['state'],
+            valueUz: locationDetails['state'],
+            stateId: null,
+            counties: [],
+          ),
+        );
+
+        postProvider.setCounty(
+          models.County(
+            valueRu: locationDetails['county'],
+            value: locationDetails['county'],
+            valueUz: locationDetails['county'],
+            countyId: null,
+          ),
+        );
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -403,40 +456,11 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
               ? null
               : () async {
                   if (isLastPage) {
-                    final postProvider = context.read<PostProvider>();
+                    final locationDetails = parseLocationName(_location.name);
+                    debugPrint("🔥🔥Parsed location details: $locationDetails");
+                    debugPrint(
+                        "🔥🔥Parsed location details: ${_location.name}");
 
-                    if (_location.name.isNotEmpty) {
-                      final locationDetails = parseLocationName(_location.name);
-                      debugPrint(
-                          "🔥🔥Parsed location details: $locationDetails");
-
-                      postProvider.setCountry(
-                        models.Country(
-                          valueRu: locationDetails['country'],
-                          value: null,
-                          valueUz: null,
-                          countryId: null,
-                          states: [],
-                        ),
-                      );
-                      postProvider.setState(
-                        models.State(
-                          valueRu: locationDetails['state'],
-                          value: null,
-                          valueUz: null,
-                          stateId: null,
-                          counties: [],
-                        ),
-                      );
-                      postProvider.setCounty(
-                        models.County(
-                          valueRu: locationDetails['county'],
-                          value: null,
-                          valueUz: null,
-                          countyId: null,
-                        ),
-                      );
-                    }
                     final result = await provider.createPost();
                     result.fold(
                       (failure) {

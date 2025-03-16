@@ -79,10 +79,16 @@ class PostProvider extends ChangeNotifier {
 
             // Update location with built name
             _location = LocationEntity(
-              name: _buildLocationName(),
+              name: _location.name.isNotEmpty
+                  ? _location.name
+                  : _buildLocationName(),
               coordinates: CoordinatesEntity(
-                latitude: locationData['latitude'] ?? 41.3227,
-                longitude: locationData['longitude'] ?? 69.2932,
+                latitude: _location.coordinates.latitude != 0
+                    ? _location.coordinates.latitude
+                    : locationData['latitude'],
+                longitude: _location.coordinates.longitude != 0
+                    ? _location.coordinates.longitude
+                    : locationData['longitude'],
               ),
             );
 
@@ -216,7 +222,7 @@ class PostProvider extends ChangeNotifier {
         longitude: _location.coordinates.latitude,
         latitude: _location.coordinates.longitude,
         isGrantedForPreciseLocation:
-            _locationSharingMode == LocationSharingMode.region ? false : true,
+            _locationSharingMode == LocationSharingMode.precise ? true : true,
         productCondition: _productCondition,
         isNegatable: isNegatable,
         childCategoryId: _selectedChildCategory!.id,
@@ -855,7 +861,6 @@ class PostProvider extends ChangeNotifier {
         .toList();
   }
 
-  // Post 2nd part : Seller informations, images & videos, nessary details
   String _buildLocationName() {
     // Build location name from components
     List<String> components = [];
@@ -874,7 +879,7 @@ class PostProvider extends ChangeNotifier {
 
     // If no components are available, return a default value
     if (components.isEmpty) {
-      return "Yashnobod Tumani, Toshkent";
+      return "";
     }
 
     return components.join(", ");
@@ -887,10 +892,10 @@ class PostProvider extends ChangeNotifier {
   List<XFile> _images = [];
   XFile? _video;
   LocationEntity _location = const LocationEntity(
-    name: "Yashnobod Tumani, Toshkent",
+    name: "",
     coordinates: CoordinatesEntity(
-      latitude: 41.3227,
-      longitude: 69.2932,
+      latitude: 0,
+      longitude: 0,
     ),
   );
   LocationSharingMode _locationSharingMode = LocationSharingMode.region;
@@ -941,10 +946,14 @@ class PostProvider extends ChangeNotifier {
   }
 
   void _updateLocationFromComponents() {
+    // Keep the existing coordinates when updating the name
     _location = LocationEntity(
       name: _buildLocationName(),
-      coordinates: _location.coordinates, // Keep existing coordinates
+      coordinates: _location.coordinates, // Preserve the existing coordinates
     );
+    debugPrint("Updated location from components: ${_location.name}");
+    debugPrint(
+        "Coordinates preserved: ${_location.coordinates.latitude}, ${_location.coordinates.longitude}");
   }
 
   String get postTitle => _postTitle;
@@ -1023,9 +1032,29 @@ class PostProvider extends ChangeNotifier {
   }
 
   void setLocation(LocationEntity newLocation) {
-    _location = newLocation;
+    debugPrint("➡️ SETTING LOCATION - Name: ${newLocation.name}");
+    debugPrint(
+        "➡️ SETTING LOCATION - Latitude: ${newLocation.coordinates.latitude}");
+    debugPrint(
+        "➡️ SETTING LOCATION - Longitude: ${newLocation.coordinates.longitude}");
+
+    // Create a new instance to ensure we're not affected by reference issues
+    _location = LocationEntity(
+      name: newLocation.name,
+      coordinates: CoordinatesEntity(
+        latitude: newLocation.coordinates.latitude,
+        longitude: newLocation.coordinates.longitude,
+      ),
+    );
+
     _isUsingStoredLocation = false;
     notifyListeners();
+
+    // Verify the location was set correctly
+    debugPrint("✅ LOCATION SET - Name: ${_location.name}");
+    debugPrint("✅ LOCATION SET - Latitude: ${_location.coordinates.latitude}");
+    debugPrint(
+        "✅ LOCATION SET - Longitude: ${_location.coordinates.longitude}");
   }
 
   void setLocationSharingMode(LocationSharingMode mode) {
