@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
+import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/formaters.dart';
 import 'package:list_in/features/explore/presentation/widgets/product_card/bb/boosted_card.dart';
@@ -96,7 +97,7 @@ class OptimizedProductCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: EdgeInsets.all(2),
+        margin: EdgeInsets.all(3),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -164,8 +165,8 @@ class ProductImageSection extends StatelessWidget {
             padding: const EdgeInsets.all(3),
             child: ClipSmoothRect(
               radius: SmoothBorderRadius(
-                cornerRadius: 20,
-                cornerSmoothing: 0.7,
+                cornerRadius: 18,
+                cornerSmoothing: 0.8,
               ),
               child: _buildImage(),
             ),
@@ -338,20 +339,10 @@ class ProductDetailsSection extends StatelessWidget {
         Text(
           formatPrice(price.toString()),
           style: const TextStyle(
-            fontWeight: FontWeight.w700,
-            fontSize: 17,
-            color: AppColors.black,
-          ),
-        ),
-        Text(
-          condition == "NEW_PRODUCT"
-              ? AppLocalizations.of(context)!.condition_new
-              : AppLocalizations.of(context)!.condition_used,
-          style: TextStyle(
-            fontSize: 13.5,
-            color: AppColors.black,
-            fontWeight: FontWeight.w300,
-          ),
+              fontWeight: FontWeight.w700,
+              fontSize: 17,
+              color: AppColors.black,
+              fontFamily: Constants.Arial),
         ),
         Text(
           location,

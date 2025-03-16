@@ -303,13 +303,13 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
 
   Widget _buildMediaCarousel() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 3),
+      padding: EdgeInsets.symmetric(horizontal: 6),
       child: AspectRatio(
-        aspectRatio: 9 / 15,
+        aspectRatio: 9 / 14,
         child: ClipSmoothRect(
           radius: SmoothBorderRadius(
-            cornerRadius: 20,
-            cornerSmoothing: 0.7,
+            cornerRadius: 18,
+            cornerSmoothing: 0.8,
           ),
           child: Stack(
             children: [
@@ -400,31 +400,13 @@ class _UserInfoHeader extends StatelessWidget {
           ),
           const SizedBox(width: 10),
 
-          // User info
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                seller.name,
-                style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                    color: AppColors.black),
-              ),
-              const SizedBox(
-                width: 70,
-                child: Text(
-                  "15:00",
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                      height: 1,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 14,
-                      color: AppColors.darkGray),
-                ),
-              ),
-            ],
+          Text(
+            seller.name,
+            style: const TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+              color: AppColors.black,
+            ),
           ),
         ],
       ),

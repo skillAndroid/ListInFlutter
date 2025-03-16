@@ -4,10 +4,10 @@
 import 'dart:async';
 
 import 'package:figma_squircle/figma_squircle.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:list_in/config/assets/app_icons.dart';
@@ -30,7 +30,6 @@ import 'package:list_in/features/profile/presentation/bloc/user/user_profile_blo
 import 'package:list_in/features/profile/presentation/bloc/user/user_profile_event.dart';
 import 'package:list_in/features/video/presentation/wigets/scrollable_list.dart';
 import 'package:visibility_detector/visibility_detector.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class HomePageUIState {
   final currentlyPlayingId = ValueNotifier<String?>(null);
