@@ -157,7 +157,14 @@ class _FiltersPageState extends State<FiltersPage>
                                             cubit.toggleBargain(
                                                 false, true, '');
                                             cubit.toggleIsFree(false, true, '');
+                                            AppRouter
+                                                .shellNavigatorHome.currentState
+                                                ?.popUntil(
+                                              (route) => route.isFirst,
+                                            );
                                             context.pop();
+                                            cubit.resetChildCategorySelection();
+                                            cubit.resetCatalogSelection();
                                           },
                                           child: Text(
                                             localizations.clear_,
