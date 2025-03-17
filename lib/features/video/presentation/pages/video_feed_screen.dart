@@ -13,6 +13,7 @@ import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
+import 'package:list_in/features/explore/presentation/widgets/formaters.dart';
 import 'package:list_in/features/profile/domain/usecases/user/get_user_data_usecase.dart';
 import 'package:list_in/features/video/presentation/wigets/video_controlls.dart';
 import 'package:list_in/global/global_bloc.dart';
@@ -343,7 +344,7 @@ class _ListInShortsState extends State<ListInShorts> {
                                     decoration: ShapeDecoration(
                                       shape: SmoothRectangleBorder(
                                         borderRadius: SmoothBorderRadius(
-                                          cornerRadius: 10,
+                                          cornerRadius: 100,
                                           cornerSmoothing: 1,
                                         ),
                                         side: BorderSide(
@@ -449,8 +450,8 @@ class _ListInShortsState extends State<ListInShorts> {
                                             ),
                                             shape: SmoothRectangleBorder(
                                               borderRadius: SmoothBorderRadius(
-                                                cornerRadius: 14,
-                                                cornerSmoothing: 0.7,
+                                                cornerRadius: 20,
+                                                cornerSmoothing: 0.8,
                                               ),
                                             ),
                                           ),
@@ -494,11 +495,11 @@ class _ListInShortsState extends State<ListInShorts> {
                               child: Card(
                                 margin: EdgeInsets.zero,
                                 elevation: 0,
-                                clipBehavior: Clip.antiAlias,
+                                clipBehavior: Clip.hardEdge,
                                 shape: SmoothRectangleBorder(
                                   borderRadius: SmoothBorderRadius(
-                                    cornerRadius: 14,
-                                    cornerSmoothing: 0.7,
+                                    cornerRadius: 20,
+                                    cornerSmoothing: 0.8,
                                   ),
                                 ),
                                 color: AppColors.white.withOpacity(0.75),
@@ -512,12 +513,13 @@ class _ListInShortsState extends State<ListInShorts> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           Container(
+                                            clipBehavior: Clip.hardEdge,
                                             decoration: ShapeDecoration(
                                               shape: SmoothRectangleBorder(
                                                 borderRadius:
                                                     SmoothBorderRadius(
-                                                  cornerRadius: 16,
-                                                  cornerSmoothing: 1,
+                                                  cornerRadius: 18,
+                                                  cornerSmoothing: 0.8,
                                                 ),
                                                 side: BorderSide(
                                                   width: 2,
@@ -526,12 +528,17 @@ class _ListInShortsState extends State<ListInShorts> {
                                                 ),
                                               ),
                                             ),
-                                            child: SizedBox(
-                                              width: 76,
-                                              height: 76,
-                                              child: Image.network(
-                                                "https://${widget.initialVideos[index].productImages[0].url}",
-                                                fit: BoxFit.cover,
+                                            child: ClipSmoothRect(
+                                              radius: SmoothBorderRadius(
+                                                  cornerRadius: 18,
+                                                  cornerSmoothing: 0.8),
+                                              child: SizedBox(
+                                                width: 76,
+                                                height: 76,
+                                                child: Image.network(
+                                                  "https://${widget.initialVideos[index].productImages[0].url}",
+                                                  fit: BoxFit.cover,
+                                                ),
                                               ),
                                             ),
                                           ),
@@ -541,6 +548,9 @@ class _ListInShortsState extends State<ListInShorts> {
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: [
+                                                SizedBox(
+                                                  height: 4,
+                                                ),
                                                 Text(
                                                   widget.initialVideos[index]
                                                       .title,
@@ -556,13 +566,13 @@ class _ListInShortsState extends State<ListInShorts> {
                                                 const SizedBox(height: 4),
                                                 Text(
                                                   widget.initialVideos[index]
-                                                      .description,
+                                                      .locationName,
                                                   style: TextStyle(
                                                     color: Colors.black
                                                         .withOpacity(0.7),
                                                     fontSize: 12,
                                                   ),
-                                                  maxLines: 2,
+                                                  maxLines: 1,
                                                   overflow:
                                                       TextOverflow.ellipsis,
                                                 ),
@@ -578,7 +588,11 @@ class _ListInShortsState extends State<ListInShorts> {
                                                             .spaceBetween,
                                                     children: [
                                                       Text(
-                                                        '\$${widget.initialVideos[index].price}',
+                                                        formatPrice(widget
+                                                            .initialVideos[
+                                                                index]
+                                                            .price
+                                                            .toString()),
                                                         style: TextStyle(
                                                           color: Colors.black,
                                                           fontSize: 16,

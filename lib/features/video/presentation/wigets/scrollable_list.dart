@@ -273,7 +273,7 @@ class _VideoCarouselState extends State<VideoCarousel> {
                     decoration: BoxDecoration(
                       border: Border.all(
                         width: 1,
-                        color: AppColors.containerColor,
+                        color: AppColors.grey.withOpacity(0.75),
                       ),
                       borderRadius: BorderRadius.circular(16),
                     ),
@@ -283,14 +283,14 @@ class _VideoCarouselState extends State<VideoCarousel> {
                         const Icon(
                           CupertinoIcons.play_circle_fill,
                           size: 32,
-                          color: AppColors.primary,
+                          color: AppColors.black,
                         ),
                         const SizedBox(height: 8),
                         Text(
                           AppLocalizations.of(context)!.see_all_videos,
                           textAlign: TextAlign.center,
                           style: const TextStyle(
-                            color: AppColors.primary,
+                            color: AppColors.black,
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
                           ),
@@ -305,19 +305,9 @@ class _VideoCarouselState extends State<VideoCarousel> {
             final item = widget.items[index];
             return Padding(
               padding: const EdgeInsets.only(right: 2),
-              child: Container(
-                decoration: ShapeDecoration(
-                  shape: SmoothRectangleBorder(
-                    borderRadius: SmoothBorderRadius(
-                      cornerRadius: 16,
-                      cornerSmoothing: 1,
-                    ),
-                    side: BorderSide(
-                      width: 2,
-                      color: AppColors.containerColor, // Your border color
-                    ),
-                  ),
-                ),
+              child: ClipSmoothRect(
+                radius:
+                    SmoothBorderRadius(cornerRadius: 16, cornerSmoothing: 0.8),
                 child: GestureDetector(
                   onTap: () => _onVideoTap(index),
                   child: SizedBox(
