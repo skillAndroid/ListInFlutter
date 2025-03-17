@@ -144,11 +144,27 @@ class _FiltersPageState extends State<FiltersPage>
                                             Navigator.pop(context);
                                           },
                                         ),
-                                        Text(
-                                          localizations.clear_,
-                                          style: const TextStyle(
-                                            fontSize: 15,
-                                            color: Colors.blue,
+                                        InkWell(
+                                          onTap: () {
+                                            cubit.clearAllNumericFields();
+                                            cubit.clearAllSelectedAttributes();
+                                            cubit.clearLocationSelection();
+                                            cubit.clearPriceRange();
+                                            cubit.updateSellerType(
+                                                SellerType.ALL, true, '');
+                                            cubit.updateCondition(
+                                                'ALL', true, '');
+                                            cubit.toggleBargain(
+                                                false, true, '');
+                                            cubit.toggleIsFree(false, true, '');
+                                            context.pop();
+                                          },
+                                          child: Text(
+                                            localizations.clear_,
+                                            style: const TextStyle(
+                                              fontSize: 15,
+                                              color: Colors.blue,
+                                            ),
                                           ),
                                         )
                                       ],
