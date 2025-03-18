@@ -91,7 +91,10 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                 ),
                 IconButton(
                   icon: Icon(CupertinoIcons.bubble_left, color: Colors.black),
-                  onPressed: () {},
+                  onPressed: () {
+                    final String phoneNumber = userData.phoneNumber.toString();
+                    _openTelegram(context, phoneNumber);
+                  },
                 ),
                 IconButton(
                   icon: Icon(Icons.more_vert, color: Colors.black),
@@ -857,28 +860,77 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
       },
     );
   }
+}
 
-  Future<void> _makeCall(BuildContext context, String phoneNumber) async {
-    final cleanPhoneNumber = phoneNumber.replaceAll(RegExp(r'[^\d+]'), '');
-    final String uriString = 'tel:$cleanPhoneNumber';
+void _openTelegram(BuildContext context, String phoneNumber) {
+  // Format phone number by removing any non-digit characters
+  final String formattedPhone = phoneNumber.replaceAll(RegExp(r'[^\d+]'), '');
 
-    try {
-      if (await canLaunchUrl(Uri.parse(uriString))) {
-        await launchUrl(Uri.parse(uriString));
-      } else {
-        debugPrint("🤙Cannot launch URL: $uriString");
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content:
-                  Text("Error: Unable to launch call to $cleanPhoneNumber")),
-        );
-      }
-    } catch (e) {
+  // Create simple greeting message based on language
+  final String languageCode = Localizations.localeOf(context).languageCode;
+  String message;
+  switch (languageCode) {
+    case 'uz':
+      message = "Salom! Qandaysiz?";
+      break;
+    case 'en':
+      message = "Hello! How are you?";
+      break;
+    case 'ru':
+    default:
+      message = "Здравствуйте! Как дела?";
+      break;
+  }
+
+  // Create the Telegram URL with phone number and encoded message
+  final String encodedMessage = Uri.encodeComponent(message);
+  final String url = "https://t.me/$formattedPhone?text=$encodedMessage";
+
+  try {
+    launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+  } catch (e) {
+    // Handle error based on language
+    String errorMessage;
+    switch (languageCode) {
+      case 'uz':
+        errorMessage = "Telegram ilovasini ochib bo'lmadi";
+        break;
+      case 'en':
+        errorMessage = "Could not open Telegram";
+        break;
+      case 'ru':
+      default:
+        errorMessage = "Не удалось открыть Telegram";
+        break;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content:
+            Text(errorMessage, style: TextStyle(fontFamily: Constants.Arial)),
+      ),
+    );
+  }
+}
+
+Future<void> _makeCall(BuildContext context, String phoneNumber) async {
+  final cleanPhoneNumber = phoneNumber.replaceAll(RegExp(r'[^\d+]'), '');
+  final String uriString = 'tel:$cleanPhoneNumber';
+
+  try {
+    if (await canLaunchUrl(Uri.parse(uriString))) {
+      await launchUrl(Uri.parse(uriString));
+    } else {
       debugPrint("🤙Cannot launch URL: $uriString");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Exception: $e")),
+        SnackBar(
+            content: Text("Error: Unable to launch call to $cleanPhoneNumber")),
       );
     }
+  } catch (e) {
+    debugPrint("🤙Cannot launch URL: $uriString");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Exception: $e")),
+    );
   }
 }
 
@@ -1135,7 +1187,10 @@ class AboutTabContent extends StatelessWidget {
                 Expanded(
                   flex: 3,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      final String phoneNumber = user.phoneNumber.toString();
+                      _openTelegram(context, phoneNumber);
+                    },
                     style: ElevatedButton.styleFrom(
                       shape: SmoothRectangleBorder(
                         borderRadius: SmoothBorderRadius(
@@ -1220,29 +1275,6 @@ class AboutTabContent extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  Future<void> _makeCall(BuildContext context, String phoneNumber) async {
-    final cleanPhoneNumber = phoneNumber.replaceAll(RegExp(r'[^\d+]'), '');
-    final String uriString = 'tel:$cleanPhoneNumber';
-
-    try {
-      if (await canLaunchUrl(Uri.parse(uriString))) {
-        await launchUrl(Uri.parse(uriString));
-      } else {
-        debugPrint("🤙Cannot launch URL: $uriString");
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content:
-                  Text("Error: Unable to launch call to $cleanPhoneNumber")),
-        );
-      }
-    } catch (e) {
-      debugPrint("🤙Cannot launch URL: $uriString");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Exception: $e")),
-      );
-    }
   }
 
   String _formatDate(DateTime date) {
