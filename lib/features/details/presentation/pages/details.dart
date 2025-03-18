@@ -840,7 +840,34 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 Expanded(
                   flex: 3,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      // Create greeting message based on language with product details
+                      final String languageCode =
+                          Localizations.localeOf(context).languageCode;
+                      String message;
+
+                      switch (languageCode) {
+                        case 'uz':
+                          message =
+                              "Salom! Men sizning \"${widget.product.title}\" e'loningiz bilan qiziqyapman. Narxi: ${widget.product.price} so'm. Shu mahsulot hali sotuvda bormi?";
+                          break;
+                        case 'en':
+                          message =
+                              "Hello! I'm interested in your listing \"${widget.product.title}\". Price: ${widget.product.price}. Is this item still available?";
+                          break;
+                        case 'ru':
+                        default:
+                          message =
+                              "Здравствуйте! Меня интересует ваше объявление \"${widget.product.title}\". Цена: ${widget.product.price}. Этот товар еще доступен?";
+                          break;
+                      }
+
+                      // Get seller phone number from the product entity
+                      final String phoneNumber =
+                          widget.product.seller.phoneNumber;
+
+                      _openTelegram(context, message, phoneNumber);
+                    },
                     style: ElevatedButton.styleFrom(
                       shape: SmoothRectangleBorder(
                         borderRadius: BorderRadius.circular(
@@ -1005,6 +1032,41 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         _buildSimilarProducts(isOwner),
       ],
     );
+  }
+
+  void _openTelegram(BuildContext context, String message, String phoneNumber) {
+    // Format phone number by removing any non-digit characters
+    final String formattedPhone = phoneNumber.replaceAll(RegExp(r'[^\d+]'), '');
+
+    // Create the Telegram URL with phone number
+    final String encodedMessage = Uri.encodeComponent(message);
+    final String url = "https://t.me/$formattedPhone?text=$encodedMessage";
+
+    try {
+      launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+    } catch (e) {
+      // Handle error based on language
+      final String languageCode = Localizations.localeOf(context).languageCode;
+      String errorMessage;
+      switch (languageCode) {
+        case 'uz':
+          errorMessage = "Telegram ilovasini ochib bo'lmadi";
+          break;
+        case 'en':
+          errorMessage = "Could not open Telegram";
+          break;
+        case 'ru':
+        default:
+          errorMessage = "Не удалось открыть Telegram";
+          break;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content:
+              Text(errorMessage, style: TextStyle(fontFamily: Constants.Arial)),
+        ),
+      );
+    }
   }
 
   void showLocationPrivacySheet(BuildContext context) {
