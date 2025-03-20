@@ -32,6 +32,12 @@ import 'package:list_in/features/explore/domain/usecase/get_filtered_publication
 import 'package:list_in/features/explore/domain/usecase/get_prediction_usecase.dart';
 import 'package:list_in/features/explore/domain/usecase/get_publications_usecase.dart';
 import 'package:list_in/features/explore/domain/usecase/get_video_publications_usecase.dart';
+import 'package:list_in/features/followers/data/repository/user_social_rep_impl.dart';
+import 'package:list_in/features/followers/data/source/user_social_remoute.dart';
+import 'package:list_in/features/followers/domain/repository/user_social_repository.dart';
+import 'package:list_in/features/followers/domain/usecase/get_user_followers_usecase.dart';
+import 'package:list_in/features/followers/domain/usecase/get_user_followings_usecase.dart';
+import 'package:list_in/features/followers/presentation/bloc/social_user_bloc.dart';
 import 'package:list_in/features/map/data/repositories/location_repository_impl.dart';
 import 'package:list_in/features/map/data/sources/location_remote_datasource.dart';
 import 'package:list_in/features/map/domain/repositories/location_repository.dart';
@@ -358,6 +364,19 @@ Future<void> init() async {
     ),
   );
 
+  sl.registerLazySingleton<UserSocialRepository>(
+    () => UserSocialRepositoryImpl(
+      remoteDataSource: sl(),
+    ),
+  );
+
+  sl.registerLazySingleton<UserSocialRemoteDataSource>(
+    () => UserSocialRemoteDataSourceImpl(
+      dio: sl(),
+      authService: sl(),
+    ),
+  );
+
   sl.registerLazySingleton<CatalogRemoteDataSource>(
     () => CatalogRemoteDataSourceImpl(
       dio: sl(),
@@ -382,4 +401,20 @@ Future<void> init() async {
 
   sl.registerLazySingleton<UserPublicationsRemoteDataSource>(
       () => UserPublicationsRemoteDataSourceImpl(dio: sl(), authService: sl()));
+
+  sl.registerLazySingleton<GetUserFollowersUseCase>(
+    () => GetUserFollowersUseCase(sl()),
+  );
+
+  sl.registerLazySingleton<GetUserFollowingsUseCase>(
+    () => GetUserFollowingsUseCase(sl()),
+  );
+
+  sl.registerFactory<SocialUserBloc>(
+    () => SocialUserBloc(
+      getUserFollowersUseCase: sl(),
+      getUserFollowingsUseCase: sl(),
+      followUserUseCase: sl(),
+    ),
+  );
 }

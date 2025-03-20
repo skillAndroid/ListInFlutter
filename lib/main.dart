@@ -9,6 +9,7 @@ import 'package:list_in/core/language/language_bloc.dart';
 import 'package:list_in/core/router/go_router.dart';
 import 'package:list_in/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:list_in/features/details/presentation/bloc/details_bloc.dart';
+import 'package:list_in/features/followers/presentation/bloc/social_user_bloc.dart';
 import 'package:list_in/features/map/presentation/bloc/MapBloc.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
@@ -62,7 +63,8 @@ void main() async {
             create: (_) => di.sl<DetailsBloc>(),
           ),
           BlocProvider<LikedPublicationsBloc>(
-              create: (_) => di.sl<LikedPublicationsBloc>())
+              create: (_) => di.sl<LikedPublicationsBloc>()),
+          BlocProvider<SocialUserBloc>(create: (_) => di.sl<SocialUserBloc>())
         ],
         child: MyApp(router: di.sl<AppRouter>().router),
       ),

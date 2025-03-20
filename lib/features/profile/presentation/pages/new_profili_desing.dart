@@ -206,12 +206,25 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      AppLocalizations.of(context)!.following,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: AppColors.black,
-                                        fontWeight: FontWeight.w500,
+                                    //
+                                    InkWell(
+                                      onTap: () {
+                                        context.push(
+                                          Routes.socialConnections,
+                                          extra: {
+                                            'userId': userData.id,
+                                            'username': userData.nickName,
+                                            'initialTab': 'followings',
+                                          },
+                                        );
+                                      },
+                                      child: Text(
+                                        AppLocalizations.of(context)!.following,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: AppColors.black,
+                                          fontWeight: FontWeight.w500,
+                                        ),
                                       ),
                                     ),
                                     SizedBox(height: 3),
@@ -229,12 +242,24 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      AppLocalizations.of(context)!.followers,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: AppColors.black,
-                                        fontWeight: FontWeight.w500,
+                                    InkWell(
+                                      onTap: () {
+                                        context.push(
+                                          Routes.socialConnections,
+                                          extra: {
+                                            'userId': userData.id,
+                                            'username': userData.nickName,
+                                            'initialTab': 'followers',
+                                          },
+                                        );
+                                      },
+                                      child: Text(
+                                        AppLocalizations.of(context)!.followers,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: AppColors.black,
+                                          fontWeight: FontWeight.w500,
+                                        ),
                                       ),
                                     ),
                                     SizedBox(height: 3),

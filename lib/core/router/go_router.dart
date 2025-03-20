@@ -25,6 +25,7 @@ import 'package:list_in/features/explore/presentation/pages/screens/detailed_pag
 import 'package:list_in/features/explore/presentation/pages/screens/initial_page.dart';
 import 'package:list_in/features/explore/presentation/pages/screens/search_page.dart';
 import 'package:list_in/features/explore/presentation/pages/screens/search_result_page.dart';
+import 'package:list_in/features/followers/presentation/pages/social_conection_page.dart';
 import 'package:list_in/features/post/data/models/category_tree/attribute_model.dart';
 import 'package:list_in/features/post/data/models/category_tree/attribute_value_model.dart';
 import 'package:list_in/features/post/data/models/category_tree/blabla.dart';
@@ -94,6 +95,23 @@ class AppRouter {
       return null;
     },
     routes: <RouteBase>[
+      GoRoute(
+        path: Routes.socialConnections,
+        builder: (context, state) {
+          // Get data from the extra parameter instead of query parameters
+          final Map<String, dynamic> extra =
+              state.extra as Map<String, dynamic>;
+          final userId = extra['userId'] as String;
+          final username = extra['username'] as String;
+          final initialTab = extra['initialTab'] as String? ?? 'followers';
+
+          return SocialConnectionsPage(
+            userId: userId,
+            username: username,
+            initialTab: initialTab,
+          );
+        },
+      ),
       // Auth routes
       GoRoute(
         path: Routes.welcome,

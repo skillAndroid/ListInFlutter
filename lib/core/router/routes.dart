@@ -26,6 +26,8 @@ class Routes {
 
   static const filterHomeResult = '/filterHomeResult';
   static const filterSecondaryResult = '/filterSecondaryResult';
+
+  static const socialConnections = '/connections';
 }
 
 class RoutesByName {
@@ -54,4 +56,6 @@ class RoutesByName {
   static const publicationsEdit = 'publicationsEdit';
   static const filterHomeResult = 'filterHomeResult';
   static const filterSecondaryResult = 'filterSecondaryResult';
+
+  static const socialConnections = 'connections';
 }
