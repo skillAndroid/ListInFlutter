@@ -4,11 +4,17 @@ class UserProfileModel {
   final String userId;
   final String nickName;
   final String profileImagePath;
+  final int following;
+  final int followers;
+  final bool isFollowing;
 
   UserProfileModel({
     required this.userId,
     required this.nickName,
     required this.profileImagePath,
+    required this.isFollowing,
+    required this.followers,
+    required this.following,
   });
 
   factory UserProfileModel.fromJson(Map<String, dynamic> json) {
@@ -16,6 +22,9 @@ class UserProfileModel {
       userId: json['userId'] ?? '',
       nickName: json['nickName'] ?? '',
       profileImagePath: json['profileImagePath'] ?? '',
+      isFollowing: json['following'] ?? false,
+      followers: json['followers'] ?? 0,
+      following: json['following'] ?? 0,
     );
   }
 
@@ -24,92 +33,9 @@ class UserProfileModel {
       userId: userId,
       nickName: nickName,
       profileImagePath: profileImagePath,
-    );
-  }
-}
-
-class SortItemModel {
-  final String direction;
-  final String nullHandling;
-  final bool ascending;
-  final String property;
-  final bool ignoreCase;
-
-  SortItemModel({
-    required this.direction,
-    required this.nullHandling,
-    required this.ascending,
-    required this.property,
-    required this.ignoreCase,
-  });
-
-  factory SortItemModel.fromJson(Map<String, dynamic> json) {
-    return SortItemModel(
-      direction: json['direction'] ?? '',
-      nullHandling: json['nullHandling'] ?? '',
-      ascending: json['ascending'] ?? false,
-      property: json['property'] ?? '',
-      ignoreCase: json['ignoreCase'] ?? false,
-    );
-  }
-
-  SortItem toEntity() {
-    return SortItem(
-      direction: direction,
-      nullHandling: nullHandling,
-      ascending: ascending,
-      property: property,
-      ignoreCase: ignoreCase,
-    );
-  }
-}
-
-class PageableModel {
-  final int offset;
-  final List<SortItemModel> sort;
-  final bool paged;
-  final int pageNumber;
-  final int pageSize;
-  final bool unpaged;
-
-  PageableModel({
-    required this.offset,
-    required this.sort,
-    required this.paged,
-    required this.pageNumber,
-    required this.pageSize,
-    required this.unpaged,
-  });
-
-  factory PageableModel.fromJson(Map<String, dynamic> json) {
-    List<SortItemModel> sortList = [];
-
-    if (json['sort'] is List) {
-      sortList = (json['sort'] as List?)
-              ?.map((e) => SortItemModel.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [];
-    } else if (json['sort'] is Map) {
-      sortList = [SortItemModel.fromJson(json['sort'] as Map<String, dynamic>)];
-    }
-
-    return PageableModel(
-      offset: json['offset'] ?? 0,
-      sort: sortList,
-      paged: json['paged'] ?? false,
-      pageNumber: json['pageNumber'] ?? 0,
-      pageSize: json['pageSize'] ?? 0,
-      unpaged: json['unpaged'] ?? false,
-    );
-  }
-  Pageable toEntity() {
-    return Pageable(
-      offset: offset,
-      sort: sort.map((e) => e.toEntity()).toList(),
-      paged: paged,
-      pageNumber: pageNumber,
-      pageSize: pageSize,
-      unpaged: unpaged,
+      followers: followers,
+      following: following,
+      isFollowing: isFollowing,
     );
   }
 }
@@ -120,12 +46,9 @@ class PaginatedResponseModel<T> {
   final int size;
   final List<dynamic> content;
   final int number;
-  final List<SortItemModel> sort;
-  final PageableModel pageable;
-  final int numberOfElements;
+
   final bool first;
   final bool last;
-  final bool empty;
 
   PaginatedResponseModel({
     required this.totalElements,
@@ -133,12 +56,8 @@ class PaginatedResponseModel<T> {
     required this.size,
     required this.content,
     required this.number,
-    required this.sort,
-    required this.pageable,
-    required this.numberOfElements,
     required this.first,
     required this.last,
-    required this.empty,
   });
 
   factory PaginatedResponseModel.fromJson(
@@ -151,16 +70,6 @@ class PaginatedResponseModel<T> {
         [];
 
     // This is handling sort differently based on the actual response structure
-    List<SortItemModel> sortList = [];
-    if (json['sort'] is List) {
-      sortList = (json['sort'] as List?)
-              ?.map((e) => SortItemModel.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [];
-    } else if (json['sort'] is Map) {
-      // Handle the case where 'sort' is an object instead of a list
-      sortList = [SortItemModel.fromJson(json['sort'] as Map<String, dynamic>)];
-    }
 
     return PaginatedResponseModel<T>(
       totalElements: json['totalElements'] ?? 0,
@@ -168,13 +77,8 @@ class PaginatedResponseModel<T> {
       size: json['size'] ?? 0,
       content: contentList,
       number: json['number'] ?? 0,
-      sort: sortList,
-      pageable:
-          PageableModel.fromJson(json['pageable'] as Map<String, dynamic>),
-      numberOfElements: json['numberOfElements'] ?? 0,
       first: json['first'] ?? false,
       last: json['last'] ?? false,
-      empty: json['empty'] ?? true,
     );
   }
   PaginatedResponse<R> toEntity<R>(R Function(dynamic) mapper) {
@@ -184,12 +88,8 @@ class PaginatedResponseModel<T> {
       size: size,
       content: content.map((e) => mapper(e)).toList(),
       number: number,
-      sort: sort.map((e) => e.toEntity()).toList(),
-      pageable: pageable.toEntity(),
-      numberOfElements: numberOfElements,
       first: first,
       last: last,
-      empty: empty,
     );
   }
 }

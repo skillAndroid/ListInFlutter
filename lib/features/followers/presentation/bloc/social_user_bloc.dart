@@ -154,11 +154,11 @@ class SocialUserBloc extends Bloc<SocialUserEvent, SocialUserState> {
     final Map<String, int> userFollowingCount = {};
     final Map<String, bool> publicationViewedStatus = {};
 
-    // for (var profile in profiles) {
-    //   userFollowStatuses[profile.userId] = profile.isFollowing;
-    //   userFollowersCount[profile.userId] = profile.followers;
-    //   userFollowingCount[profile.userId] = profile.followings;
-    // }
+    for (var profile in profiles) {
+      userFollowStatuses[profile.userId] = profile.isFollowing;
+      userFollowersCount[profile.userId] = profile.followers;
+      userFollowingCount[profile.userId] = profile.following;
+    }
 
     globalBloc.add(SyncFollowStatusesEvent(
       userFollowStatuses: userFollowStatuses,
