@@ -119,7 +119,7 @@ class _SocialConnectionsPageState extends State<SocialConnectionsPage>
           indicatorWeight: 0.1,
 
           dividerColor: AppColors.transparent,
-          isScrollable: true, // Makes tabs scrollable
+          isScrollable: true,
           labelPadding:
               EdgeInsets.symmetric(horizontal: 20), // Padding between tabs
           indicatorSize:

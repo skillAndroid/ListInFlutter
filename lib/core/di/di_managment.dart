@@ -79,6 +79,7 @@ import 'package:list_in/features/profile/domain/usecases/user/update_user_profil
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/user/user_profile_bloc.dart';
+import 'package:list_in/features/video/presentation/chache_manager/video_cache_manager.dart';
 import 'package:list_in/features/visitior_profile/data/repository/another_user_profile_rep_impl.dart';
 import 'package:list_in/features/visitior_profile/data/source/another_user_profile_remoute.dart';
 import 'package:list_in/features/visitior_profile/domain/repository/another_user_profile_repository.dart';
@@ -147,6 +148,9 @@ Future<void> init() async {
     return dio;
   });
 
+  // if (!sl.isRegistered<VideoCache>()) {
+  //   sl.registerLazySingleton(() => VideoCache());
+  // }
   sl.registerLazySingleton<http.Client>(() {
     return RetryClient(
       http.Client(),

@@ -248,7 +248,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
   void handleVideoFeedNavigation(BuildContext context, int selectedIndex) {
     if (state.videoPublications.isNotEmpty) {
       final videos = state.videoPublications;
-      context.push(Routes.videosFeed, extra: {
+      context.goNamed(RoutesByName.videosFeed, extra: {
         'videos': videos,
         'video_current_page': state.videoCurrentPage,
         'index': selectedIndex,

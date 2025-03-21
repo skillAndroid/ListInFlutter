@@ -146,37 +146,6 @@ class AppRouter {
           );
         },
       ),
-      GoRoute(
-        path: Routes.videosFeed,
-        name: RoutesByName.videosFeed,
-        builder: (context, state) {
-          // Safely handle potential null extra data
-          final extraData = state.extra as Map<String, dynamic>?;
-
-          final initialVideos =
-              extraData?['videos'] as List<GetPublicationEntity>? ?? [];
-          final initialPage = extraData?['video_current_page'] as int? ?? 0;
-          final selectedIndex = extraData?['index'] as int? ?? 0;
-
-          return BlocProvider.value(
-            value: HomeTreeCubit(
-              getCatalogsUseCase: getGategoriesUsecase,
-              getLocationsUsecase: getLocationsUsecase,
-              getPublicationsUseCase: getPublicationsUsecase,
-              getPredictionsUseCase: getPredictionsUseCase,
-              getVideoPublicationsUsecase: getVideoPublicationsUsecase,
-              getFilteredPublicationsValuesUsecase:
-                  getFilteredPublicationsValuesUsecase,
-              globalBloc: globalBloc,
-            ),
-            child: ListInShorts(
-              initialVideos: initialVideos,
-              initialPage: initialPage,
-              initialIndex: selectedIndex,
-            ),
-          );
-        },
-      ),
 
       GoRoute(
         path: Routes.productDetails,
@@ -232,6 +201,41 @@ class AppRouter {
                   );
                 },
                 routes: [
+                  GoRoute(
+                    path: Routes.videosFeed,
+                    name: RoutesByName.videosFeed,
+                    builder: (context, state) {
+                      // Safely handle potential null extra data
+                      final extraData = state.extra as Map<String, dynamic>?;
+
+                      final initialVideos =
+                          extraData?['videos'] as List<GetPublicationEntity>? ??
+                              [];
+                      final initialPage =
+                          extraData?['video_current_page'] as int? ?? 0;
+                      final selectedIndex = extraData?['index'] as int? ?? 0;
+
+                      return BlocProvider.value(
+                        value: HomeTreeCubit(
+                          getCatalogsUseCase: getGategoriesUsecase,
+                          getLocationsUsecase: getLocationsUsecase,
+                          getPublicationsUseCase: getPublicationsUsecase,
+                          getPredictionsUseCase: getPredictionsUseCase,
+                          getVideoPublicationsUsecase:
+                              getVideoPublicationsUsecase,
+                          getFilteredPublicationsValuesUsecase:
+                              getFilteredPublicationsValuesUsecase,
+                          globalBloc: globalBloc,
+                        ),
+                        child: ListInShorts(
+                          key: state.pageKey,
+                          initialVideos: initialVideos,
+                          initialPage: initialPage,
+                          initialIndex: selectedIndex,
+                        ),
+                      );
+                    },
+                  ),
                   GoRoute(
                     path: Routes.filterHomeResult,
                     name: RoutesByName.filterHomeResult,

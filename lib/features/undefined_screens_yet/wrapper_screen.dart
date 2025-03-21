@@ -23,6 +23,7 @@ class MainWrapper extends StatefulWidget {
 
 class _MainWrapperState extends State<MainWrapper> {
   int _selectedIndex = 0;
+  bool _isDarkMode = false;
 
   void _goToBranch(int index) {
     if (index == 1) {
@@ -64,30 +65,60 @@ class _MainWrapperState extends State<MainWrapper> {
       });
     }
 
+    // Get the current URL using your suggested approach
+    final String currentUrl = GoRouterState.of(context).uri.toString();
+
+    // Check if we're in video feeds
+    final bool inVideoFeeds = currentUrl.contains(Routes.videosFeed);
+
+    // Update dark mode state if needed
+    if (inVideoFeeds != _isDarkMode) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() {
+          _isDarkMode = inVideoFeeds;
+        });
+      });
+    }
+
+    // Define colors based on mode
+    final backgroundColor = _isDarkMode ? AppColors.black : AppColors.white;
+    final borderColor = _isDarkMode
+        ? Colors.grey[800] ?? AppColors.containerColor
+        : AppColors.containerColor;
+    final textColor = _isDarkMode ? AppColors.white : AppColors.black;
+    final inactiveColor = _isDarkMode
+        ? Colors.grey[600] ?? CupertinoColors.inactiveGray
+        : CupertinoColors.inactiveGray;
+
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
-        backgroundColor: AppColors.white,
+        backgroundColor: backgroundColor,
         body: widget.navigationShell,
         bottomNavigationBar: Container(
-          height: 65, // Updated height to 65
+          height: 65,
           decoration: BoxDecoration(
-            color: AppColors.white,
+            color: backgroundColor,
             border: Border(
               top: BorderSide(
-                color: AppColors.containerColor,
+                color: borderColor,
                 width: 0.5,
               ),
             ),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            crossAxisAlignment: CrossAxisAlignment.start, // Align to top
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildNavItem(
-                  0, AppLocalizations.of(context)!.search, AppIcons.bg_icon),
-              _buildAddPostButton(),
-              _buildProfileItem(),
+                0,
+                AppLocalizations.of(context)!.search,
+                AppIcons.bg_icon,
+                textColor,
+                inactiveColor,
+              ),
+              _buildAddPostButton(textColor, inactiveColor),
+              _buildProfileItem(textColor, inactiveColor),
             ],
           ),
         ),
@@ -95,14 +126,19 @@ class _MainWrapperState extends State<MainWrapper> {
     );
   }
 
-  // Custom method to build navigation items
-  Widget _buildNavItem(int index, String label, String iconAsset) {
+  // Updated to pass colors
+  Widget _buildNavItem(
+    int index,
+    String label,
+    String iconAsset,
+    Color activeColor,
+    Color inactiveColor,
+  ) {
     bool isSelected = _selectedIndex == index;
     return InkWell(
       onTap: () => _goToBranch(index),
       child: Padding(
-        padding: const EdgeInsets.only(
-            top: 10), // Add padding to push content to top
+        padding: const EdgeInsets.only(top: 10),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -110,7 +146,7 @@ class _MainWrapperState extends State<MainWrapper> {
               iconAsset,
               height: 24,
               width: 24,
-              color: isSelected ? Colors.green : CupertinoColors.inactiveGray,
+              color: isSelected ? Colors.green : inactiveColor,
             ),
             const SizedBox(height: 4),
             Text(
@@ -118,8 +154,7 @@ class _MainWrapperState extends State<MainWrapper> {
               style: TextStyle(
                 fontWeight: FontWeight.w500,
                 fontSize: 12.5,
-                color:
-                    isSelected ? AppColors.black : CupertinoColors.inactiveGray,
+                color: isSelected ? activeColor : inactiveColor,
               ),
             ),
           ],
@@ -128,20 +163,19 @@ class _MainWrapperState extends State<MainWrapper> {
     );
   }
 
-  // Add post button
-  Widget _buildAddPostButton() {
+  // Updated to pass colors
+  Widget _buildAddPostButton(Color activeColor, Color inactiveColor) {
     return InkWell(
       onTap: () => _goToBranch(1),
       child: Padding(
-        padding:
-            const EdgeInsets.only(top: 6), // Add padding to push content to top
+        padding: const EdgeInsets.only(top: 6),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
+            Icon(
               CupertinoIcons.plus_circled,
               size: 28,
-              color: CupertinoColors.inactiveGray,
+              color: inactiveColor,
             ),
             const SizedBox(height: 4),
             Text(
@@ -149,9 +183,7 @@ class _MainWrapperState extends State<MainWrapper> {
               style: TextStyle(
                 fontWeight: FontWeight.w500,
                 fontSize: 12.5,
-                color: _selectedIndex == 1
-                    ? AppColors.black
-                    : CupertinoColors.inactiveGray,
+                color: _selectedIndex == 1 ? activeColor : inactiveColor,
               ),
             ),
           ],
@@ -160,14 +192,13 @@ class _MainWrapperState extends State<MainWrapper> {
     );
   }
 
-  // Profile item
-  Widget _buildProfileItem() {
+  // Updated to pass colors
+  Widget _buildProfileItem(Color activeColor, Color inactiveColor) {
     bool isSelected = _selectedIndex == 2;
     return InkWell(
       onTap: () => _goToBranch(2),
       child: Padding(
-        padding: const EdgeInsets.only(
-            top: 10), // Add padding to push content to top
+        padding: const EdgeInsets.only(top: 10),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -181,23 +212,20 @@ class _MainWrapperState extends State<MainWrapper> {
                     ? CachedNetworkImage(
                         imageUrl: "https://${AppSession.profileImagePath}",
                         placeholder: (context, url) => Container(
-                          color: Colors.grey[300],
+                          color:
+                              _isDarkMode ? Colors.grey[800] : Colors.grey[300],
                         ),
                         errorWidget: (context, url, error) => Icon(
                           CupertinoIcons.person_fill,
                           size: 23,
-                          color: isSelected
-                              ? AppColors.black
-                              : CupertinoColors.inactiveGray,
+                          color: isSelected ? activeColor : inactiveColor,
                         ),
                         fit: BoxFit.cover,
                       )
                     : Icon(
                         Ionicons.person_circle,
                         size: 24,
-                        color: isSelected
-                            ? AppColors.black
-                            : CupertinoColors.inactiveGray,
+                        color: isSelected ? activeColor : inactiveColor,
                       ),
               ),
             ),
@@ -207,8 +235,7 @@ class _MainWrapperState extends State<MainWrapper> {
               style: TextStyle(
                 fontWeight: FontWeight.w500,
                 fontSize: 12.5,
-                color:
-                    isSelected ? AppColors.black : CupertinoColors.inactiveGray,
+                color: isSelected ? activeColor : inactiveColor,
               ),
             ),
           ],
