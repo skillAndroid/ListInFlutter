@@ -114,8 +114,10 @@ class _SocialConnectionsPageState extends State<SocialConnectionsPage>
           controller: _tabController,
           labelColor: Colors.black,
           unselectedLabelColor: Colors.grey,
+          indicatorPadding: EdgeInsets.zero,
           indicatorColor: Colors.black,
           indicatorWeight: 0.1,
+
           dividerColor: AppColors.transparent,
           isScrollable: true, // Makes tabs scrollable
           labelPadding:
@@ -131,6 +133,7 @@ class _SocialConnectionsPageState extends State<SocialConnectionsPage>
             fontFamily: Constants.Arial,
             fontWeight: FontWeight.w500,
           ),
+
           tabs: [
             Tab(
               text: AppLocalizations.of(context)!.followers,

@@ -915,6 +915,7 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                   fontFamily: Constants.Arial,
                                   fontWeight: FontWeight.w500,
                                 ),
+
                                 tabs: [
                                   Tab(text: AppLocalizations.of(context)!.shop),
                                   Tab(
