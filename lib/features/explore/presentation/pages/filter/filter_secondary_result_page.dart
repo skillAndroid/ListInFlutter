@@ -276,6 +276,7 @@ class _FilterSecondaryResultPageState extends State<FilterSecondaryResultPage> {
 
   Widget _buildLoadingScreen() {
     return const Scaffold(
+      backgroundColor: AppColors.white,
       body: Center(
         child: CircularProgressIndicator(
           strokeWidth: 6,
@@ -288,6 +289,7 @@ class _FilterSecondaryResultPageState extends State<FilterSecondaryResultPage> {
 
   Widget _buildErrorScreen(String error) {
     return Scaffold(
+      backgroundColor: AppColors.white,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -299,7 +301,7 @@ class _FilterSecondaryResultPageState extends State<FilterSecondaryResultPage> {
 
   Widget _buildMainScreen(HomeTreeState state) {
     return Scaffold(
-      backgroundColor: AppColors.bgColor,
+      backgroundColor: AppColors.white,
       extendBody: true,
       appBar: _buildAppBar(state),
       body: RefreshIndicator(

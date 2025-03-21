@@ -274,6 +274,7 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
 
   Widget _buildLoadingScreen() {
     return const Scaffold(
+      backgroundColor: AppColors.white,
       body: Center(
         child: CircularProgressIndicator(
           strokeWidth: 6,
@@ -286,6 +287,7 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
 
   Widget _buildErrorScreen(String error) {
     return Scaffold(
+      backgroundColor: AppColors.white,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -297,8 +299,7 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
 
   Widget _buildMainScreen(HomeTreeState state) {
     return Scaffold(
-      backgroundColor:
-          CupertinoColors.extraLightBackgroundGray.withOpacity(0.5),
+      backgroundColor: AppColors.white,
       extendBody: true,
       appBar: _buildAppBar(state),
       body: RefreshIndicator(

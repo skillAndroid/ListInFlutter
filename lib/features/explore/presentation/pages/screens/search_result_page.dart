@@ -214,6 +214,7 @@ class _SearchResultPageState extends State<SearchResultPage> {
 
   Widget _buildLoadingScreen() {
     return const Scaffold(
+      backgroundColor: AppColors.white,
       body: Center(
         child: CircularProgressIndicator(
           strokeWidth: 6,
@@ -226,6 +227,7 @@ class _SearchResultPageState extends State<SearchResultPage> {
 
   Widget _buildErrorScreen(String error) {
     return Scaffold(
+      backgroundColor: AppColors.white,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

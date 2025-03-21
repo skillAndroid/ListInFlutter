@@ -241,6 +241,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
 
   Widget _buildErrorScreen(String error) {
     return Scaffold(
+      backgroundColor: AppColors.white,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -261,8 +262,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
         if (state.isLoading) return _buildLoadingScreen();
         if (state.error != null) return _buildErrorScreen(state.error!);
         return Scaffold(
-          backgroundColor:
-              CupertinoColors.extraLightBackgroundGray.withOpacity(0.5),
+          backgroundColor: AppColors.white,
           appBar: _buildAppBar(state),
           body: RefreshIndicator(
             color: Colors.blue,
