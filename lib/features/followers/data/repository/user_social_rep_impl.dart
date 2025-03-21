@@ -12,12 +12,15 @@ class UserSocialRepositoryImpl implements UserSocialRepository {
   @override
   Future<PaginatedResponse<UserProfile>> getFollowings(String userId,
       {int page = 0, int size = 30}) async {
+    print('📡 Fetching followings for user: $userId, page: $page, size: $size');
     try {
       final remoteResponse =
           await remoteDataSource.getFollowings(userId, page: page, size: size);
+      print('✅ Successfully fetched followings for user: $userId');
       return remoteResponse.toEntity<UserProfile>(
           (model) => (model as UserProfileModel).toEntity());
     } catch (e) {
+      print('❌ Error fetching followings for user: $userId - $e');
       throw ServerFailure();
     }
   }
@@ -25,12 +28,15 @@ class UserSocialRepositoryImpl implements UserSocialRepository {
   @override
   Future<PaginatedResponse<UserProfile>> getFollowers(String userId,
       {int page = 0, int size = 30}) async {
+    print('📡 Fetching followers for user: $userId, page: $page, size: $size');
     try {
       final remoteResponse =
           await remoteDataSource.getFollowers(userId, page: page, size: size);
+      print('✅ Successfully fetched followers for user: $userId');
       return remoteResponse.toEntity<UserProfile>(
           (model) => (model as UserProfileModel).toEntity());
     } catch (e) {
+      print('❌ Error fetching followers for user: $userId - $e');
       throw ServerFailure();
     }
   }

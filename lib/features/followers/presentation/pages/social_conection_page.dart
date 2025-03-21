@@ -78,57 +78,54 @@ class _SocialConnectionsPageState extends State<SocialConnectionsPage>
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => sl<SocialUserBloc>(),
-      child: Scaffold(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        appBar: AppBar(
-          elevation: 0,
-          backgroundColor: Colors.transparent,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            color: Theme.of(context).iconTheme.color,
-            onPressed: () => Navigator.pop(context),
-          ),
-          title: Text(
-            widget.username,
-            style: const TextStyle(
-              fontSize: 20.0,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          bottom: TabBar(
-            controller: _tabController,
-            indicatorColor: Theme.of(context).primaryColor,
-            labelColor: Theme.of(context).primaryColor,
-            unselectedLabelColor: Colors.grey,
-            tabs: const [
-              Tab(text: 'Followers'),
-              Tab(text: 'Following'),
-            ],
-            onTap: (index) {
-              // Load data when tab is selected
-              if (index == 0) {
-                context.read<SocialUserBloc>().add(
-                      FetchFollowers(userId: widget.userId),
-                    );
-              } else {
-                context.read<SocialUserBloc>().add(
-                      FetchFollowings(userId: widget.userId),
-                    );
-              }
-            },
+    return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          color: Theme.of(context).iconTheme.color,
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          widget.username,
+          style: const TextStyle(
+            fontSize: 20.0,
+            fontWeight: FontWeight.bold,
           ),
         ),
-        body: TabBarView(
+        bottom: TabBar(
           controller: _tabController,
-          children: [
-            // Followers Tab
-            _buildFollowersTab(context),
-            // Followings Tab
-            _buildFollowingsTab(context),
+          indicatorColor: Theme.of(context).primaryColor,
+          labelColor: Theme.of(context).primaryColor,
+          unselectedLabelColor: Colors.grey,
+          tabs: const [
+            Tab(text: 'Followers'),
+            Tab(text: 'Following'),
           ],
+          onTap: (index) {
+            // Load data when tab is selected
+            if (index == 0) {
+              context.read<SocialUserBloc>().add(
+                    FetchFollowers(userId: widget.userId),
+                  );
+            } else {
+              context.read<SocialUserBloc>().add(
+                    FetchFollowings(userId: widget.userId),
+                  );
+            }
+          },
         ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          // Followers Tab
+          _buildFollowersTab(context),
+          // Followings Tab
+          _buildFollowingsTab(context),
+        ],
       ),
     );
   }

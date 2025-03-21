@@ -13,9 +13,9 @@ class UserProfileModel {
 
   factory UserProfileModel.fromJson(Map<String, dynamic> json) {
     return UserProfileModel(
-      userId: json['userId'],
-      nickName: json['nickName'],
-      profileImagePath: json['profileImagePath'],
+      userId: json['userId'] ?? '',
+      nickName: json['nickName'] ?? '',
+      profileImagePath: json['profileImagePath'] ?? '',
     );
   }
 
@@ -45,11 +45,11 @@ class SortItemModel {
 
   factory SortItemModel.fromJson(Map<String, dynamic> json) {
     return SortItemModel(
-      direction: json['direction'],
-      nullHandling: json['nullHandling'],
-      ascending: json['ascending'],
-      property: json['property'],
-      ignoreCase: json['ignoreCase'],
+      direction: json['direction'] ?? '',
+      nullHandling: json['nullHandling'] ?? '',
+      ascending: json['ascending'] ?? false,
+      property: json['property'] ?? '',
+      ignoreCase: json['ignoreCase'] ?? false,
     );
   }
 
@@ -82,18 +82,26 @@ class PageableModel {
   });
 
   factory PageableModel.fromJson(Map<String, dynamic> json) {
-    var sortList = (json['sort'] as List?)?.map((e) => SortItemModel.fromJson(e)).toList() ?? [];
+    List<SortItemModel> sortList = [];
+
+    if (json['sort'] is List) {
+      sortList = (json['sort'] as List?)
+              ?.map((e) => SortItemModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [];
+    } else if (json['sort'] is Map) {
+      sortList = [SortItemModel.fromJson(json['sort'] as Map<String, dynamic>)];
+    }
 
     return PageableModel(
-      offset: json['offset'],
+      offset: json['offset'] ?? 0,
       sort: sortList,
-      paged: json['paged'],
-      pageNumber: json['pageNumber'],
-      pageSize: json['pageSize'],
-      unpaged: json['unpaged'],
+      paged: json['paged'] ?? false,
+      pageNumber: json['pageNumber'] ?? 0,
+      pageSize: json['pageSize'] ?? 0,
+      unpaged: json['unpaged'] ?? false,
     );
   }
-
   Pageable toEntity() {
     return Pageable(
       offset: offset,
@@ -138,28 +146,37 @@ class PaginatedResponseModel<T> {
     T Function(Map<String, dynamic>) fromJsonT,
   ) {
     var contentList = (json['content'] as List?)
-        ?.map((item) => fromJsonT(item as Map<String, dynamic>))
-        .toList() ?? [];
-        
-    var sortList = (json['sort'] as List?)
-        ?.map((e) => SortItemModel.fromJson(e as Map<String, dynamic>))
-        .toList() ?? [];
+            ?.map((item) => fromJsonT(item as Map<String, dynamic>))
+            .toList() ??
+        [];
+
+    // This is handling sort differently based on the actual response structure
+    List<SortItemModel> sortList = [];
+    if (json['sort'] is List) {
+      sortList = (json['sort'] as List?)
+              ?.map((e) => SortItemModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [];
+    } else if (json['sort'] is Map) {
+      // Handle the case where 'sort' is an object instead of a list
+      sortList = [SortItemModel.fromJson(json['sort'] as Map<String, dynamic>)];
+    }
 
     return PaginatedResponseModel<T>(
-      totalElements: json['totalElements'],
-      totalPages: json['totalPages'],
-      size: json['size'],
+      totalElements: json['totalElements'] ?? 0,
+      totalPages: json['totalPages'] ?? 0,
+      size: json['size'] ?? 0,
       content: contentList,
-      number: json['number'],
+      number: json['number'] ?? 0,
       sort: sortList,
-      pageable: PageableModel.fromJson(json['pageable']),
-      numberOfElements: json['numberOfElements'],
-      first: json['first'],
-      last: json['last'],
-      empty: json['empty'],
+      pageable:
+          PageableModel.fromJson(json['pageable'] as Map<String, dynamic>),
+      numberOfElements: json['numberOfElements'] ?? 0,
+      first: json['first'] ?? false,
+      last: json['last'] ?? false,
+      empty: json['empty'] ?? true,
     );
   }
-
   PaginatedResponse<R> toEntity<R>(R Function(dynamic) mapper) {
     return PaginatedResponse<R>(
       totalElements: totalElements,
