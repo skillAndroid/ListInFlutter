@@ -99,7 +99,7 @@ class _SocialConnectionsPageState extends State<SocialConnectionsPage>
         elevation: 0,
         backgroundColor: Colors.transparent,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back_rounded),
           color: Theme.of(context).iconTheme.color,
           onPressed: () => Navigator.pop(context),
         ),
@@ -453,7 +453,7 @@ class UserListTile extends StatelessWidget {
                             borderRadius: SmoothBorderRadius(cornerRadius: 18),
                           ),
                           padding: EdgeInsets.symmetric(
-                            horizontal: 10,
+                            horizontal: 8,
                           ),
                         ),
                         child: isLoading
@@ -474,10 +474,10 @@ class UserListTile extends StatelessWidget {
                                 children: [
                                   Icon(
                                     isFollowed ? Icons.remove : Icons.add,
-                                    size: 14,
+                                    size: 12.3,
                                     color: AppColors.black,
                                   ),
-                                  SizedBox(width: 4),
+                                  SizedBox(width: 3),
                                   Text(
                                     isFollowed
                                         ? localizations.unfollow
@@ -486,7 +486,7 @@ class UserListTile extends StatelessWidget {
                                       fontFamily: Constants.Arial,
                                       fontWeight: FontWeight.bold,
                                       color: AppColors.black,
-                                      fontSize: 12.5,
+                                      fontSize: 12.3,
                                     ),
                                   ),
                                 ],

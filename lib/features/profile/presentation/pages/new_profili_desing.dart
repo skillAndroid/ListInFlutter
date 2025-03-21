@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
@@ -36,6 +37,14 @@ class ProfileDashboard extends StatefulWidget {
 }
 
 class _ProfileDashboardState extends State<ProfileDashboard> {
+  bool _isImagePopupVisible =
+      false; // State variable to control popup visibility
+  void _toggleImagePopup() {
+    setState(() {
+      _isImagePopupVisible = !_isImagePopupVisible;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -78,135 +87,138 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
               body: Center(
                   child: Text(AppLocalizations.of(context)!.no_user_data)));
         }
-        if (state.userData == null) {}
         return Scaffold(
           backgroundColor: Colors.white,
           body: SafeArea(
-            child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12.0, vertical: 16),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 12.0, vertical: 16),
+                  child: Column(
                     children: [
-                      IconButton(
-                        onPressed: () {
-                          _onWillPop();
-                        },
-                        icon: Icon(
-                          Icons.arrow_back_rounded,
-                          color: AppColors.black,
-                        ),
-                      ),
-                      Text(
-                        AppLocalizations.of(context)!.profile,
-                        style: TextStyle(
-                          fontSize: 22,
-                          color: AppColors.black,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () {},
-                        icon: Icon(
-                          CupertinoIcons.moon,
-                          color: AppColors.black,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 16,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.06),
-                                    spreadRadius: 2,
-                                    blurRadius: 5,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: Container(
-                                padding: const EdgeInsets.all(
-                                    2), // White border thickness
-                                decoration: const BoxDecoration(
-                                  color: Colors.white,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: SizedBox(
-                                  width: 72,
-                                  height: 72,
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(50),
-                                    child: CachedNetworkImage(
-                                      width: double.infinity,
-                                      height: double.infinity,
-                                      imageUrl:
-                                          'https://${userData.profileImagePath}',
-                                      fit: BoxFit.cover,
-                                      placeholder: (context, url) =>
-                                          const Progress(),
-                                      errorWidget: (context, url, error) =>
-                                          Image.asset(AppImages.appLogo),
-                                    ),
-                                  ),
-                                ),
-                              ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              _onWillPop();
+                            },
+                            icon: Icon(
+                              Icons.arrow_back_rounded,
+                              color: AppColors.black,
                             ),
-                            const SizedBox(width: 16),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '${userData.nickName}',
-                                  style: TextStyle(
-                                    fontSize: 22,
-                                    color: AppColors.black,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 250,
-                                  child: Text(
-                                    userData.email.toString(),
-                                    style: TextStyle(
-                                      color: AppColors.darkGray,
-                                      fontSize: 17,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 1, // Limit to 2 lines
-                                    softWrap: true,
-                                  ),
-                                ),
-                              ],
+                          ),
+                          Text(
+                            AppLocalizations.of(context)!.profile,
+                            style: TextStyle(
+                              fontSize: 22,
+                              color: AppColors.black,
+                              fontWeight: FontWeight.w500,
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment
-                              .spaceBetween, // space children apart
-                          crossAxisAlignment: CrossAxisAlignment
-                              .center, // center them vertically
+                          ),
+                          IconButton(
+                            onPressed: () {},
+                            icon: Icon(
+                              CupertinoIcons.moon,
+                              color: AppColors.black,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 16,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Column(
                           children: [
-                            // Left side or main content
                             Row(
                               children: [
+                                GestureDetector(
+                                  onTap:
+                                      _toggleImagePopup, // Handle tap on profile image
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.06),
+                                          spreadRadius: 2,
+                                          blurRadius: 5,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Container(
+                                      padding: const EdgeInsets.all(
+                                          2), // White border thickness
+                                      decoration: const BoxDecoration(
+                                        color: Colors.white,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: SizedBox(
+                                        width: 72,
+                                        height: 72,
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(50),
+                                          child: CachedNetworkImage(
+                                            width: double.infinity,
+                                            height: double.infinity,
+                                            imageUrl:
+                                                'https://${userData.profileImagePath}',
+                                            fit: BoxFit.cover,
+                                            placeholder: (context, url) =>
+                                                const Progress(),
+                                            errorWidget: (context, url,
+                                                    error) =>
+                                                Image.asset(AppImages.appLogo),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    //
+                                    Text(
+                                      '${userData.nickName}',
+                                      style: TextStyle(
+                                        fontSize: 22,
+                                        color: AppColors.black,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: 250,
+                                      child: Text(
+                                        userData.email.toString(),
+                                        style: TextStyle(
+                                          color: AppColors.darkGray,
+                                          fontSize: 17,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1, // Limit to 2 lines
+                                        softWrap: true,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment
+                                  .spaceBetween, // space children apart
+                              crossAxisAlignment: CrossAxisAlignment
+                                  .center, // center them vertically
+                              children: [
+                                // Left side or main content
+                                Row(
+                                  children: [
                                     InkWell(
                                       onTap: () {
                                         context.push(
@@ -218,30 +230,33 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                           },
                                         );
                                       },
-                                      child: Text(
-                                        AppLocalizations.of(context)!.following,
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: AppColors.black,
-                                          fontWeight: FontWeight.w500,
-                                        ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          //
+                                          Text(
+                                            AppLocalizations.of(context)!
+                                                .following,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: AppColors.black,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          SizedBox(height: 3),
+                                          Text(
+                                            userData.following.toString(),
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500,
+                                              color: AppColors.black,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    SizedBox(height: 3),
-                                    Text(
-                                      userData.following.toString(),
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
-                                        color: AppColors.black,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(width: 16),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
+                                    SizedBox(width: 16),
                                     InkWell(
                                       onTap: () {
                                         context.push(
@@ -253,229 +268,276 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                           },
                                         );
                                       },
-                                      child: Text(
-                                        AppLocalizations.of(context)!.followers,
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: AppColors.black,
-                                          fontWeight: FontWeight.w500,
-                                        ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            AppLocalizations.of(context)!
+                                                .followers,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: AppColors.black,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          SizedBox(height: 3),
+                                          Text(
+                                            userData.followers.toString(),
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500,
+                                              color: AppColors.black,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    SizedBox(height: 3),
-                                    Text(
-                                      userData.followers.toString(),
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
-                                        color: AppColors.black,
+                                  ],
+                                ),
+
+                                // Right side icons
+                                Row(
+                                  children: [
+                                    IconButton(
+                                      icon: Icon(CupertinoIcons.share),
+                                      onPressed: () => shareUserProfile(
+                                        context,
+                                        UserProfileEntity(
+                                          isBusinessAccount: userData.role !=
+                                              "INDIVIDUAL_SELLER",
+                                          locationName: userData.locationName,
+                                          longitude: userData.longitude,
+                                          latitude: userData.latitude,
+                                          fromTime: userData.fromTime,
+                                          toTime: userData.toTime,
+                                          isGrantedForPreciseLocation: userData
+                                              .isGrantedForPreciseLocation,
+                                          nickName: userData.nickName,
+                                          phoneNumber: userData.phoneNumber,
+                                          profileImagePath:
+                                              userData.profileImagePath,
+                                          country: userData.country?.valueRu,
+                                          state: userData.state?.valueRu,
+                                          county: userData.county?.valueRu,
+                                        ),
                                       ),
+                                      tooltip: "Share Profile",
+                                    ),
+                                    //  SizedBox(width: 4),
+                                    IconButton(
+                                      onPressed: () {
+                                        _navigateToEdit(
+                                          UserProfileEntity(
+                                            isBusinessAccount: userData.role !=
+                                                "INDIVIDUAL_SELLER",
+                                            locationName: userData.locationName,
+                                            longitude: userData.longitude,
+                                            latitude: userData.latitude,
+                                            fromTime: userData.fromTime,
+                                            toTime: userData.toTime,
+                                            isGrantedForPreciseLocation: userData
+                                                .isGrantedForPreciseLocation,
+                                            nickName: userData.nickName,
+                                            phoneNumber: userData.phoneNumber,
+                                            profileImagePath:
+                                                userData.profileImagePath,
+                                            country: userData.country?.valueRu,
+                                            state: userData.state?.valueRu,
+                                            county: userData.county?.valueRu,
+                                          ),
+                                        );
+                                      },
+                                      icon: Icon(Icons.edit_outlined),
                                     ),
                                   ],
                                 ),
                               ],
                             ),
-
-                            // Right side icons
+                            const SizedBox(height: 8),
                             Row(
                               children: [
-                                IconButton(
-                                  icon: Icon(CupertinoIcons.share),
-                                  onPressed: () => shareUserProfile(
-                                    context,
-                                    UserProfileEntity(
-                                      isBusinessAccount:
-                                          userData.role != "INDIVIDUAL_SELLER",
-                                      locationName: userData.locationName,
-                                      longitude: userData.longitude,
-                                      latitude: userData.latitude,
-                                      fromTime: userData.fromTime,
-                                      toTime: userData.toTime,
-                                      isGrantedForPreciseLocation:
-                                          userData.isGrantedForPreciseLocation,
-                                      nickName: userData.nickName,
-                                      phoneNumber: userData.phoneNumber,
-                                      profileImagePath:
-                                          userData.profileImagePath,
-                                      country: userData.country?.valueRu,
-                                      state: userData.state?.valueRu,
-                                      county: userData.county?.valueRu,
+                                Expanded(
+                                  child: InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const UserPublicationsScreen(),
+                                        ),
+                                      );
+                                    },
+                                    child: _buildStatCard(
+                                      AppLocalizations.of(context)!.posts,
+                                      '⟶',
+                                      Colors.white,
+                                      Colors.black,
                                     ),
                                   ),
-                                  tooltip: "Share Profile",
                                 ),
-                                //  SizedBox(width: 4),
-                                IconButton(
-                                  onPressed: () {
-                                    _navigateToEdit(
-                                      UserProfileEntity(
-                                        isBusinessAccount: userData.role !=
-                                            "INDIVIDUAL_SELLER",
-                                        locationName: userData.locationName,
-                                        longitude: userData.longitude,
-                                        latitude: userData.latitude,
-                                        fromTime: userData.fromTime,
-                                        toTime: userData.toTime,
-                                        isGrantedForPreciseLocation: userData
-                                            .isGrantedForPreciseLocation,
-                                        nickName: userData.nickName,
-                                        phoneNumber: userData.phoneNumber,
-                                        profileImagePath:
-                                            userData.profileImagePath,
-                                        country: userData.country?.valueRu,
-                                        state: userData.state?.valueRu,
-                                        county: userData.county?.valueRu,
-                                      ),
-                                    );
-                                  },
-                                  icon: Icon(Icons.edit_outlined),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const FavoritesScreen(),
+                                        ),
+                                      );
+                                    },
+                                    child: _buildStatCard(
+                                      AppLocalizations.of(context)!.favorites,
+                                      '⟶',
+                                      Colors.white,
+                                      Colors.black,
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
+                            const SizedBox(height: 24),
                           ],
                         ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: InkWell(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const UserPublicationsScreen(),
-                                    ),
-                                  );
-                                },
-                                child: _buildStatCard(
-                                  AppLocalizations.of(context)!.posts,
-                                  '⟶',
-                                  Colors.white,
-                                  Colors.black,
-                                ),
+                      ),
+                      // balance, language, suppport,  logout,
+                      _buildMenuItem(
+                        userData.locationName ??
+                            AppLocalizations.of(context)!.not_selected,
+                        AppIcons.homeLocationIc,
+                        () {
+                          Navigator.of(context).push(
+                            CupertinoPageRoute(
+                              builder: (context) => FullScreenMap(
+                                latitude: userData.latitude!,
+                                longitude: userData.longitude!,
+                                locationName: userData.locationName ??
+                                    AppLocalizations.of(context)!.no_location,
                               ),
                             ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: InkWell(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const FavoritesScreen(),
-                                    ),
-                                  );
-                                },
-                                child: _buildStatCard(
-                                  AppLocalizations.of(context)!.favorites,
-                                  '⟶',
-                                  Colors.white,
-                                  Colors.black,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-                      ],
+                          );
+                        },
+                      ),
+                      _buildMenuItem(
+                        AppLocalizations.of(context)!.language,
+                        AppIcons.languageIc,
+                        () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    const LanguageSelectionScreen()),
+                          );
+                        },
+                      ),
+
+                      _buildMenuItem(
+                        AppLocalizations.of(context)!.help_idea,
+                        AppIcons.ideaIc,
+                        () {
+                          final String languageCode =
+                              Localizations.localeOf(context).languageCode;
+                          String message;
+
+                          switch (languageCode) {
+                            case 'uz':
+                              message =
+                                  "💡 Salom! Men ilova uchun ajoyib g'oyaga ega man: ";
+                              break;
+                            case 'en':
+                              message =
+                                  "💡 Hello! I have a cool idea for the app: ";
+                              break;
+                            case 'ru':
+                            default:
+                              message =
+                                  "💡 Привет! У меня есть отличная идея для приложения: ";
+                              break;
+                          }
+
+                          _openTelegram(context, message);
+                        },
+                      ),
+
+                      _buildMenuItem(
+                        AppLocalizations.of(context)!.support,
+                        AppIcons.supportIc,
+                        () {
+                          final String languageCode =
+                              Localizations.localeOf(context).languageCode;
+                          String message;
+
+                          switch (languageCode) {
+                            case 'uz':
+                              message =
+                                  "🆘 Yordam kerak! Men ilovada quyidagi muammoga duch kelmoqdaman: ";
+                              break;
+                            case 'en':
+                              message =
+                                  "🆘 Help needed! I'm experiencing the following issue with the app: ";
+                              break;
+                            case 'ru':
+                            default:
+                              message =
+                                  "🆘 Нужна помощь! У меня возникла следующая проблема с приложением: ";
+                              break;
+                          }
+
+                          _openTelegram(context, message);
+                        },
+                      ),
+
+                      _buildMenuItem(
+                        AppLocalizations.of(context)!.logout,
+                        AppIcons.logoutIc,
+                        () => _handleLogout(context),
+                      )
+                    ],
+                  ),
+                ),
+                if (_isImagePopupVisible)
+                  GestureDetector(
+                    onTap: _toggleImagePopup,
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                      child: Container(
+                        color: Colors.white.withOpacity(0.45),
+                      ),
                     ),
                   ),
-                  // balance, language, suppport,  logout,
-                  _buildMenuItem(
-                    userData.locationName ??
-                        AppLocalizations.of(context)!.not_selected,
-                    AppIcons.homeLocationIc,
-                    () {
-                      Navigator.of(context).push(
-                        CupertinoPageRoute(
-                          builder: (context) => FullScreenMap(
-                            latitude: userData.latitude!,
-                            longitude: userData.longitude!,
-                            locationName: userData.locationName ??
-                                AppLocalizations.of(context)!.no_location,
+
+                // Centered image popup
+                if (_isImagePopupVisible)
+                  Center(
+                    child: GestureDetector(
+                      onTap: _toggleImagePopup, // Close popup on tap
+                      child: ScaleTransition(
+                        scale: CurvedAnimation(
+                          parent: ModalRoute.of(context)!.animation!,
+                          curve: Curves.easeInOut,
+                        ),
+                        child: AnimatedOpacity(
+                          opacity: _isImagePopupVisible ? 1.0 : 0.0,
+                          duration: const Duration(milliseconds: 300),
+                          child: Container(
+                            width: MediaQuery.of(context).size.width * 0.8,
+                            height: MediaQuery.of(context).size.width * 0.8,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              image: DecorationImage(
+                                image: CachedNetworkImageProvider(
+                                    'https://${userData.profileImagePath}'),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
                           ),
                         ),
-                      );
-                    },
+                      ),
+                    ),
                   ),
-                  _buildMenuItem(
-                    AppLocalizations.of(context)!.language,
-                    AppIcons.languageIc,
-                    () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                const LanguageSelectionScreen()),
-                      );
-                    },
-                  ),
-
-                  _buildMenuItem(
-                    AppLocalizations.of(context)!.help_idea,
-                    AppIcons.ideaIc,
-                    () {
-                      final String languageCode =
-                          Localizations.localeOf(context).languageCode;
-                      String message;
-
-                      switch (languageCode) {
-                        case 'uz':
-                          message =
-                              "💡 Salom! Men ilova uchun ajoyib g'oyaga ega man: ";
-                          break;
-                        case 'en':
-                          message =
-                              "💡 Hello! I have a cool idea for the app: ";
-                          break;
-                        case 'ru':
-                        default:
-                          message =
-                              "💡 Привет! У меня есть отличная идея для приложения: ";
-                          break;
-                      }
-
-                      _openTelegram(context, message);
-                    },
-                  ),
-
-                  _buildMenuItem(
-                    AppLocalizations.of(context)!.support,
-                    AppIcons.supportIc,
-                    () {
-                      final String languageCode =
-                          Localizations.localeOf(context).languageCode;
-                      String message;
-
-                      switch (languageCode) {
-                        case 'uz':
-                          message =
-                              "🆘 Yordam kerak! Men ilovada quyidagi muammoga duch kelmoqdaman: ";
-                          break;
-                        case 'en':
-                          message =
-                              "🆘 Help needed! I'm experiencing the following issue with the app: ";
-                          break;
-                        case 'ru':
-                        default:
-                          message =
-                              "🆘 Нужна помощь! У меня возникла следующая проблема с приложением: ";
-                          break;
-                      }
-
-                      _openTelegram(context, message);
-                    },
-                  ),
-
-                  _buildMenuItem(
-                    AppLocalizations.of(context)!.logout,
-                    AppIcons.logoutIc,
-                    () => _handleLogout(context),
-                  )
-                ],
-              ),
+              ],
             ),
           ),
         );
