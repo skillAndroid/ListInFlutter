@@ -11,7 +11,7 @@ class UserSocialRepositoryImpl implements UserSocialRepository {
 
   @override
   Future<PaginatedResponse<UserProfile>> getFollowings(String userId,
-      {int page = 0, int size = 5}) async {
+      {int page = 0, int size = 30}) async {
     try {
       final remoteResponse =
           await remoteDataSource.getFollowings(userId, page: page, size: size);
@@ -24,7 +24,7 @@ class UserSocialRepositoryImpl implements UserSocialRepository {
 
   @override
   Future<PaginatedResponse<UserProfile>> getFollowers(String userId,
-      {int page = 0, int size = 5}) async {
+      {int page = 0, int size = 30}) async {
     try {
       final remoteResponse =
           await remoteDataSource.getFollowers(userId, page: page, size: size);

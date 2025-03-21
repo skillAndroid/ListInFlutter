@@ -49,7 +49,7 @@ class UserSocialRemoteDataSourceImpl implements UserSocialRemoteDataSource {
   Future<PaginatedResponseModel<UserProfileModel>> getFollowers(String userId,
       {int page = 0, int size = 5}) async {
     final options = await authService.getAuthOptions();
-    String url = '/api/v1/user/follow/$userId';
+    String url = '/api/v1/user/followers/$userId';
 
     try {
       final response = await dio.get(
@@ -58,7 +58,7 @@ class UserSocialRemoteDataSourceImpl implements UserSocialRemoteDataSource {
       );
       if (response.statusCode == 200) {
         return PaginatedResponseModel<UserProfileModel>.fromJson(
-          json.decode(response.data),
+          json.decode(response.data), // This line is problematic
           (json) => UserProfileModel.fromJson(json),
         );
       } else {
