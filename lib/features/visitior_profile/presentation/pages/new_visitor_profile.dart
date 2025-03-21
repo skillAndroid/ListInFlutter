@@ -178,9 +178,14 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                               errorWidget:
                                                   (context, url, error) =>
                                                       Image.asset(
-                                                          AppImages.appLogo),
+                                                AppImages.appLogo,
+                                                fit: BoxFit.cover,
+                                              ),
                                             )
-                                          : Image.asset(AppImages.appLogo),
+                                          : Image.asset(
+                                              AppImages.appLogo,
+                                              fit: BoxFit.cover,
+                                            ),
                                     ),
 
                                     // Top white container with opacity animation
@@ -603,15 +608,18 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                                                 strokeWidth: 2,
                                                               ),
                                                             ),
-                                                            errorWidget: (context,
-                                                                    url,
-                                                                    error) =>
-                                                                Image.asset(
-                                                                    AppImages
-                                                                        .appLogo),
+                                                            errorWidget:
+                                                                (context, url,
+                                                                        error) =>
+                                                                    Image.asset(
+                                                              AppImages.appLogo,
+                                                              fit: BoxFit.cover,
+                                                            ),
                                                           )
                                                         : Image.asset(
-                                                            AppImages.appLogo),
+                                                            AppImages.appLogo,
+                                                            fit: BoxFit.cover,
+                                                          ),
                                                   ),
                                                 ),
                                                 SizedBox(width: 12),

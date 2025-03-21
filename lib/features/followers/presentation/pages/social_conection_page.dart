@@ -371,8 +371,6 @@ class UserListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
-    final currentUserId = 'current-user-id'; // Replace with your auth mechanism
-    final isCurrentUser = user.userId == currentUserId;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
@@ -382,7 +380,7 @@ class UserListTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(0),
           onTap: () {
             context.push(Routes.anotherUserProfile, extra: {
-              'userId': currentUserId,
+              'userId': user.userId,
             });
           },
           child: Padding(
@@ -424,81 +422,79 @@ class UserListTile extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (showFollowButton && !isCurrentUser)
-                  // Message Button
-                  BlocBuilder<GlobalBloc, GlobalState>(
-                    builder: (context, state) {
-                      final isFollowed = state.isUserFollowed(user.userId);
-                      final followStatus = state.getFollowStatus(user.userId);
-                      final isLoading = followStatus == FollowStatus.inProgress;
-                      return Container(
-                        margin: EdgeInsets.only(top: 0),
-                        height: 32,
-                        child: ElevatedButton(
-                          onPressed: isLoading
-                              ? null
-                              : () {
-                                  context.read<GlobalBloc>().add(
-                                        UpdateFollowStatusEvent(
-                                          userId: user.userId,
-                                          isFollowed: isFollowed,
-                                          context: context,
-                                        ),
-                                      );
-                                },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: CupertinoColors.white,
-                            foregroundColor: Colors.white,
-                            elevation: 0,
-                            shape: SmoothRectangleBorder(
-                              side:
-                                  BorderSide(width: 1, color: AppColors.black),
-                              borderRadius:
-                                  SmoothBorderRadius(cornerRadius: 18),
-                            ),
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 10,
-                            ),
-                          ),
-                          child: isLoading
-                              ? const Padding(
-                                  padding: EdgeInsets.all(4),
-                                  child: SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.black,
+
+                // Message Button
+                BlocBuilder<GlobalBloc, GlobalState>(
+                  builder: (context, state) {
+                    final isFollowed = state.isUserFollowed(user.userId);
+                    final followStatus = state.getFollowStatus(user.userId);
+                    final isLoading = followStatus == FollowStatus.inProgress;
+                    return Container(
+                      margin: EdgeInsets.only(top: 0),
+                      height: 32,
+                      child: ElevatedButton(
+                        onPressed: isLoading
+                            ? null
+                            : () {
+                                context.read<GlobalBloc>().add(
+                                      UpdateFollowStatusEvent(
+                                        userId: user.userId,
+                                        isFollowed: isFollowed,
+                                        context: context,
                                       ),
+                                    );
+                              },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: CupertinoColors.white,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: SmoothRectangleBorder(
+                            side: BorderSide(width: 1, color: AppColors.black),
+                            borderRadius: SmoothBorderRadius(cornerRadius: 18),
+                          ),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 10,
+                          ),
+                        ),
+                        child: isLoading
+                            ? const Padding(
+                                padding: EdgeInsets.all(4),
+                                child: SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.black,
                                     ),
                                   ),
-                                )
-                              : Row(
-                                  children: [
-                                    Icon(
-                                      isFollowed ? Icons.remove : Icons.add,
-                                      size: 14,
-                                      color: AppColors.black,
-                                    ),
-                                    SizedBox(width: 4),
-                                    Text(
-                                      isFollowed
-                                          ? localizations.unfollow
-                                          : localizations.follow,
-                                      style: TextStyle(
-                                        fontFamily: Constants.Arial,
-                                        fontWeight: FontWeight.bold,
-                                        color: AppColors.black,
-                                        fontSize: 12.5,
-                                      ),
-                                    ),
-                                  ],
                                 ),
-                        ),
-                      );
-                    },
-                  ),
+                              )
+                            : Row(
+                                children: [
+                                  Icon(
+                                    isFollowed ? Icons.remove : Icons.add,
+                                    size: 14,
+                                    color: AppColors.black,
+                                  ),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    isFollowed
+                                        ? localizations.unfollow
+                                        : localizations.follow,
+                                    style: TextStyle(
+                                      fontFamily: Constants.Arial,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.black,
+                                      fontSize: 12.5,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                      ),
+                    );
+                  },
+                ),
               ],
             ),
           ),
