@@ -414,7 +414,7 @@ Future<void> init() async {
     () => SocialUserBloc(
       getUserFollowersUseCase: sl(),
       getUserFollowingsUseCase: sl(),
-      followUserUseCase: sl(),
+      globalBloc: sl(),
     ),
   );
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/global/global_bloc.dart';
 import 'package:list_in/global/global_event.dart';
 import 'package:list_in/global/global_state.dart';
@@ -11,8 +12,8 @@ class FollowButton extends StatelessWidget {
   const FollowButton({
     super.key,
     required this.userId,
-  });//
-
+  }); //
+  //
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<GlobalBloc, GlobalState>(
@@ -29,7 +30,9 @@ class FollowButton extends StatelessWidget {
               height: 20,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  AppColors.black,
+                ),
               ),
             ),
           );
@@ -48,7 +51,7 @@ class FollowButton extends StatelessWidget {
             child: Text(
               isFollowed ? 'Unfollow' : 'Follow',
               style: const TextStyle(
-                color: Colors.blue,
+                color: AppColors.black,
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
               ),

@@ -129,7 +129,7 @@ class HomeTreeCubit extends Cubit<HomeTreeState> {
     final Map<String, int> userFollowersCount = {};
     final Map<String, int> userFollowingCount = {};
     final Map<String, bool> publicationViewedStatus = {};
-
+//sa
     for (var publication in publications) {
       final seller = publication.seller;
       userFollowStatuses[seller.id] = seller.isFollowing;

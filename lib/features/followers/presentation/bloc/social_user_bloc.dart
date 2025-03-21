@@ -6,6 +6,8 @@ import 'package:list_in/features/followers/domain/entity/user_followings_followe
 import 'package:list_in/features/followers/domain/usecase/get_user_followers_usecase.dart';
 import 'package:list_in/features/followers/domain/usecase/get_user_followings_usecase.dart';
 import 'package:list_in/features/visitior_profile/domain/usecase/follow_usecase.dart';
+import 'package:list_in/global/global_bloc.dart';
+import 'package:list_in/global/global_event.dart';
 
 // Events
 abstract class SocialUserEvent extends Equatable {
@@ -133,18 +135,37 @@ class FollowActionSuccess extends SocialUserState {
 class SocialUserBloc extends Bloc<SocialUserEvent, SocialUserState> {
   final GetUserFollowersUseCase getUserFollowersUseCase;
   final GetUserFollowingsUseCase getUserFollowingsUseCase;
-  final FollowUserUseCase followUserUseCase;
+  final GlobalBloc globalBloc;
 
   static const int pageSize = 30;
 
   SocialUserBloc({
     required this.getUserFollowersUseCase,
     required this.getUserFollowingsUseCase,
-    required this.followUserUseCase,
+    required this.globalBloc,
   }) : super(SocialUserInitial()) {
     on<FetchFollowers>(_onFetchFollowers);
     on<FetchFollowings>(_onFetchFollowings);
-    on<FollowUser>(_onFollowUser);
+  }
+
+  void _syncFollowStatusesForPublications(List<UserProfile> profiles) {
+    final Map<String, bool> userFollowStatuses = {};
+    final Map<String, int> userFollowersCount = {};
+    final Map<String, int> userFollowingCount = {};
+    final Map<String, bool> publicationViewedStatus = {};
+
+    // for (var profile in profiles) {
+    //   userFollowStatuses[profile.userId] = profile.isFollowing;
+    //   userFollowersCount[profile.userId] = profile.followers;
+    //   userFollowingCount[profile.userId] = profile.followings;
+    // }
+
+    globalBloc.add(SyncFollowStatusesEvent(
+      userFollowStatuses: userFollowStatuses,
+      userFollowersCount: userFollowersCount,
+      userFollowingCount: userFollowingCount,
+      publicationViewedStatus: publicationViewedStatus,
+    ));
   }
 
   Future<void> _onFetchFollowers(
@@ -194,6 +215,7 @@ class SocialUserBloc extends Bloc<SocialUserEvent, SocialUserState> {
           if (data.content.isEmpty) {
             emit(currentState.copyWith(hasReachedMax: true));
           } else {
+            _syncFollowStatusesForPublications(data.content);
             emit(
               FollowersLoaded(
                 followers: [...currentState.followers, ...data.content],
@@ -226,13 +248,12 @@ class SocialUserBloc extends Bloc<SocialUserEvent, SocialUserState> {
         );
 
         return result.fold(
-          (failure) => emit(SocialUserError('Failed to load followings')),
-          (data) => emit(FollowingsLoaded(
-            followings: data.content,
-            hasReachedMax: data.last,
-            currentPage: 0,
-          )),
-        );
+            (failure) => emit(SocialUserError('Failed to load followings')),
+            (data) => emit(FollowingsLoaded(
+                  followings: data.content,
+                  hasReachedMax: data.last,
+                  currentPage: 0,
+                )));
       }
 
       // Handle pagination (loading more data)
@@ -256,6 +277,7 @@ class SocialUserBloc extends Bloc<SocialUserEvent, SocialUserState> {
           if (data.content.isEmpty) {
             emit(currentState.copyWith(hasReachedMax: true));
           } else {
+            _syncFollowStatusesForPublications(data.content);
             emit(
               FollowingsLoaded(
                 followings: [...currentState.followings, ...data.content],
@@ -265,28 +287,6 @@ class SocialUserBloc extends Bloc<SocialUserEvent, SocialUserState> {
             );
           }
         },
-      );
-    } catch (e) {
-      emit(SocialUserError('An unexpected error occurred'));
-    }
-  }
-
-  Future<void> _onFollowUser(
-    FollowUser event,
-    Emitter<SocialUserState> emit,
-  ) async {
-    try {
-      final result = await followUserUseCase(
-        params: FollowParams(
-          userId: event.userId,
-          isFollowing: event.isFollowing,
-        ),
-      );
-
-      result.fold(
-        (failure) => emit(SocialUserError('Failed to update follow status')),
-        (userProfile) => emit(FollowActionSuccess(
-            userId: event.userId, isFollowing: event.isFollowing)),
       );
     } catch (e) {
       emit(SocialUserError('An unexpected error occurred'));
