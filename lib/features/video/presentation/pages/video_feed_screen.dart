@@ -21,40 +21,441 @@ import 'package:list_in/global/global_event.dart';
 import 'package:list_in/global/global_state.dart';
 import 'package:list_in/global/global_status.dart';
 
-class VideoPlayerWidget extends StatelessWidget {
-  final BetterPlayerController? controller;
-  final Widget placeholder;
+class ListInShorts extends StatefulWidget {
+  final List<GetPublicationEntity> initialVideos;
+  final int initialPage;
+  final int initialIndex;
 
-  const VideoPlayerWidget({
+  const ListInShorts({
     super.key,
-    required this.controller,
-    required this.placeholder,
+    required this.initialVideos,
+    this.initialPage = 0,
+    this.initialIndex = 0,
   });
 
   @override
-  Widget build(BuildContext context) {
-    return controller != null && controller!.isVideoInitialized()!
-        ? BetterPlayer(controller: controller!)
-        : placeholder;
-  }
+  State<ListInShorts> createState() => _ListInShortsState();
 }
 
-class VideoInfoWidget extends StatelessWidget {
-  final GetPublicationEntity video;
-  final bool isOwner;
-  final Function(String, bool) onProfileTap;
-  final Function(GetPublicationEntity) onProductTap;
+class _ListInShortsState extends State<ListInShorts>
+    with WidgetsBindingObserver {
+  late PageController _pageController;
+  late HomeTreeCubit _homeTreeCubit;
+  List<GetPublicationEntity> _videos = [];
 
-  const VideoInfoWidget({
-    super.key,
-    required this.video,
-    required this.isOwner,
-    required this.onProfileTap,
-    required this.onProductTap,
-  });
+  // Current video state tracking
+  int _currentIndex = 0;
+  bool _isLoading = false;
+  bool _isDisposed = false;
+
+  // Preloading range control
+  static const int _preloadForwardCount = 3;
+  static const int _preloadBackwardCount = 1;
+
+  // Controller management
+  final Map<int, BetterPlayerController> _controllers = {};
+  final Map<int, bool> _videoInitializing = {};
+  final Map<int, bool> _videoInitialized = {};
+
+  // Cache configuration for better performance
+  final BetterPlayerCacheConfiguration _cacheConfig =
+      BetterPlayerCacheConfiguration(
+    useCache: true,
+    preCacheSize: 5 * 1024 * 1024, // 5MB pre-cache
+    maxCacheSize: 512 * 1024 * 1024, // 512MB max cache
+    maxCacheFileSize: 30 * 1024 * 1024, // 30MB per file
+  );
+
+  // Buffering configuration for active videos
+  final BetterPlayerBufferingConfiguration _activeBufferingConfig =
+      BetterPlayerBufferingConfiguration(
+    minBufferMs: 3000, // 3 seconds minimum buffer
+    maxBufferMs: 30000, // 30 seconds max buffer
+    bufferForPlaybackMs: 1500, // 1.5 seconds before playback begins
+    bufferForPlaybackAfterRebufferMs: 3000, // 3 seconds after rebuffer
+  );
+
+  // Reduced buffering for preloaded videos
+  final BetterPlayerBufferingConfiguration _preloadBufferingConfig =
+      BetterPlayerBufferingConfiguration(
+    minBufferMs: 1500, // 1.5 seconds minimum buffer
+    maxBufferMs: 5000, // 5 seconds max buffer
+    bufferForPlaybackMs: 500, // 0.5 seconds before playback begins
+    bufferForPlaybackAfterRebufferMs: 1500, // 1.5 seconds after rebuffer
+  );
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
+    _currentIndex = widget.initialIndex;
+    _videos = List.from(widget.initialVideos);
+    _homeTreeCubit = context.read<HomeTreeCubit>();
+    _pageController = PageController(initialPage: _currentIndex);
+
+    // Initialize visible videos after the first frame is rendered
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_isDisposed) {
+        _initializeVisibleVideos();
+      }
+    });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    // Handle app lifecycle changes to optimize resource usage
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive) {
+      _pauseAllVideos();
+    } else if (state == AppLifecycleState.resumed) {
+      _resumeCurrentVideo();
+    }
+  }
+
+  void _pauseAllVideos() {
+    for (final controller in _controllers.values) {
+      if (controller.isVideoInitialized() == true &&
+          controller.isPlaying() == true) {
+        controller.pause();
+      }
+    }
+  }
+
+  void _resumeCurrentVideo() {
+    if (_controllers.containsKey(_currentIndex) &&
+        _controllers[_currentIndex]!.isVideoInitialized() == true) {
+      _controllers[_currentIndex]!.play();
+    }
+  }
+
+  void _initializeVisibleVideos() {
+    // Initialize the current video first with higher priority
+    _initializeController(_currentIndex, isActive: true);
+
+    // Then preload videos in range
+    _preloadVideosInRange();
+
+    // Check if we need to load more videos
+    _checkAndLoadMoreVideos();
+  }
+
+  void _preloadVideosInRange() {
+    // Preload forward
+    for (int i = 1; i <= _preloadForwardCount; i++) {
+      final indexToPreload = _currentIndex + i;
+      if (indexToPreload < _videos.length) {
+        _initializeController(indexToPreload, isActive: false);
+      }
+    }
+
+    // Preload backward
+    for (int i = 1; i <= _preloadBackwardCount; i++) {
+      final indexToPreload = _currentIndex - i;
+      if (indexToPreload >= 0) {
+        _initializeController(indexToPreload, isActive: false);
+      }
+    }
+  }
+
+  void _loadMoreVideos() {
+    if (_isLoading || _homeTreeCubit.state.videoHasReachedMax) {
+      debugPrint(
+          '⚠️ Skip loading more videos: isLoading=$_isLoading, hasReachedMax=${_homeTreeCubit.state.videoHasReachedMax}');
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    final nextPage = (_videos.length ~/ 10);
+    _homeTreeCubit.fetchVideoFeeds(nextPage);
+  }
+
+  void _checkAndLoadMoreVideos() {
+    // Load more videos when we're 5 or fewer videos away from the end
+    if (_currentIndex >= _videos.length - 5) {
+      _loadMoreVideos();
+    }
+  }
+
+  void _initializeController(int index, {required bool isActive}) {
+    if (index < 0 || index >= _videos.length) return;
+
+    // Skip if already initialized or initializing
+    if (_videoInitializing[index] == true || _videoInitialized[index] == true) {
+      // If this is the active video and it's already initialized, just play it
+      if (isActive &&
+          _controllers.containsKey(index) &&
+          _controllers[index]!.isVideoInitialized() == true) {
+        _controllers[index]!.play();
+      }
+      return;
+    }
+
+    // Mark as initializing
+    _videoInitializing[index] = true;
+
+    final String videoUrl = 'https://${_videos[index].videoUrl}';
+
+    // Create data source with appropriate buffering
+    final BetterPlayerDataSource dataSource = BetterPlayerDataSource(
+      BetterPlayerDataSourceType.network,
+      videoUrl,
+      cacheConfiguration: _cacheConfig,
+      bufferingConfiguration:
+          isActive ? _activeBufferingConfig : _preloadBufferingConfig,
+    );
+
+    // Create configuration
+    final BetterPlayerConfiguration playerConfig = BetterPlayerConfiguration(
+      autoPlay: isActive, // Only auto-play if this is the active video
+      looping: true,
+      fit: BoxFit.cover,
+      aspectRatio: 9 / 16,
+      deviceOrientationsAfterFullScreen: [DeviceOrientation.portraitUp],
+      controlsConfiguration: BetterPlayerControlsConfiguration(
+        showControls: false,
+        enableMute: false,
+        enablePlayPause: false,
+        enableProgressBar: false,
+        enableSkips: false,
+        enableFullscreen: false,
+      ),
+      placeholder: _buildPlaceholder(index),
+      errorBuilder: (context, errorMessage) {
+        debugPrint('❌ Video error at index $index: $errorMessage');
+        _videoInitializing[index] = false;
+        return _buildPlaceholder(index);
+      },
+    );
+
+    // Create and store controller
+    final controller = BetterPlayerController(playerConfig);
+    _controllers[index] = controller;
+
+    // Add event listeners
+    controller.addEventsListener((event) {
+      if (_isDisposed) return;
+
+      if (event.betterPlayerEventType == BetterPlayerEventType.initialized) {
+        debugPrint('✅ Video initialized for index: $index');
+        _videoInitializing[index] = false;
+        _videoInitialized[index] = true;
+
+        // If this is the current video and we're mounted, play it
+        if (!_isDisposed && index == _currentIndex && isActive) {
+          controller.play();
+          // Force rebuild to refresh UI
+          if (mounted) setState(() {});
+        }
+      } else if (event.betterPlayerEventType ==
+          BetterPlayerEventType.exception) {
+        debugPrint('⚠️ Video exception for index $index: ${event.parameters}');
+        _videoInitializing[index] = false;
+        _videoInitialized[index] = false;
+      }
+    });
+
+    // Setup data source
+    controller.setupDataSource(dataSource);
+
+    // Force UI update if this is the active video
+    if (isActive && mounted) {
+      setState(() {});
+    }
+  }
+
+  Widget _buildPlaceholder(int index) {
+    if (index >= _videos.length) return const SizedBox.expand();
+
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        // Thumbnail background
+        CachedNetworkImage(
+          imageUrl: "https://${_videos[index].productImages[0].url}",
+          width: double.infinity,
+          height: double.infinity,
+          fit: BoxFit.cover,
+          placeholder: (context, url) => Container(color: Colors.black),
+          errorWidget: (context, url, error) =>
+              Container(color: Colors.black54),
+        ),
+
+        // Loading indicator
+        Center(
+          child: CircularProgressIndicator(
+            strokeWidth: 3,
+            valueColor: AlwaysStoppedAnimation<Color>(AppColors.white),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _handlePageChange(int newIndex) {
+    if (newIndex == _currentIndex) return;
+
+    debugPrint('🔄 Page change: $_currentIndex → $newIndex');
+
+    // Pause the current video
+    if (_controllers.containsKey(_currentIndex)) {
+      _controllers[_currentIndex]!.pause();
+    }
+
+    // Update current index
+    setState(() {
+      _currentIndex = newIndex;
+    });
+
+    // Initialize and play the new current video
+    _initializeController(newIndex, isActive: true);
+
+    // Check if we need to load more videos
+    _checkAndLoadMoreVideos();
+
+    // Cleanup videos that are now out of the preload range
+    _cleanupControllers();
+
+    // Preload new videos in range
+    _preloadVideosInRange();
+  }
+
+  void _cleanupControllers() {
+    final keysToRemove = <int>[];
+    final minKeepIndex = _currentIndex - _preloadBackwardCount - 1;
+    final maxKeepIndex = _currentIndex + _preloadForwardCount + 1;
+
+    _controllers.forEach((index, controller) {
+      // Keep controllers only within preload range (with a buffer of 1)
+      if (index < minKeepIndex || index > maxKeepIndex) {
+        controller.dispose();
+        keysToRemove.add(index);
+        _videoInitializing.remove(index);
+        _videoInitialized.remove(index);
+      }
+    });
+
+    for (final key in keysToRemove) {
+      _controllers.remove(key);
+    }
+  }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    WidgetsBinding.instance.removeObserver(this);
+
+    // Dispose all controllers
+    for (final controller in _controllers.values) {
+      controller.dispose();
+    }
+
+    _controllers.clear();
+    _videoInitializing.clear();
+    _videoInitialized.clear();
+    _pageController.dispose();
+
+    context.read<HomeTreeCubit>().clearVideos();
+    super.dispose();
+  }
+
+  Future<void> _navigateToNewScreen(GetPublicationEntity product) async {
+    // Pause video before navigation
+    if (_controllers.containsKey(_currentIndex)) {
+      await _controllers[_currentIndex]!.pause();
+    }
+
+    if (mounted) {
+      await context.push(
+        Routes.productDetails,
+        extra: product,
+      );
+
+      // Resume video after returning, if still mounted
+      if (mounted &&
+          _controllers.containsKey(_currentIndex) &&
+          _controllers[_currentIndex]!.isVideoInitialized() == true) {
+        await _controllers[_currentIndex]!.play();
+      }
+    }
+  }
+
+  Future<void> _navigateToProfileScreen(String userId, bool isOwner) async {
+    if (isOwner) return; // Don't navigate to your own profile
+
+    // Pause video before navigation
+    if (_controllers.containsKey(_currentIndex)) {
+      await _controllers[_currentIndex]!.pause();
+    }
+
+    if (mounted) {
+      await context.push(Routes.anotherUserProfile, extra: {
+        'userId': userId,
+      });
+
+      // Resume video after returning, if still mounted
+      if (mounted &&
+          _controllers.containsKey(_currentIndex) &&
+          _controllers[_currentIndex]!.isVideoInitialized() == true) {
+        await _controllers[_currentIndex]!.play();
+      }
+    }
+  }
+
+  Widget _buildPlayPauseOverlay(int index) {
+    final bool isInitialized = _controllers.containsKey(index) &&
+        _controllers[index]!.isVideoInitialized() == true;
+
+    // Only show play/pause UI when video is actually playable
+    if (!isInitialized) return const SizedBox.shrink();
+
+    return Positioned.fill(
+      child: GestureDetector(
+        behavior: HitTestBehavior
+            .translucent, // Important for reliable touch detection
+        onTap: () {
+          if (!isInitialized) return;
+
+          if (_controllers[index]!.isPlaying() == true) {
+            _controllers[index]!.pause();
+          } else {
+            _controllers[index]!.play();
+          }
+          setState(() {});
+        },
+        child: AnimatedOpacity(
+          opacity: _controllers[index]!.isPlaying() == true ? 0.0 : 0.7,
+          duration: const Duration(milliseconds: 300),
+          child: Center(
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppColors.black.withOpacity(0.5),
+                shape: BoxShape.circle,
+              ),
+              padding: const EdgeInsets.all(12),
+              child: Icon(
+                _controllers[index]!.isPlaying() == true
+                    ? Icons.pause_rounded
+                    : Icons.play_arrow_rounded,
+                color: AppColors.white,
+                size: 44,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildVideoInfo(int index) {
+    final currentUserId = AppSession.currentUserId;
+    final isOwner = currentUserId == _videos[index].seller.id;
+
     return Positioned(
       left: 24,
       right: 24,
@@ -69,7 +470,8 @@ class VideoInfoWidget extends StatelessWidget {
             children: [
               // Profile image
               GestureDetector(
-                onTap: () => onProfileTap(video.seller.id, isOwner),
+                onTap: () =>
+                    _navigateToProfileScreen(_videos[index].seller.id, isOwner),
                 child: Container(
                   decoration: ShapeDecoration(
                     shape: SmoothRectangleBorder(
@@ -84,7 +486,7 @@ class VideoInfoWidget extends StatelessWidget {
                   child: CircleAvatar(
                     radius: 20,
                     backgroundImage: NetworkImage(
-                      "https://${video.seller.profileImagePath}",
+                      "https://${_videos[index].seller.profileImagePath}",
                     ),
                   ),
                 ),
@@ -95,14 +497,15 @@ class VideoInfoWidget extends StatelessWidget {
               // User info
               Expanded(
                 child: GestureDetector(
-                  onTap: () => onProfileTap(video.seller.id, isOwner),
+                  onTap: () => _navigateToProfileScreen(
+                      _videos[index].seller.id, isOwner),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(
                         width: 130,
                         child: Text(
-                          video.seller.nickName,
+                          _videos[index].seller.nickName,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 15,
@@ -114,7 +517,7 @@ class VideoInfoWidget extends StatelessWidget {
                       BlocBuilder<GlobalBloc, GlobalState>(
                         builder: (context, state) {
                           final followersCount =
-                              state.getFollowersCount(video.seller.id);
+                              state.getFollowersCount(_videos[index].seller.id);
                           return Text(
                             '$followersCount ${AppLocalizations.of(context)!.followers}',
                             style: TextStyle(
@@ -142,8 +545,10 @@ class VideoInfoWidget extends StatelessWidget {
                       ),
                     );
                   } else {
-                    final isFollowed = state.isUserFollowed(video.seller.id);
-                    final followStatus = state.getFollowStatus(video.seller.id);
+                    final isFollowed =
+                        state.isUserFollowed(_videos[index].seller.id);
+                    final followStatus =
+                        state.getFollowStatus(_videos[index].seller.id);
                     final isLoading = followStatus == FollowStatus.inProgress;
 
                     return SizedBox(
@@ -154,7 +559,7 @@ class VideoInfoWidget extends StatelessWidget {
                             context
                                 .read<GlobalBloc>()
                                 .add(UpdateFollowStatusEvent(
-                                  userId: video.seller.id,
+                                  userId: _videos[index].seller.id,
                                   isFollowed: isFollowed,
                                   context: context,
                                 ));
@@ -209,7 +614,7 @@ class VideoInfoWidget extends StatelessWidget {
 
           // Product info card
           GestureDetector(
-            onTap: () => !isOwner ? onProductTap(video) : null,
+            onTap: () => !isOwner ? _navigateToNewScreen(_videos[index]) : null,
             child: Container(
               height: 110,
               decoration: ShapeDecoration(
@@ -248,7 +653,8 @@ class VideoInfoWidget extends StatelessWidget {
                           width: 76,
                           height: 76,
                           child: CachedNetworkImage(
-                            imageUrl: "https://${video.productImages[0].url}",
+                            imageUrl:
+                                "https://${_videos[index].productImages[0].url}",
                             fit: BoxFit.cover,
                             progressIndicatorBuilder:
                                 (context, url, progress) =>
@@ -271,7 +677,7 @@ class VideoInfoWidget extends StatelessWidget {
 
                           // Title
                           Text(
-                            video.title,
+                            _videos[index].title,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
@@ -285,7 +691,7 @@ class VideoInfoWidget extends StatelessWidget {
 
                           // Location
                           Text(
-                            video.locationName,
+                            _videos[index].locationName,
                             style: TextStyle(
                               color: Colors.white.withOpacity(0.7),
                               fontSize: 12,
@@ -303,7 +709,7 @@ class VideoInfoWidget extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  formatPrice(video.price.toString()),
+                                  formatPrice(_videos[index].price.toString()),
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 16,
@@ -329,400 +735,10 @@ class VideoInfoWidget extends StatelessWidget {
       ),
     );
   }
-}
-
-class PlayPauseOverlayWidget extends StatelessWidget {
-  final BetterPlayerController? controller;
-
-  const PlayPauseOverlayWidget({
-    super.key,
-    required this.controller,
-  });
 
   @override
   Widget build(BuildContext context) {
-    final bool isInitialized =
-        controller != null && controller!.isVideoInitialized()!;
-
-    if (!isInitialized) return const SizedBox.shrink();
-
-    return Positioned.fill(
-      child: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTap: () {
-          if (controller!.isPlaying()!) {
-            controller!.pause();
-          } else {
-            controller!.play();
-          }
-        },
-        child: AnimatedOpacity(
-          opacity: controller!.isPlaying()! ? 0.0 : 0.7,
-          duration: const Duration(milliseconds: 300),
-          child: Center(
-            child: Container(
-              decoration: BoxDecoration(
-                color: AppColors.black.withOpacity(0.5),
-                shape: BoxShape.circle,
-              ),
-              padding: const EdgeInsets.all(12),
-              child: Icon(
-                controller!.isPlaying()!
-                    ? Icons.pause_rounded
-                    : Icons.play_arrow_rounded,
-                color: AppColors.white,
-                size: 44,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class ListInShorts extends StatefulWidget {
-  final List<GetPublicationEntity> initialVideos;
-  final int initialPage;
-  final int initialIndex;
-
-  const ListInShorts({
-    super.key,
-    required this.initialVideos,
-    this.initialPage = 0,
-    this.initialIndex = 0,
-  });
-
-  @override
-  State<ListInShorts> createState() => _ListInShortsState();
-}
-
-class _ListInShortsState extends State<ListInShorts>
-    with WidgetsBindingObserver {
-  late PageController _pageController;
-  late HomeTreeCubit _homeTreeCubit;
-  List<GetPublicationEntity> _videos = [];
-
-  int _currentIndex = 0;
-  bool _isLoading = false;
-  bool _isDisposed = false;
-
-  static const int _preloadForwardCount = 3;
-  static const int _preloadBackwardCount = 1;
-
-  final Map<int, BetterPlayerController> _controllers = {};
-  final Map<int, bool> _videoInitializing = {};
-  final Map<int, bool> _videoInitialized = {};
-
-  final BetterPlayerCacheConfiguration _cacheConfig =
-      BetterPlayerCacheConfiguration(
-    useCache: true,
-    preCacheSize: 5 * 1024 * 1024, // 5MB pre-cache
-    maxCacheSize: 512 * 1024 * 1024, // 512MB max cache
-    maxCacheFileSize: 30 * 1024 * 1024, // 30MB per file
-  );
-
-  final BetterPlayerBufferingConfiguration _activeBufferingConfig =
-      BetterPlayerBufferingConfiguration(
-    minBufferMs: 3000, // 3 seconds minimum buffer
-    maxBufferMs: 30000, // 30 seconds max buffer
-    bufferForPlaybackMs: 1500, // 1.5 seconds before playback begins
-    bufferForPlaybackAfterRebufferMs: 3000, // 3 seconds after rebuffer
-  );
-
-  final BetterPlayerBufferingConfiguration _preloadBufferingConfig =
-      BetterPlayerBufferingConfiguration(
-    minBufferMs: 1500, // 1.5 seconds minimum buffer
-    maxBufferMs: 5000, // 5 seconds max buffer
-    bufferForPlaybackMs: 500, // 0.5 seconds before playback begins
-    bufferForPlaybackAfterRebufferMs: 1500, // 1.5 seconds after rebuffer
-  );
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-
-    _currentIndex = widget.initialIndex;
-    _videos = List.from(widget.initialVideos);
-    _homeTreeCubit = context.read<HomeTreeCubit>();
-    _pageController = PageController(initialPage: _currentIndex);
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_isDisposed) {
-        _initializeVisibleVideos();
-      }
-    });
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-
-    if (state == AppLifecycleState.paused ||
-        state == AppLifecycleState.inactive) {
-      _pauseAllVideos();
-    } else if (state == AppLifecycleState.resumed) {
-      _resumeCurrentVideo();
-    }
-  }
-
-  void _pauseAllVideos() {
-    for (final controller in _controllers.values) {
-      if (controller.isVideoInitialized()! && controller.isPlaying()!) {
-        controller.pause();
-      }
-    }
-  }
-
-  void _resumeCurrentVideo() {
-    if (_controllers.containsKey(_currentIndex) &&
-        _controllers[_currentIndex]!.isVideoInitialized()!) {
-      _controllers[_currentIndex]!.play();
-    }
-  }
-
-  void _initializeVisibleVideos() {
-    _initializeController(_currentIndex, isActive: true);
-    _preloadVideosInRange();
-    _checkAndLoadMoreVideos();
-  }
-
-  void _preloadVideosInRange() {
-    for (int i = 1; i <= _preloadForwardCount; i++) {
-      final indexToPreload = _currentIndex + i;
-      if (indexToPreload < _videos.length) {
-        _initializeController(indexToPreload, isActive: false);
-      }
-    }
-
-    for (int i = 1; i <= _preloadBackwardCount; i++) {
-      final indexToPreload = _currentIndex - i;
-      if (indexToPreload >= 0) {
-        _initializeController(indexToPreload, isActive: false);
-      }
-    }
-  }
-
-  void _loadMoreVideos() {
-    if (_isLoading || _homeTreeCubit.state.videoHasReachedMax) {
-      debugPrint(
-          '⚠️ Skip loading more videos: isLoading=$_isLoading, hasReachedMax=${_homeTreeCubit.state.videoHasReachedMax}');
-      return;
-    }
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    final nextPage = (_videos.length ~/ 10);
-    _homeTreeCubit.fetchVideoFeeds(nextPage);
-  }
-
-  void _checkAndLoadMoreVideos() {
-    if (_currentIndex >= _videos.length - 5) {
-      _loadMoreVideos();
-    }
-  }
-
-  void _initializeController(int index, {required bool isActive}) {
-    if (index < 0 || index >= _videos.length) return;
-
-    if (_videoInitializing[index] == true || _videoInitialized[index] == true) {
-      if (isActive &&
-          _controllers.containsKey(index) &&
-          _controllers[index]!.isVideoInitialized()!) {
-        _controllers[index]!.play();
-      }
-      return;
-    }
-
-    _videoInitializing[index] = true;
-
-    final String videoUrl = 'https://${_videos[index].videoUrl}';
-
-    final BetterPlayerDataSource dataSource = BetterPlayerDataSource(
-      BetterPlayerDataSourceType.network,
-      videoUrl,
-      cacheConfiguration: _cacheConfig,
-      bufferingConfiguration:
-          isActive ? _activeBufferingConfig : _preloadBufferingConfig,
-    );
-
-    final BetterPlayerConfiguration playerConfig = BetterPlayerConfiguration(
-      autoPlay: isActive,
-      looping: true,
-      fit: BoxFit.cover,
-      aspectRatio: 9 / 16,
-      deviceOrientationsAfterFullScreen: [DeviceOrientation.portraitUp],
-      controlsConfiguration: BetterPlayerControlsConfiguration(
-        showControls: false,
-        enableMute: false,
-        enablePlayPause: false,
-        enableProgressBar: false,
-        enableSkips: false,
-        enableFullscreen: false,
-      ),
-      placeholder: _buildPlaceholder(index),
-      errorBuilder: (context, errorMessage) {
-        debugPrint('❌ Video error at index $index: $errorMessage');
-        _videoInitializing[index] = false;
-        return _buildPlaceholder(index);
-      },
-    );
-
-    final controller = BetterPlayerController(playerConfig);
-    _controllers[index] = controller;
-
-    controller.addEventsListener((event) {
-      if (_isDisposed) return;
-
-      if (event.betterPlayerEventType == BetterPlayerEventType.initialized) {
-        debugPrint('✅ Video initialized for index: $index');
-        _videoInitializing[index] = false;
-        _videoInitialized[index] = true;
-
-        if (!_isDisposed && index == _currentIndex && isActive) {
-          controller.play();
-          if (mounted) setState(() {});
-        }
-      } else if (event.betterPlayerEventType ==
-          BetterPlayerEventType.exception) {
-        debugPrint('⚠️ Video exception for index $index: ${event.parameters}');
-        _videoInitializing[index] = false;
-        _videoInitialized[index] = false;
-      }
-    });
-
-    controller.setupDataSource(dataSource);
-
-    if (isActive && mounted) {
-      setState(() {});
-    }
-  }
-
-  Widget _buildPlaceholder(int index) {
-    if (index >= _videos.length) return const SizedBox.expand();
-
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        CachedNetworkImage(
-          imageUrl: "https://${_videos[index].productImages[0].url}",
-          width: double.infinity,
-          height: double.infinity,
-          fit: BoxFit.cover,
-          placeholder: (context, url) => Container(color: Colors.black),
-          errorWidget: (context, url, error) =>
-              Container(color: Colors.black54),
-        ),
-        Center(
-          child: CircularProgressIndicator(
-            strokeWidth: 3,
-            valueColor: AlwaysStoppedAnimation<Color>(AppColors.white),
-          ),
-        ),
-      ],
-    );
-  }
-
-  void _handlePageChange(int newIndex) {
-    if (newIndex == _currentIndex) return;
-
-    debugPrint('🔄 Page change: $_currentIndex → $newIndex');
-
-    if (_controllers.containsKey(_currentIndex)) {
-      _controllers[_currentIndex]!.pause();
-    }
-
-    setState(() {
-      _currentIndex = newIndex;
-    });
-
-    _initializeController(newIndex, isActive: true);
-    _checkAndLoadMoreVideos();
-    _cleanupControllers();
-    _preloadVideosInRange();
-  }
-
-  void _cleanupControllers() {
-    final keysToRemove = <int>[];
-    final minKeepIndex = _currentIndex - _preloadBackwardCount - 1;
-    final maxKeepIndex = _currentIndex + _preloadForwardCount + 1;
-
-    _controllers.forEach((index, controller) {
-      if (index < minKeepIndex || index > maxKeepIndex) {
-        controller.dispose();
-        keysToRemove.add(index);
-        _videoInitializing.remove(index);
-        _videoInitialized.remove(index);
-      }
-    });
-
-    for (final key in keysToRemove) {
-      _controllers.remove(key);
-    }
-  }
-
-  @override
-  void dispose() {
-    _isDisposed = true;
-    WidgetsBinding.instance.removeObserver(this);
-
-    for (final controller in _controllers.values) {
-      controller.dispose();
-    }
-
-    _controllers.clear();
-    _videoInitializing.clear();
-    _videoInitialized.clear();
-    _pageController.dispose();
-
-    context.read<HomeTreeCubit>().clearVideos();
-    super.dispose();
-  }
-
-  Future<void> _navigateToNewScreen(GetPublicationEntity product) async {
-    if (_controllers.containsKey(_currentIndex)) {
-      await _controllers[_currentIndex]!.pause();
-    }
-
-    if (mounted) {
-      await context.push(
-        Routes.productDetails,
-        extra: product,
-      );
-
-      if (mounted &&
-          _controllers.containsKey(_currentIndex) &&
-          _controllers[_currentIndex]!.isVideoInitialized()!) {
-        await _controllers[_currentIndex]!.play();
-      }
-    }
-  }
-
-  Future<void> _navigateToProfileScreen(String userId, bool isOwner) async {
-    if (isOwner) return;
-
-    if (_controllers.containsKey(_currentIndex)) {
-      await _controllers[_currentIndex]!.pause();
-    }
-
-    if (mounted) {
-      await context.push(Routes.anotherUserProfile, extra: {
-        'userId': userId,
-      });
-
-      if (mounted &&
-          _controllers.containsKey(_currentIndex) &&
-          _controllers[_currentIndex]!.isVideoInitialized()!) {
-        await _controllers[_currentIndex]!.play();
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
+    // Set system UI styling
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.light,
@@ -735,6 +751,7 @@ class _ListInShortsState extends State<ListInShorts>
         if (state.videoPublicationsRequestState == RequestState.completed) {
           final newVideos = state.videoPublications;
 
+          // Add only new unique videos
           final uniqueNewVideos = newVideos.where((newVideo) =>
               !_videos.any((existingVideo) => existingVideo.id == newVideo.id));
 
@@ -744,6 +761,7 @@ class _ListInShortsState extends State<ListInShorts>
               _isLoading = false;
             });
 
+            // Initialize new videos if they're within preload range
             if (_currentIndex + _preloadForwardCount >=
                 _videos.length - uniqueNewVideos.length) {
               _preloadVideosInRange();
@@ -779,15 +797,17 @@ class _ListInShortsState extends State<ListInShorts>
           itemBuilder: (context, index) {
             final bool isActiveVideo = index == _currentIndex;
             final bool isVideoInitialized = _controllers.containsKey(index) &&
-                _controllers[index]!.isVideoInitialized()!;
+                _controllers[index]!.isVideoInitialized() == true;
 
             return Stack(
               fit: StackFit.expand,
               children: [
-                VideoPlayerWidget(
-                  controller: _controllers[index],
-                  placeholder: _buildPlaceholder(index),
-                ),
+                // Video player or placeholder
+                isVideoInitialized
+                    ? BetterPlayer(controller: _controllers[index]!)
+                    : _buildPlaceholder(index),
+
+                // Gradient overlay for better text visibility
                 Positioned.fill(
                   child: Container(
                     decoration: BoxDecoration(
@@ -804,13 +824,12 @@ class _ListInShortsState extends State<ListInShorts>
                     ),
                   ),
                 ),
-                PlayPauseOverlayWidget(controller: _controllers[index]),
-                VideoInfoWidget(
-                  video: _videos[index],
-                  isOwner: AppSession.currentUserId == _videos[index].seller.id,
-                  onProfileTap: _navigateToProfileScreen,
-                  onProductTap: _navigateToNewScreen,
-                ),
+
+                // Play/pause overlay
+                _buildPlayPauseOverlay(index),
+
+                // Video info (user, product)
+                _buildVideoInfo(index),
               ],
             );
           },
