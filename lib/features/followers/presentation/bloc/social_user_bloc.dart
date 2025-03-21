@@ -1,11 +1,10 @@
 // social_user_bloc.dart
 
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/features/followers/domain/entity/user_followings_followers_data.dart';
 import 'package:list_in/features/followers/domain/usecase/get_user_followers_usecase.dart';
 import 'package:list_in/features/followers/domain/usecase/get_user_followings_usecase.dart';
-import 'package:list_in/features/visitior_profile/domain/usecase/follow_usecase.dart';
 import 'package:list_in/global/global_bloc.dart';
 import 'package:list_in/global/global_event.dart';
 
@@ -185,13 +184,17 @@ class SocialUserBloc extends Bloc<SocialUserEvent, SocialUserState> {
         );
 
         return result.fold(
-          (failure) => emit(SocialUserError('Failed to load followers')),
-          (data) => emit(FollowersLoaded(
-            followers: data.content,
-            hasReachedMax: data.last,
-            currentPage: 0,
-          )),
-        );
+            (failure) => emit(SocialUserError('Failed to load followers')),
+            (data) {
+          _syncFollowStatusesForPublications(data.content);
+          emit(
+            FollowersLoaded(
+              followers: data.content,
+              hasReachedMax: data.last,
+              currentPage: 0,
+            ),
+          );
+        });
       }
 
       // Handle pagination (loading more data)
@@ -212,10 +215,10 @@ class SocialUserBloc extends Bloc<SocialUserEvent, SocialUserState> {
       return result.fold(
         (failure) => emit(SocialUserError('Failed to load more followers')),
         (data) {
+          _syncFollowStatusesForPublications(data.content);
           if (data.content.isEmpty) {
             emit(currentState.copyWith(hasReachedMax: true));
           } else {
-            _syncFollowStatusesForPublications(data.content);
             emit(
               FollowersLoaded(
                 followers: [...currentState.followers, ...data.content],
@@ -249,11 +252,16 @@ class SocialUserBloc extends Bloc<SocialUserEvent, SocialUserState> {
 
         return result.fold(
             (failure) => emit(SocialUserError('Failed to load followings')),
-            (data) => emit(FollowingsLoaded(
-                  followings: data.content,
-                  hasReachedMax: data.last,
-                  currentPage: 0,
-                )));
+            (data) {
+          _syncFollowStatusesForPublications(data.content);
+          emit(
+            FollowingsLoaded(
+              followings: data.content,
+              hasReachedMax: data.last,
+              currentPage: 0,
+            ),
+          );
+        });
       }
 
       // Handle pagination (loading more data)
@@ -274,10 +282,10 @@ class SocialUserBloc extends Bloc<SocialUserEvent, SocialUserState> {
       return result.fold(
         (failure) => emit(SocialUserError('Failed to load more followings')),
         (data) {
+          _syncFollowStatusesForPublications(data.content);
           if (data.content.isEmpty) {
             emit(currentState.copyWith(hasReachedMax: true));
           } else {
-            _syncFollowStatusesForPublications(data.content);
             emit(
               FollowingsLoaded(
                 followings: [...currentState.followings, ...data.content],

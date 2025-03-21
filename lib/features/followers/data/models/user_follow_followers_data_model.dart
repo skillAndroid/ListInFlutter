@@ -22,7 +22,7 @@ class UserProfileModel {
       userId: json['userId'] ?? '',
       nickName: json['nickName'] ?? '',
       profileImagePath: json['profileImagePath'] ?? '',
-      isFollowing: json['following'] ?? false,
+      isFollowing: json['isFollowing'],
       followers: json['followers'] ?? 0,
       following: json['following'] ?? 0,
     );
