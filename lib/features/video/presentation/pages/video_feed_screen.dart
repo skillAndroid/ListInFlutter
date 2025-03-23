@@ -469,8 +469,6 @@ class _ListInShortsState extends State<ListInShorts>
     _cachedVideoFiles.clear();
   }
 
-  // Rest of your code remains the same...
-  // Continue with _navigateToNewScreen, _navigateToProfileScreen, etc.
   Future<void> _navigateToNewScreen(GetPublicationEntity product) async {
     // Pause video before navigation
     if (_controllers.containsKey(_currentIndex)) {
@@ -863,8 +861,6 @@ class _ListInShortsState extends State<ListInShorts>
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.light,
-      systemNavigationBarColor: Colors.black,
-      systemNavigationBarIconBrightness: Brightness.light,
     ));
 
     return BlocListener<HomeTreeCubit, HomeTreeState>(
@@ -895,7 +891,6 @@ class _ListInShortsState extends State<ListInShorts>
         }
       },
       child: SafeArea(
-        top: true,
         bottom: false,
         child: Scaffold(
           backgroundColor: Colors.black,
@@ -903,6 +898,7 @@ class _ListInShortsState extends State<ListInShorts>
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
+            scrolledUnderElevation: 0,
             leading: IconButton(
               icon: const Icon(Icons.arrow_back_rounded,
                   color: Colors.white, size: 28),
@@ -923,15 +919,15 @@ class _ListInShortsState extends State<ListInShorts>
                   _controllers[index]!.value.isInitialized;
 
               return Stack(
-                fit: StackFit.expand,
                 children: [
-                  // Video player or placeholder
-                  isVideoInitialized
-                      ? AspectRatio(
-                          aspectRatio: _controllers[index]!.value.aspectRatio,
-                          child: VideoPlayer(_controllers[index]!),
-                        )
-                      : _buildPlaceholder(index),
+                  Center(
+                    child: isVideoInitialized
+                        ? AspectRatio(
+                            aspectRatio: _controllers[index]!.value.aspectRatio,
+                            child: VideoPlayer(_controllers[index]!),
+                          )
+                        : _buildPlaceholder(index),
+                  ),
 
                   // Gradient overlay for better text visibility
                   Positioned.fill(
