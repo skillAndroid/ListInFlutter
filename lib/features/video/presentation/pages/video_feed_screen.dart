@@ -1,7 +1,10 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, curly_braces_in_flow_control_structures
 
-import 'package:better_player/better_player.dart';
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:dio/dio.dart';
 import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -20,6 +23,10 @@ import 'package:list_in/global/global_bloc.dart';
 import 'package:list_in/global/global_event.dart';
 import 'package:list_in/global/global_state.dart';
 import 'package:list_in/global/global_status.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:system_info_plus/system_info_plus.dart';
+import 'package:video_player/video_player.dart'; // Simple video player
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 class ListInShorts extends StatefulWidget {
   final List<GetPublicationEntity> initialVideos;
@@ -48,46 +55,28 @@ class _ListInShortsState extends State<ListInShorts>
   bool _isLoading = false;
   bool _isDisposed = false;
 
-  // Preloading range control
-  static const int _preloadForwardCount = 3;
-  static const int _preloadBackwardCount = 1;
+  late int _preloadForwardCount;
 
   // Controller management
-  final Map<int, BetterPlayerController> _controllers = {};
+  final Map<int, VideoPlayerController> _controllers = {};
   final Map<int, bool> _videoInitializing = {};
   final Map<int, bool> _videoInitialized = {};
+  final Map<int, String> _cachedVideoFiles = {}; // Track cached video paths
 
-  // Cache configuration for better performance
-  final BetterPlayerCacheConfiguration _cacheConfig =
-      BetterPlayerCacheConfiguration(
-    useCache: true,
-    preCacheSize: 5 * 1024 * 1024, // 5MB pre-cache
-    maxCacheSize: 512 * 1024 * 1024, // 512MB max cache
-    maxCacheFileSize: 30 * 1024 * 1024, // 30MB per file
-  );
+  // Custom cache manager for videos
+  late final DefaultCacheManager _cacheManager;
+  final Dio _dio = Dio();
 
-  // Buffering configuration for active videos
-  final BetterPlayerBufferingConfiguration _activeBufferingConfig =
-      BetterPlayerBufferingConfiguration(
-    minBufferMs: 3000, // 3 seconds minimum buffer
-    maxBufferMs: 30000, // 30 seconds max buffer
-    bufferForPlaybackMs: 1500, // 1.5 seconds before playback begins
-    bufferForPlaybackAfterRebufferMs: 3000, // 3 seconds after rebuffer
-  );
-
-  // Reduced buffering for preloaded videos
-  final BetterPlayerBufferingConfiguration _preloadBufferingConfig =
-      BetterPlayerBufferingConfiguration(
-    minBufferMs: 1500, // 1.5 seconds minimum buffer
-    maxBufferMs: 5000, // 5 seconds max buffer
-    bufferForPlaybackMs: 500, // 0.5 seconds before playback begins
-    bufferForPlaybackAfterRebufferMs: 1500, // 1.5 seconds after rebuffer
-  );
+  // Preload settings
+  static const int _preloadSizeInBytes = 2 * 1024 * 1024;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+
+    _determinePlatformSpecificPreloadCount();
+    _cacheManager = DefaultCacheManager();
 
     _currentIndex = widget.initialIndex;
     _videos = List.from(widget.initialVideos);
@@ -100,6 +89,60 @@ class _ListInShortsState extends State<ListInShorts>
         _initializeVisibleVideos();
       }
     });
+  }
+
+  Future<void> _determinePlatformSpecificPreloadCount() async {
+    if (Platform.isIOS) {
+      // For iOS, check the version
+      final deviceInfo = DeviceInfoPlugin();
+      final iosInfo = await deviceInfo.iosInfo;
+      final version =
+          double.tryParse(iosInfo.systemVersion.split('.').first) ?? 0;
+
+      if (version >= 11) {
+        _preloadForwardCount = 5; // Higher-end iOS devices
+      } else {
+        _preloadForwardCount = 3; // Older iOS devices
+      }
+    } // Then in your code:
+    else if (Platform.isAndroid) {
+      final deviceInfo = DeviceInfoPlugin();
+      final androidInfo = await deviceInfo.androidInfo;
+      final apiLevel = androidInfo.version.sdkInt;
+
+      // Get system memory in MB
+      int totalMemoryMB = 0;
+      try {
+        final memoryInfo = await SystemInfoPlus.physicalMemory;
+        totalMemoryMB = (memoryInfo! ~/ (1024 * 1024)); // Convert bytes to MB
+      } catch (e) {
+        // Fallback based on API level if memory info unavailable
+        if (apiLevel >= 30) {
+          totalMemoryMB = 6144;
+        } else if (apiLevel >= 28)
+          totalMemoryMB = 4096;
+        else
+          totalMemoryMB = 2048;
+      }
+
+      if (totalMemoryMB >= 8192) {
+        // 8GB or more
+        _preloadForwardCount = 4;
+      } else if (totalMemoryMB >= 6144) {
+        // 6GB or more
+        _preloadForwardCount = 3;
+      } else if (totalMemoryMB >= 4096 && apiLevel >= 30) {
+        // 4GB + newer Android
+        _preloadForwardCount = 3;
+      } else {
+        _preloadForwardCount = 1; // Lower-end or older devices
+      }
+    }
+
+    // Update state if needed
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override
@@ -117,8 +160,7 @@ class _ListInShortsState extends State<ListInShorts>
 
   void _pauseAllVideos() {
     for (final controller in _controllers.values) {
-      if (controller.isVideoInitialized() == true &&
-          controller.isPlaying() == true) {
+      if (controller.value.isInitialized && controller.value.isPlaying) {
         controller.pause();
       }
     }
@@ -126,37 +168,91 @@ class _ListInShortsState extends State<ListInShorts>
 
   void _resumeCurrentVideo() {
     if (_controllers.containsKey(_currentIndex) &&
-        _controllers[_currentIndex]!.isVideoInitialized() == true) {
+        _controllers[_currentIndex]!.value.isInitialized) {
       _controllers[_currentIndex]!.play();
     }
   }
 
   void _initializeVisibleVideos() {
     // Initialize the current video first with higher priority
-    _initializeController(_currentIndex, isActive: true);
+    _initializeController(_currentIndex, isActive: true, fullVideo: true);
 
-    // Then preload videos in range
-    _preloadVideosInRange();
+    // Then preload forward videos
+    _preloadForwardVideos();
 
     // Check if we need to load more videos
     _checkAndLoadMoreVideos();
   }
 
-  void _preloadVideosInRange() {
-    // Preload forward
+  void _preloadForwardVideos() {
+    // Only preload forward videos
     for (int i = 1; i <= _preloadForwardCount; i++) {
       final indexToPreload = _currentIndex + i;
       if (indexToPreload < _videos.length) {
-        _initializeController(indexToPreload, isActive: false);
+        // Preload partial video for upcoming videos
+        _initializeController(indexToPreload,
+            isActive: false, fullVideo: false);
       }
     }
+  }
 
-    // Preload backward
-    for (int i = 1; i <= _preloadBackwardCount; i++) {
-      final indexToPreload = _currentIndex - i;
-      if (indexToPreload >= 0) {
-        _initializeController(indexToPreload, isActive: false);
+  // Check if video is already cached
+  Future<bool> _isVideoCached(String videoUrl) async {
+    final fileInfo = await _cacheManager.getFileFromCache(videoUrl);
+    return fileInfo != null;
+  }
+
+  // Get cached file path or download
+  Future<String?> _getCachedVideoPath(String videoUrl,
+      {bool fullVideo = true}) async {
+    try {
+      if (await _isVideoCached(videoUrl)) {
+        final fileInfo = await _cacheManager.getFileFromCache(videoUrl);
+        return fileInfo?.file.path;
       }
+
+      if (fullVideo) {
+        // Download and cache full video
+        final fileInfo = await _cacheManager.downloadFile(videoUrl);
+        return fileInfo.file.path;
+      } else {
+        // Preload only partial video data and cache
+        await _preloadPartialVideo(videoUrl);
+        return null; // Return null as we're not waiting for full download
+      }
+    } catch (e) {
+      debugPrint('⚠️ Error caching video: $e');
+      return null;
+    }
+  }
+
+  // Preload only first few MB of a video
+  Future<void> _preloadPartialVideo(String videoUrl) async {
+    try {
+      final response = await _dio.get(
+        videoUrl,
+        options: Options(
+          responseType: ResponseType.stream,
+          headers: {'Range': 'bytes=0-$_preloadSizeInBytes'},
+        ),
+      );
+
+      final tempDir = await getTemporaryDirectory();
+      final cacheFile =
+          File('${tempDir.path}/${videoUrl.hashCode}_partial.mp4');
+
+      // Save partial data to cache directory
+      final sink = cacheFile.openWrite();
+      await response.data.stream.pipe(sink);
+      await sink.flush();
+      await sink.close();
+
+      // Store the reference for cleanup later
+      _cachedVideoFiles[videoUrl.hashCode] = cacheFile.path;
+
+      debugPrint('🔄 Preloaded partial data for: $videoUrl');
+    } catch (e) {
+      debugPrint('⚠️ Error preloading partial video: $e');
     }
   }
 
@@ -182,7 +278,8 @@ class _ListInShortsState extends State<ListInShorts>
     }
   }
 
-  void _initializeController(int index, {required bool isActive}) {
+  Future<void> _initializeController(int index,
+      {required bool isActive, required bool fullVideo}) async {
     if (index < 0 || index >= _videos.length) return;
 
     // Skip if already initialized or initializing
@@ -190,7 +287,7 @@ class _ListInShortsState extends State<ListInShorts>
       // If this is the active video and it's already initialized, just play it
       if (isActive &&
           _controllers.containsKey(index) &&
-          _controllers[index]!.isVideoInitialized() == true) {
+          _controllers[index]!.value.isInitialized) {
         _controllers[index]!.play();
       }
       return;
@@ -201,100 +298,86 @@ class _ListInShortsState extends State<ListInShorts>
 
     final String videoUrl = 'https://${_videos[index].videoUrl}';
 
-    // Create data source with appropriate buffering
-    final BetterPlayerDataSource dataSource = BetterPlayerDataSource(
-      BetterPlayerDataSourceType.network,
-      videoUrl,
-      cacheConfiguration: _cacheConfig,
-      bufferingConfiguration:
-          isActive ? _activeBufferingConfig : _preloadBufferingConfig,
-    );
+    try {
+      // Get cached path or download
+      final cachedPath =
+          await _getCachedVideoPath(videoUrl, fullVideo: fullVideo);
 
-    // Create configuration
-    final BetterPlayerConfiguration playerConfig = BetterPlayerConfiguration(
-      autoPlay: isActive, // Only auto-play if this is the active video
-      looping: true,
-      fit: BoxFit.cover,
-      aspectRatio: 9 / 16,
-      deviceOrientationsAfterFullScreen: [DeviceOrientation.portraitUp],
-      controlsConfiguration: BetterPlayerControlsConfiguration(
-        showControls: false,
-        enableMute: false,
-        enablePlayPause: false,
-        enableProgressBar: false,
-        enableSkips: false,
-        enableFullscreen: false,
-      ),
-      placeholder: _buildPlaceholder(index),
-      errorBuilder: (context, errorMessage) {
-        debugPrint('❌ Video error at index $index: $errorMessage');
-        _videoInitializing[index] = false;
-        return _buildPlaceholder(index);
-      },
-    );
+      if (cachedPath != null) {
+        // Use cached file if available
+        final file = File(cachedPath);
+        if (await file.exists()) {
+          debugPrint('🎯 Using cached video for index $index: $cachedPath');
+          final controller = VideoPlayerController.file(file);
+          _controllers[index] = controller;
 
-    // Create and store controller
-    final controller = BetterPlayerController(playerConfig);
-    _controllers[index] = controller;
+          // Initialize and setup the controller
+          await controller.initialize();
+          controller.setLooping(true);
 
-    // Add event listeners
-    controller.addEventsListener((event) {
-      if (_isDisposed) return;
+          _videoInitializing[index] = false;
+          _videoInitialized[index] = true;
 
-      if (event.betterPlayerEventType == BetterPlayerEventType.initialized) {
-        debugPrint('✅ Video initialized for index: $index');
-        _videoInitializing[index] = false;
-        _videoInitialized[index] = true;
-
-        // If this is the current video and we're mounted, play it
-        if (!_isDisposed && index == _currentIndex && isActive) {
-          controller.play();
-          // Force rebuild to refresh UI
-          if (mounted) setState(() {});
+          if (!_isDisposed && index == _currentIndex && isActive) {
+            controller.play();
+            if (mounted) setState(() {});
+          }
+          return;
         }
-      } else if (event.betterPlayerEventType ==
-          BetterPlayerEventType.exception) {
-        debugPrint('⚠️ Video exception for index $index: ${event.parameters}');
-        _videoInitializing[index] = false;
-        _videoInitialized[index] = false;
       }
-    });
 
-    // Setup data source
-    controller.setupDataSource(dataSource);
+      // If no cached file available, use network
+      debugPrint('⬇️ Using network video for index $index');
+      final controller = VideoPlayerController.network(videoUrl);
+      _controllers[index] = controller;
+
+      // Initialize for immediate playback
+      await controller.initialize();
+      controller.setLooping(true);
+
+      _videoInitializing[index] = false;
+      _videoInitialized[index] = true;
+
+      if (isActive && !_isDisposed) {
+        controller.play();
+        if (mounted) setState(() {});
+      }
+    } catch (error) {
+      debugPrint('⚠️ Video exception for index $index: $error');
+      _videoInitializing[index] = false;
+      _videoInitialized[index] = false;
+
+      // Retry logic for important videos (current and next)
+      if (index == _currentIndex || index == _currentIndex + 1) {
+        debugPrint('🔄 Retrying video initialization for index $index');
+
+        // Use a different approach as fallback
+        try {
+          final controller = VideoPlayerController.network(videoUrl);
+          _controllers[index] = controller;
+
+          await controller.initialize();
+          controller.setLooping(true);
+
+          _videoInitializing[index] = false;
+          _videoInitialized[index] = true;
+
+          if (isActive && !_isDisposed) {
+            controller.play();
+            if (mounted) setState(() {});
+          }
+        } catch (retryError) {
+          debugPrint('⚠️ Retry failed for index $index: $retryError');
+          // Final failure - just mark as not initializing so we can try again later
+          _videoInitializing[index] = false;
+        }
+      }
+    }
 
     // Force UI update if this is the active video
     if (isActive && mounted) {
       setState(() {});
     }
-  }
-
-  Widget _buildPlaceholder(int index) {
-    if (index >= _videos.length) return const SizedBox.expand();
-
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        // Thumbnail background
-        CachedNetworkImage(
-          imageUrl: "https://${_videos[index].productImages[0].url}",
-          width: double.infinity,
-          height: double.infinity,
-          fit: BoxFit.cover,
-          placeholder: (context, url) => Container(color: Colors.black),
-          errorWidget: (context, url, error) =>
-              Container(color: Colors.black54),
-        ),
-
-        // Loading indicator
-        Center(
-          child: CircularProgressIndicator(
-            strokeWidth: 3,
-            valueColor: AlwaysStoppedAnimation<Color>(AppColors.white),
-          ),
-        ),
-      ],
-    );
   }
 
   void _handlePageChange(int newIndex) {
@@ -312,8 +395,8 @@ class _ListInShortsState extends State<ListInShorts>
       _currentIndex = newIndex;
     });
 
-    // Initialize and play the new current video
-    _initializeController(newIndex, isActive: true);
+    // Initialize and play the new current video with full video
+    _initializeController(newIndex, isActive: true, fullVideo: true);
 
     // Check if we need to load more videos
     _checkAndLoadMoreVideos();
@@ -322,16 +405,18 @@ class _ListInShortsState extends State<ListInShorts>
     _cleanupControllers();
 
     // Preload new videos in range
-    _preloadVideosInRange();
+    _preloadForwardVideos();
   }
 
   void _cleanupControllers() {
     final keysToRemove = <int>[];
-    final minKeepIndex = _currentIndex - _preloadBackwardCount - 1;
-    final maxKeepIndex = _currentIndex + _preloadForwardCount + 1;
+
+    // Only keep current and forward preload count videos
+    final minKeepIndex = _currentIndex;
+    final maxKeepIndex = _currentIndex + _preloadForwardCount;
 
     _controllers.forEach((index, controller) {
-      // Keep controllers only within preload range (with a buffer of 1)
+      // Keep controllers only within preload range
       if (index < minKeepIndex || index > maxKeepIndex) {
         controller.dispose();
         keysToRemove.add(index);
@@ -343,6 +428,8 @@ class _ListInShortsState extends State<ListInShorts>
     for (final key in keysToRemove) {
       _controllers.remove(key);
     }
+
+    // No need to clean up partial preloads - let cache manager handle it
   }
 
   @override
@@ -360,10 +447,30 @@ class _ListInShortsState extends State<ListInShorts>
     _videoInitialized.clear();
     _pageController.dispose();
 
+    // Clean up temp cache files
+    _cleanupTempCacheFiles();
+
     context.read<HomeTreeCubit>().clearVideos();
     super.dispose();
   }
 
+  // Clean up temporary cache files
+  Future<void> _cleanupTempCacheFiles() async {
+    for (final path in _cachedVideoFiles.values) {
+      try {
+        final file = File(path);
+        if (await file.exists()) {
+          await file.delete();
+        }
+      } catch (e) {
+        debugPrint('⚠️ Error cleaning up temp file: $e');
+      }
+    }
+    _cachedVideoFiles.clear();
+  }
+
+  // Rest of your code remains the same...
+  // Continue with _navigateToNewScreen, _navigateToProfileScreen, etc.
   Future<void> _navigateToNewScreen(GetPublicationEntity product) async {
     // Pause video before navigation
     if (_controllers.containsKey(_currentIndex)) {
@@ -379,7 +486,7 @@ class _ListInShortsState extends State<ListInShorts>
       // Resume video after returning, if still mounted
       if (mounted &&
           _controllers.containsKey(_currentIndex) &&
-          _controllers[_currentIndex]!.isVideoInitialized() == true) {
+          _controllers[_currentIndex]!.value.isInitialized) {
         await _controllers[_currentIndex]!.play();
       }
     }
@@ -401,7 +508,7 @@ class _ListInShortsState extends State<ListInShorts>
       // Resume video after returning, if still mounted
       if (mounted &&
           _controllers.containsKey(_currentIndex) &&
-          _controllers[_currentIndex]!.isVideoInitialized() == true) {
+          _controllers[_currentIndex]!.value.isInitialized) {
         await _controllers[_currentIndex]!.play();
       }
     }
@@ -409,19 +516,18 @@ class _ListInShortsState extends State<ListInShorts>
 
   Widget _buildPlayPauseOverlay(int index) {
     final bool isInitialized = _controllers.containsKey(index) &&
-        _controllers[index]!.isVideoInitialized() == true;
+        _controllers[index]!.value.isInitialized;
 
     // Only show play/pause UI when video is actually playable
     if (!isInitialized) return const SizedBox.shrink();
 
     return Positioned.fill(
       child: GestureDetector(
-        behavior: HitTestBehavior
-            .translucent, // Important for reliable touch detection
+        behavior: HitTestBehavior.translucent,
         onTap: () {
           if (!isInitialized) return;
 
-          if (_controllers[index]!.isPlaying() == true) {
+          if (_controllers[index]!.value.isPlaying) {
             _controllers[index]!.pause();
           } else {
             _controllers[index]!.play();
@@ -429,7 +535,7 @@ class _ListInShortsState extends State<ListInShorts>
           setState(() {});
         },
         child: AnimatedOpacity(
-          opacity: _controllers[index]!.isPlaying() == true ? 0.0 : 0.7,
+          opacity: _controllers[index]!.value.isPlaying ? 0.0 : 0.7,
           duration: const Duration(milliseconds: 300),
           child: Center(
             child: Container(
@@ -439,7 +545,7 @@ class _ListInShortsState extends State<ListInShorts>
               ),
               padding: const EdgeInsets.all(12),
               child: Icon(
-                _controllers[index]!.isPlaying() == true
+                _controllers[index]!.value.isPlaying
                     ? Icons.pause_rounded
                     : Icons.play_arrow_rounded,
                 color: AppColors.white,
@@ -736,6 +842,21 @@ class _ListInShortsState extends State<ListInShorts>
     );
   }
 
+// This is a complete implementation of the preloading mechanism
+  void _preloadVideosInRange() {
+    // Preload the current video first with full quality
+    _initializeController(_currentIndex, isActive: true, fullVideo: true);
+
+    // Preload forward videos with partial loading
+    for (int i = 1; i <= _preloadForwardCount; i++) {
+      final indexToPreload = _currentIndex + i;
+      if (indexToPreload < _videos.length) {
+        _initializeController(indexToPreload,
+            isActive: false, fullVideo: false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // Set system UI styling
@@ -773,68 +894,102 @@ class _ListInShortsState extends State<ListInShorts>
           }
         }
       },
-      child: Scaffold(
-        backgroundColor: Colors.black,
-        extendBodyBehindAppBar: true,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_rounded,
-                color: Colors.white, size: 28),
-            onPressed: () => context.pop(),
+      child: SafeArea(
+        top: true,
+        bottom: false,
+        child: Scaffold(
+          backgroundColor: Colors.black,
+          extendBodyBehindAppBar: true,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_rounded,
+                  color: Colors.white, size: 28),
+              onPressed: () => context.pop(),
+            ),
           ),
-        ),
-        body: PageView.builder(
-          controller: _pageController,
-          itemCount: _videos.length,
-          onPageChanged: _handlePageChange,
-          scrollDirection: Axis.vertical,
-          physics: const BouncingScrollPhysics(
-            parent: AlwaysScrollableScrollPhysics(),
-            decelerationRate: ScrollDecelerationRate.fast,
-          ),
-          itemBuilder: (context, index) {
-            final bool isActiveVideo = index == _currentIndex;
-            final bool isVideoInitialized = _controllers.containsKey(index) &&
-                _controllers[index]!.isVideoInitialized() == true;
+          body: PageView.builder(
+            controller: _pageController,
+            itemCount: _videos.length,
+            onPageChanged: _handlePageChange,
+            scrollDirection: Axis.vertical,
+            physics: const BouncingScrollPhysics(
+              parent: AlwaysScrollableScrollPhysics(),
+              decelerationRate: ScrollDecelerationRate.fast,
+            ),
+            itemBuilder: (context, index) {
+              final bool isVideoInitialized = _controllers.containsKey(index) &&
+                  _controllers[index]!.value.isInitialized;
 
-            return Stack(
-              fit: StackFit.expand,
-              children: [
-                // Video player or placeholder
-                isVideoInitialized
-                    ? BetterPlayer(controller: _controllers[index]!)
-                    : _buildPlaceholder(index),
+              return Stack(
+                fit: StackFit.expand,
+                children: [
+                  // Video player or placeholder
+                  isVideoInitialized
+                      ? AspectRatio(
+                          aspectRatio: _controllers[index]!.value.aspectRatio,
+                          child: VideoPlayer(_controllers[index]!),
+                        )
+                      : _buildPlaceholder(index),
 
-                // Gradient overlay for better text visibility
-                Positioned.fill(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.center,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.transparent,
-                          Colors.transparent,
-                          Colors.black.withOpacity(0.005),
-                          Colors.black.withOpacity(0.15),
-                        ],
+                  // Gradient overlay for better text visibility
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.center,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            Colors.transparent,
+                            Colors.black.withOpacity(0.005),
+                            Colors.black.withOpacity(0.15),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
 
-                // Play/pause overlay
-                _buildPlayPauseOverlay(index),
+                  // Play/pause overlay
+                  _buildPlayPauseOverlay(index),
 
-                // Video info (user, product)
-                _buildVideoInfo(index),
-              ],
-            );
-          },
+                  // Video info (user, product)
+                  _buildVideoInfo(index),
+                ],
+              );
+            },
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _buildPlaceholder(int index) {
+    if (index >= _videos.length) return const SizedBox.expand();
+
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        // Thumbnail background
+        CachedNetworkImage(
+          imageUrl: "https://${_videos[index].productImages[0].url}",
+          width: double.infinity,
+          height: double.infinity,
+          fit: BoxFit.cover,
+          placeholder: (context, url) => Container(color: Colors.black),
+          errorWidget: (context, url, error) =>
+              Container(color: Colors.black54),
+        ),
+
+        // Loading indicator
+        Center(
+          child: CircularProgressIndicator(
+            strokeWidth: 3,
+            valueColor: AlwaysStoppedAnimation<Color>(AppColors.white),
+          ),
+        ),
+      ],
     );
   }
 }
