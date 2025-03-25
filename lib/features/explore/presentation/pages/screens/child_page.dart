@@ -273,8 +273,8 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
   }
 
   Widget _buildLoadingScreen() {
-    return const Scaffold(
-      backgroundColor: AppColors.white,
+    return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Center(
         child: CircularProgressIndicator(
           strokeWidth: 6,
@@ -287,7 +287,7 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
 
   Widget _buildErrorScreen(String error) {
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -299,12 +299,12 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
 
   Widget _buildMainScreen(HomeTreeState state) {
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       extendBody: true,
       appBar: _buildAppBar(state),
       body: RefreshIndicator(
         color: Colors.blue,
-        backgroundColor: AppColors.white,
+        backgroundColor: Theme.of(context).cardColor,
         elevation: 1,
         strokeWidth: 3,
         displacement: 40,
@@ -331,7 +331,7 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
                   automaticallyImplyLeading: false,
                   toolbarHeight: 50,
                   flexibleSpace: _buildFiltersBar(state),
-                  backgroundColor: AppColors.bgColor,
+                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                 ),
               ),
             ),
@@ -462,7 +462,7 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
         elevation: 0,
         scrolledUnderElevation: 0,
         automaticallyImplyLeading: false,
-        backgroundColor: AppColors.bgColor,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         systemOverlayStyle: const SystemUiOverlayStyle(
           statusBarIconBrightness: Brightness.dark,
         ),
@@ -481,7 +481,7 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
                         onPressed: () => context.pop(),
                         icon: Icon(
                           Icons.arrow_back_rounded,
-                          color: AppColors.black,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                     ),
@@ -510,7 +510,7 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
                           child: Container(
                             height: 52,
                             decoration: BoxDecoration(
-                              color: AppColors.containerColor,
+                              color: Theme.of(context).cardColor,
                             ),
                             child: Row(
                               children: [
@@ -551,6 +551,7 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
                         AppIcons.filterIc,
                         width: 24,
                         height: 24,
+                        color: Theme.of(context).colorScheme.secondary,
                       ),
                       onPressed: () {
                         final homeTreeCubit =

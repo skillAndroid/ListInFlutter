@@ -13,7 +13,6 @@ import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/post/data/models/category_tree/category_model.dart';
 import 'package:list_in/features/post/data/models/category_tree/child_category_model.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:list_in/features/post/presentation/pages/atributes_releted/child_category_page.dart';
 
 class SubcategoryCard extends StatefulWidget {
@@ -103,7 +102,7 @@ class _SubcategoryCardState extends State<SubcategoryCard>
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 0),
                     decoration: BoxDecoration(
-                      color: AppColors.containerColor,
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
@@ -153,9 +152,9 @@ class _SubcategoryCardState extends State<SubcategoryCard>
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         softWrap: true,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
-                          color: AppColors.black,
+                          color: Theme.of(context).colorScheme.secondary,
                           fontWeight: FontWeight.w500,
                           fontFamily: Constants.Arial,
                         ),

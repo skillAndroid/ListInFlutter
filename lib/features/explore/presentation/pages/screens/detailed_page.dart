@@ -241,7 +241,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
 
   Widget _buildErrorScreen(String error) {
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -262,11 +262,11 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
         if (state.isLoading) return _buildLoadingScreen();
         if (state.error != null) return _buildErrorScreen(state.error!);
         return Scaffold(
-          backgroundColor: AppColors.white,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           appBar: _buildAppBar(state),
           body: RefreshIndicator(
             color: Colors.blue,
-            backgroundColor: AppColors.white,
+            backgroundColor: Theme.of(context).cardColor,
             elevation: 1,
             strokeWidth: 3,
             displacement: 40,
@@ -292,7 +292,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                       flexibleSpace: Column(
                         children: [
                           Container(
-                            color: AppColors.bgColor,
+                            color: Theme.of(context).scaffoldBackgroundColor,
                             height: 50,
                             child: ListView.builder(
                               scrollDirection: Axis.horizontal,
@@ -504,7 +504,8 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                       selected: selectedValue != null ||
                                           (selectedValues != null &&
                                               selectedValues.isNotEmpty),
-                                      backgroundColor: AppColors.containerColor,
+                                      backgroundColor:
+                                          Theme.of(context).cardColor,
                                       selectedColor: AppColors.black,
                                       onSelected: (_) {
                                         if (attribute.values.isNotEmpty &&
@@ -828,7 +829,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
         elevation: 0,
         scrolledUnderElevation: 0,
         automaticallyImplyLeading: false,
-        backgroundColor: AppColors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         systemOverlayStyle: const SystemUiOverlayStyle(
           statusBarIconBrightness: Brightness.dark,
         ),
@@ -847,7 +848,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                         onPressed: () => context.pop(),
                         icon: Icon(
                           Icons.arrow_back_rounded,
-                          color: AppColors.black,
+                          color: Theme.of(context).iconTheme.color,
                         ),
                       ),
                     ),
@@ -876,7 +877,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                           child: Container(
                             height: 52,
                             decoration: BoxDecoration(
-                              color: AppColors.containerColor,
+                              color: Theme.of(context).cardColor,
                             ),
                             child: Row(
                               children: [
@@ -896,7 +897,9 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                         .whatAreYouLookingFor,
                                     style: TextStyle(
                                       fontSize: 15,
-                                      color: AppColors.black,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .secondary,
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
@@ -918,6 +921,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                         AppIcons.filterIc,
                         width: 24,
                         height: 24,
+                        color: Theme.of(context).iconTheme.color,
                       ),
                       onPressed: () {
                         final homeTreeCubit =

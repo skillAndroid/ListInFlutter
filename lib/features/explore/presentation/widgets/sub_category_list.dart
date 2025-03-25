@@ -1,7 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
-import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/explore/presentation/widgets/sub_category_card.dart';
 import 'package:list_in/features/post/data/models/category_tree/category_model.dart';
@@ -38,8 +37,7 @@ class _SubcategoriesListState extends State<SubcategoriesList> {
     final thirdRow =
         widget.subcategories.skip(rowLength * 2).take(rowLength).toList();
 
-    return Container(
-      color: AppColors.bgColor,
+    return SizedBox(
       height: 245,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -68,8 +66,8 @@ class _SubcategoriesListState extends State<SubcategoriesList> {
     );
   }
 
-  Widget _buildRow(
-      List<ChildCategoryModel> items, int rowIndex, bool isFirstRow, HomeTreeState state) {
+  Widget _buildRow(List<ChildCategoryModel> items, int rowIndex,
+      bool isFirstRow, HomeTreeState state) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: items.asMap().entries.map((entry) {
@@ -77,9 +75,9 @@ class _SubcategoriesListState extends State<SubcategoriesList> {
         final category = entry.value;
 
         return Padding(
-         padding: const EdgeInsets.symmetric(horizontal: 0.5),
+          padding: const EdgeInsets.symmetric(horizontal: 0.5),
           child: SubcategoryCard(
-            state : state,
+            state: state,
             category: category,
             categoryM: widget.categoryModel,
             categoryIndex: widget.categoryIndex!,

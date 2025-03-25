@@ -1,5 +1,4 @@
-// ignore_for_file: deprecated_member_use, curly_braces_in_flow_control_structures
-
+import 'dart:async';
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -62,6 +61,10 @@ class _ListInShortsState extends State<ListInShorts>
   final Map<int, bool> _videoInitializing = {};
   final Map<int, bool> _videoInitialized = {};
   final Map<int, String> _cachedVideoFiles = {}; // Track cached video paths
+  final Map<int, bool> _videoLoadFailed =
+      {}; // Track videos that failed to load
+  final Map<int, int> _retryAttempts = {}; // Track number of retry attempts
+  static const int _maxRetryAttempts = 3; // Maximum retry attempts
 
   // Custom cache manager for videos
   late final DefaultCacheManager _cacheManager;
@@ -87,6 +90,7 @@ class _ListInShortsState extends State<ListInShorts>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!_isDisposed) {
         _initializeVisibleVideos();
+        _setupRetryTimer(); // Set up the retry timer
       }
     });
   }
@@ -278,6 +282,7 @@ class _ListInShortsState extends State<ListInShorts>
     }
   }
 
+// Modify _initializeController method to track failures
   Future<void> _initializeController(int index,
       {required bool isActive, required bool fullVideo}) async {
     if (index < 0 || index >= _videos.length) return;
@@ -290,6 +295,14 @@ class _ListInShortsState extends State<ListInShorts>
           _controllers[index]!.value.isInitialized) {
         _controllers[index]!.play();
       }
+      return;
+    }
+
+    // If the video previously failed to load and this is not an active (current) video,
+    // we'll skip preloading it now and retry when it becomes the current video
+    if (_videoLoadFailed[index] == true && !isActive) {
+      debugPrint(
+          '⏭️ Skipping preload for previously failed video at index $index');
       return;
     }
 
@@ -317,6 +330,8 @@ class _ListInShortsState extends State<ListInShorts>
 
           _videoInitializing[index] = false;
           _videoInitialized[index] = true;
+          _videoLoadFailed[index] = false; // Reset failed status on success
+          _retryAttempts[index] = 0; // Reset retry counter on success
 
           if (!_isDisposed && index == _currentIndex && isActive) {
             controller.play();
@@ -337,6 +352,8 @@ class _ListInShortsState extends State<ListInShorts>
 
       _videoInitializing[index] = false;
       _videoInitialized[index] = true;
+      _videoLoadFailed[index] = false; // Reset failed status on success
+      _retryAttempts[index] = 0; // Reset retry counter on success
 
       if (isActive && !_isDisposed) {
         controller.play();
@@ -347,13 +364,28 @@ class _ListInShortsState extends State<ListInShorts>
       _videoInitializing[index] = false;
       _videoInitialized[index] = false;
 
-      // Retry logic for important videos (current and next)
-      if (index == _currentIndex || index == _currentIndex + 1) {
-        debugPrint('🔄 Retrying video initialization for index $index');
+      // Track failure and increment retry counter
+      _retryAttempts[index] = (_retryAttempts[index] ?? 0) + 1;
 
-        // Use a different approach as fallback
+      // Mark as failed if we've exceeded max retries
+      if ((_retryAttempts[index] ?? 0) >= _maxRetryAttempts) {
+        _videoLoadFailed[index] = true;
+        debugPrint(
+            '❌ Marking video at index $index as failed after ${_retryAttempts[index]} attempts');
+      }
+
+      // Retry logic for active videos (current screen) - always attempt regardless of retry count
+      if (isActive) {
+        debugPrint(
+            '🔄 Retry attempt ${_retryAttempts[index]} for active video at index $index');
+
+        // Use a different approach as fallback for active videos
         try {
-          final controller = VideoPlayerController.network(videoUrl);
+          // Try with a different controller initialization approach
+          final controller = VideoPlayerController.network(
+            videoUrl,
+            videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
+          );
           _controllers[index] = controller;
 
           await controller.initialize();
@@ -361,15 +393,22 @@ class _ListInShortsState extends State<ListInShorts>
 
           _videoInitializing[index] = false;
           _videoInitialized[index] = true;
+          _videoLoadFailed[index] = false; // Reset failed status on success
 
-          if (isActive && !_isDisposed) {
+          if (!_isDisposed) {
             controller.play();
             if (mounted) setState(() {});
           }
         } catch (retryError) {
-          debugPrint('⚠️ Retry failed for index $index: $retryError');
-          // Final failure - just mark as not initializing so we can try again later
+          debugPrint(
+              '⚠️ Active video retry failed for index $index: $retryError');
           _videoInitializing[index] = false;
+
+          // Even if this retry fails, we'll keep trying when this is the active video
+          // So don't mark as permanently failed if it's the current video
+          if (index == _currentIndex) {
+            _videoLoadFailed[index] = false;
+          }
         }
       }
     }
@@ -395,6 +434,22 @@ class _ListInShortsState extends State<ListInShorts>
       _currentIndex = newIndex;
     });
 
+    // Check if the new current video previously failed and reset its status to retry
+    if (_videoLoadFailed[newIndex] == true) {
+      debugPrint(
+          '🔁 Resetting failed status for video at index $newIndex to retry');
+      _videoLoadFailed[newIndex] = false;
+
+      // Remove existing controller if any
+      if (_controllers.containsKey(newIndex)) {
+        _controllers[newIndex]!.dispose();
+        _controllers.remove(newIndex);
+      }
+
+      _videoInitialized[newIndex] = false;
+      _videoInitializing[newIndex] = false;
+    }
+
     // Initialize and play the new current video with full video
     _initializeController(newIndex, isActive: true, fullVideo: true);
 
@@ -406,6 +461,48 @@ class _ListInShortsState extends State<ListInShorts>
 
     // Preload new videos in range
     _preloadForwardVideos();
+  }
+
+  void _retryFailedVideosInRange() {
+    // Only retry videos that are close to being viewed (next 2-3 videos)
+    for (int i = 0; i <= 2; i++) {
+      final indexToRetry = _currentIndex + i;
+      if (indexToRetry >= _videos.length) continue;
+
+      // If this video failed previously and is close to being viewed, reset and retry
+      if (_videoLoadFailed[indexToRetry] == true) {
+        debugPrint(
+            '🔄 Proactively retrying soon-to-be-viewed failed video at index $indexToRetry');
+        _videoLoadFailed[indexToRetry] = false;
+
+        // Remove existing controller if any
+        if (_controllers.containsKey(indexToRetry)) {
+          _controllers[indexToRetry]!.dispose();
+          _controllers.remove(indexToRetry);
+        }
+
+        _videoInitialized[indexToRetry] = false;
+        _videoInitializing[indexToRetry] = false;
+
+        // Reinitialize with full video if it's the next video, partial otherwise
+        final shouldLoadFull = (indexToRetry == _currentIndex + 1);
+        _initializeController(indexToRetry,
+            isActive: false, fullVideo: shouldLoadFull);
+      }
+    }
+  }
+
+// Call this method from initState and periodically
+  void _setupRetryTimer() {
+    // Set up a periodic timer to retry failed videos
+    Timer.periodic(const Duration(seconds: 2), (timer) {
+      if (_isDisposed) {
+        timer.cancel();
+        return;
+      }
+
+      _retryFailedVideosInRange();
+    });
   }
 
   void _cleanupControllers() {
