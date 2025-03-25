@@ -90,7 +90,7 @@ class _FiltersPageState extends State<FiltersPage>
         return true;
       },
       child: Scaffold(
-        backgroundColor: AppColors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: BlocConsumer<HomeTreeCubit, HomeTreeState>(
           listenWhen: (previous, current) {
             final previousFilters =
@@ -119,7 +119,8 @@ class _FiltersPageState extends State<FiltersPage>
                           automaticallyImplyLeading: false,
                           scrolledUnderElevation: 0,
                           elevation: 0,
-                          backgroundColor: Colors.white,
+                          backgroundColor:
+                              Theme.of(context).scaffoldBackgroundColor,
                           flexibleSpace: Padding(
                             padding: const EdgeInsets.only(
                               top: 8,
@@ -1382,16 +1383,18 @@ class _FiltersPageState extends State<FiltersPage>
             label: Text(
               label,
               style: TextStyle(
-                color: isSelected ? AppColors.white : AppColors.blue,
+                color: isSelected
+                    ? Theme.of(context).colorScheme.onSecondary
+                    : Theme.of(context).colorScheme.secondary,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
               ),
             ),
             showCheckmark: true,
             selected: isSelected,
             onSelected: onSelected,
-            backgroundColor: Colors.white,
+            backgroundColor: Theme.of(context).cardColor,
             selectedColor: CupertinoColors.activeGreen,
-            checkmarkColor: Colors.white,
+            checkmarkColor: Theme.of(context).colorScheme.onSecondary,
             elevation: 0,
             pressElevation: 4,
             shape: SmoothRectangleBorder(
@@ -1400,9 +1403,9 @@ class _FiltersPageState extends State<FiltersPage>
                 cornerSmoothing: 0.5,
               ),
               side: BorderSide(
-                color:
-                    isSelected ? Colors.transparent : AppColors.containerColor,
-              ),
+                  color: isSelected
+                      ? Colors.transparent
+                      : AppColors.containerColor.withOpacity(0.4)),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -1484,10 +1487,10 @@ class _FiltersPageState extends State<FiltersPage>
           padding: const EdgeInsets.only(left: 0, bottom: 8),
           child: Text(
             localizations.seller_type,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w500,
-              color: Colors.black,
+              color: Theme.of(context).colorScheme.secondary,
             ),
           ),
         ),
@@ -1495,11 +1498,11 @@ class _FiltersPageState extends State<FiltersPage>
           width: 250,
           child: Container(
             decoration: ShapeDecoration(
-              color: AppColors.white,
+              color: Theme.of(context).scaffoldBackgroundColor,
               shape: SmoothRectangleBorder(
                 side: BorderSide(
                   width: 1,
-                  color: AppColors.containerColor,
+                  color: AppColors.containerColor.withOpacity(0.4),
                 ),
                 borderRadius: SmoothBorderRadius(
                   cornerRadius: 24,
@@ -1540,7 +1543,8 @@ class _FiltersPageState extends State<FiltersPage>
             height: 42,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: isSelected ? AppColors.containerColor : Colors.transparent,
+              color:
+                  isSelected ? Theme.of(context).cardColor : Colors.transparent,
             ),
             child: AnimatedDefaultTextStyle(
               duration: Duration(milliseconds: 100),
@@ -1549,7 +1553,9 @@ class _FiltersPageState extends State<FiltersPage>
                 fontFamily: Constants.Arial,
                 fontSize: 15,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.normal,
-                color: isSelected ? AppColors.primary : AppColors.darkGray,
+                color: isSelected
+                    ? AppColors.primary
+                    : Theme.of(context).colorScheme.onSurface,
               ),
               child: Text(
                 label,
@@ -1575,10 +1581,10 @@ class _FiltersPageState extends State<FiltersPage>
           padding: const EdgeInsets.only(left: 0, bottom: 12),
           child: Text(
             localizations.sorting,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w500,
-              color: Colors.black,
+              color: Theme.of(context).colorScheme.secondary,
             ),
           ),
         ),
@@ -1613,10 +1619,10 @@ class _FiltersPageState extends State<FiltersPage>
                     ),
                   ),
                   child: state.bargain
-                      ? const Icon(
+                      ? Icon(
                           Icons.check,
                           size: 16,
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.onSecondary,
                         )
                       : null,
                 ),
@@ -1626,10 +1632,10 @@ class _FiltersPageState extends State<FiltersPage>
                 padding: const EdgeInsets.only(left: 0, bottom: 1),
                 child: Text(
                   localizations.bargain,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w400,
-                    color: AppColors.darkGray,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ),
@@ -1668,10 +1674,10 @@ class _FiltersPageState extends State<FiltersPage>
                     ),
                   ),
                   child: state.isFree
-                      ? const Icon(
+                      ? Icon(
                           Icons.check,
                           size: 16,
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.onSecondary,
                         )
                       : null,
                 ),
@@ -1681,10 +1687,10 @@ class _FiltersPageState extends State<FiltersPage>
                 padding: const EdgeInsets.only(left: 0, bottom: 1),
                 child: Text(
                   localizations.for_free,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w400,
-                    color: AppColors.darkGray,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ),
@@ -1704,10 +1710,10 @@ class _FiltersPageState extends State<FiltersPage>
           padding: const EdgeInsets.only(left: 0, bottom: 8),
           child: Text(
             localizations.condition,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w500,
-              color: Colors.black,
+              color: Theme.of(context).colorScheme.secondary,
             ),
           ),
         ),
@@ -1715,11 +1721,11 @@ class _FiltersPageState extends State<FiltersPage>
           width: 250,
           child: Container(
             decoration: ShapeDecoration(
-              color: AppColors.white,
+              color: Theme.of(context).scaffoldBackgroundColor,
               shape: SmoothRectangleBorder(
                 side: BorderSide(
                   width: 1,
-                  color: AppColors.containerColor,
+                  color: AppColors.containerColor.withOpacity(0.4),
                 ),
                 borderRadius: SmoothBorderRadius(
                   cornerRadius: 24,
@@ -1759,7 +1765,8 @@ class _FiltersPageState extends State<FiltersPage>
             height: 42,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: isSelected ? AppColors.containerColor : Colors.transparent,
+              color:
+                  isSelected ? Theme.of(context).cardColor : Colors.transparent,
             ),
             child: AnimatedDefaultTextStyle(
               duration: Duration(milliseconds: 100),
@@ -1768,7 +1775,9 @@ class _FiltersPageState extends State<FiltersPage>
                 fontFamily: Constants.Arial,
                 fontSize: 15,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.normal,
-                color: isSelected ? AppColors.primary : AppColors.darkGray,
+                color: isSelected
+                    ? AppColors.primary
+                    : Theme.of(context).colorScheme.onSurface,
               ),
               child: Text(
                 label,
@@ -2511,8 +2520,8 @@ class _PriceRangeSliderState extends State<PriceRangeSlider> {
               if (isDisabled)
                 Text(
                   widget.localizations.no_results_in_range,
-                  style: const TextStyle(
-                    color: Colors.grey,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 17,
                     fontWeight: FontWeight.w400,
                   ),
@@ -2520,8 +2529,8 @@ class _PriceRangeSliderState extends State<PriceRangeSlider> {
               else
                 Text(
                   '${_formatPrice(_currentRange.start)} - ${_formatPrice(_currentRange.end)}',
-                  style: const TextStyle(
-                    color: AppColors.darkGray,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 19,
                     fontWeight: FontWeight.w500,
                   ),
