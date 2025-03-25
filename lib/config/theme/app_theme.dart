@@ -6,20 +6,47 @@ import 'package:list_in/core/utils/const.dart';
 class AppTheme {
   static final lightTheme = ThemeData(
     primaryColor: AppColors.primary,
+    cardColor: AppColors.containerColor,
     appBarTheme: const AppBarTheme(
       elevation: 0,
     ),
+    colorScheme: ColorScheme(
+      brightness: Brightness.light,
+      primary: AppColors.primary,
+      onPrimary: AppColors.primary,
+      secondary: AppColors.black,
+      onSecondary: AppColors.containerColor,
+      error: AppColors.error,
+      onError: AppColors.error,
+      surface: AppColors.darkGray,
+      onSurface: AppColors.darkBackground,
+    ),
+    highlightColor: AppColors.containerColor,
     textSelectionTheme: const TextSelectionThemeData(
       cursorColor: AppColors.black,
       selectionColor: AppColors.lightGray,
       selectionHandleColor: AppColors.black,
     ),
     secondaryHeaderColor: AppColors.secondaryColor,
-    scaffoldBackgroundColor: AppColors.lightBackground,
+    scaffoldBackgroundColor: AppColors.white,
     brightness: Brightness.light,
     fontFamily: Constants.Arial,
-    textTheme: Typography.material2018().black.apply(
-          fontFamily: Constants.Arial,
+    textTheme: Typography.material2018().black.copyWith(
+          bodyLarge: const TextStyle(
+            color: AppColors.black,
+            fontSize: 17,
+            fontWeight: FontWeight.normal,
+          ),
+          bodyMedium: const TextStyle(
+            color: AppColors.darkGray,
+            fontSize: 16,
+            fontWeight: FontWeight.normal,
+          ),
+          titleLarge: const TextStyle(
+            color: AppColors.black,
+            fontSize: 22,
+            fontWeight: FontWeight.w500,
+          ),
         ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
@@ -93,12 +120,39 @@ class AppTheme {
   );
 
   static final darkTheme = ThemeData(
+    colorScheme: ColorScheme(
+      brightness: Brightness.dark,
+      primary: AppColors.primary,
+      onPrimary: AppColors.primary,
+      secondary: AppColors.white,
+      onSecondary: AppColors.containerColorDark,
+      error: AppColors.error,
+      onError: AppColors.error,
+      surface: AppColors.lightGray,
+      onSurface: AppColors.lightBackground,
+    ),
     primaryColor: AppColors.primary,
-    scaffoldBackgroundColor: AppColors.darkBackground,
+    highlightColor: AppColors.containerColorDark2,
+    cardColor: AppColors.containerColorDark,
+    scaffoldBackgroundColor: AppColors.black,
     brightness: Brightness.dark,
-    fontFamily: 'Satoshi',
-    textTheme: Typography.material2018().white.apply(
-          fontFamily: 'Satoshi',
+    fontFamily: Constants.Arial,
+    textTheme: Typography.material2018().black.copyWith(
+          bodyLarge: const TextStyle(
+            color: AppColors.white,
+            fontSize: 17,
+            fontWeight: FontWeight.normal,
+          ),
+          bodyMedium: const TextStyle(
+            color: AppColors.lightGray,
+            fontSize: 16,
+            fontWeight: FontWeight.normal,
+          ),
+          titleLarge: const TextStyle(
+            color: AppColors.white,
+            fontSize: 22,
+            fontWeight: FontWeight.w500,
+          ),
         ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
@@ -117,7 +171,7 @@ class AppTheme {
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primary,
-        foregroundColor: AppColors.white, // This sets the text color
+        foregroundColor: AppColors.white,
         textStyle: const TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.bold,
@@ -138,10 +192,7 @@ class AppTheme {
         statusBarIconBrightness: theme.brightness == Brightness.light
             ? Brightness.dark
             : Brightness.light,
-        systemNavigationBarColor: theme.scaffoldBackgroundColor,
-        systemNavigationBarIconBrightness: theme.brightness == Brightness.light
-            ? Brightness.dark
-            : Brightness.light,
+        systemNavigationBarColor: AppColors.transparent,
       ),
     );
   }

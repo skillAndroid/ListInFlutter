@@ -81,11 +81,14 @@ class _MainWrapperState extends State<MainWrapper> {
     }
 
     // Define colors based on mode
-    final backgroundColor = _isDarkMode ? AppColors.black : AppColors.white;
+    final backgroundColor = _isDarkMode
+        ? AppColors.black
+        : Theme.of(context).scaffoldBackgroundColor;
     final borderColor = _isDarkMode
         ? Colors.grey[800] ?? AppColors.containerColor
-        : AppColors.containerColor;
-    final textColor = _isDarkMode ? AppColors.white : AppColors.black;
+        : Theme.of(context).colorScheme.onSecondary;
+    final textColor =
+        _isDarkMode ? AppColors.white : Theme.of(context).colorScheme.secondary;
     final inactiveColor = _isDarkMode
         ? Colors.grey[600] ?? CupertinoColors.inactiveGray
         : CupertinoColors.inactiveGray;

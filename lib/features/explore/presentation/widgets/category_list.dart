@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/explore/presentation/widgets/category_card.dart';
@@ -27,9 +26,8 @@ class CategoriesList extends StatelessWidget {
         final secondRow =
             state.catalogs!.skip(halfLength).take(halfLength).toList();
 
-        return Container(
-          color: AppColors.bgColor,
-          height: 156, // Adjusted height for two rows
+        return SizedBox(
+          height: 156,
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             physics: const BouncingScrollPhysics(),

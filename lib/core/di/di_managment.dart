@@ -14,6 +14,7 @@ import 'package:list_in/core/language/language_rep.dart';
 import 'package:list_in/core/local_data/shared_preferences.dart';
 import 'package:list_in/core/router/go_router.dart';
 import 'package:list_in/core/services/auth_service.dart';
+import 'package:list_in/core/theme/provider/theme_provider.dart';
 import 'package:list_in/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:list_in/features/auth/data/sources/auth_local_data_source.dart';
 import 'package:list_in/features/auth/data/sources/auth_remote_data_source.dart';
@@ -105,7 +106,9 @@ Future<void> init() async {
   sl.registerLazySingleton<LanguageRepository>(
     () => LanguageRepository(prefsService: sl()),
   );
-
+  sl.registerFactory<ThemeBloc>(
+    () => ThemeBloc(sl<SharedPrefsService>()),
+  );
   // Register Language BLoC
   sl.registerFactory<LanguageBloc>(
     () => LanguageBloc(repository: sl()),

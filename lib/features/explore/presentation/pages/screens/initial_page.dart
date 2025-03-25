@@ -278,7 +278,8 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
   }
 
   Widget _buildLoadingScreen() {
-    return const Scaffold(
+    return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Center(
         child: CircularProgressIndicator(
           strokeWidth: 6,
@@ -291,6 +292,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
 
   Widget _buildErrorScreen(String error) {
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -302,8 +304,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
 
   Widget _buildMainScreen(HomeTreeState state) {
     return Scaffold(
-      backgroundColor: AppColors.white,
-      // CupertinoColors.extraLightBackgroundGray.withOpacity(0.5),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       extendBody: true,
       appBar: _buildAppBar(state),
       body: RefreshIndicator(
@@ -336,7 +337,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                   automaticallyImplyLeading: false,
                   toolbarHeight: 50,
                   flexibleSpace: _buildFiltersBar(state),
-                  backgroundColor: AppColors.bgColor,
+                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                 ),
               ),
             ),
@@ -352,58 +353,50 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
     return SliverPadding(
       padding: const EdgeInsets.only(left: 0, right: 0, bottom: 8),
       sliver: SliverToBoxAdapter(
-        child: Container(
-          color: AppColors.white,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 40,
+                    height: 40,
+                    child: Center(
+                      child: Icon(
+                        Icons.play_arrow_rounded,
+                        size: 28,
+                        color: Theme.of(context).iconTheme.color,
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 8,
+                  ),
+                  Text(
+                    AppLocalizations.of(context)!.video_posts,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: Constants.Arial,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (state.videoPublications.isNotEmpty) ...[
+              SizedBox(height: 4),
               Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(100),
-                      child: Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: AppColors.white,
-                        ),
-                        child: Center(
-                          child: Icon(
-                            Icons.play_arrow_rounded,
-                            size: 28,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 8,
-                    ),
-                    Text(
-                      AppLocalizations.of(context)!.video_posts,
-                      style: TextStyle(
-                        color: AppColors.darkBackground,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        fontFamily: Constants.Arial,
-                      ),
-                    ),
-                  ],
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: VideoCarousel(
+                  items: state.videoPublications.sublist(0, 4),
                 ),
               ),
-              if (state.videoPublications.isNotEmpty) ...[
-                SizedBox(height: 4),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: VideoCarousel(
-                    items: state.videoPublications.sublist(0, 4),
-                  ),
-                ),
-                SizedBox(height: 8),
-              ]
-            ],
-          ),
+              SizedBox(height: 8),
+            ]
+          ],
         ),
       ),
     );
@@ -448,17 +441,13 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
     return ValueListenableBuilder<Set<int>>(
       valueListenable: _uiState.selectedFilters,
       builder: (context, selectedFilters, _) {
-        return Container(
-          color: AppColors.bgColor,
-          height: 46,
-          child: ListView.builder(
-            physics: BouncingScrollPhysics(),
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            itemCount: state.catalogs?.length,
-            itemBuilder: (context, index) =>
-                _buildFilterChip(state, index, selectedFilters),
-          ),
+        return ListView.builder(
+          physics: BouncingScrollPhysics(),
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          itemCount: state.catalogs?.length,
+          itemBuilder: (context, index) =>
+              _buildFilterChip(state, index, selectedFilters),
         );
       },
     );
@@ -491,12 +480,10 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
               borderRadius: BorderRadius.circular(16),
             ),
             selected: selectedFilters.contains(index),
-            backgroundColor: AppColors.containerColor,
+            backgroundColor: Theme.of(context).cardColor,
             selectedColor: AppColors.black,
             labelStyle: TextStyle(
-              color: selectedFilters.contains(index)
-                  ? AppColors.white
-                  : AppColors.black,
+              color: Theme.of(context).colorScheme.secondary,
             ),
             onSelected: (selected) {
               context
@@ -530,10 +517,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
       child: AppBar(
         elevation: 0,
         scrolledUnderElevation: 0,
-        backgroundColor: AppColors.bgColor,
-        systemOverlayStyle: const SystemUiOverlayStyle(
-          statusBarIconBrightness: Brightness.dark,
-        ),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         flexibleSpace: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
@@ -566,7 +550,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                         child: Container(
                           height: 52,
                           decoration: BoxDecoration(
-                            color: AppColors.containerColor,
+                            color: Theme.of(context).colorScheme.onSecondary,
                           ),
                           child: Row(
                             children: [
@@ -582,7 +566,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   AppLocalizations.of(context)!
-                                      .whatAreYouLookingFor, // Show current search text or default
+                                      .whatAreYouLookingFor,
                                   style: TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w500,
@@ -592,8 +576,8 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                               SizedBox(
                                 width: 2,
                               ),
-                              const VerticalDivider(
-                                color: AppColors.lightGray,
+                              VerticalDivider(
+                                color: Theme.of(context).highlightColor,
                                 width: 1,
                                 indent: 12,
                                 endIndent: 12,
@@ -602,10 +586,12 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                                 width: 2,
                               ),
                               IconButton(
+                                color: Theme.of(context).iconTheme.color,
                                 icon: Image.asset(
                                   AppIcons.filterIc,
                                   width: 24,
                                   height: 24,
+                                  color: Theme.of(context).iconTheme.color,
                                 ),
                                 onPressed: () {
                                   final homeTreeCubit =
@@ -643,7 +629,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                             AppIcons.chatIc,
                             width: 38,
                             height: 38,
-                            color: AppColors.black,
+                            color: Theme.of(context).colorScheme.secondary,
                           ),
                           onPressed: () {},
                         ),

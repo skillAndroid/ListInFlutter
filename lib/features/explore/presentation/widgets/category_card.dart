@@ -106,7 +106,7 @@ class _CategoryCardState extends State<CategoryCard>
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 0),
                     decoration: BoxDecoration(
-                      color: AppColors.containerColor,
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
@@ -155,9 +155,9 @@ class _CategoryCardState extends State<CategoryCard>
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         softWrap: true,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
-                          color: AppColors.black,
+                          color: Theme.of(context).colorScheme.secondary,
                           fontWeight: FontWeight.w500,
                           fontFamily: Constants.Arial,
                         ),

@@ -15,6 +15,7 @@ import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/di/di_managment.dart';
 import 'package:list_in/core/language/screen/language_picker_screen.dart';
 import 'package:list_in/core/router/routes.dart';
+import 'package:list_in/core/theme/widgets/toggle_button.dart';
 import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/auth/data/sources/auth_local_data_source.dart';
 import 'package:list_in/features/details/presentation/pages/details.dart';
@@ -88,7 +89,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                   child: Text(AppLocalizations.of(context)!.no_user_data)));
         }
         return Scaffold(
-          backgroundColor: Colors.white,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           body: SafeArea(
             child: Stack(
               children: [
@@ -106,24 +107,14 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                             },
                             icon: Icon(
                               Icons.arrow_back_rounded,
-                              color: AppColors.black,
+                              color: Theme.of(context).iconTheme.color,
                             ),
                           ),
                           Text(
                             AppLocalizations.of(context)!.profile,
-                            style: TextStyle(
-                              fontSize: 22,
-                              color: AppColors.black,
-                              fontWeight: FontWeight.w500,
-                            ),
+                            style: Theme.of(context).textTheme.titleLarge,
                           ),
-                          IconButton(
-                            onPressed: () {},
-                            icon: Icon(
-                              CupertinoIcons.moon,
-                              color: AppColors.black,
-                            ),
-                          ),
+                          ThemeToggle()
                         ],
                       ),
                       SizedBox(
@@ -188,7 +179,10 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                       '${userData.nickName}',
                                       style: TextStyle(
                                         fontSize: 22,
-                                        color: AppColors.black,
+                                        color: Theme.of(context)
+                                            .textTheme
+                                            .titleLarge!
+                                            .color,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
@@ -197,7 +191,10 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                       child: Text(
                                         userData.email.toString(),
                                         style: TextStyle(
-                                          color: AppColors.darkGray,
+                                          color: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium!
+                                              .color,
                                           fontSize: 17,
                                         ),
                                         overflow: TextOverflow.ellipsis,
@@ -240,7 +237,10 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                                 .following,
                                             style: TextStyle(
                                               fontSize: 16,
-                                              color: AppColors.black,
+                                              color: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyLarge!
+                                                  .color,
                                               fontWeight: FontWeight.w500,
                                             ),
                                           ),
@@ -250,7 +250,10 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                             style: TextStyle(
                                               fontSize: 16,
                                               fontWeight: FontWeight.w500,
-                                              color: AppColors.black,
+                                              color: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyLarge!
+                                                  .color,
                                             ),
                                           ),
                                         ],
@@ -277,7 +280,10 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                                 .followers,
                                             style: TextStyle(
                                               fontSize: 16,
-                                              color: AppColors.black,
+                                              color: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyLarge!
+                                                  .color,
                                               fontWeight: FontWeight.w500,
                                             ),
                                           ),
@@ -287,7 +293,10 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                             style: TextStyle(
                                               fontSize: 16,
                                               fontWeight: FontWeight.w500,
-                                              color: AppColors.black,
+                                              color: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyLarge!
+                                                  .color,
                                             ),
                                           ),
                                         ],
@@ -301,6 +310,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                   children: [
                                     IconButton(
                                       icon: Icon(CupertinoIcons.share),
+                                      color: Theme.of(context).iconTheme.color,
                                       onPressed: () => shareUserProfile(
                                         context,
                                         UserProfileEntity(
@@ -348,6 +358,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                           ),
                                         );
                                       },
+                                      color: Theme.of(context).iconTheme.color,
                                       icon: Icon(Icons.edit_outlined),
                                     ),
                                   ],
@@ -371,8 +382,11 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                     child: _buildStatCard(
                                       AppLocalizations.of(context)!.posts,
                                       '⟶',
-                                      Colors.white,
-                                      Colors.black,
+                                      Theme.of(context).scaffoldBackgroundColor,
+                                      Theme.of(context)
+                                          .textTheme
+                                          .bodyLarge!
+                                          .color,
                                     ),
                                   ),
                                 ),
@@ -391,8 +405,11 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                     child: _buildStatCard(
                                       AppLocalizations.of(context)!.favorites,
                                       '⟶',
-                                      Colors.white,
-                                      Colors.black,
+                                      Theme.of(context).scaffoldBackgroundColor,
+                                      Theme.of(context)
+                                          .textTheme
+                                          .bodyLarge!
+                                          .color,
                                     ),
                                   ),
                                 ),
@@ -811,9 +828,12 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
   }
 
   Widget _buildStatCard(
-      String value, String label, Color bgColor, Color textColor) {
+      String value, String label, Color bgColor, Color? textColor) {
     return SmoothClipRRect(
-      side: BorderSide(width: 1, color: AppColors.containerColor),
+      side: BorderSide(
+        width: 1,
+        color: Theme.of(context).cardColor,
+      ),
       borderRadius: BorderRadius.circular(16),
       child: Container(
         padding:
@@ -868,7 +888,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                   image,
                   width: 20,
                   height: 20,
-                  color: Colors.black,
+                  color: Theme.of(context).colorScheme.secondary,
                 ),
                 SizedBox(
                   width: 16,
@@ -880,15 +900,18 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                       title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
-                        color: AppColors.black,
+                        color: Theme.of(context).colorScheme.secondary,
                       ),
                     ),
                   ),
                 ),
-                Icon(Icons.chevron_right_rounded, color: Colors.black),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
               ],
             ),
             SizedBox(
@@ -898,7 +921,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
               borderRadius: BorderRadius.circular(1),
               child: Divider(
                 height: 0.5,
-                color: AppColors.containerColor,
+                color: Theme.of(context).colorScheme.onSecondary,
               ),
             ),
           ],

@@ -237,22 +237,22 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
                       children: [
                         TextSpan(
                           text: "${widget.model.title} ",
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
                             height: 1.2,
                             fontFamily: Constants.Arial,
                             fontWeight: FontWeight.w600,
-                            color: Colors.black,
+                            color: Theme.of(context).colorScheme.secondary,
                           ),
                         ),
                         TextSpan(
                           text: " ${widget.model.description}",
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
                             height: 1.2,
                             fontFamily: Constants.Arial,
                             fontWeight: FontWeight.w400,
-                            color: AppColors.darkGray,
+                            color: Theme.of(context).colorScheme.surface,
                           ),
                         ),
                       ],
@@ -339,13 +339,15 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.8),
+                    color: Theme.of(context)
+                        .scaffoldBackgroundColor
+                        .withOpacity(0.75),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     '${_currentPage + 1} of ${widget.model.images.length}',
                     style: TextStyle(
-                      color: Colors.black,
+                      color: Theme.of(context).colorScheme.secondary,
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
                     ),
@@ -373,15 +375,16 @@ class _UserInfoHeader extends StatelessWidget {
         children: [
           // Profile image
           CircleAvatar(
-            radius: 18,
-            backgroundColor: Colors.grey[300],
+            radius: 17,
+            backgroundColor:
+                Theme.of(context).colorScheme.secondary.withOpacity(0.5),
             child: seller.imageUrl != null
                 ? ClipOval(
                     child: CachedNetworkImage(
                       imageUrl: 'https://${seller.imageUrl}',
                       fit: BoxFit.cover,
-                      width: 36, // 2 * radius
-                      height: 36, // 2 * radius
+                      width: 32, // 2 * radius
+                      height: 32, // 2 * radius
                       memCacheWidth:
                           150, // Low resolution for performance (2x for high DPI)
                       httpHeaders: const {
@@ -402,10 +405,10 @@ class _UserInfoHeader extends StatelessWidget {
 
           Text(
             seller.name,
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.w600,
-              fontSize: 14,
-              color: AppColors.black,
+              fontSize: 13,
+              color: Theme.of(context).colorScheme.secondary,
             ),
           ),
         ],
@@ -437,7 +440,7 @@ class _ActionButton extends StatelessWidget {
         style: IconButton.styleFrom(
           foregroundColor: isDisabled ? Colors.grey : color,
           backgroundColor:
-              isDisabled ? Colors.grey[100] : color.withOpacity(0.1),
+              isDisabled ? Colors.grey[100] : Theme.of(context).cardColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(32),
           ),
@@ -539,7 +542,7 @@ class _OptimizedLikeButtonState extends State<OptimizedLikeButton>
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(40),
-        color: AppColors.white.withOpacity(0.8),
+        color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.75),
         boxShadow: [
           BoxShadow(
             color: Colors.black12,
@@ -554,7 +557,9 @@ class _OptimizedLikeButtonState extends State<OptimizedLikeButton>
         padding: const EdgeInsets.all(8),
         child: Image.asset(
           widget.isLiked ? AppIcons.favoriteBlack : AppIcons.favorite,
-          color: widget.isLiked ? Colors.red : AppColors.black,
+          color: widget.isLiked
+              ? Colors.red
+              : Theme.of(context).colorScheme.secondary,
         ),
       ),
     );

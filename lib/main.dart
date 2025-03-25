@@ -8,6 +8,7 @@ import 'package:list_in/config/theme/app_language.dart';
 import 'package:list_in/config/theme/app_theme.dart';
 import 'package:list_in/core/language/language_bloc.dart';
 import 'package:list_in/core/router/go_router.dart';
+import 'package:list_in/core/theme/provider/theme_provider.dart';
 import 'package:list_in/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:list_in/features/details/presentation/bloc/details_bloc.dart';
 import 'package:list_in/features/followers/presentation/bloc/social_user_bloc.dart';
@@ -36,6 +37,9 @@ void main() async {
       ],
       child: MultiBlocProvider(
         providers: [
+          BlocProvider<ThemeBloc>(
+            create: (context) => di.sl<ThemeBloc>()..add(InitThemeEvent()),
+          ),
           BlocProvider(
             create: (_) => di.sl<GlobalBloc>(),
           ),
@@ -83,49 +87,45 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.dark,
-        statusBarBrightness: Brightness.light,
-        systemNavigationBarColor: Colors.transparent,
-        systemNavigationBarDividerColor: Colors.transparent,
-      ),
-    );
-
     SystemChrome.setEnabledSystemUIMode(
       SystemUiMode.edgeToEdge,
       overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom],
     );
 
-    return BlocBuilder<LanguageBloc, LanguageState>(
-      builder: (context, state) {
-        Locale locale = const Locale(AppLanguages.english);
+    return BlocBuilder<ThemeBloc, ThemeState>(
+      builder: (context, themeState) {
+        // Determine which theme to use
+        final isDarkMode =
+            themeState is ThemeLoaded ? themeState.isDarkMode : false;
 
-        if (state is LanguageLoaded) {
-          locale = Locale(state.languageCode);
-        }
+        return BlocBuilder<LanguageBloc, LanguageState>(
+          builder: (context, langState) {
+            Locale locale = const Locale(AppLanguages.english);
+            if (langState is LanguageLoaded) {
+              locale = Locale(langState.languageCode);
+            }
 
-        return MediaQuery(
-          data: MediaQuery.of(context)
-              .copyWith(textScaler: TextScaler.linear(0.85)),
-          child: MaterialApp.router(
-            title: 'Your App',
-            theme: AppTheme.lightTheme,
-            darkTheme: AppTheme.lightTheme,
-            debugShowCheckedModeBanner: false,
-            routerConfig: router,
-
-            // Add localization support
-            localizationsDelegates: const [
-              AppLocalizations.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            supportedLocales: AppLanguages.supportedLocales,
-            locale: locale,
-          ),
+            return MediaQuery(
+              data: MediaQuery.of(context)
+                  .copyWith(textScaler: TextScaler.linear(0.85)),
+              child: MaterialApp.router(
+                title: 'Your App',
+                theme: AppTheme.lightTheme,
+                darkTheme: AppTheme.darkTheme,
+                themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
+                debugShowCheckedModeBanner: false,
+                routerConfig: router,
+                localizationsDelegates: const [
+                  AppLocalizations.delegate,
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate,
+                ],
+                supportedLocales: AppLanguages.supportedLocales,
+                locale: locale,
+              ),
+            );
+          },
         );
       },
     );

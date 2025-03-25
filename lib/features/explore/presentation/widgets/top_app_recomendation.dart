@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/explore/presentation/widgets/category_list.dart';
 import 'package:list_in/features/explore/presentation/widgets/recomendation_widget.dart';
 
@@ -13,17 +12,14 @@ class TopAppRecomendationCategory extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: AppColors.bgColor,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const SizedBox(height: 2),
-          RecommendationsRow(recommendations: recommendations),
-          const SizedBox(height: 2),
-          CategoriesList(),
-        ],
-      ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const SizedBox(height: 2),
+        RecommendationsRow(recommendations: recommendations),
+        const SizedBox(height: 2),
+        CategoriesList(),
+      ],
     );
   }
 }

@@ -315,10 +315,10 @@ class ProductDetailsSection extends StatelessWidget {
               Expanded(
                 child: Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14.5,
                     fontWeight: FontWeight.w500,
-                    color: AppColors.black,
+                    color: Theme.of(context).colorScheme.secondary,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -338,18 +338,19 @@ class ProductDetailsSection extends StatelessWidget {
       children: [
         Text(
           formatPrice(price.toString()),
-          style: const TextStyle(
-              fontWeight: FontWeight.w700,
-              fontSize: 17,
-              color: AppColors.black,
-              fontFamily: Constants.Arial),
-        ),
+          style: TextStyle(
+            fontWeight: FontWeight.w700,
+            fontSize: 17,
+            color: Theme.of(context).colorScheme.secondary,
+            fontFamily: Constants.Arial,
+          ),
+        ), //
         Text(
           location,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            color: AppColors.darkGray,
+            color: Theme.of(context).colorScheme.surface,
             fontSize: 13,
             fontWeight: FontWeight.w300,
           ),
