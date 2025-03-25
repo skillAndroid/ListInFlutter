@@ -213,12 +213,12 @@ class _SearchResultPageState extends State<SearchResultPage> {
   }
 
   Widget _buildLoadingScreen() {
-    return const Scaffold(
-      backgroundColor: AppColors.white,
+    return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Center(
         child: CircularProgressIndicator(
           strokeWidth: 6,
-          color: AppColors.black,
+          color: Theme.of(context).colorScheme.secondary,
           strokeCap: StrokeCap.round,
         ),
       ),
@@ -227,7 +227,7 @@ class _SearchResultPageState extends State<SearchResultPage> {
 
   Widget _buildErrorScreen(String error) {
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -255,11 +255,11 @@ class _SearchResultPageState extends State<SearchResultPage> {
           if (state.isLoading) return _buildLoadingScreen();
           if (state.error != null) return _buildErrorScreen(state.error!);
           return Scaffold(
-            backgroundColor: AppColors.white,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             appBar: _buildAppBar(state),
             body: RefreshIndicator(
               color: Colors.blue,
-              backgroundColor: AppColors.white,
+              backgroundColor: Theme.of(context).cardColor,
               elevation: 1,
               strokeWidth: 3,
               displacement: 40,
@@ -280,7 +280,7 @@ class _SearchResultPageState extends State<SearchResultPage> {
                     flexibleSpace: Column(
                       children: [
                         Container(
-                            color: AppColors.bgColor,
+                            color: Theme.of(context).scaffoldBackgroundColor,
                             height: 50,
                             child: ListView.builder(
                               scrollDirection: Axis.horizontal,
@@ -304,22 +304,32 @@ class _SearchResultPageState extends State<SearchResultPage> {
                                           Text(
                                             AppLocalizations.of(context)!.price,
                                             style: TextStyle(
-                                              color: AppColors.black,
+                                              color: state.priceFrom != null ||
+                                                      state.priceTo != null
+                                                  ? Theme.of(context)
+                                                      .colorScheme
+                                                      .onSecondary
+                                                  : Theme.of(context)
+                                                      .colorScheme
+                                                      .secondary,
                                             ),
                                           ),
                                         ],
                                       ),
                                       side: BorderSide(
                                         width: 1,
-                                        color: AppColors.lightGray,
+                                        color: Theme.of(context).cardColor,
                                       ),
                                       shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
+                                        borderRadius: BorderRadius.circular(16),
                                       ),
+                                      backgroundColor:
+                                          Theme.of(context).cardColor,
+                                      selectedColor: Theme.of(context)
+                                          .colorScheme
+                                          .secondary,
                                       selected: state.priceFrom != null ||
                                           state.priceTo != null,
-                                      backgroundColor: AppColors.white,
-                                      selectedColor: AppColors.white,
                                       onSelected: (_) =>
                                           _showPriceRangeBottomSheet(context),
                                     ),
@@ -339,20 +349,28 @@ class _SearchResultPageState extends State<SearchResultPage> {
                                       label: Text(
                                         _getConditionText(state.condition),
                                         style: TextStyle(
-                                          color: AppColors.black,
+                                          color: state.condition != 'ALL'
+                                              ? Theme.of(context)
+                                                  .colorScheme
+                                                  .onSecondary
+                                              : Theme.of(context)
+                                                  .colorScheme
+                                                  .secondary,
                                         ),
                                       ),
                                       side: BorderSide(
                                         width: 1,
-                                        color: AppColors.lightGray
-                                            .withOpacity(0.7),
+                                        color: Theme.of(context).cardColor,
                                       ),
                                       shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
+                                        borderRadius: BorderRadius.circular(16),
                                       ),
+                                      backgroundColor:
+                                          Theme.of(context).cardColor,
+                                      selectedColor: Theme.of(context)
+                                          .colorScheme
+                                          .secondary,
                                       selected: state.condition != 'ALL',
-                                      backgroundColor: AppColors.white,
-                                      selectedColor: AppColors.white,
                                       onSelected: (_) =>
                                           _showConditionBottomSheet(context),
                                     ),
@@ -393,21 +411,29 @@ class _SearchResultPageState extends State<SearchResultPage> {
                                     label: Text(
                                       _getSellerTypeText(state.sellerType),
                                       style: TextStyle(
-                                        color: AppColors.black,
+                                        color:
+                                            state.sellerType != SellerType.ALL
+                                                ? Theme.of(context)
+                                                    .colorScheme
+                                                    .onSecondary
+                                                : Theme.of(context)
+                                                    .colorScheme
+                                                    .secondary,
                                       ),
                                     ),
                                     side: BorderSide(
                                       width: 1,
-                                      color:
-                                          AppColors.lightGray.withOpacity(0.7),
+                                      color: Theme.of(context).cardColor,
                                     ),
                                     shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
+                                      borderRadius: BorderRadius.circular(16),
                                     ),
+                                    backgroundColor:
+                                        Theme.of(context).cardColor,
+                                    selectedColor:
+                                        Theme.of(context).colorScheme.secondary,
                                     selected:
                                         state.sellerType != SellerType.ALL,
-                                    backgroundColor: AppColors.white,
-                                    selectedColor: AppColors.white,
                                     onSelected: (_) =>
                                         _showSellerTypeBottomSheet(context),
                                   ),
@@ -416,7 +442,7 @@ class _SearchResultPageState extends State<SearchResultPage> {
                             )),
                       ],
                     ),
-                    backgroundColor: AppColors.bgColor,
+                    backgroundColor: AppColors.transparent,
                   ),
                   _buildProductGrid(),
                 ],
@@ -457,7 +483,7 @@ class _SearchResultPageState extends State<SearchResultPage> {
         elevation: 0,
         scrolledUnderElevation: 0,
         automaticallyImplyLeading: false,
-        backgroundColor: AppColors.bgColor,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         systemOverlayStyle: const SystemUiOverlayStyle(
           statusBarIconBrightness: Brightness.dark,
         ),
@@ -479,7 +505,7 @@ class _SearchResultPageState extends State<SearchResultPage> {
                         },
                         icon: Icon(
                           Icons.arrow_back_rounded,
-                          color: AppColors.black,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                     ),
@@ -508,7 +534,7 @@ class _SearchResultPageState extends State<SearchResultPage> {
                           child: Container(
                             height: 52,
                             decoration: BoxDecoration(
-                              color: AppColors.containerColor,
+                              color: Theme.of(context).cardColor,
                             ),
                             child: Row(
                               children: [
@@ -531,7 +557,9 @@ class _SearchResultPageState extends State<SearchResultPage> {
                                             .whatAreYouLookingFor,
                                     style: TextStyle(
                                       fontSize: 15,
-                                      color: AppColors.black,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .secondary,
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
@@ -553,6 +581,7 @@ class _SearchResultPageState extends State<SearchResultPage> {
                         AppIcons.filterIc,
                         width: 24,
                         height: 24,
+                        color: Theme.of(context).colorScheme.secondary,
                       ),
                       onPressed: () {
                         final homeTreeCubit =

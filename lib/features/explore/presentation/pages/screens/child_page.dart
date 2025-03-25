@@ -382,7 +382,7 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
       valueListenable: _uiState.selectedFilters,
       builder: (context, selectedFilters, _) {
         return Container(
-          color: AppColors.bgColor,
+          color: Theme.of(context).scaffoldBackgroundColor,
           height: 46,
           child: ListView.builder(
             physics: BouncingScrollPhysics(),
@@ -424,12 +424,12 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
               borderRadius: BorderRadius.circular(16),
             ),
             selected: selectedFilters.contains(index),
-            backgroundColor: AppColors.containerColor,
+            backgroundColor: Theme.of(context).cardColor,
             selectedColor: AppColors.green,
             labelStyle: TextStyle(
               color: selectedFilters.contains(index)
                   ? AppColors.white
-                  : AppColors.black,
+                  : Theme.of(context).colorScheme.secondary,
             ),
             onSelected: (selected) {
               context.read<HomeTreeCubit>().selectChildCategory(
@@ -448,7 +448,7 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
                 },
               });
             },
-            side: BorderSide(width: 1, color: AppColors.transparent),
+            side: BorderSide(width: 1, color: Theme.of(context).cardColor),
           ),
         );
       },
@@ -463,9 +463,6 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
         scrolledUnderElevation: 0,
         automaticallyImplyLeading: false,
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        systemOverlayStyle: const SystemUiOverlayStyle(
-          statusBarIconBrightness: Brightness.dark,
-        ),
         flexibleSpace: Padding(
           padding: const EdgeInsets.only(bottom: 4),
           child: Column(

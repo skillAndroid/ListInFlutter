@@ -121,7 +121,9 @@ class IOSStyleSwitch extends StatelessWidget {
         padding: const EdgeInsets.all(2),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          color: value ? activeColor : Colors.grey.shade300,
+          color: value
+              ? activeColor
+              : Theme.of(context).colorScheme.secondary.withOpacity(0.1),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.1),
@@ -184,7 +186,9 @@ class SwitchFilterChip extends StatelessWidget {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
-                color: value ? AppColors.white : AppColors.black,
+                color: value
+                    ? Theme.of(context).colorScheme.onSecondary
+                    : Theme.of(context).colorScheme.secondary,
               ),
             ),
             const SizedBox(width: 6),
@@ -197,14 +201,14 @@ class SwitchFilterChip extends StatelessWidget {
         ),
         side: BorderSide(
           width: 1,
-          color: AppColors.transparent,
+          color: Theme.of(context).cardColor,
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
         selected: value,
-        backgroundColor: AppColors.containerColor,
-        selectedColor: AppColors.black,
+        backgroundColor: Theme.of(context).cardColor,
+        selectedColor: Theme.of(context).colorScheme.secondary,
         onSelected: onChanged,
       ),
     );

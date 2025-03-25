@@ -504,7 +504,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                 },
               });
             },
-            side: BorderSide(width: 1, color: AppColors.transparent),
+            side: BorderSide(width: 1, color: Theme.of(context).cardColor),
           ),
         );
       },

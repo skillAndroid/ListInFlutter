@@ -327,20 +327,25 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                       labelStyle: TextStyle(
                                         color: (state.priceFrom != null ||
                                                 state.priceTo != null)
-                                            ? AppColors.white
-                                            : AppColors.black,
+                                            ? Theme.of(context)
+                                                .colorScheme
+                                                .onSecondary
+                                            : Theme.of(context)
+                                                .colorScheme
+                                                .secondary,
                                       ),
                                       side: BorderSide(
                                         width: 1,
-                                        color: AppColors.transparent,
+                                        color: Theme.of(context).cardColor,
                                       ),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(16),
                                       ),
-                                      selected: state.priceFrom != null ||
-                                          state.priceTo != null,
-                                      backgroundColor: AppColors.containerColor,
-                                      selectedColor: AppColors.black,
+                                      backgroundColor:
+                                          Theme.of(context).cardColor,
+                                      selectedColor: Theme.of(context)
+                                          .colorScheme
+                                          .secondary,
                                       onSelected: (_) =>
                                           _showPriceRangeBottomSheet(context),
                                     ),
@@ -489,15 +494,20 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                                       (selectedValues != null &&
                                                           selectedValues
                                                               .isNotEmpty)
-                                                  ? AppColors.white
-                                                  : AppColors.black,
+                                                  ? Theme.of(context)
+                                                      .colorScheme
+                                                      .onSecondary
+                                                  : Theme.of(context)
+                                                      .colorScheme
+                                                      .secondary,
                                             ),
                                           ),
                                         ],
                                       ),
                                       side: BorderSide(
-                                          width: 1,
-                                          color: AppColors.transparent),
+                                        width: 1,
+                                        color: Theme.of(context).cardColor,
+                                      ),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(16),
                                       ),
@@ -506,7 +516,9 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                               selectedValues.isNotEmpty),
                                       backgroundColor:
                                           Theme.of(context).cardColor,
-                                      selectedColor: AppColors.black,
+                                      selectedColor: Theme.of(context)
+                                          .colorScheme
+                                          .secondary,
                                       onSelected: (_) {
                                         if (attribute.values.isNotEmpty &&
                                             mounted) {
@@ -567,21 +579,28 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                             fontSize: 12,
                                             fontWeight: FontWeight.w500,
                                             color: fieldValues != null
-                                                ? AppColors.white
-                                                : AppColors.black,
+                                                ? Theme.of(context)
+                                                    .colorScheme
+                                                    .onSecondary
+                                                : Theme.of(context)
+                                                    .colorScheme
+                                                    .secondary,
                                           ),
                                         ),
                                         side: BorderSide(
-                                            width: 1,
-                                            color: AppColors.transparent),
+                                          width: 1,
+                                          color: Theme.of(context).cardColor,
+                                        ),
                                         shape: RoundedRectangleBorder(
                                           borderRadius:
                                               BorderRadius.circular(16),
                                         ),
                                         selected: fieldValues != null,
                                         backgroundColor:
-                                            AppColors.containerColor,
-                                        selectedColor: AppColors.black,
+                                            Theme.of(context).cardColor,
+                                        selectedColor: Theme.of(context)
+                                            .colorScheme
+                                            .secondary,
                                         onSelected: (_) {
                                           _showNumericFieldBottomSheet(
                                               context, numericField);
@@ -605,26 +624,33 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                         horizontal: 4,
                                         vertical: 10,
                                       ),
+                                      selected: state.condition != 'ALL',
                                       label: Text(
                                         _getConditionText(state.condition),
                                         style: TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w500,
                                           color: state.condition != 'ALL'
-                                              ? AppColors.white
-                                              : AppColors.black,
+                                              ? Theme.of(context)
+                                                  .colorScheme
+                                                  .onSecondary
+                                              : Theme.of(context)
+                                                  .colorScheme
+                                                  .secondary,
                                         ),
                                       ),
                                       side: BorderSide(
                                         width: 1,
-                                        color: AppColors.transparent,
+                                        color: Theme.of(context).cardColor,
                                       ),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(16),
                                       ),
-                                      selected: state.condition != 'ALL',
-                                      backgroundColor: AppColors.containerColor,
-                                      selectedColor: AppColors.black,
+                                      backgroundColor:
+                                          Theme.of(context).cardColor,
+                                      selectedColor: Theme.of(context)
+                                          .colorScheme
+                                          .secondary,
                                       onSelected: (_) =>
                                           _showConditionBottomSheet(context),
                                     ),
@@ -650,20 +676,28 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                           fontWeight: FontWeight.w500,
                                           color:
                                               state.sellerType != SellerType.ALL
-                                                  ? AppColors.white
-                                                  : AppColors.black,
+                                                  ? Theme.of(context)
+                                                      .colorScheme
+                                                      .onSecondary
+                                                  : Theme.of(context)
+                                                      .colorScheme
+                                                      .secondary,
                                         ),
                                       ),
                                       side: BorderSide(
-                                          width: 1,
-                                          color: AppColors.transparent),
+                                        width: 1,
+                                        color: Theme.of(context).cardColor,
+                                      ),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(16),
                                       ),
+                                      backgroundColor:
+                                          Theme.of(context).cardColor,
+                                      selectedColor: Theme.of(context)
+                                          .colorScheme
+                                          .secondary,
                                       selected:
                                           state.sellerType != SellerType.ALL,
-                                      backgroundColor: AppColors.containerColor,
-                                      selectedColor: AppColors.black,
                                       onSelected: (_) =>
                                           _showSellerTypeBottomSheet(context),
                                     ),
@@ -707,7 +741,8 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                           ),
                         ],
                       ),
-                      backgroundColor: AppColors.white,
+                      backgroundColor:
+                          Theme.of(context).scaffoldBackgroundColor,
                     );
                   },
                 ),
@@ -830,9 +865,6 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
         scrolledUnderElevation: 0,
         automaticallyImplyLeading: false,
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        systemOverlayStyle: const SystemUiOverlayStyle(
-          statusBarIconBrightness: Brightness.dark,
-        ),
         flexibleSpace: Padding(
           padding: const EdgeInsets.only(bottom: 4),
           child: Column(

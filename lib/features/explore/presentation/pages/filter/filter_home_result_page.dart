@@ -276,8 +276,8 @@ class _FilterHomeResultPageState extends State<FilterHomeResultPage> {
   }
 
   Widget _buildLoadingScreen() {
-    return const Scaffold(
-      backgroundColor: AppColors.white,
+    return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Center(
         child: CircularProgressIndicator(
           strokeWidth: 6,
@@ -290,7 +290,7 @@ class _FilterHomeResultPageState extends State<FilterHomeResultPage> {
 
   Widget _buildErrorScreen(String error) {
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -302,12 +302,12 @@ class _FilterHomeResultPageState extends State<FilterHomeResultPage> {
 
   Widget _buildMainScreen(HomeTreeState state) {
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       extendBody: true,
       appBar: _buildAppBar(state),
       body: RefreshIndicator(
         color: Colors.blue,
-        backgroundColor: AppColors.white,
+        backgroundColor: Theme.of(context).cardColor,
         elevation: 1,
         strokeWidth: 3,
         displacement: 40,
@@ -321,13 +321,13 @@ class _FilterHomeResultPageState extends State<FilterHomeResultPage> {
           physics: const BouncingScrollPhysics(),
           slivers: [
             SliverAppBar(
-              floating: false,
+              floating: true,
               snap: false,
-              pinned: true,
+              pinned: false,
               automaticallyImplyLeading: false,
               toolbarHeight: 50,
               flexibleSpace: _buildFiltersBar(state),
-              backgroundColor: AppColors.bgColor,
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             ),
             _buildProductGrid(),
           ],
@@ -376,7 +376,7 @@ class _FilterHomeResultPageState extends State<FilterHomeResultPage> {
       valueListenable: _uiState.selectedFilters,
       builder: (context, selectedFilters, _) {
         return Container(
-          color: AppColors.bgColor,
+          color: Theme.of(context).scaffoldBackgroundColor,
           height: 46,
           child: ListView.builder(
             physics: BouncingScrollPhysics(),
@@ -418,12 +418,12 @@ class _FilterHomeResultPageState extends State<FilterHomeResultPage> {
               borderRadius: BorderRadius.circular(16),
             ),
             selected: selectedFilters.contains(index),
-            backgroundColor: AppColors.containerColor,
+            backgroundColor: Theme.of(context).cardColor,
             selectedColor: AppColors.black,
             labelStyle: TextStyle(
               color: selectedFilters.contains(index)
                   ? AppColors.white
-                  : AppColors.black,
+                  : Theme.of(context).colorScheme.secondary,
             ),
             onSelected: (selected) {
               context
@@ -444,7 +444,10 @@ class _FilterHomeResultPageState extends State<FilterHomeResultPage> {
                 },
               });
             },
-            side: BorderSide(width: 1, color: AppColors.transparent),
+            side: BorderSide(
+              width: 1,
+              color: Theme.of(context).cardColor,
+            ),
           ),
         );
       },
@@ -459,10 +462,7 @@ class _FilterHomeResultPageState extends State<FilterHomeResultPage> {
         elevation: 0,
         automaticallyImplyLeading: false,
         scrolledUnderElevation: 0,
-        backgroundColor: AppColors.bgColor,
-        systemOverlayStyle: const SystemUiOverlayStyle(
-          statusBarIconBrightness: Brightness.dark,
-        ),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         flexibleSpace: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
@@ -476,7 +476,7 @@ class _FilterHomeResultPageState extends State<FilterHomeResultPage> {
                       onPressed: () => context.pop(),
                       icon: Icon(
                         Icons.arrow_back_rounded,
-                        color: AppColors.black,
+                        color: Theme.of(context).colorScheme.secondary,
                       ),
                     ),
                   ),
@@ -505,7 +505,7 @@ class _FilterHomeResultPageState extends State<FilterHomeResultPage> {
                         child: Container(
                           height: 52,
                           decoration: BoxDecoration(
-                            color: AppColors.containerColor,
+                            color: Theme.of(context).cardColor,
                           ),
                           child: Row(
                             children: [
@@ -522,6 +522,8 @@ class _FilterHomeResultPageState extends State<FilterHomeResultPage> {
                                   overflow: TextOverflow.ellipsis,
                                   localizations.whatAreYouLookingFor,
                                   style: TextStyle(
+                                    color:
+                                        Theme.of(context).colorScheme.secondary,
                                     fontSize: 15,
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -544,6 +546,7 @@ class _FilterHomeResultPageState extends State<FilterHomeResultPage> {
                       AppIcons.filterIc,
                       width: 24,
                       height: 24,
+                      color: Theme.of(context).colorScheme.secondary,
                     ),
                     onPressed: () {
                       final homeTreeCubit =
