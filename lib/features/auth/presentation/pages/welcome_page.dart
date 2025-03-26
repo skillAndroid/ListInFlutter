@@ -95,7 +95,10 @@ class _WelcomePageState extends State<WelcomePage> {
       child: SmoothClipRRect(
         smoothness: borderRadiusSmoothness,
         borderRadius: BorderRadius.circular(borderRadius),
-        side: const BorderSide(width: 2, color: AppColors.white),
+        side: BorderSide(
+          width: 2,
+          color: Theme.of(context).scaffoldBackgroundColor,
+        ),
         child: Image.asset(
           assetPath,
           height: height,
@@ -114,8 +117,8 @@ class _WelcomePageState extends State<WelcomePage> {
           end: Alignment.topCenter,
           stops: const [0.4, 0.5],
           colors: [
-            AppColors.white,
-            AppColors.white.withOpacity(0),
+            Theme.of(context).scaffoldBackgroundColor,
+            Theme.of(context).scaffoldBackgroundColor.withOpacity(0),
           ],
         ),
       ),
@@ -154,7 +157,7 @@ class _WelcomePageState extends State<WelcomePage> {
             context,
             label: localizations.createAccount,
             color: AppColors.primary,
-            textColor: AppColors.white,
+            textColor: Theme.of(context).scaffoldBackgroundColor,
             onPressed: () => context.push(Routes.signup),
           ),
           const SizedBox(height: 8),
@@ -162,7 +165,7 @@ class _WelcomePageState extends State<WelcomePage> {
             context,
             label: localizations.logIn,
             color: AppColors.transparent,
-            textColor: AppColors.black,
+            textColor: Theme.of(context).colorScheme.secondary,
             onPressed: () => context.push(Routes.login),
           ),
           const SizedBox(height: 20),
@@ -237,17 +240,17 @@ class _WelcomePageState extends State<WelcomePage> {
   }
 
   Widget _buildWelcomeText() {
-     final localizations = AppLocalizations.of(context)!;
+    final localizations = AppLocalizations.of(context)!;
     return RichText(
       text: TextSpan(
         style: TextStyle(
           fontFamily: 'Syne',
           fontSize: 21,
           fontWeight: FontWeight.bold,
-          color: Colors.black,
+          color: Theme.of(context).colorScheme.secondary,
         ),
         children: [
-          TextSpan(text: localizations.listInWorld ),
+          TextSpan(text: localizations.listInWorld),
           // TextSpan(
           //   text: 'ListIn',
           //   style: TextStyle(

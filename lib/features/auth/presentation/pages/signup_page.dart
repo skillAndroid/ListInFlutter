@@ -36,7 +36,7 @@ class _SignupPageState extends State<SignupPage> {
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthSignUpError) {
@@ -67,9 +67,10 @@ class _SignupPageState extends State<SignupPage> {
                                   Navigator.pop(context);
                                 },
                                 padding: EdgeInsets.zero,
-                                icon: const HugeIcon(
+                                icon: HugeIcon(
                                   icon: EvaIcons.arrowIosBack,
-                                  color: AppColors.black,
+                                  color:
+                                      Theme.of(context).colorScheme.secondary,
                                   size: 32,
                                 ),
                               ),
@@ -94,10 +95,10 @@ class _SignupPageState extends State<SignupPage> {
                     const SizedBox(height: 40),
                     Text(
                       localizations.createAccount,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.black,
+                        color: Theme.of(context).colorScheme.secondary,
                         fontFamily: Constants.Arial,
                       ),
                     ),
@@ -109,13 +110,16 @@ class _SignupPageState extends State<SignupPage> {
                         style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w400,
-                            color: AppColors.darkGray.withOpacity(0.75)),
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withOpacity(0.75)),
                       ),
                     ),
                     const SizedBox(height: 24),
                     AuthTextField(
                       controller: _emailController,
-                      labelText: localizations.email,
+                      labelText: localizations.emailBig,
                       keyboardType: TextInputType.emailAddress,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -131,7 +135,8 @@ class _SignupPageState extends State<SignupPage> {
                             smoothness: 0.8,
                             borderRadius: BorderRadius.circular(16)),
                         padding: const EdgeInsets.symmetric(vertical: 18),
-                        foregroundColor: AppColors.white,
+                        foregroundColor:
+                            Theme.of(context).scaffoldBackgroundColor,
                         backgroundColor: AppColors.primary,
                       ),
                       onPressed: state is AuthLoading
@@ -147,13 +152,13 @@ class _SignupPageState extends State<SignupPage> {
                               }
                             },
                       child: state is AuthLoading
-                          ?  SizedBox(
+                          ? SizedBox(
                               height: 18,
                               width: 18,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2.5,
                                 strokeCap: StrokeCap.round,
-                                color: Colors.black,
+                                color: Theme.of(context).colorScheme.secondary,
                               ),
                             )
                           : Text(
@@ -207,21 +212,22 @@ class _SignupPageState extends State<SignupPage> {
                               padding: const EdgeInsets.symmetric(vertical: 18),
                             ),
                             onPressed: () {},
-                            child:  Padding(
+                            child: Padding(
                               padding: EdgeInsets.symmetric(horizontal: 24),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
-                                const  Icon(
+                                  Icon(
                                     Ionicons.logo_google,
                                     //color: AppColors.littleGreen,
-                                    color: AppColors.black,
+                                    color:
+                                        Theme.of(context).colorScheme.secondary,
                                     size: 21,
                                   ),
-                                const  SizedBox(width: 18),
+                                  const SizedBox(width: 18),
                                   Text(
                                     localizations.continueWithGoogle,
-                                    style:const TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 17,
                                       fontWeight: FontWeight.w700,
                                       fontFamily: Constants.Arial,
@@ -248,21 +254,22 @@ class _SignupPageState extends State<SignupPage> {
                             onPressed: () {
                               // Handle Continue with Facebook
                             },
-                            child:  Padding(
+                            child: Padding(
                               padding: EdgeInsets.symmetric(horizontal: 25),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
-                                 const Icon(
+                                  Icon(
                                     EvaIcons.facebook,
                                     size: 24,
                                     //color: AppColors.littleGreen,
-                                    color: AppColors.black,
+                                    color:
+                                        Theme.of(context).colorScheme.secondary,
                                   ),
-                                const  SizedBox(width: 15),
+                                  const SizedBox(width: 15),
                                   Text(
-                                     localizations.continueWithFacebook,
-                                    style:const TextStyle(
+                                    localizations.continueWithFacebook,
+                                    style: const TextStyle(
                                       fontSize: 17,
                                       fontWeight: FontWeight.w700,
                                       fontFamily: Constants.Arial,
@@ -289,21 +296,22 @@ class _SignupPageState extends State<SignupPage> {
                             onPressed: () {
                               // Handle Continue with Apple
                             },
-                            child:  Padding(
+                            child: Padding(
                               padding: EdgeInsets.symmetric(horizontal: 24),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
-                                 const Icon(
+                                  Icon(
                                     Ionicons.logo_apple,
                                     //color: AppColors.littleGreen,
-                                    color: AppColors.black,
+                                    color:
+                                        Theme.of(context).colorScheme.secondary,
                                     size: 24,
                                   ),
-                                 const SizedBox(width: 16),
+                                  const SizedBox(width: 16),
                                   Text(
                                     localizations.continueWithApple,
-                                    style:const TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 17,
                                       fontWeight: FontWeight.w700,
                                       fontFamily: Constants.Arial,
@@ -320,10 +328,10 @@ class _SignupPageState extends State<SignupPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                         Text(
+                        Text(
                           localizations.alreadyHaveAccount,
-                          style:const TextStyle(
-                              color: AppColors.black,
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.secondary,
                               fontSize: 16,
                               fontFamily: Constants.Arial,
                               fontWeight: FontWeight.bold),

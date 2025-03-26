@@ -33,12 +33,12 @@ class _LoginPageState extends State<LoginPage> {
     _passwordController.dispose();
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthLoginError) {
@@ -69,9 +69,9 @@ class _LoginPageState extends State<LoginPage> {
                             },
                             padding:
                                 EdgeInsets.zero, // Removes internal padding
-                            icon: const HugeIcon(
+                            icon: HugeIcon(
                               icon: EvaIcons.arrowIosBack,
-                              color: AppColors.black,
+                              color: Theme.of(context).colorScheme.secondary,
                               size: 32,
                             ),
                           ),
@@ -92,12 +92,12 @@ class _LoginPageState extends State<LoginPage> {
                       ],
                     ),
                     const SizedBox(height: 40),
-                     Text(
+                    Text(
                       localizations.welcomeBack,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.black,
+                        color: Theme.of(context).colorScheme.secondary,
                         fontFamily: Constants.Arial,
                       ),
                     ),
@@ -109,14 +109,17 @@ class _LoginPageState extends State<LoginPage> {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w400,
-                          color: AppColors.darkGray.withOpacity(0.75),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withOpacity(0.75),
                         ),
                       ),
                     ),
                     const SizedBox(height: 24),
                     AuthTextField(
                       controller: _emailController,
-                      labelText: localizations.email,
+                      labelText: localizations.emailBig,
                       keyboardType: TextInputType.emailAddress,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -144,7 +147,8 @@ class _LoginPageState extends State<LoginPage> {
                             smoothness: 0.8,
                             borderRadius: BorderRadius.circular(16)),
                         padding: const EdgeInsets.symmetric(vertical: 18),
-                        foregroundColor: AppColors.white,
+                        foregroundColor:
+                            Theme.of(context).scaffoldBackgroundColor,
                         backgroundColor: AppColors.primary,
                       ),
                       onPressed: state is AuthLoading
@@ -161,13 +165,13 @@ class _LoginPageState extends State<LoginPage> {
                               }
                             },
                       child: state is AuthLoading
-                          ? const SizedBox(
+                          ? SizedBox(
                               height: 18,
                               width: 18,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2.5,
                                 strokeCap: StrokeCap.round,
-                                color: Colors.black,
+                                color: Theme.of(context).colorScheme.secondary,
                               ),
                             )
                           : Text(
@@ -183,10 +187,10 @@ class _LoginPageState extends State<LoginPage> {
                     Center(
                       child: GestureDetector(
                         onTap: () {},
-                        child:  Text(
+                        child: Text(
                           localizations.forgotPassword,
-                          style:const TextStyle(
-                            color: AppColors.black,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.secondary,
                             fontSize: 16,
                             fontFamily: Constants.Arial,
                             fontWeight: FontWeight.bold,
@@ -234,8 +238,10 @@ class _LoginPageState extends State<LoginPage> {
                                   smoothness: 0.8,
                                   borderRadius: BorderRadius.circular(16)),
                               padding: const EdgeInsets.symmetric(vertical: 18),
-                              foregroundColor: AppColors.white,
-                              backgroundColor: AppColors.black,
+                              foregroundColor:
+                                  Theme.of(context).scaffoldBackgroundColor,
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.secondary,
                             ),
                             onPressed: () =>
                                 context.pushReplacement(Routes.signup),

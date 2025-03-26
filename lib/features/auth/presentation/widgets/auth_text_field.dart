@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:list_in/config/theme/app_colors.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class AuthTextField extends StatelessWidget {
@@ -22,22 +21,29 @@ class AuthTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return SmoothClipRRect(
       smoothness: 1,
-      side: BorderSide(width: 1, color: AppColors.containerColor),
+      side: BorderSide(
+        width: 1,
+        color: Theme.of(context).cardColor,
+      ),
       borderRadius: BorderRadius.circular(16),
       child: TextFormField(
-        style: const TextStyle(
-          color: AppColors.black,
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.secondary,
           fontWeight: FontWeight.w500,
           fontSize: 15,
         ),
-        cursorColor: AppColors.black,
+        cursorColor: Theme.of(context).colorScheme.secondary,
         cursorRadius: Radius.circular(2),
-        cursorErrorColor: AppColors.black,
+        cursorErrorColor: Theme.of(context).colorScheme.secondary,
         controller: controller,
         decoration: InputDecoration(
-          labelStyle: TextStyle(color: AppColors.darkGray),
-          helperStyle: TextStyle(color: AppColors.darkGray),
-          fillColor: AppColors.bgColor,
+          labelStyle: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+          helperStyle: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+          fillColor: Theme.of(context).scaffoldBackgroundColor,
           enabledBorder: InputBorder.none,
           focusedBorder: InputBorder.none,
           disabledBorder: InputBorder.none,
