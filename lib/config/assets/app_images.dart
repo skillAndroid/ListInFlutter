@@ -30,4 +30,10 @@ class AppImages {
   static const wBeautyAccessories = '${basePath}w_beauty_accessories$wFormat';
 
   static const videoVector = '${basePath}video_vector$format';
+
+  static const mia = '${basePath}mia$format';
+  static const dimon = '${basePath}dimon$format';
+  static const rabbit = '${basePath}rabbit$format';
+  static const rubi = '${basePath}rubi$format';
+  static const po = '${basePath}po$format';
 }

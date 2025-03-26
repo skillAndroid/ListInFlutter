@@ -1,16 +1,14 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:list_in/config/theme/app_colors.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/features/explore/presentation/widgets/product_card/bb/regular_product_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/global/likeds/liked_publications_bloc.dart';
 import 'package:list_in/global/likeds/liked_publications_event.dart';
 import 'package:list_in/global/likeds/liked_publications_state.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-
 
 class FavoritesScreen extends StatefulWidget {
   const FavoritesScreen({super.key});
@@ -47,22 +45,22 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-     backgroundColor: CupertinoColors.extraLightBackgroundGray.withOpacity(0.5),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: AppColors.containerColor,
+        backgroundColor: Theme.of(context).cardColor,
         elevation: 0,
         automaticallyImplyLeading: false,
         scrolledUnderElevation: 0,
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded, size: 22),
-          color: Colors.black87,
+          color: Theme.of(context).colorScheme.secondary,
           onPressed: () => Navigator.pop(context),
         ),
-        title:  Text(
+        title: Text(
           AppLocalizations.of(context)!.favorites,
           style: TextStyle(
-            color: Colors.black,
+            color: Theme.of(context).colorScheme.secondary,
             fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
@@ -70,7 +68,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
       ),
       body: RefreshIndicator(
         color: Colors.blue,
-        backgroundColor: AppColors.white,
+        backgroundColor: Theme.of(context).cardColor,
         elevation: 1,
         strokeWidth: 3,
         displacement: 40,
@@ -96,6 +94,14 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         }
       },
       builder: (context, state) {
+        // Check if publications list is empty and not loading
+        if (state.publications.isEmpty && !state.isLoading) {
+          return SliverFillRemaining(
+            hasScrollBody: false,
+            child: _buildEmptyFavoritesView(),
+          );
+        }
+
         return SliverPadding(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           sliver: SliverGrid(
@@ -127,6 +133,43 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           ),
         );
       },
+    );
+  }
+
+  // New method to build the empty favorites view with cute animal
+  Widget _buildEmptyFavoritesView() {
+    // Randomly select one of the cute animal images
+    final List<String> animalImages = [
+      AppImages.rabbit,
+      AppImages.rubi,
+      AppImages.mia,
+      AppImages.dimon,
+    ];
+
+    final String randomAnimalImage =
+        animalImages[DateTime.now().millisecond % animalImages.length];
+
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset(
+            randomAnimalImage,
+            width: 275,
+            height: 275,
+            fit: BoxFit.contain,
+          ),
+          const SizedBox(height: 24),
+          Text(
+            'Oops! No favorites yet!',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+          ),
+        ],
+      ),
     );
   }
 

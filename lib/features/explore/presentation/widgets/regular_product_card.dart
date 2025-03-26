@@ -6,13 +6,13 @@ import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/formaters.dart';
-import 'package:list_in/features/explore/presentation/widgets/product_card/bb/regular_product_card.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_event.dart';
@@ -21,7 +21,6 @@ import 'package:shimmer/shimmer.dart';
 import '../../../profile/presentation/widgets/action_sheet_menu.dart';
 import '../../../profile/presentation/widgets/delete_confirmation.dart';
 import '../../../profile/presentation/widgets/info_dialog.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ProfileProductCard extends StatelessWidget {
   final GetPublicationEntity product;
@@ -64,19 +63,25 @@ class ProfileProductCard extends StatelessWidget {
                 top: 12,
                 right: 12,
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(7),
+                  borderRadius: BorderRadius.circular(10),
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    color: AppColors.white.withOpacity(0.9),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSecondary
+                        .withOpacity(0.9),
                     child: Row(
                       children: [
-                        Icon(Icons.remove_red_eye_rounded,
-                            size: 14, color: AppColors.black),
+                        Icon(
+                          Icons.remove_red_eye_rounded,
+                          size: 14,
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
                         SizedBox(width: 4),
                         Text(
                           product.views.toString(),
                           style: TextStyle(
-                            color: AppColors.black,
+                            color: Theme.of(context).colorScheme.secondary,
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                           ),
@@ -97,12 +102,20 @@ class ProfileProductCard extends StatelessWidget {
                   product.title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.productTitle,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.secondary,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 SizedBox(height: 4),
                 Text(
                   formatPrice(product.price.toString()),
-                  style: AppTextStyles.price,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.secondary,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -115,7 +128,7 @@ class ProfileProductCard extends StatelessWidget {
                         Text(
                           product.likes.toString(),
                           style: TextStyle(
-                            color: AppColors.darkGray,
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                           ),
@@ -137,12 +150,12 @@ class ProfileProductCard extends StatelessWidget {
                           child: Container(
                             padding: EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: AppColors.containerColor,
+                              color: Theme.of(context).cardColor,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Icon(
                               Icons.edit_rounded,
-                              color: AppColors.black,
+                              color: Theme.of(context).colorScheme.secondary,
                               size: 16,
                             ),
                           ),
@@ -155,7 +168,7 @@ class ProfileProductCard extends StatelessWidget {
                           child: Container(
                             padding: EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: AppColors.containerColor,
+                              color: Theme.of(context).cardColor,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Icon(

@@ -602,11 +602,11 @@ class _MediaContent extends StatelessWidget {
       imageUrl: _getFormattedUrl(imageUrl),
       fit: BoxFit.cover,
       placeholder: (context, url) => Container(
-        color: Colors.grey[200],
+        color: Theme.of(context).cardColor,
         child: const Progress(),
       ),
       errorWidget: (context, url, error) => Container(
-        color: Colors.grey[200],
+        color: Theme.of(context).cardColor,
         child: const Center(child: Icon(Icons.error)),
       ),
       filterQuality: FilterQuality.low,

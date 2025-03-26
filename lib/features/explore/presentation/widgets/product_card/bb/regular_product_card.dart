@@ -211,8 +211,7 @@ class _ImagePlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.grey[200],
-      child: const Progress(),
+      color: Theme.of(context).cardColor,
     );
   }
 }
@@ -512,16 +511,4 @@ class OwnerDialog extends StatelessWidget {
       ),
     );
   }
-}
-
-abstract class AppTextStyles {
-  static const productTitle = TextStyle(
-    fontSize: 14,
-  );
-
-  static const price = TextStyle(
-    color: AppColors.black,
-    fontSize: 16,
-    fontWeight: FontWeight.w600,
-  );
 }
