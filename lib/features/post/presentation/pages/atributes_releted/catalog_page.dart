@@ -31,6 +31,7 @@ class CatalogListPage extends StatelessWidget {
               ElevatedButton(
                 onPressed: () => onCatalogSelected(catalog),
                 style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).cardColor,
                   shape: SmoothRectangleBorder(
                     smoothness: 1,
                     borderRadius: BorderRadius.circular(14),
@@ -44,7 +45,7 @@ class CatalogListPage extends StatelessWidget {
                       width: 60,
                       height: 56,
                       child: Card(
-                        color: AppColors.containerColor,
+                        color: Theme.of(context).cardColor,
                         shape: SmoothRectangleBorder(
                           smoothness: 1,
                           borderRadius: BorderRadius.circular(0),

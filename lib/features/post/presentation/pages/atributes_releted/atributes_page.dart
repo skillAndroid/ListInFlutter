@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:list_in/config/theme/app_colors.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:list_in/config/theme/app_language.dart';
 import 'package:list_in/core/language/language_bloc.dart';
 import 'package:list_in/features/post/data/models/category_tree/attribute_model.dart';
@@ -14,7 +14,6 @@ import 'package:list_in/features/post/presentation/widgets/multi_selectable_widg
 import 'package:list_in/features/post/presentation/widgets/one_selectable-widget.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AttributesPage extends StatelessWidget {
   const AttributesPage({super.key});
@@ -106,16 +105,16 @@ class AttributesPage extends StatelessWidget {
                       languageCode,
                     ),
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.grey[600],
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                   ),
                 ),
               const SizedBox(height: 8),
               SmoothClipRRect(
-                side: BorderSide(width: 1, color: AppColors.containerColor),
+                side: BorderSide(width: 1, color: Theme.of(context).cardColor),
                 borderRadius: BorderRadius.circular(16),
                 child: Container(
-                  color: AppColors.white,
+                  color: Theme.of(context).scaffoldBackgroundColor,
                   width: double.infinity,
                   height: 52,
                   child: Center(
@@ -137,7 +136,7 @@ class AttributesPage extends StatelessWidget {
                         }),
                       ],
                       decoration: InputDecoration(
-                        fillColor: AppColors.white,
+                        fillColor: Theme.of(context).scaffoldBackgroundColor,
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 16,
                         ),
@@ -145,10 +144,10 @@ class AttributesPage extends StatelessWidget {
                         hintText:
                             localizations?.enter_value ?? _fallbackEnterValue,
                         suffixIcon: IconButton(
-                          icon: const Icon(
+                          icon: Icon(
                             Icons.clear_rounded,
                             size: 20,
-                            color: AppColors.black,
+                            color: Theme.of(context).colorScheme.secondary,
                           ),
                           onPressed: () {
                             provider.setNumericFieldValue(numericField.id, '0');

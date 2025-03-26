@@ -162,15 +162,15 @@ class AppTheme {
       contentPadding: const EdgeInsets.all(30),
       border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30),
-          borderSide: const BorderSide(color: Colors.white, width: 0.4)),
+          borderSide: const BorderSide(color: Colors.black, width: 0.4)),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(30),
-        borderSide: const BorderSide(color: Colors.white, width: 0.4),
+        borderSide: const BorderSide(color: Colors.black, width: 0.4),
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.primary,
+        backgroundColor: AppColors.containerColorDark,
         foregroundColor: AppColors.white,
         textStyle: const TextStyle(
           fontSize: 20,
@@ -179,7 +179,7 @@ class AppTheme {
         ),
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: BorderRadius.circular(18),
         ),
       ),
     ),

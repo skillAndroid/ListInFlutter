@@ -309,7 +309,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
       appBar: _buildAppBar(state),
       body: RefreshIndicator(
         color: Colors.blue,
-        backgroundColor: AppColors.white,
+        backgroundColor: Theme.of(context).cardColor,
         elevation: 1,
         strokeWidth: 3,
         displacement: 40,

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/config/theme/app_language.dart';
 import 'package:list_in/core/language/language_bloc.dart';
 import 'package:list_in/core/utils/const.dart';
@@ -36,8 +35,8 @@ class OneSelectableWidget extends StatelessWidget {
                     attribute.attributeKeyUz,
                     attribute.attributeKeyRu,
                     languageCode),
-                style: const TextStyle(
-                  color: AppColors.black,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.secondary,
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
                 ),
@@ -65,13 +64,14 @@ class OneSelectableWidget extends StatelessWidget {
                     padding: WidgetStateProperty.all(EdgeInsets.zero),
                     elevation: WidgetStateProperty.all(0),
                     backgroundColor:
-                        WidgetStateProperty.all(AppColors.containerColor),
-                    foregroundColor: WidgetStateProperty.all(Colors.black),
+                        WidgetStateProperty.all(Theme.of(context).cardColor),
+                    foregroundColor: WidgetStateProperty.all(
+                        Theme.of(context).colorScheme.secondary),
                     shape: WidgetStateProperty.all(
                       SmoothRectangleBorder(
                         smoothness: 1,
                         side: BorderSide(
-                            width: 1, color: AppColors.containerColor),
+                            width: 1, color: Theme.of(context).cardColor),
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
@@ -97,8 +97,12 @@ class OneSelectableWidget extends StatelessWidget {
                                       attribute.attributeKeyUz,
                                   style: TextStyle(
                                     color: selectedValue != null
-                                        ? AppColors.black
-                                        : AppColors.darkGray,
+                                        ? Theme.of(context)
+                                            .colorScheme
+                                            .secondary
+                                        : Theme.of(context)
+                                            .colorScheme
+                                            .onSurface,
                                   ),
                                 );
 
@@ -108,8 +112,12 @@ class OneSelectableWidget extends StatelessWidget {
                                       attribute.attributeKeyRu,
                                   style: TextStyle(
                                     color: selectedValue != null
-                                        ? AppColors.black
-                                        : AppColors.darkGray,
+                                        ? Theme.of(context)
+                                            .colorScheme
+                                            .secondary
+                                        : Theme.of(context)
+                                            .colorScheme
+                                            .onSurface,
                                   ),
                                 );
 
@@ -119,17 +127,21 @@ class OneSelectableWidget extends StatelessWidget {
                                       attribute.attributeKey,
                                   style: TextStyle(
                                     color: selectedValue != null
-                                        ? AppColors.black
-                                        : AppColors.darkGray,
+                                        ? Theme.of(context)
+                                            .colorScheme
+                                            .secondary
+                                        : Theme.of(context)
+                                            .colorScheme
+                                            .onSurface,
                                   ),
                                 );
                             }
                           },
                         ),
-                        const Icon(
+                        Icon(
                           Icons.arrow_drop_down,
                           size: 24,
-                          color: AppColors.black,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       ],
                     ),
@@ -144,9 +156,10 @@ class OneSelectableWidget extends StatelessWidget {
                               smoothness: 1,
                               borderRadius: BorderRadius.circular(16),
                               side: BorderSide(
-                                  width: 1, color: AppColors.containerColor)),
+                                  width: 1,
+                                  color: Theme.of(context).cardColor)),
                           margin: const EdgeInsets.symmetric(vertical: 4),
-                          color: AppColors.containerColor,
+                          color: Theme.of(context).cardColor,
                           elevation: 0,
                           clipBehavior: Clip.antiAlias,
                           child: ConstrainedBox(
@@ -186,11 +199,13 @@ class OneSelectableWidget extends StatelessWidget {
                                                     value.valueUz,
                                                     value.valueRu,
                                                     languageCode),
-                                                style: const TextStyle(
+                                                style: TextStyle(
                                                   fontSize: 13,
                                                   fontFamily: Constants.Arial,
                                                   fontWeight: FontWeight.w500,
-                                                  color: Colors.black,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .secondary,
                                                 ),
                                               );
                                             },

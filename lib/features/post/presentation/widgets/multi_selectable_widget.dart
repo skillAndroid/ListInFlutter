@@ -41,8 +41,8 @@ class MultiSelectableWidget extends StatelessWidget {
               child: Text(
                 getLocalizedText(attribute.helperText, attribute.helperTextUz,
                     attribute.helperTextRu, languageCode),
-                style: const TextStyle(
-                  color: AppColors.black,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.secondary,
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
                 ),
@@ -60,9 +60,9 @@ class MultiSelectableWidget extends StatelessWidget {
                   children: selectedValues.map((value) {
                     return SmoothClipRRect(
                       smoothness: 1,
-                      borderRadius: BorderRadius.circular(4),
+                      borderRadius: BorderRadius.circular(6.5),
                       child: Container(
-                        color: AppColors.containerColor,
+                        color: Theme.of(context).cardColor,
                         padding: const EdgeInsets.symmetric(
                             horizontal: 6, vertical: 6),
                         child: Row(
@@ -102,12 +102,13 @@ class MultiSelectableWidget extends StatelessWidget {
                 padding: WidgetStateProperty.all(EdgeInsets.zero),
                 elevation: WidgetStateProperty.all(0),
                 backgroundColor:
-                    WidgetStateProperty.all(AppColors.containerColor),
-                foregroundColor: WidgetStateProperty.all(Colors.black),
+                    WidgetStateProperty.all(Theme.of(context).cardColor),
+                foregroundColor: WidgetStateProperty.all(
+                    Theme.of(context).colorScheme.secondary),
                 shape: WidgetStateProperty.all(
                   SmoothRectangleBorder(
                     smoothness: 1,
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(16),
                   ),
                 ),
               ),
@@ -124,17 +125,17 @@ class MultiSelectableWidget extends StatelessWidget {
                         '${AppLocalizations.of(context)!.selected} (${selectedValues.length})',
                         style: TextStyle(
                           color: selectedValues.isNotEmpty
-                              ? AppColors.black
-                              : AppColors.darkGray,
+                              ? Theme.of(context).colorScheme.secondary
+                              : Theme.of(context).colorScheme.onSurface,
                           overflow: TextOverflow.ellipsis,
                         ),
                         maxLines: 1,
                       ),
                     ),
-                    const Icon(
+                    Icon(
                       Icons.arrow_drop_down,
                       size: 24,
-                      color: AppColors.black,
+                      color: Theme.of(context).colorScheme.secondary,
                     ),
                   ],
                 ),
@@ -151,9 +152,9 @@ class MultiSelectableWidget extends StatelessWidget {
                           smoothness: 1,
                           borderRadius: BorderRadius.circular(16),
                           side: BorderSide(
-                              width: 1, color: AppColors.containerColor)),
+                              width: 1, color: Theme.of(context).cardColor)),
                       margin: const EdgeInsets.symmetric(vertical: 4),
-                      color: AppColors.containerColor,
+                      color: Theme.of(context).cardColor,
                       elevation: 0,
                       clipBehavior: Clip.antiAlias,
                       child: Column(
@@ -186,11 +187,11 @@ class MultiSelectableWidget extends StatelessWidget {
                                           CrossAxisAlignment.center,
                                       children: [
                                         Text(
-                                         getLocalizedText(
-                                                    value.value,
-                                                    value.valueUz,
-                                                    value.valueRu,
-                                                    languageCode),
+                                          getLocalizedText(
+                                              value.value,
+                                              value.valueUz,
+                                              value.valueRu,
+                                              languageCode),
                                           style: const TextStyle(
                                             fontSize: 13,
                                             fontWeight: FontWeight.w500,
@@ -208,22 +209,28 @@ class MultiSelectableWidget extends StatelessWidget {
                                           },
                                           child: SmoothClipRRect(
                                             borderRadius:
-                                                BorderRadius.circular(6),
+                                                BorderRadius.circular(6.5),
                                             child: SizedBox(
                                               key: ValueKey<bool>(isSelected),
                                               width: 24,
                                               height: 24,
                                               child: Container(
                                                 color: isSelected
-                                                    ? AppColors.black
-                                                    : AppColors.grey
+                                                    ? Theme.of(context)
+                                                        .colorScheme
+                                                        .secondary
+                                                    : Theme.of(context)
+                                                        .colorScheme
+                                                        .surface
                                                         // ignore: deprecated_member_use
                                                         .withOpacity(0.5),
                                                 child: isSelected
-                                                    ? const Icon(
+                                                    ? Icon(
                                                         Icons.check,
                                                         size: 16,
-                                                        color: Colors.white,
+                                                        color: Theme.of(context)
+                                                            .colorScheme
+                                                            .onSecondary,
                                                       )
                                                     : const SizedBox.shrink(),
                                               ),
@@ -252,14 +259,15 @@ class MultiSelectableWidget extends StatelessWidget {
                                     ),
                                   ),
                                   elevation: WidgetStateProperty.all(0),
-                                  backgroundColor:
-                                      WidgetStateProperty.all(AppColors.black),
-                                  foregroundColor:
-                                      WidgetStateProperty.all(Colors.white),
+                                  backgroundColor: WidgetStateProperty.all(
+                                      Theme.of(context).colorScheme.secondary),
+                                  foregroundColor: WidgetStateProperty.all(
+                                    Theme.of(context).scaffoldBackgroundColor,
+                                  ),
                                   shape: WidgetStateProperty.all(
                                     SmoothRectangleBorder(
                                       smoothness: 1,
-                                      borderRadius: BorderRadius.circular(10),
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
                                   ),
                                 ),

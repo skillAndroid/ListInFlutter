@@ -1,7 +1,6 @@
 // ignore: file_names
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/config/theme/app_language.dart';
 import 'package:list_in/core/language/language_bloc.dart';
 import 'package:list_in/core/utils/const.dart';
@@ -43,8 +42,8 @@ class ColorSelectableWidget extends StatelessWidget {
               return Text(
                 getLocalizedText(attribute.helperText, attribute.helperTextUz,
                     attribute.helperTextRu, languageCode),
-                style: const TextStyle(
-                  color: AppColors.black,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.secondary,
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
                 ),
@@ -72,12 +71,14 @@ class ColorSelectableWidget extends StatelessWidget {
                     padding: WidgetStateProperty.all(EdgeInsets.zero),
                     elevation: WidgetStateProperty.all(0),
                     backgroundColor:
-                        WidgetStateProperty.all(AppColors.containerColor),
-                    foregroundColor: WidgetStateProperty.all(Colors.black),
+                        WidgetStateProperty.all(Theme.of(context).cardColor),
+                    foregroundColor: WidgetStateProperty.all(
+                      Theme.of(context).colorScheme.secondary,
+                    ),
                     shape: WidgetStateProperty.all(
                       SmoothRectangleBorder(
                         smoothness: 1,
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(16),
                       ),
                     ),
                   ),
@@ -92,47 +93,59 @@ class ColorSelectableWidget extends StatelessWidget {
                         Row(
                           children: [
                             BlocSelector<LanguageBloc, LanguageState, String>(
-                          selector: (state) => state is LanguageLoaded
-                              ? state.languageCode
-                              : AppLanguages.english,
-                          builder: (context, languageCode) {
-                            // Different text widgets based on language
-                            switch (languageCode) {
-                              case AppLanguages.uzbek:
-                                return Text(
-                                  selectedValue?.valueUz ??
-                                      attribute.attributeKeyUz,
-                                  style: TextStyle(
-                                    color: selectedValue != null
-                                        ? AppColors.black
-                                        : AppColors.darkGray,
-                                  ),
-                                );
+                              selector: (state) => state is LanguageLoaded
+                                  ? state.languageCode
+                                  : AppLanguages.english,
+                              builder: (context, languageCode) {
+                                // Different text widgets based on language
+                                switch (languageCode) {
+                                  case AppLanguages.uzbek:
+                                    return Text(
+                                      selectedValue?.valueUz ??
+                                          attribute.attributeKeyUz,
+                                      style: TextStyle(
+                                        color: selectedValue != null
+                                            ? Theme.of(context)
+                                                .colorScheme
+                                                .secondary
+                                            : Theme.of(context)
+                                                .colorScheme
+                                                .onSurface,
+                                      ),
+                                    );
 
-                              case AppLanguages.russian:
-                                return Text(
-                                  selectedValue?.valueRu ??
-                                      attribute.attributeKeyRu,
-                                  style: TextStyle(
-                                    color: selectedValue != null
-                                        ? AppColors.black
-                                        : AppColors.darkGray,
-                                  ),
-                                );
+                                  case AppLanguages.russian:
+                                    return Text(
+                                      selectedValue?.valueRu ??
+                                          attribute.attributeKeyRu,
+                                      style: TextStyle(
+                                        color: selectedValue != null
+                                            ? Theme.of(context)
+                                                .colorScheme
+                                                .secondary
+                                            : Theme.of(context)
+                                                .colorScheme
+                                                .onSurface,
+                                      ),
+                                    );
 
-                              default: // English or fallback
-                                return Text(
-                                  selectedValue?.value ??
-                                      attribute.attributeKey,
-                                  style: TextStyle(
-                                    color: selectedValue != null
-                                        ? AppColors.black
-                                        : AppColors.darkGray,
-                                  ),
-                                );
-                            }
-                          },
-                        ),
+                                  default: // English or fallback
+                                    return Text(
+                                      selectedValue?.value ??
+                                          attribute.attributeKey,
+                                      style: TextStyle(
+                                        color: selectedValue != null
+                                            ? Theme.of(context)
+                                                .colorScheme
+                                                .secondary
+                                            : Theme.of(context)
+                                                .colorScheme
+                                                .onSurface,
+                                      ),
+                                    );
+                                }
+                              },
+                            ),
                             const SizedBox(width: 8),
                             SmoothClipRRect(
                               smoothness: 1,
@@ -146,10 +159,10 @@ class ColorSelectableWidget extends StatelessWidget {
                             ),
                           ],
                         ),
-                        const Icon(
+                        Icon(
                           Icons.arrow_drop_down,
                           size: 24,
-                          color: AppColors.black,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       ],
                     ),
@@ -164,9 +177,10 @@ class ColorSelectableWidget extends StatelessWidget {
                               smoothness: 1,
                               borderRadius: BorderRadius.circular(16),
                               side: BorderSide(
-                                  width: 1, color: AppColors.containerColor)),
+                                  width: 1,
+                                  color: Theme.of(context).cardColor)),
                           margin: const EdgeInsets.symmetric(vertical: 4),
-                          color: AppColors.containerColor,
+                          color: Theme.of(context).cardColor,
                           elevation: 0,
                           clipBehavior: Clip.antiAlias,
                           child: ConstrainedBox(
@@ -204,12 +218,13 @@ class ColorSelectableWidget extends StatelessWidget {
                                                     value.valueUz,
                                                     value.valueRu,
                                                     languageCode),
-                                                style: const TextStyle(
-                                                  fontSize: 13,
-                                                  fontFamily: Constants.Arial,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: Colors.black,
-                                                ),
+                                                style: TextStyle(
+                                                    fontSize: 13,
+                                                    fontFamily: Constants.Arial,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .secondary),
                                               );
                                             },
                                           ),

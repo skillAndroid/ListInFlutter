@@ -17,7 +17,7 @@ class _PostScreenState extends State<PostScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<PostProvider>(context, listen: false)
           .fetchStoredLocationData();
 
@@ -47,32 +47,34 @@ class _PostScreenState extends State<PostScreen> {
 
         if (provider.isLoading) {
           return Scaffold(
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             body: Progress(),
           );
         }
 
         if (provider.error != null) {
           return Scaffold(
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
               body: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton(
-                onPressed: () => {
-                  setState(
-                    () {
-                      calledFetch = false;
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: () => {
+                      setState(
+                        () {
+                          calledFetch = false;
+                        },
+                      )
                     },
-                  )
-                },
-                child: Text(
-                  AppLocalizations.of(context)!.retry,
-                ),
-              ),
-              Center(
-                child: Text(provider.error!),
-              ),
-            ],
-          ));
+                    child: Text(
+                      AppLocalizations.of(context)!.retry,
+                    ),
+                  ),
+                  Center(
+                    child: Text(provider.error!),
+                  ),
+                ],
+              ));
         }
 
         return const CatalogPagerScreen();

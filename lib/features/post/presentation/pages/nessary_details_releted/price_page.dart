@@ -147,7 +147,7 @@ class _AddPricePageState extends State<AddPricePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Padding(
         padding: const EdgeInsets.symmetric(
           vertical: 16.0,
@@ -173,7 +173,7 @@ class _AddPricePageState extends State<AddPricePage> {
                 smoothness: 1,
                 borderRadius: BorderRadius.circular(16),
                 side: BorderSide(
-                  color: AppColors.containerColor,
+                  color: Theme.of(context).cardColor,
                   width: 1,
                   style: _isFocused ? BorderStyle.solid : BorderStyle.none,
                 ),
@@ -184,8 +184,18 @@ class _AddPricePageState extends State<AddPricePage> {
                   inputFormatters: [
                     FilteringTextInputFormatter.digitsOnly,
                   ],
+                  cursorColor: Theme.of(context).primaryColor,
                   decoration: InputDecoration(
-                    fillColor: AppColors.containerColor.withOpacity(0.3),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    fillColor: Theme.of(context).cardColor.withOpacity(0.5),
+                    filled: true,
                     border: OutlineInputBorder(),
                     hintText: AppLocalizations.of(context)!.currency,
                     contentPadding: EdgeInsets.all(14),
@@ -208,9 +218,9 @@ class _AddPricePageState extends State<AddPricePage> {
               ),
               child: Text(
                 AppLocalizations.of(context)!.negotiable_price_info,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13.5,
-                  color: AppColors.darkGray,
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontWeight: FontWeight.w400,
                 ),
               ),
@@ -219,7 +229,7 @@ class _AddPricePageState extends State<AddPricePage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                 Padding(
+                Padding(
                   padding: EdgeInsets.only(bottom: 4.0),
                   child: Text(
                     AppLocalizations.of(context)!.negotiable_price,
@@ -237,7 +247,7 @@ class _AddPricePageState extends State<AddPricePage> {
                     onChanged: (bool value) {
                       context.read<PostProvider>().changeIsNegatable(value);
                     },
-                    activeTrackColor: AppColors.green,
+                    activeTrackColor: AppColors.primary,
                     inactiveTrackColor: CupertinoColors.systemGrey,
                   ),
                 ),

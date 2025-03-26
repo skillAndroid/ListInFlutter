@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/config/theme/app_language.dart';
 import 'package:list_in/core/language/language_bloc.dart';
 import 'package:list_in/core/utils/const.dart';
@@ -35,6 +34,7 @@ class ChildCategoryListPage extends StatelessWidget {
               ElevatedButton(
                 onPressed: () => onChildCategorySelected(childCategory),
                 style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).cardColor,
                   shape: SmoothRectangleBorder(
                     smoothness: 1,
                     borderRadius: BorderRadius.circular(14),
@@ -48,7 +48,7 @@ class ChildCategoryListPage extends StatelessWidget {
                       width: 60,
                       height: 56,
                       child: Card(
-                        color: AppColors.containerColor,
+                        color: Theme.of(context).cardColor,
                         shape: SmoothRectangleBorder(
                           smoothness: 1,
                           borderRadius: BorderRadius.circular(0),
@@ -124,13 +124,14 @@ class ChildCategoryListPage extends StatelessWidget {
   }
 }
 
-String getLocalizedText(String? eng, String? uz, String? ru, String languageCode) {
+String getLocalizedText(
+    String? eng, String? uz, String? ru, String languageCode) {
   switch (languageCode) {
-    case AppLanguages.uzbek: 
+    case AppLanguages.uzbek:
       return uz ?? eng ?? '';
-    case AppLanguages.russian: 
+    case AppLanguages.russian:
       return ru ?? eng ?? '';
-    default: 
+    default:
       return eng ?? '';
   }
 }

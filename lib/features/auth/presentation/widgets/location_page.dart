@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -37,7 +39,7 @@ class _LocationSelectorWidgetState extends State<LocationSelectorWidget> {
         Card(
           elevation: 0,
           margin: EdgeInsets.zero,
-          color: AppColors.containerColor,
+          color: Theme.of(context).cardColor,
           shape: SmoothRectangleBorder(
             smoothness: 1,
             borderRadius: BorderRadius.circular(16),
@@ -67,17 +69,25 @@ class _LocationSelectorWidgetState extends State<LocationSelectorWidget> {
                         ),
                         style: ElevatedButton.styleFrom(
                           shape: SmoothRectangleBorder(
-                              borderRadius: BorderRadius.circular(12)),
+                            borderRadius: BorderRadius.circular(14),
+                            side: BorderSide(
+                              width: 1,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .secondary
+                                  .withOpacity(0.1),
+                            ),
+                          ),
                           elevation: 0,
                           shadowColor: AppColors.transparent,
                           backgroundColor: widget.locationSharingMode ==
                                   LocationSharingMode.precise
-                              ? AppColors.black
-                              : Colors.grey.shade200,
+                              ? Theme.of(context).colorScheme.secondary
+                              : Theme.of(context).cardColor,
                           foregroundColor: widget.locationSharingMode ==
                                   LocationSharingMode.precise
-                              ? Colors.white
-                              : Colors.black,
+                              ? Theme.of(context).scaffoldBackgroundColor
+                              : Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                     ),
@@ -100,16 +110,24 @@ class _LocationSelectorWidgetState extends State<LocationSelectorWidget> {
                         style: ElevatedButton.styleFrom(
                           shadowColor: AppColors.transparent,
                           shape: SmoothRectangleBorder(
-                              borderRadius: BorderRadius.circular(12)),
+                            side: BorderSide(
+                              width: 1,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .secondary
+                                  .withOpacity(0.1),
+                            ),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
                           elevation: 0,
                           backgroundColor: widget.locationSharingMode ==
                                   LocationSharingMode.region
-                              ? AppColors.black
-                              : Colors.grey.shade200,
+                              ? Theme.of(context).colorScheme.secondary
+                              : Theme.of(context).cardColor,
                           foregroundColor: widget.locationSharingMode ==
                                   LocationSharingMode.region
-                              ? Colors.white
-                              : Colors.black,
+                              ? Theme.of(context).scaffoldBackgroundColor
+                              : Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                     ),
@@ -136,8 +154,8 @@ class _LocationSelectorWidgetState extends State<LocationSelectorWidget> {
           child: OutlinedButton(
             style: OutlinedButton.styleFrom(
               side: const BorderSide(color: AppColors.transparent, width: 0),
-              foregroundColor: AppColors.black,
-              backgroundColor: AppColors.containerColor,
+              foregroundColor: Theme.of(context).colorScheme.secondary,
+              backgroundColor: Theme.of(context).cardColor,
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: SmoothRectangleBorder(
                 smoothness: 1,
@@ -148,10 +166,10 @@ class _LocationSelectorWidgetState extends State<LocationSelectorWidget> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(
+                Icon(
                   Ionicons.map,
                   size: 24,
-                  color: AppColors.black,
+                  color: Theme.of(context).colorScheme.secondary,
                 ),
                 const SizedBox(width: 10),
                 Text(
@@ -176,7 +194,7 @@ class _LocationSelectorWidgetState extends State<LocationSelectorWidget> {
     return SmoothClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: Container(
-        color: AppColors.containerColor,
+        color: Theme.of(context).cardColor,
         child: Column(
           children: [
             Padding(
@@ -266,7 +284,7 @@ class _LocationSelectorWidgetState extends State<LocationSelectorWidget> {
                               });
                             },
                             child: Container(
-                              color: AppColors.white,
+                              color: Theme.of(context).scaffoldBackgroundColor,
                               margin: EdgeInsets.zero,
                               padding: EdgeInsets.zero,
                               child: Padding(
@@ -281,8 +299,10 @@ class _LocationSelectorWidgetState extends State<LocationSelectorWidget> {
                                     const SizedBox(width: 4),
                                     Text(
                                       localizations.getDirection,
-                                      style: const TextStyle(
-                                        color: AppColors.black,
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondary,
                                         fontSize: 12,
                                         fontWeight: FontWeight.w600,
                                       ),

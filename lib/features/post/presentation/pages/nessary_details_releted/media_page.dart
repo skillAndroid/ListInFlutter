@@ -129,7 +129,7 @@ class MediaPageState extends State<MediaPage> {
               smoothness: 1,
               borderRadius: BorderRadius.circular(16),
               child: Container(
-                color: AppColors.black,
+                color: Theme.of(context).colorScheme.secondary,
                 height: 176,
                 width: 99,
                 child: Stack(
@@ -144,7 +144,7 @@ class MediaPageState extends State<MediaPage> {
                       icon: Icon(
                         _isPlaying ? Icons.pause_outlined : Icons.play_arrow,
                         size: 40,
-                        color: Colors.white,
+                        color: Theme.of(context).scaffoldBackgroundColor,
                       ),
                       onPressed: () {
                         setState(() {
@@ -176,9 +176,9 @@ class MediaPageState extends State<MediaPage> {
                   ),
                   child: IconButton(
                     padding: EdgeInsets.zero,
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.close,
-                      color: AppColors.white,
+                      color: Theme.of(context).scaffoldBackgroundColor,
                       size: 18,
                     ),
                     onPressed: () {
@@ -214,7 +214,10 @@ class MediaPageState extends State<MediaPage> {
                   boxShadow: [
                     BoxShadow(
                       // ignore: deprecated_member_use
-                      color: AppColors.black.withOpacity(0.3),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .secondary
+                          .withOpacity(0.3),
                       blurRadius: elevationValue,
                       spreadRadius: 1,
                     ),
@@ -242,9 +245,9 @@ class MediaPageState extends State<MediaPage> {
               children: [
                 SmoothClipRRect(
                   smoothness: 1,
-                  side: const BorderSide(
+                  side: BorderSide(
                     width: 1.5,
-                    color: AppColors.white,
+                    color: Theme.of(context).scaffoldBackgroundColor,
                   ),
                   borderRadius: BorderRadius.circular(16),
                   child: Image.file(
@@ -266,8 +269,8 @@ class MediaPageState extends State<MediaPage> {
                       ),
                       child: Text(
                         AppLocalizations.of(context)!.main,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: Theme.of(context).scaffoldBackgroundColor,
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
                         ),
@@ -290,9 +293,9 @@ class MediaPageState extends State<MediaPage> {
                       ),
                       child: IconButton(
                         padding: EdgeInsets.zero,
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.close,
-                          color: Colors.white,
+                          color: Theme.of(context).scaffoldBackgroundColor,
                           size: 16,
                         ),
                         onPressed: () {
@@ -333,9 +336,9 @@ class MediaPageState extends State<MediaPage> {
             const SizedBox(height: 8),
             Text(
               AppLocalizations.of(context)!.upload_images_tip,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13.5,
-                color: AppColors.darkGray,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontWeight: FontWeight.w400,
               ),
             ),
@@ -352,9 +355,9 @@ class MediaPageState extends State<MediaPage> {
                   height: 76,
                   child: ElevatedButton(
                     onPressed: () => _pickImagesFromGallery(provider),
-                    child: const Icon(
+                    child: Icon(
                       EvaIcons.image,
-                      color: AppColors.black,
+                      color: Theme.of(context).colorScheme.secondary,
                       size: 28,
                     ),
                   ),
@@ -381,7 +384,7 @@ class MediaPageState extends State<MediaPage> {
                       AppLocalizations.of(context)!.image_format,
                       style: TextStyle(
                         fontSize: 13.5,
-                        color: AppColors.darkGray,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.w400,
                       ),
                     ),
@@ -414,7 +417,7 @@ class MediaPageState extends State<MediaPage> {
                   child: Container(
                     width: 245,
                     height: 176,
-                    color: AppColors.containerColor,
+                    color: Theme.of(context).cardColor,
                     child: Image.asset(
                       AppImages.videoVector,
                       fit: BoxFit.cover,
@@ -437,9 +440,9 @@ class MediaPageState extends State<MediaPage> {
             ),
             Text(
               AppLocalizations.of(context)!.video_orientation_tip,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13.5,
-                color: AppColors.darkGray,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontWeight: FontWeight.w400,
               ),
             ),
@@ -456,12 +459,9 @@ class MediaPageState extends State<MediaPage> {
                   height: 76,
                   child: ElevatedButton(
                     onPressed: () => _pickVideo(provider),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.lightGray,
-                    ),
-                    child: const Icon(
+                    child: Icon(
                       EvaIcons.video,
-                      color: AppColors.black,
+                      color: Theme.of(context).colorScheme.secondary,
                       size: 28,
                     ),
                   ),
@@ -486,7 +486,7 @@ class MediaPageState extends State<MediaPage> {
                       AppLocalizations.of(context)!.max_video_duration,
                       style: TextStyle(
                         fontSize: 13.5,
-                        color: AppColors.darkGray,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.w400,
                       ),
                     ),

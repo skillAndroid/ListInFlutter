@@ -158,9 +158,10 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
       tween: Tween<double>(begin: _progressValue, end: _progressValue),
       builder: (context, value, _) => LinearProgressIndicator(
         value: value,
-        backgroundColor: AppColors.containerColor.withOpacity(0.7),
+        backgroundColor: Theme.of(context).cardColor.withOpacity(0.75),
         valueColor: AlwaysStoppedAnimation<Color>(
-          AppColors.lighterGray.withOpacity(0.3),
+          Theme.of(context).colorScheme.surface.withOpacity(0.05),
+          // AppColors.lighterGray.withOpacity(0.3),
         ),
         minHeight: double.infinity,
       ),
@@ -199,7 +200,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
           child: AbsorbPointer(
             absorbing: _isLoading,
             child: Scaffold(
-              backgroundColor: AppColors.white,
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
               appBar: _buildAppBar(context),
               body: Stack(
                 children: [
@@ -375,13 +376,14 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
       centerTitle: true,
       title: Text(
         AppLocalizations.of(context)!.create_post,
-        style: const TextStyle(
+        style: TextStyle(
           fontWeight: FontWeight.w700,
           fontFamily: Constants.Arial,
           fontSize: 20,
-          color: AppColors.black,
+          color: Theme.of(context).colorScheme.secondary,
         ),
       ),
+      backgroundColor: Theme.of(context).cardColor,
       toolbarHeight: 56.0,
       automaticallyImplyLeading: false,
       flexibleSpace: _buildProgressIndicator(),
@@ -414,7 +416,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
             child: Transform.scale(
               scale: 0.8,
               child: CircularProgressIndicator(
-                color: AppColors.black,
+                color: Theme.of(context).colorScheme.secondary,
                 strokeWidth: 3,
                 strokeCap: StrokeCap.round,
               ),
@@ -423,7 +425,9 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
           const SizedBox(width: 12),
           Text(
             _getLoadingText(provider.postCreationState),
-            style: const TextStyle(fontFamily: Constants.Arial),
+            style: TextStyle(
+                fontFamily: Constants.Arial,
+                color: Theme.of(context).scaffoldBackgroundColor),
           ),
         ],
       );
@@ -432,7 +436,9 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
         isLastPage
             ? AppLocalizations.of(context)!.create_post
             : AppLocalizations.of(context)!.next,
-        style: const TextStyle(fontFamily: Constants.Arial),
+        style: TextStyle(
+            fontFamily: Constants.Arial,
+            color: Theme.of(context).scaffoldBackgroundColor),
       );
     }
 
@@ -448,9 +454,10 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
               smoothness: 1,
               borderRadius: BorderRadius.circular(16),
             ),
-            backgroundColor:
-                canProceed ? AppColors.black : AppColors.lighterGray,
-            foregroundColor: AppColors.white,
+            backgroundColor: canProceed
+                ? Theme.of(context).colorScheme.secondary
+                : Theme.of(context).colorScheme.onSurface,
+            foregroundColor: Theme.of(context).scaffoldBackgroundColor,
           ),
           onPressed: (!canProceed || isLoading)
               ? null
@@ -485,6 +492,7 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
                               AppLocalizations.of(context)!
                                   .post_creation_success,
                               style: TextStyle(
+                                color: Theme.of(context).colorScheme.secondary,
                                 fontFamily: Constants.Arial,
                               ),
                             ),
@@ -499,7 +507,10 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
                   }
                 },
           child: Padding(
-            padding: const EdgeInsets.all(18.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 18,
+              vertical: 14,
+            ),
             child: buttonChild,
           ),
         ),

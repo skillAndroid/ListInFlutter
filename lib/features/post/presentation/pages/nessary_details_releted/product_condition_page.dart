@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:list_in/core/utils/const.dart';
+import 'package:list_in/features/post/presentation/provider/post_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
-import 'package:list_in/config/theme/app_colors.dart';
-import 'package:list_in/features/post/presentation/provider/post_provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ProductConditionPage extends StatefulWidget {
   const ProductConditionPage({super.key});
@@ -34,7 +33,7 @@ class _ProductConditionPageState extends State<ProductConditionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Padding(
         padding: const EdgeInsets.symmetric(
           vertical: 16.0,
@@ -84,12 +83,14 @@ class _ProductConditionPageState extends State<ProductConditionPage> {
         smoothness: 1,
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
-          color: isSelected ? AppColors.black : AppColors.containerColor,
+          color: isSelected
+              ? Theme.of(context).colorScheme.secondary
+              : Theme.of(context).cardColor,
           width: 1.5,
         ),
         child: Container(
           padding: const EdgeInsets.all(16),
-          color: AppColors.white,
+          color: Theme.of(context).scaffoldBackgroundColor,
           child: Row(
             children: [
               Expanded(
@@ -122,16 +123,18 @@ class _ProductConditionPageState extends State<ProductConditionPage> {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: isSelected ? AppColors.black : Colors.grey,
+                    color: isSelected
+                        ? Theme.of(context).colorScheme.secondary
+                        : Colors.grey,
                     width: 2,
                   ),
                 ),
                 child: isSelected
-                    ? const Center(
+                    ? Center(
                         child: Icon(
                           Icons.check,
                           size: 16,
-                          color: AppColors.black,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       )
                     : null,

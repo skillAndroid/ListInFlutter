@@ -1,6 +1,7 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:list_in/config/assets/app_icons.dart';
-import 'package:list_in/config/theme/app_colors.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class CatalogBackButton extends StatelessWidget {
@@ -15,8 +16,8 @@ class CatalogBackButton extends StatelessWidget {
     if (!isVisible) return const SizedBox.shrink();
 
     return SmoothClipRRect(
-       smoothness: 1,
-    borderRadius: BorderRadius.circular(10),
+      smoothness: 1,
+      borderRadius: BorderRadius.circular(10),
       child: SizedBox(
         width: 36,
         height: 36,
@@ -24,10 +25,15 @@ class CatalogBackButton extends StatelessWidget {
           onTap: onTap,
           child: Card(
             elevation: 0,
-            color: AppColors.bgColor,
+            color: Theme.of(context).scaffoldBackgroundColor,
             shape: SmoothRectangleBorder(
               smoothness: 1,
               borderRadius: BorderRadius.circular(12),
+              side: BorderSide(
+                color:
+                    Theme.of(context).colorScheme.secondary.withOpacity(0.125),
+                width: 1,
+              ),
             ),
             child: Padding(
               padding: const EdgeInsets.all(8),
@@ -35,6 +41,7 @@ class CatalogBackButton extends StatelessWidget {
                 AppIcons.arrowBackNoShadow,
                 width: 24,
                 height: 24,
+                color: Theme.of(context).colorScheme.secondary,
               ),
             ),
           ),

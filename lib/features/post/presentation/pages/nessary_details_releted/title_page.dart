@@ -1,12 +1,11 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
-import 'package:list_in/config/theme/app_colors.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AddTitlePage extends StatefulWidget {
   const AddTitlePage({super.key});
@@ -95,7 +94,7 @@ class _AddTitlePageState extends State<AddTitlePage> {
     final localizations = AppLocalizations.of(context);
 
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16),
         child: Column(
@@ -118,7 +117,7 @@ class _AddTitlePageState extends State<AddTitlePage> {
                 smoothness: 1,
                 borderRadius: BorderRadius.circular(16),
                 side: BorderSide(
-                  color: AppColors.containerColor,
+                  color: Theme.of(context).cardColor,
                   width: 1,
                   style: BorderStyle.solid,
                 ),
@@ -127,7 +126,7 @@ class _AddTitlePageState extends State<AddTitlePage> {
                   focusNode: _focusNode,
                   maxLength: _maxLength,
                   decoration: InputDecoration(
-                    fillColor: AppColors.containerColor.withOpacity(0.3),
+                    fillColor: Theme.of(context).cardColor.withOpacity(0.3),
                     filled: true,
                     border: OutlineInputBorder(
                       borderSide: BorderSide.none,
