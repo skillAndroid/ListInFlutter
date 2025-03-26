@@ -3,11 +3,9 @@
 import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:list_in/config/assets/app_icons.dart';
-import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
@@ -51,15 +49,18 @@ class _SearchPageState extends State<SearchPage> {
             child: Divider(
               height: 1,
               thickness: 1, // Make divider thicker
-              color: AppColors.containerColor, // Subtle grey color
+              color: Theme.of(context).cardColor, // Subtle grey color
             ),
           ), // Make divider more compact
           itemBuilder: (context, index) {
             final prediction = state.predictions[index];
             return ListTile(
               contentPadding: EdgeInsets.zero,
-              trailing: const Icon(Icons.arrow_forward_ios_rounded,
-                  size: 16, color: Colors.black),
+              trailing: Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 16,
+                color: Theme.of(context).colorScheme.secondary,
+              ),
               visualDensity:
                   VisualDensity(vertical: -4), // Reduce vertical padding
               minLeadingWidth: 0, // Minimize leading width
@@ -105,7 +106,7 @@ class _SearchPageState extends State<SearchPage> {
         listener: (context, state) {},
         builder: (context, state) {
           return Scaffold(
-            backgroundColor: AppColors.white,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             appBar: _buildAppBar(state),
             body: _buildPredictionsList(),
           );
@@ -142,10 +143,7 @@ class _SearchPageState extends State<SearchPage> {
       child: AppBar(
         elevation: 0,
         scrolledUnderElevation: 0,
-        backgroundColor: AppColors.bgColor,
-        systemOverlayStyle: const SystemUiOverlayStyle(
-          statusBarIconBrightness: Brightness.dark,
-        ),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         automaticallyImplyLeading: false,
         flexibleSpace: Padding(
           padding: const EdgeInsets.only(bottom: 4),
@@ -164,8 +162,8 @@ class _SearchPageState extends State<SearchPage> {
                         ),
                         child: Container(
                           height: 52,
-                          decoration: const BoxDecoration(
-                            color: AppColors.containerColor,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).cardColor,
                           ),
                           child: Row(
                             children: [
@@ -175,7 +173,8 @@ class _SearchPageState extends State<SearchPage> {
                                   AppIcons.searchIcon,
                                   width: 24,
                                   height: 24,
-                                  color: AppColors.black,
+                                  color:
+                                      Theme.of(context).colorScheme.secondary,
                                 ),
                               ),
                               Expanded(
@@ -200,8 +199,11 @@ class _SearchPageState extends State<SearchPage> {
                                         }
                                       },
                                       decoration: InputDecoration(
-                                        hintStyle: const TextStyle(
-                                            color: AppColors.darkGray),
+                                        hintStyle: TextStyle(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .surface,
+                                        ),
                                         contentPadding: EdgeInsets.zero,
                                         hintText: AppLocalizations.of(context)!
                                             .search_3dots,
@@ -214,7 +216,6 @@ class _SearchPageState extends State<SearchPage> {
                               const SizedBox(width: 2),
                               if (state.searchText != null)
                                 IconButton(
-                                  color: AppColors.black,
                                   icon: Icon(
                                     Icons.close_rounded,
                                     size: 24,

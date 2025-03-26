@@ -16,6 +16,7 @@ import 'package:list_in/core/language/language_bloc.dart';
 import 'package:list_in/core/language/localisation_cache.dart';
 import 'package:list_in/core/router/go_router.dart';
 import 'package:list_in/core/router/routes.dart';
+import 'package:list_in/core/theme/provider/theme_provider.dart';
 import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
@@ -330,7 +331,7 @@ class _FiltersPageState extends State<FiltersPage>
                       top: 8,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).scaffoldBackgroundColor,
                     ),
                     child: BlocBuilder<HomeTreeCubit, HomeTreeState>(
                       builder: (context, state) =>
@@ -454,50 +455,51 @@ class _FiltersPageState extends State<FiltersPage>
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: SizedBox(
         width: double.infinity,
-        child: FilterChip(
-          showCheckmark: false,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          label: Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  if (colorIndicator != null) ...[
-                    colorIndicator,
-                    const SizedBox(width: 4),
-                  ],
-                  Text(
-                    chipLabel,
-                    style: const TextStyle(
-                      color: AppColors.black,
-                      fontWeight: FontWeight.w400,
-                      fontSize: 16,
-                    ),
-                  ),
-                ],
-              ),
-              const Icon(
-                Icons.arrow_forward_ios_rounded,
-                size: 16,
-              )
-            ],
-          ),
-          side: const BorderSide(width: 1, color: AppColors.containerColor),
-          shape: SmoothRectangleBorder(
-            borderRadius: SmoothBorderRadius(
-              cornerRadius: 24,
-              cornerSmoothing: 0.8,
-            ),
-          ),
-          selected: selectedValue != null,
-          backgroundColor: AppColors.white,
-          selectedColor: AppColors.white,
-          onSelected: (_) {
+        child: GestureDetector(
+          onTap: () {
             if (attribute.values.isNotEmpty && context.mounted) {
               _showAttributeSelectionUI(context, attribute, localizations);
             }
           },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            decoration: BoxDecoration(
+              color: selectedValue != null
+                  ? AppColors.white
+                  : Theme.of(context).scaffoldBackgroundColor,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                width: 1,
+                color: Theme.of(context).cardColor,
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    if (colorIndicator != null) ...[
+                      colorIndicator,
+                      const SizedBox(width: 4),
+                    ],
+                    Text(
+                      chipLabel,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.secondary,
+                        fontWeight: FontWeight.w400,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+                const Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 16,
+                )
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -1373,45 +1375,68 @@ class _FiltersPageState extends State<FiltersPage>
     required Function(bool) onSelected,
     required bool isSelected,
   }) {
-    return AnimatedSize(
-      duration: Duration(milliseconds: 200),
-      child: Hero(
-        tag: 'chip_$label',
-        child: Material(
-          color: Colors.transparent,
-          child: FilterChip(
-            label: Text(
-              label,
-              style: TextStyle(
-                color: isSelected
-                    ? Theme.of(context).colorScheme.onSecondary
-                    : Theme.of(context).colorScheme.secondary,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+    return BlocBuilder<ThemeBloc, ThemeState>(
+      builder: (context, themeState) {
+        final isDarkMode =
+            themeState is ThemeLoaded ? themeState.isDarkMode : false;
+
+        return AnimatedSize(
+          duration: Duration(milliseconds: 200),
+          child: Hero(
+            tag: 'chip_$label',
+            child: GestureDetector(
+              onTap: () => onSelected(!isSelected),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? CupertinoColors.activeGreen
+                        : isDarkMode
+                            ? Theme.of(context).scaffoldBackgroundColor
+                            : AppColors.containerColor,
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(
+                      width: isDarkMode ? 1 : 0,
+                      color: isSelected
+                          ? Colors.transparent
+                          : isDarkMode
+                              ? AppColors.containerColor.withOpacity(0.1)
+                              : AppColors.white,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        label,
+                        style: TextStyle(
+                          color: isSelected
+                              ? Theme.of(context).colorScheme.onSecondary
+                              : Theme.of(context).colorScheme.secondary,
+                          fontWeight:
+                              isSelected ? FontWeight.w600 : FontWeight.normal,
+                          fontSize: 14,
+                        ),
+                      ),
+                      if (isSelected) ...[
+                        SizedBox(width: 6),
+                        Icon(
+                          Icons.check,
+                          size: 16,
+                          color: Theme.of(context).colorScheme.onSecondary,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
               ),
             ),
-            showCheckmark: true,
-            selected: isSelected,
-            onSelected: onSelected,
-            backgroundColor: Theme.of(context).cardColor,
-            selectedColor: CupertinoColors.activeGreen,
-            checkmarkColor: Theme.of(context).colorScheme.onSecondary,
-            elevation: 0,
-            pressElevation: 4,
-            shape: SmoothRectangleBorder(
-              borderRadius: SmoothBorderRadius(
-                cornerRadius: 16,
-                cornerSmoothing: 0.5,
-              ),
-              side: BorderSide(
-                  color: isSelected
-                      ? Colors.transparent
-                      : AppColors.containerColor.withOpacity(0.4)),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -1496,31 +1521,39 @@ class _FiltersPageState extends State<FiltersPage>
         ),
         SizedBox(
           width: 250,
-          child: Container(
-            decoration: ShapeDecoration(
-              color: Theme.of(context).scaffoldBackgroundColor,
-              shape: SmoothRectangleBorder(
-                side: BorderSide(
-                  width: 1,
-                  color: AppColors.containerColor.withOpacity(0.4),
+          child: BlocBuilder<ThemeBloc, ThemeState>(
+            builder: (context, themeState) {
+              final isDarkMode =
+                  themeState is ThemeLoaded ? themeState.isDarkMode : false;
+              return Container(
+                decoration: ShapeDecoration(
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  shape: SmoothRectangleBorder(
+                    side: BorderSide(
+                      width: 1,
+                      color: isDarkMode
+                          ? AppColors.containerColor.withOpacity(0.1)
+                          : AppColors.containerColor,
+                    ),
+                    borderRadius: SmoothBorderRadius(
+                      cornerRadius: 24,
+                      cornerSmoothing: 1,
+                    ),
+                  ),
                 ),
-                borderRadius: SmoothBorderRadius(
-                  cornerRadius: 24,
-                  cornerSmoothing: 1,
+                padding: const EdgeInsets.all(4),
+                child: Row(
+                  children: [
+                    _buildSellerTypeOption(
+                        localizations.all, SellerType.ALL, state),
+                    _buildSellerTypeOption(localizations.individual,
+                        SellerType.INDIVIDUAL_SELLER, state),
+                    _buildSellerTypeOption(
+                        localizations.shop, SellerType.BUSINESS_SELLER, state),
+                  ],
                 ),
-              ),
-            ),
-            padding: const EdgeInsets.all(4),
-            child: Row(
-              children: [
-                _buildSellerTypeOption(
-                    localizations.all, SellerType.ALL, state),
-                _buildSellerTypeOption(localizations.individual,
-                    SellerType.INDIVIDUAL_SELLER, state),
-                _buildSellerTypeOption(
-                    localizations.shop, SellerType.BUSINESS_SELLER, state),
-              ],
-            ),
+              );
+            },
           ),
         ),
       ],
@@ -1719,30 +1752,38 @@ class _FiltersPageState extends State<FiltersPage>
         ),
         SizedBox(
           width: 250,
-          child: Container(
-            decoration: ShapeDecoration(
-              color: Theme.of(context).scaffoldBackgroundColor,
-              shape: SmoothRectangleBorder(
-                side: BorderSide(
-                  width: 1,
-                  color: AppColors.containerColor.withOpacity(0.4),
+          child: BlocBuilder<ThemeBloc, ThemeState>(
+            builder: (context, themeState) {
+              final isDarkMode =
+                  themeState is ThemeLoaded ? themeState.isDarkMode : false;
+              return Container(
+                decoration: ShapeDecoration(
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  shape: SmoothRectangleBorder(
+                    side: BorderSide(
+                      width: 1,
+                      color: isDarkMode
+                          ? AppColors.containerColor.withOpacity(0.1)
+                          : AppColors.containerColor,
+                    ),
+                    borderRadius: SmoothBorderRadius(
+                      cornerRadius: 24,
+                      cornerSmoothing: 1,
+                    ),
+                  ),
                 ),
-                borderRadius: SmoothBorderRadius(
-                  cornerRadius: 24,
-                  cornerSmoothing: 1,
+                padding: const EdgeInsets.all(4),
+                child: Row(
+                  children: [
+                    _buildSegmentOption(localizations.all, 'ALL', state),
+                    _buildSegmentOption(
+                        localizations.condition_new, 'NEW_PRODUCT', state),
+                    _buildSegmentOption(
+                        localizations.condition_used, 'USED_PRODUCT', state),
+                  ],
                 ),
-              ),
-            ),
-            padding: const EdgeInsets.all(4),
-            child: Row(
-              children: [
-                _buildSegmentOption(localizations.all, 'ALL', state),
-                _buildSegmentOption(
-                    localizations.condition_new, 'NEW_PRODUCT', state),
-                _buildSegmentOption(
-                    localizations.condition_used, 'USED_PRODUCT', state),
-              ],
-            ),
+              );
+            },
           ),
         ),
       ],
@@ -1823,65 +1864,76 @@ class _FiltersPageState extends State<FiltersPage>
             },
             child: AnimatedSize(
               duration: Duration(milliseconds: 200),
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    width: 1,
-                    color: AppColors.containerColor,
-                  ),
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                width: double.infinity,
-                height: 52,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        state.locationDisplayName ??
-                            localizations.selectLocation,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: state.locationDisplayName != null
-                              ? Colors.black
-                              : AppColors.darkGray,
-                        ),
-                        overflow: TextOverflow.ellipsis,
+              child: BlocBuilder<ThemeBloc, ThemeState>(
+                builder: (context, themeState) {
+                  final isDarkMode =
+                      themeState is ThemeLoaded ? themeState.isDarkMode : false;
+                  return Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        width: 1,
+                        color: isDarkMode
+                            ? AppColors.containerColor.withOpacity(0.1)
+                            : Theme.of(context).cardColor,
                       ),
-                      Row(
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    width: double.infinity,
+                    height: 52,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          if (state.locationDisplayName != null)
-                            GestureDetector(
-                              behavior: HitTestBehavior
-                                  .opaque, // Prevents tap from passing through
-                              onTap: () {
-                                cubit.clearLocationSelection();
-                              },
-
-                              child: Container(
-                                padding: EdgeInsets.all(4),
-                                margin: EdgeInsets.only(right: 8),
-                                decoration: BoxDecoration(
-                                  color: AppColors.lightGray,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Icon(
-                                  Icons.close,
-                                  size: 14,
-                                  color: AppColors.darkGray,
-                                ),
-                              ),
+                          Text(
+                            state.locationDisplayName ??
+                                localizations.selectLocation,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: state.locationDisplayName != null
+                                  ? Theme.of(context).colorScheme.secondary
+                                  : AppColors.darkGray,
                             ),
-                          const Icon(
-                            Icons.arrow_forward_ios_rounded,
-                            size: 16,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Row(
+                            children: [
+                              if (state.locationDisplayName != null)
+                                GestureDetector(
+                                  behavior: HitTestBehavior
+                                      .opaque, // Prevents tap from passing through
+                                  onTap: () {
+                                    cubit.clearLocationSelection();
+                                  },
+
+                                  child: Container(
+                                    padding: EdgeInsets.all(4),
+                                    margin: EdgeInsets.only(right: 8),
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSecondary,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Icon(
+                                      Icons.close,
+                                      size: 14,
+                                      color:
+                                          Theme.of(context).colorScheme.surface,
+                                    ),
+                                  ),
+                                ),
+                              const Icon(
+                                Icons.arrow_forward_ios_rounded,
+                                size: 16,
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ],
-                  ),
-                ),
+                    ),
+                  );
+                },
               ),
             ),
           ),
@@ -1919,11 +1971,11 @@ class _FiltersPageState extends State<FiltersPage>
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: AppColors.white,
+              color: Theme.of(context).scaffoldBackgroundColor,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 width: 1,
-                color: AppColors.containerColor,
+                color: Theme.of(context).cardColor,
               ),
             ),
             child: Text(
@@ -2318,13 +2370,15 @@ class _FiltersPageState extends State<FiltersPage>
                         }
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
-                        foregroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(vertical: 17),
+                        backgroundColor:
+                            Theme.of(context).colorScheme.secondary,
+                        foregroundColor:
+                            Theme.of(context).colorScheme.onSecondary,
+                        padding: EdgeInsets.symmetric(vertical: 16),
                         shape: SmoothRectangleBorder(
                           borderRadius: SmoothBorderRadius(
-                            cornerRadius: 24,
-                            cornerSmoothing: 0.7,
+                            cornerRadius: 32,
+                            cornerSmoothing: 1,
                           ),
                         ),
                         elevation: 0,
@@ -2334,13 +2388,14 @@ class _FiltersPageState extends State<FiltersPage>
                         children: [
                           if (state.filteredValuesRequestState ==
                               RequestState.inProgress)
-                            const SizedBox(
+                            SizedBox(
                               height: 18,
                               width: 18,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2.5,
                                 strokeCap: StrokeCap.round,
-                                color: Colors.white,
+                                color:
+                                    Theme.of(context).colorScheme.onSecondary,
                               ),
                             ),
                           if (state.filteredValuesRequestState !=
