@@ -71,8 +71,12 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
         if (state.status == UserProfileStatus.failure) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-                content: Text(state.errorMessage ??
-                    AppLocalizations.of(context)!.unknown_error)),
+              backgroundColor: AppColors.myRedBrown,
+              content: Text(
+                state.errorMessage ??
+                    AppLocalizations.of(context)!.unknown_error,
+              ),
+            ),
           );
         }
       },
@@ -84,9 +88,59 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
         final userData = state.userData;
         // Add null check validation to prevent null UI
         if (userData == null) {
+          final List<String> animalImages = [
+            AppImages.rabbit,
+            AppImages.rubi,
+            AppImages.mia,
+            AppImages.dimon,
+          ];
+          final String randomAnimalImage =
+              animalImages[DateTime.now().millisecond % animalImages.length];
           return Scaffold(
-              body: Center(
-                  child: Text(AppLocalizations.of(context)!.no_user_data)));
+            appBar: AppBar(
+              backgroundColor: Theme.of(context).cardColor,
+              elevation: 0,
+              automaticallyImplyLeading: false,
+              scrolledUnderElevation: 0,
+              centerTitle: true,
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back_rounded, size: 22),
+                color: Theme.of(context).colorScheme.secondary,
+                onPressed: () => Navigator.pop(context),
+              ),
+              title: Text(
+                AppLocalizations.of(context)!.profile,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.secondary,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    randomAnimalImage,
+                    width: 275,
+                    height: 275,
+                    fit: BoxFit.contain,
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    AppLocalizations.of(context)!.no_user_data,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
         }
         return Scaffold(
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,

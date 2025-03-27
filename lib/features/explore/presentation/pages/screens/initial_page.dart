@@ -4,6 +4,7 @@
 import 'dart:async';
 
 import 'package:figma_squircle/figma_squircle.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -733,7 +734,7 @@ class ErrorIndicator extends StatelessWidget {
         padding: const EdgeInsets.all(24.0),
         child: Card(
           elevation: 0,
-          color: AppColors.white,
+          color: Theme.of(context).scaffoldBackgroundColor,
           shape: SmoothRectangleBorder(
             borderRadius: SmoothBorderRadius(
               cornerRadius: 14,
@@ -784,7 +785,7 @@ class ErrorIndicator extends StatelessWidget {
                   ),
                   style: FilledButton.styleFrom(
                     minimumSize: const Size(120, 48),
-                    backgroundColor: Colors.tealAccent,
+                    backgroundColor: CupertinoColors.systemGreen,
                     shape: SmoothRectangleBorder(
                       borderRadius: SmoothBorderRadius(
                         cornerRadius: 14,

@@ -85,12 +85,12 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
         if (userData == null) {
           return const Scaffold(
               body: Center(child: Text('No user data available')));
-        }
+        } //
         if (state.userData == null) {}
 
         return SafeArea(
           child: Scaffold(
-            backgroundColor: AppColors.bgColor,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             body: NestedScrollView(
               controller: _scrollController,
               physics: BouncingScrollPhysics(),
@@ -156,7 +156,6 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                         children: [
                           // First row: Image, Name and Role
                           Row(
-                            
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               // Profile image
@@ -217,15 +216,12 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                                 padding: const EdgeInsets.only(top: 4.0),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     _buildStatItem(
                                       userData.rating.toString() == "null"
                                           ? '0'
-                                          : userData.rating
-                                              .toInt()
-                                              .toString(),
+                                          : userData.rating.toInt().toString(),
                                       'Rating',
                                     ),
                                     const SizedBox(width: 32),
@@ -280,7 +276,8 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                           Padding(
                             padding: EdgeInsets.symmetric(horizontal: 2),
                             child: Text(
-                              userData.biography ?? AppLocalizations.of(context)!.no_biography,
+                              userData.biography ??
+                                  AppLocalizations.of(context)!.no_biography,
                               maxLines: 1,
                               style: TextStyle(
                                 fontSize: 12.5,
@@ -428,7 +425,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                       ),
                     ),
                     // Posts Tab
-          
+
                     _buildEmptyTab(
                       icon: CupertinoIcons.star,
                       text: "No Reviews",
@@ -753,8 +750,6 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
         }
       },
       builder: (context, state) {
-        
-
         return SliverPadding(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           sliver: SliverGrid(

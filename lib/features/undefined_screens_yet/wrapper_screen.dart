@@ -109,19 +109,24 @@ class _MainWrapperState extends State<MainWrapper> {
               ),
             ),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Column(
             children: [
-              _buildNavItem(
-                0,
-                AppLocalizations.of(context)!.search,
-                AppIcons.bg_icon,
-                textColor,
-                inactiveColor,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildNavItem(
+                    0,
+                    AppLocalizations.of(context)!.search,
+                    AppIcons.bg_icon,
+                    textColor,
+                    inactiveColor,
+                  ),
+                  _buildAddPostButton(textColor, inactiveColor),
+                  _buildProfileItem(textColor, inactiveColor),
+                ],
               ),
-              _buildAddPostButton(textColor, inactiveColor),
-              _buildProfileItem(textColor, inactiveColor),
+              SizedBox(height: 2),
             ],
           ),
         ),
