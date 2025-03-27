@@ -1,8 +1,11 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/theme/provider/theme_provider.dart';
 import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/auth/presentation/pages/register_details_page.dart';
 import 'package:list_in/features/auth/presentation/widgets/location_page.dart';
@@ -448,71 +451,82 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
       bottom: 22,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            shape: SmoothRectangleBorder(
-              smoothness: 1,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            backgroundColor: canProceed
-                ? Theme.of(context).colorScheme.secondary
-                : Theme.of(context).colorScheme.onSurface,
-            foregroundColor: Theme.of(context).scaffoldBackgroundColor,
-          ),
-          onPressed: (!canProceed || isLoading)
-              ? null
-              : () async {
-                  if (isLastPage) {
-                    final locationDetails = parseLocationName(_location.name);
-                    debugPrint("🔥🔥Parsed location details: $locationDetails");
-                    debugPrint(
-                        "🔥🔥Parsed location details: ${_location.name}");
+        child: BlocBuilder<ThemeBloc, ThemeState>(
+          builder: (context, themeState) {
+            final isDarkMode =
+                themeState is ThemeLoaded ? themeState.isDarkMode : false;
+            return ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                shape: SmoothRectangleBorder(
+                  smoothness: 1,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                backgroundColor: canProceed
+                    ? isDarkMode
+                        ? CupertinoColors.systemGreen
+                        : Theme.of(context).colorScheme.secondary
+                    : Theme.of(context).colorScheme.onSurface,
+                foregroundColor: Theme.of(context).scaffoldBackgroundColor,
+              ),
+              onPressed: (!canProceed || isLoading)
+                  ? null
+                  : () async {
+                      if (isLastPage) {
+                        final locationDetails =
+                            parseLocationName(_location.name);
+                        debugPrint(
+                            "🔥🔥Parsed location details: $locationDetails");
+                        debugPrint(
+                            "🔥🔥Parsed location details: ${_location.name}");
 
-                    final result = await provider.createPost();
-                    result.fold(
-                      (failure) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              provider.postCreationError ??
-                                  AppLocalizations.of(context)!
-                                      .post_creation_failed,
-                            ),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                      },
-                      (success) {
-                        context
-                            .read<UserPublicationsBloc>()
-                            .add(RefreshUserPublications());
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              AppLocalizations.of(context)!
-                                  .post_creation_success,
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.secondary,
-                                fontFamily: Constants.Arial,
+                        final result = await provider.createPost();
+                        result.fold(
+                          (failure) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  provider.postCreationError ??
+                                      AppLocalizations.of(context)!
+                                          .post_creation_failed,
+                                ),
+                                backgroundColor: Colors.red,
                               ),
-                            ),
-                            backgroundColor: Colors.blue,
-                          ),
+                            );
+                          },
+                          (success) {
+                            context
+                                .read<UserPublicationsBloc>()
+                                .add(RefreshUserPublications());
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  AppLocalizations.of(context)!
+                                      .post_creation_success,
+                                  style: TextStyle(
+                                    color:
+                                        Theme.of(context).colorScheme.secondary,
+                                    fontFamily: Constants.Arial,
+                                  ),
+                                ),
+                                backgroundColor: Colors.blue,
+                              ),
+                            );
+                            context.pop();
+                          },
                         );
-                        context.pop();
-                      },
-                    );
-                  } else {
-                    _handleNextPage();
-                  }
-                },
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 18,
-              vertical: 14,
-            ),
-            child: buttonChild,
-          ),
+                      } else {
+                        _handleNextPage();
+                      }
+                    },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 14,
+                ),
+                child: buttonChild,
+              ),
+            );
+          },
         ),
       ),
     );

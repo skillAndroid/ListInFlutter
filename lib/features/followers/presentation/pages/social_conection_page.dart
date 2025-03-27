@@ -94,10 +94,10 @@ class _SocialConnectionsPageState extends State<SocialConnectionsPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.transparent,
+        backgroundColor: Theme.of(context).cardColor,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
           color: Theme.of(context).iconTheme.color,
@@ -112,10 +112,10 @@ class _SocialConnectionsPageState extends State<SocialConnectionsPage>
         ),
         bottom: TabBar(
           controller: _tabController,
-          labelColor: Colors.black,
+          labelColor: Theme.of(context).colorScheme.secondary,
           unselectedLabelColor: Colors.grey,
           indicatorPadding: EdgeInsets.zero,
-          indicatorColor: Colors.black,
+          indicatorColor: Theme.of(context).colorScheme.secondary,
           indicatorWeight: 0.1,
 
           dividerColor: AppColors.transparent,
@@ -314,7 +314,7 @@ class _SocialConnectionsPageState extends State<SocialConnectionsPage>
       },
       child: RefreshIndicator(
         color: Colors.blue,
-        backgroundColor: AppColors.white,
+        backgroundColor: Theme.of(context).cardColor,
         elevation: 1,
         strokeWidth: 3,
         displacement: 40,
@@ -448,11 +448,16 @@ class UserListTile extends StatelessWidget {
                                     );
                               },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: CupertinoColors.white,
-                          foregroundColor: Colors.white,
+                          backgroundColor:
+                              Theme.of(context).scaffoldBackgroundColor,
+                          foregroundColor:
+                              Theme.of(context).scaffoldBackgroundColor,
                           elevation: 0,
                           shape: SmoothRectangleBorder(
-                            side: BorderSide(width: 1, color: AppColors.black),
+                            side: BorderSide(
+                              width: 1,
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
                             borderRadius: SmoothBorderRadius(cornerRadius: 18),
                           ),
                           padding: EdgeInsets.symmetric(
@@ -460,7 +465,7 @@ class UserListTile extends StatelessWidget {
                           ),
                         ),
                         child: isLoading
-                            ? const Padding(
+                            ? Padding(
                                 padding: EdgeInsets.all(4),
                                 child: SizedBox(
                                   width: 20,
@@ -468,7 +473,7 @@ class UserListTile extends StatelessWidget {
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
                                     valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.black,
+                                      Theme.of(context).colorScheme.secondary,
                                     ),
                                   ),
                                 ),
@@ -478,7 +483,8 @@ class UserListTile extends StatelessWidget {
                                   Icon(
                                     isFollowed ? Icons.remove : Icons.add,
                                     size: 12.3,
-                                    color: AppColors.black,
+                                    color:
+                                        Theme.of(context).colorScheme.secondary,
                                   ),
                                   SizedBox(width: 3),
                                   Text(
@@ -488,7 +494,9 @@ class UserListTile extends StatelessWidget {
                                     style: TextStyle(
                                       fontFamily: Constants.Arial,
                                       fontWeight: FontWeight.bold,
-                                      color: AppColors.black,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .secondary,
                                       fontSize: 12.3,
                                     ),
                                   ),

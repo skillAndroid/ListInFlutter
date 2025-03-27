@@ -4,6 +4,7 @@
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -251,13 +252,13 @@ class _ProfileEditorState extends State<ProfileEditor> {
             child: GestureDetector(
               onTap: _unfocusAll,
               child: CupertinoPageScaffold(
-                backgroundColor: AppColors.bgColor,
+                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                 navigationBar: CupertinoNavigationBar(
-                  backgroundColor: AppColors.white,
+                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                   middle: Text(
                     AppLocalizations.of(context)!.edit_profile,
                     style: TextStyle(
-                      color: AppColors.black,
+                      color: Theme.of(context).colorScheme.secondary,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -298,9 +299,11 @@ class _ProfileEditorState extends State<ProfileEditor> {
                                   height: 120,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: AppColors.containerColor,
+                                    color: Theme.of(context).cardColor,
                                     border: Border.all(
-                                      color: AppColors.black,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .secondary,
                                       width: 3,
                                     ),
                                   ),
@@ -341,16 +344,20 @@ class _ProfileEditorState extends State<ProfileEditor> {
                                   child: Container(
                                     padding: EdgeInsets.all(8),
                                     decoration: BoxDecoration(
-                                      color: AppColors.black,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .secondary,
                                       shape: BoxShape.circle,
                                       border: Border.all(
-                                        color: AppColors.white,
+                                        color: Theme.of(context)
+                                            .scaffoldBackgroundColor,
                                         width: 2,
                                       ),
                                     ),
                                     child: Icon(
                                       CupertinoIcons.camera_fill,
-                                      color: AppColors.white,
+                                      color: Theme.of(context)
+                                          .scaffoldBackgroundColor,
                                       size: 20,
                                     ),
                                   ),
@@ -498,13 +505,18 @@ class _ProfileEditorState extends State<ProfileEditor> {
             ),
           ),
         ),
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: 16),
-          decoration: BoxDecoration(
-            color: AppColors.containerColor,
-            borderRadius: BorderRadius.circular(12),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: ClipSmoothRect(
+            radius: SmoothBorderRadius(
+              cornerRadius: 12,
+              cornerSmoothing: 1,
+            ),
+            child: Container(
+              color: Theme.of(context).cardColor,
+              child: Column(children: children),
+            ),
           ),
-          child: Column(children: children),
         ),
         if (footer != null)
           Padding(
@@ -535,7 +547,7 @@ class _ProfileEditorState extends State<ProfileEditor> {
               fontFamily: Constants.Arial,
             ),
             style: TextStyle(
-              color: AppColors.black,
+              color: Theme.of(context).colorScheme.secondary,
               fontSize: 16,
               fontFamily: Constants.Arial,
             ),
@@ -576,7 +588,7 @@ class _ProfileEditorState extends State<ProfileEditor> {
             child: Text(
               label,
               style: TextStyle(
-                  color: AppColors.black,
+                  color: Theme.of(context).colorScheme.secondary,
                   fontSize: 16,
                   fontWeight: FontWeight.w500),
             ),
@@ -635,7 +647,7 @@ class _ProfileEditorState extends State<ProfileEditor> {
           Text(
             label,
             style: TextStyle(
-                color: AppColors.black,
+                color: Theme.of(context).colorScheme.secondary,
                 fontSize: 16,
                 fontWeight: FontWeight.w500),
           ),
@@ -673,7 +685,7 @@ class _ProfileEditorState extends State<ProfileEditor> {
             Text(
               label,
               style: TextStyle(
-                  color: AppColors.black,
+                  color: Theme.of(context).colorScheme.secondary,
                   fontSize: 16,
                   fontWeight: FontWeight.w500),
             ),
@@ -808,7 +820,7 @@ class _ProfileEditorState extends State<ProfileEditor> {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      barrierColor: Colors.black54,
+      barrierColor: Theme.of(context).colorScheme.secondary,
       useRootNavigator: true,
       builder: (BuildContext context) {
         return StatefulBuilder(
@@ -828,7 +840,7 @@ class _ProfileEditorState extends State<ProfileEditor> {
               borderRadius: BorderRadius.circular(16),
               child: Container(
                 height: 530,
-                color: Colors.white,
+                color: Theme.of(context).scaffoldBackgroundColor,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -935,9 +947,9 @@ class _ProfileEditorState extends State<ProfileEditor> {
                         width: double.infinity,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            shape: SmoothRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
+                            // shape: SmoothRectangleBorder(
+                            //   borderRadius: BorderRadius.circular(12),
+                            // ),
                             backgroundColor: AppColors.primary,
                             padding: EdgeInsets.symmetric(
                               vertical: 20,
@@ -948,7 +960,7 @@ class _ProfileEditorState extends State<ProfileEditor> {
                             AppLocalizations.of(context)!.done,
                             style: TextStyle(
                               fontSize: 17,
-                              color: AppColors.white,
+                              color: Theme.of(context).scaffoldBackgroundColor,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -1023,7 +1035,7 @@ class _ProfileEditorState extends State<ProfileEditor> {
               ? AppColors.primary.withOpacity(0.1)
               : Colors.transparent,
           border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.containerColor,
+            color: isSelected ? AppColors.primary : Theme.of(context).cardColor,
             width: isSelected ? 2.5 : 1.75,
           ),
           borderRadius: BorderRadius.circular(16),
@@ -1031,7 +1043,9 @@ class _ProfileEditorState extends State<ProfileEditor> {
         child: Text(
           time,
           style: TextStyle(
-            color: isSelected ? AppColors.primary : Colors.black87,
+            color: isSelected
+                ? AppColors.primary
+                : Theme.of(context).colorScheme.secondary,
             fontSize: 16,
             fontWeight: FontWeight.w700,
           ),

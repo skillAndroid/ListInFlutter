@@ -100,21 +100,24 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
             child: Stack(
               children: [
                 Scaffold(
-                  backgroundColor: AppColors.white,
+                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                   appBar: AppBar(
                     elevation: 0,
                     scrolledUnderElevation: 0,
-                    backgroundColor: AppColors.white,
+                    backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                     actions: [
                       IconButton(
-                        icon: Icon(CupertinoIcons.phone, color: Colors.black),
+                        icon: Icon(CupertinoIcons.phone,
+                            color: Theme.of(context).colorScheme.secondary),
                         onPressed: () {
                           _makeCall(context, "${userData.phoneNumber}");
                         },
                       ),
                       IconButton(
-                        icon: Icon(CupertinoIcons.bubble_left,
-                            color: Colors.black),
+                        icon: Icon(
+                          CupertinoIcons.bubble_left,
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
                         onPressed: () {
                           final String phoneNumber =
                               userData.phoneNumber.toString();
@@ -122,14 +125,15 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                         },
                       ),
                       IconButton(
-                        icon: Icon(Icons.more_vert, color: Colors.black),
+                        icon: Icon(Icons.more_vert,
+                            color: Theme.of(context).colorScheme.secondary),
                         onPressed: () {},
                       ),
                     ],
                     title: Text(
                       AppLocalizations.of(context)!.store,
                       style: TextStyle(
-                        color: Colors.black,
+                        color: Theme.of(context).colorScheme.secondary,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -145,9 +149,10 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                             collapsedHeight: 84,
                             floating: false,
                             pinned: true,
-                            surfaceTintColor: AppColors.white,
+                            surfaceTintColor:
+                                Theme.of(context).scaffoldBackgroundColor,
                             shadowColor: AppColors.transparent,
-                            backgroundColor: AppColors.containerColor2,
+                            backgroundColor: Theme.of(context).cardColor,
                             automaticallyImplyLeading: false,
                             flexibleSpace: LayoutBuilder(
                               builder: (BuildContext context,
@@ -235,8 +240,10 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                                     begin: Alignment.topCenter,
                                                     end: Alignment.bottomCenter,
                                                     colors: [
-                                                      AppColors.containerColor2,
-                                                      AppColors.containerColor2
+                                                      Theme.of(context)
+                                                          .cardColor,
+                                                      Theme.of(context)
+                                                          .cardColor
                                                           .withOpacity(0.0),
                                                     ],
                                                   ),
@@ -259,7 +266,9 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                                   begin: Alignment.topCenter,
                                                   end: Alignment.bottomCenter,
                                                   colors: [
-                                                    Colors.black
+                                                    Theme.of(context)
+                                                        .colorScheme
+                                                        .secondary
                                                         .withOpacity(0.3),
                                                     Colors.transparent,
                                                   ],
@@ -275,7 +284,8 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                             right: 0,
                                             height: 130,
                                             child: Container(
-                                              color: AppColors.containerColor2,
+                                              color:
+                                                  Theme.of(context).cardColor,
                                               padding: const EdgeInsets.only(
                                                 left: 16.0,
                                                 right: 16,
@@ -382,8 +392,10 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                                                   fontFamily:
                                                                       Constants
                                                                           .Arial,
-                                                                  color: Colors
-                                                                      .black,
+                                                                  color: Theme.of(
+                                                                          context)
+                                                                      .colorScheme
+                                                                      .secondary,
                                                                 ),
                                                               ),
                                                               SizedBox(
@@ -398,8 +410,9 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                                                           TextStyle(
                                                                         fontWeight:
                                                                             FontWeight.bold,
-                                                                        color: Colors
-                                                                            .black,
+                                                                        color: Theme.of(context)
+                                                                            .colorScheme
+                                                                            .secondary,
                                                                         fontFamily:
                                                                             Constants.Arial,
                                                                         fontSize:
@@ -412,8 +425,9 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                                                           .followers,
                                                                       style:
                                                                           TextStyle(
-                                                                        color: Colors
-                                                                            .black54,
+                                                                        color: Theme.of(context)
+                                                                            .colorScheme
+                                                                            .secondary,
                                                                         fontFamily:
                                                                             Constants.Arial,
                                                                         fontSize:
@@ -435,8 +449,9 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                                                             Constants.Arial,
                                                                         fontWeight:
                                                                             FontWeight.bold,
-                                                                        color: Colors
-                                                                            .black,
+                                                                        color: Theme.of(context)
+                                                                            .colorScheme
+                                                                            .secondary,
                                                                         fontSize:
                                                                             12,
                                                                       ),
@@ -446,8 +461,9 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                                                           ' ${AppLocalizations.of(context)!.rating} (0 ${AppLocalizations.of(context)!.reviews})',
                                                                       style:
                                                                           TextStyle(
-                                                                        color: Colors
-                                                                            .black54,
+                                                                        color: Theme.of(context)
+                                                                            .colorScheme
+                                                                            .secondary,
                                                                         fontFamily:
                                                                             Constants.Arial,
                                                                         fontSize:
@@ -510,17 +526,24 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                                                 ElevatedButton
                                                                     .styleFrom(
                                                               backgroundColor:
-                                                                  CupertinoColors
-                                                                      .white,
+                                                                  Theme.of(
+                                                                          context)
+                                                                      .scaffoldBackgroundColor,
                                                               foregroundColor:
-                                                                  Colors.white,
+                                                                  Theme.of(
+                                                                          context)
+                                                                      .scaffoldBackgroundColor,
                                                               elevation: 0,
                                                               shape:
                                                                   SmoothRectangleBorder(
-                                                                side: BorderSide(
-                                                                    width: 1,
-                                                                    color: AppColors
-                                                                        .black),
+                                                                side:
+                                                                    BorderSide(
+                                                                  width: 1,
+                                                                  color: Theme.of(
+                                                                          context)
+                                                                      .colorScheme
+                                                                      .secondary,
+                                                                ),
                                                                 borderRadius:
                                                                     SmoothBorderRadius(
                                                                   cornerRadius:
@@ -535,7 +558,7 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                                               ),
                                                             ),
                                                             child: isLoading
-                                                                ? const Padding(
+                                                                ? Padding(
                                                                     padding:
                                                                         EdgeInsets
                                                                             .all(8),
@@ -550,8 +573,9 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                                                             2,
                                                                         valueColor:
                                                                             AlwaysStoppedAnimation<Color>(
-                                                                          Colors
-                                                                              .black,
+                                                                          Theme.of(context)
+                                                                              .colorScheme
+                                                                              .secondary,
                                                                         ),
                                                                       ),
                                                                     ),
@@ -567,8 +591,9 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                                                             : Icons.add,
                                                                         size:
                                                                             16,
-                                                                        color: AppColors
-                                                                            .black,
+                                                                        color: Theme.of(context)
+                                                                            .colorScheme
+                                                                            .secondary,
                                                                       ),
                                                                       SizedBox(
                                                                           width:
@@ -583,8 +608,9 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                                                               Constants.Arial,
                                                                           fontWeight:
                                                                               FontWeight.bold,
-                                                                          color:
-                                                                              AppColors.black,
+                                                                          color: Theme.of(context)
+                                                                              .colorScheme
+                                                                              .secondary,
                                                                           fontSize:
                                                                               14,
                                                                         ),
@@ -619,7 +645,7 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                             milliseconds:
                                                 100), // 100ms animation
                                         child: Container(
-                                          color: AppColors.containerColor2,
+                                          color: Theme.of(context).cardColor,
                                           child: SafeArea(
                                             top: true,
                                             child: Padding(
@@ -726,8 +752,10 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                                                     fontWeight:
                                                                         FontWeight
                                                                             .bold,
-                                                                    color: Colors
-                                                                        .black,
+                                                                    color: Theme.of(
+                                                                            context)
+                                                                        .colorScheme
+                                                                        .secondary,
                                                                     fontSize:
                                                                         12,
                                                                   ),
@@ -737,8 +765,10 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                                                       '${AppLocalizations.of(context)!.rating} (0 ${AppLocalizations.of(context)!.reviews})',
                                                                   style:
                                                                       TextStyle(
-                                                                    color: Colors
-                                                                        .black54,
+                                                                    color: Theme.of(
+                                                                            context)
+                                                                        .colorScheme
+                                                                        .secondary,
                                                                     fontFamily:
                                                                         Constants
                                                                             .Arial,
@@ -790,18 +820,22 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                                                 },
                                                           style: ElevatedButton
                                                               .styleFrom(
-                                                            backgroundColor:
-                                                                CupertinoColors
-                                                                    .white,
-                                                            foregroundColor:
-                                                                Colors.white,
+                                                            backgroundColor: Theme
+                                                                    .of(context)
+                                                                .scaffoldBackgroundColor,
+                                                            foregroundColor: Theme
+                                                                    .of(context)
+                                                                .scaffoldBackgroundColor,
                                                             elevation: 0,
                                                             shape:
                                                                 SmoothRectangleBorder(
                                                               side: BorderSide(
-                                                                  width: 1,
-                                                                  color: AppColors
-                                                                      .black),
+                                                                width: 1,
+                                                                color: Theme.of(
+                                                                        context)
+                                                                    .colorScheme
+                                                                    .secondary,
+                                                              ),
                                                               borderRadius:
                                                                   SmoothBorderRadius(
                                                                 cornerRadius:
@@ -850,8 +884,10 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                                                           : Icons
                                                                               .add,
                                                                       size: 16,
-                                                                      color: AppColors
-                                                                          .black,
+                                                                      color: Theme.of(
+                                                                              context)
+                                                                          .colorScheme
+                                                                          .secondary,
                                                                     ),
                                                                     SizedBox(
                                                                         width:
@@ -868,8 +904,9 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                                                             Constants.Arial,
                                                                         fontWeight:
                                                                             FontWeight.bold,
-                                                                        color: AppColors
-                                                                            .black,
+                                                                        color: Theme.of(context)
+                                                                            .colorScheme
+                                                                            .secondary,
                                                                         fontSize:
                                                                             14,
                                                                       ),
@@ -895,9 +932,11 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                           SliverPersistentHeader(
                             delegate: _SliverAppBarDelegate(
                               TabBar(
-                                labelColor: Colors.black,
+                                labelColor:
+                                    Theme.of(context).colorScheme.secondary,
                                 unselectedLabelColor: Colors.grey,
-                                indicatorColor: Colors.black,
+                                indicatorColor:
+                                    Theme.of(context).colorScheme.secondary,
                                 indicatorWeight: 0.1,
                                 dividerColor: AppColors.transparent,
                                 isScrollable: true, // Makes tabs scrollable
@@ -955,7 +994,9 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                     child: BackdropFilter(
                       filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                       child: Container(
-                        color: Colors.white.withOpacity(0.45),
+                        color: Theme.of(context)
+                            .scaffoldBackgroundColor
+                            .withOpacity(0.45),
                       ),
                     ),
                   ),
@@ -1225,7 +1266,7 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   Widget build(
       BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
-      color: Colors.white,
+      color: Theme.of(context).scaffoldBackgroundColor,
       child: tabBar,
     );
   }
@@ -1268,9 +1309,9 @@ class AboutTabContent extends StatelessWidget {
           Text(
             user.biography ??
                 AppLocalizations.of(context)!.no_information_available,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
-              color: Colors.black87,
+              color: Theme.of(context).colorScheme.secondary,
               height: 1.5,
             ),
           ),
@@ -1335,7 +1376,8 @@ class AboutTabContent extends StatelessWidget {
                         ),
                       ),
                       backgroundColor: CupertinoColors.activeGreen,
-                      foregroundColor: Colors.white,
+                      foregroundColor:
+                          Theme.of(context).scaffoldBackgroundColor,
                       padding: EdgeInsets.symmetric(
                         vertical: 14,
                       ),
@@ -1374,7 +1416,8 @@ class AboutTabContent extends StatelessWidget {
                           cornerSmoothing: 0.7,
                         ),
                       ),
-                      backgroundColor: CupertinoColors.white,
+                      backgroundColor:
+                          Theme.of(context).scaffoldBackgroundColor,
                       foregroundColor: CupertinoColors.activeGreen,
                       padding: EdgeInsets.symmetric(
                         vertical: 14,

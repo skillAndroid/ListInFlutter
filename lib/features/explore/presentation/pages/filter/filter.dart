@@ -2199,220 +2199,236 @@ class _FiltersPageState extends State<FiltersPage>
                 builder: (context, value, child) {
                   return Transform.scale(
                     scale: 0.9 + (0.1 * value),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        if (state.selectedCatalog != null &&
-                            state.selectedChildCategory != null) {
-                          final attributeState = {
-                            'selectedValues': state.selectedValues,
-                            'selectedAttributeValues':
-                                state.selectedAttributeValues.map(
-                              (key, value) => MapEntry(key.attributeKey, value),
+                    child: BlocBuilder<ThemeBloc, ThemeState>(
+                      builder: (context, themeState) {
+                        final isDarkMode = themeState is ThemeLoaded
+                            ? themeState.isDarkMode
+                            : false;
+                        return ElevatedButton(
+                          onPressed: () {
+                            if (state.selectedCatalog != null &&
+                                state.selectedChildCategory != null) {
+                              final attributeState = {
+                                'selectedValues': state.selectedValues,
+                                'selectedAttributeValues':
+                                    state.selectedAttributeValues.map(
+                                  (key, value) =>
+                                      MapEntry(key.attributeKey, value),
+                                ),
+                                'dynamicAttributes': state.dynamicAttributes,
+                                'attributeRequests': state.attributeRequests,
+                              };
+                              context.pop();
+                              if (widget.page == "initial" ||
+                                  widget.page == "child" ||
+                                  widget.page == "initial_filter" ||
+                                  widget.page == 'ssssss') {
+                                debugPrint("🐁🐁😡😡😡❤️❤️${widget.page}");
+                                debugPrint("🐁🐁😡😡😡❤️❤️${state.priceFrom}");
+                                debugPrint("🐁🐁😡😡😡❤️❤️${state.priceTo}");
+                                context
+                                    .pushNamed(RoutesByName.attributes, extra: {
+                                  'category': state.selectedCatalog,
+                                  'childCategory': state.selectedChildCategory,
+                                  'attributeState': attributeState,
+                                  'priceFrom': state.priceFrom,
+                                  'priceTo': state.priceTo,
+                                  'numericFieldState': {
+                                    'numericFields': state.numericFields,
+                                    'numericFieldValues':
+                                        state.numericFieldValues,
+                                  },
+                                  'filterState': {
+                                    'bargain': state.bargain,
+                                    'isFree': state.isFree,
+                                    'condition': state.condition,
+                                    'sellerType': state.sellerType,
+                                    'country': state.selectedCountry,
+                                    'state': state.selectedState,
+                                    'county': state.selectedCounty,
+                                  },
+                                });
+                                context
+                                    .read<HomeTreeCubit>()
+                                    .resetChildCategorySelection();
+                              } else {
+                                context.read<HomeTreeCubit>().filtersTrigered();
+                                context.read<HomeTreeCubit>().fetchChildPage(0);
+                              }
+
+                              return;
+                            }
+
+                            if (state.selectedCatalog != null) {
+                              context.pop();
+                              if (widget.page == 'initial' ||
+                                  widget.page == 'initial_filter') {
+                                context.pushNamed(RoutesByName.subcategories,
+                                    extra: {
+                                      'category': state.selectedCatalog,
+                                      'priceFrom': state.priceFrom,
+                                      'priceTo': state.priceTo,
+                                      'filterState': {
+                                        'bargain': state.bargain,
+                                        'isFree': state.isFree,
+                                        'condition': state.condition,
+                                        'sellerType': state.sellerType,
+                                        'country': state.selectedCountry,
+                                        'state': state.selectedState,
+                                        'county': state.selectedCounty,
+                                      },
+                                    });
+                                context
+                                    .read<HomeTreeCubit>()
+                                    .resetCatalogSelection();
+                              } else if (widget.page == "child") {
+                                debugPrint("🐁🐁😡😡😡❤️❤️${widget.page}");
+                                context.pushNamed(
+                                    RoutesByName.filterSecondaryResult,
+                                    extra: {
+                                      'category': state.selectedCatalog,
+                                      'priceFrom': state.priceFrom,
+                                      'priceTo': state.priceTo,
+                                      'filterState': {
+                                        'bargain': state.bargain,
+                                        'isFree': state.isFree,
+                                        'condition': state.condition,
+                                        'sellerType': state.sellerType,
+                                        'country': state.selectedCountry,
+                                        'state': state.selectedState,
+                                        'county': state.selectedCounty,
+                                      },
+                                    });
+                              } else if (widget.page != "child" &&
+                                  widget.page != "ssssss" &&
+                                  widget.page != "initial" &&
+                                  widget.page != 'initial_filter') {
+                                AppRouter.shellNavigatorHome.currentState
+                                    ?.popUntil((route) =>
+                                        route.settings.name ==
+                                        RoutesByName.subcategories);
+                                context.pushNamed(
+                                    RoutesByName.filterSecondaryResult,
+                                    extra: {
+                                      'category': state.selectedCatalog,
+                                      'priceFrom': state.priceFrom,
+                                      'priceTo': state.priceTo,
+                                      'filterState': {
+                                        'bargain': state.bargain,
+                                        'isFree': state.isFree,
+                                        'condition': state.condition,
+                                        'sellerType': state.sellerType,
+                                        'country': state.selectedCountry,
+                                        'state': state.selectedState,
+                                        'county': state.selectedCounty,
+                                      },
+                                    });
+                              } else {
+                                debugPrint("🐁🐁😡😡😡❤️❤️${widget.page}");
+                                context.read<HomeTreeCubit>().filtersTrigered();
+                                context
+                                    .read<HomeTreeCubit>()
+                                    .fetchSecondaryPage(0);
+                              }
+
+                              return;
+                            }
+                            if (state.selectedCatalog == null ||
+                                state.selectedChildCategory == null) {
+                              context.pop();
+                              if (widget.page == 'initial_filter') {
+                                context.read<HomeTreeCubit>().filtersTrigered();
+                                context
+                                    .read<HomeTreeCubit>()
+                                    .fetchInitialPage(0);
+                              } else if (widget.page != 'initial' &&
+                                  widget.page != 'initial_filter' &&
+                                  widget.page != 'result_page') {
+                                AppRouter.shellNavigatorHome.currentState
+                                    ?.popUntil((route) => route.isFirst);
+                                context.pushNamed(RoutesByName.filterHomeResult,
+                                    extra: {
+                                      'priceFrom': state.priceFrom,
+                                      'priceTo': state.priceTo,
+                                      'filterState': {
+                                        'bargain': state.bargain,
+                                        'isFree': state.isFree,
+                                        'condition': state.condition,
+                                        'sellerType': state.sellerType,
+                                        'country': state.selectedCountry,
+                                        'state': state.selectedState,
+                                        'county': state.selectedCounty,
+                                      },
+                                    });
+                              } else if (widget.page == 'result_page') {
+                                context.read<HomeTreeCubit>().filtersTrigered();
+                                context.read<HomeTreeCubit>().searchPage(0);
+                              } else {
+                                context.pushNamed(RoutesByName.filterHomeResult,
+                                    extra: {
+                                      'priceFrom': state.priceFrom,
+                                      'priceTo': state.priceTo,
+                                      'filterState': {
+                                        'bargain': state.bargain,
+                                        'isFree': state.isFree,
+                                        'condition': state.condition,
+                                        'sellerType': state.sellerType,
+                                        'country': state.selectedCountry,
+                                        'state': state.selectedState,
+                                        'county': state.selectedCounty,
+                                      },
+                                    });
+                              }
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: isDarkMode
+                                ? CupertinoColors.systemGreen
+                                : Theme.of(context).colorScheme.secondary,
+                            foregroundColor:
+                                Theme.of(context).colorScheme.onSecondary,
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            shape: SmoothRectangleBorder(
+                              borderRadius: SmoothBorderRadius(
+                                cornerRadius: 32,
+                                cornerSmoothing: 1,
+                              ),
                             ),
-                            'dynamicAttributes': state.dynamicAttributes,
-                            'attributeRequests': state.attributeRequests,
-                          };
-                          context.pop();
-                          if (widget.page == "initial" ||
-                              widget.page == "child" ||
-                              widget.page == "initial_filter" ||
-                              widget.page == 'ssssss') {
-                            debugPrint("🐁🐁😡😡😡❤️❤️${widget.page}");
-                            debugPrint("🐁🐁😡😡😡❤️❤️${state.priceFrom}");
-                            debugPrint("🐁🐁😡😡😡❤️❤️${state.priceTo}");
-                            context.pushNamed(RoutesByName.attributes, extra: {
-                              'category': state.selectedCatalog,
-                              'childCategory': state.selectedChildCategory,
-                              'attributeState': attributeState,
-                              'priceFrom': state.priceFrom,
-                              'priceTo': state.priceTo,
-                              'numericFieldState': {
-                                'numericFields': state.numericFields,
-                                'numericFieldValues': state.numericFieldValues,
-                              },
-                              'filterState': {
-                                'bargain': state.bargain,
-                                'isFree': state.isFree,
-                                'condition': state.condition,
-                                'sellerType': state.sellerType,
-                                'country': state.selectedCountry,
-                                'state': state.selectedState,
-                                'county': state.selectedCounty,
-                              },
-                            });
-                            context
-                                .read<HomeTreeCubit>()
-                                .resetChildCategorySelection();
-                          } else {
-                            context.read<HomeTreeCubit>().filtersTrigered();
-                            context.read<HomeTreeCubit>().fetchChildPage(0);
-                          }
-
-                          return;
-                        }
-
-                        if (state.selectedCatalog != null) {
-                          context.pop();
-                          if (widget.page == 'initial' ||
-                              widget.page == 'initial_filter') {
-                            context
-                                .pushNamed(RoutesByName.subcategories, extra: {
-                              'category': state.selectedCatalog,
-                              'priceFrom': state.priceFrom,
-                              'priceTo': state.priceTo,
-                              'filterState': {
-                                'bargain': state.bargain,
-                                'isFree': state.isFree,
-                                'condition': state.condition,
-                                'sellerType': state.sellerType,
-                                'country': state.selectedCountry,
-                                'state': state.selectedState,
-                                'county': state.selectedCounty,
-                              },
-                            });
-                            context
-                                .read<HomeTreeCubit>()
-                                .resetCatalogSelection();
-                          } else if (widget.page == "child") {
-                            debugPrint("🐁🐁😡😡😡❤️❤️${widget.page}");
-                            context.pushNamed(
-                                RoutesByName.filterSecondaryResult,
-                                extra: {
-                                  'category': state.selectedCatalog,
-                                  'priceFrom': state.priceFrom,
-                                  'priceTo': state.priceTo,
-                                  'filterState': {
-                                    'bargain': state.bargain,
-                                    'isFree': state.isFree,
-                                    'condition': state.condition,
-                                    'sellerType': state.sellerType,
-                                    'country': state.selectedCountry,
-                                    'state': state.selectedState,
-                                    'county': state.selectedCounty,
-                                  },
-                                });
-                          } else if (widget.page != "child" &&
-                              widget.page != "ssssss" &&
-                              widget.page != "initial" &&
-                              widget.page != 'initial_filter') {
-                            AppRouter.shellNavigatorHome.currentState?.popUntil(
-                                (route) =>
-                                    route.settings.name ==
-                                    RoutesByName.subcategories);
-                            context.pushNamed(
-                                RoutesByName.filterSecondaryResult,
-                                extra: {
-                                  'category': state.selectedCatalog,
-                                  'priceFrom': state.priceFrom,
-                                  'priceTo': state.priceTo,
-                                  'filterState': {
-                                    'bargain': state.bargain,
-                                    'isFree': state.isFree,
-                                    'condition': state.condition,
-                                    'sellerType': state.sellerType,
-                                    'country': state.selectedCountry,
-                                    'state': state.selectedState,
-                                    'county': state.selectedCounty,
-                                  },
-                                });
-                          } else {
-                            debugPrint("🐁🐁😡😡😡❤️❤️${widget.page}");
-                            context.read<HomeTreeCubit>().filtersTrigered();
-                            context.read<HomeTreeCubit>().fetchSecondaryPage(0);
-                          }
-
-                          return;
-                        }
-                        if (state.selectedCatalog == null ||
-                            state.selectedChildCategory == null) {
-                          context.pop();
-                          if (widget.page == 'initial_filter') {
-                            context.read<HomeTreeCubit>().filtersTrigered();
-                            context.read<HomeTreeCubit>().fetchInitialPage(0);
-                          } else if (widget.page != 'initial' &&
-                              widget.page != 'initial_filter' &&
-                              widget.page != 'result_page') {
-                            AppRouter.shellNavigatorHome.currentState
-                                ?.popUntil((route) => route.isFirst);
-                            context.pushNamed(RoutesByName.filterHomeResult,
-                                extra: {
-                                  'priceFrom': state.priceFrom,
-                                  'priceTo': state.priceTo,
-                                  'filterState': {
-                                    'bargain': state.bargain,
-                                    'isFree': state.isFree,
-                                    'condition': state.condition,
-                                    'sellerType': state.sellerType,
-                                    'country': state.selectedCountry,
-                                    'state': state.selectedState,
-                                    'county': state.selectedCounty,
-                                  },
-                                });
-                          } else if (widget.page == 'result_page') {
-                            context.read<HomeTreeCubit>().filtersTrigered();
-                            context.read<HomeTreeCubit>().searchPage(0);
-                          } else {
-                            context.pushNamed(RoutesByName.filterHomeResult,
-                                extra: {
-                                  'priceFrom': state.priceFrom,
-                                  'priceTo': state.priceTo,
-                                  'filterState': {
-                                    'bargain': state.bargain,
-                                    'isFree': state.isFree,
-                                    'condition': state.condition,
-                                    'sellerType': state.sellerType,
-                                    'country': state.selectedCountry,
-                                    'state': state.selectedState,
-                                    'county': state.selectedCounty,
-                                  },
-                                });
-                          }
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            Theme.of(context).colorScheme.secondary,
-                        foregroundColor:
-                            Theme.of(context).colorScheme.onSecondary,
-                        padding: EdgeInsets.symmetric(vertical: 16),
-                        shape: SmoothRectangleBorder(
-                          borderRadius: SmoothBorderRadius(
-                            cornerRadius: 32,
-                            cornerSmoothing: 1,
+                            elevation: 0,
                           ),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          if (state.filteredValuesRequestState ==
-                              RequestState.inProgress)
-                            SizedBox(
-                              height: 18,
-                              width: 18,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2.5,
-                                strokeCap: StrokeCap.round,
-                                color:
-                                    Theme.of(context).colorScheme.onSecondary,
-                              ),
-                            ),
-                          if (state.filteredValuesRequestState !=
-                              RequestState.inProgress)
-                            Text(
-                              _getPublicationCountText(
-                                  state.predictedFoundPublications,
-                                  localizations),
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                                letterSpacing: 0.5,
-                                fontFamily: Constants.Arial,
-                              ),
-                            ),
-                        ],
-                      ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              if (state.filteredValuesRequestState ==
+                                  RequestState.inProgress)
+                                SizedBox(
+                                  height: 18,
+                                  width: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.5,
+                                    strokeCap: StrokeCap.round,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSecondary,
+                                  ),
+                                ),
+                              if (state.filteredValuesRequestState !=
+                                  RequestState.inProgress)
+                                Text(
+                                  _getPublicationCountText(
+                                      state.predictedFoundPublications,
+                                      localizations),
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    letterSpacing: 0.5,
+                                    fontFamily: Constants.Arial,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        );
+                      },
                     ),
                   );
                 },
