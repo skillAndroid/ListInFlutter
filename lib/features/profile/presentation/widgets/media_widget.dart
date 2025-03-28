@@ -177,7 +177,7 @@ class MediaWidgetState extends State<MediaWidget> {
               smoothness: 1,
               borderRadius: BorderRadius.circular(16),
               child: Container(
-                color: AppColors.black,
+                color: Theme.of(context).colorScheme.secondary,
                 height: 176,
                 width: 99,
                 child: Stack(
@@ -195,7 +195,7 @@ class MediaWidgetState extends State<MediaWidget> {
                             ? Icons.pause_outlined
                             : Icons.play_arrow,
                         size: 40,
-                        color: Colors.white,
+                        color: Theme.of(context).iconTheme.color,
                       ),
                       onPressed: () {
                         if (state.isVideoPlaying) {
@@ -226,9 +226,9 @@ class MediaWidgetState extends State<MediaWidget> {
                   ),
                   child: IconButton(
                     padding: EdgeInsets.zero,
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.close,
-                      color: AppColors.white,
+                      color: Theme.of(context).iconTheme.color,
                       size: 18,
                     ),
                     onPressed: () {
@@ -275,7 +275,10 @@ class MediaWidgetState extends State<MediaWidget> {
                         borderRadius: BorderRadius.circular(8),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.black.withOpacity(0.3),
+                            color: Theme.of(context)
+                                .colorScheme
+                                .secondary
+                                .withOpacity(0.3),
                             blurRadius: elevationValue,
                             spreadRadius: 1,
                           ),
@@ -306,9 +309,9 @@ class MediaWidgetState extends State<MediaWidget> {
                     children: [
                       SmoothClipRRect(
                         smoothness: 1,
-                        side: const BorderSide(
+                        side: BorderSide(
                           width: 1.5,
-                          color: AppColors.white,
+                          color: Theme.of(context).scaffoldBackgroundColor,
                         ),
                         borderRadius: BorderRadius.circular(16),
                         child: image.isUrl
@@ -337,8 +340,9 @@ class MediaWidgetState extends State<MediaWidget> {
                             ),
                             child: Text(
                               AppLocalizations.of(context)!.main,
-                              style: const TextStyle(
-                                color: Colors.white,
+                              style: TextStyle(
+                                color:
+                                    Theme.of(context).scaffoldBackgroundColor,
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -359,9 +363,9 @@ class MediaWidgetState extends State<MediaWidget> {
                             ),
                             child: IconButton(
                               padding: EdgeInsets.zero,
-                              icon: const Icon(
+                              icon: Icon(
                                 Icons.close,
-                                color: Colors.white,
+                                color: Theme.of(context).iconTheme.color,
                                 size: 16,
                               ),
                               onPressed: () {
@@ -409,9 +413,9 @@ class MediaWidgetState extends State<MediaWidget> {
               const SizedBox(height: 8),
               Text(
                 AppLocalizations.of(context)!.upload_images_tip,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13.5,
-                  color: AppColors.darkGray,
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontWeight: FontWeight.w400,
                 ),
               ),
@@ -429,9 +433,9 @@ class MediaWidgetState extends State<MediaWidget> {
                     child: ElevatedButton(
                       onPressed: () => _pickImagesFromGallery(
                           context, _picker), // Передаем context и _picker
-                      child: const Icon(
+                      child: Icon(
                         EvaIcons.image,
-                        color: AppColors.black,
+                        color: Theme.of(context).colorScheme.secondary,
                         size: 28,
                       ),
                     ),
@@ -452,9 +456,9 @@ class MediaWidgetState extends State<MediaWidget> {
                       const SizedBox(height: 4),
                       Text(
                         AppLocalizations.of(context)!.image_format,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13.5,
-                          color: AppColors.darkGray,
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontWeight: FontWeight.w400,
                         ),
                       ),
@@ -486,7 +490,7 @@ class MediaWidgetState extends State<MediaWidget> {
                     child: Container(
                       width: 245,
                       height: 176,
-                      color: AppColors.containerColor,
+                      color: Theme.of(context).cardColor,
                       child: Image.asset(
                         AppImages.videoVector,
                         fit: BoxFit.cover,
@@ -508,9 +512,9 @@ class MediaWidgetState extends State<MediaWidget> {
               ),
               Text(
                 AppLocalizations.of(context)!.video_orientation_tip,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13.5,
-                  color: AppColors.darkGray,
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontWeight: FontWeight.w400,
                 ),
               ),
@@ -527,12 +531,9 @@ class MediaWidgetState extends State<MediaWidget> {
                     height: 76,
                     child: ElevatedButton(
                       onPressed: _pickVideo,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.lightGray,
-                      ),
-                      child: const Icon(
+                      child: Icon(
                         EvaIcons.video,
-                        color: AppColors.black,
+                        color: Theme.of(context).colorScheme.secondary,
                         size: 28,
                       ),
                     ),
@@ -553,9 +554,9 @@ class MediaWidgetState extends State<MediaWidget> {
                       const SizedBox(height: 4),
                       Text(
                         AppLocalizations.of(context)!.max_video_duration,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13.5,
-                          color: AppColors.darkGray,
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontWeight: FontWeight.w400,
                         ),
                       ),

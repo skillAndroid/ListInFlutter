@@ -34,7 +34,7 @@ class _ProductConditionPageState extends State<ProductConditionWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16),
         child: Column(
@@ -47,7 +47,7 @@ class _ProductConditionPageState extends State<ProductConditionWidget> {
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
-                  fontFamily: "Syne",
+                  fontFamily: Constants.Arial,
                 ),
               ),
             ),
@@ -81,12 +81,14 @@ class _ProductConditionPageState extends State<ProductConditionWidget> {
         smoothness: 1,
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
-          color: isSelected ? AppColors.black : Colors.transparent,
-          width: 2,
+          color: isSelected
+              ? Theme.of(context).colorScheme.secondary
+              : Theme.of(context).cardColor,
+          width: 1.5,
         ),
         child: Container(
           padding: const EdgeInsets.all(16),
-          color: AppColors.containerColor,
+          color: Theme.of(context).scaffoldBackgroundColor,
           child: Row(
             children: [
               Expanded(
@@ -119,16 +121,18 @@ class _ProductConditionPageState extends State<ProductConditionWidget> {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: isSelected ? AppColors.black : Colors.grey,
+                    color: isSelected
+                        ? Theme.of(context).colorScheme.secondary
+                        : Colors.grey,
                     width: 2,
                   ),
                 ),
                 child: isSelected
-                    ? const Center(
+                    ? Center(
                         child: Icon(
                           Icons.check,
                           size: 16,
-                          color: AppColors.black,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       )
                     : null,

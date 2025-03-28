@@ -64,7 +64,7 @@ class _AddTitlePageState extends State<AddTitlePage> {
 
   String? _validateInput(String value) {
     final localizations = AppLocalizations.of(context);
-
+    //
     setState(() {
       if (value.isEmpty) {
         _errorText = localizations?.title_required ?? _fallbackTitleRequired;

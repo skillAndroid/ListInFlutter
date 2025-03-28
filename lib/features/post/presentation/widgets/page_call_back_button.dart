@@ -28,7 +28,7 @@ class CatalogBackButton extends StatelessWidget {
             color: Theme.of(context).scaffoldBackgroundColor,
             shape: SmoothRectangleBorder(
               smoothness: 1,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(14),
               side: BorderSide(
                 color:
                     Theme.of(context).colorScheme.secondary.withOpacity(0.125),

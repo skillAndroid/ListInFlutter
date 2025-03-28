@@ -80,7 +80,7 @@ class _AddTitlePageState extends State<AddTitleWidget> {
       buildWhen: (previous, current) => previous.title != current.title,
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: AppColors.white,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           body: Padding(
             padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16),
             child: Column(
@@ -103,7 +103,7 @@ class _AddTitlePageState extends State<AddTitleWidget> {
                     smoothness: 1,
                     borderRadius: BorderRadius.circular(16),
                     side: BorderSide(
-                      color: AppColors.containerColor,
+                      color: Theme.of(context).cardColor,
                       width: 1,
                       style: BorderStyle.solid,
                     ),
@@ -113,7 +113,7 @@ class _AddTitlePageState extends State<AddTitleWidget> {
                       maxLength: _maxLength,
                       onChanged: (value) => _onTextChanged(),
                       decoration: InputDecoration(
-                        fillColor: AppColors.containerColor.withOpacity(0.3),
+                        fillColor: Theme.of(context).cardColor.withOpacity(0.3),
                         filled: true,
                         border: OutlineInputBorder(
                           borderSide: BorderSide.none,

@@ -167,6 +167,7 @@ class _AddPricePageState extends State<AddPricePage> {
                 ),
               ),
             ),
+            //
             SizedBox(
               height: 52,
               child: SmoothClipRRect(

@@ -14,7 +14,6 @@ import 'package:list_in/features/profile/presentation/bloc/publication/user_publ
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-
 class AddPriceWidget extends StatefulWidget {
   const AddPriceWidget({super.key});
 
@@ -114,13 +113,13 @@ class _AddPricePageState extends State<AddPriceWidget> {
           previous.canBargain != current.canBargain,
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: AppColors.white,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           body: Padding(
             padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                 Padding(
+                Padding(
                   padding: EdgeInsets.only(bottom: 4.0),
                   child: Text(
                     AppLocalizations.of(context)!.enter_price,
@@ -137,7 +136,7 @@ class _AddPricePageState extends State<AddPriceWidget> {
                     smoothness: 1,
                     borderRadius: BorderRadius.circular(16),
                     side: BorderSide(
-                      color: AppColors.containerColor,
+                      color: Theme.of(context).cardColor,
                       width: 1,
                       style: BorderStyle.solid,
                     ),
@@ -147,7 +146,16 @@ class _AddPricePageState extends State<AddPriceWidget> {
                       keyboardType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       decoration: InputDecoration(
-                        fillColor: AppColors.containerColor.withOpacity(0.3),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide.none,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide.none,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        fillColor: Theme.of(context).cardColor.withOpacity(0.5),
+                        filled: true,
                         border: OutlineInputBorder(),
                         hintText: AppLocalizations.of(context)!.currency_uzs,
                         contentPadding: EdgeInsets.all(14),
@@ -164,7 +172,7 @@ class _AddPricePageState extends State<AddPriceWidget> {
                       style: const TextStyle(color: Colors.red, fontSize: 12),
                     ),
                   ),
-                 Padding(
+                Padding(
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   child: Text(
                     AppLocalizations.of(context)!.negotiable_price_info,
@@ -179,7 +187,7 @@ class _AddPricePageState extends State<AddPriceWidget> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                     Text(
+                    Text(
                       AppLocalizations.of(context)!.negotiable_price,
                       style: const TextStyle(
                         fontSize: 16,

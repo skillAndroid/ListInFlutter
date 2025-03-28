@@ -1,9 +1,11 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/theme/provider/theme_provider.dart';
 import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/post/presentation/widgets/page_call_back_button.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
@@ -196,7 +198,7 @@ class _PublicationsEditorPageState extends State<PublicationsEditorPage> {
           child: AbsorbPointer(
             absorbing: shouldBlockUI, // Prevent all interactions during update
             child: Scaffold(
-              backgroundColor: AppColors.bgColor,
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
               appBar: _buildAppBar(context),
               body: Stack(
                 children: [
@@ -243,14 +245,15 @@ class _PublicationsEditorPageState extends State<PublicationsEditorPage> {
       centerTitle: true,
       title: Text(
         AppLocalizations.of(context)!.update_post,
-        style: const TextStyle(
+        style: TextStyle(
           fontWeight: FontWeight.w700,
           fontFamily: Constants.Arial,
           fontSize: 20,
-          color: AppColors.black,
+          color: Theme.of(context).colorScheme.secondary,
         ),
       ),
       toolbarHeight: 56.0,
+      backgroundColor: Theme.of(context).cardColor,
       automaticallyImplyLeading: false,
       flexibleSpace: _buildProgressIndicator(),
       leadingWidth: 56,
@@ -273,9 +276,9 @@ class _PublicationsEditorPageState extends State<PublicationsEditorPage> {
       tween: Tween<double>(begin: _progressValue, end: _progressValue),
       builder: (context, value, _) => LinearProgressIndicator(
         value: value,
-        backgroundColor: AppColors.containerColor,
+        backgroundColor: Theme.of(context).cardColor.withOpacity(0.75),
         valueColor: AlwaysStoppedAnimation<Color>(
-          AppColors.lighterGray.withOpacity(0.5),
+          Theme.of(context).colorScheme.surface.withOpacity(0.05),
         ),
         minHeight: double.infinity,
       ),
@@ -301,7 +304,7 @@ class _PublicationsEditorPageState extends State<PublicationsEditorPage> {
                   child: Transform.scale(
                     scale: 0.8,
                     child: CircularProgressIndicator(
-                      color: AppColors.black,
+                      color: Theme.of(context).colorScheme.secondary,
                       strokeWidth: 3,
                       strokeCap: StrokeCap.round,
                     ),
@@ -329,39 +332,49 @@ class _PublicationsEditorPageState extends State<PublicationsEditorPage> {
       );
     }
 
-    return Positioned(
-      left: 0,
-      right: 0,
-      bottom: 22,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            shape: SmoothRectangleBorder(
-              smoothness: 1,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            backgroundColor:
-                canProceed ? AppColors.black : AppColors.lighterGray,
-            foregroundColor: AppColors.white,
-          ),
-          onPressed: (!canProceed || isLoading)
-              ? null
-              : () {
-                  if (isLastPage) {
-                    context
-                        .read<PublicationUpdateBloc>()
-                        .add(SubmitPublicationUpdate());
-                  } else {
-                    _handleNextPage();
-                  }
-                },
+    return BlocBuilder<ThemeBloc, ThemeState>(
+      builder: (context, themeState) {
+        final isDarkMode =
+            themeState is ThemeLoaded ? themeState.isDarkMode : false;
+        return Positioned(
+          left: 0,
+          right: 0,
+          bottom: 22,
           child: Padding(
-            padding: const EdgeInsets.all(18.0),
-            child: buttonChild,
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                shape: SmoothRectangleBorder(
+                  smoothness: 1,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                backgroundColor: canProceed
+                    ? isDarkMode
+                        ? CupertinoColors.systemGreen
+                        : Theme.of(context).colorScheme.secondary
+                    : Theme.of(context).colorScheme.onSurface,
+                foregroundColor: Theme.of(context).scaffoldBackgroundColor,
+              ),
+              onPressed: (!canProceed || isLoading)
+                  ? null
+                  : () {
+                      if (isLastPage) {
+                        context
+                            .read<PublicationUpdateBloc>()
+                            .add(SubmitPublicationUpdate());
+                      } else {
+                        _handleNextPage();
+                      }
+                    },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 18.0, vertical: 15.0),
+                child: buttonChild,
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
