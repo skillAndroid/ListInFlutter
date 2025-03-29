@@ -48,7 +48,10 @@ class LocationMarkerContent extends StatelessWidget {
                   child: Container(
                     width: 20,
                     height: 15,
-                    color: Colors.black.withOpacity(0.2),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .secondary
+                        .withOpacity(0.2),
                   ),
                 ),
               ),
@@ -65,7 +68,10 @@ class LocationMarkerContent extends StatelessWidget {
                     child: Container(
                         width: 14,
                         height: 10,
-                        color: Colors.black.withOpacity(0.2)),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .secondary
+                            .withOpacity(0.2)),
                   ),
                 ),
               ),
@@ -79,11 +85,13 @@ class LocationMarkerContent extends StatelessWidget {
                 child: Align(
                   alignment: Alignment.bottomCenter,
                   child: ClipOval(
-                  
                     child: Container(
                         width: 6,
                         height: 4,
-                        color: Colors.black.withOpacity(0.2)),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .secondary
+                            .withOpacity(0.2)),
                   ),
                 ),
               ),
@@ -107,15 +115,15 @@ class LocationMarkerContent extends StatelessWidget {
                           color: AppColors.primary,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: Colors.white,
+                            color: AppColors.white,
                             width: 2,
                           ),
                         ),
                         child: Center(
                           child: isLocationRetrieved
-                              ? const Icon(
+                              ? Icon(
                                   Icons.location_history,
-                                  color: Colors.white,
+                                  color: AppColors.white,
                                   size: 24,
                                 )
                               : Lottie.asset(
@@ -128,8 +136,8 @@ class LocationMarkerContent extends StatelessWidget {
                       Container(
                         width: 3,
                         height: 20,
-                        decoration: const BoxDecoration(
-                          color: Colors.black,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.secondary,
                           borderRadius: BorderRadius.only(
                             bottomLeft: Radius.circular(2),
                             bottomRight: Radius.circular(2),

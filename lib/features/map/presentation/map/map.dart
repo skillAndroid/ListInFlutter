@@ -3,12 +3,15 @@
 
 import 'dart:async';
 
+import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/theme/provider/theme_provider.dart';
 import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/auth/presentation/pages/register_details_page.dart';
 import 'package:list_in/features/map/domain/entities/coordinates_entity.dart';
@@ -19,7 +22,6 @@ import 'package:list_in/features/map/presentation/widgets/marker.dart';
 import 'package:list_in/features/map/presentation/widgets/search_text_field.dart';
 import 'package:list_in/features/map/presentation/widgets/show_custom_sheet.dart';
 import 'package:list_in/features/map/service/AppLocation.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 // ignore: must_be_immutable
 class ListInMap extends StatefulWidget {
@@ -39,9 +41,186 @@ class _ListInMapState extends State<ListInMap> {
   late final CameraPosition _initialCameraPosition;
 
   static const LatLng _defaultLocation = LatLng(41.312128, 69.241796);
+  // Dark mode map style JSON string
+  // Enhanced dark mode map style JSON string with better contrast for buildings
+
+  // Enhanced dark mode map style with highly contrasted buildings
+  final String _darkMapStyle = '''
+[
+  {
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#242f3e"
+      }
+    ]
+  },
+  {
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#746855"
+      }
+    ]
+  },
+  {
+    "elementType": "labels.text.stroke",
+    "stylers": [
+      {
+        "color": "#242f3e"
+      }
+    ]
+  },
+  {
+    "featureType": "administrative.locality",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#d59563"
+      }
+    ]
+  },
+  {
+    "featureType": "poi",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#d59563"
+      }
+    ]
+  },
+  {
+    "featureType": "poi.park",
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#263c3f"
+      }
+    ]
+  },
+  {
+    "featureType": "poi.park",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#6b9a76"
+      }
+    ]
+  },
+  {
+    "featureType": "road",
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#38414e"
+      }
+    ]
+  },
+  {
+    "featureType": "road",
+    "elementType": "geometry.stroke",
+    "stylers": [
+      {
+        "color": "#212a37"
+      }
+    ]
+  },
+  {
+    "featureType": "road",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#9ca5b3"
+      }
+    ]
+  },
+  {
+    "featureType": "road.highway",
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#746855"
+      }
+    ]
+  },
+  {
+    "featureType": "road.highway",
+    "elementType": "geometry.stroke",
+    "stylers": [
+      {
+        "color": "#1f2835"
+      }
+    ]
+  },
+  {
+    "featureType": "road.highway",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#f3d19c"
+      }
+    ]
+  },
+  {
+    "featureType": "transit",
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#2f3948"
+      }
+    ]
+  },
+  {
+    "featureType": "transit.station",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#d59563"
+      }
+    ]
+  },
+  {
+    "featureType": "water",
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#17263c"
+      }
+    ]
+  },
+  {
+    "featureType": "water",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#515c6d"
+      }
+    ]
+  },
+  {
+    "featureType": "water",
+    "elementType": "labels.text.stroke",
+    "stylers": [
+      {
+        "color": "#17263c"
+      }
+    ]
+  }
+]
+  ''';
 
   void _onMapCreated(GoogleMapController controller) {
     _mapController = controller;
+    // Get the current theme state from the ThemeBloc
+    final themeState = context.read<ThemeBloc>().state;
+    final isDarkMode =
+        themeState is ThemeLoaded ? themeState.isDarkMode : false;
+
+    // Apply dark style if in dark mode
+    if (isDarkMode) {
+      _mapController!.setMapStyle(_darkMapStyle);
+    }
+
     if (!_controllerCompleter.isCompleted) {
       _controllerCompleter.complete(controller);
     }
@@ -91,12 +270,12 @@ class _ListInMapState extends State<ListInMap> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppColors.white,
-            AppColors.white.withOpacity(0.8),
-            AppColors.white.withOpacity(0.6),
-            AppColors.white.withOpacity(0.4),
-            AppColors.white.withOpacity(0.2),
-            AppColors.white.withAlpha(1),
+            Theme.of(context).scaffoldBackgroundColor,
+            Theme.of(context).scaffoldBackgroundColor.withOpacity(0.8),
+            Theme.of(context).scaffoldBackgroundColor.withOpacity(0.6),
+            Theme.of(context).scaffoldBackgroundColor.withOpacity(0.4),
+            Theme.of(context).scaffoldBackgroundColor.withOpacity(0.2),
+            Theme.of(context).scaffoldBackgroundColor.withAlpha(1),
             Colors.transparent,
           ],
           begin: Alignment.topCenter,
@@ -117,7 +296,7 @@ class _ListInMapState extends State<ListInMap> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: BorderSide(
-            color: Colors.black.withOpacity(0.2),
+            color: Theme.of(context).colorScheme.secondary.withOpacity(0.2),
             width: 1,
           ),
         ),
@@ -130,15 +309,15 @@ class _ListInMapState extends State<ListInMap> {
           const SizedBox(width: 4),
           Image.asset(
             AppIcons.searchIcon,
-            color: AppColors.black,
+            color: Theme.of(context).colorScheme.secondary,
             width: 22,
             height: 22,
           ),
           const SizedBox(width: 10),
           Text(
             localizations.search,
-            style: const TextStyle(
-              color: AppColors.black,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.secondary,
               fontSize: 17,
               fontWeight: FontWeight.w600,
               fontFamily: Constants.Arial,
@@ -152,7 +331,7 @@ class _ListInMapState extends State<ListInMap> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: Theme.of(context).cardColor,
       body: Stack(
         children: [
           Column(
@@ -190,7 +369,8 @@ class _ListInMapState extends State<ListInMap> {
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(32)),
                         elevation: 4,
-                        backgroundColor: AppColors.white,
+                        backgroundColor:
+                            Theme.of(context).scaffoldBackgroundColor,
                         onPressed: () {
                           _fetchCurrentLocation();
                         },
@@ -211,11 +391,12 @@ class _ListInMapState extends State<ListInMap> {
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(32)),
                         elevation: 4,
-                        backgroundColor: AppColors.white,
+                        backgroundColor:
+                            Theme.of(context).scaffoldBackgroundColor,
                         onPressed: () => Navigator.pop(context),
-                        child: const Icon(
+                        child: Icon(
                           Icons.arrow_back_outlined,
-                          color: AppColors.black,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                     )
@@ -255,11 +436,11 @@ class _ListInMapState extends State<ListInMap> {
           isLoading = true;
         } else if (state is MapErrorState) {}
         return SizedBox(
-          height: 183,
+          height: 185,
           width: double.infinity,
           child: Card(
             margin: EdgeInsets.zero,
-            color: AppColors.white,
+            color: Theme.of(context).scaffoldBackgroundColor,
             shape: RoundedRectangleBorder(
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(16),
@@ -267,7 +448,7 @@ class _ListInMapState extends State<ListInMap> {
               ),
             ),
             elevation: 8,
-            shadowColor: AppColors.black,
+            shadowColor: Theme.of(context).colorScheme.secondary,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
               child: Column(
@@ -280,8 +461,8 @@ class _ListInMapState extends State<ListInMap> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  const Divider(
-                    color: AppColors.bgColor,
+                  Divider(
+                    color: Theme.of(context).scaffoldBackgroundColor,
                     thickness: 1,
                   ),
                   InkWell(
@@ -293,9 +474,9 @@ class _ListInMapState extends State<ListInMap> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            const HugeIcon(
+                            HugeIcon(
                               icon: HugeIcons.strokeRoundedLocation05,
-                              color: AppColors.black,
+                              color: Theme.of(context).colorScheme.secondary,
                             ),
                             const SizedBox(width: 8),
                             Flexible(
@@ -323,7 +504,7 @@ class _ListInMapState extends State<ListInMap> {
                   ),
                   const SizedBox(height: 14),
                   SizedBox(
-                    height: 56,
+                    height: 52,
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
@@ -347,6 +528,12 @@ class _ListInMapState extends State<ListInMap> {
                         }
                       },
                       style: ElevatedButton.styleFrom(
+                        shape: SmoothRectangleBorder(
+                          borderRadius: SmoothBorderRadius(
+                            cornerRadius: 16,
+                            cornerSmoothing: 1,
+                          ),
+                        ),
                         backgroundColor: AppColors.primary,
                       ).copyWith(
                         elevation: WidgetStateProperty.all(0),
@@ -354,10 +541,10 @@ class _ListInMapState extends State<ListInMap> {
                       child: Text(
                         key: ValueKey('text'),
                         localizations.ready,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: Constants.Arial,
                           fontWeight: FontWeight.w500,
-                          color: AppColors.white,
+                          color: Theme.of(context).scaffoldBackgroundColor,
                         ),
                       ),
                     ),
@@ -424,15 +611,17 @@ class _ListInMapState extends State<ListInMap> {
                   width: 50,
                   height: 5,
                   decoration: BoxDecoration(
-                    color: AppColors.bgColor,
+                    color: Theme.of(context).scaffoldBackgroundColor,
                     borderRadius: BorderRadius.circular(2.5),
                   ),
                   margin: const EdgeInsets.only(bottom: 4),
                 ),
                 Card(
                   elevation: 8,
-                  color: AppColors.white,
-                  shadowColor: AppColors.bgColor.withOpacity(0.2),
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  shadowColor: Theme.of(context)
+                      .scaffoldBackgroundColor
+                      .withOpacity(0.2),
                   child: Column(
                     children: [
                       Padding(
@@ -469,9 +658,9 @@ class _ListInMapState extends State<ListInMap> {
                           ],
                         ),
                       ),
-                      const Divider(
+                      Divider(
                         thickness: 1,
-                        color: AppColors.bgColor,
+                        color: Theme.of(context).scaffoldBackgroundColor,
                         endIndent: 16,
                         indent: 16,
                       ),
@@ -500,7 +689,7 @@ class _ListInMapState extends State<ListInMap> {
                           child: Transform.scale(
                             scale: 0.7,
                             child: CircularProgressIndicator(
-                              color: AppColors.black,
+                              color: Theme.of(context).colorScheme.secondary,
                               strokeWidth: 6,
                               strokeCap: StrokeCap.round,
                             ),
@@ -535,11 +724,12 @@ class _ListInMapState extends State<ListInMap> {
                                         location.name,
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w500,
-                                          color: AppColors.black,
-                                        ),
+                                        style: TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w500,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .secondary),
                                       ),
                                     )
                                   ],

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:list_in/core/utils/const.dart';
+import 'package:list_in/features/post/presentation/provider/post_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
-import 'package:list_in/config/theme/app_colors.dart';
-import 'package:list_in/features/post/presentation/provider/post_provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ProductConditionWidget extends StatefulWidget {
   const ProductConditionWidget({super.key});
