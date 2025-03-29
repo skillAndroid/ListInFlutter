@@ -16,9 +16,38 @@ abstract class CatalogLocalDataSource {
 class CatalogLocalDataSourceImpl implements CatalogLocalDataSource {
   final Box<CategoryModel> categoryBox;
   final Box<Country> locationBox;
+  final Box<dynamic> metaBox;
 
-  CatalogLocalDataSourceImpl(
-      {required this.categoryBox, required this.locationBox});
+  CatalogLocalDataSourceImpl({
+    required this.categoryBox,
+    required this.locationBox,
+    required this.metaBox,
+  });
+
+  // Initialize and check for schema changes
+  Future<void> initialize() async {
+    const currentCategoryVersion = 2; // Increment when model changes
+    const currentLocationVersion = 1;
+
+    final storedCategoryVersion =
+        metaBox.get('category_schema_version', defaultValue: 0);
+    final storedLocationVersion =
+        metaBox.get('location_schema_version', defaultValue: 0);
+
+    // Handle category schema changes
+    if (storedCategoryVersion < currentCategoryVersion) {
+      debugPrint("Schema version changed for categories, clearing old data");
+      await categoryBox.clear();
+      await metaBox.put('category_schema_version', currentCategoryVersion);
+    }
+
+    // Handle location schema changes
+    if (storedLocationVersion < currentLocationVersion) {
+      debugPrint("Schema version changed for locations, clearing old data");
+      await locationBox.clear();
+      await metaBox.put('location_schema_version', currentLocationVersion);
+    }
+  }
 
   @override
   Future<List<CategoryModel>> getCachedCategories() async {

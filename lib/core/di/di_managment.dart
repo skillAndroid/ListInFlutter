@@ -200,6 +200,7 @@ Future<void> init() async {
   Hive.registerAdapter(StateAdapter());
   Hive.registerAdapter(CountyAdapter());
 
+  final metaBox = await Hive.openBox('meta');
   final catalogBox = await Hive.openBox<CategoryModel>('catalogs');
   final locationBox = await Hive.openBox<Country>('locations');
 
@@ -315,13 +316,13 @@ Future<void> init() async {
 
   sl.registerLazySingleton<LocationRemoteDatasource>(
       () => LocationRemoteDataSourceImpl(dio: sl()));
-  sl.registerLazySingleton<CatalogLocalDataSource>(
-    () => CatalogLocalDataSourceImpl(
-      categoryBox: catalogBox,
-      locationBox: locationBox,
-    ),
-  );
 
+  final catalogLocalDataSource = CatalogLocalDataSourceImpl(
+      categoryBox: catalogBox, locationBox: locationBox, metaBox: metaBox);
+
+  await catalogLocalDataSource.initialize();
+  sl.registerLazySingleton<CatalogLocalDataSource>(
+      () => catalogLocalDataSource);
   sl.registerLazySingleton<PublicationsRepository>(
     () => PublicationsRepositoryImpl(
       remoteDataSource: sl(),
