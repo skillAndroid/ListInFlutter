@@ -49,11 +49,11 @@ class _NumericFieldBottomSheetState extends State<NumericFieldBottomSheet> {
   Widget build(BuildContext context) {
     return ClipSmoothRect(
       radius: SmoothBorderRadius(
-        cornerRadius: 20,
-        cornerSmoothing: 0.7,
+        cornerRadius: 14,
+        cornerSmoothing: 0.8,
       ),
       child: Container(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.secondaryContainer,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -62,7 +62,7 @@ class _NumericFieldBottomSheetState extends State<NumericFieldBottomSheet> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.grey[300],
+                color: Colors.grey[500],
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -127,10 +127,10 @@ class _NumericFieldBottomSheetState extends State<NumericFieldBottomSheet> {
                           decoration: InputDecoration(
                             labelText: AppLocalizations.of(context)!.from,
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(30),
                             ),
                             focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(30),
                               borderSide: BorderSide(
                                 color: Theme.of(context).primaryColor,
                                 width: 2,
@@ -163,10 +163,10 @@ class _NumericFieldBottomSheetState extends State<NumericFieldBottomSheet> {
                           decoration: InputDecoration(
                             labelText: AppLocalizations.of(context)!.to,
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(30),
                             ),
                             focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(30),
                               borderSide: BorderSide(
                                 color: Theme.of(context).primaryColor,
                                 width: 2,
@@ -237,9 +237,9 @@ class _NumericFieldBottomSheetState extends State<NumericFieldBottomSheet> {
                       alignment: Alignment.center,
                       child: Text(
                         AppLocalizations.of(context)!.apply,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
-                          color: AppColors.white,
+                          color: Theme.of(context).scaffoldBackgroundColor,
                           fontFamily: Constants.Arial,
                           fontWeight: FontWeight.bold,
                         ),

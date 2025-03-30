@@ -68,10 +68,10 @@ class _PriceRangeBottomSheetState extends State<PriceRangeBottomSheet> {
     return ClipSmoothRect(
       radius: SmoothBorderRadius(
         cornerRadius: 14,
-        cornerSmoothing: 0.7,
+        cornerSmoothing: 0.8,
       ),
       child: Container(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.secondaryContainer,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -150,10 +150,10 @@ class _PriceRangeBottomSheetState extends State<PriceRangeBottomSheet> {
                             labelText: AppLocalizations.of(context)!.from,
                             prefixText: '\$ ',
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(30),
                             ),
                             focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(30),
                               borderSide: BorderSide(
                                 color: Theme.of(context).primaryColor,
                                 width: 2,
@@ -183,10 +183,10 @@ class _PriceRangeBottomSheetState extends State<PriceRangeBottomSheet> {
                             labelText: AppLocalizations.of(context)!.to,
                             prefixText: '\$ ',
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(30),
                             ),
                             focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(30),
                               borderSide: BorderSide(
                                 color: Theme.of(context).primaryColor,
                                 width: 2,
@@ -226,11 +226,11 @@ class _PriceRangeBottomSheetState extends State<PriceRangeBottomSheet> {
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
-                      padding: EdgeInsets.symmetric(vertical: 16),
+                      padding: EdgeInsets.symmetric(vertical: 14),
                       shape: SmoothRectangleBorder(
                         borderRadius: SmoothBorderRadius(
-                          cornerRadius: 12,
-                          cornerSmoothing: 0.7,
+                          cornerRadius: 30,
+                          cornerSmoothing: 0.8,
                         ),
                       ),
                     ),

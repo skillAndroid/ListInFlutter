@@ -815,7 +815,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
       context: context,
       isScrollControlled: true,
       useRootNavigator: true,
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.transparent,
       builder: (context) => BlocProvider.value(
         value: cubit,
         child: Padding(
@@ -838,7 +838,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
       context: context,
       isScrollControlled: true,
       useRootNavigator: true,
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
       builder: (context) => BlocProvider.value(
         value: cubit,
         child: Padding(
@@ -1078,7 +1078,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
           cornerSmoothing: 0.7,
         ),
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
       isScrollControlled: true,
       builder: (bottomSheetContext) {
         return BlocProvider.value(
@@ -1174,7 +1174,9 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                           style: TextButton.styleFrom(
                                             padding: EdgeInsets.symmetric(
                                                 horizontal: 8, vertical: 3),
-                                            foregroundColor: AppColors.black,
+                                            foregroundColor: Theme.of(context)
+                                                .colorScheme
+                                                .secondary,
                                           ),
                                           child: Text(
                                             AppLocalizations.of(context)!
@@ -1202,7 +1204,9 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                           style: TextButton.styleFrom(
                                             padding: EdgeInsets.symmetric(
                                                 horizontal: 4, vertical: 0),
-                                            foregroundColor: AppColors.black,
+                                            foregroundColor: Theme.of(context)
+                                                .colorScheme
+                                                .secondary,
                                           ),
                                           child: Text(
                                             AppLocalizations.of(context)!
@@ -1221,10 +1225,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                               ],
                             ),
                           ),
-                          const Divider(
-                            height: 1,
-                            color: AppColors.containerColor,
-                          ),
+
                           Expanded(
                             child:
                                 attribute.filterWidgetType == 'multiSelectable'
@@ -1319,13 +1320,17 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                             ),
                             color: isSelected
                                 ? AppColors.primary
-                                : AppColors.white,
+                                : Theme.of(context)
+                                    .colorScheme
+                                    .secondaryContainer,
                           ),
                           child: isSelected
-                              ? const Icon(
+                              ? Icon(
                                   Icons.check,
                                   size: 17,
-                                  color: AppColors.white,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .secondaryContainer,
                                 )
                               : null,
                         ),
@@ -1341,7 +1346,7 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                           ),
                           style: TextStyle(
                             fontSize: 15,
-                            color: CupertinoColors.darkBackgroundGray,
+                            color: Theme.of(context).colorScheme.secondary,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -1389,20 +1394,20 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 padding:
-                    const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                    const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
                 shape: SmoothRectangleBorder(
                   borderRadius: SmoothBorderRadius(
-                    cornerRadius: 14,
-                    cornerSmoothing: 0.7,
+                    cornerRadius: 20,
+                    cornerSmoothing: 0.8,
                   ),
                 ),
                 elevation: 0,
               ),
               child: Text(
                 '${AppLocalizations.of(context)!.apply} (${(temporarySelections[attribute.attributeKey] as List).length})',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
-                  color: AppColors.white,
+                  color: Theme.of(context).scaffoldBackgroundColor,
                   fontFamily: Constants.Arial,
                   fontWeight: FontWeight.bold,
                 ),
@@ -1459,8 +1464,9 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                           value.valueRu, languageCode),
                       style: TextStyle(
                         fontSize: 16,
-                        color:
-                            isSelected ? AppColors.black : AppColors.darkGray,
+                        color: isSelected
+                            ? Theme.of(context).colorScheme.secondary
+                            : Theme.of(context).colorScheme.onSurface,
                         fontWeight:
                             isSelected ? FontWeight.w600 : FontWeight.w500,
                       ),
@@ -1478,13 +1484,17 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                             : AppColors.transparent,
                         width: 2,
                       ),
-                      color: isSelected ? AppColors.primary : AppColors.white,
+                      color: isSelected
+                          ? AppColors.primary
+                          : Theme.of(context).colorScheme.secondaryContainer,
                     ),
                     child: isSelected
-                        ? const Icon(
+                        ? Icon(
                             Icons.check,
                             size: 17,
-                            color: AppColors.white,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .secondaryContainer,
                           )
                         : null,
                   ),
@@ -1513,10 +1523,10 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
       shape: SmoothRectangleBorder(
         borderRadius: SmoothBorderRadius(
           cornerRadius: 14,
-          cornerSmoothing: 0.7,
+          cornerSmoothing: 0.8,
         ),
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
       isScrollControlled: true,
       builder: (bottomSheetContext) {
         return BlocProvider.value(
@@ -1589,9 +1599,11 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       IconButton(
-                                        icon: const Icon(Ionicons.close),
+                                        icon: Icon(Ionicons.close),
                                         onPressed: () => Navigator.pop(context),
-                                        color: AppColors.black,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondary,
                                       ),
                                       if (cubit
                                           .getSelectedValues(attribute)
@@ -1605,7 +1617,9 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                           style: TextButton.styleFrom(
                                             padding: EdgeInsets.symmetric(
                                                 horizontal: 8, vertical: 3),
-                                            foregroundColor: AppColors.black,
+                                            foregroundColor: Theme.of(context)
+                                                .colorScheme
+                                                .secondary,
                                           ),
                                           child: Text(
                                             AppLocalizations.of(context)!
@@ -1623,10 +1637,6 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                 ),
                               ],
                             ),
-                          ),
-                          const Divider(
-                            height: 1,
-                            color: AppColors.containerColor,
                           ),
                           Expanded(
                             child: ListView.builder(
@@ -1685,8 +1695,12 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                               style: TextStyle(
                                                 fontSize: 15,
                                                 color: isSelected
-                                                    ? AppColors.black
-                                                    : AppColors.darkGray,
+                                                    ? Theme.of(context)
+                                                        .colorScheme
+                                                        .secondaryContainer
+                                                    : Theme.of(context)
+                                                        .colorScheme
+                                                        .onSurface,
                                                 fontWeight: isSelected
                                                     ? FontWeight.w700
                                                     : FontWeight.w600,
@@ -1709,13 +1723,17 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                               ),
                                               color: isSelected
                                                   ? AppColors.primary
-                                                  : AppColors.white,
+                                                  : Theme.of(context)
+                                                      .colorScheme
+                                                      .secondaryContainer,
                                             ),
                                             child: isSelected
-                                                ? const Icon(
+                                                ? Icon(
                                                     Icons.check,
                                                     size: 17,
-                                                    color: AppColors.white,
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .secondaryContainer,
                                                   )
                                                 : null,
                                           ),
@@ -1765,20 +1783,21 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppColors.primary,
                                   padding: const EdgeInsets.symmetric(
-                                      vertical: 16, horizontal: 16),
+                                      vertical: 14, horizontal: 16),
                                   shape: SmoothRectangleBorder(
                                     borderRadius: SmoothBorderRadius(
-                                      cornerRadius: 14,
-                                      cornerSmoothing: 0.7,
+                                      cornerRadius: 30,
+                                      cornerSmoothing: 0.8,
                                     ),
                                   ),
                                   elevation: 0,
                                 ),
                                 child: Text(
                                   '${AppLocalizations.of(context)!.apply} (${(temporarySelections[attribute.attributeKey] as List).length})',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 16,
-                                    color: AppColors.white,
+                                    color: Theme.of(context)
+                                        .scaffoldBackgroundColor,
                                     fontFamily: Constants.Arial,
                                     fontWeight: FontWeight.w600,
                                   ),

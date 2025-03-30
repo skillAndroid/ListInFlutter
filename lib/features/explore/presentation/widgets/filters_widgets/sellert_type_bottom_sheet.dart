@@ -5,6 +5,7 @@ import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/explore/presentation/pages/filter/filter.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class SellerTypeBottomSheet extends StatefulWidget {
   final String page;
@@ -22,10 +23,11 @@ class _SellerTypeBottomSheetState extends State<SellerTypeBottomSheet> {
   Widget build(BuildContext context) {
     return BlocBuilder<HomeTreeCubit, HomeTreeState>(
       builder: (context, state) {
-        return ClipRRect(
+        return SmoothClipRRect(
+          smoothness: 1,
           borderRadius: BorderRadius.circular(14),
           child: Container(
-            color: AppColors.white,
+            color: Theme.of(context).colorScheme.secondaryContainer,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -33,13 +35,13 @@ class _SellerTypeBottomSheetState extends State<SellerTypeBottomSheet> {
               children: [
                 SizedBox(
                   width: double.infinity,
-                  child:  Text(
+                  child: Text(
                     AppLocalizations.of(context)!.seller_type,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
-                      color: Colors.black,
+                      color: Theme.of(context).colorScheme.secondary,
                     ),
                   ),
                 ),
@@ -101,8 +103,9 @@ class _SellerTypeBottomSheetState extends State<SellerTypeBottomSheet> {
   }) {
     return InkWell(
       onTap: onTap,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
+      child: SmoothClipRRect(
+        smoothness: 0.8,
+        borderRadius: BorderRadius.circular(14),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
@@ -119,7 +122,9 @@ class _SellerTypeBottomSheetState extends State<SellerTypeBottomSheet> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                  color: isSelected ? AppColors.primary : Colors.black,
+                  color: isSelected
+                      ? AppColors.primary
+                      : Theme.of(context).colorScheme.secondary,
                 ),
               ),
               if (isSelected)

@@ -473,7 +473,7 @@ class _FiltersPageState extends State<FiltersPage>
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             decoration: BoxDecoration(
               color: selectedValue != null
-                  ? AppColors.white
+                  ? Theme.of(context).scaffoldBackgroundColor
                   : Theme.of(context).scaffoldBackgroundColor,
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
@@ -645,7 +645,7 @@ class _FiltersPageState extends State<FiltersPage>
       context: context,
       isScrollControlled: true,
       useRootNavigator: true,
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.transparent,
       builder: (context) => BlocProvider.value(
         value: cubit,
         child: Padding(
@@ -682,11 +682,11 @@ class _FiltersPageState extends State<FiltersPage>
       useRootNavigator: true,
       shape: SmoothRectangleBorder(
         borderRadius: SmoothBorderRadius(
-          cornerRadius: 10,
-          cornerSmoothing: 0.7,
+          cornerRadius: 12,
+          cornerSmoothing: 0.8,
         ),
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
       isScrollControlled: true,
       builder: (bottomSheetContext) {
         return BlocProvider.value(
@@ -722,7 +722,7 @@ class _FiltersPageState extends State<FiltersPage>
                             width: 40,
                             height: 4,
                             decoration: BoxDecoration(
-                              color: Colors.grey[300],
+                              color: Colors.grey[500],
                               borderRadius: BorderRadius.circular(2),
                             ),
                           ),
@@ -780,7 +780,9 @@ class _FiltersPageState extends State<FiltersPage>
                                           style: TextButton.styleFrom(
                                             padding: EdgeInsets.symmetric(
                                                 horizontal: 8, vertical: 3),
-                                            foregroundColor: AppColors.black,
+                                            foregroundColor: Theme.of(context)
+                                                .colorScheme
+                                                .secondary,
                                           ),
                                           child: Text(
                                             localizations.clear_,
@@ -806,7 +808,9 @@ class _FiltersPageState extends State<FiltersPage>
                                           style: TextButton.styleFrom(
                                             padding: EdgeInsets.symmetric(
                                                 horizontal: 4, vertical: 0),
-                                            foregroundColor: AppColors.black,
+                                            foregroundColor: Theme.of(context)
+                                                .colorScheme
+                                                .secondary,
                                           ),
                                           child: Text(
                                             localizations.clear_,
@@ -824,10 +828,7 @@ class _FiltersPageState extends State<FiltersPage>
                               ],
                             ),
                           ),
-                          const Divider(
-                            height: 1,
-                            color: AppColors.white,
-                          ),
+
                           Expanded(
                             child:
                                 attribute.filterWidgetType == 'multiSelectable'
@@ -913,13 +914,17 @@ class _FiltersPageState extends State<FiltersPage>
                             ),
                             color: isSelected
                                 ? AppColors.primary
-                                : AppColors.white,
+                                : Theme.of(context)
+                                    .colorScheme
+                                    .secondaryContainer,
                           ),
                           child: isSelected
-                              ? const Icon(
+                              ? Icon(
                                   Icons.check,
                                   size: 17,
-                                  color: AppColors.white,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .secondaryContainer,
                                 )
                               : null,
                         ),
@@ -935,7 +940,7 @@ class _FiltersPageState extends State<FiltersPage>
                           ),
                           style: TextStyle(
                             fontSize: 15,
-                            color: CupertinoColors.darkBackgroundGray,
+                            color: Theme.of(context).colorScheme.secondary,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -976,7 +981,7 @@ class _FiltersPageState extends State<FiltersPage>
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 padding:
-                    const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                    const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(32),
                 ),
@@ -984,9 +989,9 @@ class _FiltersPageState extends State<FiltersPage>
               ),
               child: Text(
                 '${localizations.apply} (${(temporarySelections[attribute.attributeKey] as List).length})',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
-                  color: AppColors.white,
+                  color: Theme.of(context).scaffoldBackgroundColor,
                   fontFamily: Constants.Arial,
                   fontWeight: FontWeight.bold,
                 ),
@@ -1042,8 +1047,9 @@ class _FiltersPageState extends State<FiltersPage>
                       ),
                       style: TextStyle(
                         fontSize: 16,
-                        color:
-                            isSelected ? AppColors.black : AppColors.darkGray,
+                        color: isSelected
+                            ? Theme.of(context).colorScheme.secondary
+                            : Theme.of(context).colorScheme.onSurface,
                         fontWeight:
                             isSelected ? FontWeight.w600 : FontWeight.w500,
                       ),
@@ -1061,13 +1067,17 @@ class _FiltersPageState extends State<FiltersPage>
                             : AppColors.transparent,
                         width: 2,
                       ),
-                      color: isSelected ? AppColors.primary : AppColors.white,
+                      color: isSelected
+                          ? AppColors.primary
+                          : Theme.of(context).colorScheme.secondaryContainer,
                     ),
                     child: isSelected
-                        ? const Icon(
+                        ? Icon(
                             Icons.check,
                             size: 17,
-                            color: AppColors.white,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .secondaryContainer,
                           )
                         : null,
                   ),
@@ -1096,7 +1106,7 @@ class _FiltersPageState extends State<FiltersPage>
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
       isScrollControlled: true,
       builder: (bottomSheetContext) {
         return BlocProvider.value(
@@ -1171,7 +1181,9 @@ class _FiltersPageState extends State<FiltersPage>
                                       IconButton(
                                         icon: const Icon(Ionicons.close),
                                         onPressed: () => Navigator.pop(context),
-                                        color: AppColors.black,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondary,
                                       ),
                                       if (cubit
                                           .getSelectedValues(attribute)
@@ -1204,10 +1216,6 @@ class _FiltersPageState extends State<FiltersPage>
                                 ),
                               ],
                             ),
-                          ),
-                          const Divider(
-                            height: 1,
-                            color: AppColors.containerColor,
                           ),
                           Expanded(
                             child: ListView.builder(
@@ -1266,8 +1274,12 @@ class _FiltersPageState extends State<FiltersPage>
                                               style: TextStyle(
                                                 fontSize: 15,
                                                 color: isSelected
-                                                    ? AppColors.black
-                                                    : AppColors.darkGray,
+                                                    ? Theme.of(context)
+                                                        .colorScheme
+                                                        .secondary
+                                                    : Theme.of(context)
+                                                        .colorScheme
+                                                        .onSurface,
                                                 fontWeight: isSelected
                                                     ? FontWeight.w700
                                                     : FontWeight.w600,
@@ -1290,13 +1302,17 @@ class _FiltersPageState extends State<FiltersPage>
                                               ),
                                               color: isSelected
                                                   ? AppColors.primary
-                                                  : AppColors.white,
+                                                  : Theme.of(context)
+                                                      .colorScheme
+                                                      .secondaryContainer,
                                             ),
                                             child: isSelected
-                                                ? const Icon(
+                                                ? Icon(
                                                     Icons.check,
                                                     size: 17,
-                                                    color: AppColors.white,
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .secondary,
                                                   )
                                                 : null,
                                           ),
@@ -1337,7 +1353,7 @@ class _FiltersPageState extends State<FiltersPage>
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppColors.primary,
                                   padding: const EdgeInsets.symmetric(
-                                      vertical: 16, horizontal: 16),
+                                      vertical: 14, horizontal: 16),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(24),
                                   ),
@@ -1345,9 +1361,10 @@ class _FiltersPageState extends State<FiltersPage>
                                 ),
                                 child: Text(
                                   '${localizations.clear_} (${(temporarySelections[attribute.attributeKey] as List).length})',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 16,
-                                    color: AppColors.white,
+                                    color: Theme.of(context)
+                                        .scaffoldBackgroundColor,
                                     fontFamily: Constants.Arial,
                                     fontWeight: FontWeight.w600,
                                   ),

@@ -6,6 +6,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
+import 'package:smooth_corner_updated/smooth_corner.dart';
 
 // Condition bottom sheet widget
 class ConditionBottomSheet extends StatefulWidget {
@@ -27,7 +28,7 @@ class _ConditionBottomSheetState extends State<ConditionBottomSheet> {
         return ClipRRect(
           borderRadius: BorderRadius.circular(14),
           child: Container(
-            color: AppColors.white,
+            color: Theme.of(context).colorScheme.secondaryContainer,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -35,13 +36,13 @@ class _ConditionBottomSheetState extends State<ConditionBottomSheet> {
               children: [
                 SizedBox(
                   width: double.infinity,
-                  child:  Text(
+                  child: Text(
                     AppLocalizations.of(context)!.condition,
                     textAlign: TextAlign.center,
-                    style:const TextStyle(
+                    style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
-                      color: Colors.black,
+                      color: Theme.of(context).colorScheme.secondary,
                     ),
                   ),
                 ),
@@ -103,7 +104,8 @@ class _ConditionBottomSheetState extends State<ConditionBottomSheet> {
   }) {
     return InkWell(
       onTap: onTap,
-      child: ClipRRect(
+      child: SmoothClipRRect(
+        smoothness: 0.8,
         borderRadius: BorderRadius.circular(10),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -120,7 +122,9 @@ class _ConditionBottomSheetState extends State<ConditionBottomSheet> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                  color: isSelected ? AppColors.primary : Colors.black,
+                  color: isSelected
+                      ? AppColors.primary
+                      : Theme.of(context).colorScheme.secondary,
                 ),
               ),
               if (isSelected)
