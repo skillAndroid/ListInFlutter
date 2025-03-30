@@ -325,6 +325,8 @@ class _FilterSecondaryResultPageState extends State<FilterSecondaryResultPage> {
                 pinned: false,
                 automaticallyImplyLeading: false,
                 toolbarHeight: 50,
+                elevation: 0,
+                scrolledUnderElevation: 0,
                 flexibleSpace: _buildFiltersBar(state),
                 backgroundColor: Theme.of(context).scaffoldBackgroundColor,
               ),

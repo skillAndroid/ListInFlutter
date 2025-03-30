@@ -338,6 +338,8 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                   automaticallyImplyLeading: false,
                   toolbarHeight: 50,
                   flexibleSpace: _buildFiltersBar(state),
+                  elevation: 0,
+                  scrolledUnderElevation: 0,
                   backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                 ),
               ),

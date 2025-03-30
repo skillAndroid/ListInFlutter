@@ -427,16 +427,16 @@ class OwnerDialog extends StatelessWidget {
     final Color cupertinoGreen = const Color(0xFF34C759);
 
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16.0),
+      backgroundColor: Theme.of(context).cardColor,
+      shape: SmoothRectangleBorder(
+        borderRadius: SmoothBorderRadius(
+          cornerRadius: 16,
+          cornerSmoothing: 0.8,
+        ),
       ),
       child: Container(
         width: MediaQuery.of(context).size.width * 0.8,
         padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16.0),
-        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -445,6 +445,7 @@ class OwnerDialog extends StatelessWidget {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.secondary,
               ),
             ),
             const SizedBox(height: 10),
@@ -452,7 +453,7 @@ class OwnerDialog extends StatelessWidget {
               AppLocalizations.of(context)!.view_in_profile,
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey[600],
+                color: Theme.of(context).colorScheme.secondary,
               ),
             ),
             const SizedBox(height: 20),
@@ -473,7 +474,7 @@ class OwnerDialog extends StatelessWidget {
                   child: Text(
                     AppLocalizations.of(context)!.cancel,
                     style: TextStyle(
-                      color: Colors.grey,
+                      color: Theme.of(context).colorScheme.secondary,
                       fontSize: 15,
                     ),
                   ),
@@ -482,7 +483,6 @@ class OwnerDialog extends StatelessWidget {
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: cupertinoGreen,
-                    foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20,
                       vertical: 10,
@@ -498,9 +498,10 @@ class OwnerDialog extends StatelessWidget {
                   },
                   child: Text(
                     AppLocalizations.of(context)!.profile,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w500,
+                      color: Theme.of(context).colorScheme.secondary,
                     ),
                   ),
                 ),

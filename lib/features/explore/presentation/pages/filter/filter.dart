@@ -187,9 +187,12 @@ class _FiltersPageState extends State<FiltersPage>
                                                 const EdgeInsets.only(top: 3),
                                             child: Text(
                                               localizations.filter,
-                                              style: const TextStyle(
+                                              style: TextStyle(
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 18,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .secondary,
                                               ),
                                             ),
                                           ),
@@ -209,9 +212,11 @@ class _FiltersPageState extends State<FiltersPage>
                               if (widget.page != 'result_page') ...[
                                 Text(
                                   localizations.category,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 19,
                                     fontWeight: FontWeight.w500,
+                                    color:
+                                        Theme.of(context).colorScheme.secondary,
                                   ),
                                 ),
                                 const SizedBox(
@@ -225,9 +230,12 @@ class _FiltersPageState extends State<FiltersPage>
                                   ),
                                   Text(
                                     state.selectedCatalog!.name,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 19,
                                       fontWeight: FontWeight.w500,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .secondary,
                                     ),
                                   ),
                                   const SizedBox(
@@ -597,7 +605,7 @@ class _FiltersPageState extends State<FiltersPage>
               Text(
                 displayText,
                 style: TextStyle(
-                  color: AppColors.black,
+                  color: Theme.of(context).colorScheme.secondary,
                   fontWeight: FontWeight.w400,
                   fontSize: 16,
                 ),
@@ -608,7 +616,10 @@ class _FiltersPageState extends State<FiltersPage>
               )
             ],
           ),
-          side: BorderSide(width: 1, color: AppColors.containerColor),
+          side: BorderSide(
+            width: 1,
+            color: Theme.of(context).cardColor,
+          ),
           shape: SmoothRectangleBorder(
             borderRadius: SmoothBorderRadius(
               cornerRadius: 24,
@@ -616,8 +627,8 @@ class _FiltersPageState extends State<FiltersPage>
             ),
           ),
           selected: fieldValues != null,
-          backgroundColor: AppColors.white,
-          selectedColor: AppColors.white,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          selectedColor: Theme.of(context).scaffoldBackgroundColor,
           onSelected: (_) {
             _showNumericFieldBottomSheet(context, numericField);
           },
@@ -1998,9 +2009,10 @@ class _FiltersPageState extends State<FiltersPage>
       shape: SmoothRectangleBorder(
         borderRadius: SmoothBorderRadius(
           cornerRadius: 16,
-          cornerSmoothing: 0.7,
+          cornerSmoothing: 0.8,
         ),
       ),
+      backgroundColor: Colors.transparent,
       builder: (context) {
         return BlocProvider.value(
             value: cubit,
@@ -2027,157 +2039,173 @@ class _FiltersPageState extends State<FiltersPage>
             cornerRadius: 16,
             cornerSmoothing: 0.8,
           ),
-          child: Container(
-            color: AppColors.white,
-            padding: EdgeInsets.all(10),
-            constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.95,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.close_rounded),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                    Text(
-                      "Select location",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(width: 48), // Balance the layout
-                  ],
+          child: BlocBuilder<ThemeBloc, ThemeState>(
+            builder: (context, themeState) {
+              final isDarkMode =
+                  themeState is ThemeLoaded ? themeState.isDarkMode : false;
+              return Container(
+                color:
+                    isDarkMode ? Theme.of(context).cardColor : AppColors.white,
+                padding: EdgeInsets.all(10),
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.95,
                 ),
-                Divider(color: AppColors.containerColor),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.close_rounded),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                        Text(
+                          "Select location",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.secondary,
+                          ),
+                        ),
+                        SizedBox(width: 48), // Balance the layout
+                      ],
+                    ),
+                    Divider(
+                      color: Theme.of(context).cardColor,
+                    ),
 
-                // States list
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: states.length,
-                    itemBuilder: (context, index) {
-                      final stateItem = states[index];
+                    // States list
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: states.length,
+                        itemBuilder: (context, index) {
+                          final stateItem = states[index];
 
-                      // Strict comparison to ensure only the actually selected state appears selected
-                      final isSelected = state.selectedState != null &&
-                          state.selectedState!.stateId == stateItem.stateId;
+                          // Strict comparison to ensure only the actually selected state appears selected
+                          final isSelected = state.selectedState != null &&
+                              state.selectedState!.stateId == stateItem.stateId;
 
-                      // Only expand if actually selected
-                      final isExpanded = isSelected;
-                      final hasCounties =
-                          stateItem.counties?.isNotEmpty == true;
+                          // Only expand if actually selected
+                          final isExpanded = isSelected;
+                          final hasCounties =
+                              stateItem.counties?.isNotEmpty == true;
 
-                      return Column(
-                        children: [
-                          // State item
-                          ListTile(
-                            title: Text(
-                              stateItem.valueRu ?? stateItem.value ?? '',
-                              style: TextStyle(
-                                // Only apply bold/color if actually selected
-                                fontWeight: isSelected
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
-                                color: isSelected
-                                    ? Theme.of(context).primaryColor
-                                    : Colors.black,
-                              ),
-                            ),
-                            trailing: hasCounties
-                                ? Icon(
-                                    isExpanded
-                                        ? Icons.keyboard_arrow_up
-                                        : Icons.keyboard_arrow_down,
+                          return Column(
+                            children: [
+                              // State item
+                              ListTile(
+                                title: Text(
+                                  stateItem.valueRu ?? stateItem.value ?? '',
+                                  style: TextStyle(
+                                    // Only apply bold/color if actually selected
+                                    fontWeight: isSelected
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
                                     color: isSelected
                                         ? Theme.of(context).primaryColor
-                                        : Colors.grey,
-                                  )
-                                : (isSelected
+                                        : Theme.of(context)
+                                            .colorScheme
+                                            .secondary,
+                                  ),
+                                ),
+                                trailing: hasCounties
                                     ? Icon(
-                                        Icons.check,
-                                        color: Theme.of(context).primaryColor,
-                                      )
-                                    : null),
-                            onTap: () {
-                              if (hasCounties) {
-                                if (isSelected) {
-                                  // If already selected, just toggle expansion
-                                  // In this implementation, we'll just deselect it
-                                  cubit.clearLocationSelection();
-                                } else {
-                                  // Select this state
-                                  cubit.selectState(stateItem.stateId!);
-                                }
-                                setSheetState(() {});
-                              } else {
-                                // No counties, just select the state and close
-                                cubit.selectState(stateItem.stateId!);
-                                Navigator.pop(context);
-                              }
-                            },
-                          ),
-
-                          // Counties list (animated expansion)
-                          if (hasCounties && isExpanded)
-                            AnimatedContainer(
-                              duration: Duration(milliseconds: 300),
-                              margin: EdgeInsets.only(left: 16),
-                              child: ListView.builder(
-                                shrinkWrap: true,
-                                physics: NeverScrollableScrollPhysics(),
-                                itemCount: stateItem.counties?.length ?? 0,
-                                itemBuilder: (context, countyIndex) {
-                                  final countyItem =
-                                      stateItem.counties![countyIndex];
-
-                                  // Strict comparison for county selection
-                                  final isCountySelected =
-                                      state.selectedCounty != null &&
-                                          state.selectedCounty!.countyId ==
-                                              countyItem.countyId;
-
-                                  return ListTile(
-                                    title: Text(
-                                      countyItem.valueRu ??
-                                          countyItem.value ??
-                                          '',
-                                      style: TextStyle(
-                                        fontWeight: isCountySelected
-                                            ? FontWeight.bold
-                                            : FontWeight.normal,
-                                        color: isCountySelected
+                                        isExpanded
+                                            ? Icons.keyboard_arrow_up
+                                            : Icons.keyboard_arrow_down,
+                                        color: isSelected
                                             ? Theme.of(context).primaryColor
-                                            : Colors.black87,
-                                        fontSize: 15,
-                                      ),
-                                    ),
-                                    trailing: isCountySelected
+                                            : Colors.grey,
+                                      )
+                                    : (isSelected
                                         ? Icon(
                                             Icons.check,
                                             color:
                                                 Theme.of(context).primaryColor,
                                           )
-                                        : null,
-                                    onTap: () {
-                                      cubit.selectCounty(countyItem.countyId!);
-                                      Navigator.pop(context);
-                                    },
-                                  );
+                                        : null),
+                                onTap: () {
+                                  if (hasCounties) {
+                                    if (isSelected) {
+                                      // If already selected, just toggle expansion
+                                      // In this implementation, we'll just deselect it
+                                      cubit.clearLocationSelection();
+                                    } else {
+                                      // Select this state
+                                      cubit.selectState(stateItem.stateId!);
+                                    }
+                                    setSheetState(() {});
+                                  } else {
+                                    // No counties, just select the state and close
+                                    cubit.selectState(stateItem.stateId!);
+                                    Navigator.pop(context);
+                                  }
                                 },
                               ),
-                            ),
-                        ],
-                      );
-                    },
-                  ),
+
+                              // Counties list (animated expansion)
+                              if (hasCounties && isExpanded)
+                                AnimatedContainer(
+                                  duration: Duration(milliseconds: 300),
+                                  margin: EdgeInsets.only(left: 16),
+                                  child: ListView.builder(
+                                    shrinkWrap: true,
+                                    physics: NeverScrollableScrollPhysics(),
+                                    itemCount: stateItem.counties?.length ?? 0,
+                                    itemBuilder: (context, countyIndex) {
+                                      final countyItem =
+                                          stateItem.counties![countyIndex];
+
+                                      // Strict comparison for county selection
+                                      final isCountySelected =
+                                          state.selectedCounty != null &&
+                                              state.selectedCounty!.countyId ==
+                                                  countyItem.countyId;
+
+                                      return ListTile(
+                                        title: Text(
+                                          countyItem.valueRu ??
+                                              countyItem.value ??
+                                              '',
+                                          style: TextStyle(
+                                            fontWeight: isCountySelected
+                                                ? FontWeight.bold
+                                                : FontWeight.normal,
+                                            color: isCountySelected
+                                                ? Theme.of(context).primaryColor
+                                                : Theme.of(context)
+                                                    .colorScheme
+                                                    .secondary,
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                        trailing: isCountySelected
+                                            ? Icon(
+                                                Icons.check,
+                                                color: Theme.of(context)
+                                                    .primaryColor,
+                                              )
+                                            : null,
+                                        onTap: () {
+                                          cubit.selectCounty(
+                                              countyItem.countyId!);
+                                          Navigator.pop(context);
+                                        },
+                                      );
+                                    },
+                                  ),
+                                ),
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              );
+            },
           ),
         );
       },
@@ -2583,9 +2611,10 @@ class _PriceRangeSliderState extends State<PriceRangeSlider> {
             children: [
               Text(
                 widget.localizations.price_range,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 19,
                   fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.secondary,
                 ),
               ),
               if (isDisabled)
