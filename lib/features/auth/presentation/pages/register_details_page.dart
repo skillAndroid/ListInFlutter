@@ -3,19 +3,20 @@
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:list_in/features/auth/presentation/widgets/location_page.dart';
 import 'package:list_in/features/auth/presentation/widgets/auth_text_field.dart';
+import 'package:list_in/features/auth/presentation/widgets/location_page.dart';
+import 'package:list_in/features/auth/presentation/widgets/validars.dart';
 import 'package:list_in/features/map/domain/entities/coordinates_entity.dart';
 import 'package:list_in/features/map/domain/entities/location_entity.dart';
 import 'package:list_in/features/map/presentation/map/map.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 enum LocationSharingMode { precise, region }
 
@@ -44,18 +45,7 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
   int _selectedOption = 0;
   LocationSharingMode _locationSharingPreference = LocationSharingMode.precise;
 
-  final List<Map<String, String>> options = [
-    {
-      'title': 'Sell Personal Items',
-      'description':
-          'Sell your old items easily like electronics, furniture, etc.',
-    },
-    {
-      'title': 'Create a Store',
-      'description':
-          'Sell multiple products under your brand and gain followers.',
-    },
-  ];
+  late List<Map<String, String>> options;
 
   @override
   void initState() {
@@ -66,6 +56,18 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
     // options[1]['title'] = AppLocalizations.of(context)!.createStore;
     // options[1]['description'] = AppLocalizations.of(context)!.createStoreDesc;
     _currentPage = 0;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Initialize options with proper localization
+    options = LocalizedOptions.getOptions(context);
+    // Fallback if localization failed
+    if (options.isEmpty) {
+      final locale = Localizations.localeOf(context);
+      options = LocalizedOptions.getFallbackOptions(locale.languageCode);
+    }
   }
 
   @override
@@ -90,15 +92,84 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
   }
 
   bool _validateCurrentPage() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final snackBarBackgroundColor =
+        isDarkMode ? Colors.grey[900] : Colors.white;
+    final snackBarTextColor = isDarkMode ? Colors.white : Colors.black;
+
+    void showCustomSnackBar(String message, {IconData? icon}) {
+      final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+      final snackBarBackgroundColor =
+          isDarkMode ? Colors.grey[900] : Colors.white;
+      final snackBarTextColor = isDarkMode ? Colors.white : Colors.black;
+      final snackBarIconColor =
+          isDarkMode ? Colors.blue[300] : Colors.blue[700];
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              if (icon != null) ...[
+                Icon(icon, color: snackBarIconColor, size: 24),
+                SizedBox(width: 12),
+              ],
+              Expanded(
+                child: Text(
+                  message,
+                  style: TextStyle(color: snackBarTextColor, fontSize: 16),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: snackBarBackgroundColor,
+          behavior: SnackBarBehavior.floating,
+          elevation: 10, // Делаем тень
+          shape: SmoothRectangleBorder(
+            borderRadius: BorderRadius.circular(12), // Закругляем углы
+            side: BorderSide(
+              color: isDarkMode ? Colors.blueGrey : Colors.grey[300]!,
+              width: 1.2, // Добавляем лёгкий контур
+            ),
+          ),
+          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10), // Отступы
+          duration: Duration(seconds: 3), // Время отображения
+        ),
+      );
+    }
+
     switch (_currentPage) {
       case 0:
-        return _nikeNameController.text.isNotEmpty;
+        if (_nikeNameController.text.isEmpty) {
+          showCustomSnackBar(
+              ValidationMessages.getMessage(context, 'nameEmpty'));
+          return false;
+        }
+        return true;
       case 2:
-        return _phoneNumberController.text.isNotEmpty;
+        if (_phoneNumberController.text.isEmpty) {
+          showCustomSnackBar(
+              ValidationMessages.getMessage(context, 'phoneNumberEmpty'));
+          return false;
+        }
+        return true;
       case 3:
-        return _passwordController.text.length >= 6;
+        if (_passwordController.text.isEmpty) {
+          showCustomSnackBar(
+              ValidationMessages.getMessage(context, 'passwordEmpty'));
+          return false;
+        }
+        if (_passwordController.text.length < 6) {
+          showCustomSnackBar(
+              ValidationMessages.getMessage(context, 'passwordMinLength'));
+          return false;
+        }
+        return true;
       case 4:
-        return _location.name.isNotEmpty;
+        if (_location.name.isEmpty) {
+          showCustomSnackBar(AppLocalizations.of(context)!.selectLocation);
+          return false;
+        }
+        return true;
       default:
         return true;
     }
@@ -313,6 +384,7 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
     );
   }
 
+  // Updated _buildPageViewBody method with improved options section
   Widget _buildPageViewBody() {
     final localizations = AppLocalizations.of(context)!;
     final List<PageData> pages = [
@@ -322,12 +394,7 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
         content: AuthTextField(
           controller: _nikeNameController,
           labelText: localizations.exampleNames,
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return localizations.nameEmpty;
-            }
-            return null;
-          },
+          validator: (value) => AuthValidators.validateName(context, value),
         ),
       ),
       PageData(
@@ -339,84 +406,15 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
             (index) {
               return Column(
                 children: [
-                  ElevatedButton(
-                    onPressed: () {
+                  OptionCard(
+                    isSelected: _selectedOption == index,
+                    title: options[index]['title']!,
+                    description: options[index]['description']!,
+                    onTap: () {
                       setState(() {
                         _selectedOption = index;
                       });
                     },
-                    style: ButtonStyle(
-                      padding: WidgetStateProperty.all(EdgeInsets.zero),
-                      elevation: WidgetStateProperty.all(0),
-                    ),
-                    child: Card(
-                      color: _selectedOption == index
-                          ? AppColors.myRedBrown.withOpacity(0.25)
-                          : Theme.of(context).cardColor,
-                      elevation: 0,
-                      shape: SmoothRectangleBorder(
-                        smoothness: 0.8,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Row(
-                          children: [
-                            AnimatedContainer(
-                              duration: const Duration(milliseconds: 300),
-                              width: _selectedOption == index ? 21 : 20,
-                              height: _selectedOption == index ? 21 : 20,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: _selectedOption == index
-                                      ? Theme.of(context).colorScheme.secondary
-                                      : AppColors.grey,
-                                  width: _selectedOption == index ? 5 : 2,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    options[index]['title']!,
-                                    style: TextStyle(
-                                      fontSize: 19,
-                                      fontWeight: FontWeight.w600,
-                                      color: _selectedOption == index
-                                          ? Theme.of(context)
-                                              .colorScheme
-                                              .secondary
-                                          : Theme.of(context)
-                                              .colorScheme
-                                              .secondary,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    options[index]['description']!,
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w400,
-                                      color: _selectedOption == index
-                                          ? Theme.of(context)
-                                              .colorScheme
-                                              .secondary
-                                          : Theme.of(context)
-                                              .colorScheme
-                                              .secondary,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
                   ),
                   if (index < options.length - 1) const SizedBox(height: 8),
                 ],
@@ -432,12 +430,8 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
           controller: _phoneNumberController,
           labelText: localizations.phoneNumber,
           keyboardType: TextInputType.phone,
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return localizations.enterPhoneNumberPrompt;
-            }
-            return null;
-          },
+          validator: (value) =>
+              AuthValidators.validatePhoneNumber(context, value),
         ),
       ),
       PageData(
@@ -447,18 +441,7 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
           controller: _passwordController,
           labelText: localizations.password,
           obscureText: true,
-          validator: (value) {
-            if (_currentPage != 3) {
-              return null;
-            }
-            if (value == null || value.isEmpty) {
-              return localizations.enterPhoneNumberPrompt;
-            }
-            if (value.length < 6) {
-              return localizations.passwordMinLength;
-            }
-            return null;
-          },
+          validator: (value) => AuthValidators.validatePassword(context, value),
         ),
       ),
       PageData(
@@ -473,11 +456,6 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
             });
           },
           onOpenMap: _showLocationPicker,
-          // onLocationSelected: (location) {
-          //   setState(() {
-          //     _location = location;
-          //   });
-          // },
         ),
       ),
     ];
@@ -559,13 +537,48 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
         _location = result;
       });
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(localizations.noLocationSelected),
-          duration: Duration(seconds: 2),
-        ),
-      );
+      _showCustomSnackBar(localizations.noLocationSelected,
+          icon: Icons.location_off);
     }
+  }
+
+  void _showCustomSnackBar(String message, {IconData? icon}) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final snackBarBackgroundColor =
+        isDarkMode ? Colors.grey[900] : Colors.white;
+    final snackBarTextColor = isDarkMode ? Colors.white : Colors.black;
+    final snackBarIconColor = isDarkMode ? Colors.red[300] : Colors.red[700];
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            if (icon != null) ...[
+              Icon(icon, color: snackBarIconColor, size: 24),
+              SizedBox(width: 12),
+            ],
+            Expanded(
+              child: Text(
+                message,
+                style: TextStyle(color: snackBarTextColor, fontSize: 16),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: snackBarBackgroundColor,
+        behavior: SnackBarBehavior.floating,
+        elevation: 10,
+        shape: SmoothRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(
+            color: isDarkMode ? Colors.blueGrey : Colors.grey[300]!,
+            width: 1.2,
+          ),
+        ),
+        margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        duration: Duration(seconds: 3),
+      ),
+    );
   }
 }
 

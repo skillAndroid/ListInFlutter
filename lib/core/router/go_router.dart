@@ -90,7 +90,7 @@ class AppRouter {
           state.matchedLocation == Routes.verification ||
           state.matchedLocation == Routes.userRegisterDetails;
 
-      if (!loggedIn && !isAuthRoute) return Routes.userRegisterDetails;
+      if (!loggedIn && !isAuthRoute) return Routes.welcome;
       if (loggedIn && isAuthRoute) return Routes.home;
       return null;
     },

@@ -25,10 +25,10 @@
   "verify": "Verify",
   "didntGetCode": "Didn't get code?",
   "resend": "Resend",
-  "sellPersonalItems": "Sell Personal Items",
-  "sellPersonalItemsDesc": "Sell your old items easily like electronics, furniture, etc.",
-  "createStore": "Create a Store",
-  "createStoreDesc": "Sell multiple products under your brand and gain followers.",
+  "sellPersonalItems": "Simple User",
+  "sellPersonalItemsDesc": "Easily buy and sell items as an individual.",
+  "createStore": "Business Platform",
+  "createStoreDesc": "Create a business for selling, renting, or offering services.",
   "fillRequiredFields": "Please fill all required fields",
   "selectLocation": "Please select a location",
   "submit": "Submit",
@@ -277,5 +277,8 @@
   "share_profile_image": "Share Profile Image",
   "share": "Share",
   "logout_confirmation": "Are you sure you want to logout?",  
-  "yes": "Yes"
+  "yes": "Yes",
+  "password_empty": "Please enter a password",
+  "password_min_length": "Password must be at least 6 characters",
+  "phone_number_empty": "Please enter your phone number"
 }

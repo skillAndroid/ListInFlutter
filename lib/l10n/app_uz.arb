@@ -25,10 +25,10 @@
   "verify": "Tasdiqlash",
   "didntGetCode": "Kod olmadingizmi?",
   "resend": "Qayta yuborish",
-  "sellPersonalItems": "Shaxsiy buyumlarni soting",
-  "sellPersonalItemsDesc": "Eski buyumlaringizni, masalan, elektronika, mebel va boshqalarni osongina soting.",
-  "createStore": "Do'kon yarating",
-  "createStoreDesc": "Brendingiz ostida bir nechta mahsulot soting va obunachilar to'plang.",
+  "sellPersonalItems": "Oddiy foydalanuvchi",
+  "sellPersonalItemsDesc": "Mahsulotlarni oson sotib oling yoki soting.",
+  "createStore": "Biznes platformasi",
+  "createStoreDesc": "Savdo, ijaraga berish va xizmatlar uchun biznes yarating.",
   "fillRequiredFields": "Iltimos, barcha kerakli maydonlarni to'ldiring",
   "selectLocation": "Iltimos, joylashuvni tanlang",
   "submit": "Tasdiqlash",
@@ -277,5 +277,8 @@
   "share_profile_image": "Profil rasmini ulashish",
   "share": "Ulashish",
   "logout_confirmation": "Chiqishni xohlaysizmi?",  
-  "yes": "Ha"
+  "yes": "Ha",
+  "password_empty": "Iltimos, parol kiriting",
+  "password_min_length": "Parol kamida 6 ta belgidan iborat bo'lishi kerak",
+  "phone_number_empty": "Iltimos, telefon raqamingizni kiriting"
 }
