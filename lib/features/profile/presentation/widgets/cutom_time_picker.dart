@@ -1,7 +1,5 @@
-
 // ignore_for_file: deprecated_member_use
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-
 
 import 'package:flutter/material.dart';
 import 'package:list_in/config/theme/app_colors.dart';
@@ -43,7 +41,6 @@ class CustomTimePicker extends StatefulWidget {
   _CustomTimePickerState createState() => _CustomTimePickerState();
 }
 
-
 class _CustomTimePickerState extends State<CustomTimePicker> {
   late FixedExtentScrollController _hourController;
   late FixedExtentScrollController _minuteController;
@@ -52,16 +49,13 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
   @override
   void initState() {
     super.initState();
-    
+
     _hourController = FixedExtentScrollController(
-      initialItem: widget.controller.selectedHour - 1
-    );
+        initialItem: widget.controller.selectedHour - 1);
     _minuteController = FixedExtentScrollController(
-      initialItem: widget.controller.selectedMinute
-    );
+        initialItem: widget.controller.selectedMinute);
     _periodController = FixedExtentScrollController(
-      initialItem: widget.controller.isAM ? 0 : 1
-    );
+        initialItem: widget.controller.isAM ? 0 : 1);
   }
 
   @override
@@ -113,7 +107,7 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
             style: TextStyle(
               fontSize: 30,
               fontWeight: FontWeight.w600,
-              color: AppColors.black,
+              color: Theme.of(context).colorScheme.secondary,
             ),
           ),
           SizedBox(
@@ -159,7 +153,9 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
                 childCount: 2,
                 builder: (context, index) {
                   return _TimePickerItem(
-                    text: index == 0 ? AppLocalizations.of(context)!.am : AppLocalizations.of(context)!.pm,
+                    text: index == 0
+                        ? AppLocalizations.of(context)!.am
+                        : AppLocalizations.of(context)!.pm,
                     isSelected: (index == 0) == widget.controller.isAM,
                   );
                 },
@@ -191,7 +187,9 @@ class _TimePickerItem extends StatelessWidget {
         style: TextStyle(
           fontSize: isSelected ? 30 : 20,
           fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-          color: isSelected ? AppColors.black : AppColors.black.withOpacity(0.3),
+          color: isSelected
+              ? Theme.of(context).colorScheme.secondary
+              : Theme.of(context).colorScheme.secondary.withOpacity(0.3),
         ),
       ),
     );

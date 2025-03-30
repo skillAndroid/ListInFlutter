@@ -59,14 +59,14 @@ class _ProductImagesDetailedState extends State<ProductImagesDetailed> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         automaticallyImplyLeading: false,
         flexibleSpace: Padding(
-          padding: const EdgeInsets.only(top:40),
+          padding: const EdgeInsets.only(top: 40),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -80,10 +80,6 @@ class _ProductImagesDetailedState extends State<ProductImagesDetailed> {
               _buildImageCounter(),
             ],
           ),
-        ),
-        systemOverlayStyle: const SystemUiOverlayStyle(
-          statusBarColor: Colors.transparent,
-          statusBarIconBrightness: Brightness.dark,
         ),
       ),
       body: Stack(
@@ -117,7 +113,7 @@ class _ProductImagesDetailedState extends State<ProductImagesDetailed> {
         return Container(
           width: constraints.maxWidth,
           height: constraints.maxHeight,
-          color: Colors.white,
+          color: Theme.of(context).scaffoldBackgroundColor,
           child: GestureDetector(
             onTap: () {
               Navigator.push(
@@ -143,12 +139,14 @@ class _ProductImagesDetailedState extends State<ProductImagesDetailed> {
                     width: 60,
                     height: 60,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.7),
+                      color: Theme.of(context)
+                          .scaffoldBackgroundColor
+                          .withOpacity(0.7),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.play_arrow_rounded,
-                      color: Colors.black,
+                      color: Theme.of(context).colorScheme.secondary,
                       size: 40,
                     ),
                   ),
@@ -162,43 +160,43 @@ class _ProductImagesDetailedState extends State<ProductImagesDetailed> {
   }
 
   Widget _buildImageViewer(int index) {
-  return LayoutBuilder(
-    builder: (context, constraints) {
-      return Container(
-        width: constraints.maxWidth,
-        height: constraints.maxHeight,
-        color: AppColors.bgColor,
-        child: PhotoView(
-          imageProvider: CachedNetworkImageProvider(
-            "https://${widget.images[index].url}",
-          ),
-          minScale: PhotoViewComputedScale.contained,
-          maxScale: PhotoViewComputedScale.covered * 2,
-          initialScale: PhotoViewComputedScale.contained,
-          backgroundDecoration: BoxDecoration(
-            color: AppColors.bgColor,
-          ),
-          loadingBuilder: (context, event) => Center(
-            child: CircularProgressIndicator(
-              color: Colors.white,
-              value: event == null
-                  ? 0
-                  : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Container(
+          width: constraints.maxWidth,
+          height: constraints.maxHeight,
+          color: Theme.of(context).scaffoldBackgroundColor,
+          child: PhotoView(
+            imageProvider: CachedNetworkImageProvider(
+              "https://${widget.images[index].url}",
             ),
+            minScale: PhotoViewComputedScale.contained,
+            maxScale: PhotoViewComputedScale.covered * 2,
+            initialScale: PhotoViewComputedScale.contained,
+            backgroundDecoration: BoxDecoration(
+              color: Theme.of(context).scaffoldBackgroundColor,
+            ),
+            loadingBuilder: (context, event) => Center(
+              child: CircularProgressIndicator(
+                color: Theme.of(context).scaffoldBackgroundColor,
+                value: event == null
+                    ? 0
+                    : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
+              ),
+            ),
+            enableRotation: false,
+            tightMode: true,
           ),
-          enableRotation: false,
-          tightMode: true,
-        ),
-      );
-    },
-  );
-}
+        );
+      },
+    );
+  }
 
   Widget _buildImageCounter() {
     return Text(
       '${_currentIndex + 1} of $totalItems',
-      style: const TextStyle(
-        color: Colors.black,
+      style: TextStyle(
+        color: Theme.of(context).colorScheme.secondary,
         fontWeight: FontWeight.w700,
         fontSize: 18,
         fontFamily: Constants.Arial,
@@ -206,26 +204,26 @@ class _ProductImagesDetailedState extends State<ProductImagesDetailed> {
     );
   }
 
- Widget _buildBackButton() {
-  return ClipRRect(
-    borderRadius: BorderRadius.circular(100),
-    child: Container(
-      width: 36,
-      height: 36,
-      color: AppColors.containerColor,
-      child: Center(
-        child: GestureDetector(
-          onTap: () {
-            Navigator.pop(context);
-          },
-          child: Icon(
-            Icons.close_rounded,
-            color: Colors.black,
-            size: 28,
+  Widget _buildBackButton() {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(100),
+      child: Container(
+        width: 36,
+        height: 36,
+        color: Theme.of(context).cardColor,
+        child: Center(
+          child: GestureDetector(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: Icon(
+              Icons.close_rounded,
+              color: Theme.of(context).colorScheme.secondary,
+              size: 28,
+            ),
           ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 }

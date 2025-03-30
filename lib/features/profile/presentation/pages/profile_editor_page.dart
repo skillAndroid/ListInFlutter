@@ -820,7 +820,6 @@ class _ProfileEditorState extends State<ProfileEditor> {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      barrierColor: Theme.of(context).colorScheme.secondary,
       useRootNavigator: true,
       builder: (BuildContext context) {
         return StatefulBuilder(
@@ -837,16 +836,16 @@ class _ProfileEditorState extends State<ProfileEditor> {
             }
 
             return SmoothClipRRect(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(12),
               child: Container(
                 height: 530,
-                color: Theme.of(context).scaffoldBackgroundColor,
+                color: Theme.of(context).colorScheme.onSecondaryContainer,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     // Header with title
                     Padding(
-                      padding: EdgeInsets.all(16),
+                      padding: EdgeInsets.all(12),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -856,9 +855,11 @@ class _ProfileEditorState extends State<ProfileEditor> {
                               padding: EdgeInsets.all(8),
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: Colors.grey[200],
+                                color: Theme.of(context)
+                                    .scaffoldBackgroundColor
+                                    .withOpacity(0.8),
                               ),
-                              child: Icon(Icons.close, size: 20),
+                              child: Icon(Icons.close_rounded, size: 20),
                             ),
                           ),
                           Text(
@@ -867,6 +868,7 @@ class _ProfileEditorState extends State<ProfileEditor> {
                                 : AppLocalizations.of(context)!.closing_time,
                             style: TextStyle(
                               fontSize: 24,
+                              color: Theme.of(context).colorScheme.secondary,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -879,11 +881,6 @@ class _ProfileEditorState extends State<ProfileEditor> {
                     Expanded(
                       child: Stack(
                         children: [
-                          CustomTimePicker(
-                            controller: controller,
-                            initialTime: initialTime,
-                            onTimeChanged: onTimeChanged,
-                          ),
                           Positioned(
                             left: 0,
                             right: 0,
@@ -902,6 +899,11 @@ class _ProfileEditorState extends State<ProfileEditor> {
                               ),
                             ),
                           ),
+                          CustomTimePicker(
+                            controller: controller,
+                            initialTime: initialTime,
+                            onTimeChanged: onTimeChanged,
+                          ),
                         ],
                       ),
                     ),
@@ -916,6 +918,7 @@ class _ProfileEditorState extends State<ProfileEditor> {
                           style: TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.w500,
+                            color: Theme.of(context).colorScheme.secondary,
                           ),
                         ),
                       ),
@@ -1029,14 +1032,16 @@ class _ProfileEditorState extends State<ProfileEditor> {
     return GestureDetector(
       onTap: () => onTap(time),
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           color: isSelected
               ? AppColors.primary.withOpacity(0.1)
               : Colors.transparent,
           border: Border.all(
-            color: isSelected ? AppColors.primary : Theme.of(context).cardColor,
-            width: isSelected ? 2.5 : 1.75,
+            color: isSelected
+                ? AppColors.primary
+                : Theme.of(context).scaffoldBackgroundColor.withOpacity(0.6),
+            width: isSelected ? 2.25 : 1.75,
           ),
           borderRadius: BorderRadius.circular(16),
         ),

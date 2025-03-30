@@ -19,7 +19,7 @@ class LanguageSelectionScreen extends StatelessWidget {
       appBar: AppBar(
         elevation: 0,
         shadowColor: AppColors.transparent,
-        backgroundColor: AppColors.white,
+        backgroundColor: Theme.of(context).cardColor,
         title: Text(
           AppLocalizations.of(context)!.language,
           style: theme.textTheme.titleLarge?.copyWith(
@@ -58,7 +58,7 @@ class LanguageSelectionScreen extends StatelessWidget {
                         side: BorderSide(
                           color: isSelected
                               ? AppColors.primary
-                              : AppColors.lightGray,
+                              : Theme.of(context).cardColor,
                           width: isSelected ? 2.0 : 1.0,
                         ),
                       ),
@@ -84,6 +84,11 @@ class LanguageSelectionScreen extends StatelessWidget {
                                 child: Text(
                                   languageName,
                                   style: theme.textTheme.titleMedium?.copyWith(
+                                    color: isSelected
+                                        ? AppColors.primary
+                                        : Theme.of(context)
+                                            .colorScheme
+                                            .secondary,
                                     fontWeight: isSelected
                                         ? FontWeight.bold
                                         : FontWeight.normal,
@@ -97,9 +102,10 @@ class LanguageSelectionScreen extends StatelessWidget {
                                     color: AppColors.primary,
                                     shape: BoxShape.circle,
                                   ),
-                                  child: const Icon(
+                                  child: Icon(
                                     Icons.check,
-                                    color: AppColors.white,
+                                    color: Theme.of(context)
+                                        .scaffoldBackgroundColor,
                                     size: 16,
                                   ),
                                 ),

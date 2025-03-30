@@ -1000,9 +1000,6 @@ class _SharePermissionSheetState extends State<SharePermissionSheet> {
   bool sharePhone = true;
   bool shareImage = true;
 
-  // Define green color theme
-  final Color primaryGreen = AppColors.darkBackground;
-
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
@@ -1012,7 +1009,7 @@ class _SharePermissionSheetState extends State<SharePermissionSheet> {
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
       decoration: ShapeDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         shape: SmoothRectangleBorder(
             borderRadius: BorderRadius.only(
           topLeft: Radius.circular(16),
@@ -1039,12 +1036,16 @@ class _SharePermissionSheetState extends State<SharePermissionSheet> {
                 fontFamily: 'Arial',
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
-                color: Colors.black.withOpacity(0.8),
+                color: Theme.of(context).colorScheme.secondary.withOpacity(0.8),
               ),
               textAlign: TextAlign.center,
             ),
           ),
-          Divider(height: 1, thickness: 0.5, color: AppColors.containerColor),
+          Divider(
+            height: 1,
+            thickness: 0.5,
+            color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.6),
+          ),
           SizedBox(height: 4),
           _buildIOSStyleListTile(
             icon: CupertinoIcons.location,
@@ -1109,7 +1110,7 @@ class _SharePermissionSheetState extends State<SharePermissionSheet> {
       child: ListTile(
         leading: Icon(
           icon,
-          color: primaryGreen,
+          color: Theme.of(context).iconTheme.color,
           size: 24,
         ),
         title: Text(
@@ -1123,7 +1124,7 @@ class _SharePermissionSheetState extends State<SharePermissionSheet> {
         trailing: CupertinoSwitch(
           value: value,
           onChanged: onChanged,
-          activeColor: primaryGreen,
+          activeColor: Theme.of(context).iconTheme.color,
         ),
         contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 4),
       ),
@@ -1136,7 +1137,7 @@ class _SharePermissionSheetState extends State<SharePermissionSheet> {
       thickness: 0.5,
       indent: 64,
       endIndent: 16,
-      color: AppColors.containerColor,
+      color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.6),
     );
   }
 
@@ -1151,13 +1152,16 @@ class _SharePermissionSheetState extends State<SharePermissionSheet> {
         child: Container(
           padding: EdgeInsets.symmetric(vertical: 12),
           decoration: ShapeDecoration(
-              color: isOutlined ? Colors.transparent : primaryGreen,
+              color: isOutlined
+                  ? Colors.transparent
+                  : Theme.of(context).iconTheme.color,
               shape: SmoothRectangleBorder(
                   smoothness: 0.8,
                   borderRadius: BorderRadius.circular(10),
                   side: BorderSide(
-                      color:
-                          isOutlined ? primaryGreen : AppColors.transparent))),
+                      color: isOutlined
+                          ? Theme.of(context).iconTheme.color!
+                          : AppColors.transparent))),
           alignment: Alignment.center,
           child: Text(
             label,
@@ -1165,7 +1169,9 @@ class _SharePermissionSheetState extends State<SharePermissionSheet> {
               fontFamily: 'Arial',
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: isOutlined ? primaryGreen : Colors.white,
+              color: isOutlined
+                  ? Theme.of(context).iconTheme.color
+                  : Theme.of(context).scaffoldBackgroundColor,
             ),
           ),
         ),
