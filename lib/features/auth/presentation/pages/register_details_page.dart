@@ -162,7 +162,7 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
         return false;
       },
       child: Scaffold(
-        backgroundColor: AppColors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: BlocConsumer<AuthBloc, AuthState>(
           listener: (context, state) {
             if (state is AuthSignUpError) {
@@ -192,9 +192,9 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                             child: IconButton(
                               onPressed: () => _previousPage(),
                               padding: EdgeInsets.zero,
-                              icon: const HugeIcon(
+                              icon: HugeIcon(
                                 icon: EvaIcons.arrowIosBack,
-                                color: AppColors.black,
+                                color: Theme.of(context).colorScheme.secondary,
                                 size: 28,
                               ),
                             ),
@@ -217,11 +217,11 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                 builder: (context, value, child) {
                                   return LinearProgressIndicator(
                                     value: value,
-                                    backgroundColor: AppColors.lightGray,
+                                    backgroundColor:
+                                        Theme.of(context).cardColor,
                                     borderRadius: BorderRadius.circular(2),
-                                    valueColor:
-                                        const AlwaysStoppedAnimation<Color>(
-                                      AppColors.black,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Theme.of(context).colorScheme.secondary,
                                     ),
                                   );
                                 },
@@ -236,11 +236,12 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                             child: InkWell(
                               onTap: () => {},
                               borderRadius: BorderRadius.circular(16),
-                              child: const Padding(
+                              child: Padding(
                                 padding: EdgeInsets.zero,
                                 child: Icon(
                                   EvaIcons.infoOutline,
-                                  color: AppColors.black,
+                                  color:
+                                      Theme.of(context).colorScheme.secondary,
                                   size: 26,
                                 ),
                               ),
@@ -272,25 +273,29 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                       smoothness: 0.8,
                                       borderRadius: BorderRadius.circular(16)),
                                   padding:
-                                      const EdgeInsets.symmetric(vertical: 17),
+                                      const EdgeInsets.symmetric(vertical: 15),
                                   backgroundColor: AppColors.primary,
                                 ),
                                 child: state is AuthLoading
-                                    ? const SizedBox(
+                                    ? SizedBox(
                                         height: 20,
                                         width: 20,
                                         child: CircularProgressIndicator(
                                           strokeWidth: 2,
-                                          color: Colors.black,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .secondary,
                                         ),
                                       )
                                     : Text(
                                         _currentPage < 4
                                             ? localizations.continuee
                                             : localizations.submit,
-                                        style: const TextStyle(
-                                            fontFamily: Constants.Arial,
-                                            color: AppColors.white),
+                                        style: TextStyle(
+                                          fontFamily: Constants.Arial,
+                                          color: Theme.of(context)
+                                              .scaffoldBackgroundColor,
+                                        ),
                                       ),
                               ),
                             ),
@@ -347,7 +352,7 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                     child: Card(
                       color: _selectedOption == index
                           ? AppColors.myRedBrown.withOpacity(0.25)
-                          : AppColors.containerColor,
+                          : Theme.of(context).cardColor,
                       elevation: 0,
                       shape: SmoothRectangleBorder(
                         smoothness: 0.8,
@@ -365,7 +370,7 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                 shape: BoxShape.circle,
                                 border: Border.all(
                                   color: _selectedOption == index
-                                      ? AppColors.black
+                                      ? Theme.of(context).colorScheme.secondary
                                       : AppColors.grey,
                                   width: _selectedOption == index ? 5 : 2,
                                 ),
@@ -382,8 +387,12 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                       fontSize: 19,
                                       fontWeight: FontWeight.w600,
                                       color: _selectedOption == index
-                                          ? AppColors.black
-                                          : AppColors.black,
+                                          ? Theme.of(context)
+                                              .colorScheme
+                                              .secondary
+                                          : Theme.of(context)
+                                              .colorScheme
+                                              .secondary,
                                     ),
                                   ),
                                   const SizedBox(height: 8),
@@ -393,8 +402,12 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                       fontSize: 15,
                                       fontWeight: FontWeight.w400,
                                       color: _selectedOption == index
-                                          ? AppColors.black
-                                          : AppColors.black,
+                                          ? Theme.of(context)
+                                              .colorScheme
+                                              .secondary
+                                          : Theme.of(context)
+                                              .colorScheme
+                                              .secondary,
                                     ),
                                   ),
                                 ],
@@ -502,11 +515,13 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
         const SizedBox(height: 32),
         Text(
           title,
-          style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-              fontFamily: Constants.Arial,
-              color: AppColors.black),
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w700,
+            fontFamily: Constants.Arial,
+            color: Theme.of(context).colorScheme.secondary,
+          ),
         ),
         const SizedBox(height: 12),
         Padding(
@@ -517,7 +532,7 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w400,
-              color: AppColors.darkGray.withOpacity(0.75),
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.75),
             ),
           ),
         ),

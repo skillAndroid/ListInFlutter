@@ -47,7 +47,7 @@ class _VerificationPageState extends State<VerificationPage> {
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthVerificationError) {
@@ -75,9 +75,9 @@ class _VerificationPageState extends State<VerificationPage> {
                           child: IconButton(
                             onPressed: () => context.pop(),
                             padding: EdgeInsets.zero,
-                            icon: const HugeIcon(
+                            icon: HugeIcon(
                               icon: EvaIcons.arrowIosBack,
-                              color: AppColors.black,
+                              color: Theme.of(context).colorScheme.secondary,
                               size: 32,
                             ),
                           ),
@@ -99,11 +99,11 @@ class _VerificationPageState extends State<VerificationPage> {
                     const SizedBox(
                       height: 32,
                     ),
-                     Text(
+                    Text(
                       localizations.verifyEmail,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 28,
-                        color: AppColors.black,
+                        color: Theme.of(context).colorScheme.secondary,
                         fontWeight: FontWeight.w700,
                         fontFamily: Constants.Arial,
                       ),
@@ -115,7 +115,9 @@ class _VerificationPageState extends State<VerificationPage> {
                             fontFamily: Constants.Arial,
                             fontSize: 15,
                             fontWeight: FontWeight.w400,
-                            color: AppColors.darkGray
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
                                 .withOpacity(0.75) // Default text color
                             ),
                         children: [
@@ -124,7 +126,8 @@ class _VerificationPageState extends State<VerificationPage> {
                           ),
                           TextSpan(
                             text: _storedEmail ??
-                                localizations.email, // Use the stored email here
+                                localizations
+                                    .email, // Use the stored email here
                             style: TextStyle(
                               fontFamily: Constants.Arial,
                               fontSize: 14,
@@ -172,14 +175,14 @@ class _VerificationPageState extends State<VerificationPage> {
                       defaultPinTheme: PinTheme(
                         width: 56,
                         height: 56,
-                        textStyle: const TextStyle(
+                        textStyle: TextStyle(
                           fontSize: 20,
                           fontFamily: Constants.Arial,
-                          color: AppColors.secondaryColor,
+                          color: Theme.of(context).colorScheme.secondary,
                           fontWeight: FontWeight.w600,
                         ),
                         decoration: BoxDecoration(
-                          color: AppColors.containerColor,
+                          color: Theme.of(context).cardColor,
                           borderRadius: BorderRadius.circular(16),
                         ),
                       ),
@@ -193,7 +196,7 @@ class _VerificationPageState extends State<VerificationPage> {
                           fontWeight: FontWeight.w600,
                         ),
                         decoration: BoxDecoration(
-                          color: AppColors.bgColor,
+                          color: Theme.of(context).scaffoldBackgroundColor,
                           border:
                               Border.all(color: AppColors.primary, width: 2),
                           borderRadius: BorderRadius.circular(16),
@@ -218,8 +221,12 @@ class _VerificationPageState extends State<VerificationPage> {
                     const SizedBox(height: 48),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 20),
-                        foregroundColor: AppColors.white,
+                        shape: SmoothRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        foregroundColor:
+                            Theme.of(context).scaffoldBackgroundColor,
                         backgroundColor: AppColors.primary,
                       ),
                       onPressed: state is AuthLoading
@@ -235,16 +242,16 @@ class _VerificationPageState extends State<VerificationPage> {
                               }
                             },
                       child: state is AuthLoading
-                          ? const SizedBox(
+                          ? SizedBox(
                               height: 20,
                               width: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2.5,
                                 strokeCap: StrokeCap.round,
-                                color: AppColors.black,
+                                color: Theme.of(context).colorScheme.secondary,
                               ),
                             )
-                          :  Text(
+                          : Text(
                               localizations.verify,
                               style: const TextStyle(
                                 fontSize: 17,
@@ -259,18 +266,18 @@ class _VerificationPageState extends State<VerificationPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                           Text(
+                          Text(
                             localizations.didntGetCode,
-                            style:const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
-                              color: AppColors.black,
+                              color: Theme.of(context).colorScheme.secondary,
                             ),
                           ),
                           TextButton(
                             onPressed: () {},
-                            child:  Text(
+                            child: Text(
                               localizations.resend,
-                              style:const TextStyle(
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontFamily: Constants.Arial,
                                 color: AppColors.primary,
