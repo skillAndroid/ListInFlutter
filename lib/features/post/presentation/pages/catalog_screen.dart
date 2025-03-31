@@ -429,8 +429,9 @@ class _CatalogPagerScreenState extends State<CatalogPagerScreen> {
           Text(
             _getLoadingText(provider.postCreationState),
             style: TextStyle(
-                fontFamily: Constants.Arial,
-                color: Theme.of(context).scaffoldBackgroundColor),
+              fontFamily: Constants.Arial,
+              color: Theme.of(context).colorScheme.secondary,
+            ),
           ),
         ],
       );

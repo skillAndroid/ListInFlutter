@@ -222,7 +222,7 @@ class PostProvider extends ChangeNotifier {
         longitude: _location.coordinates.latitude,
         latitude: _location.coordinates.longitude,
         isGrantedForPreciseLocation:
-            _locationSharingMode == LocationSharingMode.precise ? true : true,
+            _locationSharingMode == LocationSharingMode.precise ? true : false,
         productCondition: _productCondition,
         isNegatable: isNegatable,
         childCategoryId: _selectedChildCategory!.id,
