@@ -32,6 +32,74 @@ class _SignupPageState extends State<SignupPage> {
     super.dispose();
   }
 
+  // Method to show the social login not supported message with a more visible dialog
+  void _showSocialLoginMessage(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext context) {
+        return Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Ionicons.information_circle_outline,
+                size: 48,
+                color: AppColors.primary,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                localizations.socialLoginNotAvailable,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.secondary,
+                  fontFamily: Constants.Arial,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                localizations.socialLoginMessage,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Theme.of(context).colorScheme.secondary,
+                  fontFamily: Constants.Arial,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
+                  foregroundColor: Theme.of(context).scaffoldBackgroundColor,
+                  backgroundColor: AppColors.primary,
+                ),
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(
+                  localizations.gotIt,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    fontFamily: Constants.Arial,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
@@ -211,7 +279,9 @@ class _SignupPageState extends State<SignupPage> {
                                   borderRadius: BorderRadius.circular(16)),
                               padding: const EdgeInsets.symmetric(vertical: 18),
                             ),
-                            onPressed: () {},
+                            onPressed: () {
+                              _showSocialLoginMessage(context);
+                            },
                             child: Padding(
                               padding: EdgeInsets.symmetric(horizontal: 24),
                               child: Row(
@@ -219,7 +289,6 @@ class _SignupPageState extends State<SignupPage> {
                                 children: [
                                   Icon(
                                     Ionicons.logo_google,
-                                    //color: AppColors.littleGreen,
                                     color:
                                         Theme.of(context).colorScheme.secondary,
                                     size: 21,
@@ -252,7 +321,7 @@ class _SignupPageState extends State<SignupPage> {
                               padding: const EdgeInsets.symmetric(vertical: 18),
                             ),
                             onPressed: () {
-                              // Handle Continue with Facebook
+                              _showSocialLoginMessage(context);
                             },
                             child: Padding(
                               padding: EdgeInsets.symmetric(horizontal: 25),
@@ -262,7 +331,6 @@ class _SignupPageState extends State<SignupPage> {
                                   Icon(
                                     EvaIcons.facebook,
                                     size: 24,
-                                    //color: AppColors.littleGreen,
                                     color:
                                         Theme.of(context).colorScheme.secondary,
                                   ),
@@ -294,7 +362,7 @@ class _SignupPageState extends State<SignupPage> {
                               padding: const EdgeInsets.symmetric(vertical: 18),
                             ),
                             onPressed: () {
-                              // Handle Continue with Apple
+                              _showSocialLoginMessage(context);
                             },
                             child: Padding(
                               padding: EdgeInsets.symmetric(horizontal: 24),
@@ -303,7 +371,6 @@ class _SignupPageState extends State<SignupPage> {
                                 children: [
                                   Icon(
                                     Ionicons.logo_apple,
-                                    //color: AppColors.littleGreen,
                                     color:
                                         Theme.of(context).colorScheme.secondary,
                                     size: 24,

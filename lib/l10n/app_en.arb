@@ -280,5 +280,8 @@
   "yes": "Yes",
   "password_empty": "Please enter a password",
   "password_min_length": "Password must be at least 6 characters",
-  "phone_number_empty": "Please enter your phone number"
+  "phone_number_empty": "Please enter your phone number",
+  "socialLoginNotAvailable": "Social Login Not Available",
+  "socialLoginMessage": "Social login options are not supported currently. Please register using your email address.",
+  "gotIt": "Got it"
 }

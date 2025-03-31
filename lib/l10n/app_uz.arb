@@ -280,5 +280,8 @@
   "yes": "Ha",
   "password_empty": "Iltimos, parol kiriting",
   "password_min_length": "Parol kamida 6 ta belgidan iborat bo'lishi kerak",
-  "phone_number_empty": "Iltimos, telefon raqamingizni kiriting"
+  "phone_number_empty": "Iltimos, telefon raqamingizni kiriting",
+  "socialLoginNotAvailable": "Ijtimoiy tarmoqlar orqali kirish mavjud emas",
+  "socialLoginMessage": "Ijtimoiy tarmoqlar orqali kirish hozirda qo'llab-quvvatlanmaydi. Iltimos, elektron pochta manzilingizdan foydalanib ro'yxatdan o'ting.",
+  "gotIt": "Tushundim"
 }
