@@ -283,5 +283,7 @@
   "phone_number_empty": "Iltimos, telefon raqamingizni kiriting",
   "socialLoginNotAvailable": "Ijtimoiy tarmoqlar orqali kirish mavjud emas",
   "socialLoginMessage": "Ijtimoiy tarmoqlar orqali kirish hozirda qo'llab-quvvatlanmaydi. Iltimos, elektron pochta manzilingizdan foydalanib ro'yxatdan o'ting.",
-  "gotIt": "Tushundim"
-}
+  "gotIt": "Tushundim",
+  "chatComingSoon": "Chat funksiyasi",
+  "chatInDevelopmentMessage": "Ilovadagi chat tez kunda qo'shiladi. Hozirda faqat Telegram orqali mavjud."
+  }

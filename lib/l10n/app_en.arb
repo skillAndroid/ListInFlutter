@@ -283,5 +283,7 @@
   "phone_number_empty": "Please enter your phone number",
   "socialLoginNotAvailable": "Social Login Not Available",
   "socialLoginMessage": "Social login options are not supported currently. Please register using your email address.",
-  "gotIt": "Got it"
+  "gotIt": "Got it",
+  "chatComingSoon": "Chat Feature",
+  "chatInDevelopmentMessage": "In-app chat is coming soon. Currently available via Telegram only."
 }

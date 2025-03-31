@@ -11,6 +11,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/config/theme/app_language.dart';
@@ -634,7 +635,9 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                             height: 38,
                             color: Theme.of(context).colorScheme.secondary,
                           ),
-                          onPressed: () {},
+                          onPressed: () {
+                            _showChatNotAvailableMessage(context);
+                          },
                         ),
                         Positioned(
                           right: 8,
@@ -648,7 +651,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                             ),
                             child: Center(
                               child: const Text(
-                                "2",
+                                "x",
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 11,
@@ -666,6 +669,75 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
           ],
         ),
       ),
+    );
+  }
+
+  // Add this method to your class
+  void _showChatNotAvailableMessage(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      useRootNavigator: true,
+      builder: (BuildContext context) {
+        return Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image.asset(
+                AppIcons.chatIc,
+                width: 50,
+                height: 50,
+                color: Theme.of(context).colorScheme.secondary,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                AppLocalizations.of(context)!.chatComingSoon,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.secondary,
+                  fontFamily: Constants.Arial,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                AppLocalizations.of(context)!.chatInDevelopmentMessage,
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Theme.of(context).colorScheme.secondary,
+                  fontFamily: Constants.Arial,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 14, horizontal: 32),
+                  foregroundColor: Theme.of(context).scaffoldBackgroundColor,
+                  backgroundColor: AppColors.primary,
+                ),
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(
+                  AppLocalizations.of(context)!.gotIt,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    fontFamily: Constants.Arial,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 

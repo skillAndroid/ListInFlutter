@@ -37,7 +37,7 @@ class _SignupPageState extends State<SignupPage> {
     final localizations = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
