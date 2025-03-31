@@ -586,13 +586,10 @@ class _MediaContent extends StatelessWidget {
     if (videoUrl != null && isPlaying) {
       return Container(
         color: AppColors.black,
-        child: VideoPlayerWidget(
+        child: SimpleVideoPlayerWidget(
           key: ValueKey('video_$productId'),
           videoUrl: _getFormattedUrl(videoUrl!),
           thumbnailUrl: _getFormattedUrl(imageUrl),
-          isPlaying: true,
-          onPlay: () {},
-          onPause: () {},
         ),
       );
     }

@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -314,6 +316,117 @@ class RectangularSliderThumbShape extends SliderComponentShape {
         height: sliderTheme.trackHeight!,
       ),
       paint,
+    );
+  }
+}
+
+class SimpleVideoPlayerWidget extends StatefulWidget {
+  final String videoUrl;
+  final String thumbnailUrl;
+
+  const SimpleVideoPlayerWidget({
+    required this.videoUrl,
+    required this.thumbnailUrl,
+    super.key,
+  });
+
+  @override
+  State<SimpleVideoPlayerWidget> createState() =>
+      _SimpleVideoPlayerWidgetState();
+}
+
+class _SimpleVideoPlayerWidgetState extends State<SimpleVideoPlayerWidget> {
+  VideoPlayerController? _controller;
+  bool _isInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeVideo();
+  }
+
+  Future<void> _initializeVideo() async {
+    _controller = VideoPlayerController.network(
+      widget.videoUrl,
+    );
+
+    try {
+      await _controller?.initialize();
+
+      if (mounted) {
+        setState(() {
+          _isInitialized = true;
+        });
+        _controller?.play();
+      }
+    } catch (e) {
+      debugPrint('Error initializing video: $e');
+    }
+  }
+
+  @override
+  void didUpdateWidget(SimpleVideoPlayerWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.videoUrl != oldWidget.videoUrl) {
+      setState(() {
+        _isInitialized = false;
+      });
+      _controller?.dispose();
+      _initializeVideo();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_isInitialized) {
+      return Stack(
+        children: [
+          SizedBox.expand(
+            child: CachedNetworkImage(
+              imageUrl: widget.thumbnailUrl,
+              fit: BoxFit.cover,
+              placeholder: (context, url) => Container(color: Colors.grey[200]),
+              errorWidget: (context, url, error) =>
+                  const Center(child: Icon(Icons.error)),
+            ),
+          ),
+          Positioned(
+            bottom: 8,
+            right: 8,
+            child: Container(
+              height: 24,
+              width: 24,
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.5),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: CircularProgressIndicator(
+                strokeWidth: 2.5,
+                strokeCap: StrokeCap.round,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    return SizedBox.expand(
+      child: FittedBox(
+        fit: BoxFit.cover,
+        child: SizedBox(
+          width: _controller?.value.size.width ?? 0,
+          height: _controller?.value.size.height ?? 0,
+          child: VideoPlayer(_controller!),
+        ),
+      ),
     );
   }
 }
