@@ -285,5 +285,9 @@
   "socialLoginMessage": "Ijtimoiy tarmoqlar orqali kirish hozirda qo'llab-quvvatlanmaydi. Iltimos, elektron pochta manzilingizdan foydalanib ro'yxatdan o'ting.",
   "gotIt": "Tushundim",
   "chatComingSoon": "Chat funksiyasi",
-  "chatInDevelopmentMessage": "Ilovadagi chat tez kunda qo'shiladi. Hozirda faqat Telegram orqali mavjud."
+  "chatInDevelopmentMessage": "Ilovadagi chat tez kunda qo'shiladi. Hozirda faqat Telegram orqali mavjud.",
+  "emailVerifiedSuccessfully": "{email} muvaffaqiyatli tasdiqlandi",
+  "googleSignInFailed": "Google orqali kirish muvaffaqiyatsiz bo'ldi",
+  "networkErrorOccurred": "Tarmoq xatosi yuz berdi. Iltimos, ulanishni tekshiring.",
+  "signInCancelled": "Kirish bekor qilindi."
   }

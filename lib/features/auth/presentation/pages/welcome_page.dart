@@ -27,13 +27,7 @@ class _WelcomePageState extends State<WelcomePage> {
   final double borderRadiusSmoothness = 0.8;
   final double spaceHeight = 5;
 
-  // Add GoogleSignIn instance
-  final GoogleSignIn _googleSignIn = GoogleSignIn(
-    scopes: [
-      'email',
-      'profile',
-    ],
-  );
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   @override
   Widget build(BuildContext context) {
@@ -136,7 +130,6 @@ class _WelcomePageState extends State<WelcomePage> {
   }
 
   Widget _buildWelcomeOverlay(BuildContext context) {
-    final localizations = AppLocalizations.of(context)!;
     return Positioned(
       bottom: 16,
       left: 16,
@@ -212,11 +205,11 @@ class _WelcomePageState extends State<WelcomePage> {
             const SizedBox(width: 18),
             Text(
               localizations.continueWithGoogle,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w700,
                 fontFamily: Constants.Arial,
-                color: Colors.black87,
+                color: Theme.of(context).colorScheme.secondary,
               ),
             ),
           ],
@@ -225,33 +218,127 @@ class _WelcomePageState extends State<WelcomePage> {
     );
   }
 
-  // Method to handle Google Sign In
   Future<void> _handleGoogleSignIn() async {
     try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      // Show loading indicator
+      _showLoading(context);
+
+      // Get localizations
+      final localizations = AppLocalizations.of(context)!;
+
+      // Create a temporary GoogleSignIn instance without remembering the account
+      final GoogleSignIn tempGoogleSignIn = GoogleSignIn(
+        scopes: [],
+        signInOption: SignInOption.standard,
+      );
+
+      // Perform sign-in
+      final GoogleSignInAccount? googleUser = await tempGoogleSignIn.signIn();
+
+      // Dismiss loading indicator
+      Navigator.of(context, rootNavigator: true).pop();
 
       if (googleUser != null) {
         final GoogleSignInAuthentication googleAuth =
             await googleUser.authentication;
 
-        // Print the token
-        print('Google Auth Token: ${googleAuth.accessToken}');
-        print('Google ID Token: ${googleAuth.idToken}');
+        // Get the access token
+        final String? accessToken = googleAuth.accessToken;
 
-        // You can now use this token to authenticate with your backend
-        // For example:
-        // await yourAuthService.signInWithGoogle(googleAuth.idToken);
+        if (accessToken != null) {
+          print('Google Auth Token: $accessToken');
 
-        // Navigate to home or dashboard page
-        // context.go(Routes.home);
+          // Show success message with email
+          _showSuccessMessage(context,
+              localizations.emailVerifiedSuccessfully(googleUser.email));
+
+          // Send this token to your backend
+          // await yourBackendService.authenticateWithToken(accessToken);
+
+          // Optional: Sign out immediately after getting the token
+          await tempGoogleSignIn.signOut();
+        }
+      } else {
+        // User cancelled the sign-in flow
+        print('Sign in cancelled by user');
       }
     } catch (error) {
-      print('Google Sign In Error: $error');
+      // Dismiss loading indicator if it's still showing
+      Navigator.of(context, rootNavigator: true)
+          .popUntil((route) => route.isFirst);
+
+      print('Detailed Google Sign In Error: $error');
+
+      // Get localizations
+      final localizations = AppLocalizations.of(context)!;
+
+      // More specific error messages
+      String errorMessage = localizations.googleSignInFailed;
+      if (error.toString().contains('network_error')) {
+        errorMessage = localizations.networkErrorOccurred;
+      } else if (error.toString().contains('popup_closed_by_user')) {
+        errorMessage = localizations.signInCancelled;
+      }
+
       // Show error message to user
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to sign in with Google: $error')),
+        SnackBar(
+          content: Text(errorMessage),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.red,
+        ),
       );
     }
+  }
+
+  // Loading indicator widget
+  void _showLoading(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Center(
+          child: SmoothClipRRect(
+            smoothness: 0.7,
+            borderRadius: BorderRadius.circular(14),
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              color: Theme.of(context).cardColor,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(
+                    color: AppColors.primary,
+                    strokeWidth: 3,
+                    strokeCap: StrokeCap.round,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Signing in...',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Success message
+  void _showSuccessMessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message,
+            style: TextStyle(color: Theme.of(context).scaffoldBackgroundColor)),
+        backgroundColor: Colors.green,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   // Create a new method for the language selector
