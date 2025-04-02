@@ -1,16 +1,17 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/language/language_bloc.dart';
 import 'package:list_in/core/language/screen/language_picker_screen.dart';
-import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/core/utils/const.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key});
@@ -24,6 +25,14 @@ class _WelcomePageState extends State<WelcomePage> {
   final double borderRadius = 20;
   final double borderRadiusSmoothness = 0.8;
   final double spaceHeight = 5;
+
+  // Add GoogleSignIn instance
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: [
+      'email',
+      'profile',
+    ],
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -153,28 +162,98 @@ class _WelcomePageState extends State<WelcomePage> {
           const SizedBox(height: 16),
           _buildWelcomeText(),
           const SizedBox(height: 24),
-          _buildElevatedButton(
-            context,
-            label: localizations.createAccount,
-            color: AppColors.primary,
-            textColor: Theme.of(context).scaffoldBackgroundColor,
-            onPressed: () => context.push(Routes.signup),
+
+          // Google Sign In button
+          SizedBox(
+            width: double.infinity,
+            child: _buildGoogleSignInButton(context),
           ),
-          const SizedBox(height: 8),
-          _buildElevatedButton(
-            context,
-            label: localizations.logIn,
-            color: AppColors.transparent,
-            textColor: Theme.of(context).colorScheme.secondary,
-            onPressed: () => context.push(Routes.login),
-          ),
-          const SizedBox(height: 20),
+
+          const SizedBox(height: 32),
         ],
       ),
     );
   }
 
-// Create a new method for the language selector
+  // Google Sign In button with official Google styling
+  Widget _buildGoogleSignInButton(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).colorScheme.secondary,
+        elevation: 1,
+        shape: SmoothRectangleBorder(
+            smoothness: 0.8,
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(color: Theme.of(context).cardColor)),
+        padding: const EdgeInsets.symmetric(vertical: 18),
+      ),
+      onPressed: () => _handleGoogleSignIn(),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Use the official Google "G" logo as an asset
+            SizedBox(
+              width: 21,
+              height: 21,
+              child: Image.asset(
+                'assets/images/google_ic_org.png', // Add this to your assets
+                errorBuilder: (context, error, stackTrace) => Icon(
+                  Ionicons.logo_google,
+                  color: CupertinoColors.activeBlue, // Google blue
+                  size: 21,
+                ),
+              ),
+            ),
+            const SizedBox(width: 18),
+            Text(
+              localizations.continueWithGoogle,
+              style: const TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w700,
+                fontFamily: Constants.Arial,
+                color: Colors.black87,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Method to handle Google Sign In
+  Future<void> _handleGoogleSignIn() async {
+    try {
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+
+      if (googleUser != null) {
+        final GoogleSignInAuthentication googleAuth =
+            await googleUser.authentication;
+
+        // Print the token
+        print('Google Auth Token: ${googleAuth.accessToken}');
+        print('Google ID Token: ${googleAuth.idToken}');
+
+        // You can now use this token to authenticate with your backend
+        // For example:
+        // await yourAuthService.signInWithGoogle(googleAuth.idToken);
+
+        // Navigate to home or dashboard page
+        // context.go(Routes.home);
+      }
+    } catch (error) {
+      print('Google Sign In Error: $error');
+      // Show error message to user
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to sign in with Google: $error')),
+      );
+    }
+  }
+
+  // Create a new method for the language selector
   Widget _buildLanguageSelector(BuildContext context) {
     return BlocBuilder<LanguageBloc, LanguageState>(
       builder: (context, state) {
@@ -197,7 +276,6 @@ class _WelcomePageState extends State<WelcomePage> {
             padding: const EdgeInsets.only(bottom: 16),
             child: InkWell(
               onTap: () {
-                // Or, if you prefer to use Navigator:
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -206,24 +284,24 @@ class _WelcomePageState extends State<WelcomePage> {
               },
               child: SmoothClipRRect(
                 smoothness: 0.8,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(14),
                 child: Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  color: AppColors.primary.withOpacity(0.2),
+                  color: Theme.of(context).cardColor,
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
                         Icons.language,
                         size: 18,
-                        color: AppColors.primary,
+                        color: CupertinoColors.activeGreen,
                       ),
                       const SizedBox(width: 4),
                       Text(
                         languageMap[currentLang] ?? 'EN',
-                        style: const TextStyle(
-                          color: AppColors.primary,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.secondary,
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                         ),
@@ -251,42 +329,7 @@ class _WelcomePageState extends State<WelcomePage> {
         ),
         children: [
           TextSpan(text: localizations.listInWorld),
-          // TextSpan(
-          //   text: 'ListIn',
-          //   style: TextStyle(
-          //     color: AppColors.primary,
-          //   ),
-          // ),
-          // TextSpan(text: ' World'),
         ],
-      ),
-    );
-  }
-
-  Widget _buildElevatedButton(
-    BuildContext context, {
-    required String label,
-    required Color color,
-    required Color textColor,
-    required VoidCallback onPressed,
-  }) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        shape: SmoothRectangleBorder(
-            smoothness: 0.8, borderRadius: BorderRadius.circular(16)),
-        padding: const EdgeInsets.symmetric(vertical: 18),
-        backgroundColor: color,
-      ),
-      child: Center(
-        child: Text(
-          label,
-          style: TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.w700,
-              fontFamily: Constants.Arial,
-              color: textColor),
-        ),
       ),
     );
   }
