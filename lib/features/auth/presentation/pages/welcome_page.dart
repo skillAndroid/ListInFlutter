@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/language/language_bloc.dart';
@@ -291,17 +292,25 @@ class _WelcomePageState extends State<WelcomePage> {
                   color: Theme.of(context).cardColor,
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Icon(
-                        Icons.language,
-                        size: 18,
-                        color: CupertinoColors.activeGreen,
+                      SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: Image.asset(
+                          AppIcons.languageIc,
+                          color: AppColors.primary,
+                        ),
                       ),
                       const SizedBox(width: 4),
                       Text(
                         languageMap[currentLang] ?? 'EN',
                         style: TextStyle(
-                          color: Theme.of(context).colorScheme.secondary,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .secondary
+                              .withOpacity(0.8),
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                         ),
