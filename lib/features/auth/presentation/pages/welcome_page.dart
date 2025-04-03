@@ -27,8 +27,6 @@ class _WelcomePageState extends State<WelcomePage> {
   final double borderRadiusSmoothness = 0.8;
   final double spaceHeight = 5;
 
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -228,7 +226,9 @@ class _WelcomePageState extends State<WelcomePage> {
 
       // Create a temporary GoogleSignIn instance without remembering the account
       final GoogleSignIn tempGoogleSignIn = GoogleSignIn(
-        scopes: [],
+        scopes: ['email', 'profile', 'openid'],
+        serverClientId:
+            '907103281951-hs8760vautubke7h6s54889ri4juqp3t.apps.googleusercontent.com',
         signInOption: SignInOption.standard,
       );
 
@@ -244,9 +244,12 @@ class _WelcomePageState extends State<WelcomePage> {
 
         // Get the access token
         final String? accessToken = googleAuth.accessToken;
+        final String? idToken =
+            googleAuth.idToken; // This should now contain your ID token
 
         if (accessToken != null) {
           print('Google Auth Token: $accessToken');
+          print('Google id Token: $idToken');
 
           // Show success message with email
           _showSuccessMessage(context,
