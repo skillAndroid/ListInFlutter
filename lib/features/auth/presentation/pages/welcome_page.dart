@@ -31,12 +31,28 @@ class _WelcomePageState extends State<WelcomePage> {
   final double spaceHeight = 5;
   bool _isLoadingVisible = false;
   bool _shouldNavigateToRegister = false;
+  bool _isMounted = false;
+  @override
+  void initState() {
+    super.initState();
+    _isMounted = true;
+  }
+
+  @override
+  void dispose() {
+    _isMounted = false;
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
+        // Only handle loading states if this component is still mounted
+        if (!_isMounted) return;
+
         if (state is AuthLoading) {
-          // Show loading indicator
+          // Show loading indicator only if we're on the welcome page
           _showLoading(context);
         } else {
           // Dismiss loading indicator if it's showing
@@ -62,7 +78,11 @@ class _WelcomePageState extends State<WelcomePage> {
             // Show error message
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(state.message),
+                content: Text(
+                  state.message,
+                  style: TextStyle(
+                      color: Theme.of(context).scaffoldBackgroundColor),
+                ),
                 backgroundColor: Colors.red,
               ),
             );
@@ -302,7 +322,11 @@ class _WelcomePageState extends State<WelcomePage> {
           // Show error if ID token is missing
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text("localizations.couldNotGetValidIDToken"),
+              content: Text(
+                "localizations.couldNotGetValidIDToken",
+                style:
+                    TextStyle(color: Theme.of(context).scaffoldBackgroundColor),
+              ),
               backgroundColor: Colors.red,
               behavior: SnackBarBehavior.floating,
             ),
@@ -333,7 +357,10 @@ class _WelcomePageState extends State<WelcomePage> {
       // Show error message to user
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(errorMessage),
+          content: Text(
+            errorMessage,
+            style: TextStyle(color: Theme.of(context).scaffoldBackgroundColor),
+          ),
           behavior: SnackBarBehavior.floating,
           backgroundColor: Colors.red,
         ),

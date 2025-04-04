@@ -19,25 +19,31 @@ class NomericFieldModelAdapter extends TypeAdapter<NomericFieldModel> {
     return NomericFieldModel(
       id: fields[0] as String,
       fieldName: fields[1] as String,
-      description: fields[2] as String,
-      descriptionUz: fields[3] as String,
-      descriptionRu: fields[4] as String,
+      fieldNameUz: fields[2] as String,
+      fieldNameRu: fields[3] as String,
+      description: fields[4] as String,
+      descriptionUz: fields[5] as String,
+      descriptionRu: fields[6] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, NomericFieldModel obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
       ..write(obj.fieldName)
       ..writeByte(2)
-      ..write(obj.description)
+      ..write(obj.fieldNameUz)
       ..writeByte(3)
-      ..write(obj.descriptionUz)
+      ..write(obj.fieldNameRu)
       ..writeByte(4)
+      ..write(obj.description)
+      ..writeByte(5)
+      ..write(obj.descriptionUz)
+      ..writeByte(6)
       ..write(obj.descriptionRu);
   }
 

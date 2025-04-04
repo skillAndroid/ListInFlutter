@@ -390,14 +390,21 @@ class _FiltersPageState extends State<FiltersPage>
         ),
         // Numeric fields
         if (state.numericFields.isNotEmpty)
-          Column(
-            children: state.numericFields.map((numericField) {
-              return _buildNumericFieldChip(
-                numericField: numericField,
-                state: state,
-                context: context,
+          BlocSelector<LanguageBloc, LanguageState, String>(
+            selector: (state) => state is LanguageLoaded
+                ? state.languageCode
+                : AppLanguages.english,
+            builder: (context, languageCode) {
+              return Column(
+                children: state.numericFields.map((numericField) {
+                  return _buildNumericFieldChip(
+                      numericField: numericField,
+                      state: state,
+                      context: context,
+                      languageCode: languageCode);
+                }).toList(),
               );
-            }).toList(),
+            },
           ),
       ],
     );
@@ -572,12 +579,18 @@ class _FiltersPageState extends State<FiltersPage>
   Widget _buildNumericFieldChip({
     required NomericFieldModel numericField,
     required HomeTreeState state,
+    required String languageCode,
     required BuildContext context,
   }) {
     final fieldValues = state.numericFieldValues[numericField.id];
 
     // Determine the display text based on selected values
-    String displayText = numericField.fieldName;
+    String displayText = getLocalizedText(
+      numericField.fieldName,
+      numericField.fieldNameUz,
+      numericField.fieldNameRu,
+      languageCode,
+    );
     if (fieldValues != null) {
       final from = fieldValues['from'];
       final to = fieldValues['to'];

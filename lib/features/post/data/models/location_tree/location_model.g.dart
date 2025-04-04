@@ -63,8 +63,8 @@ class StateAdapter extends TypeAdapter<State> {
       value: fields[0] as String?,
       valueUz: fields[1] as String?,
       valueRu: fields[2] as String?,
-      counties: (fields[4] as List?)?.cast<County>(),
       stateId: fields[3] as String?,
+      counties: (fields[4] as List?)?.cast<County>(),
     );
   }
 
@@ -109,8 +109,8 @@ class CountryAdapter extends TypeAdapter<Country> {
       value: fields[0] as String?,
       valueUz: fields[1] as String?,
       valueRu: fields[2] as String?,
-      states: (fields[4] as List?)?.cast<State>(),
       countryId: fields[3] as String?,
+      states: (fields[4] as List?)?.cast<State>(),
     );
   }
 

@@ -26,7 +26,7 @@ class CatalogLocalDataSourceImpl implements CatalogLocalDataSource {
 
   // Initialize and check for schema changes
   Future<void> initialize() async {
-    const currentCategoryVersion = 2; // Increment when model changes
+    const currentCategoryVersion = 3; // Increment when model changes
     const currentLocationVersion = 1;
 
     final storedCategoryVersion =

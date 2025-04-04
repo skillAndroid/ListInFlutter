@@ -1,9 +1,13 @@
 import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/config/theme/app_language.dart';
+import 'package:list_in/core/language/language_bloc.dart';
 import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/post/data/models/category_tree/nomeric_field_model.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:list_in/features/post/presentation/pages/atributes_releted/child_category_page.dart';
 
 class NumericFieldBottomSheet extends StatefulWidget {
   final NomericFieldModel field;
@@ -100,12 +104,24 @@ class _NumericFieldBottomSheetState extends State<NumericFieldBottomSheet> {
                       ),
                     ),
                   ),
-                  Text(
-                    widget.field.fieldName,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  BlocSelector<LanguageBloc, LanguageState, String>(
+                    selector: (state) => state is LanguageLoaded
+                        ? state.languageCode
+                        : AppLanguages.english,
+                    builder: (context, languageCode) {
+                      return Text(
+                        getLocalizedText(
+                          widget.field.fieldName,
+                          widget.field.fieldNameUz,
+                          widget.field.fieldNameRu,
+                          languageCode,
+                        ),
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),

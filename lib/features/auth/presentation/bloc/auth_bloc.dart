@@ -77,7 +77,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           nikeName: event.nikeName,
           phoneNumber: event.phoneNumber,
           email: storedEmailResult!.email!,
-          password: event.password,
+          password: "welcome123",
           locationName: event.locationName,
           country: event.country,
           state: event.state,

@@ -89,7 +89,12 @@ class AttributesPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                numericField.fieldName,
+                getLocalizedText(
+                  numericField.fieldName,
+                  numericField.fieldNameUz,
+                  numericField.fieldNameRu,
+                  languageCode,
+                ),
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),

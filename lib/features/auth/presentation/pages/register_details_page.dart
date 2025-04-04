@@ -40,7 +40,7 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
   );
 
   late int _currentPage;
-  final int _totalPages = 5;
+  final int _totalPages = 4;
   final UserType _userType = UserType.individualSeller;
   int _selectedOption = 0;
   LocationSharingMode _locationSharingPreference = LocationSharingMode.precise;
@@ -152,19 +152,19 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
           return false;
         }
         return true;
+      // case 3:
+      //   if (_passwordController.text.isEmpty) {
+      //     showCustomSnackBar(
+      //         ValidationMessages.getMessage(context, 'passwordEmpty'));
+      //     return false;
+      //   }
+      //   if (_passwordController.text.length < 6) {
+      //     showCustomSnackBar(
+      //         ValidationMessages.getMessage(context, 'passwordMinLength'));
+      //     return false;
+      //   }
+      //   return true;
       case 3:
-        if (_passwordController.text.isEmpty) {
-          showCustomSnackBar(
-              ValidationMessages.getMessage(context, 'passwordEmpty'));
-          return false;
-        }
-        if (_passwordController.text.length < 6) {
-          showCustomSnackBar(
-              ValidationMessages.getMessage(context, 'passwordMinLength'));
-          return false;
-        }
-        return true;
-      case 4:
         if (_location.name.isEmpty) {
           showCustomSnackBar(AppLocalizations.of(context)!.selectLocation);
           return false;
@@ -359,7 +359,7 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                                         ),
                                       )
                                     : Text(
-                                        _currentPage < 4
+                                        _currentPage < 3
                                             ? localizations.continuee
                                             : localizations.submit,
                                         style: TextStyle(
@@ -434,16 +434,16 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
               AuthValidators.validatePhoneNumber(context, value),
         ),
       ),
-      PageData(
-        title: localizations.secureYourAccount,
-        subtitle: localizations.createStrongPassword,
-        content: AuthTextField(
-          controller: _passwordController,
-          labelText: localizations.password,
-          obscureText: true,
-          validator: (value) => AuthValidators.validatePassword(context, value),
-        ),
-      ),
+      // PageData(
+      //   title: localizations.secureYourAccount,
+      //   subtitle: localizations.createStrongPassword,
+      //   content: AuthTextField(
+      //     controller: _passwordController,
+      //     labelText: localizations.password,
+      //     obscureText: true,
+      //     validator: (value) => AuthValidators.validatePassword(context, value),
+      //   ),
+      // ),
       PageData(
         title: localizations.selectLocation,
         subtitle: localizations.tapToSelectLocation,
