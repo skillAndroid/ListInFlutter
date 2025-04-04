@@ -52,8 +52,11 @@ class _WelcomePageState extends State<WelcomePage> {
         if (!_isMounted) return;
 
         if (state is AuthLoading) {
-          // Show loading indicator only if we're on the welcome page
-          _showLoading(context);
+          // Check if we're still on the welcome page by checking the current route
+          final currentRoute = ModalRoute.of(context)?.settings.name;
+          if (currentRoute == Routes.welcome) {
+            _showLoading(context);
+          }
         } else {
           // Dismiss loading indicator if it's showing
           if (_isLoadingVisible) {
