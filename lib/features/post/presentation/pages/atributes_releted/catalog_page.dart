@@ -68,7 +68,7 @@ class CatalogListPage extends StatelessWidget {
                         BlocBuilder<LanguageBloc, LanguageState>(
                           builder: (context, state) {
                             String nameToShow =
-                                catalog.nameUz; // Default fallback
+                                catalog.name; // Default fallback
 
                             if (state is LanguageLoaded) {
                               switch (state.languageCode) {
@@ -100,16 +100,37 @@ class CatalogListPage extends StatelessWidget {
                           padding: EdgeInsets.only(right: 16),
                           child: SizedBox(
                             width: 250,
-                            child: Text(
-                              catalog.description,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                              style: const TextStyle(
-                                color: Colors.grey,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w400,
-                                fontFamily: Constants.Arial,
-                              ),
+                            child: BlocBuilder<LanguageBloc, LanguageState>(
+                              builder: (context, state) {
+                                String descriptionToShow =
+                                    catalog.description; // Default fallback
+
+                                if (state is LanguageLoaded) {
+                                  switch (state.languageCode) {
+                                    case AppLanguages.russian:
+                                      descriptionToShow = catalog.descriptionRu;
+                                      break;
+                                    case AppLanguages.uzbek:
+                                      descriptionToShow = catalog.descriptionUz;
+                                      break;
+                                    case AppLanguages.english:
+                                      descriptionToShow = catalog
+                                          .description; // Assuming this is the English name
+                                      break;
+                                  }
+                                }
+                                return Text(
+                                  descriptionToShow,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                  style: const TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400,
+                                    fontFamily: Constants.Arial,
+                                  ),
+                                );
+                              },
                             ),
                           ),
                         ),
