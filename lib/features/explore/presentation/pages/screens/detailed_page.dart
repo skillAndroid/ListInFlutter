@@ -552,7 +552,12 @@ class _DetailedHomeTreePageState extends State<DetailedHomeTreePage> {
                                             .numericFieldValues[numericField.id]
                                         : null;
 
-                                    String chipLabel = numericField.fieldName;
+                                    String chipLabel = getLocalizedText(
+                                        numericField.fieldName,
+                                        numericField.fieldNameUz,
+                                        numericField.fieldNameRu,
+                                        languageCode);
+
                                     if (fieldValues != null) {
                                       final from = fieldValues['from'];
                                       final to = fieldValues['to'];

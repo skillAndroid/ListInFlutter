@@ -57,7 +57,7 @@ class AppTheme {
       fillColor: AppColors.containerColor,
       contentPadding: const EdgeInsets.all(30),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(30),
         borderSide: const BorderSide(
           color: AppColors.transparent,
           width: 0,
@@ -69,9 +69,9 @@ class AppTheme {
         fontWeight: FontWeight.w400,
       ),
       errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+          borderRadius: BorderRadius.circular(30), borderSide: BorderSide.none),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(30),
         borderSide: const BorderSide(
           color: AppColors.transparent,
           width: 0,
