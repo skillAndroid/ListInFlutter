@@ -6,6 +6,7 @@ import 'package:list_in/features/auth/domain/entities/signup.dart';
 import 'package:list_in/features/auth/domain/entities/user.dart';
 import 'package:list_in/features/auth/domain/entities/verify_email.dart';
 import 'package:list_in/features/auth/domain/usecases/get_stored_email_usecase.dart';
+import 'package:list_in/features/auth/domain/usecases/google_auth_usecase.dart';
 import 'package:list_in/features/auth/domain/usecases/login_usecase.dart';
 import 'package:list_in/features/auth/domain/usecases/register_user_data.dart';
 import 'package:list_in/features/auth/domain/usecases/signup_usecase.dart';
@@ -21,6 +22,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final VerifyEmailSignupUseCase verifyEmailSignupUseCase;
   final RegisterUserDataUseCase registerUserDataUseCase;
   final GetStoredEmailUsecase getStoredEmailUsecase;
+  final GoogleAuthUseCase googleAuthUseCase;
 
   AuthBloc({
     required this.loginUseCase,
@@ -28,12 +30,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this.verifyEmailSignupUseCase,
     required this.registerUserDataUseCase,
     required this.getStoredEmailUsecase,
+    required this.googleAuthUseCase,
   }) : super(const AuthInitial()) {
     on<LoginSubmitted>(_onLoginSubmitted);
     on<SignupSubmitted>(_onSignupSubmitted);
     on<EmailVerificationSubmitted>(_onVerifyEmailSignupSubmitted);
     on<RegisterUserDataSubmitted>(_onRegisterUserDataSubmitted);
     on<InputChanged>(_onInputChanged);
+    on<GoogleAuthSubmitted>(_onGoogleAuthSubmitted);
   }
 
   Future<void> _onLoginSubmitted(
@@ -133,11 +137,49 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
+  Future<void> _onGoogleAuthSubmitted(
+    GoogleAuthSubmitted event,
+    Emitter<AuthState> emit,
+  ) async {
+    // Show loading state
+    emit(AuthLoading());
+
+    // Try to authenticate with the server
+    final result = await googleAuthUseCase(
+      params: GoogleAuthParams(
+        idToken: event.idToken,
+        email: event.email,
+      ),
+    );
+
+    // Handle the result
+    result.fold(
+      // If authentication fails or needs registration
+      (failure) {
+        if (failure is RegistrationNeededFailure) {
+          // Special case: User needs to register, navigating to registration page
+          emit(GoogleUserNeedsRegistration(email: event.email));
+        } else if (failure is ValidationFailure) {
+          // Authentication validation error
+          emit(AuthLoginError(message: _mapFailureToMessage(failure)));
+        } else {
+          // Other authentication error
+          emit(AuthLoginError(message: _mapFailureToMessage(failure)));
+        }
+      },
+      // If authentication succeeds
+      (authToken) {
+        // User successfully authenticated
+        emit(AuthSuccess(authToken: authToken));
+      },
+    );
+  }
+
   void _onInputChanged(InputChanged event, Emitter<AuthState> emit) {
     emit(AuthInitial());
   }
 
- String _mapFailureToMessage(Failure failure) {
+  String _mapFailureToMessage(Failure failure) {
     switch (failure.runtimeType) {
       case ServerFailure error:
         return '$error';
@@ -146,7 +188,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       case CacheFailure error:
         return '$error';
       case ValidationFailure error:
-       return '$error';
+        return '$error';
       case UnexpectedFailure _:
         return 'An unexpected error occurred. Please try again.';
       default:

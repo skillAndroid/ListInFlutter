@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/assets/app_icons.dart';
@@ -11,7 +12,9 @@ import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/language/language_bloc.dart';
 import 'package:list_in/core/language/screen/language_picker_screen.dart';
+import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/core/utils/const.dart';
+import 'package:list_in/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class WelcomePage extends StatefulWidget {
@@ -26,21 +29,59 @@ class _WelcomePageState extends State<WelcomePage> {
   final double borderRadius = 20;
   final double borderRadiusSmoothness = 0.8;
   final double spaceHeight = 5;
-
+  bool _isLoadingVisible = false;
+  bool _shouldNavigateToRegister = false;
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: _buildImageGrid(),
-            ),
-            _buildGradientOverlay(),
-            _buildWelcomeOverlay(context),
-          ],
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state is AuthLoading) {
+          // Show loading indicator
+          _showLoading(context);
+        } else {
+          // Dismiss loading indicator if it's showing
+          if (_isLoadingVisible) {
+            Navigator.of(context, rootNavigator: true).pop();
+            _isLoadingVisible = false;
+          }
+
+          if (state is AuthSuccess) {
+            // User authenticated - go to home page
+            context.pushReplacement(Routes.home);
+          } else if (state is GoogleUserNeedsRegistration) {
+            // Store the email for registration
+            // You might need to create a mechanism to store this email temporarily
+            // This could be a shared preference, or passing as a route parameter
+
+            // Navigate to registration page
+            context.push(Routes.userRegisterDetails, extra: {
+              'email': state.email
+            } // Pass email as parameter if your router supports this
+                );
+          } else if (state is AuthLoginError) {
+            // Show error message
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
+      },
+      child: Scaffold(
+        body: SafeArea(
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: _buildImageGrid(),
+              ),
+              _buildGradientOverlay(),
+              _buildWelcomeOverlay(context),
+            ],
+          ),
         ),
       ),
     );
@@ -216,15 +257,13 @@ class _WelcomePageState extends State<WelcomePage> {
     );
   }
 
+// Replace your _handleGoogleSignIn method with this updated version
   Future<void> _handleGoogleSignIn() async {
     try {
       // Show loading indicator
       _showLoading(context);
 
-      // Get localizations
-      final localizations = AppLocalizations.of(context)!;
-
-      // Create a temporary GoogleSignIn instance without remembering the account
+      // Create a temporary GoogleSignIn instance with proper configuration
       final GoogleSignIn tempGoogleSignIn = GoogleSignIn(
         scopes: ['email', 'profile', 'openid'],
         serverClientId:
@@ -242,24 +281,32 @@ class _WelcomePageState extends State<WelcomePage> {
         final GoogleSignInAuthentication googleAuth =
             await googleUser.authentication;
 
-        // Get the access token
-        final String? accessToken = googleAuth.accessToken;
-        final String? idToken =
-            googleAuth.idToken; // This should now contain your ID token
+        // Get the tokens
+        final String? idToken = googleAuth.idToken;
 
-        if (accessToken != null) {
-          print('Google Auth Token: $accessToken');
-          print('Google id Token: $idToken');
+        if (idToken != null && idToken.isNotEmpty) {
+          print('Google ID Token: $idToken');
+          print('Google User Email: ${googleUser.email}');
 
-          // Show success message with email
-          _showSuccessMessage(context,
-              localizations.emailVerifiedSuccessfully(googleUser.email));
+          // Dispatch event to AuthBloc
+          context.read<AuthBloc>().add(
+                GoogleAuthSubmitted(
+                  idToken: idToken,
+                  email: googleUser.email,
+                ),
+              );
 
-          // Send this token to your backend
-          // await yourBackendService.authenticateWithToken(accessToken);
-
-          // Optional: Sign out immediately after getting the token
+          // Sign out from Google (we've already got what we need)
           await tempGoogleSignIn.signOut();
+        } else {
+          // Show error if ID token is missing
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("localizations.couldNotGetValidIDToken"),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
         }
       } else {
         // User cancelled the sign-in flow
@@ -294,8 +341,8 @@ class _WelcomePageState extends State<WelcomePage> {
     }
   }
 
-  // Loading indicator widget
   void _showLoading(BuildContext context) {
+    _isLoadingVisible = true;
     showDialog(
       context: context,
       barrierDismissible: false,

@@ -54,3 +54,8 @@ class CancellationFailure extends Failure {
   @override
   List<Object?> get props => [];
 }
+
+class RegistrationNeededFailure extends Failure {
+  @override
+  String toString() => 'Registration needed';
+}

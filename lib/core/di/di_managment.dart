@@ -20,6 +20,7 @@ import 'package:list_in/features/auth/data/sources/auth_local_data_source.dart';
 import 'package:list_in/features/auth/data/sources/auth_remote_data_source.dart';
 import 'package:list_in/features/auth/domain/repositories/auth_repository.dart';
 import 'package:list_in/features/auth/domain/usecases/get_stored_email_usecase.dart';
+import 'package:list_in/features/auth/domain/usecases/google_auth_usecase.dart';
 import 'package:list_in/features/auth/domain/usecases/login_usecase.dart';
 import 'package:list_in/features/auth/domain/usecases/register_user_data.dart';
 import 'package:list_in/features/auth/domain/usecases/signup_usecase.dart';
@@ -204,6 +205,9 @@ Future<void> init() async {
   final catalogBox = await Hive.openBox<CategoryModel>('catalogs');
   final locationBox = await Hive.openBox<Country>('locations');
 
+  sl.registerLazySingleton(() => GoogleAuthUseCase(sl()));
+
+// Update your AuthBloc registration
   sl.registerFactory(
     () => AuthBloc(
       loginUseCase: sl(),
@@ -211,6 +215,7 @@ Future<void> init() async {
       verifyEmailSignupUseCase: sl(),
       registerUserDataUseCase: sl(),
       getStoredEmailUsecase: sl(),
+      googleAuthUseCase: sl(), // Add this
     ),
   );
 

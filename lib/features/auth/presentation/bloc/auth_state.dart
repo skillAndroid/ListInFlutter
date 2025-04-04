@@ -60,4 +60,8 @@ class AuthSignUpError extends AuthState {
   AuthSignUpError({required this.message});
 }
 
+class GoogleUserNeedsRegistration extends AuthState {
+  final String email;
 
+  const GoogleUserNeedsRegistration({required this.email});
+}

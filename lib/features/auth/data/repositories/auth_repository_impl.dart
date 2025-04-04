@@ -1,7 +1,9 @@
 // ignore_for_file: unused_catch_clause
 
 import 'package:dartz/dartz.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:list_in/core/error/failure.dart';
+import 'package:list_in/features/auth/data/models/retrived_email_model.dart';
 
 import 'package:list_in/features/auth/data/sources/auth_local_data_source.dart';
 import 'package:list_in/features/auth/data/sources/auth_remote_data_source.dart';
@@ -136,5 +138,57 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<RetrivedEmail?> getStoredEmail() async {
     return await authLocalDataSource.getRetrivedEmail();
+  }
+
+  @override
+  Future<Either<Failure, AuthToken>> googleAuth(
+      String idToken, String email) async {
+    try {
+      final result = await authRemoteDataSource.googleAuth(idToken, email);
+      return result.fold(
+        (error) async {
+          debugPrint('Remote Google auth error: $error');
+
+          // Special case: If we get the special 'REGISTRATION_NEEDED' error
+          // Store the email so it can be used in registration
+          if (error == 'REGISTRATION_NEEDED') {
+            // Create and store the email using the existing local data source
+            final retrivedEmail = RetrivedEmailModel.fromEmail(email);
+            await authLocalDataSource.cacheRetrivedEmail(retrivedEmail);
+
+            // Return our special failure type
+            return Left(RegistrationNeededFailure());
+          }
+
+          // Regular error handling
+          if (error.contains('Not Authenticated') ||
+              error.contains('User not authorized')) {
+            return Left(ValidationFailure());
+          } else if (error.contains('timeout') ||
+              error.contains('Network error')) {
+            return Left(NetworkFailure());
+          } else if (error.contains('Server')) {
+            return Left(ServerFailure());
+          }
+          return Left(UnexpectedFailure());
+        },
+        (authTokenModel) {
+          // Check if tokens are present (this should not be necessary now
+          // since we handle empty tokens in the data source, but keeping as a safeguard)
+          if (authTokenModel.accessToken.isNotEmpty &&
+              authTokenModel.refreshToken.isNotEmpty) {
+            // Cache the auth token
+            authLocalDataSource.cacheAuthToken(authTokenModel);
+            return Right(authTokenModel.toEntity());
+          } else {
+            // No tokens - indicate need for registration
+            return Left(RegistrationNeededFailure());
+          }
+        },
+      );
+    } catch (e) {
+      debugPrint('Repository Google auth error: $e');
+      return Left(UnexpectedFailure());
+    }
   }
 }

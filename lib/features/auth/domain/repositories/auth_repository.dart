@@ -15,5 +15,6 @@ abstract class AuthRepository {
   Future<RetrivedEmail?> getStoredEmail();
   Future<void> deleteRetrivedEmail();
   Future<AuthToken?> getStoredAuthToken();
+  Future<Either<Failure, AuthToken>> googleAuth(String idToken, String email);
   Future<void> logout();
 }

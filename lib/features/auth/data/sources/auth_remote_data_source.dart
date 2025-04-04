@@ -1,5 +1,8 @@
+import 'dart:math';
+
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:list_in/features/auth/data/models/auth_token_model.dart';
 import 'package:list_in/features/auth/data/models/retrived_email_model.dart';
 import 'package:list_in/features/auth/domain/entities/login.dart';
@@ -12,6 +15,8 @@ abstract class AuthRemoteDataSource {
   Future<Either> signup(Signup signup);
   Future<Either> verifyEmailSignup(VerifyEmail verifyEmail);
   Future<Either> registerUserData(User user);
+  Future<Either<String, AuthTokenModel>> googleAuth(
+      String idToken, String email);
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -119,11 +124,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     try {
       final responce = await dio.post(
         '/api/v1/auth/register',
-         options: Options(
-        headers: {
-          'Accept-Language': 'ru',  
-        },
-      ),
+        options: Options(
+          headers: {
+            'Accept-Language': 'ru',
+          },
+        ),
         data: {
           'nickName': user.nikeName,
           'phoneNumber': user.phoneNumber,
@@ -150,6 +155,76 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       return left(e.message ?? 'Network error occured');
     } catch (e) {
       return left('Unexpected error occured');
+    }
+  }
+
+  @override
+  Future<Either<String, AuthTokenModel>> googleAuth(
+      String idToken, String email) async {
+    try {
+      print('🚀 Sending Google Auth Request:');
+      print('Email: $email');
+      print('ID Token Length: ${idToken.length}');
+      print(
+          'ID Token (first 10 chars): ${idToken.substring(0, min(10, idToken.length))}...');
+
+      // Validate input before sending
+      if (idToken.isEmpty || email.isEmpty) {
+        print('❌ Invalid input: Empty idToken or email');
+        return left('Invalid authentication parameters');
+      }
+
+      final response = await dio.post(
+        '/api/v1/oauth/google/mobile',
+        queryParameters: {
+          'idToken': idToken,
+          'email': email,
+        },
+      );
+
+      // Detailed response logging
+      print('📬 Response Details:');
+      print('Status Code: ${response.statusCode}');
+      print('Headers: ${response.headers}');
+      print('Response Data: ${response.data}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final responseData = response.data;
+
+        // Check if tokens are present
+        if (responseData['access_token'] == null ||
+            responseData['refresh_token'] == null ||
+            responseData['access_token'] == '' ||
+            responseData['refresh_token'] == '') {
+          print('⚠️ Auth successful but no tokens - user needs registration');
+          // Return a special value to indicate registration needed
+          return left('REGISTRATION_NEEDED');
+        }
+
+        return right(AuthTokenModel.fromJson(responseData));
+      } else {
+        print('❌ Unexpected Status Code: ${response.statusCode}');
+        print('Error Response: ${response.data}');
+        return left('Server returned ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      // Comprehensive Dio error logging
+      print('🚨 Dio Error Details:');
+      print('Error Type: ${e.type}');
+      print('Error Response: ${e.response?.data}');
+      print('Error Message: ${e.message}');
+      print('Status Code: ${e.response?.statusCode}');
+
+      // Specific error handling
+      if (e.response?.statusCode == 302) {
+        print('🔄 Redirection Detected');
+        print('Redirect Headers: ${e.response?.headers}');
+      }
+
+      return left(e.message ?? 'Network error occurred');
+    } catch (e) {
+      print('🚨 Unexpected Error: $e');
+      return left('Unexpected error during authentication');
     }
   }
 }

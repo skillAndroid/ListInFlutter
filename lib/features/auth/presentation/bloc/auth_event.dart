@@ -80,3 +80,9 @@ class UpdateUserType extends RegistrationEvent {
   final UserType userType;
   UpdateUserType(this.userType);
 }
+
+class GoogleAuthSubmitted extends AuthEvent {
+  final String idToken;
+  final String email;
+  GoogleAuthSubmitted({required this.idToken, required this.email});
+}

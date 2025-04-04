@@ -853,7 +853,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                 Navigator.of(context).pop();
 
                 // Navigate to login page
-                context.go(Routes.login);
+                context.go(Routes.welcome);
               },
               child: Text(
                 AppLocalizations.of(context)!.yes,
