@@ -62,8 +62,6 @@ class MediaWidgetState extends State<MediaWidget> {
         ),
       ),
     );
-
-    // No need to handle the result as the BLoC will update the UI
   }
 
   Future<void> _pickImagesFromGallery(
@@ -389,7 +387,6 @@ class MediaWidgetState extends State<MediaWidget> {
                               padding: EdgeInsets.zero,
                               icon: Icon(
                                 Icons.close,
-                                color: Theme.of(context).iconTheme.color,
                                 size: 16,
                               ),
                               onPressed: () {
@@ -403,23 +400,27 @@ class MediaWidgetState extends State<MediaWidget> {
                       ),
                       // Add Edit button
                       Positioned(
-                        bottom: 4,
-                        right: 4,
-                        child: Container(
-                          width: 24,
-                          height: 24,
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withOpacity(0.8),
-                            shape: BoxShape.circle,
-                          ),
-                          child: IconButton(
-                            padding: EdgeInsets.zero,
-                            icon: Icon(
-                              Icons.edit,
-                              color: Theme.of(context).scaffoldBackgroundColor,
-                              size: 14,
+                        bottom: 0,
+                        right: 0,
+                        child: Transform.translate(
+                          offset: const Offset(4, -0),
+                          child: Container(
+                            width: 20,
+                            height: 20,
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withOpacity(0.8),
+                              shape: BoxShape.circle,
                             ),
-                            onPressed: () => _editImage(index, image),
+                            child: IconButton(
+                              padding: EdgeInsets.zero,
+                              icon: Icon(
+                                Icons.edit,
+                                color:
+                                    Theme.of(context).scaffoldBackgroundColor,
+                                size: 14,
+                              ),
+                              onPressed: () => _editImage(index, image),
+                            ),
                           ),
                         ),
                       ),
@@ -707,8 +708,6 @@ class _PublicationImageEditorPageState
                     isUrl: widget.isUrl,
                   ),
                 );
-
-            // Return to previous screen
           },
           onCloseEditor: () async {
             // Just return to previous screen without saving

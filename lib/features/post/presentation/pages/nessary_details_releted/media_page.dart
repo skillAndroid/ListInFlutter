@@ -91,6 +91,7 @@ class MediaPageState extends State<MediaPage> {
     }
   }
 
+  //
   Future<void> _pickVideo(PostProvider provider) async {
     try {
       final XFile? video = await _picker.pickVideo(
@@ -339,23 +340,26 @@ class MediaPageState extends State<MediaPage> {
                 ),
                 // Edit button
                 Positioned(
-                  bottom: 4,
-                  right: 4,
-                  child: Container(
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.8),
-                      shape: BoxShape.circle,
-                    ),
-                    child: IconButton(
-                      padding: EdgeInsets.zero,
-                      icon: Icon(
-                        Icons.edit,
-                        color: Theme.of(context).scaffoldBackgroundColor,
-                        size: 14,
+                  bottom: 0,
+                  right: 0,
+                  child: Transform.translate(
+                    offset: const Offset(4, 0),
+                    child: Container(
+                      width: 20,
+                      height: 20,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withOpacity(0.8),
+                        shape: BoxShape.circle,
                       ),
-                      onPressed: () => _editExistingImage(provider, index),
+                      child: IconButton(
+                        padding: EdgeInsets.zero,
+                        icon: Icon(
+                          Icons.edit,
+                          color: Theme.of(context).scaffoldBackgroundColor,
+                          size: 14,
+                        ),
+                        onPressed: () => _editExistingImage(provider, index),
+                      ),
                     ),
                   ),
                 ),
@@ -389,7 +393,7 @@ class MediaPageState extends State<MediaPage> {
             ],
             const SizedBox(height: 8),
             Text(
-              "${AppLocalizations.of(context)!.upload_images_tip} (Tap any image to edit)",
+              AppLocalizations.of(context)!.upload_images_tip,
               style: TextStyle(
                 fontSize: 13.5,
                 color: Theme.of(context).colorScheme.onSurface,
@@ -435,7 +439,7 @@ class MediaPageState extends State<MediaPage> {
                       height: 4,
                     ),
                     Text(
-                      "${AppLocalizations.of(context)!.image_format} (Instagram-like editing)",
+                      AppLocalizations.of(context)!.image_format,
                       style: TextStyle(
                         fontSize: 13.5,
                         color: Theme.of(context).colorScheme.onSurface,
