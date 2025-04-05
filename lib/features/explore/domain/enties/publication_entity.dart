@@ -143,6 +143,7 @@ class SellerEntity {
   final DateTime dateUpdated;
   final int followers;
   final int followings;
+  final bool isPartner;
 
   SellerEntity({
     required this.id,
@@ -153,6 +154,7 @@ class SellerEntity {
     required this.toTime,
     required this.email,
     this.profileImagePath,
+    this.isPartner = false,
     required this.rating,
     required this.isGrantedForPreciseLocation,
     required this.locationName,

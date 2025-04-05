@@ -19,6 +19,7 @@ class AnotherUserProfileEntity {
   final String? role;
   final DateTime? dateCreated;
   final DateTime? dateUpdated;
+  final bool? isParner;
 
   AnotherUserProfileEntity({
     this.id,
@@ -41,6 +42,7 @@ class AnotherUserProfileEntity {
     this.role,
     this.dateCreated,
     this.dateUpdated,
+    this.isParner = false,
   });
 
   AnotherUserProfileEntity copyWith({
@@ -76,8 +78,8 @@ class AnotherUserProfileEntity {
       email: email ?? this.email,
       profileImagePath: profileImagePath ?? this.profileImagePath,
       rating: rating ?? this.rating,
-      isGrantedForPreciseLocation: 
-        isGrantedForPreciseLocation ?? this.isGrantedForPreciseLocation,
+      isGrantedForPreciseLocation:
+          isGrantedForPreciseLocation ?? this.isGrantedForPreciseLocation,
       locationName: locationName ?? this.locationName,
       longitude: longitude ?? this.longitude,
       followers: followers ?? this.followers,

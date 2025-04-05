@@ -29,14 +29,18 @@ class StoreProfilePage extends StatefulWidget {
     super.key,
     required this.userId,
   });
-//sa
+
   @override
   State<StoreProfilePage> createState() => _StoreProfilePageState();
 }
 
-class _StoreProfilePageState extends State<StoreProfilePage> {
+class _StoreProfilePageState extends State<StoreProfilePage>
+    with SingleTickerProviderStateMixin {
   bool _isImagePopupVisible =
       false; // State variable to control popup visibility
+  late AnimationController _partnerAnimationController;
+  late Animation<double> _partnerBorderAnimation;
+
   void _toggleImagePopup() {
     setState(() {
       _isImagePopupVisible = !_isImagePopupVisible;
@@ -57,6 +61,25 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
             isInitialFetch: true,
           ),
         );
+
+    // Initialize animation controller for partner badges and effects
+    _partnerAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2000),
+    )..repeat(reverse: true);
+
+    _partnerBorderAnimation = Tween<double>(begin: 1.0, end: 2.0).animate(
+      CurvedAnimation(
+        parent: _partnerAnimationController,
+        curve: Curves.easeInOut,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _partnerAnimationController.dispose();
+    super.dispose();
   }
 
   @override
@@ -95,6 +118,10 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                 body: Center(
                     child: Text(AppLocalizations.of(context)!.no_user_data)));
           }
+
+          // Check if the user is a partner
+          final bool isPartner = userData.isParner ?? false;
+
           return DefaultTabController(
             length: 4, // Number of tabs
             child: Stack(
@@ -130,12 +157,59 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                         onPressed: () {},
                       ),
                     ],
-                    title: Text(
-                      AppLocalizations.of(context)!.store,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    title: Row(
+                      children: [
+                        Text(
+                          AppLocalizations.of(context)!.store,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.secondary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        if (isPartner)
+                          Container(
+                            margin: const EdgeInsets.only(left: 8),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                                color: CupertinoColors.activeGreen,
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: CupertinoColors.activeGreen
+                                        .withOpacity(0.4),
+                                    blurRadius: 4,
+                                    spreadRadius: 1,
+                                  )
+                                ]),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.verified,
+                                  color: Colors.white,
+                                  size: 14,
+                                ),
+                                const SizedBox(width: 2),
+                                Text(
+                                  'Partner',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
+                                    shadows: [
+                                      Shadow(
+                                        blurRadius: 2.0,
+                                        color: Colors.black12,
+                                        offset: Offset(1.0, 1.0),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
                     ),
                   ),
                   body: Padding(
@@ -193,28 +267,33 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                             height: 220 - 120,
                                             child: userData.profileImagePath !=
                                                     null
-                                                ? CachedNetworkImage(
-                                                    width: double.infinity,
-                                                    height: double.infinity,
-                                                    imageUrl:
-                                                        'https://${userData.profileImagePath!}',
-                                                    fit: BoxFit.cover,
-                                                    placeholder:
-                                                        (context, url) =>
-                                                            const Center(
-                                                      child:
-                                                          CircularProgressIndicator(
-                                                        color:
-                                                            Colors.lightGreen,
-                                                        strokeWidth: 2,
-                                                      ),
-                                                    ),
-                                                    errorWidget:
-                                                        (context, url, error) =>
+                                                ? Stack(
+                                                    children: [
+                                                      CachedNetworkImage(
+                                                        width: double.infinity,
+                                                        height: double.infinity,
+                                                        imageUrl:
+                                                            'https://${userData.profileImagePath!}',
+                                                        fit: BoxFit.cover,
+                                                        placeholder:
+                                                            (context, url) =>
+                                                                const Center(
+                                                          child:
+                                                              CircularProgressIndicator(
+                                                            color: Colors
+                                                                .lightGreen,
+                                                            strokeWidth: 2,
+                                                          ),
+                                                        ),
+                                                        errorWidget: (context,
+                                                                url, error) =>
                                                             Image.asset(
-                                                      AppImages.appLogo,
-                                                      fit: BoxFit.cover,
-                                                    ),
+                                                          AppImages.appLogo,
+                                                          fit: BoxFit.cover,
+                                                        ),
+                                                      ),
+                                                      // Add a subtle overlay for partners
+                                                    ],
                                                   )
                                                 : Image.asset(
                                                     AppImages.appLogo,
@@ -296,7 +375,6 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                                     CrossAxisAlignment.start,
                                                 children: [
                                                   // Profile Image with parallax
-                                                  // Profile Image with parallax
                                                   GestureDetector(
                                                     onTap:
                                                         _toggleImagePopup, // Handle tap on profile image
@@ -305,47 +383,139 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                                           0,
                                                           -parallaxOffset *
                                                               0.3),
-                                                      child: ClipRRect(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(100),
-                                                        child: SizedBox(
-                                                          width: 88,
-                                                          height: 88,
-                                                          child: userData
-                                                                      .profileImagePath !=
-                                                                  null
-                                                              ? CachedNetworkImage(
-                                                                  width: double
-                                                                      .infinity,
-                                                                  height: double
-                                                                      .infinity,
-                                                                  imageUrl:
-                                                                      'https://${userData.profileImagePath!}',
-                                                                  fit: BoxFit
-                                                                      .cover,
-                                                                  placeholder: (context,
-                                                                          url) =>
-                                                                      const Center(
+                                                      child: Stack(
+                                                        children: [
+                                                          isPartner
+                                                              ? AnimatedBuilder(
+                                                                  animation:
+                                                                      _partnerAnimationController,
+                                                                  builder:
+                                                                      (context,
+                                                                          child) {
+                                                                    return Container(
+                                                                      padding:
+                                                                          const EdgeInsets
+                                                                              .all(
+                                                                              3),
+                                                                      decoration:
+                                                                          BoxDecoration(
+                                                                        shape: BoxShape
+                                                                            .circle,
+                                                                      ),
+                                                                      child:
+                                                                          child,
+                                                                    );
+                                                                  },
+                                                                  child:
+                                                                      ClipRRect(
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            100),
                                                                     child:
-                                                                        CircularProgressIndicator(
-                                                                      color: Colors
-                                                                          .lightGreen,
-                                                                      strokeWidth:
-                                                                          2,
+                                                                        SizedBox(
+                                                                      width: 88,
+                                                                      height:
+                                                                          88,
+                                                                      child: userData.profileImagePath !=
+                                                                              null
+                                                                          ? CachedNetworkImage(
+                                                                              width: double.infinity,
+                                                                              height: double.infinity,
+                                                                              imageUrl: 'https://${userData.profileImagePath!}',
+                                                                              fit: BoxFit.cover,
+                                                                              placeholder: (context, url) => const Center(
+                                                                                child: CircularProgressIndicator(
+                                                                                  color: Colors.lightGreen,
+                                                                                  strokeWidth: 2,
+                                                                                ),
+                                                                              ),
+                                                                              errorWidget: (context, url, error) => Image.asset(AppImages.appLogo),
+                                                                            )
+                                                                          : Image.asset(
+                                                                              AppImages.appLogo),
                                                                     ),
                                                                   ),
-                                                                  errorWidget: (context,
-                                                                          url,
-                                                                          error) =>
-                                                                      Image.asset(
-                                                                          AppImages
-                                                                              .appLogo),
                                                                 )
-                                                              : Image.asset(
-                                                                  AppImages
-                                                                      .appLogo),
-                                                        ),
+                                                              : ClipRRect(
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              100),
+                                                                  child:
+                                                                      SizedBox(
+                                                                    width: 88,
+                                                                    height: 88,
+                                                                    child: userData.profileImagePath !=
+                                                                            null
+                                                                        ? CachedNetworkImage(
+                                                                            width:
+                                                                                double.infinity,
+                                                                            height:
+                                                                                double.infinity,
+                                                                            imageUrl:
+                                                                                'https://${userData.profileImagePath!}',
+                                                                            fit:
+                                                                                BoxFit.cover,
+                                                                            placeholder: (context, url) =>
+                                                                                const Center(
+                                                                              child: CircularProgressIndicator(
+                                                                                color: Colors.lightGreen,
+                                                                                strokeWidth: 2,
+                                                                              ),
+                                                                            ),
+                                                                            errorWidget: (context, url, error) =>
+                                                                                Image.asset(AppImages.appLogo),
+                                                                          )
+                                                                        : Image.asset(
+                                                                            AppImages.appLogo),
+                                                                  ),
+                                                                ),
+
+                                                          // Partner badge
+                                                          if (isPartner)
+                                                            Positioned(
+                                                              right: 0,
+                                                              bottom: 0,
+                                                              child: Container(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                        .all(4),
+                                                                decoration:
+                                                                    BoxDecoration(
+                                                                  color: CupertinoColors
+                                                                      .activeGreen,
+                                                                  shape: BoxShape
+                                                                      .circle,
+                                                                  border: Border
+                                                                      .all(
+                                                                    color: Theme.of(
+                                                                            context)
+                                                                        .cardColor,
+                                                                    width: 2,
+                                                                  ),
+                                                                  boxShadow: [
+                                                                    BoxShadow(
+                                                                      color: Colors
+                                                                          .black26,
+                                                                      blurRadius:
+                                                                          4,
+                                                                      offset:
+                                                                          Offset(
+                                                                              0,
+                                                                              2),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                                child: Icon(
+                                                                  Icons
+                                                                      .verified,
+                                                                  color: Colors
+                                                                      .white,
+                                                                  size: 16,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                        ],
                                                       ),
                                                     ),
                                                   ),
@@ -377,26 +547,49 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                                                 CrossAxisAlignment
                                                                     .start,
                                                             children: [
-                                                              Text(
-                                                                userData.nickName ??
-                                                                    AppLocalizations.of(
-                                                                            context)!
-                                                                        .no_user_name,
-                                                                style:
-                                                                    TextStyle(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  fontSize: 21,
-                                                                  height: 1.3,
-                                                                  fontFamily:
-                                                                      Constants
-                                                                          .Arial,
-                                                                  color: Theme.of(
-                                                                          context)
-                                                                      .colorScheme
-                                                                      .secondary,
-                                                                ),
+                                                              Row(
+                                                                children: [
+                                                                  Text(
+                                                                    userData.nickName ??
+                                                                        AppLocalizations.of(context)!
+                                                                            .no_user_name,
+                                                                    style:
+                                                                        TextStyle(
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold,
+                                                                      fontSize:
+                                                                          21,
+                                                                      height:
+                                                                          1.3,
+                                                                      fontFamily:
+                                                                          Constants
+                                                                              .Arial,
+                                                                      color: isPartner
+                                                                          ? CupertinoColors
+                                                                              .activeGreen
+                                                                          : Theme.of(context)
+                                                                              .colorScheme
+                                                                              .secondary,
+                                                                    ),
+                                                                  ),
+                                                                  if (isPartner)
+                                                                    Padding(
+                                                                      padding: const EdgeInsets
+                                                                          .only(
+                                                                          left:
+                                                                              4.0),
+                                                                      child:
+                                                                          Icon(
+                                                                        Icons
+                                                                            .verified,
+                                                                        size:
+                                                                            16,
+                                                                        color: CupertinoColors
+                                                                            .activeGreen,
+                                                                      ),
+                                                                    ),
+                                                                ],
                                                               ),
                                                               SizedBox(
                                                                   height: 4),
@@ -480,6 +673,7 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                                     },
                                                   ),
                                                   // Follow Button - replacing the favorite button
+                                                  // Follow Button - replacing the favorite button
                                                   BlocBuilder<GlobalBloc,
                                                       GlobalState>(
                                                     builder: (context, state) {
@@ -493,132 +687,267 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                                           followStatus ==
                                                               FollowStatus
                                                                   .inProgress;
+
                                                       return Transform
                                                           .translate(
                                                         offset: Offset(
                                                             0,
                                                             -parallaxOffset *
                                                                 0.3),
-                                                        child: Container(
-                                                          margin:
-                                                              EdgeInsets.only(
-                                                                  top: 8),
-                                                          height: 36,
-                                                          child: ElevatedButton(
-                                                            onPressed: isLoading
-                                                                ? null
-                                                                : () {
-                                                                    context
-                                                                        .read<
-                                                                            GlobalBloc>()
-                                                                        .add(
-                                                                          UpdateFollowStatusEvent(
-                                                                            userId:
-                                                                                widget.userId,
-                                                                            isFollowed:
-                                                                                isFollowed,
-                                                                            context:
-                                                                                context,
-                                                                          ),
-                                                                        );
-                                                                  },
-                                                            style:
-                                                                ElevatedButton
-                                                                    .styleFrom(
-                                                              backgroundColor:
-                                                                  Theme.of(
-                                                                          context)
-                                                                      .scaffoldBackgroundColor,
-                                                              foregroundColor:
-                                                                  Theme.of(
-                                                                          context)
-                                                                      .scaffoldBackgroundColor,
-                                                              elevation: 0,
-                                                              shape:
-                                                                  SmoothRectangleBorder(
-                                                                side:
-                                                                    BorderSide(
-                                                                  width: 1,
-                                                                  color: Theme.of(
-                                                                          context)
-                                                                      .colorScheme
-                                                                      .secondary,
-                                                                ),
-                                                                borderRadius:
-                                                                    SmoothBorderRadius(
-                                                                  cornerRadius:
-                                                                      18,
-                                                                  cornerSmoothing:
-                                                                      0.7,
-                                                                ),
-                                                              ),
-                                                              padding: EdgeInsets
-                                                                  .symmetric(
-                                                                horizontal: 16,
-                                                              ),
-                                                            ),
-                                                            child: isLoading
-                                                                ? Padding(
-                                                                    padding:
-                                                                        EdgeInsets
-                                                                            .all(8),
+                                                        child: isPartner
+                                                            ? AnimatedBuilder(
+                                                                animation:
+                                                                    _partnerAnimationController,
+                                                                builder:
+                                                                    (context,
+                                                                        child) {
+                                                                  return Container(
+                                                                    margin: const EdgeInsets
+                                                                        .only(
+                                                                        top: 8),
+                                                                    height: 36,
+                                                                    decoration:
+                                                                        BoxDecoration(
+                                                                      borderRadius:
+                                                                          SmoothBorderRadius(
+                                                                        cornerRadius:
+                                                                            18,
+                                                                        cornerSmoothing:
+                                                                            0.7,
+                                                                      ),
+                                                                      // Enhanced gradient colors for partner buttons
+                                                                      gradient: isFollowed
+                                                                          // Static gradient when following - more vibrant but still pleasant
+                                                                          ? LinearGradient(
+                                                                              colors: [
+                                                                                const Color(0xFF4CAF50), // Material Design Green
+                                                                                const Color(0xFF66BB6A).withOpacity(0.8), // Lighter green with some transparency
+                                                                              ],
+                                                                              begin: Alignment.topLeft,
+                                                                              end: Alignment.bottomRight,
+                                                                            )
+                                                                          // Animated sweep gradient when not following - more visually appealing colors
+                                                                          : SweepGradient(
+                                                                              colors: [
+                                                                                const Color(0xFF4CAF50), // Material Design Green
+                                                                                const Color(0xFF81C784), // Light Green
+                                                                                const Color(0xFF26A69A), // Teal-Green
+                                                                                const Color(0xFF66BB6A), // Light Green 400
+                                                                                const Color(0xFF4CAF50).withOpacity(0.8), // Back to Green with slight transparency
+                                                                              ],
+                                                                              stops: const [
+                                                                                0.0,
+                                                                                0.25,
+                                                                                0.5,
+                                                                                0.75,
+                                                                                1.0
+                                                                              ],
+                                                                              startAngle: 0,
+                                                                              endAngle: 3.14 * 2,
+                                                                              transform: GradientRotation(_partnerAnimationController.value * 6.28),
+                                                                            ),
+                                                                      boxShadow: [
+                                                                        BoxShadow(
+                                                                          color:
+                                                                              const Color(0xFF4CAF50).withOpacity(0.3),
+                                                                          blurRadius:
+                                                                              _partnerBorderAnimation.value * 3,
+                                                                          spreadRadius:
+                                                                              _partnerBorderAnimation.value * 0.5,
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                    // For both following and not following, we use a container with margin to create border effect
                                                                     child:
-                                                                        SizedBox(
-                                                                      width: 20,
-                                                                      height:
-                                                                          20,
-                                                                      child:
-                                                                          CircularProgressIndicator(
-                                                                        strokeWidth:
-                                                                            2,
-                                                                        valueColor:
-                                                                            AlwaysStoppedAnimation<Color>(
-                                                                          Theme.of(context)
-                                                                              .colorScheme
-                                                                              .secondary,
+                                                                        Container(
+                                                                      margin: const EdgeInsets
+                                                                          .all(
+                                                                          2.0),
+                                                                      decoration:
+                                                                          BoxDecoration(
+                                                                        color: Theme.of(context)
+                                                                            .scaffoldBackgroundColor,
+                                                                        borderRadius:
+                                                                            SmoothBorderRadius(
+                                                                          cornerRadius:
+                                                                              16,
+                                                                          cornerSmoothing:
+                                                                              0.7,
                                                                         ),
                                                                       ),
+                                                                      child:
+                                                                          ElevatedButton(
+                                                                        onPressed: isLoading
+                                                                            ? null
+                                                                            : () {
+                                                                                context.read<GlobalBloc>().add(
+                                                                                      UpdateFollowStatusEvent(
+                                                                                        userId: widget.userId,
+                                                                                        isFollowed: isFollowed,
+                                                                                        context: context,
+                                                                                      ),
+                                                                                    );
+                                                                              },
+                                                                        style: ElevatedButton
+                                                                            .styleFrom(
+                                                                          backgroundColor:
+                                                                              Colors.transparent,
+                                                                          foregroundColor:
+                                                                              const Color(0xFF43A047), // Consistent green color
+                                                                          elevation:
+                                                                              0,
+                                                                          shadowColor:
+                                                                              Colors.transparent,
+                                                                          shape:
+                                                                              SmoothRectangleBorder(
+                                                                            borderRadius:
+                                                                                SmoothBorderRadius(
+                                                                              cornerRadius: 15,
+                                                                              cornerSmoothing: 0.7,
+                                                                            ),
+                                                                          ),
+                                                                          padding:
+                                                                              const EdgeInsets.symmetric(
+                                                                            horizontal:
+                                                                                16,
+                                                                          ),
+                                                                        ),
+                                                                        child: isLoading
+                                                                            ? const Padding(
+                                                                                padding: EdgeInsets.all(8),
+                                                                                child: SizedBox(
+                                                                                  width: 20,
+                                                                                  height: 20,
+                                                                                  child: CircularProgressIndicator(
+                                                                                    strokeWidth: 2,
+                                                                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                                                                      Color(0xFF43A047), // Consistent green
+                                                                                    ),
+                                                                                  ),
+                                                                                ),
+                                                                              )
+                                                                            : Row(
+                                                                                mainAxisSize: MainAxisSize.min,
+                                                                                children: [
+                                                                                  Icon(
+                                                                                    isFollowed ? Icons.star : Icons.star_border,
+                                                                                    size: 16,
+                                                                                    color: const Color(0xFF43A047), // Consistent green
+                                                                                  ),
+                                                                                  const SizedBox(width: 4),
+                                                                                  Text(
+                                                                                    isFollowed ? AppLocalizations.of(context)!.unfollow : AppLocalizations.of(context)!.follow,
+                                                                                    style: const TextStyle(
+                                                                                      fontFamily: Constants.Arial,
+                                                                                      fontWeight: FontWeight.bold,
+                                                                                      color: Color(0xFF43A047), // Consistent green
+                                                                                      fontSize: 14,
+                                                                                    ),
+                                                                                  ),
+                                                                                ],
+                                                                              ),
+                                                                      ),
                                                                     ),
-                                                                  )
-                                                                : Row(
-                                                                    mainAxisSize:
-                                                                        MainAxisSize
-                                                                            .min,
-                                                                    children: [
-                                                                      Icon(
-                                                                        isFollowed
-                                                                            ? Icons.remove
-                                                                            : Icons.add,
-                                                                        size:
-                                                                            16,
+                                                                  );
+                                                                },
+                                                              )
+                                                            // Not Partner: Original design
+                                                            : Container(
+                                                                margin: EdgeInsets
+                                                                    .only(
+                                                                        top: 8),
+                                                                height: 36,
+                                                                child:
+                                                                    ElevatedButton(
+                                                                  onPressed:
+                                                                      isLoading
+                                                                          ? null
+                                                                          : () {
+                                                                              context.read<GlobalBloc>().add(
+                                                                                    UpdateFollowStatusEvent(
+                                                                                      userId: widget.userId,
+                                                                                      isFollowed: isFollowed,
+                                                                                      context: context,
+                                                                                    ),
+                                                                                  );
+                                                                            },
+                                                                  style: ElevatedButton
+                                                                      .styleFrom(
+                                                                    backgroundColor:
+                                                                        Theme.of(context)
+                                                                            .scaffoldBackgroundColor,
+                                                                    foregroundColor:
+                                                                        Theme.of(context)
+                                                                            .scaffoldBackgroundColor,
+                                                                    elevation:
+                                                                        0,
+                                                                    shape:
+                                                                        SmoothRectangleBorder(
+                                                                      side:
+                                                                          BorderSide(
+                                                                        width:
+                                                                            1,
                                                                         color: Theme.of(context)
                                                                             .colorScheme
                                                                             .secondary,
                                                                       ),
-                                                                      SizedBox(
-                                                                          width:
-                                                                              4),
-                                                                      Text(
-                                                                        isFollowed
-                                                                            ? AppLocalizations.of(context)!.unfollow
-                                                                            : AppLocalizations.of(context)!.follow,
-                                                                        style:
-                                                                            TextStyle(
-                                                                          fontFamily:
-                                                                              Constants.Arial,
-                                                                          fontWeight:
-                                                                              FontWeight.bold,
-                                                                          color: Theme.of(context)
-                                                                              .colorScheme
-                                                                              .secondary,
-                                                                          fontSize:
-                                                                              14,
-                                                                        ),
+                                                                      borderRadius:
+                                                                          SmoothBorderRadius(
+                                                                        cornerRadius:
+                                                                            18,
+                                                                        cornerSmoothing:
+                                                                            0.7,
                                                                       ),
-                                                                    ],
+                                                                    ),
+                                                                    padding:
+                                                                        EdgeInsets
+                                                                            .symmetric(
+                                                                      horizontal:
+                                                                          16,
+                                                                    ),
                                                                   ),
-                                                          ),
-                                                        ),
+                                                                  child: isLoading
+                                                                      ? Padding(
+                                                                          padding:
+                                                                              EdgeInsets.all(8),
+                                                                          child:
+                                                                              SizedBox(
+                                                                            width:
+                                                                                20,
+                                                                            height:
+                                                                                20,
+                                                                            child:
+                                                                                CircularProgressIndicator(
+                                                                              strokeWidth: 2,
+                                                                              valueColor: AlwaysStoppedAnimation<Color>(
+                                                                                Theme.of(context).colorScheme.secondary,
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                        )
+                                                                      : Row(
+                                                                          mainAxisSize:
+                                                                              MainAxisSize.min,
+                                                                          children: [
+                                                                            Icon(
+                                                                              isFollowed ? Icons.remove : Icons.add,
+                                                                              size: 16,
+                                                                              color: Theme.of(context).colorScheme.secondary,
+                                                                            ),
+                                                                            SizedBox(width: 4),
+                                                                            Text(
+                                                                              isFollowed ? AppLocalizations.of(context)!.unfollow : AppLocalizations.of(context)!.follow,
+                                                                              style: TextStyle(
+                                                                                fontFamily: Constants.Arial,
+                                                                                fontWeight: FontWeight.bold,
+                                                                                color: Theme.of(context).colorScheme.secondary,
+                                                                                fontSize: 14,
+                                                                              ),
+                                                                            ),
+                                                                          ],
+                                                                        ),
+                                                                ),
+                                                              ),
                                                       );
                                                     },
                                                   ),
@@ -664,57 +993,97 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                                       GestureDetector(
                                                         onTap:
                                                             _toggleImagePopup,
-                                                        child: ClipRRect(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(
-                                                            100,
-                                                          ),
-                                                          child: SizedBox(
-                                                            width: 48,
-                                                            height: 48,
-                                                            child: userData
-                                                                        .profileImagePath !=
-                                                                    null
-                                                                ? CachedNetworkImage(
-                                                                    width: double
-                                                                        .infinity,
-                                                                    height: double
-                                                                        .infinity,
-                                                                    imageUrl:
-                                                                        'https://${userData.profileImagePath!}',
-                                                                    fit: BoxFit
-                                                                        .cover,
-                                                                    placeholder:
-                                                                        (context,
-                                                                                url) =>
-                                                                            const Center(
-                                                                      child:
-                                                                          CircularProgressIndicator(
-                                                                        color: Colors
-                                                                            .lightGreen,
-                                                                        strokeWidth:
-                                                                            2,
+                                                        child: Stack(
+                                                          children: [
+                                                            ClipRRect(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                100,
+                                                              ),
+                                                              child: SizedBox(
+                                                                width: 48,
+                                                                height: 48,
+                                                                child: userData
+                                                                            .profileImagePath !=
+                                                                        null
+                                                                    ? CachedNetworkImage(
+                                                                        width: double
+                                                                            .infinity,
+                                                                        height:
+                                                                            double.infinity,
+                                                                        imageUrl:
+                                                                            'https://${userData.profileImagePath!}',
+                                                                        fit: BoxFit
+                                                                            .cover,
+                                                                        placeholder:
+                                                                            (context, url) =>
+                                                                                const Center(
+                                                                          child:
+                                                                              CircularProgressIndicator(
+                                                                            color:
+                                                                                Colors.lightGreen,
+                                                                            strokeWidth:
+                                                                                2,
+                                                                          ),
+                                                                        ),
+                                                                        errorWidget: (context,
+                                                                                url,
+                                                                                error) =>
+                                                                            Image.asset(
+                                                                          AppImages
+                                                                              .appLogo,
+                                                                          fit: BoxFit
+                                                                              .cover,
+                                                                        ),
+                                                                      )
+                                                                    : Image
+                                                                        .asset(
+                                                                        AppImages
+                                                                            .appLogo,
+                                                                        fit: BoxFit
+                                                                            .cover,
                                                                       ),
+                                                              ),
+                                                            ),
+
+                                                            // Partner badge on small profile pic
+                                                            if (isPartner)
+                                                              Positioned(
+                                                                right: 0,
+                                                                bottom: 0,
+                                                                child:
+                                                                    Container(
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                          .all(
+                                                                          2),
+                                                                  decoration:
+                                                                      BoxDecoration(
+                                                                    color: CupertinoColors
+                                                                        .activeGreen,
+                                                                    shape: BoxShape
+                                                                        .circle,
+                                                                    border:
+                                                                        Border
+                                                                            .all(
+                                                                      color: Theme.of(
+                                                                              context)
+                                                                          .cardColor,
+                                                                      width:
+                                                                          1.5,
                                                                     ),
-                                                                    errorWidget: (context,
-                                                                            url,
-                                                                            error) =>
-                                                                        Image
-                                                                            .asset(
-                                                                      AppImages
-                                                                          .appLogo,
-                                                                      fit: BoxFit
-                                                                          .cover,
-                                                                    ),
-                                                                  )
-                                                                : Image.asset(
-                                                                    AppImages
-                                                                        .appLogo,
-                                                                    fit: BoxFit
-                                                                        .cover,
                                                                   ),
-                                                          ),
+                                                                  child: Icon(
+                                                                    Icons
+                                                                        .verified,
+                                                                    color: Colors
+                                                                        .white,
+                                                                    size: 10,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                          ],
                                                         ),
                                                       ),
                                                       SizedBox(width: 12),
@@ -726,17 +1095,41 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                                             CrossAxisAlignment
                                                                 .start,
                                                         children: [
-                                                          Text(
-                                                            userData.nickName ??
-                                                                AppLocalizations.of(
-                                                                        context)!
-                                                                    .user,
-                                                            style: TextStyle(
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                              fontSize: 16,
-                                                            ),
+                                                          Row(
+                                                            children: [
+                                                              Text(
+                                                                userData.nickName ??
+                                                                    AppLocalizations.of(
+                                                                            context)!
+                                                                        .user,
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  fontSize: 16,
+                                                                  color: isPartner
+                                                                      ? CupertinoColors
+                                                                          .activeGreen
+                                                                      : null,
+                                                                ),
+                                                              ),
+                                                              if (isPartner)
+                                                                Padding(
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                          .only(
+                                                                          left:
+                                                                              4.0),
+                                                                  child: Icon(
+                                                                    Icons
+                                                                        .verified,
+                                                                    size: 14,
+                                                                    color: CupertinoColors
+                                                                        .activeGreen,
+                                                                  ),
+                                                                ),
+                                                            ],
                                                           ),
                                                           RichText(
                                                             text: TextSpan(
@@ -796,6 +1189,197 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                                           followStatus ==
                                                               FollowStatus
                                                                   .inProgress;
+
+                                                      if (isPartner) {
+                                                        return AnimatedBuilder(
+                                                          animation:
+                                                              _partnerAnimationController,
+                                                          builder:
+                                                              (context, child) {
+                                                            return Container(
+                                                              height: 36,
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                borderRadius:
+                                                                    SmoothBorderRadius(
+                                                                  cornerRadius:
+                                                                      18,
+                                                                  cornerSmoothing:
+                                                                      0.7,
+                                                                ),
+                                                                // Enhanced gradient colors that work well in both light and dark modes
+                                                                gradient: isFollowed
+                                                                    // Static gradient when following - more vibrant but still pleasant
+                                                                    ? LinearGradient(
+                                                                        colors: [
+                                                                          const Color(
+                                                                              0xFF4CAF50), // Material Design Green
+                                                                          const Color(
+                                                                              0xFF66BB6A), // Lighter green
+                                                                        ],
+                                                                        begin: Alignment
+                                                                            .topLeft,
+                                                                        end: Alignment
+                                                                            .bottomRight,
+                                                                      )
+                                                                    // Animated sweep gradient when not following - more visually appealing colors
+                                                                    : SweepGradient(
+                                                                        colors: [
+                                                                          const Color(
+                                                                              0xFF4CAF50), // Material Design Green
+                                                                          const Color(
+                                                                              0xFF81C784), // Light Green
+                                                                          const Color(
+                                                                              0xFF26A69A), // Teal-Green
+                                                                          const Color(
+                                                                              0xFF66BB6A), // Light Green 400
+                                                                          const Color(
+                                                                              0xFF4CAF50), // Back to Green
+                                                                        ],
+                                                                        stops: const [
+                                                                          0.0,
+                                                                          0.25,
+                                                                          0.5,
+                                                                          0.75,
+                                                                          1.0
+                                                                        ],
+                                                                        startAngle:
+                                                                            0,
+                                                                        endAngle:
+                                                                            3.14 *
+                                                                                2,
+                                                                        transform:
+                                                                            GradientRotation(_partnerAnimationController.value *
+                                                                                6.28),
+                                                                      ),
+                                                                boxShadow: [
+                                                                  BoxShadow(
+                                                                    color: const Color(
+                                                                            0xFF4CAF50)
+                                                                        .withOpacity(
+                                                                            0.3),
+                                                                    blurRadius:
+                                                                        _partnerBorderAnimation.value *
+                                                                            3,
+                                                                    spreadRadius:
+                                                                        _partnerBorderAnimation.value *
+                                                                            0.5,
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                              child: Container(
+                                                                margin:
+                                                                    const EdgeInsets
+                                                                        .all(
+                                                                        2.0),
+                                                                decoration:
+                                                                    BoxDecoration(
+                                                                  // Use the current theme's scaffold background to ensure contrast in both modes
+                                                                  color: Theme.of(
+                                                                          context)
+                                                                      .scaffoldBackgroundColor,
+                                                                  borderRadius:
+                                                                      SmoothBorderRadius(
+                                                                    cornerRadius:
+                                                                        16,
+                                                                    cornerSmoothing:
+                                                                        0.7,
+                                                                  ),
+                                                                ),
+                                                                child:
+                                                                    ElevatedButton(
+                                                                  onPressed:
+                                                                      isLoading
+                                                                          ? null
+                                                                          : () {
+                                                                              context.read<GlobalBloc>().add(
+                                                                                    UpdateFollowStatusEvent(
+                                                                                      userId: widget.userId,
+                                                                                      isFollowed: isFollowed,
+                                                                                      context: context,
+                                                                                    ),
+                                                                                  );
+                                                                            },
+                                                                  style: ElevatedButton
+                                                                      .styleFrom(
+                                                                    backgroundColor:
+                                                                        Colors
+                                                                            .transparent,
+                                                                    // Enhanced green that's visible in both modes
+                                                                    foregroundColor:
+                                                                        const Color(
+                                                                            0xFF43A047),
+                                                                    elevation:
+                                                                        0,
+                                                                    shadowColor:
+                                                                        Colors
+                                                                            .transparent,
+                                                                    shape:
+                                                                        SmoothRectangleBorder(
+                                                                      borderRadius:
+                                                                          SmoothBorderRadius(
+                                                                        cornerRadius:
+                                                                            15,
+                                                                        cornerSmoothing:
+                                                                            0.7,
+                                                                      ),
+                                                                    ),
+                                                                    padding:
+                                                                        const EdgeInsets
+                                                                            .symmetric(
+                                                                      horizontal:
+                                                                          16,
+                                                                    ),
+                                                                  ),
+                                                                  child: isLoading
+                                                                      ? Padding(
+                                                                          padding: const EdgeInsets
+                                                                              .all(
+                                                                              8),
+                                                                          child:
+                                                                              SizedBox(
+                                                                            width:
+                                                                                20,
+                                                                            height:
+                                                                                20,
+                                                                            child:
+                                                                                CircularProgressIndicator(
+                                                                              strokeWidth: 2,
+                                                                              valueColor: AlwaysStoppedAnimation<Color>(
+                                                                                const Color(0xFF43A047), // Consistent green
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                        )
+                                                                      : Row(
+                                                                          mainAxisSize:
+                                                                              MainAxisSize.min,
+                                                                          children: [
+                                                                            Icon(
+                                                                              isFollowed ? Icons.star : Icons.star_border,
+                                                                              size: 16,
+                                                                              color: const Color(0xFF43A047), // Consistent green
+                                                                            ),
+                                                                            const SizedBox(width: 4),
+                                                                            Text(
+                                                                              isFollowed ? AppLocalizations.of(context)!.unfollow : AppLocalizations.of(context)!.follow,
+                                                                              style: const TextStyle(
+                                                                                fontFamily: Constants.Arial,
+                                                                                fontWeight: FontWeight.bold,
+                                                                                color: Color(0xFF43A047), // Consistent green
+                                                                                fontSize: 14,
+                                                                              ),
+                                                                            ),
+                                                                          ],
+                                                                        ),
+                                                                ),
+                                                              ),
+                                                            );
+                                                          },
+                                                        );
+                                                      }
+
+                                                      // Regular follow button (non-partner)
                                                       return Container(
                                                         margin: EdgeInsets.only(
                                                             top: 0),
@@ -937,7 +1521,7 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                 unselectedLabelColor: Colors.grey,
                                 indicatorColor:
                                     Theme.of(context).colorScheme.secondary,
-                                indicatorWeight: 0.1,
+                                indicatorWeight: isPartner ? 2.0 : 0.1,
                                 dividerColor: AppColors.transparent,
                                 isScrollable: true, // Makes tabs scrollable
                                 labelPadding: EdgeInsets.symmetric(
@@ -974,10 +1558,14 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                       body: TabBarView(
                         children: [
                           // Use unique PageStorageKey for each tab
-                          ShopTabContent(key: PageStorageKey('shop_tab')),
+                          ShopTabContent(
+                            key: PageStorageKey('shop_tab'),
+                            isPartner: isPartner,
+                          ),
                           AboutTabContent(
                             key: PageStorageKey('about_tab'),
                             user: userData,
+                            isPartner: isPartner,
                           ),
                           Center(
                               key: PageStorageKey('feedback_tab'),
@@ -1024,6 +1612,23 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                                       'https://${userData.profileImagePath}'),
                                   fit: BoxFit.cover,
                                   filterQuality: FilterQuality.high),
+                              // Add golden border for partner popup image
+                              border: isPartner
+                                  ? Border.all(
+                                      color: CupertinoColors.activeGreen,
+                                      width: 4.0,
+                                    )
+                                  : null,
+                              boxShadow: isPartner
+                                  ? [
+                                      BoxShadow(
+                                        color: CupertinoColors.activeGreen
+                                            .withOpacity(0.5),
+                                        blurRadius: 15,
+                                        spreadRadius: 5,
+                                      )
+                                    ]
+                                  : null,
                             ),
                           ),
                         ),
@@ -1111,9 +1716,11 @@ Future<void> _makeCall(BuildContext context, String phoneNumber) async {
   }
 }
 
-// Rest of the classes remain unchanged
+// Updated ShopTabContent to include partner highlighting
 class ShopTabContent extends StatelessWidget {
-  const ShopTabContent({super.key});
+  final bool isPartner;
+
+  const ShopTabContent({super.key, this.isPartner = false});
 
   @override
   Widget build(BuildContext context) {
@@ -1140,12 +1747,17 @@ class ShopTabContent extends StatelessWidget {
           SliverPadding(
             padding: const EdgeInsets.all(16.0),
             sliver: SliverToBoxAdapter(
-              child: Text(
-                AppLocalizations.of(context)!.user_posts,
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
+              child: Row(
+                children: [
+                  Text(
+                    AppLocalizations.of(context)!.user_posts,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -1236,9 +1848,13 @@ class ShopTabContent extends StatelessWidget {
                 }
 
                 final publication = state.publications[index];
+
+                // Use enhanced product card container for partners
                 return Padding(
                   padding: const EdgeInsets.all(0),
-                  child: ProductCardContainer(product: publication),
+                  child: isPartner
+                      ? PartnerProductCardContainer(product: publication)
+                      : ProductCardContainer(product: publication),
                 );
               },
               childCount:
@@ -1253,6 +1869,62 @@ class ShopTabContent extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+// Partner product card container with enhanced styling
+class PartnerProductCardContainer extends StatelessWidget {
+  final dynamic product;
+
+  const PartnerProductCardContainer({super.key, required this.product});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        // Original product card
+        ProductCardContainer(product: product),
+
+        // Partner badge overlay
+        Positioned(
+          top: 12,
+          right: 12,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+            decoration: BoxDecoration(
+              color: CupertinoColors.activeGreen,
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black26,
+                  blurRadius: 4,
+                  offset: Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.verified,
+                  color: Colors.white,
+                  size: 10,
+                ),
+                SizedBox(width: 2),
+                Text(
+                  'Parner',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 8,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -1285,8 +1957,10 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
 
 class AboutTabContent extends StatelessWidget {
   final AnotherUserProfileEntity user;
+  final bool isPartner;
 
-  const AboutTabContent({super.key, required this.user});
+  const AboutTabContent(
+      {super.key, required this.user, this.isPartner = false});
 
   @override
   Widget build(BuildContext context) {
@@ -1296,64 +1970,101 @@ class AboutTabContent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // About Us Section Header
-          Text(
-            AppLocalizations.of(context)!.about_us,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+          Row(
+            children: [
+              Text(
+                AppLocalizations.of(context)!.about_us,
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.secondary),
+              ),
+              if (isPartner)
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Icon(Icons.info,
+                      size: 16, color: Theme.of(context).colorScheme.secondary),
+                ),
+            ],
           ),
           const SizedBox(height: 8),
 
           // About Us Content (using biography field)
-          Text(
-            user.biography ??
-                AppLocalizations.of(context)!.no_information_available,
-            style: TextStyle(
-              fontSize: 16,
-              color: Theme.of(context).colorScheme.secondary,
-              height: 1.5,
+          Container(
+            padding: null,
+            child: Text(
+              user.biography ??
+                  AppLocalizations.of(context)!.no_information_available,
+              style: TextStyle(
+                fontSize: 16,
+                color: Theme.of(context).colorScheme.secondary,
+                height: 1.5,
+              ),
             ),
           ),
 
           const SizedBox(height: 30),
 
           // Contact Information Section
-          Text(
-            AppLocalizations.of(context)!.contact_information,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+          Row(
+            children: [
+              Text(
+                AppLocalizations.of(context)!.contact_information,
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.secondary),
+              ),
+              if (isPartner)
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Icon(Icons.support_agent,
+                      size: 16, color: Theme.of(context).colorScheme.secondary),
+                ),
+            ],
           ),
           const SizedBox(height: 16),
 
           // Email
           if (user.email != null)
-            _buildInfoRow(CupertinoIcons.mail, user.email!),
+            _buildInfoRow(context, CupertinoIcons.mail, user.email!,
+                isPartner: isPartner),
 
           // Phone
           if (user.phoneNumber != null)
-            _buildInfoRow(CupertinoIcons.phone, user.phoneNumber!),
+            _buildInfoRow(context, CupertinoIcons.phone, user.phoneNumber!,
+                isPartner: isPartner),
 
           // Location
           if (user.locationName != null)
-            _buildInfoRow(Icons.location_on_outlined, user.locationName!),
+            _buildInfoRow(
+                context, Icons.location_on_outlined, user.locationName!,
+                isPartner: isPartner),
 
           const SizedBox(height: 30),
 
           // Available Hours Section
           if (user.fromTime != null && user.toTime != null) ...[
-            Text(
-              AppLocalizations.of(context)!.available_hours,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+            Row(
+              children: [
+                Text(
+                  AppLocalizations.of(context)!.available_hours,
+                  style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.secondary),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Icon(Icons.access_time_filled,
+                      size: 16, color: Theme.of(context).colorScheme.secondary),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
             _buildInfoRow(
-                Icons.access_time, '${user.fromTime} - ${user.toTime}'),
+                context, Icons.access_time, '${user.fromTime} - ${user.toTime}',
+                isPartner: isPartner),
             const SizedBox(height: 8),
           ],
 
@@ -1375,20 +2086,41 @@ class AboutTabContent extends StatelessWidget {
                           cornerSmoothing: 0.7,
                         ),
                       ),
-                      backgroundColor: CupertinoColors.activeGreen,
+                      backgroundColor: isPartner
+                          ? Colors.green
+                          : CupertinoColors.activeGreen,
                       foregroundColor:
                           Theme.of(context).scaffoldBackgroundColor,
                       padding: EdgeInsets.symmetric(
                         vertical: 14,
                       ),
                     ),
-                    child: Text(
-                      AppLocalizations.of(context)!.write_to_telegram,
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontFamily: Constants.Arial,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.telegram,
+                          size: 18,
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          AppLocalizations.of(context)!.write_to_telegram,
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontFamily: Constants.Arial,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        if (isPartner)
+                          Padding(
+                            padding: const EdgeInsets.only(left: 6.0),
+                            child: Icon(
+                              Icons.verified,
+                              size: 16,
+                              color: Colors.white,
+                            ),
+                          ),
+                      ],
                     ),
                   ),
                 ),
@@ -1408,9 +2140,12 @@ class AboutTabContent extends StatelessWidget {
                     style: ElevatedButton.styleFrom(
                       shape: SmoothRectangleBorder(
                         side: BorderSide(
-                            width: 1,
-                            color: CupertinoColors.activeGreen,
-                            strokeAlign: BorderSide.strokeAlignCenter),
+                          width: 1,
+                          color: isPartner
+                              ? Colors.green
+                              : CupertinoColors.activeGreen,
+                          strokeAlign: BorderSide.strokeAlignCenter,
+                        ),
                         borderRadius: SmoothBorderRadius(
                           cornerRadius: 24,
                           cornerSmoothing: 0.7,
@@ -1418,18 +2153,30 @@ class AboutTabContent extends StatelessWidget {
                       ),
                       backgroundColor:
                           Theme.of(context).scaffoldBackgroundColor,
-                      foregroundColor: CupertinoColors.activeGreen,
+                      foregroundColor: isPartner
+                          ? Colors.green
+                          : CupertinoColors.activeGreen,
                       padding: EdgeInsets.symmetric(
                         vertical: 14,
                       ),
                     ),
-                    child: Text(
-                      AppLocalizations.of(context)!.call_now,
-                      style: TextStyle(
-                        fontFamily: Constants.Arial,
-                        fontSize: 17,
-                        fontWeight: FontWeight.w500,
-                      ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          CupertinoIcons.phone,
+                          size: 18,
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          AppLocalizations.of(context)!.call_now,
+                          style: TextStyle(
+                            fontFamily: Constants.Arial,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -1442,12 +2189,26 @@ class AboutTabContent extends StatelessWidget {
           // Member Since Info
           if (user.dateCreated != null)
             Center(
-              child: Text(
-                '${AppLocalizations.of(context)!.member_since}${_formatDate(user.dateCreated!)}',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                  fontStyle: FontStyle.italic,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: isPartner
+                    ? BoxDecoration(
+                        color: Colors.green.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: Colors.green.withOpacity(0.3),
+                          width: 1,
+                        ),
+                      )
+                    : null,
+                child: Text(
+                  '${AppLocalizations.of(context)!.member_since}${_formatDate(user.dateCreated!)}',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: isPartner ? Colors.green[800] : Colors.grey[600],
+                    fontStyle: FontStyle.italic,
+                    fontWeight: isPartner ? FontWeight.w500 : FontWeight.normal,
+                  ),
                 ),
               ),
             ),
@@ -1460,22 +2221,27 @@ class AboutTabContent extends StatelessWidget {
     return '${date.day}/${date.month}/${date.year}';
   }
 
-  Widget _buildInfoRow(IconData icon, String text) {
+  Widget _buildInfoRow(BuildContext context, IconData icon, String text,
+      {bool isPartner = false}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
-      child: Row(
-        children: [
-          Icon(icon, color: AppColors.primary, size: 22),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Text(
-              text,
-              style: const TextStyle(
-                fontSize: 16,
+      child: Container(
+        padding: isPartner ? EdgeInsets.all(8) : null,
+        child: Row(
+          children: [
+            Icon(icon,
+                color: isPartner ? Colors.green : AppColors.primary, size: 22),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                text,
+                style: TextStyle(
+                    fontSize: 16,
+                    color: Theme.of(context).colorScheme.secondary),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
