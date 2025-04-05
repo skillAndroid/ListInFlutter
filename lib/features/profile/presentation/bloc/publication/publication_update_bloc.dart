@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:list_in/core/error/failure.dart';
@@ -8,6 +11,8 @@ import 'package:list_in/features/profile/domain/usecases/publication/update_publ
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_state.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_event.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_state.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
 
 class PublicationUpdateBloc
     extends Bloc<PublicationUpdateEvent, PublicationUpdateState> {
@@ -34,6 +39,7 @@ class PublicationUpdateBloc
     on<SubmitPublicationUpdate>(_onSubmitUpdate);
     on<ClearPublicationState>(_onClearState);
     on<ClearVideo>(_onClearVideo);
+    on<EditImage>(_onEditImage);
   }
 
   void _onInitializePublication(
@@ -223,7 +229,7 @@ class PublicationUpdateBloc
     emit(state.copyWith(canBargain: event.canBargain));
   }
 
- Future<void> _onSubmitUpdate(
+  Future<void> _onSubmitUpdate(
     SubmitPublicationUpdate event,
     Emitter<PublicationUpdateState> emit,
   ) async {
@@ -332,6 +338,58 @@ class PublicationUpdateBloc
         updatingState: PublicationUpdatingState.success,
       )),
     );
+  }
+
+  Future<void> _onEditImage(
+    EditImage event,
+    Emitter<PublicationUpdateState> emit,
+  ) async {
+    try {
+      // Create a temporary file to store the edited image
+      final tempDir = await getTemporaryDirectory();
+      final fileName = 'edited_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final file = File(path.join(tempDir.path, fileName));
+      await file.writeAsBytes(event.imageBytes);
+
+      if (event.isUrl) {
+        // Editing a remote URL image
+        if (event.index < (state.imageUrls?.length ?? 0)) {
+          // Remove from URLs and add to new images
+          final urls = List<String>.from(state.imageUrls ?? []);
+          final String removedUrl = urls.removeAt(event.index);
+
+          // Add to deleted URLs if not already there
+          final List<String> deletedUrls = List.from(state.deletedImageUrls);
+          if (!deletedUrls.contains(removedUrl)) {
+            deletedUrls.add(removedUrl);
+          }
+
+          // Add as a new local image
+          final newImages = List<XFile>.from(state.newImages);
+          newImages.add(XFile(file.path));
+
+          emit(state.copyWith(
+            imageUrls: urls,
+            newImages: newImages,
+            deletedImageUrls: deletedUrls,
+          ));
+        }
+      } else {
+        // Editing a local image
+        final newIndex = event.index - (state.imageUrls?.length ?? 0);
+        if (newIndex >= 0 && newIndex < state.newImages.length) {
+          final newImages = List<XFile>.from(state.newImages);
+          newImages[newIndex] = XFile(file.path);
+
+          emit(state.copyWith(
+            newImages: newImages,
+          ));
+        }
+      }
+    } catch (e) {
+      debugPrint('Error editing image: $e');
+      // Optionally emit an error state if needed
+    }
   }
 
   String _mapFailureToMessage(Failure failure) {

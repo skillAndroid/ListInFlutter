@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:equatable/equatable.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
@@ -9,7 +11,7 @@ abstract class UserPublicationsEvent extends Equatable {
 
 class DeleteUserPublication extends UserPublicationsEvent {
   final String publicationId;
-  
+
   DeleteUserPublication({required this.publicationId});
 }
 
@@ -130,4 +132,16 @@ class ToggleVideoPlayback extends PublicationUpdateEvent {
   ToggleVideoPlayback(this.isPlaying);
   @override
   List<Object?> get props => [isPlaying];
+}
+
+class EditImage extends PublicationUpdateEvent {
+  final int index;
+  final Uint8List imageBytes;
+  final bool
+      isUrl; // true if editing a URL image, false if editing a local image
+
+  EditImage(this.index, this.imageBytes, {this.isUrl = false});
+
+  @override
+  List<Object?> get props => [index, imageBytes, isUrl];
 }

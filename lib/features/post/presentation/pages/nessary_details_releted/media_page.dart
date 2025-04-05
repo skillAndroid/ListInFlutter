@@ -1,15 +1,22 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/post/presentation/provider/post_provider.dart';
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
+import 'package:pro_image_editor/pro_image_editor.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:video_player/video_player.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class MediaPage extends StatefulWidget {
   const MediaPage({super.key});
@@ -42,6 +49,7 @@ class MediaPageState extends State<MediaPage> {
     super.dispose();
   }
 
+  // Select multiple images from gallery and add them directly to the collection
   Future<void> _pickImagesFromGallery(PostProvider provider) async {
     try {
       final List<XFile> pickedFiles = await _picker.pickMultiImage(
@@ -51,10 +59,35 @@ class MediaPageState extends State<MediaPage> {
       );
 
       if (pickedFiles.isNotEmpty) {
-        provider.setImages(pickedFiles);
+        // Add all selected images directly to the provider
+        final List<XFile> updatedImages = [...provider.images, ...pickedFiles];
+        provider.setImages(updatedImages);
       }
     } catch (e) {
       debugPrint('Error picking images: $e');
+    }
+  }
+
+// Then, modify your _editExistingImage method:
+  Future<void> _editExistingImage(PostProvider provider, int index) async {
+    try {
+      final File imageFile = File(provider.images[index].path);
+
+      // Navigate to editor page passing provider and index
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ImageEditorPage(
+            imageFile: imageFile,
+            imageIndex: index,
+            provider: provider,
+          ),
+        ),
+      );
+
+      // No need to process any result since the provider is updated directly
+    } catch (e) {
+      debugPrint('Error in editing flow: $e');
     }
   }
 
@@ -170,9 +203,8 @@ class MediaPageState extends State<MediaPage> {
                   width: 24,
                   height: 24,
                   decoration: const BoxDecoration(
-                    color: AppColors.error, // Set your background color here
-                    shape: BoxShape
-                        .circle, // Optional: make it circular like the IconButton
+                    color: AppColors.error,
+                    shape: BoxShape.circle,
                   ),
                   child: IconButton(
                     padding: EdgeInsets.zero,
@@ -213,7 +245,6 @@ class MediaPageState extends State<MediaPage> {
                   borderRadius: BorderRadius.circular(8),
                   boxShadow: [
                     BoxShadow(
-                      // ignore: deprecated_member_use
                       color: Theme.of(context)
                           .colorScheme
                           .secondary
@@ -243,18 +274,21 @@ class MediaPageState extends State<MediaPage> {
             margin: const EdgeInsets.only(right: 6),
             child: Stack(
               children: [
-                SmoothClipRRect(
-                  smoothness: 1,
-                  side: BorderSide(
-                    width: 1.5,
-                    color: Theme.of(context).scaffoldBackgroundColor,
-                  ),
-                  borderRadius: BorderRadius.circular(16),
-                  child: Image.file(
-                    File(image.path),
-                    width: double.infinity,
-                    height: double.infinity,
-                    fit: BoxFit.cover,
+                GestureDetector(
+                  onTap: () => _editExistingImage(provider, index),
+                  child: SmoothClipRRect(
+                    smoothness: 1,
+                    side: BorderSide(
+                      width: 1.5,
+                      color: Theme.of(context).scaffoldBackgroundColor,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    child: Image.file(
+                      File(image.path),
+                      width: double.infinity,
+                      height: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
                 if (index == 0)
@@ -286,10 +320,8 @@ class MediaPageState extends State<MediaPage> {
                       width: 20,
                       height: 20,
                       decoration: const BoxDecoration(
-                        color:
-                            AppColors.error, // Set your background color here
-                        shape: BoxShape
-                            .circle, // Optional: make it circular like the IconButton
+                        color: AppColors.error,
+                        shape: BoxShape.circle,
                       ),
                       child: IconButton(
                         padding: EdgeInsets.zero,
@@ -302,6 +334,28 @@ class MediaPageState extends State<MediaPage> {
                           provider.removeImageAt(index);
                         },
                       ),
+                    ),
+                  ),
+                ),
+                // Edit button
+                Positioned(
+                  bottom: 4,
+                  right: 4,
+                  child: Container(
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withOpacity(0.8),
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                      padding: EdgeInsets.zero,
+                      icon: Icon(
+                        Icons.edit,
+                        color: Theme.of(context).scaffoldBackgroundColor,
+                        size: 14,
+                      ),
+                      onPressed: () => _editExistingImage(provider, index),
                     ),
                   ),
                 ),
@@ -335,7 +389,7 @@ class MediaPageState extends State<MediaPage> {
             ],
             const SizedBox(height: 8),
             Text(
-              AppLocalizations.of(context)!.upload_images_tip,
+              "${AppLocalizations.of(context)!.upload_images_tip} (Tap any image to edit)",
               style: TextStyle(
                 fontSize: 13.5,
                 color: Theme.of(context).colorScheme.onSurface,
@@ -381,7 +435,7 @@ class MediaPageState extends State<MediaPage> {
                       height: 4,
                     ),
                     Text(
-                      AppLocalizations.of(context)!.image_format,
+                      "${AppLocalizations.of(context)!.image_format} (Instagram-like editing)",
                       style: TextStyle(
                         fontSize: 13.5,
                         color: Theme.of(context).colorScheme.onSurface,
@@ -497,6 +551,58 @@ class MediaPageState extends State<MediaPage> {
           ],
         );
       },
+    );
+  }
+}
+
+class ImageEditorPage extends StatefulWidget {
+  final File imageFile;
+  final int imageIndex;
+  final PostProvider provider;
+
+  const ImageEditorPage(
+      {super.key,
+      required this.imageFile,
+      required this.imageIndex,
+      required this.provider});
+
+  @override
+  State<ImageEditorPage> createState() => _ImageEditorPageState();
+}
+
+class _ImageEditorPageState extends State<ImageEditorPage> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: ProImageEditor.file(
+        widget.imageFile.path,
+        configs: const ProImageEditorConfigs(),
+        callbacks: ProImageEditorCallbacks(
+          onImageEditingComplete: (Uint8List bytes) async {
+            try {
+              // Save the edited image directly
+              final tempDir = await getTemporaryDirectory();
+              final fileName =
+                  'edited_${DateTime.now().millisecondsSinceEpoch}.jpg';
+              final file = File(path.join(tempDir.path, fileName));
+              await file.writeAsBytes(bytes);
+
+              // Update the provider directly
+              final List<XFile> updatedImages =
+                  List<XFile>.from(widget.provider.images);
+              updatedImages[widget.imageIndex] = XFile(file.path);
+              widget.provider.setImages(updatedImages);
+            } catch (e) {
+              debugPrint('Error saving edited image: $e');
+            }
+          },
+          onCloseEditor: () async {
+            // Just close the screen without returning a result
+            Navigator.of(context).pop();
+          },
+        ),
+      ),
     );
   }
 }

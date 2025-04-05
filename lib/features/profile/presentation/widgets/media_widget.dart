@@ -1,11 +1,14 @@
 // ignore_for_file: deprecated_member_use
 
 import 'dart:io';
-
+import 'dart:typed_data';
+import 'package:path/path.dart' as path;
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
@@ -13,9 +16,12 @@ import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_state.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_event.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:pro_image_editor/core/models/editor_callbacks/pro_image_editor_callbacks.dart';
+import 'package:pro_image_editor/core/models/editor_configs/pro_image_editor_configs.dart';
+import 'package:pro_image_editor/features/main_editor/main_editor.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:video_player/video_player.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class MediaWidget extends StatefulWidget {
   const MediaWidget({super.key});
@@ -43,6 +49,21 @@ class MediaWidgetState extends State<MediaWidget> {
   void dispose() {
     _videoController?.dispose();
     super.dispose();
+  }
+
+  Future<void> _editImage(int index, ImageItem image) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PublicationImageEditorPage(
+          imagePath: image.path,
+          imageIndex: index,
+          isUrl: image.isUrl,
+        ),
+      ),
+    );
+
+    // No need to handle the result as the BLoC will update the UI
   }
 
   Future<void> _pickImagesFromGallery(
@@ -307,26 +328,29 @@ class MediaWidgetState extends State<MediaWidget> {
                   margin: const EdgeInsets.only(right: 6),
                   child: Stack(
                     children: [
-                      SmoothClipRRect(
-                        smoothness: 1,
-                        side: BorderSide(
-                          width: 1.5,
-                          color: Theme.of(context).scaffoldBackgroundColor,
+                      GestureDetector(
+                        onTap: () => _editImage(index, image),
+                        child: SmoothClipRRect(
+                          smoothness: 1,
+                          side: BorderSide(
+                            width: 1.5,
+                            color: Theme.of(context).scaffoldBackgroundColor,
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                          child: image.isUrl
+                              ? Image.network(
+                                  'https://${image.path}',
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                  fit: BoxFit.cover,
+                                )
+                              : Image.file(
+                                  File(image.path),
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                  fit: BoxFit.cover,
+                                ),
                         ),
-                        borderRadius: BorderRadius.circular(16),
-                        child: image.isUrl
-                            ? Image.network(
-                                'https://${image.path}',
-                                width: double.infinity,
-                                height: double.infinity,
-                                fit: BoxFit.cover,
-                              )
-                            : Image.file(
-                                File(image.path),
-                                width: double.infinity,
-                                height: double.infinity,
-                                fit: BoxFit.cover,
-                              ),
                       ),
                       if (index == 0)
                         Positioned(
@@ -377,6 +401,28 @@ class MediaWidgetState extends State<MediaWidget> {
                           ),
                         ),
                       ),
+                      // Add Edit button
+                      Positioned(
+                        bottom: 4,
+                        right: 4,
+                        child: Container(
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withOpacity(0.8),
+                            shape: BoxShape.circle,
+                          ),
+                          child: IconButton(
+                            padding: EdgeInsets.zero,
+                            icon: Icon(
+                              Icons.edit,
+                              color: Theme.of(context).scaffoldBackgroundColor,
+                              size: 14,
+                            ),
+                            onPressed: () => _editImage(index, image),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 );
@@ -412,7 +458,7 @@ class MediaWidgetState extends State<MediaWidget> {
               ],
               const SizedBox(height: 8),
               Text(
-                AppLocalizations.of(context)!.upload_images_tip,
+                "${AppLocalizations.of(context)!.upload_images_tip} (Tap any image to edit)",
                 style: TextStyle(
                   fontSize: 13.5,
                   color: Theme.of(context).colorScheme.onSurface,
@@ -455,7 +501,7 @@ class MediaWidgetState extends State<MediaWidget> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        AppLocalizations.of(context)!.image_format,
+                        "${AppLocalizations.of(context)!.image_format} (Instagram-like editing)",
                         style: TextStyle(
                           fontSize: 13.5,
                           color: Theme.of(context).colorScheme.onSurface,
@@ -577,4 +623,99 @@ class ImageItem {
   final bool isUrl;
 
   ImageItem({required this.path, required this.isUrl});
+}
+
+class PublicationImageEditorPage extends StatefulWidget {
+  final String imagePath;
+  final int imageIndex;
+  final bool isUrl;
+
+  const PublicationImageEditorPage({
+    super.key,
+    required this.imagePath,
+    required this.imageIndex,
+    this.isUrl = false,
+  });
+
+  @override
+  State<PublicationImageEditorPage> createState() =>
+      _PublicationImageEditorPageState();
+}
+
+class _PublicationImageEditorPageState
+    extends State<PublicationImageEditorPage> {
+  late File imageFile;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _prepareImage();
+  }
+
+  Future<void> _prepareImage() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      if (widget.isUrl) {
+        // If it's a URL, we need to download the image first
+        final response =
+            await http.get(Uri.parse('https://${widget.imagePath}'));
+        final tempDir = await getTemporaryDirectory();
+        final file = File(path.join(tempDir.path, 'temp_edit_image.jpg'));
+        await file.writeAsBytes(response.bodyBytes);
+        imageFile = file;
+      } else {
+        imageFile = File(widget.imagePath);
+      }
+    } catch (e) {
+      debugPrint('Error preparing image: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (isLoading) {
+      return Scaffold(
+        backgroundColor: Colors.black,
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: ProImageEditor.file(
+        imageFile.path,
+        configs: const ProImageEditorConfigs(),
+        callbacks: ProImageEditorCallbacks(
+          onImageEditingComplete: (Uint8List bytes) async {
+            // Dispatch the EditImage event to the BLoC
+            context.read<PublicationUpdateBloc>().add(
+                  EditImage(
+                    widget.imageIndex,
+                    bytes,
+                    isUrl: widget.isUrl,
+                  ),
+                );
+
+            // Return to previous screen
+          },
+          onCloseEditor: () async {
+            // Just return to previous screen without saving
+            Navigator.of(context).pop();
+          },
+        ),
+      ),
+    );
+  }
 }
