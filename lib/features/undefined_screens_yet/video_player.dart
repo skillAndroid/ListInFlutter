@@ -351,6 +351,7 @@ class _SimpleVideoPlayerWidgetState extends State<SimpleVideoPlayerWidget> {
     );
 
     try {
+      _controller?.setVolume(0.0);
       await _controller?.initialize();
 
       if (mounted) {
@@ -399,7 +400,7 @@ class _SimpleVideoPlayerWidgetState extends State<SimpleVideoPlayerWidget> {
           ),
           Positioned(
             bottom: 8,
-            right: 8,
+            left: 8,
             child: Container(
               height: 24,
               width: 24,
