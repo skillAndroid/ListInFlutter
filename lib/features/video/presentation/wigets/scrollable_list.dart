@@ -326,7 +326,19 @@ class _VideoCarouselState extends State<VideoCarousel> {
                         if (index == _currentIndex &&
                             _videoController != null &&
                             _isVisible)
-                          VideoPlayer(_videoController!),
+                          Positioned.fill(
+                            child: ClipRect(
+                              child: FittedBox(
+                                fit: BoxFit.cover,
+                                clipBehavior: Clip.hardEdge,
+                                child: SizedBox(
+                                  width: _videoController!.value.size.width,
+                                  height: _videoController!.value.size.height,
+                                  child: VideoPlayer(_videoController!),
+                                ),
+                              ),
+                            ),
+                          ),
                         if (index != _currentIndex ||
                             _videoController == null ||
                             !_isVisible)
