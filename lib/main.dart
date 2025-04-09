@@ -20,12 +20,14 @@ import 'package:list_in/features/profile/presentation/bloc/user/user_profile_blo
 import 'package:list_in/features/visitior_profile/presentation/bloc/another_user_profile_bloc.dart';
 import 'package:list_in/global/global_bloc.dart';
 import 'package:list_in/global/likeds/liked_publications_bloc.dart';
+import 'package:media_kit/media_kit.dart';
 import 'package:provider/provider.dart';
 
 import 'core/di/di_managment.dart' as di;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  MediaKit.ensureInitialized();
   await di.init();
 
   runApp(
