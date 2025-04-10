@@ -89,6 +89,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Enable edge-to-edge mode with both overlays visible
     SystemChrome.setEnabledSystemUIMode(
       SystemUiMode.edgeToEdge,
       overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom],
@@ -99,6 +100,20 @@ class MyApp extends StatelessWidget {
         // Determine which theme to use
         final isDarkMode =
             themeState is ThemeLoaded ? themeState.isDarkMode : false;
+
+        // Set the status bar and navigation bar colors based on theme
+        SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness:
+              isDarkMode ? Brightness.light : Brightness.dark,
+          systemNavigationBarColor: isDarkMode
+              ? AppTheme.darkTheme.colorScheme.surface
+              : AppTheme.lightTheme.colorScheme.surface,
+          systemNavigationBarIconBrightness:
+              isDarkMode ? Brightness.light : Brightness.dark,
+          systemNavigationBarDividerColor: Colors.transparent,
+          systemNavigationBarContrastEnforced: false,
+        ));
 
         return BlocBuilder<LanguageBloc, LanguageState>(
           builder: (context, langState) {
@@ -117,6 +132,15 @@ class MyApp extends StatelessWidget {
                 themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
                 debugShowCheckedModeBanner: false,
                 routerConfig: router,
+                builder: (context, child) {
+                  // This is where we control padding for top and bottom system UI
+                  return SafeArea(
+                    // Only apply padding to the bottom, not to the top
+                    top: false,
+                    bottom: true,
+                    child: child ?? const SizedBox(),
+                  );
+                },
                 localizationsDelegates: const [
                   AppLocalizations.delegate,
                   GlobalMaterialLocalizations.delegate,

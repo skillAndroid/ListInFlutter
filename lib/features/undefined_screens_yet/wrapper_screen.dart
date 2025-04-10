@@ -95,42 +95,39 @@ class _MainWrapperState extends State<MainWrapper> {
 
     return WillPopScope(
       onWillPop: _onWillPop,
-      child: SafeArea(
-        top: false,
-        child: Scaffold(
-          backgroundColor: backgroundColor,
-          body: widget.navigationShell,
-          bottomNavigationBar: Container(
-            height: 65,
-            decoration: BoxDecoration(
-              color: backgroundColor,
-              border: Border(
-                top: BorderSide(
-                  color: borderColor,
-                  width: 0.5,
-                ),
+      child: Scaffold(
+        backgroundColor: backgroundColor,
+        body: widget.navigationShell,
+        bottomNavigationBar: Container(
+          height: 55,
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            border: Border(
+              top: BorderSide(
+                color: borderColor,
+                width: 0.5,
               ),
             ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildNavItem(
-                      0,
-                      AppLocalizations.of(context)!.search,
-                      AppIcons.bg_icon,
-                      textColor,
-                      inactiveColor,
-                    ),
-                    _buildAddPostButton(textColor, inactiveColor),
-                    _buildProfileItem(textColor, inactiveColor),
-                  ],
-                ),
-                SizedBox(height: 2),
-              ],
-            ),
+          ),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildNavItem(
+                    0,
+                    AppLocalizations.of(context)!.search,
+                    AppIcons.bg_icon,
+                    textColor,
+                    inactiveColor,
+                  ),
+                  _buildAddPostButton(textColor, inactiveColor),
+                  _buildProfileItem(textColor, inactiveColor),
+                ],
+              ),
+              SizedBox(height: 1),
+            ],
           ),
         ),
       ),
@@ -149,7 +146,7 @@ class _MainWrapperState extends State<MainWrapper> {
     return InkWell(
       onTap: () => _goToBranch(index),
       child: Padding(
-        padding: const EdgeInsets.only(top: 10),
+        padding: const EdgeInsets.only(top: 6),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

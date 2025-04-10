@@ -103,10 +103,15 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
               automaticallyImplyLeading: false,
               scrolledUnderElevation: 0,
               centerTitle: true,
+              actions: [
+                ThemeToggle(),
+              ],
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back_rounded, size: 22),
                 color: Theme.of(context).colorScheme.secondary,
-                onPressed: () => Navigator.pop(context),
+                onPressed: () {
+                  _onWillPop();
+                },
               ),
               title: Text(
                 AppLocalizations.of(context)!.profile,
@@ -135,6 +140,28 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
                       color: Theme.of(context).colorScheme.secondary,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      context.read<UserProfileBloc>().add(GetUserData());
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          AppLocalizations.of(context)!.retry,
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                        SizedBox(
+                          width: 8,
+                        ),
+                        Icon(Icons.replay),
+                      ],
                     ),
                   ),
                 ],
