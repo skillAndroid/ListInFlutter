@@ -51,8 +51,8 @@ class _ListInShortsState extends State<ListInShorts>
   bool _isLoading = false;
   bool _isDisposed = false;
 
-  final int _forwardPreloadCount = 2; // Load 2 videos ahead
-  final int _backwardKeepCount = 1; // Keep 1 video behind
+  final int _forwardPreloadCount = 2;
+  final int _backwardKeepCount = 1;
 
   // MediaKit player and controller management
   final Map<int, Player> _players = {};

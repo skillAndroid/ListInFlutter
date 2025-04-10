@@ -1,6 +1,7 @@
 // social_user_bloc.dart
 
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/features/followers/domain/entity/user_followings_followers_data.dart';
 import 'package:list_in/features/followers/domain/usecase/get_user_followers_usecase.dart';
@@ -17,30 +18,50 @@ abstract class SocialUserEvent extends Equatable {
 class FetchFollowers extends SocialUserEvent {
   final String userId;
   final bool refresh;
+  final int page;
+  final Function(List<UserProfile>, bool)? onSuccess;
+  final Function(Object)? onError;
 
-  FetchFollowers({required this.userId, this.refresh = false});
+  FetchFollowers({
+    required this.userId,
+    this.refresh = false,
+    this.page = 0,
+    this.onSuccess,
+    this.onError,
+  });
 
   @override
-  List<Object> get props => [userId, refresh];
+  List<Object> get props => [userId, refresh, page];
 }
 
 class FetchFollowings extends SocialUserEvent {
   final String userId;
   final bool refresh;
+  final int page;
+  final Function(List<UserProfile>, bool)? onSuccess;
+  final Function(Object)? onError;
 
-  FetchFollowings({required this.userId, this.refresh = false});
+  FetchFollowings({
+    required this.userId,
+    this.refresh = false,
+    this.page = 0,
+    this.onSuccess,
+    this.onError,
+  });
 
   @override
-  List<Object> get props => [userId, refresh];
+  List<Object> get props => [userId, refresh, page];
 }
 
 class FollowUser extends SocialUserEvent {
   final String userId;
   final bool isFollowing;
+  final BuildContext? context;
 
   FollowUser({
     required this.userId,
     required this.isFollowing,
+    this.context,
   });
 
   @override
@@ -145,6 +166,7 @@ class SocialUserBloc extends Bloc<SocialUserEvent, SocialUserState> {
   }) : super(SocialUserInitial()) {
     on<FetchFollowers>(_onFetchFollowers);
     on<FetchFollowings>(_onFetchFollowings);
+    on<FollowUser>(_onFollowUser);
   }
 
   void _syncFollowStatusesForPublications(List<UserProfile> profiles) {
@@ -172,65 +194,75 @@ class SocialUserBloc extends Bloc<SocialUserEvent, SocialUserState> {
     Emitter<SocialUserState> emit,
   ) async {
     try {
-      // If this is the first fetch or a refresh, emit loading state
-      if (state is! FollowersLoaded || event.refresh) {
+      // If this is a refresh request, start from page 0
+      if (event.refresh) {
         emit(SocialUserLoading());
-        final result = await getUserFollowersUseCase(
-          params: UserSocialParams(
-            userId: event.userId,
-            page: 0,
-            size: pageSize,
-          ),
-        );
-
-        return result.fold(
-            (failure) => emit(SocialUserError('Failed to load followers')),
-            (data) {
-          _syncFollowStatusesForPublications(data.content);
-          emit(
-            FollowersLoaded(
-              followers: data.content,
-              hasReachedMax: data.last,
-              currentPage: 0,
-            ),
-          );
-        });
       }
 
-      // Handle pagination (loading more data)
-      final currentState = state as FollowersLoaded;
+      print(
+          '📱 Fetching followers for user: ${event.userId}, page: ${event.page}');
 
-      // If we've reached max, don't fetch more
-      if (currentState.hasReachedMax) return;
-
-      final nextPage = currentState.currentPage + 1;
       final result = await getUserFollowersUseCase(
         params: UserSocialParams(
           userId: event.userId,
-          page: nextPage,
+          page: event.page,
           size: pageSize,
         ),
       );
 
       return result.fold(
-        (failure) => emit(SocialUserError('Failed to load more followers')),
+        (failure) {
+          print('❌ Failed to fetch followers: $failure');
+          final errorMessage = 'Failed to load followers';
+
+          if (event.onError != null) {
+            event.onError!(errorMessage);
+          }
+
+          emit(SocialUserError(errorMessage));
+        },
         (data) {
           _syncFollowStatusesForPublications(data.content);
-          if (data.content.isEmpty) {
-            emit(currentState.copyWith(hasReachedMax: true));
-          } else {
+
+          print(
+              '✅ Loaded ${data.content.length} followers. Last page: ${data.last}');
+
+          // Call the onSuccess callback with the results
+          if (event.onSuccess != null) {
+            event.onSuccess!(data.content, data.last);
+          }
+
+          // Still emit state for widgets using BLoC directly
+          if (event.page == 0) {
+            emit(
+              FollowersLoaded(
+                followers: data.content,
+                hasReachedMax: data.last,
+                currentPage: 0,
+              ),
+            );
+          } else if (state is FollowersLoaded) {
+            final currentState = state as FollowersLoaded;
+
             emit(
               FollowersLoaded(
                 followers: [...currentState.followers, ...data.content],
                 hasReachedMax: data.last,
-                currentPage: nextPage,
+                currentPage: event.page,
               ),
             );
           }
         },
       );
     } catch (e) {
-      emit(SocialUserError('An unexpected error occurred'));
+      print('❌ Error fetching followers: $e');
+      final errorMessage = 'An unexpected error occurred';
+
+      if (event.onError != null) {
+        event.onError!(errorMessage);
+      }
+
+      emit(SocialUserError(errorMessage));
     }
   }
 
@@ -239,65 +271,114 @@ class SocialUserBloc extends Bloc<SocialUserEvent, SocialUserState> {
     Emitter<SocialUserState> emit,
   ) async {
     try {
-      // If this is the first fetch or a refresh, emit loading state
-      if (state is! FollowingsLoaded || event.refresh) {
+      // If this is a refresh request, start from page 0
+      if (event.refresh) {
         emit(SocialUserLoading());
-        final result = await getUserFollowingsUseCase(
-          params: UserSocialParams(
-            userId: event.userId,
-            page: 0,
-            size: pageSize,
-          ),
-        );
-
-        return result.fold(
-            (failure) => emit(SocialUserError('Failed to load followings')),
-            (data) {
-          _syncFollowStatusesForPublications(data.content);
-          emit(
-            FollowingsLoaded(
-              followings: data.content,
-              hasReachedMax: data.last,
-              currentPage: 0,
-            ),
-          );
-        });
       }
 
-      // Handle pagination (loading more data)
-      final currentState = state as FollowingsLoaded;
+      print(
+          '📱 Fetching followings for user: ${event.userId}, page: ${event.page}');
 
-      // If we've reached max, don't fetch more
-      if (currentState.hasReachedMax) return;
-
-      final nextPage = currentState.currentPage + 1;
       final result = await getUserFollowingsUseCase(
         params: UserSocialParams(
           userId: event.userId,
-          page: nextPage,
+          page: event.page,
           size: pageSize,
         ),
       );
 
       return result.fold(
-        (failure) => emit(SocialUserError('Failed to load more followings')),
+        (failure) {
+          print('❌ Failed to fetch followings: $failure');
+          final errorMessage = 'Failed to load followings';
+
+          if (event.onError != null) {
+            event.onError!(errorMessage);
+          }
+
+          emit(SocialUserError(errorMessage));
+        },
         (data) {
           _syncFollowStatusesForPublications(data.content);
-          if (data.content.isEmpty) {
-            emit(currentState.copyWith(hasReachedMax: true));
-          } else {
+
+          print(
+              '✅ Loaded ${data.content.length} followings. Last page: ${data.last}');
+
+          // Call the onSuccess callback with the results
+          if (event.onSuccess != null) {
+            event.onSuccess!(data.content, data.last);
+          }
+
+          // Still emit state for widgets using BLoC directly
+          if (event.page == 0) {
+            emit(
+              FollowingsLoaded(
+                followings: data.content,
+                hasReachedMax: data.last,
+                currentPage: 0,
+              ),
+            );
+          } else if (state is FollowingsLoaded) {
+            final currentState = state as FollowingsLoaded;
+
             emit(
               FollowingsLoaded(
                 followings: [...currentState.followings, ...data.content],
                 hasReachedMax: data.last,
-                currentPage: nextPage,
+                currentPage: event.page,
               ),
             );
           }
         },
       );
     } catch (e) {
-      emit(SocialUserError('An unexpected error occurred'));
+      print('❌ Error fetching followings: $e');
+      final errorMessage = 'An unexpected error occurred';
+
+      if (event.onError != null) {
+        event.onError!(errorMessage);
+      }
+
+      emit(SocialUserError(errorMessage));
+    }
+  }
+
+  Future<void> _onFollowUser(
+    FollowUser event,
+    Emitter<SocialUserState> emit,
+  ) async {
+    try {
+      print(
+          '🔄 Toggling follow status for user: ${event.userId}, current status: ${event.isFollowing}');
+
+      // We need to store the context in the event
+      // and pass it to the global bloc event
+      globalBloc.add(
+        UpdateFollowStatusEvent(
+          userId: event.userId,
+          isFollowed: event.isFollowing,
+          context: event.context!, // Pass the context from the event
+        ),
+      );
+
+      // Emit a success state
+      emit(FollowActionSuccess(
+        userId: event.userId,
+        isFollowing: !event.isFollowing,
+      ));
+
+      // Restore the previous state to maintain the list view
+      if (state is FollowActionSuccess) {
+        final previousState = state;
+        if (previousState is FollowersLoaded) {
+          emit(previousState);
+        } else if (previousState is FollowingsLoaded) {
+          emit(previousState);
+        }
+      }
+    } catch (e) {
+      print('❌ Error toggling follow status: $e');
+      emit(SocialUserError('Failed to update follow status'));
     }
   }
 }

@@ -1,12 +1,12 @@
-// ignore_for_file: deprecated_member_use
+// social_connections_page.dart
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:figma_squircle/figma_squircle.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
@@ -38,55 +38,188 @@ class SocialConnectionsPage extends StatefulWidget {
 class _SocialConnectionsPageState extends State<SocialConnectionsPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+
+  // Paging controllers for infinite pagination
+  final PagingController<int, UserProfile> _followersController =
+      PagingController(firstPageKey: 0);
+  final PagingController<int, UserProfile> _followingsController =
+      PagingController(firstPageKey: 0);
+
   bool _followersInitialized = false;
   bool _followingsInitialized = false;
 
   @override
   void initState() {
     super.initState();
+
+    // Set up tab controller
     _tabController = TabController(
       length: 2,
       vsync: this,
       initialIndex: widget.initialTab == 'followers' ? 0 : 1,
     );
 
-    // Load initial data based on starting tab
+    // Set up paging controllers
+    _followersController.addPageRequestListener(_fetchFollowersPage);
+    _followingsController.addPageRequestListener(_fetchFollowingsPage);
+
+    // Listen to global state changes to update UI when follow status changes
+    _setupFollowStatusListener();
+
+    // Set up tab change listener
+    _tabController.addListener(_handleTabChange);
+
+    // Initial load based on starting tab
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_tabController.index == 0) {
         _followersInitialized = true;
-        context.read<SocialUserBloc>().add(
-              FetchFollowers(userId: widget.userId),
-            );
+        _followersController.refresh();
       } else {
         _followingsInitialized = true;
-        context.read<SocialUserBloc>().add(
-              FetchFollowings(userId: widget.userId),
-            );
+        _followingsController.refresh();
       }
     });
+  }
 
-    // Add listener to handle tab changes
-    _tabController.addListener(_handleTabChange);
+  void _setupFollowStatusListener() {
+    // Listen to global bloc changes to update UI when follow status changes
+    context.read<GlobalBloc>().stream.listen((globalState) {
+      // Update followers controller items when follow status changes
+      final followerItems = _followersController.itemList;
+      if (followerItems != null && followerItems.isNotEmpty) {
+        final updatedItems = followerItems.map((user) {
+          final isFollowed = globalState.isUserFollowed(user.userId);
+          if (user.isFollowing != isFollowed) {
+            return UserProfile(
+              userId: user.userId,
+              nickName: user.nickName,
+              profileImagePath: user.profileImagePath,
+              isFollowing: isFollowed,
+              followers: user.followers + (isFollowed ? 1 : -1),
+              following: user.following,
+            );
+          }
+          return user;
+        }).toList();
+
+        _followersController.itemList = updatedItems;
+      }
+
+      // Do the same for followings
+      final followingItems = _followingsController.itemList;
+      if (followingItems != null && followingItems.isNotEmpty) {
+        final updatedItems = followingItems.map((user) {
+          final isFollowed = globalState.isUserFollowed(user.userId);
+          if (user.isFollowing != isFollowed) {
+            return UserProfile(
+              userId: user.userId,
+              nickName: user.nickName,
+              profileImagePath: user.profileImagePath,
+              isFollowing: isFollowed,
+              followers: user.followers,
+              following: user.following,
+            );
+          }
+          return user;
+        }).toList();
+
+        _followingsController.itemList = updatedItems;
+      }
+    });
+  }
+
+  void _fetchFollowersPage(int pageKey) {
+    print('🔄 Fetching followers page: $pageKey');
+    context.read<SocialUserBloc>().add(
+          FetchFollowers(
+            userId: widget.userId,
+            page: pageKey,
+            onSuccess: (users, isLastPage) {
+              print(
+                  '✅ Loaded ${users.length} followers. Last page: $isLastPage');
+
+              // Consider it the last page if:
+              // 1. API explicitly says it's the last page OR
+              // 2. We received fewer items than the page size (indicating end of data)
+              final isReallyLastPage =
+                  isLastPage || users.length < 30; // Use your page size
+              final nextPageKey = isReallyLastPage ? null : pageKey + 1;
+
+              try {
+                if (isReallyLastPage) {
+                  _followersController.appendLastPage(users);
+                } else {
+                  _followersController.appendPage(users, nextPageKey);
+                }
+              } catch (error) {
+                print('❌ Error appending to followers controller: $error');
+                _followersController.error = error;
+              }
+            },
+            onError: (error) {
+              print('❌ Error fetching followers: $error');
+              _followersController.error = error;
+            },
+          ),
+        );
+  }
+
+  void _fetchFollowingsPage(int pageKey) {
+    print('🔄 Fetching followings page: $pageKey');
+    context.read<SocialUserBloc>().add(
+          FetchFollowings(
+            userId: widget.userId,
+            page: pageKey,
+            onSuccess: (users, isLastPage) {
+              print(
+                  '✅ Loaded ${users.length} followings. Last page: $isLastPage');
+
+              final isReallyLastPage =
+                  isLastPage || users.length < 30; // Use your page size
+              final nextPageKey = isReallyLastPage ? null : pageKey + 1;
+
+              try {
+                if (isReallyLastPage) {
+                  _followingsController.appendLastPage(users);
+                } else {
+                  _followingsController.appendPage(users, nextPageKey);
+                }
+              } catch (error) {
+                print('❌ Error appending to followings controller: $error');
+                _followingsController.error = error;
+              }
+            },
+            onError: (error) {
+              print('❌ Error fetching followings: $error');
+              _followingsController.error = error;
+            },
+          ),
+        );
   }
 
   void _handleTabChange() {
     if (_tabController.indexIsChanging) return;
 
+    print('📑 Tab changed to: ${_tabController.index}');
+
+    // First tab (Followers)
     if (_tabController.index == 0 && !_followersInitialized) {
+      print('🔄 Initializing followers tab');
       _followersInitialized = true;
-      context.read<SocialUserBloc>().add(
-            FetchFollowers(userId: widget.userId),
-          );
-    } else if (_tabController.index == 1 && !_followingsInitialized) {
+      _followersController.refresh();
+    }
+    // Second tab (Followings)
+    else if (_tabController.index == 1 && !_followingsInitialized) {
+      print('🔄 Initializing followings tab');
       _followingsInitialized = true;
-      context.read<SocialUserBloc>().add(
-            FetchFollowings(userId: widget.userId),
-          );
+      _followingsController.refresh();
     }
   }
 
   @override
   void dispose() {
+    _followersController.dispose();
+    _followingsController.dispose();
     _tabController.dispose();
     super.dispose();
   }
@@ -117,14 +250,11 @@ class _SocialConnectionsPageState extends State<SocialConnectionsPage>
           indicatorPadding: EdgeInsets.zero,
           indicatorColor: Theme.of(context).colorScheme.secondary,
           indicatorWeight: 0.1,
-
           dividerColor: AppColors.transparent,
           isScrollable: true,
-          labelPadding:
-              EdgeInsets.symmetric(horizontal: 20), // Padding between tabs
-          indicatorSize:
-              TabBarIndicatorSize.label, // Makes indicator match tab width
-          tabAlignment: TabAlignment.start, // Aligns tabs to the start (left)
+          labelPadding: const EdgeInsets.symmetric(horizontal: 20),
+          indicatorSize: TabBarIndicatorSize.label,
+          tabAlignment: TabAlignment.start,
           labelStyle: const TextStyle(
             fontFamily: Constants.Arial,
             fontWeight: FontWeight.bold,
@@ -133,7 +263,6 @@ class _SocialConnectionsPageState extends State<SocialConnectionsPage>
             fontFamily: Constants.Arial,
             fontWeight: FontWeight.w500,
           ),
-
           tabs: [
             Tab(
               text: AppLocalizations.of(context)!.followers,
@@ -143,16 +272,7 @@ class _SocialConnectionsPageState extends State<SocialConnectionsPage>
             ),
           ],
           onTap: (index) {
-            // Load data when tab is selected
-            if (index == 0) {
-              context.read<SocialUserBloc>().add(
-                    FetchFollowers(userId: widget.userId),
-                  );
-            } else {
-              context.read<SocialUserBloc>().add(
-                    FetchFollowings(userId: widget.userId),
-                  );
-            }
+            // When tab is tapped directly, already handled by tab controller listener
           },
         ),
       ),
@@ -169,83 +289,120 @@ class _SocialConnectionsPageState extends State<SocialConnectionsPage>
   }
 
   Widget _buildFollowersTab(BuildContext context) {
-    return BlocBuilder<SocialUserBloc, SocialUserState>(
-      buildWhen: (previous, current) {
-        // Only rebuild for follower-related states
-        return current is SocialUserLoading ||
-            current is FollowersLoaded ||
-            current is SocialUserError ||
-            (current is FollowActionSuccess && previous is FollowersLoaded);
+    return RefreshIndicator(
+      onRefresh: () async {
+        _followersController.refresh();
+        return Future.value();
       },
-      builder: (context, state) {
-        if (state is SocialUserLoading && !_followersInitialized) {
-          return const Progress();
-        } else if (state is FollowersLoaded) {
-          return _buildUserList(
-            context,
-            state.followers,
-            state.hasReachedMax,
-            () => context.read<SocialUserBloc>().add(
-                  FetchFollowers(userId: widget.userId),
+      child: PagedListView<int, UserProfile>(
+        pagingController: _followersController,
+        builderDelegate: PagedChildBuilderDelegate<UserProfile>(
+          itemBuilder: (context, user, index) => UserListTile(
+            user: user,
+            onFollowTap: (isCurrentlyFollowing) {
+              context.read<SocialUserBloc>().add(
+                    FollowUser(
+                      userId: user.userId,
+                      isFollowing: isCurrentlyFollowing,
+                      context: context,
+                    ),
+                  );
+            },
+          ),
+          firstPageProgressIndicatorBuilder: (_) => const Progress(),
+          newPageProgressIndicatorBuilder: (_) => const Progress(),
+          noItemsFoundIndicatorBuilder: (_) => Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.people_outline,
+                  size: 64,
+                  color: Colors.grey[400],
                 ),
-          );
-        } else if (state is SocialUserError) {
-          return Center(
+                const SizedBox(height: 16),
+                Text(
+                  AppLocalizations.of(context)!.no_items_found,
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          noMoreItemsIndicatorBuilder: (_) => const SizedBox(height: 20),
+          firstPageErrorIndicatorBuilder: (context) => Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   'Failed to load followers',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 20.0,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  onPressed: () => context.read<SocialUserBloc>().add(
-                        FetchFollowers(userId: widget.userId, refresh: true),
-                      ),
+                  onPressed: () => _followersController.refresh(),
                   child: Text(
                     AppLocalizations.of(context)!.retry,
                   ),
                 ),
               ],
             ),
-          );
-        } else {
-          // Show a placeholder when the tab is not active
-          return _followersInitialized ? const Progress() : const SizedBox();
-        }
-      },
+          ),
+        ),
+      ),
     );
   }
 
   Widget _buildFollowingsTab(BuildContext context) {
-    // Trigger the followings fetch when the tab is built
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_tabController.index == 1) {
-        context.read<SocialUserBloc>().add(
-              FetchFollowings(userId: widget.userId),
-            );
-      }
-    });
-
-    return BlocBuilder<SocialUserBloc, SocialUserState>(
-      builder: (context, state) {
-        if (state is SocialUserLoading) {
-          return const Progress();
-        } else if (state is FollowingsLoaded) {
-          return _buildUserList(
-            context,
-            state.followings,
-            state.hasReachedMax,
-            () => context.read<SocialUserBloc>().add(
-                  FetchFollowings(userId: widget.userId),
+    return RefreshIndicator(
+      onRefresh: () async {
+        _followingsController.refresh();
+        return Future.value();
+      },
+      child: PagedListView<int, UserProfile>(
+        pagingController: _followingsController,
+        builderDelegate: PagedChildBuilderDelegate<UserProfile>(
+          itemBuilder: (context, user, index) => UserListTile(
+            user: user,
+            onFollowTap: (isCurrentlyFollowing) {
+              context.read<SocialUserBloc>().add(
+                    FollowUser(
+                      userId: user.userId,
+                      isFollowing: isCurrentlyFollowing,
+                      context: context,
+                    ),
+                  );
+            },
+          ),
+          firstPageProgressIndicatorBuilder: (_) => const Progress(),
+          newPageProgressIndicatorBuilder: (_) => const Progress(),
+          noItemsFoundIndicatorBuilder: (_) => Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.people_outline,
+                  size: 64,
+                  color: Colors.grey[400],
                 ),
-          );
-        } else if (state is SocialUserError) {
-          return Center(
+                const SizedBox(height: 16),
+                Text(
+                  AppLocalizations.of(context)!.no_items_found,
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          noMoreItemsIndicatorBuilder: (_) => const SizedBox(height: 20),
+          firstPageErrorIndicatorBuilder: (context) => Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -258,101 +415,14 @@ class _SocialConnectionsPageState extends State<SocialConnectionsPage>
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  onPressed: () => context.read<SocialUserBloc>().add(
-                        FetchFollowings(userId: widget.userId, refresh: true),
-                      ),
-                  child: const Text('Retry'),
+                  onPressed: () => _followingsController.refresh(),
+                  child: Text(
+                    AppLocalizations.of(context)!.retry,
+                  ),
                 ),
               ],
             ),
-          );
-        } else {
-          // Initial state or unknown state
-          return const Center(child: CircularProgressIndicator());
-        }
-      },
-    );
-  }
-
-  Widget _buildUserList(
-    BuildContext context,
-    List<UserProfile> users,
-    bool hasReachedMax,
-    VoidCallback loadMore,
-  ) {
-    if (users.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.people_outline,
-              size: 64,
-              color: Colors.grey[400],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              AppLocalizations.of(context)!.no_items_found,
-              style: TextStyle(
-                fontSize: 16.0,
-                color: Colors.grey[600],
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return NotificationListener<ScrollNotification>(
-      onNotification: (scrollNotification) {
-        if (scrollNotification is ScrollEndNotification &&
-            scrollNotification.metrics.extentAfter < 200 &&
-            !hasReachedMax) {
-          loadMore();
-        }
-        return false;
-      },
-      child: RefreshIndicator(
-        color: Colors.blue,
-        backgroundColor: Theme.of(context).cardColor,
-        elevation: 1,
-        strokeWidth: 3,
-        displacement: 40,
-        edgeOffset: 10,
-        triggerMode: RefreshIndicatorTriggerMode.anywhere,
-        onRefresh: () async {
-          if (_tabController.index == 0) {
-            context.read<SocialUserBloc>().add(
-                  FetchFollowers(userId: widget.userId, refresh: true),
-                );
-          } else {
-            context.read<SocialUserBloc>().add(
-                  FetchFollowings(userId: widget.userId, refresh: true),
-                );
-          }
-        },
-        child: ListView.builder(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          itemCount: hasReachedMax ? users.length : users.length + 1,
-          itemBuilder: (context, index) {
-            if (index >= users.length) {
-              return const Progress();
-            }
-
-            final user = users[index];
-            return UserListTile(
-              user: user,
-              onFollowTap: (isCurrentlyFollowing) {
-                context.read<SocialUserBloc>().add(
-                      FollowUser(
-                        userId: user.userId,
-                        isFollowing: !isCurrentlyFollowing,
-                      ),
-                    );
-              },
-            );
-          },
+          ),
         ),
       ),
     );
@@ -421,91 +491,98 @@ class UserListTile extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       // You can add additional user information here if available
-                      // such as bio, mutual friends, etc.
                     ],
                   ),
                 ),
 
-                // Message Button
-                BlocBuilder<GlobalBloc, GlobalState>(
-                  builder: (context, state) {
-                    final isFollowed = state.isUserFollowed(user.userId);
-                    final followStatus = state.getFollowStatus(user.userId);
-                    final isLoading = followStatus == FollowStatus.inProgress;
-                    return Container(
-                      margin: EdgeInsets.only(top: 0),
-                      height: 32,
-                      child: ElevatedButton(
-                        onPressed: isLoading
-                            ? null
-                            : () {
-                                context.read<GlobalBloc>().add(
-                                      UpdateFollowStatusEvent(
-                                        userId: user.userId,
-                                        isFollowed: isFollowed,
-                                        context: context,
-                                      ),
-                                    );
-                              },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              Theme.of(context).scaffoldBackgroundColor,
-                          foregroundColor:
-                              Theme.of(context).scaffoldBackgroundColor,
-                          elevation: 0,
-                          shape: SmoothRectangleBorder(
-                            side: BorderSide(
-                              width: 1,
-                              color: Theme.of(context).colorScheme.secondary,
+                // Follow/Unfollow Button
+                if (showFollowButton)
+                  BlocBuilder<GlobalBloc, GlobalState>(
+                    builder: (context, state) {
+                      final isFollowed = state.isUserFollowed(user.userId);
+                      final followStatus = state.getFollowStatus(user.userId);
+                      final isLoading = followStatus == FollowStatus.inProgress;
+
+                      return Container(
+                        margin: const EdgeInsets.only(top: 0),
+                        height: 32,
+                        child: ElevatedButton(
+                          onPressed: isLoading
+                              ? null
+                              : () {
+                                  if (onFollowTap != null) {
+                                    onFollowTap!(isFollowed);
+                                  } else {
+                                    context.read<GlobalBloc>().add(
+                                          UpdateFollowStatusEvent(
+                                            userId: user.userId,
+                                            isFollowed: isFollowed,
+                                            context: context,
+                                          ),
+                                        );
+                                  }
+                                },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                Theme.of(context).scaffoldBackgroundColor,
+                            foregroundColor:
+                                Theme.of(context).scaffoldBackgroundColor,
+                            elevation: 0,
+                            shape: SmoothRectangleBorder(
+                              side: BorderSide(
+                                width: 1,
+                                color: Theme.of(context).colorScheme.secondary,
+                              ),
+                              borderRadius:
+                                  SmoothBorderRadius(cornerRadius: 18),
                             ),
-                            borderRadius: SmoothBorderRadius(cornerRadius: 18),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                            ),
                           ),
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 8,
-                          ),
-                        ),
-                        child: isLoading
-                            ? Padding(
-                                padding: EdgeInsets.all(4),
-                                child: SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      Theme.of(context).colorScheme.secondary,
+                          child: isLoading
+                              ? Padding(
+                                  padding: const EdgeInsets.all(4),
+                                  child: SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Theme.of(context).colorScheme.secondary,
+                                      ),
                                     ),
                                   ),
-                                ),
-                              )
-                            : Row(
-                                children: [
-                                  Icon(
-                                    isFollowed ? Icons.remove : Icons.add,
-                                    size: 12.3,
-                                    color:
-                                        Theme.of(context).colorScheme.secondary,
-                                  ),
-                                  SizedBox(width: 3),
-                                  Text(
-                                    isFollowed
-                                        ? localizations.unfollow
-                                        : localizations.follow,
-                                    style: TextStyle(
-                                      fontFamily: Constants.Arial,
-                                      fontWeight: FontWeight.bold,
+                                )
+                              : Row(
+                                  children: [
+                                    Icon(
+                                      isFollowed ? Icons.remove : Icons.add,
+                                      size: 12.3,
                                       color: Theme.of(context)
                                           .colorScheme
                                           .secondary,
-                                      fontSize: 12.3,
                                     ),
-                                  ),
-                                ],
-                              ),
-                      ),
-                    );
-                  },
-                ),
+                                    const SizedBox(width: 3),
+                                    Text(
+                                      isFollowed
+                                          ? localizations.unfollow
+                                          : localizations.follow,
+                                      style: TextStyle(
+                                        fontFamily: Constants.Arial,
+                                        fontWeight: FontWeight.bold,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondary,
+                                        fontSize: 12.3,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                        ),
+                      );
+                    },
+                  ),
               ],
             ),
           ),

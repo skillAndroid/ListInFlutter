@@ -12,7 +12,7 @@ class UserSocialParams {
   UserSocialParams({
     required this.userId,
     this.page = 0,
-    this.size = 5,
+    this.size = 30,
   });
 }
 
