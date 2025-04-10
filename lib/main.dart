@@ -107,8 +107,8 @@ class MyApp extends StatelessWidget {
           statusBarIconBrightness:
               isDarkMode ? Brightness.light : Brightness.dark,
           systemNavigationBarColor: isDarkMode
-              ? AppTheme.darkTheme.colorScheme.surface
-              : AppTheme.lightTheme.colorScheme.surface,
+              ? AppTheme.darkTheme.scaffoldBackgroundColor
+              : AppTheme.lightTheme.scaffoldBackgroundColor,
           systemNavigationBarIconBrightness:
               isDarkMode ? Brightness.light : Brightness.dark,
           systemNavigationBarDividerColor: Colors.transparent,

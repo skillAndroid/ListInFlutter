@@ -684,10 +684,14 @@ class _ListInShortsState extends State<ListInShorts>
 
   @override
   Widget build(BuildContext context) {
-    // Set system UI styling
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    // // Set system UI styling
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.light,
+      systemNavigationBarColor: AppColors.black,
+      systemNavigationBarIconBrightness: Brightness.light,
+      systemNavigationBarDividerColor: Colors.transparent,
+      systemNavigationBarContrastEnforced: false,
     ));
 
     return BlocListener<HomeTreeCubit, HomeTreeState>(
