@@ -30,6 +30,10 @@ class UserSocialRemoteDataSourceImpl implements UserSocialRemoteDataSource {
       final response = await dio.get(
         url,
         options: options,
+        queryParameters: {
+          'page': page,
+          'size': size,
+        },
       );
       if (response.statusCode == 200) {
         print('✅ Successfully fetched followings for user: $userId');
@@ -60,6 +64,10 @@ class UserSocialRemoteDataSourceImpl implements UserSocialRemoteDataSource {
       final response = await dio.get(
         url,
         options: options,
+        queryParameters: {
+          'page': page,
+          'size': size,
+        },
       );
       if (response.statusCode == 200) {
         print('✅ Successfully fetched followers for user: $userId');

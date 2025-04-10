@@ -129,30 +129,20 @@ class _SocialConnectionsPageState extends State<SocialConnectionsPage>
   }
 
   void _fetchFollowersPage(int pageKey) {
-    print('🔄 Fetching followers page: $pageKey');
     context.read<SocialUserBloc>().add(
           FetchFollowers(
             userId: widget.userId,
             page: pageKey,
             onSuccess: (users, isLastPage) {
-              print(
-                  '✅ Loaded ${users.length} followers. Last page: $isLastPage');
-
-              // Consider it the last page if:
-              // 1. API explicitly says it's the last page OR
-              // 2. We received fewer items than the page size (indicating end of data)
-              final isReallyLastPage =
-                  isLastPage || users.length < 30; // Use your page size
-              final nextPageKey = isReallyLastPage ? null : pageKey + 1;
+              final nextPageKey = isLastPage ? null : pageKey + 1;
 
               try {
-                if (isReallyLastPage) {
+                if (isLastPage) {
                   _followersController.appendLastPage(users);
                 } else {
                   _followersController.appendPage(users, nextPageKey);
                 }
               } catch (error) {
-                print('❌ Error appending to followers controller: $error');
                 _followersController.error = error;
               }
             },
@@ -173,13 +163,10 @@ class _SocialConnectionsPageState extends State<SocialConnectionsPage>
             onSuccess: (users, isLastPage) {
               print(
                   '✅ Loaded ${users.length} followings. Last page: $isLastPage');
-
-              final isReallyLastPage =
-                  isLastPage || users.length < 30; // Use your page size
-              final nextPageKey = isReallyLastPage ? null : pageKey + 1;
+              final nextPageKey = isLastPage ? null : pageKey + 1;
 
               try {
-                if (isReallyLastPage) {
+                if (isLastPage) {
                   _followingsController.appendLastPage(users);
                 } else {
                   _followingsController.appendPage(users, nextPageKey);
