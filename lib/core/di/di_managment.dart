@@ -9,6 +9,9 @@ import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/retry.dart';
+import 'package:path_provider/path_provider.dart' as path_provider;
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:list_in/core/language/language_bloc.dart';
 import 'package:list_in/core/language/language_rep.dart';
 import 'package:list_in/core/local_data/shared_preferences.dart';
@@ -92,29 +95,118 @@ import 'package:list_in/features/visitior_profile/domain/usecase/view_publicatio
 import 'package:list_in/features/visitior_profile/presentation/bloc/another_user_profile_bloc.dart';
 import 'package:list_in/global/global_bloc.dart';
 import 'package:list_in/global/likeds/liked_publications_bloc.dart';
-import 'package:path_provider/path_provider.dart' as path_provider;
-import 'package:shared_preferences/shared_preferences.dart';
+
+import 'dart:io' show Platform;
+
+import 'package:flutter/foundation.dart' show kIsWeb;
+
+import 'package:hive_flutter/hive_flutter.dart';
 
 final sl = GetIt.instance;
 
 Future<void> init() async {
+  //======================================================================
+  // CORE DEPENDENCIES
+  //======================================================================
+
+  // SharedPreferences
   final sharedPreferences = await SharedPreferences.getInstance();
+  sl.registerLazySingleton<SharedPreferences>(() => sharedPreferences);
   sl.registerLazySingleton<SharedPrefsService>(
     () => SharedPrefsService(sharedPreferences),
   );
 
-  // Register Language Repository
-  sl.registerLazySingleton<LanguageRepository>(
-    () => LanguageRepository(prefsService: sl()),
-  );
-  sl.registerFactory<ThemeBloc>(
-    () => ThemeBloc(sl<SharedPrefsService>()),
-  );
-  // Register Language BLoC
-  sl.registerFactory<LanguageBloc>(
-    () => LanguageBloc(repository: sl()),
-  );
+  // HTTP Clients
+  _registerHttpClients();
 
+  // App Router
+  _registerAppRouter();
+
+  //======================================================================
+  // HIVE INITIALIZATION
+  //======================================================================
+  await _initializeHive();
+
+  //======================================================================
+  // FEATURE REGISTRATIONS
+  //======================================================================
+
+  // Auth Feature
+  _registerAuthFeature();
+
+  // User Profile Feature
+  _registerUserProfileFeature();
+
+  // Publications Feature
+  _registerPublicationsFeature();
+
+  // Post Feature
+  _registerPostFeature();
+
+  // Social Feature
+  _registerSocialFeature();
+
+  // Map Feature
+  _registerMapFeature();
+
+  // Global BLoCs
+  _registerGlobalBlocs();
+}
+
+//======================================================================
+// HIVE INITIALIZATION
+//======================================================================
+Future<void> _initializeHive() async {
+  // Initialize Hive based on platform
+  if (kIsWeb) {
+    // For web platform
+    await Hive.initFlutter();
+  } else {
+    try {
+      final appDocumentDirectory =
+          await path_provider.getApplicationDocumentsDirectory();
+      Hive.init(appDocumentDirectory.path);
+    } catch (e) {
+      // Fallback for platforms where getApplicationDocumentsDirectory might fail
+      if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+        Hive.init('./hive_data'); // Simple path for desktop
+      } else {
+        // Re-throw for other platforms where this shouldn't happen
+        rethrow;
+      }
+    }
+  }
+
+  // Register Hive adapters
+  Hive.registerAdapter(CategoryModelAdapter());
+  Hive.registerAdapter(ChildCategoryModelAdapter());
+  Hive.registerAdapter(AttributeModelAdapter());
+  Hive.registerAdapter(AttributeValueModelAdapter());
+  Hive.registerAdapter(SubModelAdapter());
+  Hive.registerAdapter(NomericFieldModelAdapter());
+  Hive.registerAdapter(CountryAdapter());
+  Hive.registerAdapter(StateAdapter());
+  Hive.registerAdapter(CountyAdapter());
+
+  // Open Hive boxes
+  final metaBox = await Hive.openBox('meta');
+  final catalogBox = await Hive.openBox<CategoryModel>('catalogs');
+  final locationBox = await Hive.openBox<Country>('locations');
+
+  // Initialize catalog local data source
+  final catalogLocalDataSource = CatalogLocalDataSourceImpl(
+      categoryBox: catalogBox, locationBox: locationBox, metaBox: metaBox);
+
+  await catalogLocalDataSource.initialize();
+  sl.registerLazySingleton<CatalogLocalDataSource>(
+      () => catalogLocalDataSource);
+}
+
+//======================================================================
+// HTTP CLIENTS
+//======================================================================
+void _registerHttpClients() {
+  // Dio
   sl.registerLazySingleton<Dio>(() {
     final dio = Dio();
     dio.options
@@ -151,9 +243,7 @@ Future<void> init() async {
     return dio;
   });
 
-  // if (!sl.isRegistered<VideoCache>()) {
-  //   sl.registerLazySingleton(() => VideoCache());
-  // }
+  // HTTP Client
   sl.registerLazySingleton<http.Client>(() {
     return RetryClient(
       http.Client(),
@@ -164,6 +254,49 @@ Future<void> init() async {
       },
     );
   });
+}
+
+//======================================================================
+// APP ROUTER
+//======================================================================
+void _registerAppRouter() {
+  sl.registerLazySingleton(
+    () => AppRouter(
+      sharedPreferences: sl<SharedPreferences>(),
+      getGategoriesUsecase: sl<GetGategoriesUsecase>(),
+      getLocationsUsecase: sl<GetLocationsUsecase>(),
+      getPublicationsUsecase: sl<GetPublicationsUsecase>(),
+      getPredictionsUseCase: sl<GetPredictionsUseCase>(),
+      getVideoPublicationsUsecase: sl<GetVideoPublicationsUsecase>(),
+      getFilteredPublicationsValuesUsecase:
+          sl<GetFilteredPublicationsValuesUsecase>(),
+      globalBloc: sl<GlobalBloc>(),
+    ),
+  );
+}
+
+//======================================================================
+// GLOBAL BLOCS
+//======================================================================
+void _registerGlobalBlocs() {
+  // Auth Service
+  sl.registerLazySingleton(() => AuthService(authLocalDataSource: sl()));
+
+  // Language
+  sl.registerLazySingleton<LanguageRepository>(
+    () => LanguageRepository(prefsService: sl()),
+  );
+
+  sl.registerFactory<LanguageBloc>(
+    () => LanguageBloc(repository: sl()),
+  );
+
+  // Theme
+  sl.registerFactory<ThemeBloc>(
+    () => ThemeBloc(sl<SharedPrefsService>()),
+  );
+
+  // Global Bloc
   sl.registerLazySingleton(() => GlobalBloc(
         followUserUseCase: sl(),
         likePublicationUsecase: sl(),
@@ -171,43 +304,18 @@ Future<void> init() async {
         authLocalDataSource: sl(),
       ));
 
+  // Liked Publications Bloc
   sl.registerFactory(() => LikedPublicationsBloc(
         getLikedPublicationsUseCase: sl(),
         globalBloc: sl(),
       ));
-  sl.registerLazySingleton(
-    () => AppRouter(
-        sharedPreferences: sl<SharedPreferences>(),
-        getGategoriesUsecase: sl<GetGategoriesUsecase>(),
-        getLocationsUsecase: sl<GetLocationsUsecase>(),
-        getPublicationsUsecase: sl<GetPublicationsUsecase>(),
-        getPredictionsUseCase: sl<GetPredictionsUseCase>(),
-        getVideoPublicationsUsecase: sl<GetVideoPublicationsUsecase>(),
-        getFilteredPublicationsValuesUsecase:
-            sl<GetFilteredPublicationsValuesUsecase>(),
-        globalBloc: sl<GlobalBloc>()),
-  );
+}
 
-  final appDocumentDirectory =
-      await path_provider.getApplicationDocumentsDirectory();
-  Hive.init(appDocumentDirectory.path);
-  Hive.registerAdapter(CategoryModelAdapter());
-  Hive.registerAdapter(ChildCategoryModelAdapter());
-  Hive.registerAdapter(AttributeModelAdapter());
-  Hive.registerAdapter(AttributeValueModelAdapter());
-  Hive.registerAdapter(SubModelAdapter());
-  Hive.registerAdapter(NomericFieldModelAdapter());
-  Hive.registerAdapter(CountryAdapter());
-  Hive.registerAdapter(StateAdapter());
-  Hive.registerAdapter(CountyAdapter());
-
-  final metaBox = await Hive.openBox('meta');
-  final catalogBox = await Hive.openBox<CategoryModel>('catalogs');
-  final locationBox = await Hive.openBox<Country>('locations');
-
-  sl.registerLazySingleton(() => GoogleAuthUseCase(sl()));
-
-// Update your AuthBloc registration
+//======================================================================
+// AUTH FEATURE
+//======================================================================
+void _registerAuthFeature() {
+  // BLoCs
   sl.registerFactory(
     () => AuthBloc(
       loginUseCase: sl(),
@@ -215,35 +323,17 @@ Future<void> init() async {
       verifyEmailSignupUseCase: sl(),
       registerUserDataUseCase: sl(),
       getStoredEmailUsecase: sl(),
-      googleAuthUseCase: sl(), // Add this
+      googleAuthUseCase: sl(),
     ),
   );
 
-  sl.registerFactory(
-    () => PublicationUpdateBloc(
-      updatePostUseCase: sl(),
-      uploadImagesUseCase: sl(),
-      uploadVideoUseCase: sl(),
-    ),
-  );
-
-  // Use cases
+  // UseCases
   sl.registerLazySingleton(() => LoginUseCase(sl()));
-  sl.registerLazySingleton(() => ViewPublicationUsecase(sl()));
   sl.registerLazySingleton(() => SignupUseCase(sl()));
   sl.registerLazySingleton(() => VerifyEmailSignupUseCase(sl()));
   sl.registerLazySingleton(() => RegisterUserDataUseCase(sl()));
   sl.registerLazySingleton(() => GetStoredEmailUsecase(sl()));
-  sl.registerLazySingleton(() => GetUserDataUseCase(
-        sl(),
-        sl(),
-      ));
-  sl.registerLazySingleton(() =>
-      UpdateUserProfileUseCase(repository: sl(), authLocalDataSource: sl()));
-  sl.registerLazySingleton(() => UploadUserImagesUseCase(sl()));
-  sl.registerLazySingleton(() => GetAnotherUserDataUseCase(sl()));
-
-  sl.registerLazySingleton(() => GetUserLocationUseCase(sl()));
+  sl.registerLazySingleton(() => GoogleAuthUseCase(sl()));
 
   // Repository
   sl.registerLazySingleton<AuthRepository>(
@@ -253,98 +343,21 @@ Future<void> init() async {
     ),
   );
 
-  sl.registerLazySingleton<UserLocalDataSource>(
-    () => UserProfileLocationLocalImpl(
-      sharedPreferences: sl(),
-    ),
-  );
-
-  sl.registerLazySingleton<UserProfileRepository>(
-    () => UserProfileRepositoryImpl(
-      remoteDataSource: sl(),
-      localUserData: sl(),
-    ),
-  );
-
-  sl.registerLazySingleton<AnotherUserProfileRepository>(
-    () => AnotherUserProfileRepImpl(
-      remoteDataSource: sl(),
-    ),
-  );
-
-  sl.registerLazySingleton<UserProfileRemoute>(
-      () => UserProfileRemouteImpl(dio: sl(), authService: sl()));
-
-  sl.registerLazySingleton<AnotherUserProfileRemoute>(
-      () => AnotherUserProfileRemouteImpl(dio: sl(), authService: sl()));
-
-  // Data sources
+  // Data Sources
   sl.registerLazySingleton<AuthRemoteDataSource>(
     () => AuthRemoteDataSourceImpl(dio: sl()),
   );
+
   sl.registerLazySingleton<AuthLocalDataSource>(
-      () => AuthLocalDataSourceImpl(sharedPreferences: sl()));
-
-  //! External
-  sl.registerLazySingleton(() => sharedPreferences);
-
-  sl.registerLazySingleton(() => AuthService(authLocalDataSource: sl()));
-
-  sl.registerFactory(
-    () => MapBloc(
-      getLocationUseCase: sl(),
-      searchLocationsUseCase: sl(),
-    ),
+    () => AuthLocalDataSourceImpl(sharedPreferences: sl()),
   );
+}
 
-  sl.registerLazySingleton(() => GetPublicationsUsecase(sl()));
-  sl.registerLazySingleton(() => GetFilteredPublicationsValuesUsecase(sl()));
-  sl.registerLazySingleton(() => GetPublicationsByIdUsecase(sl()));
-  sl.registerLazySingleton(() => GetPredictionsUseCase(sl()));
-  sl.registerLazySingleton(() => FollowUserUseCase(sl()));
-  sl.registerLazySingleton(() => LikePublicationUsecase(sl()));
-  sl.registerLazySingleton(() => GetVideoPublicationsUsecase(sl()));
-  sl.registerLazySingleton(() => GetLocationUseCase(sl()));
-  sl.registerLazySingleton(() => SearchLocationsUseCase(sl()));
-  sl.registerLazySingleton<LocationRepository>(
-    () => LocationRepositoryImpl(
-      remoteDataSource: sl(),
-    ),
-  );
-
-  sl.registerLazySingleton(() => GetGategoriesUsecase(sl()));
-  sl.registerLazySingleton(() => GetLocationsUsecase(sl()));
-// UseCases
-  sl.registerLazySingleton(() => UploadImagesUseCase(sl()));
-  sl.registerLazySingleton(() => UploadVideoUseCase(sl()));
-  sl.registerLazySingleton(() => CreatePostUseCase(sl()));
-
-  sl.registerLazySingleton<LocationRemoteDatasource>(
-      () => LocationRemoteDataSourceImpl(dio: sl()));
-
-  final catalogLocalDataSource = CatalogLocalDataSourceImpl(
-      categoryBox: catalogBox, locationBox: locationBox, metaBox: metaBox);
-
-  await catalogLocalDataSource.initialize();
-  sl.registerLazySingleton<CatalogLocalDataSource>(
-      () => catalogLocalDataSource);
-  sl.registerLazySingleton<PublicationsRepository>(
-    () => PublicationsRepositoryImpl(
-      remoteDataSource: sl(),
-    ),
-  );
-
-  sl.registerLazySingleton<PublicationsRemoteDataSource>(
-    () => PublicationsRemoteDataSourceImpl(dio: sl(), authService: sl()),
-  );
-
-  sl.registerFactory(() => PostProvider(
-      getCatalogsUseCase: sl<GetGategoriesUsecase>(),
-      uploadImagesUseCase: sl<UploadImagesUseCase>(),
-      uploadVideoUseCase: sl<UploadVideoUseCase>(),
-      createPostUseCase: sl<CreatePostUseCase>(),
-      getUserLocationUsecase: sl<GetUserLocationUseCase>()));
-
+//======================================================================
+// USER PROFILE FEATURE
+//======================================================================
+void _registerUserProfileFeature() {
+  // BLoCs
   sl.registerFactory(
     () => UserProfileBloc(
       updateUserProfileUseCase: sl(),
@@ -360,6 +373,7 @@ Future<void> init() async {
       globalBloc: sl(),
     ),
   );
+
   sl.registerFactory(
     () => DetailsBloc(
       getUserDataUseCase: sl(),
@@ -369,6 +383,117 @@ Future<void> init() async {
     ),
   );
 
+  sl.registerFactory(() => PublicationUpdateBloc(
+        updatePostUseCase: sl(),
+        uploadImagesUseCase: sl(),
+        uploadVideoUseCase: sl(),
+      ));
+
+  // UseCases
+  sl.registerLazySingleton(() => GetUserDataUseCase(sl(), sl()));
+  sl.registerLazySingleton(() =>
+      UpdateUserProfileUseCase(repository: sl(), authLocalDataSource: sl()));
+  sl.registerLazySingleton(() => UploadUserImagesUseCase(sl()));
+  sl.registerLazySingleton(() => GetAnotherUserDataUseCase(sl()));
+  sl.registerLazySingleton(() => GetUserLocationUseCase(sl()));
+  sl.registerLazySingleton(() => UpdatePostUseCase(sl()));
+
+  // Repositories
+  sl.registerLazySingleton<UserProfileRepository>(
+    () => UserProfileRepositoryImpl(
+      remoteDataSource: sl(),
+      localUserData: sl(),
+    ),
+  );
+
+  sl.registerLazySingleton<AnotherUserProfileRepository>(
+    () => AnotherUserProfileRepImpl(
+      remoteDataSource: sl(),
+    ),
+  );
+
+  // Data Sources
+  sl.registerLazySingleton<UserLocalDataSource>(
+    () => UserProfileLocationLocalImpl(
+      sharedPreferences: sl(),
+    ),
+  );
+
+  sl.registerLazySingleton<UserProfileRemoute>(
+    () => UserProfileRemouteImpl(dio: sl(), authService: sl()),
+  );
+
+  sl.registerLazySingleton<AnotherUserProfileRemoute>(
+    () => AnotherUserProfileRemouteImpl(dio: sl(), authService: sl()),
+  );
+}
+
+//======================================================================
+// PUBLICATIONS FEATURE
+//======================================================================
+void _registerPublicationsFeature() {
+  // BLoCs
+  sl.registerFactory(() => UserPublicationsBloc(
+        getUserPublicationsUseCase: sl(),
+        deletePublicationUseCase: sl(),
+      ));
+
+  // UseCases
+  sl.registerLazySingleton(() => GetPublicationsUsecase(sl()));
+  sl.registerLazySingleton(() => GetFilteredPublicationsValuesUsecase(sl()));
+  sl.registerLazySingleton(() => GetPublicationsByIdUsecase(sl()));
+  sl.registerLazySingleton(() => GetPredictionsUseCase(sl()));
+  sl.registerLazySingleton(() => GetVideoPublicationsUsecase(sl()));
+  sl.registerLazySingleton(() => GetUserPublicationsUseCase(sl()));
+  sl.registerLazySingleton(() => GetUserLikedPublicationsUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteUserPublicationUsecase(sl()));
+  sl.registerLazySingleton(() => LikePublicationUsecase(sl()));
+  sl.registerLazySingleton(() => ViewPublicationUsecase(sl()));
+
+  // Repositories
+  sl.registerLazySingleton<PublicationsRepository>(
+    () => PublicationsRepositoryImpl(
+      remoteDataSource: sl(),
+    ),
+  );
+
+  sl.registerLazySingleton<UserPublicationsRepository>(
+    () => UserPublicationsRepositoryImpl(
+      remoteDataSource: sl(),
+    ),
+  );
+
+  // Data Sources
+  sl.registerLazySingleton<PublicationsRemoteDataSource>(
+    () => PublicationsRemoteDataSourceImpl(dio: sl(), authService: sl()),
+  );
+
+  sl.registerLazySingleton<UserPublicationsRemoteDataSource>(
+    () => UserPublicationsRemoteDataSourceImpl(dio: sl(), authService: sl()),
+  );
+}
+
+//======================================================================
+// POST FEATURE
+//======================================================================
+void _registerPostFeature() {
+  // Providers
+  sl.registerFactory(() => PostProvider(
+        getCatalogsUseCase: sl<GetGategoriesUsecase>(),
+        uploadImagesUseCase: sl<UploadImagesUseCase>(),
+        uploadVideoUseCase: sl<UploadVideoUseCase>(),
+        createPostUseCase: sl<CreatePostUseCase>(),
+        getUserLocationUsecase: sl<GetUserLocationUseCase>(),
+      ));
+
+  // UseCases
+  sl.registerLazySingleton(() => GetGategoriesUsecase(sl()));
+  sl.registerLazySingleton(() => GetLocationsUsecase(sl()));
+  sl.registerLazySingleton(() => UploadImagesUseCase(sl()));
+  sl.registerLazySingleton(() => UploadVideoUseCase(sl()));
+  sl.registerLazySingleton(() => CreatePostUseCase(sl()));
+
+  // Repository
   sl.registerLazySingleton<PostRepository>(
     () => PostRepositoryImpl(
       remoteDataSource: sl(),
@@ -376,44 +501,29 @@ Future<void> init() async {
     ),
   );
 
-  sl.registerLazySingleton<UserSocialRepository>(
-    () => UserSocialRepositoryImpl(
-      remoteDataSource: sl(),
-    ),
-  );
-
-  sl.registerLazySingleton<UserSocialRemoteDataSource>(
-    () => UserSocialRemoteDataSourceImpl(
-      dio: sl(),
-      authService: sl(),
-    ),
-  );
-
+  // Data Sources
   sl.registerLazySingleton<CatalogRemoteDataSource>(
     () => CatalogRemoteDataSourceImpl(
       dio: sl(),
       authService: sl(),
     ),
   );
+}
 
-  sl.registerFactory(() => UserPublicationsBloc(
-        getUserPublicationsUseCase: sl(),
-        deletePublicationUseCase: sl(),
-      ));
-  sl.registerLazySingleton<UserPublicationsRepository>(
-      () => UserPublicationsRepositoryImpl(
-            remoteDataSource: sl(),
-          ));
+//======================================================================
+// SOCIAL FEATURE
+//======================================================================
+void _registerSocialFeature() {
+  // BLoCs
+  sl.registerFactory<SocialUserBloc>(
+    () => SocialUserBloc(
+      getUserFollowersUseCase: sl(),
+      getUserFollowingsUseCase: sl(),
+      globalBloc: sl(),
+    ),
+  );
 
-  sl.registerLazySingleton(() => GetUserPublicationsUseCase(sl()));
-  sl.registerLazySingleton(() => GetUserLikedPublicationsUseCase(sl()));
-
-  sl.registerLazySingleton(() => UpdatePostUseCase(sl()));
-  sl.registerLazySingleton(() => DeleteUserPublicationUsecase(sl()));
-
-  sl.registerLazySingleton<UserPublicationsRemoteDataSource>(
-      () => UserPublicationsRemoteDataSourceImpl(dio: sl(), authService: sl()));
-
+  // UseCases
   sl.registerLazySingleton<GetUserFollowersUseCase>(
     () => GetUserFollowersUseCase(sl()),
   );
@@ -422,11 +532,49 @@ Future<void> init() async {
     () => GetUserFollowingsUseCase(sl()),
   );
 
-  sl.registerFactory<SocialUserBloc>(
-    () => SocialUserBloc(
-      getUserFollowersUseCase: sl(),
-      getUserFollowingsUseCase: sl(),
-      globalBloc: sl(),
+  sl.registerLazySingleton(() => FollowUserUseCase(sl()));
+
+  // Repository
+  sl.registerLazySingleton<UserSocialRepository>(
+    () => UserSocialRepositoryImpl(
+      remoteDataSource: sl(),
     ),
+  );
+
+  // Data Sources
+  sl.registerLazySingleton<UserSocialRemoteDataSource>(
+    () => UserSocialRemoteDataSourceImpl(
+      dio: sl(),
+      authService: sl(),
+    ),
+  );
+}
+
+//======================================================================
+// MAP FEATURE
+//======================================================================
+void _registerMapFeature() {
+  // BLoCs
+  sl.registerFactory(
+    () => MapBloc(
+      getLocationUseCase: sl(),
+      searchLocationsUseCase: sl(),
+    ),
+  );
+
+  // UseCases
+  sl.registerLazySingleton(() => GetLocationUseCase(sl()));
+  sl.registerLazySingleton(() => SearchLocationsUseCase(sl()));
+
+  // Repository
+  sl.registerLazySingleton<LocationRepository>(
+    () => LocationRepositoryImpl(
+      remoteDataSource: sl(),
+    ),
+  );
+
+  // Data Sources
+  sl.registerLazySingleton<LocationRemoteDatasource>(
+    () => LocationRemoteDataSourceImpl(dio: sl()),
   );
 }

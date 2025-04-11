@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -16,6 +17,7 @@ import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
+import 'package:google_sign_in_web/web_only.dart' as web_only;
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key});
@@ -36,6 +38,7 @@ class _WelcomePageState extends State<WelcomePage> {
   void initState() {
     super.initState();
     _isMounted = true;
+    _setupGoogleSignInListener(context);
   }
 
   @override
@@ -231,118 +234,209 @@ class _WelcomePageState extends State<WelcomePage> {
     );
   }
 
-  // Google Sign In button with official Google styling
+// Google Sign In button with official Google styling
   Widget _buildGoogleSignInButton(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        foregroundColor: Theme.of(context).colorScheme.secondary,
-        elevation: 1,
-        shape: SmoothRectangleBorder(
-            smoothness: 0.8,
-            borderRadius: BorderRadius.circular(16),
-            side: BorderSide(color: Theme.of(context).cardColor)),
-        padding: const EdgeInsets.symmetric(vertical: 18),
-      ),
-      onPressed: () => _handleGoogleSignIn(),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Use the official Google "G" logo as an asset
-            SizedBox(
-              width: 21,
-              height: 21,
-              child: Image.asset(
-                'assets/images/google_ic_org.png', // Add this to your assets
-                errorBuilder: (context, error, stackTrace) => Icon(
-                  Ionicons.logo_google,
-                  color: CupertinoColors.activeBlue, // Google blue
-                  size: 21,
+
+    if (kIsWeb) {
+      // For web, return a container with the web-specific renderButton
+      return Container(
+        height: 50,
+        constraints: BoxConstraints(maxWidth: 300),
+        child: web_only.renderButton(
+          configuration: web_only.GSIButtonConfiguration(
+            type: web_only.GSIButtonType.standard,
+            theme: web_only.GSIButtonTheme.filledBlue,
+            size: web_only.GSIButtonSize.large,
+            text: web_only.GSIButtonText.signinWith,
+            shape: web_only.GSIButtonShape.rectangular,
+          ),
+        ),
+      );
+    } else {
+      // For mobile, use your existing button
+      return ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          foregroundColor: Theme.of(context).colorScheme.secondary,
+          elevation: 1,
+          shape: SmoothRectangleBorder(
+              smoothness: 0.8,
+              borderRadius: BorderRadius.circular(16),
+              side: BorderSide(color: Theme.of(context).cardColor)),
+          padding: const EdgeInsets.symmetric(vertical: 18),
+        ),
+        onPressed: () => _handleGoogleSignIn(),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Use the official Google "G" logo as an asset
+              SizedBox(
+                width: 21,
+                height: 21,
+                child: Image.asset(
+                  'assets/images/google_ic_org.png', // Add this to your assets
+                  errorBuilder: (context, error, stackTrace) => Icon(
+                    Ionicons.logo_google,
+                    color: CupertinoColors.activeBlue, // Google blue
+                    size: 21,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(width: 18),
-            Text(
-              localizations.continueWithGoogle,
-              style: TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w700,
-                fontFamily: Constants.Arial,
-                color: Theme.of(context).colorScheme.secondary,
+              const SizedBox(width: 18),
+              Text(
+                localizations.continueWithGoogle,
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w700,
+                  fontFamily: Constants.Arial,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    }
   }
 
-// Replace your _handleGoogleSignIn method with this updated version
+// Add a listener to handle the Google sign-in for web
+  void _setupGoogleSignInListener(BuildContext context) {
+    if (kIsWeb) {
+      final GoogleSignIn webGoogleSignIn = GoogleSignIn(
+        clientId:
+            '907103281951-hs8760vautubke7h6s54889ri4juqp3t.apps.googleusercontent.com',
+        scopes: ['email', 'profile', 'openid'],
+      );
+
+      webGoogleSignIn.onCurrentUserChanged
+          .listen((GoogleSignInAccount? account) async {
+        if (account != null) {
+          // When user signs in, get their ID token
+          final GoogleSignInAuthentication auth = await account.authentication;
+          if (auth.idToken != null) {
+            print('Google ID Token from listener: ${auth.idToken}');
+            print('Google User Email from listener: ${account.email}');
+
+            // Dispatch event to AuthBloc
+            context.read<AuthBloc>().add(
+                  GoogleAuthSubmitted(
+                    idToken: auth.idToken!,
+                    email: account.email,
+                  ),
+                );
+
+            // Sign out from Google after getting the tokens
+            await webGoogleSignIn.signOut();
+          }
+        }
+      });
+
+      // Try silent sign-in on initialization
+      webGoogleSignIn.signInSilently();
+    }
+  }
+
   Future<void> _handleGoogleSignIn() async {
     try {
       // Show loading indicator
       _showLoading(context);
 
-      // Create a temporary GoogleSignIn instance with proper configuration
-      final GoogleSignIn tempGoogleSignIn = GoogleSignIn(
-        scopes: ['email', 'profile', 'openid'],
-        serverClientId:
-            '907103281951-hs8760vautubke7h6s54889ri4juqp3t.apps.googleusercontent.com',
-        signInOption: SignInOption.standard,
-      );
+      if (kIsWeb) {
+        // Web implementation using signIn
+        final GoogleSignIn webGoogleSignIn = GoogleSignIn(
+          clientId:
+              '907103281951-hs8760vautubke7h6s54889ri4juqp3t.apps.googleusercontent.com',
+          scopes: ['email', 'profile', 'openid'],
+        );
 
-      // Perform sign-in
-      final GoogleSignInAccount? googleUser = await tempGoogleSignIn.signIn();
+        // Try silent sign-in first
+        GoogleSignInAccount? googleUser =
+            await webGoogleSignIn.signInSilently();
 
-      // Dismiss loading indicator
-      Navigator.of(context, rootNavigator: true).pop();
+        // If silent sign-in fails, use explicit sign-in
+        if (googleUser == null) {
+          googleUser = await webGoogleSignIn.signIn();
+        }
 
-      if (googleUser != null) {
-        final GoogleSignInAuthentication googleAuth =
-            await googleUser.authentication;
+        // Dismiss loading indicator
+        if (Navigator.canPop(context)) {
+          Navigator.of(context, rootNavigator: true).pop();
+        }
 
-        // Get the tokens
-        final String? idToken = googleAuth.idToken;
+        if (googleUser != null) {
+          final GoogleSignInAuthentication googleAuth =
+              await googleUser.authentication;
+          final String? idToken = googleAuth.idToken;
 
-        if (idToken != null && idToken.isNotEmpty) {
-          print('Google ID Token: $idToken');
-          print('Google User Email: ${googleUser.email}');
+          if (idToken != null && idToken.isNotEmpty) {
+            print('Google ID Token: $idToken');
+            print('Google User Email: ${googleUser.email}');
 
-          // Dispatch event to AuthBloc
-          context.read<AuthBloc>().add(
-                GoogleAuthSubmitted(
-                  idToken: idToken,
-                  email: googleUser.email,
-                ),
-              );
+            // Dispatch event to AuthBloc
+            context.read<AuthBloc>().add(
+                  GoogleAuthSubmitted(
+                    idToken: idToken,
+                    email: googleUser.email,
+                  ),
+                );
 
-          // Sign out from Google (we've already got what we need)
-          await tempGoogleSignIn.signOut();
+            // Sign out from Google
+            await webGoogleSignIn.signOut();
+          } else {
+            _showErrorSnackBar(context, "Could not get valid ID token");
+          }
         } else {
-          // Show error if ID token is missing
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                "localizations.couldNotGetValidIDToken",
-                style:
-                    TextStyle(color: Theme.of(context).scaffoldBackgroundColor),
-              ),
-              backgroundColor: Colors.red,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
+          print('Sign in cancelled by user');
         }
       } else {
-        // User cancelled the sign-in flow
-        print('Sign in cancelled by user');
+        // Your existing Android/iOS implementation
+        final GoogleSignIn tempGoogleSignIn = GoogleSignIn(
+          scopes: ['email', 'profile', 'openid'],
+          serverClientId:
+              '907103281951-hs8760vautubke7h6s54889ri4juqp3t.apps.googleusercontent.com',
+          signInOption: SignInOption.standard,
+        );
+
+        final GoogleSignInAccount? googleUser = await tempGoogleSignIn.signIn();
+
+        // Dismiss loading indicator
+        if (Navigator.canPop(context)) {
+          Navigator.of(context, rootNavigator: true).pop();
+        }
+
+        if (googleUser != null) {
+          final GoogleSignInAuthentication googleAuth =
+              await googleUser.authentication;
+          final String? idToken = googleAuth.idToken;
+
+          if (idToken != null && idToken.isNotEmpty) {
+            print('Google ID Token: $idToken');
+            print('Google User Email: ${googleUser.email}');
+
+            context.read<AuthBloc>().add(
+                  GoogleAuthSubmitted(
+                    idToken: idToken,
+                    email: googleUser.email,
+                  ),
+                );
+
+            await tempGoogleSignIn.signOut();
+          } else {
+            _showErrorSnackBar(context, AppLocalizations.of(context)!.error);
+          }
+        } else {
+          print('Sign in cancelled by user');
+        }
       }
     } catch (error) {
       // Dismiss loading indicator if it's still showing
-      Navigator.of(context, rootNavigator: true)
-          .popUntil((route) => route.isFirst);
+      if (Navigator.canPop(context)) {
+        Navigator.of(context, rootNavigator: true)
+            .popUntil((route) => route.isFirst);
+      }
 
       print('Detailed Google Sign In Error: $error');
 
@@ -353,21 +447,12 @@ class _WelcomePageState extends State<WelcomePage> {
       String errorMessage = localizations.googleSignInFailed;
       if (error.toString().contains('network_error')) {
         errorMessage = localizations.networkErrorOccurred;
-      } else if (error.toString().contains('popup_closed_by_user')) {
+      } else if (error.toString().contains('popup_closed') ||
+          error.toString().contains('popup_closed_by_user')) {
         errorMessage = localizations.signInCancelled;
       }
 
-      // Show error message to user
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            errorMessage,
-            style: TextStyle(color: Theme.of(context).scaffoldBackgroundColor),
-          ),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: Colors.red,
-        ),
-      );
+      _showErrorSnackBar(context, errorMessage);
     }
   }
 
@@ -410,12 +495,12 @@ class _WelcomePageState extends State<WelcomePage> {
   }
 
   // Success message
-  void _showSuccessMessage(BuildContext context, String message) {
+  void _showErrorSnackBar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message,
             style: TextStyle(color: Theme.of(context).scaffoldBackgroundColor)),
-        backgroundColor: Colors.green,
+        backgroundColor: Colors.red,
         behavior: SnackBarBehavior.floating,
       ),
     );
