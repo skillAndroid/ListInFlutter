@@ -1,12 +1,20 @@
 // ignore_for_file: deprecated_member_use
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/di/di_managment.dart';
+import 'package:list_in/core/language/screen/language_picker_screen.dart';
 import 'package:list_in/core/router/routes.dart';
+import 'package:list_in/core/utils/const.dart';
+import 'package:list_in/features/auth/data/sources/auth_local_data_source.dart';
+import 'package:list_in/features/details/presentation/pages/details.dart';
 import 'package:list_in/features/explore/presentation/widgets/product_card/bb/regular_product_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
@@ -18,11 +26,14 @@ import 'package:list_in/features/profile/presentation/bloc/publication/user_publ
 import 'package:list_in/features/profile/presentation/bloc/user/user_profile_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/user/user_profile_event.dart';
 import 'package:list_in/features/profile/presentation/bloc/user/user_profile_state.dart';
+import 'package:list_in/features/profile/presentation/pages/new_profili_desing.dart';
 import 'package:list_in/global/likeds/liked_publications_bloc.dart';
 import 'package:list_in/global/likeds/liked_publications_event.dart';
 import 'package:list_in/global/likeds/liked_publications_state.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -97,8 +108,8 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
               headerSliverBuilder: (context, innerBoxIsScrolled) {
                 return [
                   SliverAppBar(
-                    floating: true,
-                    pinned: false,
+                    floating: false,
+                    pinned: true,
                     snap: false,
                     toolbarHeight: 56,
                     elevation: 0,
@@ -108,25 +119,12 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                     title: Row(
                       children: [
                         Text(
-                          'My Store',
+                          'Profile',
                           style: TextStyle(
                             color: Colors.black87,
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
                             letterSpacing: -0.3,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Icon(
-                            Icons.store_rounded,
-                            color: AppColors.primary,
-                            size: 20,
                           ),
                         ),
                       ],
@@ -160,13 +158,17 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                             children: [
                               // Profile image
                               SizedBox(
-                                width: 75,
-                                height: 75,
+                                width: 82,
+                                height: 82,
                                 child: Stack(
                                   children: [
                                     SmoothClipRRect(
                                       smoothness: 0.8,
-                                      borderRadius: BorderRadius.circular(22),
+                                      side: BorderSide(
+                                        width: 2,
+                                        color: AppColors.containerColor,
+                                      ),
+                                      borderRadius: BorderRadius.circular(100),
                                       child: userData.profileImagePath != null
                                           ? CachedNetworkImage(
                                               width: double.infinity,
@@ -187,20 +189,24 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                                       bottom: 0,
                                       right: 0,
                                       child: Transform.translate(
-                                        offset: Offset(6, 6),
+                                        offset: Offset(0, 0),
                                         child: SmoothClipRRect(
+                                          side: BorderSide(
+                                            width: 1,
+                                            color: AppColors.containerColor,
+                                          ),
                                           borderRadius:
                                               BorderRadius.circular(100),
                                           child: InkWell(
                                             child: Container(
                                               width: 24,
                                               height: 24,
-                                              color: AppColors.blue,
+                                              color: AppColors.white,
                                               child: Center(
                                                 child: Icon(
                                                   size: 16,
-                                                  Icons.add_rounded,
-                                                  color: AppColors.white,
+                                                  Icons.edit,
+                                                  color: AppColors.black,
                                                 ),
                                               ),
                                             ),
@@ -212,28 +218,23 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                                 ),
                               ),
                               const SizedBox(width: 36),
-                              Padding(
-                                padding: const EdgeInsets.only(top: 4.0),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    _buildStatItem(
-                                      userData.rating.toString() == "null"
-                                          ? '0'
-                                          : userData.rating.toInt().toString(),
-                                      'Rating',
-                                    ),
-                                    const SizedBox(width: 32),
-                                    _buildStatItem(
-                                        userData.followers.toString(),
-                                        'Followers'),
-                                    const SizedBox(width: 32),
-                                    _buildStatItem(
-                                        userData.following.toString(),
-                                        'Following'),
-                                  ],
-                                ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  _buildStatItem(
+                                    userData.rating.toString() == "null"
+                                        ? '0'
+                                        : userData.rating.toInt().toString(),
+                                    'Rating',
+                                  ),
+                                  const SizedBox(width: 32),
+                                  _buildStatItem(userData.followers.toString(),
+                                      'Followers'),
+                                  const SizedBox(width: 32),
+                                  _buildStatItem(userData.following.toString(),
+                                      'Following'),
+                                ],
                               ),
                             ],
                           ),
@@ -249,24 +250,6 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                                 style: const TextStyle(
                                   fontSize: 17,
                                   fontWeight: FontWeight.w600,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.withOpacity(0.3),
-                                  borderRadius: BorderRadius.circular(2),
-                                ),
-                                width: 2,
-                                height: 14,
-                              ),
-                              const SizedBox(width: 12),
-                              Text(
-                                userData.role,
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
                                   color: Colors.black87,
                                 ),
                               ),
@@ -291,11 +274,12 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                     ),
                   ),
                   SliverToBoxAdapter(
-                    child: Column(
+                    child: Row(
                       children: [
-                        _buildContactActions(userData),
-                        // _buildReviewSection(userData),
-                        const SizedBox(height: 12),
+                        _buildContactActions(
+                          userData,
+                          state,
+                        ),
                       ],
                     ),
                   ),
@@ -311,7 +295,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                               children: [
                                 Icon(
                                   Icons.inventory_rounded,
-                                  size: 24,
+                                  size: 22,
                                 ),
                                 SizedBox(
                                   width: 4,
@@ -331,36 +315,11 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                           ),
                           Tab(
                             child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.reviews,
-                                  size: 24,
-                                ),
-                                SizedBox(
-                                  width: 4,
-                                ),
-                                Text(
-                                  'Reviews',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 4,
-                                ),
-                              ],
-                            ),
-                          ),
-                          Tab(
-                            child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(
                                   CupertinoIcons.heart_circle,
-                                  size: 24,
+                                  size: 22,
                                 ),
                                 SizedBox(
                                   width: 4,
@@ -378,12 +337,35 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                               ],
                             ),
                           ),
+                          Tab(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  CupertinoIcons.person,
+                                  size: 22,
+                                ),
+                                SizedBox(
+                                  width: 4,
+                                ),
+                                Text(
+                                  'Account',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 4,
+                                ),
+                              ],
+                            ),
+                          ),
                         ],
                         labelColor: AppColors.black,
                         unselectedLabelColor: AppColors.grey,
-                        indicator: const CustomLineIndicator(
-                          lineHeight: 3,
-                          lineWidth: 18, // Reduced from 20
+                        indicator: const BoxDecoration(
                           color: AppColors.black,
                         ),
                       ),
@@ -394,7 +376,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                 ];
               },
               body: Padding(
-                padding: const EdgeInsets.only(top: 0, right: 8, left: 4),
+                padding: const EdgeInsets.only(top: 8, right: 8, left: 4),
                 child: TabBarView(
                   controller: _tabController,
                   children: [
@@ -426,10 +408,6 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                     ),
                     // Posts Tab
 
-                    _buildEmptyTab(
-                      icon: CupertinoIcons.star,
-                      text: "No Reviews",
-                    ),
                     NotificationListener<ScrollNotification>(
                       onNotification: (ScrollNotification scrollInfo) {
                         if (scrollInfo is ScrollEndNotification) {
@@ -452,7 +430,10 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                           _buildLikedPublicationsGrid(),
                         ],
                       ),
-                    )
+                    ),
+                    _buildAccountTab(
+                      state: state,
+                    ),
                   ],
                 ),
               ),
@@ -480,7 +461,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
         Text(
           label,
           style: TextStyle(
-            fontSize: 13,
+            fontSize: 12.5,
             fontWeight: FontWeight.w500,
             color: Colors.grey[600],
             height: 1.1,
@@ -490,38 +471,51 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Widget _buildContactActions(UserDataEntity? user) {
+  Widget _buildContactActions(UserDataEntity? user, UserProfileState state) {
+    final userData = state.userData!;
     return Container(
-      height: 95,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+      padding: const EdgeInsets.only(
+        left: 12,
+        right: 8,
+        bottom: 20,
+        top: 4,
+      ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           _buildActionItem(
-            0,
-            CupertinoIcons.plus,
-            'Create',
-            AppColors.white,
-            AppColors.blue,
-            onTap: () {
-              context.push(Routes.post);
-            },
-          ),
-          _buildActionItem(
             1,
-            CupertinoIcons.bell_fill,
-            'Alerts',
-            AppColors.primaryLight,
+            Icons.share,
+            'Share profile',
+            AppColors.white,
             AppColors.black,
-            onTap: () {
-              // Handle notifications
-            },
+            onTap: () => shareUserProfile(
+              context,
+              UserProfileEntity(
+                isBusinessAccount: userData.role != "INDIVIDUAL_SELLER",
+                locationName: userData.locationName,
+                longitude: userData.longitude,
+                latitude: userData.latitude,
+                fromTime: userData.fromTime,
+                toTime: userData.toTime,
+                isGrantedForPreciseLocation:
+                    userData.isGrantedForPreciseLocation,
+                nickName: userData.nickName,
+                phoneNumber: userData.phoneNumber,
+                profileImagePath: userData.profileImagePath,
+                country: userData.country?.valueRu,
+                state: userData.state?.valueRu,
+                county: userData.county?.valueRu,
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 8,
           ),
           _buildActionItem(
-            2,
+            0,
             Icons.edit,
-            'Edit',
+            'Edit profile',
             AppColors.primaryLight,
             AppColors.black,
             onTap: () {
@@ -539,26 +533,6 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
               ));
             },
           ),
-          _buildActionItem(
-            3,
-            Icons.workspace_premium,
-            'Premium',
-            AppColors.primaryLight,
-            AppColors.black,
-            onTap: () {
-              // Handle premium upgrade
-            },
-          ),
-          _buildActionItem(
-            4,
-            Icons.settings,
-            'Settings',
-            AppColors.primaryLight,
-            AppColors.black,
-            onTap: () {
-              // Handle settings
-            },
-          ),
         ],
       ),
     );
@@ -574,51 +548,46 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
   }) {
     return GestureDetector(
       onTap: onTap,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          if (index == 0) SizedBox(height: 2),
-          Card(
-            margin: EdgeInsets.zero,
-            elevation: 0,
-            shadowColor: Colors.white.withOpacity(0.5),
-            shape: SmoothRectangleBorder(
-                side: BorderSide(
-                  width: index == 0 ? 1.5 : 0,
-                  color: index == 0
-                      ? AppColors.containerColor
-                      : AppColors.transparent,
-                ),
-                borderRadius: index != 0
-                    ? BorderRadius.circular(20)
-                    : BorderRadius.circular(20)),
-            color: index == 0 ? AppColors.white : AppColors.containerColor,
-            child: Container(
-              margin: index != 0 ? const EdgeInsets.all(2.0) : EdgeInsets.zero,
-              width: 56,
-              height: 56,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    icon,
-                    color: AppColors.black,
-                    size: 22,
-                  ),
-                ],
+      child: Card(
+        margin: EdgeInsets.zero,
+        elevation: 0,
+        shadowColor: Colors.white.withOpacity(0.5),
+        shape: SmoothRectangleBorder(
+            side: BorderSide(
+              width: index == 0 ? 1 : 0,
+              color:
+                  index == 0 ? AppColors.containerColor : AppColors.transparent,
+            ),
+            borderRadius: index != 0
+                ? BorderRadius.circular(20)
+                : BorderRadius.circular(20)),
+        color: index == 0 ? AppColors.white : AppColors.black,
+        child: Container(
+          margin: EdgeInsets.zero,
+          width: 120,
+          height: 28,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                color: index == 0 ? AppColors.black : AppColors.white,
+                size: 18,
               ),
-            ),
+              SizedBox(
+                width: 8,
+              ),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: index == 0 ? AppColors.black : AppColors.white,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
           ),
-          SizedBox(height: index != 0 ? 4 : 6),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 10.5,
-              color: AppColors.black,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -732,7 +701,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
             ),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              childAspectRatio: 0.6,
+              childAspectRatio: 0.65,
               crossAxisSpacing: 0,
               mainAxisSpacing: 0,
             ),
@@ -802,52 +771,107 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Widget _buildEmptyTab({
-    required IconData icon,
-    required String text,
-    String? subText, // Optional subtitle for more context
+  Widget _buildAccountTab({
+    required UserProfileState state,
   }) {
+    final userData = state.userData!;
     return CustomScrollView(
       slivers: [
         SliverFillRemaining(
-          hasScrollBody: false,
           child: Center(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.withOpacity(0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    icon,
-                    size: 48,
-                    color: Colors.grey.shade600,
-                  ),
+                // balance, language, suppport,  logout,
+                _buildMenuItem(
+                  userData.locationName ??
+                      AppLocalizations.of(context)!.not_selected,
+                  AppIcons.homeLocationIc,
+                  () {
+                    Navigator.of(context).push(
+                      CupertinoPageRoute(
+                        builder: (context) => FullScreenMap(
+                          latitude: userData.latitude!,
+                          longitude: userData.longitude!,
+                          locationName: userData.locationName ??
+                              AppLocalizations.of(context)!.no_location,
+                        ),
+                      ),
+                    );
+                  },
                 ),
-                const SizedBox(height: 16),
-                Text(
-                  text,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.grey,
-                  ),
-                  textAlign: TextAlign.center,
+                _buildMenuItem(
+                  AppLocalizations.of(context)!.language,
+                  AppIcons.languageIc,
+                  () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              const LanguageSelectionScreen()),
+                    );
+                  },
                 ),
-                if (subText != null) ...[
-                  const SizedBox(height: 8),
-                  Text(
-                    subText,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey.shade600,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
+
+                _buildMenuItem(
+                  AppLocalizations.of(context)!.help_idea,
+                  AppIcons.ideaIc,
+                  () {
+                    final String languageCode =
+                        Localizations.localeOf(context).languageCode;
+                    String message;
+
+                    switch (languageCode) {
+                      case 'uz':
+                        message =
+                            "💡 Salom! Men ilova uchun ajoyib g'oyaga ega man: ";
+                        break;
+                      case 'en':
+                        message = "💡 Hello! I have a cool idea for the app: ";
+                        break;
+                      case 'ru':
+                      default:
+                        message =
+                            "💡 Привет! У меня есть отличная идея для приложения: ";
+                        break;
+                    }
+
+                    _openTelegram(context, message);
+                  },
+                ),
+
+                _buildMenuItem(
+                  AppLocalizations.of(context)!.support,
+                  AppIcons.supportIc,
+                  () {
+                    final String languageCode =
+                        Localizations.localeOf(context).languageCode;
+                    String message;
+
+                    switch (languageCode) {
+                      case 'uz':
+                        message =
+                            "🆘 Yordam kerak! Men ilovada quyidagi muammoga duch kelmoqdaman: ";
+                        break;
+                      case 'en':
+                        message =
+                            "🆘 Help needed! I'm experiencing the following issue with the app: ";
+                        break;
+                      case 'ru':
+                      default:
+                        message =
+                            "🆘 Нужна помощь! У меня возникла следующая проблема с приложением: ";
+                        break;
+                    }
+
+                    _openTelegram(context, message);
+                  },
+                ),
+
+                _buildMenuItem(
+                  AppLocalizations.of(context)!.logout,
+                  AppIcons.logoutIc,
+                  () => _handleLogout(context),
+                )
               ],
             ),
           ),
@@ -855,63 +879,328 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
       ],
     );
   }
-}
 
-class CustomLineIndicator extends Decoration {
-  final double lineHeight;
-  final double lineWidth;
-  final Color color;
-
-  const CustomLineIndicator({
-    this.lineHeight = 2.0,
-    this.lineWidth = 20.0,
-    this.color = Colors.black,
-  });
-
-  @override
-  BoxPainter createBoxPainter([VoidCallback? onChanged]) {
-    return _CustomLinePainter(
-      lineHeight: lineHeight,
-      lineWidth: lineWidth,
-      color: color,
-      onChange: onChanged,
+  Widget _buildMenuItem(String title, String image, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 12),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            SizedBox(
+              height: 18,
+            ),
+            Row(
+              children: [
+                Image.asset(
+                  image,
+                  width: 20,
+                  height: 20,
+                  color: Theme.of(context).colorScheme.surface,
+                ),
+                SizedBox(
+                  width: 16,
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 32),
+                    child: Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
+                    ),
+                  ),
+                ),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 18,
+            ),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(1),
+              child: Divider(
+                height: 0.5,
+                color: Theme.of(context).colorScheme.onSecondary,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
-}
 
-class _CustomLinePainter extends BoxPainter {
-  final double lineHeight;
-  final double lineWidth;
-  final Color color;
+  Future<void> shareUserProfile(
+      BuildContext context, UserProfileEntity profile) async {
+    final String appName = "ListIn";
 
-  _CustomLinePainter({
-    required this.lineHeight,
-    required this.lineWidth,
-    required this.color,
-    VoidCallback? onChange,
-  }) : super(onChange);
-
-  @override
-  void paint(Canvas canvas, Offset offset, ImageConfiguration configuration) {
-    assert(configuration.size != null);
-    final Paint paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
-
-    final Offset center = Offset(
-      offset.dx + configuration.size!.width / 2,
-      offset.dy + 2,
+    // Show permission dialog
+    final permissionResult = await showModalBottomSheet<Map<String, bool>>(
+      context: context,
+      useRootNavigator: true,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return SharePermissionSheet(profile: profile);
+      },
     );
 
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-          Rect.fromCenter(
-            center: center,
-            width: lineWidth,
-            height: lineHeight,
+    // If user canceled, return
+    if (permissionResult == null) return;
+
+    final bool shareLocation = permissionResult['location'] ?? false;
+    final bool sharePhone = permissionResult['phone'] ?? false;
+    final bool shareImage = permissionResult['image'] ?? false;
+
+    // Create base message with appropriate localization and enhanced stickers
+    String message = _getLocalizedGreeting(context, appName, profile.nickName);
+
+    // Add business information if applicable
+    if (profile.isBusinessAccount == true) {
+      message += _getLocalizedBusinessInfo(context, profile.nickName!);
+    }
+
+    // Add location if permitted
+    if (shareLocation &&
+        profile.locationName != null &&
+        profile.locationName!.isNotEmpty) {
+      message += _getLocalizedLocation(context, profile.locationName!);
+    }
+
+    // Add phone if permitted
+    if (sharePhone &&
+        profile.phoneNumber != null &&
+        profile.phoneNumber!.isNotEmpty) {
+      message += _getLocalizedPhone(context, profile.phoneNumber!);
+    }
+
+    // Add image URL if permitted
+    if (shareImage &&
+        profile.profileImagePath != null &&
+        profile.profileImagePath!.isNotEmpty) {
+      // Ensure the URL starts with 'https://'
+      String imageUrl = profile.profileImagePath!;
+      if (!imageUrl.startsWith('http')) {
+        imageUrl = 'https://$imageUrl';
+      }
+      message += _getLocalizedProfileImage(context, imageUrl);
+    }
+
+    // Add app description and download link with enhanced stickers
+    message += _getLocalizedAppPromo(context, appName);
+
+    // App download links with attention-grabbing stickers
+    final String appLink = Platform.isAndroid
+        ? "https://play.google.com/store/apps/details?id=com.listIn.marketplace&pcampaignid=web_share"
+        : "https://apps.apple.com/app/listin-marketplace/id123456789";
+
+    message += "\n\n⬇️ $appLink ⬇️";
+
+    // Final call-to-action with stickers
+    message += "\n\n" + _getLocalizedCallToAction(context);
+
+    // Text-only sharing
+    await Share.share(
+      message,
+      subject: "✨ Join me on $appName! ✨",
+    );
+  }
+
+// Helper method to get localized greeting with enhanced stickers
+  String _getLocalizedGreeting(
+      BuildContext context, String appName, String? nickName) {
+    final locale = Localizations.localeOf(context).languageCode;
+    switch (locale) {
+      case 'uz':
+        return "👋 Salom! 🌟 Men $appName ilovasida $nickName sifatida ro'yxatdan o'tdim. 🎉\n\n";
+      case 'en':
+        return "👋 Hello there! 🌟 I joined $appName as $nickName. 🎉\n\n";
+      case 'ru':
+      default:
+        return "👋 Привет! 🌟 Я присоединился к $appName как $nickName. 🎉\n\n";
+    }
+  }
+
+// Helper method to get localized business info with stickers
+  String _getLocalizedBusinessInfo(BuildContext context, String nickName) {
+    final locale = Localizations.localeOf(context).languageCode;
+    switch (locale) {
+      case 'uz':
+        return "🏢 Biznesim: $nickName\n";
+      case 'en':
+        return "🏢 My business: $nickName\n";
+      case 'ru':
+      default:
+        return "🏢 Мой бизнес: $nickName\n";
+    }
+  }
+
+// Helper method to get localized location with stickers
+  String _getLocalizedLocation(BuildContext context, String location) {
+    final locale = Localizations.localeOf(context).languageCode;
+    switch (locale) {
+      case 'uz':
+        return "📍 Manzil: $location\n";
+      case 'en':
+        return "📍 Location: $location\n";
+      case 'ru':
+      default:
+        return "📍 Адрес: $location\n";
+    }
+  }
+
+// Helper method to get localized phone with stickers
+  String _getLocalizedPhone(BuildContext context, String phone) {
+    final locale = Localizations.localeOf(context).languageCode;
+    switch (locale) {
+      case 'uz':
+        return "📱 Telefon: $phone\n\n";
+      case 'en':
+        return "📱 Phone: $phone\n\n";
+      case 'ru':
+      default:
+        return "📱 Телефон: $phone\n\n";
+    }
+  }
+
+// Helper method to get localized profile image with stickers
+  String _getLocalizedProfileImage(BuildContext context, String imageUrl) {
+    final locale = Localizations.localeOf(context).languageCode;
+    switch (locale) {
+      case 'uz':
+        return "🖼️ Profil rasmi: $imageUrl\n";
+      case 'en':
+        return "🖼️ Profile picture: $imageUrl\n";
+      case 'ru':
+      default:
+        return "🖼️ Фото профиля: $imageUrl\n";
+    }
+  }
+
+// Helper method to get localized app promo text with stickers
+  String _getLocalizedAppPromo(BuildContext context, String appName) {
+    final locale = Localizations.localeOf(context).languageCode;
+    switch (locale) {
+      case 'uz':
+        return "✨ $appName - eng yangi va qulay bozor ilova! 🛍️\n\n🔥 Tezkor savdo-sotiq! 💯 Qulay interfeysda! 🚀 Eng zo'r takliflar!";
+      case 'en':
+        return "✨ $appName - the newest and most interactive marketplace! 🛍️\n\n🔥 Fast trading! 💯 User-friendly interface! 🚀 Best deals!";
+      case 'ru':
+      default:
+        return "✨ $appName - самый новый и удобный маркетплейс! 🛍️\n\n🔥 Быстрая торговля! 💯 Удобный интерфейс! 🚀 Лучшие предложения!";
+    }
+  }
+
+// New helper method for call to action with stickers
+  String _getLocalizedCallToAction(BuildContext context) {
+    final locale = Localizations.localeOf(context).languageCode;
+    switch (locale) {
+      case 'uz':
+        return "🤝 Menga qo'shiling va bizni keng jamiyatimizning bir qismi bo'ling! 🌐\n💰 Eng yaxshi takliflarni toping va sotib oling! 🎁";
+      case 'en':
+        return "🤝 Join me and be part of our growing community! 🌐\n💰 Find and buy the best deals! 🎁";
+      case 'ru':
+      default:
+        return "🤝 Присоединяйтесь ко мне и станьте частью нашего растущего сообщества! 🌐\n💰 Находите и покупайте лучшие предложения! 🎁";
+    }
+  }
+
+  void _openTelegram(BuildContext context, String message) {
+    final String username = "FlyEnebo";
+    final String encodedMessage = Uri.encodeComponent(message);
+    final String url = "https://t.me/$username?text=$encodedMessage";
+
+    try {
+      launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+    } catch (e) {
+      // Handle error based on language
+      final String languageCode = Localizations.localeOf(context).languageCode;
+      String errorMessage;
+
+      switch (languageCode) {
+        case 'uz':
+          errorMessage = "Telegram ilovasini ochib bo'lmadi";
+          break;
+        case 'en':
+          errorMessage = "Could not open Telegram";
+          break;
+        case 'ru':
+        default:
+          errorMessage = "Не удалось открыть Telegram";
+          break;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(errorMessage,
+                style: TextStyle(fontFamily: Constants.Arial))),
+      );
+    }
+  }
+
+  void _handleLogout(BuildContext context) {
+    // Show iOS-style action sheet menu
+    showCupertinoModalPopup(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoActionSheet(
+          title: Text(
+            AppLocalizations.of(context)!.logout,
+            style: TextStyle(fontFamily: Constants.Arial),
           ),
-          Radius.circular(1)),
-      paint,
+          message: Text(
+            AppLocalizations.of(context)!.logout_confirmation,
+            style: TextStyle(fontFamily: Constants.Arial),
+          ),
+          actions: [
+            CupertinoActionSheetAction(
+              isDestructiveAction: true,
+              onPressed: () async {
+                // Clear all cached data
+                final authLocalDataSource = sl<AuthLocalDataSource>();
+                await authLocalDataSource.clearAuthToken();
+                await authLocalDataSource.deleteRetrivedEmail();
+                await authLocalDataSource.cacheUserId(null);
+                await authLocalDataSource.cacheProfileImagePath(null);
+
+                // Close action sheet
+                Navigator.of(context).pop();
+
+                // Navigate to login page
+                context.go(Routes.welcome);
+              },
+              child: Text(
+                AppLocalizations.of(context)!.yes,
+                style: TextStyle(
+                  fontFamily: Constants.Arial,
+                  fontSize: 18,
+                ),
+              ),
+            ),
+          ],
+          cancelButton: CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text(
+              AppLocalizations.of(context)!.cancel,
+              style: TextStyle(
+                fontFamily: Constants.Arial,
+                fontSize: 18,
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
@@ -929,6 +1218,21 @@ class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
       color: Colors.white,
       child: Column(
         children: [
+          Expanded(
+            child: TabBar(
+              padding: EdgeInsets.zero,
+              controller: tabBar.controller,
+              tabs: tabBar.tabs,
+              indicatorColor: AppColors.black,
+              indicatorSize: TabBarIndicatorSize.tab,
+              labelColor: Colors.black,
+              unselectedLabelColor: AppColors.grey,
+              labelPadding: const EdgeInsets.symmetric(vertical: 0),
+              dividerColor: Colors.transparent,
+              overlayColor:
+                  MaterialStateProperty.all(Colors.grey.withOpacity(0.1)),
+            ),
+          ),
           Transform.translate(
             offset: Offset(0, 0),
             child: Container(
@@ -937,33 +1241,16 @@ class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
                   Colors.grey.withOpacity(0.1), // Light grey color for the line
             ),
           ),
-          Expanded(
-            child: TabBar(
-              padding: EdgeInsets.zero,
-              controller: tabBar.controller,
-              tabs: tabBar.tabs,
-              labelColor: Colors.black,
-              unselectedLabelColor: AppColors.grey,
-              indicator: const CustomLineIndicator(
-                lineHeight: 3.5,
-                lineWidth: 20,
-                color: Colors.black,
-              ),
-              labelPadding: const EdgeInsets.symmetric(vertical: 16),
-              dividerColor: Colors.transparent,
-              overlayColor: MaterialStateProperty.all(Colors.transparent),
-            ),
-          ),
         ],
       ),
     );
   }
 
   @override
-  double get maxExtent => 61;
+  double get maxExtent => 40;
 
   @override
-  double get minExtent => 61;
+  double get minExtent => 40;
 
   @override
   bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {

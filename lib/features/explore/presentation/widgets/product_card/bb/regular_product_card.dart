@@ -7,13 +7,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:list_in/config/assets/app_images.dart';
-import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/formaters.dart';
 import 'package:list_in/features/explore/presentation/widgets/product_card/bb/boosted_card.dart';
-import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/profile/domain/usecases/user/get_user_data_usecase.dart';
 import 'package:list_in/global/global_bloc.dart';
 import 'package:list_in/global/global_event.dart';
@@ -97,7 +95,7 @@ class OptimizedProductCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: EdgeInsets.all(3),
+        margin: EdgeInsets.all(2),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -162,12 +160,9 @@ class ProductImageSection extends StatelessWidget {
         fit: StackFit.expand,
         children: [
           Padding(
-            padding: const EdgeInsets.all(3),
-            child: ClipSmoothRect(
-              radius: SmoothBorderRadius(
-                cornerRadius: 18,
-                cornerSmoothing: 0.8,
-              ),
+            padding: const EdgeInsets.all(0),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
               child: _buildImage(),
             ),
           ),
@@ -315,11 +310,11 @@ class ProductDetailsSection extends StatelessWidget {
                 child: Text(
                   title,
                   style: TextStyle(
-                    fontSize: 14.5,
+                    fontSize: 13,
                     fontWeight: FontWeight.w500,
                     color: Theme.of(context).colorScheme.secondary,
                   ),
-                  maxLines: 2,
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -339,7 +334,7 @@ class ProductDetailsSection extends StatelessWidget {
           formatPrice(price.toString()),
           style: TextStyle(
             fontWeight: FontWeight.w700,
-            fontSize: 17,
+            fontSize: 16,
             color: Theme.of(context).colorScheme.secondary,
             fontFamily: Constants.Arial,
           ),
@@ -350,11 +345,11 @@ class ProductDetailsSection extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
             color: Theme.of(context).colorScheme.surface,
-            fontSize: 13,
+            fontSize: 12,
             fontWeight: FontWeight.w300,
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 4),
       ],
     );
   }

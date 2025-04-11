@@ -39,6 +39,7 @@ import 'package:list_in/features/post/presentation/pages/post_screen.dart';
 import 'package:list_in/features/profile/domain/entity/user/user_profile_entity.dart';
 import 'package:list_in/features/profile/presentation/pages/new_profili_desing.dart';
 import 'package:list_in/features/profile/presentation/pages/profile_editor_page.dart';
+import 'package:list_in/features/profile/presentation/pages/profile_screen.dart';
 import 'package:list_in/features/profile/presentation/pages/publications_editor_page.dart';
 import 'package:list_in/features/undefined_screens_yet/wrapper_screen.dart';
 import 'package:list_in/features/video/presentation/pages/video_feed_screen.dart';
@@ -666,7 +667,7 @@ class AppRouter {
                 path: Routes.profile,
                 name: RoutesByName.profile,
                 builder: (context, state) {
-                  return ProfileDashboard(
+                  return ProfileScreen(
                     key: state.pageKey,
                   );
                 },
