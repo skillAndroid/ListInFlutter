@@ -2,6 +2,7 @@ C/C++ Structured Log`
 ^
 \C:\android\ListInFlutter\android\app\.cxx\Debug\72042436\x86_64\additional_project_files.txtC
 A
+<<<<<<< HEAD
 ?com.android.build.gradle.internal.cxx.io.EncodedFileFingerPrint	û«¸¢â2 à»–ƒÙ2]
 [
 YC:\android\ListInFlutter\android\app\.cxx\Debug\72042436\x86_64\android_gradle_build.json	û«¸¢â2’ â»–ƒÙ2b
@@ -26,3 +27,29 @@ Y
 WC:\android\ListInFlutter\android\app\.cxx\Debug\72042436\x86_64\symbol_folder_index.txt	û«¸¢â2N å»–ƒÙ2K
 I
 GC:\flutter\packages\flutter_tools\gradle\src\main\groovy\CMakeLists.txt	û«¸¢â2§ üŸ†“×2
+=======
+?com.android.build.gradle.internal.cxx.io.EncodedFileFingerPrint	ë×Ü«â2 ŽˆÁ¨â2]
+[
+YC:\android\ListInFlutter\android\app\.cxx\Debug\72042436\x86_64\android_gradle_build.json	ë×Ü«â2’ ‘ˆÁ¨â2b
+`
+^C:\android\ListInFlutter\android\app\.cxx\Debug\72042436\x86_64\android_gradle_build_mini.json	ë×Ü«â2í –ˆÁ¨â2O
+M
+KC:\android\ListInFlutter\android\app\.cxx\Debug\72042436\x86_64\build.ninja	ë×Ü«â2ùÔ §‡Á¨â2S
+Q
+OC:\android\ListInFlutter\android\app\.cxx\Debug\72042436\x86_64\build.ninja.txt	ë×Ü«â2X
+V
+TC:\android\ListInFlutter\android\app\.cxx\Debug\72042436\x86_64\build_file_index.txt	ë×Ü«â2G ›ˆÁ¨â2Y
+W
+UC:\android\ListInFlutter\android\app\.cxx\Debug\72042436\x86_64\compile_commands.json	ë×Ü«â2]
+[
+YC:\android\ListInFlutter\android\app\.cxx\Debug\72042436\x86_64\compile_commands.json.bin	ë×Ü«â2	c
+a
+_C:\android\ListInFlutter\android\app\.cxx\Debug\72042436\x86_64\metadata_generation_command.txt	ì×Ü«â2
+˜ —ˆÁ¨â2V
+T
+RC:\android\ListInFlutter\android\app\.cxx\Debug\72042436\x86_64\prefab_config.json	ì×Ü«â2( ˜ˆÁ¨â2[
+Y
+WC:\android\ListInFlutter\android\app\.cxx\Debug\72042436\x86_64\symbol_folder_index.txt	ì×Ü«â2N šˆÁ¨â2K
+I
+GC:\flutter\packages\flutter_tools\gradle\src\main\groovy\CMakeLists.txt	ì×Ü«â2§ üŸ†“×2
+>>>>>>> 70a6ab0

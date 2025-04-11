@@ -346,10 +346,10 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
 
   Widget _buildProductGrid() {
     return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 4),
       sliver: PagedSliverMasonryGrid.count(
         crossAxisCount: 2,
-        mainAxisSpacing: 4,
+        mainAxisSpacing: 1,
         crossAxisSpacing: 0,
         pagingController: _pagingState.pagingController,
         builderDelegate: PagedChildBuilderDelegate<GetPublicationEntity>(

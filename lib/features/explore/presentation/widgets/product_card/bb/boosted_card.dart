@@ -238,7 +238,7 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
                         TextSpan(
                           text: "${widget.model.title} ",
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 11,
                             height: 1.2,
                             fontFamily: Constants.Arial,
                             fontWeight: FontWeight.w600,
@@ -248,7 +248,7 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
                         TextSpan(
                           text: " ${widget.model.description}",
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 11,
                             height: 1.2,
                             fontFamily: Constants.Arial,
                             fontWeight: FontWeight.w400,
@@ -276,7 +276,7 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
                         formatPrice(widget.model.price.toString()),
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 17,
+                          fontSize: 16,
                           color: AppColors.black,
                         ),
                       ),
@@ -303,14 +303,11 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
 
   Widget _buildMediaCarousel() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 6),
+      padding: EdgeInsets.symmetric(horizontal: 2),
       child: AspectRatio(
-        aspectRatio: 9 / 14,
-        child: ClipSmoothRect(
-          radius: SmoothBorderRadius(
-            cornerRadius: 18,
-            cornerSmoothing: 0.8,
-          ),
+        aspectRatio: 9 / 14.5,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
           child: Stack(
             children: [
               PageView.builder(

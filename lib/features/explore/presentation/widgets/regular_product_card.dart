@@ -44,12 +44,9 @@ class ProfileProductCard extends StatelessWidget {
           Stack(
             children: [
               Padding(
-                padding: const EdgeInsets.all(3),
-                child: ClipSmoothRect(
-                  radius: SmoothBorderRadius(
-                    cornerRadius: 20,
-                    cornerSmoothing: 0.7,
-                  ),
+                padding: const EdgeInsets.all(1.5),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
                   child: AspectRatio(
                     aspectRatio: 1,
                     child: CachedNetworkImage(
@@ -104,7 +101,7 @@ class ProfileProductCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.secondary,
-                    fontSize: 14,
+                    fontSize: 13,
                     fontWeight: FontWeight.w600,
                   ),
                 ),

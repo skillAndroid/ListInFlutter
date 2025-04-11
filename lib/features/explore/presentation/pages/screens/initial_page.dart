@@ -6,12 +6,10 @@ import 'dart:async';
 import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/config/theme/app_language.dart';
@@ -408,10 +406,10 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
 
   Widget _buildProductGrid() {
     return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 4),
       sliver: PagedSliverMasonryGrid.count(
         crossAxisCount: 2,
-        mainAxisSpacing: 4,
+        mainAxisSpacing: 1,
         crossAxisSpacing: 0,
         pagingController: _pagingState.pagingController,
         builderDelegate: PagedChildBuilderDelegate<GetPublicationEntity>(
