@@ -1,2 +1,0 @@
-C:/android/ListInFlutter/android/app/.cxx/RelWithDebInfo/5t5x621q/arm64-v8a/CMakeFiles/edit_cache.dir
-C:/android/ListInFlutter/android/app/.cxx/RelWithDebInfo/5t5x621q/arm64-v8a/CMakeFiles/rebuild_cache.dir

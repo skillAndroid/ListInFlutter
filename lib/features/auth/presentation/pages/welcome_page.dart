@@ -17,7 +17,6 @@ import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
-import 'package:google_sign_in_web/web_only.dart' as web_only;
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key});
@@ -32,7 +31,6 @@ class _WelcomePageState extends State<WelcomePage> {
   final double borderRadiusSmoothness = 0.8;
   final double spaceHeight = 5;
   bool _isLoadingVisible = false;
-  bool _shouldNavigateToRegister = false;
   bool _isMounted = false;
   @override
   void initState() {
@@ -238,68 +236,51 @@ class _WelcomePageState extends State<WelcomePage> {
   Widget _buildGoogleSignInButton(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
 
-    if (kIsWeb) {
-      // For web, return a container with the web-specific renderButton
-      return Container(
-        height: 50,
-        constraints: BoxConstraints(maxWidth: 300),
-        child: web_only.renderButton(
-          configuration: web_only.GSIButtonConfiguration(
-            type: web_only.GSIButtonType.standard,
-            theme: web_only.GSIButtonTheme.filledBlue,
-            size: web_only.GSIButtonSize.large,
-            text: web_only.GSIButtonText.signinWith,
-            shape: web_only.GSIButtonShape.rectangular,
-          ),
-        ),
-      );
-    } else {
-      // For mobile, use your existing button
-      return ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          foregroundColor: Theme.of(context).colorScheme.secondary,
-          elevation: 1,
-          shape: SmoothRectangleBorder(
-              smoothness: 0.8,
-              borderRadius: BorderRadius.circular(16),
-              side: BorderSide(color: Theme.of(context).cardColor)),
-          padding: const EdgeInsets.symmetric(vertical: 18),
-        ),
-        onPressed: () => _handleGoogleSignIn(),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Use the official Google "G" logo as an asset
-              SizedBox(
-                width: 21,
-                height: 21,
-                child: Image.asset(
-                  'assets/images/google_ic_org.png', // Add this to your assets
-                  errorBuilder: (context, error, stackTrace) => Icon(
-                    Ionicons.logo_google,
-                    color: CupertinoColors.activeBlue, // Google blue
-                    size: 21,
-                  ),
+    // For mobile, use your existing button
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).colorScheme.secondary,
+        elevation: 1,
+        shape: SmoothRectangleBorder(
+            smoothness: 0.8,
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(color: Theme.of(context).cardColor)),
+        padding: const EdgeInsets.symmetric(vertical: 18),
+      ),
+      onPressed: () => _handleGoogleSignIn(),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Use the official Google "G" logo as an asset
+            SizedBox(
+              width: 21,
+              height: 21,
+              child: Image.asset(
+                'assets/images/google_ic_org.png', // Add this to your assets
+                errorBuilder: (context, error, stackTrace) => Icon(
+                  Ionicons.logo_google,
+                  color: CupertinoColors.activeBlue, // Google blue
+                  size: 21,
                 ),
               ),
-              const SizedBox(width: 18),
-              Text(
-                localizations.continueWithGoogle,
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w700,
-                  fontFamily: Constants.Arial,
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
+            ),
+            const SizedBox(width: 18),
+            Text(
+              localizations.continueWithGoogle,
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w700,
+                fontFamily: Constants.Arial,
+                color: Theme.of(context).colorScheme.secondary,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-      );
-    }
+      ),
+    );
   }
 
 // Add a listener to handle the Google sign-in for web
@@ -344,92 +325,43 @@ class _WelcomePageState extends State<WelcomePage> {
       // Show loading indicator
       _showLoading(context);
 
-      if (kIsWeb) {
-        // Web implementation using signIn
-        final GoogleSignIn webGoogleSignIn = GoogleSignIn(
-          clientId:
-              '907103281951-hs8760vautubke7h6s54889ri4juqp3t.apps.googleusercontent.com',
-          scopes: ['email', 'profile', 'openid'],
-        );
+      // Your existing Android/iOS implementation
+      final GoogleSignIn tempGoogleSignIn = GoogleSignIn(
+        scopes: ['email', 'profile', 'openid'],
+        serverClientId:
+            '907103281951-hs8760vautubke7h6s54889ri4juqp3t.apps.googleusercontent.com',
+        signInOption: SignInOption.standard,
+      );
 
-        // Try silent sign-in first
-        GoogleSignInAccount? googleUser =
-            await webGoogleSignIn.signInSilently();
+      final GoogleSignInAccount? googleUser = await tempGoogleSignIn.signIn();
 
-        // If silent sign-in fails, use explicit sign-in
-        if (googleUser == null) {
-          googleUser = await webGoogleSignIn.signIn();
-        }
+      // Dismiss loading indicator
+      if (Navigator.canPop(context)) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
 
-        // Dismiss loading indicator
-        if (Navigator.canPop(context)) {
-          Navigator.of(context, rootNavigator: true).pop();
-        }
+      if (googleUser != null) {
+        final GoogleSignInAuthentication googleAuth =
+            await googleUser.authentication;
+        final String? idToken = googleAuth.idToken;
 
-        if (googleUser != null) {
-          final GoogleSignInAuthentication googleAuth =
-              await googleUser.authentication;
-          final String? idToken = googleAuth.idToken;
+        if (idToken != null && idToken.isNotEmpty) {
+          print('Google ID Token: $idToken');
+          print('Google User Email: ${googleUser.email}');
 
-          if (idToken != null && idToken.isNotEmpty) {
-            print('Google ID Token: $idToken');
-            print('Google User Email: ${googleUser.email}');
+          context.read<AuthBloc>().add(
+                GoogleAuthSubmitted(
+                  idToken: idToken,
+                  email: googleUser.email,
+                ),
+              );
 
-            // Dispatch event to AuthBloc
-            context.read<AuthBloc>().add(
-                  GoogleAuthSubmitted(
-                    idToken: idToken,
-                    email: googleUser.email,
-                  ),
-                );
-
-            // Sign out from Google
-            await webGoogleSignIn.signOut();
-          } else {
-            _showErrorSnackBar(context, "Could not get valid ID token");
-          }
+          await tempGoogleSignIn.signOut();
         } else {
-          print('Sign in cancelled by user');
+          _showErrorSnackBar(context, AppLocalizations.of(context)!.error);
         }
       } else {
-        // Your existing Android/iOS implementation
-        final GoogleSignIn tempGoogleSignIn = GoogleSignIn(
-          scopes: ['email', 'profile', 'openid'],
-          serverClientId:
-              '907103281951-hs8760vautubke7h6s54889ri4juqp3t.apps.googleusercontent.com',
-          signInOption: SignInOption.standard,
-        );
-
-        final GoogleSignInAccount? googleUser = await tempGoogleSignIn.signIn();
-
-        // Dismiss loading indicator
-        if (Navigator.canPop(context)) {
-          Navigator.of(context, rootNavigator: true).pop();
-        }
-
-        if (googleUser != null) {
-          final GoogleSignInAuthentication googleAuth =
-              await googleUser.authentication;
-          final String? idToken = googleAuth.idToken;
-
-          if (idToken != null && idToken.isNotEmpty) {
-            print('Google ID Token: $idToken');
-            print('Google User Email: ${googleUser.email}');
-
-            context.read<AuthBloc>().add(
-                  GoogleAuthSubmitted(
-                    idToken: idToken,
-                    email: googleUser.email,
-                  ),
-                );
-
-            await tempGoogleSignIn.signOut();
-          } else {
-            _showErrorSnackBar(context, AppLocalizations.of(context)!.error);
-          }
-        } else {
-          print('Sign in cancelled by user');
-        }
+        print('Sign in cancelled by user');
       }
     } catch (error) {
       // Dismiss loading indicator if it's still showing

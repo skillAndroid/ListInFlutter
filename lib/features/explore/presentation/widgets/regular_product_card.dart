@@ -62,7 +62,7 @@ class ProfileProductCard extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(10),
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     color: Theme.of(context)
                         .colorScheme
                         .onSecondary
@@ -91,7 +91,7 @@ class ProfileProductCard extends StatelessWidget {
             ],
           ),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -105,7 +105,6 @@ class ProfileProductCard extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                SizedBox(height: 4),
                 Text(
                   formatPrice(product.price.toString()),
                   style: TextStyle(
@@ -145,7 +144,7 @@ class ProfileProductCard extends StatelessWidget {
                             );
                           },
                           child: Container(
-                            padding: EdgeInsets.all(8),
+                            padding: EdgeInsets.all(6),
                             decoration: BoxDecoration(
                               color: Theme.of(context).cardColor,
                               borderRadius: BorderRadius.circular(12),
@@ -163,7 +162,7 @@ class ProfileProductCard extends StatelessWidget {
                         InkWell(
                           onTap: () => _showPublicationOptions(context),
                           child: Container(
-                            padding: EdgeInsets.all(8),
+                            padding: EdgeInsets.all(6),
                             decoration: BoxDecoration(
                               color: Theme.of(context).cardColor,
                               borderRadius: BorderRadius.circular(12),

@@ -677,7 +677,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
 
         // Content state with grid
         return SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
           sliver: SliverGrid(
             delegate: SliverChildBuilderDelegate(
               (context, index) {
@@ -701,7 +701,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
             ),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              childAspectRatio: 0.65,
+              childAspectRatio: 0.7,
               crossAxisSpacing: 0,
               mainAxisSpacing: 0,
             ),
@@ -720,7 +720,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
       },
       builder: (context, state) {
         return SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
           sliver: SliverGrid(
             delegate: SliverChildBuilderDelegate(
               (context, index) {
@@ -745,7 +745,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
             ),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              childAspectRatio: 0.72,
+              childAspectRatio: 0.75,
               crossAxisSpacing: 0,
               mainAxisSpacing: 0,
             ),
@@ -911,7 +911,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 14,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w600,
                         color: Theme.of(context).colorScheme.secondary,
                       ),
                     ),
@@ -1223,9 +1223,9 @@ class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
               padding: EdgeInsets.zero,
               controller: tabBar.controller,
               tabs: tabBar.tabs,
-              indicatorColor: AppColors.black,
+              indicatorColor: Theme.of(context).colorScheme.secondary,
               indicatorSize: TabBarIndicatorSize.tab,
-              labelColor: Colors.black,
+              labelColor: Theme.of(context).colorScheme.secondary,
               unselectedLabelColor: AppColors.grey,
               labelPadding: const EdgeInsets.symmetric(vertical: 0),
               dividerColor: Colors.transparent,
