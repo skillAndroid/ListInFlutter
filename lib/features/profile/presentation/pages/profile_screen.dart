@@ -378,38 +378,34 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
 
         return Scaffold(
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          appBar: AppBar(
+            elevation: 0,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            surfaceTintColor: Colors.transparent,
+            automaticallyImplyLeading: false,
+            title: Row(
+              children: [
+                Text(
+                  AppLocalizations.of(context)!.profile,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.secondary,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: -0.3,
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              ThemeToggle(),
+              const SizedBox(width: 12),
+            ],
+          ),
           body: NestedScrollView(
             controller: _scrollController,
             physics: BouncingScrollPhysics(),
             headerSliverBuilder: (context, innerBoxIsScrolled) {
               return [
-                SliverAppBar(
-                  floating: false,
-                  pinned: true,
-                  snap: false,
-                  toolbarHeight: 56,
-                  elevation: 0,
-                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                  surfaceTintColor: Colors.transparent,
-                  scrolledUnderElevation: 0,
-                  title: Row(
-                    children: [
-                      Text(
-                        AppLocalizations.of(context)!.profile,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.secondary,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: -0.3,
-                        ),
-                      ),
-                    ],
-                  ),
-                  actions: [
-                    ThemeToggle(),
-                    const SizedBox(width: 12),
-                  ],
-                ),
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.only(

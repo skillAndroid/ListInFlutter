@@ -44,6 +44,7 @@ import 'package:list_in/features/profile/presentation/pages/publications_editor_
 import 'package:list_in/features/undefined_screens_yet/wrapper_screen.dart';
 import 'package:list_in/features/video/presentation/pages/video_feed_screen.dart';
 import 'package:list_in/features/visitior_profile/presentation/pages/new_visitor_profile.dart';
+import 'package:list_in/features/visitior_profile/presentation/pages/visiter_profile.dart';
 import 'package:list_in/global/global_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -167,9 +168,8 @@ class AppRouter {
         builder: (context, state) {
           final extraData = state.extra as Map<String, dynamic>;
           final userId = extraData['userId'];
-          return StoreProfilePage(
+          return VisitorProfileScreen(
             userId: userId,
-            // products: sampleProducts,
           );
         },
       ),

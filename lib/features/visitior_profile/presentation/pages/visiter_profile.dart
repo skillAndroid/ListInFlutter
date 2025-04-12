@@ -1,14 +1,16 @@
 // ignore_for_file: deprecated_member_use
 
+import 'dart:ui';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
-import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/explore/presentation/widgets/product_card/bb/regular_product_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
@@ -18,6 +20,7 @@ import 'package:list_in/features/profile/presentation/widgets/sliver_app_bar.dar
 import 'package:list_in/features/visitior_profile/presentation/bloc/another_user_profile_bloc.dart';
 import 'package:list_in/features/visitior_profile/presentation/bloc/another_user_profile_event.dart';
 import 'package:list_in/features/visitior_profile/presentation/bloc/another_user_profile_state.dart';
+import 'package:list_in/features/visitior_profile/presentation/pages/new_visitor_profile.dart';
 import 'package:list_in/global/global_bloc.dart';
 import 'package:list_in/global/global_event.dart';
 import 'package:list_in/global/global_state.dart';
@@ -68,6 +71,110 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
     super.dispose();
   }
 
+  // Show enhanced Instagram-style image viewer
+  void _showProfileImageViewer(String imagePath) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.transparent,
+      builder: (BuildContext context) {
+        // Get the screen size for better proportions
+        final screenSize = MediaQuery.of(context).size;
+        final imageSize = screenSize.width * 0.85; // 85% of screen width
+
+        return Material(
+          type: MaterialType.transparency,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              // Full screen blurred background with status bar included
+              BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                child: Container(
+                  color: Theme.of(context)
+                      .scaffoldBackgroundColor
+                      .withOpacity(0.5),
+                  width: double.infinity,
+                  height: double.infinity,
+                ),
+              ),
+
+              // Main content
+              SafeArea(
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Profile image - larger size
+                      Hero(
+                        tag: 'profileImage${imagePath}',
+                        child: Container(
+                          width: imageSize,
+                          height: imageSize,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                          ),
+                          child: SmoothClipRRect(
+                            side: BorderSide(
+                              width: 3,
+                              color: AppColors.white,
+                            ),
+                            borderRadius: BorderRadius.circular(imageSize / 2),
+                            child: imagePath != null && imagePath!.isNotEmpty
+                                ? CachedNetworkImage(
+                                    imageUrl: 'https://${imagePath}',
+                                    fit: BoxFit.cover,
+                                    placeholder: (context, url) => Container(
+                                      color: Colors.black26,
+                                      child: const Center(
+                                        child: CircularProgressIndicator(
+                                          color: Colors.white,
+                                          strokeWidth: 3,
+                                        ),
+                                      ),
+                                    ),
+                                    errorWidget: (context, url, error) =>
+                                        Container(
+                                      color: Colors.black26,
+                                      child: Image.asset(
+                                        AppImages.appLogo,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  )
+                                : Container(
+                                    color: Colors.black26,
+                                    child: Image.asset(
+                                      AppImages.appLogo,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Close button with improved positioning and shadow
+              Positioned(
+                top: MediaQuery.of(context).padding.top + 16,
+                right: 32,
+                child: InkWell(
+                  child: const Icon(
+                    Icons.close_rounded,
+                    size: 32,
+                  ),
+                  onTap: () => Navigator.pop(context),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<AnotherUserProfileBloc, AnotherUserProfileState>(
@@ -92,79 +199,57 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
         }
 
         return Scaffold(
-          backgroundColor: AppColors.bgColor,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          appBar: AppBar(
+            elevation: 0,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            surfaceTintColor: Colors.transparent,
+            automaticallyImplyLeading: false,
+            title: Text(
+              userData.nickName ?? '',
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.secondary,
+              ),
+            ),
+            centerTitle: true,
+            actions: [
+              IconButton(
+                icon: Icon(
+                  Icons.more_vert,
+                  color: Theme.of(context).colorScheme.secondary,
+                  size: 24,
+                ),
+                onPressed: () {},
+                style: IconButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  minimumSize: Size(48, 48),
+                ),
+              ),
+              SizedBox(width: 8),
+            ],
+            leading: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: () => context.pop(),
+              child: Container(
+                alignment: Alignment.centerLeft,
+                padding: const EdgeInsets.only(left: 16),
+                child: Icon(
+                  Icons.arrow_back_rounded,
+                  size: 24,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+            ),
+          ),
           body: Padding(
             padding: EdgeInsets.only(top: 0),
             child: NestedScrollView(
               controller: _scrollController,
-              physics: const BouncingScrollPhysics(
-                parent: AlwaysScrollableScrollPhysics(),
-              ),
+              physics: const AlwaysScrollableScrollPhysics(),
               headerSliverBuilder: (context, innerBoxIsScrolled) {
                 return [
-                  SliverAppBar(
-                    floating: false,
-                    pinned: true,
-                    toolbarHeight: 56,
-                    automaticallyImplyLeading:
-                        false, // Disable automatic leading widget
-                    elevation: 0,
-                    backgroundColor: Colors.white,
-                    surfaceTintColor: Colors.transparent,
-                    // Remove leadingWidth since we're controlling the layout manually
-
-                    // Use title for the centered nickname
-                    title: Text(
-                      userData.nickName ?? '', // Use null-safe approach
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    centerTitle: true, // This ensures the title is centered
-
-                    // Custom leading widget for back button
-                    leading: GestureDetector(
-                      behavior: HitTestBehavior.translucent,
-                      onTap: () => context.pop(),
-                      child: Container(
-                        alignment: Alignment.centerLeft,
-                        padding: const EdgeInsets.only(left: 16),
-                        child: Icon(
-                          Icons.arrow_back,
-                          size: 24,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ),
-
-                    // Action buttons on the right
-                    actions: [
-                      IconButton(
-                        icon: Icon(
-                          Icons.more_vert,
-                          color: Colors.black87,
-                          size: 24,
-                        ),
-                        onPressed: () {},
-                        style: IconButton.styleFrom(
-                          padding: EdgeInsets.zero,
-                          minimumSize: Size(48, 48),
-                        ),
-                      ),
-                      SizedBox(width: 8),
-                    ],
-
-                    bottom: PreferredSize(
-                      preferredSize: Size.fromHeight(1),
-                      child: Container(
-                        height: 1,
-                        color: AppColors.white.withOpacity(0.2),
-                      ),
-                    ),
-                  ),
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.only(
@@ -179,41 +264,50 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              // Profile image
-                              SizedBox(
-                                width: 83,
-                                height: 83,
-                                child: Stack(
-                                  children: [
-                                    SmoothClipRRect(
-                                      side: BorderSide(
-                                        width: 3,
-                                        color: AppColors.containerColor,
-                                      ),
-                                      borderRadius: BorderRadius.circular(100),
-                                      child: userData.profileImagePath != null
-                                          ? CachedNetworkImage(
-                                              width: double.infinity,
-                                              height: double.infinity,
-                                              imageUrl:
-                                                  'https://${userData.profileImagePath!}',
-                                              fit: BoxFit.cover,
-                                              placeholder: (context, url) =>
-                                                  const Center(
-                                                child:
-                                                    CircularProgressIndicator(
-                                                  color: Colors.lightGreen,
-                                                  strokeWidth: 2,
-                                                ),
-                                              ),
-                                              errorWidget:
-                                                  (context, url, error) =>
+                              GestureDetector(
+                                onTap: () => _showProfileImageViewer(
+                                  userData.profileImagePath!,
+                                ),
+                                child: SizedBox(
+                                  width: 83,
+                                  height: 83,
+                                  child: Stack(
+                                    children: [
+                                      Hero(
+                                        tag: 'profile-avatar-${widget.userId}',
+                                        child: SmoothClipRRect(
+                                          side: BorderSide(
+                                            width: 3,
+                                            color: AppColors.containerColor,
+                                          ),
+                                          borderRadius:
+                                              BorderRadius.circular(100),
+                                          child: userData.profileImagePath !=
+                                                  null
+                                              ? CachedNetworkImage(
+                                                  width: double.infinity,
+                                                  height: double.infinity,
+                                                  imageUrl:
+                                                      'https://${userData.profileImagePath!}',
+                                                  fit: BoxFit.cover,
+                                                  placeholder: (context, url) =>
+                                                      const Center(
+                                                    child:
+                                                        CircularProgressIndicator(
+                                                      color: Colors.lightGreen,
+                                                      strokeWidth: 2,
+                                                    ),
+                                                  ),
+                                                  errorWidget: (context, url,
+                                                          error) =>
                                                       Image.asset(
                                                           AppImages.appLogo),
-                                            )
-                                          : Image.asset(AppImages.appLogo),
-                                    ),
-                                  ],
+                                                )
+                                              : Image.asset(AppImages.appLogo),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                               const SizedBox(width: 36),
@@ -224,24 +318,54 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     _buildStatItem(
-                                        '${userData.rating}', 'Rating'),
-                                    BlocBuilder<GlobalBloc, GlobalState>(
-                                      builder: (context, state) {
-                                        final followersCount =
-                                            state.getFollowersCount(
-                                                userData.id ?? '');
-                                        return _buildStatItem(
-                                            '$followersCount', 'Followers');
-                                      },
+                                      userData.rating.toString() == "null"
+                                          ? '0'
+                                          : userData.rating.toString(),
+                                      'Rating',
                                     ),
-                                    BlocBuilder<GlobalBloc, GlobalState>(
-                                      builder: (context, state) {
-                                        final followingCount =
-                                            state.getFollowingCount(
-                                                userData.id ?? '');
-                                        return _buildStatItem(
-                                            '$followingCount', 'Following');
+                                    InkWell(
+                                      onTap: () {
+                                        context.push(
+                                          Routes.socialConnections,
+                                          extra: {
+                                            'userId': userData.id,
+                                            'username': userData.nickName,
+                                            'initialTab': 'followers',
+                                          },
+                                        );
                                       },
+                                      child:
+                                          BlocBuilder<GlobalBloc, GlobalState>(
+                                        builder: (context, state) {
+                                          final followersCount =
+                                              state.getFollowersCount(
+                                                  userData.id ?? '');
+                                          return _buildStatItem(
+                                              '$followersCount', 'Followers');
+                                        },
+                                      ),
+                                    ),
+                                    InkWell(
+                                      onTap: () {
+                                        context.push(
+                                          Routes.socialConnections,
+                                          extra: {
+                                            'userId': userData.id,
+                                            'username': userData.nickName,
+                                            'initialTab': 'followings',
+                                          },
+                                        );
+                                      },
+                                      child:
+                                          BlocBuilder<GlobalBloc, GlobalState>(
+                                        builder: (context, state) {
+                                          final followingCount =
+                                              state.getFollowingCount(
+                                                  userData.id ?? '');
+                                          return _buildStatItem(
+                                              '$followingCount', 'Following');
+                                        },
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -257,7 +381,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                               style: TextStyle(
                                 fontSize: 12.5,
                                 overflow: TextOverflow.ellipsis,
-                                color: Colors.grey[800],
+                                color: Theme.of(context).colorScheme.surface,
                               ),
                             ),
                           ),
@@ -282,7 +406,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                                   followStatus == FollowStatus.inProgress;
 
                               return Expanded(
-                                flex: 1,
+                                flex: 20,
                                 child: InkWell(
                                   onTap: isLoading
                                       ? null
@@ -312,12 +436,13 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                                                   const EdgeInsets.symmetric(
                                                 horizontal: 8.0,
                                               ),
-                                              child: const SizedBox(
+                                              child: SizedBox(
                                                 width: 20,
                                                 height: 20,
                                                 child:
                                                     CircularProgressIndicator(
-                                                  color: Colors.white,
+                                                  color: Theme.of(context)
+                                                      .scaffoldBackgroundColor,
                                                   strokeWidth: 2,
                                                 ),
                                               ),
@@ -335,8 +460,10 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                                                     isFollowed == true
                                                         ? 'Unfollow'
                                                         : 'Follow',
-                                                    style: const TextStyle(
-                                                      color: Colors.black,
+                                                    style: TextStyle(
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .secondary,
                                                       fontSize: 15,
                                                       fontWeight:
                                                           FontWeight.w500,
@@ -352,20 +479,29 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                             },
                           ),
                           Expanded(
-                            flex: 1,
+                              flex: 1,
+                              child: SizedBox(
+                                width: 1,
+                              )),
+                          Expanded(
+                            flex: 20,
                             child: InkWell(
                               onTap: () {},
-                              child: ClipSmoothRect(
-                                radius: SmoothBorderRadius(
-                                  cornerRadius: 100,
+                              child: SmoothClipRRect(
+                                side: BorderSide(
+                                  width: 1,
+                                  color: Theme.of(context).cardColor,
                                 ),
+                                borderRadius: BorderRadius.circular(100),
                                 child: Container(
                                   alignment: Alignment.center,
                                   constraints: const BoxConstraints(
                                     minHeight: 40,
                                   ),
-                                  decoration:
-                                      BoxDecoration(color: AppColors.bgColor),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context)
+                                        .scaffoldBackgroundColor,
+                                  ),
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 8.0,
@@ -375,12 +511,17 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                                           MainAxisAlignment.center,
                                       children: [
                                         Icon(EvaIcons.messageSquare,
-                                            color: Colors.black, size: 20),
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .secondary,
+                                            size: 20),
                                         const SizedBox(width: 6),
-                                        const Text(
-                                          'Messege',
+                                        Text(
+                                          'Message', // Fixed typo: "Messege" to "Message"
                                           style: TextStyle(
-                                            color: Colors.black,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .secondary,
                                             fontSize: 15,
                                             fontWeight: FontWeight.w500,
                                           ),
@@ -439,7 +580,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(
-                                  CupertinoIcons.star,
+                                  CupertinoIcons.hand_thumbsup,
                                   size: 22,
                                 ),
                                 SizedBox(
@@ -487,7 +628,8 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                           ),
                         ],
                       ),
-                      backgroundColor: AppColors.bgColor,
+                      backgroundColor:
+                          Theme.of(context).scaffoldBackgroundColor,
                     ),
                     pinned: true,
                   ),
@@ -498,7 +640,6 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                 child: TabBarView(
                   controller: _tabController,
                   children: [
-                    // Products Tab
                     NotificationListener<ScrollNotification>(
                       onNotification: (ScrollNotification scrollInfo) {
                         // Check if we're near the bottom
@@ -526,6 +667,11 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                     _buildEmptyTab(
                       icon: CupertinoIcons.star,
                       text: "Empty List",
+                    ),
+                    AboutTabContent(
+                      key: PageStorageKey('about_tab'),
+                      user: userData,
+                      isPartner: false,
                     ),
                   ],
                 ),
@@ -622,7 +768,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
         }
 
         return SliverPadding(
-          padding: EdgeInsets.only(bottom: 16, left: 8, right: 8),
+          padding: EdgeInsets.only(bottom: 16, left: 6, right: 6, top: 12),
           sliver: SliverGrid(
             delegate: SliverChildBuilderDelegate(
               (context, index) {
@@ -659,7 +805,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
               crossAxisCount: 2,
               crossAxisSpacing: 0,
               mainAxisSpacing: 0,
-              childAspectRatio: 0.59,
+              childAspectRatio: 0.6,
             ),
           ),
         );
@@ -688,68 +834,6 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
           ),
         ),
       ],
-    );
-  }
-
-  @override
-  bool get wantKeepAlive => true;
-}
-
-class CustomLineIndicator extends Decoration {
-  final double lineHeight;
-  final double lineWidth;
-  final Color color;
-
-  const CustomLineIndicator({
-    this.lineHeight = 2.0,
-    this.lineWidth = 20.0,
-    this.color = Colors.black,
-  });
-
-  @override
-  BoxPainter createBoxPainter([VoidCallback? onChanged]) {
-    return _CustomLinePainter(
-      lineHeight: lineHeight,
-      lineWidth: lineWidth,
-      color: color,
-      onChange: onChanged,
-    );
-  }
-}
-
-class _CustomLinePainter extends BoxPainter {
-  final double lineHeight;
-  final double lineWidth;
-  final Color color;
-
-  _CustomLinePainter({
-    required this.lineHeight,
-    required this.lineWidth,
-    required this.color,
-    VoidCallback? onChange,
-  }) : super(onChange);
-
-  @override
-  void paint(Canvas canvas, Offset offset, ImageConfiguration configuration) {
-    assert(configuration.size != null);
-    final Paint paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
-
-    final Offset center = Offset(
-      offset.dx + configuration.size!.width / 2,
-      offset.dy + 2,
-    );
-
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-          Rect.fromCenter(
-            center: center,
-            width: lineWidth,
-            height: lineHeight,
-          ),
-          Radius.circular(1)),
-      paint,
     );
   }
 }
