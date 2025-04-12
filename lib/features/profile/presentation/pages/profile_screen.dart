@@ -5,13 +5,16 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/di/di_managment.dart';
 import 'package:list_in/core/language/screen/language_picker_screen.dart';
 import 'package:list_in/core/router/routes.dart';
+import 'package:list_in/core/theme/widgets/toggle_button.dart';
 import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/auth/data/sources/auth_local_data_source.dart';
 import 'package:list_in/features/details/presentation/pages/details.dart';
@@ -27,13 +30,15 @@ import 'package:list_in/features/profile/presentation/bloc/user/user_profile_blo
 import 'package:list_in/features/profile/presentation/bloc/user/user_profile_event.dart';
 import 'package:list_in/features/profile/presentation/bloc/user/user_profile_state.dart';
 import 'package:list_in/features/profile/presentation/pages/new_profili_desing.dart';
+import 'package:list_in/features/profile/presentation/widgets/sliver_app_bar.dart';
 import 'package:list_in/global/likeds/liked_publications_bloc.dart';
 import 'package:list_in/global/likeds/liked_publications_event.dart';
 import 'package:list_in/global/likeds/liked_publications_state.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import 'dart:ui';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -47,13 +52,278 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
   late ScrollController _scrollController;
   late TabController _tabController;
   bool isFollowing = false;
-
+  final ImagePicker _picker = ImagePicker();
   String selectedProductFilter = 'active';
+  bool _isUploadingImage = false;
 
   void _navigateToEdit(UserProfileEntity userData) {
     context.pushNamed(
       RoutesByName.profileEdit,
       extra: userData,
+    );
+  }
+
+  // Image selection and update methods
+  Future<void> _pickAndUpdateImage(UserProfileEntity userData) async {
+    try {
+      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+      if (image != null) {
+        setState(() {
+          _isUploadingImage = true;
+        });
+
+        // Update profile with image
+        final updatedProfile = UserProfileEntity(
+          nickName: userData.nickName,
+          phoneNumber: userData.phoneNumber,
+          biography: userData.biography,
+          isBusinessAccount: userData.isBusinessAccount,
+          isGrantedForPreciseLocation: userData.isGrantedForPreciseLocation,
+          fromTime: userData.fromTime,
+          toTime: userData.toTime,
+          longitude: userData.longitude,
+          latitude: userData.latitude,
+          county: userData.county,
+          state: userData.state,
+          country: userData.country,
+          locationName: userData.locationName,
+        );
+
+        context.read<UserProfileBloc>().add(
+              UpdateUserProfileWithImage(
+                profile: updatedProfile,
+                imageFile: image,
+              ),
+            );
+      }
+    } catch (e) {
+      setState(() {
+        _isUploadingImage = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to pick image: ${e.toString()}')),
+        );
+      }
+    }
+  }
+
+  // Method to delete profile image
+  void _deleteProfileImage(UserProfileEntity userData) {
+    setState(() {
+      _isUploadingImage = true;
+    });
+
+    final updatedProfile = UserProfileEntity(
+      nickName: userData.nickName,
+      phoneNumber: userData.phoneNumber,
+      biography: userData.biography,
+      isBusinessAccount: userData.isBusinessAccount,
+      isGrantedForPreciseLocation: userData.isGrantedForPreciseLocation,
+      fromTime: userData.fromTime,
+      toTime: userData.toTime,
+      longitude: userData.longitude,
+      latitude: userData.latitude,
+      county: userData.county,
+      state: userData.state,
+      country: userData.country,
+      locationName: userData.locationName,
+      profileImagePath: '',
+    );
+
+    context.read<UserProfileBloc>().add(
+          UpdateUserProfileWithImage(profile: updatedProfile),
+        );
+  }
+
+  // Show enhanced Instagram-style image viewer
+  void _showProfileImageViewer(UserProfileEntity userData) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.transparent,
+      builder: (BuildContext context) {
+        // Get the screen size for better proportions
+        final screenSize = MediaQuery.of(context).size;
+        final imageSize = screenSize.width * 0.85; // 85% of screen width
+
+        return Material(
+          type: MaterialType.transparency,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              // Full screen blurred background with status bar included
+              BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                child: Container(
+                  color: Theme.of(context)
+                      .scaffoldBackgroundColor
+                      .withOpacity(0.5),
+                  width: double.infinity,
+                  height: double.infinity,
+                ),
+              ),
+
+              // Main content
+              SafeArea(
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Profile image - larger size
+                      Hero(
+                        tag: 'profileImage${userData.nickName}',
+                        child: Container(
+                          width: imageSize,
+                          height: imageSize,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                          ),
+                          child: SmoothClipRRect(
+                            side: BorderSide(
+                              width: 3,
+                              color: AppColors.white,
+                            ),
+                            borderRadius: BorderRadius.circular(imageSize / 2),
+                            child: userData.profileImagePath != null &&
+                                    userData.profileImagePath!.isNotEmpty
+                                ? CachedNetworkImage(
+                                    imageUrl:
+                                        'https://${userData.profileImagePath}',
+                                    fit: BoxFit.cover,
+                                    placeholder: (context, url) => Container(
+                                      color: Colors.black26,
+                                      child: const Center(
+                                        child: CircularProgressIndicator(
+                                          color: Colors.white,
+                                          strokeWidth: 3,
+                                        ),
+                                      ),
+                                    ),
+                                    errorWidget: (context, url, error) =>
+                                        Container(
+                                      color: Colors.black26,
+                                      child: Image.asset(
+                                        AppImages.appLogo,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  )
+                                : Container(
+                                    color: Colors.black26,
+                                    child: Image.asset(
+                                      AppImages.appLogo,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 30),
+
+                      // Action buttons with enhanced appearance
+                      SmoothClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 20,
+                          ),
+                          color: Colors.black.withOpacity(0.4),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              _buildActionButton(
+                                icon: Icons.edit,
+                                label:
+                                    AppLocalizations.of(context)!.edit_profile,
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  _pickAndUpdateImage(userData);
+                                },
+                              ),
+
+                              // Only show delete button if there's an image
+                              if (userData.profileImagePath != null &&
+                                  userData.profileImagePath!.isNotEmpty) ...[
+                                Container(
+                                  height: 30,
+                                  width: 1,
+                                  margin: const EdgeInsets.symmetric(
+                                      horizontal: 16),
+                                  color: Colors.white38,
+                                ),
+                                _buildActionButton(
+                                  icon: Icons.delete,
+                                  label: AppLocalizations.of(context)!.delete,
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                    _deleteProfileImage(userData);
+                                  },
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Close button with improved positioning and shadow
+              Positioned(
+                top: MediaQuery.of(context).padding.top + 16,
+                right: 32,
+                child: InkWell(
+                  child: const Icon(
+                    Icons.close_rounded,
+                    size: 32,
+                  ),
+                  onTap: () => Navigator.pop(context),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+// Helper method for consistent action buttons
+  Widget _buildActionButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onPressed,
+  }) {
+    return TextButton.icon(
+      onPressed: onPressed,
+      icon: Icon(
+        icon,
+        color: Colors.white,
+        size: 22,
+        shadows: const [
+          Shadow(color: Colors.black54, blurRadius: 3),
+        ],
+      ),
+      label: Text(
+        label,
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.w600,
+          fontSize: 16,
+          shadows: [
+            Shadow(color: Colors.black54, blurRadius: 3),
+          ],
+        ),
+      ),
+      style: TextButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
     );
   }
 
@@ -81,9 +351,17 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
     return BlocConsumer<UserProfileBloc, UserProfileState>(
       listener: (context, state) {
         if (state.status == UserProfileStatus.failure) {
+          setState(() {
+            _isUploadingImage = false;
+          });
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.errorMessage ?? 'An error occurred')),
           );
+        } else if (state.status == UserProfileStatus.success &&
+            _isUploadingImage) {
+          setState(() {
+            _isUploadingImage = false;
+          });
         }
       },
       builder: (context, state) {
@@ -96,346 +374,466 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
         if (userData == null) {
           return const Scaffold(
               body: Center(child: Text('No user data available')));
-        } //
-        if (state.userData == null) {}
+        }
 
-        return SafeArea(
-          child: Scaffold(
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-            body: NestedScrollView(
-              controller: _scrollController,
-              physics: BouncingScrollPhysics(),
-              headerSliverBuilder: (context, innerBoxIsScrolled) {
-                return [
-                  SliverAppBar(
-                    floating: false,
-                    pinned: true,
-                    snap: false,
-                    toolbarHeight: 56,
-                    elevation: 0,
-                    backgroundColor: Colors.white,
-                    surfaceTintColor: Colors.transparent,
-                    scrolledUnderElevation: 0,
-                    title: Row(
-                      children: [
-                        Text(
-                          'Profile',
-                          style: TextStyle(
-                            color: Colors.black87,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: -0.3,
-                          ),
-                        ),
-                      ],
-                    ),
-                    actions: [
-                      IconButton(
-                        icon: Icon(
-                          Icons.info_outline_rounded,
-                          color: Colors.black87,
-                          size: 24,
-                        ),
-                        onPressed: () {},
-                        style: IconButton.styleFrom(
-                          padding: EdgeInsets.zero,
-                          minimumSize: Size(48, 48),
+        return Scaffold(
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          body: NestedScrollView(
+            controller: _scrollController,
+            physics: BouncingScrollPhysics(),
+            headerSliverBuilder: (context, innerBoxIsScrolled) {
+              return [
+                SliverAppBar(
+                  floating: false,
+                  pinned: true,
+                  snap: false,
+                  toolbarHeight: 56,
+                  elevation: 0,
+                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                  surfaceTintColor: Colors.transparent,
+                  scrolledUnderElevation: 0,
+                  title: Row(
+                    children: [
+                      Text(
+                        AppLocalizations.of(context)!.profile,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.secondary,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: -0.3,
                         ),
                       ),
-                      const SizedBox(width: 12),
                     ],
                   ),
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16.0, vertical: 12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // First row: Image, Name and Role
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              // Profile image
-                              SizedBox(
-                                width: 82,
-                                height: 82,
-                                child: Stack(
-                                  children: [
-                                    SmoothClipRRect(
+                  actions: [
+                    ThemeToggle(),
+                    const SizedBox(width: 12),
+                  ],
+                ),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      left: 16.0,
+                      right: 24,
+                      top: 12,
+                      bottom: 12,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // First row: Image, Name and Role
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            // Profile image
+                            SizedBox(
+                              width: 82,
+                              height: 82,
+                              child: Stack(
+                                children: [
+                                  GestureDetector(
+                                    onTap: () => _showProfileImageViewer(
+                                      UserProfileEntity(
+                                        isBusinessAccount: userData.role !=
+                                            "INDIVIDUAL_SELLER",
+                                        locationName: userData.locationName,
+                                        longitude: userData.longitude,
+                                        latitude: userData.latitude,
+                                        fromTime: userData.fromTime,
+                                        toTime: userData.toTime,
+                                        isGrantedForPreciseLocation: userData
+                                            .isGrantedForPreciseLocation,
+                                        nickName: userData.nickName,
+                                        phoneNumber: userData.phoneNumber,
+                                        profileImagePath:
+                                            userData.profileImagePath,
+                                        country: userData.country?.valueRu,
+                                        state: userData.state?.valueRu,
+                                        county: userData.county?.valueRu,
+                                      ),
+                                    ),
+                                    child: SmoothClipRRect(
                                       smoothness: 0.8,
                                       side: BorderSide(
                                         width: 2,
-                                        color: AppColors.containerColor,
+                                        color: Theme.of(context).cardColor,
                                       ),
                                       borderRadius: BorderRadius.circular(100),
-                                      child: userData.profileImagePath != null
-                                          ? CachedNetworkImage(
-                                              width: double.infinity,
-                                              height: double.infinity,
-                                              imageUrl:
-                                                  'https://${userData.profileImagePath!}',
-                                              fit: BoxFit.cover,
-                                              placeholder: (context, url) =>
-                                                  const Progress(),
-                                              errorWidget:
-                                                  (context, url, error) =>
-                                                      Image.asset(
-                                                          AppImages.appLogo),
-                                            )
-                                          : Image.asset(AppImages.appLogo),
-                                    ),
-                                    Positioned(
-                                      bottom: 0,
-                                      right: 0,
-                                      child: Transform.translate(
-                                        offset: Offset(0, 0),
-                                        child: SmoothClipRRect(
-                                          side: BorderSide(
-                                            width: 1,
-                                            color: AppColors.containerColor,
-                                          ),
-                                          borderRadius:
-                                              BorderRadius.circular(100),
-                                          child: InkWell(
-                                            child: Container(
-                                              width: 24,
-                                              height: 24,
-                                              color: AppColors.white,
+                                      child: _isUploadingImage
+                                          ? Container(
+                                              color: Theme.of(context)
+                                                  .cardColor
+                                                  .withOpacity(0.2),
                                               child: Center(
-                                                child: Icon(
-                                                  size: 16,
-                                                  Icons.edit,
-                                                  color: AppColors.black,
+                                                child:
+                                                    CircularProgressIndicator(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .primary,
+                                                  strokeWidth: 2,
                                                 ),
                                               ),
+                                            )
+                                          : (userData.profileImagePath !=
+                                                      null &&
+                                                  userData.profileImagePath!
+                                                      .isNotEmpty
+                                              ? CachedNetworkImage(
+                                                  width: double.infinity,
+                                                  height: double.infinity,
+                                                  imageUrl:
+                                                      'https://${userData.profileImagePath}',
+                                                  fit: BoxFit.cover,
+                                                  placeholder: (context, url) =>
+                                                      const Center(
+                                                    child:
+                                                        CircularProgressIndicator(
+                                                      strokeWidth: 2,
+                                                    ),
+                                                  ),
+                                                  errorWidget:
+                                                      (context, url, error) =>
+                                                          Image.asset(
+                                                    AppImages.appLogo,
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                )
+                                              : Image.asset(
+                                                  AppImages.appLogo,
+                                                  fit: BoxFit.cover,
+                                                )),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    bottom: 0,
+                                    right: 0,
+                                    child: Transform.translate(
+                                      offset: Offset(0, 0),
+                                      child: SmoothClipRRect(
+                                        side: BorderSide(
+                                          width: 1,
+                                          color: Theme.of(context).cardColor,
+                                        ),
+                                        borderRadius:
+                                            BorderRadius.circular(100),
+                                        child: InkWell(
+                                          onTap: _isUploadingImage
+                                              ? null // Disable when uploading
+                                              : () => _pickAndUpdateImage(
+                                                    UserProfileEntity(
+                                                      isBusinessAccount: userData
+                                                              .role !=
+                                                          "INDIVIDUAL_SELLER",
+                                                      locationName:
+                                                          userData.locationName,
+                                                      longitude:
+                                                          userData.longitude,
+                                                      latitude:
+                                                          userData.latitude,
+                                                      fromTime:
+                                                          userData.fromTime,
+                                                      toTime: userData.toTime,
+                                                      isGrantedForPreciseLocation:
+                                                          userData
+                                                              .isGrantedForPreciseLocation,
+                                                      nickName:
+                                                          userData.nickName,
+                                                      phoneNumber:
+                                                          userData.phoneNumber,
+                                                      profileImagePath: userData
+                                                          .profileImagePath,
+                                                      country: userData
+                                                          .country?.valueRu,
+                                                      state: userData
+                                                          .state?.valueRu,
+                                                      county: userData
+                                                          .county?.valueRu,
+                                                    ),
+                                                  ),
+                                          child: Container(
+                                            width: 24,
+                                            height: 24,
+                                            color: Theme.of(context)
+                                                .scaffoldBackgroundColor,
+                                            child: Center(
+                                              child: _isUploadingImage
+                                                  ? SizedBox(
+                                                      width: 10,
+                                                      height: 10,
+                                                      child:
+                                                          CircularProgressIndicator(
+                                                        strokeWidth: 2,
+                                                        color: Theme.of(context)
+                                                            .colorScheme
+                                                            .secondary,
+                                                      ),
+                                                    )
+                                                  : Icon(
+                                                      size: 16,
+                                                      Icons.edit,
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .secondary,
+                                                    ),
                                             ),
                                           ),
                                         ),
                                       ),
-                                    )
-                                  ],
-                                ),
+                                    ),
+                                  )
+                                ],
                               ),
-                              const SizedBox(width: 36),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
+                            ),
+                            const SizedBox(width: 36),
+                            Expanded(
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   _buildStatItem(
                                     userData.rating.toString() == "null"
                                         ? '0'
                                         : userData.rating.toInt().toString(),
-                                    'Rating',
+                                    AppLocalizations.of(context)!.rating,
                                   ),
-                                  const SizedBox(width: 32),
-                                  _buildStatItem(userData.followers.toString(),
-                                      'Followers'),
-                                  const SizedBox(width: 32),
-                                  _buildStatItem(userData.following.toString(),
-                                      'Following'),
+                                  InkWell(
+                                    onTap: () {
+                                      context.push(
+                                        Routes.socialConnections,
+                                        extra: {
+                                          'userId': userData.id,
+                                          'username': userData.nickName,
+                                          'initialTab': 'followings',
+                                        },
+                                      );
+                                    },
+                                    child: _buildStatItem(
+                                      userData.followers.toString(),
+                                      AppLocalizations.of(context)!.followers,
+                                    ),
+                                  ),
+                                  InkWell(
+                                    onTap: () {
+                                      context.push(
+                                        Routes.socialConnections,
+                                        extra: {
+                                          'userId': userData.id,
+                                          'username': userData.nickName,
+                                          'initialTab': 'followers',
+                                        },
+                                      );
+                                    },
+                                    child: _buildStatItem(
+                                      userData.following.toString(),
+                                      AppLocalizations.of(context)!.following,
+                                    ),
+                                  ),
                                 ],
                               ),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              SizedBox(
-                                width: 2,
-                              ),
-                              Text(
-                                userData.nickName ?? 'User',
-                                style: const TextStyle(
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 2),
-                            child: Text(
-                              userData.biography ??
-                                  AppLocalizations.of(context)!.no_biography,
-                              maxLines: 1,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              width: 2,
+                            ),
+                            Text(
+                              userData.nickName ?? 'User',
                               style: TextStyle(
-                                fontSize: 12.5,
-                                overflow: TextOverflow.ellipsis,
-                                color: Colors.grey[800],
+                                fontSize: 17,
+                                fontWeight: FontWeight.w600,
+                                color: Theme.of(context).colorScheme.secondary,
                               ),
                             ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 2),
+                          child: Text(
+                            userData.biography ??
+                                AppLocalizations.of(context)!.no_biography,
+                            maxLines: 1,
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              overflow: TextOverflow.ellipsis,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurface
+                                  .withOpacity(0.8),
+                            ),
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SliverToBoxAdapter(
-                    child: Row(
-                      children: [
-                        _buildContactActions(
-                          userData,
-                          state,
                         ),
                       ],
                     ),
                   ),
-                  SliverPersistentHeader(
-                    delegate: _SliverTabBarDelegate(
-                      TabBar(
-                        controller: _tabController,
-                        tabs: [
-                          Tab(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.inventory_rounded,
-                                  size: 22,
-                                ),
-                                SizedBox(
-                                  width: 4,
-                                ),
-                                Text(
-                                  AppLocalizations.of(context)!.posts,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 4,
-                                ),
-                              ],
-                            ),
-                          ),
-                          Tab(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  CupertinoIcons.heart_circle,
-                                  size: 22,
-                                ),
-                                SizedBox(
-                                  width: 4,
-                                ),
-                                Text(
-                                  'Liked Posts',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 4,
-                                ),
-                              ],
-                            ),
-                          ),
-                          Tab(
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  CupertinoIcons.person,
-                                  size: 22,
-                                ),
-                                SizedBox(
-                                  width: 4,
-                                ),
-                                Text(
-                                  'Account',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 4,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                        labelColor: AppColors.black,
-                        unselectedLabelColor: AppColors.grey,
-                        indicator: const BoxDecoration(
-                          color: AppColors.black,
-                        ),
-                      ),
-                      backgroundColor: AppColors.bgColor,
-                    ),
-                    pinned: true,
-                  ),
-                ];
-              },
-              body: Padding(
-                padding: const EdgeInsets.only(top: 8, right: 8, left: 4),
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    // Products Tab
-                    NotificationListener<ScrollNotification>(
-                      onNotification: (ScrollNotification scrollInfo) {
-                        // Check if we're near the bottom
-                        if (scrollInfo is ScrollEndNotification) {
-                          if (scrollInfo.metrics.pixels >=
-                              scrollInfo.metrics.maxScrollExtent * 0.7) {
-                            final publicationsState =
-                                context.read<UserPublicationsBloc>().state;
-                            if (!publicationsState.hasReachedEnd &&
-                                !publicationsState.isLoading) {
-                              context
-                                  .read<UserPublicationsBloc>()
-                                  .add(LoadMoreUserPublications());
-                            }
-                          }
-                        }
-                        return true;
-                      },
-                      child: CustomScrollView(
-                        slivers: [
-                          //   _buildProductFilters(),
-                          _buildFilteredProductsGrid(),
-                        ],
-                      ),
-                    ),
-                    // Posts Tab
-
-                    NotificationListener<ScrollNotification>(
-                      onNotification: (ScrollNotification scrollInfo) {
-                        if (scrollInfo is ScrollEndNotification) {
-                          if (scrollInfo.metrics.pixels >=
-                              scrollInfo.metrics.maxScrollExtent * 0.7) {
-                            final likedPublicationsState =
-                                context.read<LikedPublicationsBloc>().state;
-                            if (!likedPublicationsState.hasReachedEnd &&
-                                !likedPublicationsState.isLoading) {
-                              context
-                                  .read<LikedPublicationsBloc>()
-                                  .add(LoadMoreLikedPublications());
-                            }
-                          }
-                        }
-                        return true;
-                      },
-                      child: CustomScrollView(
-                        slivers: [
-                          _buildLikedPublicationsGrid(),
-                        ],
-                      ),
-                    ),
-                    _buildAccountTab(
-                      state: state,
-                    ),
-                  ],
                 ),
+                SliverToBoxAdapter(
+                  child: Row(
+                    children: [
+                      _buildContactActions(
+                        userData,
+                        state,
+                      ),
+                    ],
+                  ),
+                ),
+                SliverPersistentHeader(
+                  delegate: SliverTabBarDelegate(
+                    TabBar(
+                      controller: _tabController,
+                      tabs: [
+                        Tab(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.inventory_rounded,
+                                size: 22,
+                              ),
+                              SizedBox(
+                                width: 4,
+                              ),
+                              Text(
+                                AppLocalizations.of(context)!.posts,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                ),
+                              ),
+                              SizedBox(
+                                width: 4,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Tab(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                CupertinoIcons.heart_circle,
+                                size: 22,
+                              ),
+                              SizedBox(
+                                width: 4,
+                              ),
+                              Text(
+                                AppLocalizations.of(context)!.favorites,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                ),
+                              ),
+                              SizedBox(
+                                width: 4,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Tab(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                CupertinoIcons.person,
+                                size: 22,
+                              ),
+                              SizedBox(
+                                width: 4,
+                              ),
+                              Text(
+                                AppLocalizations.of(context)!.account,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                ),
+                              ),
+                              SizedBox(
+                                width: 4,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                      labelColor: AppColors.black,
+                      unselectedLabelColor: AppColors.grey,
+                      indicator: const BoxDecoration(
+                        color: AppColors.black,
+                      ),
+                    ),
+                    backgroundColor: AppColors.bgColor,
+                  ),
+                  pinned: true,
+                ),
+              ];
+            },
+            body: Padding(
+              padding: const EdgeInsets.only(top: 8, right: 8, left: 4),
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  // Products Tab
+                  NotificationListener<ScrollNotification>(
+                    onNotification: (ScrollNotification scrollInfo) {
+                      // Check if we're near the bottom
+                      if (scrollInfo is ScrollEndNotification) {
+                        if (scrollInfo.metrics.pixels >=
+                            scrollInfo.metrics.maxScrollExtent * 0.7) {
+                          final publicationsState =
+                              context.read<UserPublicationsBloc>().state;
+                          if (!publicationsState.hasReachedEnd &&
+                              !publicationsState.isLoading) {
+                            context
+                                .read<UserPublicationsBloc>()
+                                .add(LoadMoreUserPublications());
+                          }
+                        }
+                      }
+                      return true;
+                    },
+                    child: CustomScrollView(
+                      slivers: [
+                        //   _buildProductFilters(),
+                        _buildFilteredProductsGrid(),
+                      ],
+                    ),
+                  ),
+                  // Posts Tab
+
+                  NotificationListener<ScrollNotification>(
+                    onNotification: (ScrollNotification scrollInfo) {
+                      if (scrollInfo is ScrollEndNotification) {
+                        if (scrollInfo.metrics.pixels >=
+                            scrollInfo.metrics.maxScrollExtent * 0.7) {
+                          final likedPublicationsState =
+                              context.read<LikedPublicationsBloc>().state;
+                          if (!likedPublicationsState.hasReachedEnd &&
+                              !likedPublicationsState.isLoading) {
+                            context
+                                .read<LikedPublicationsBloc>()
+                                .add(LoadMoreLikedPublications());
+                          }
+                        }
+                      }
+                      return true;
+                    },
+                    child: CustomScrollView(
+                      slivers: [
+                        _buildLikedPublicationsGrid(),
+                      ],
+                    ),
+                  ),
+                  _buildAccountTab(
+                    state: state,
+                  ),
+                ],
               ),
             ),
           ),
@@ -450,10 +848,10 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
       children: [
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 17,
             fontWeight: FontWeight.w700,
-            color: Colors.black87,
+            color: Theme.of(context).colorScheme.secondary,
             height: 1.2,
           ),
         ),
@@ -463,7 +861,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
           style: TextStyle(
             fontSize: 12.5,
             fontWeight: FontWeight.w500,
-            color: Colors.grey[600],
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
             height: 1.1,
           ),
         ),
@@ -486,7 +884,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
           _buildActionItem(
             1,
             Icons.share,
-            'Share profile',
+            AppLocalizations.of(context)!.share_profile,
             AppColors.white,
             AppColors.black,
             onTap: () => shareUserProfile(
@@ -515,22 +913,25 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
           _buildActionItem(
             0,
             Icons.edit,
-            'Edit profile',
-            AppColors.primaryLight,
+            AppLocalizations.of(context)!.edit_profile,
+            Theme.of(context).cardColor,
             AppColors.black,
             onTap: () {
-              _navigateToEdit(UserProfileEntity(
-                isBusinessAccount: user?.role != "INDIVIDUAL_SELLER",
-                locationName: user?.locationName,
-                longitude: user?.longitude,
-                latitude: user?.latitude,
-                fromTime: user?.fromTime,
-                toTime: user?.toTime,
-                isGrantedForPreciseLocation: user?.isGrantedForPreciseLocation,
-                nickName: user?.nickName,
-                phoneNumber: user?.phoneNumber,
-                profileImagePath: user?.profileImagePath,
-              ));
+              _navigateToEdit(
+                UserProfileEntity(
+                  isBusinessAccount: user?.role != "INDIVIDUAL_SELLER",
+                  locationName: user?.locationName,
+                  longitude: user?.longitude,
+                  latitude: user?.latitude,
+                  fromTime: user?.fromTime,
+                  toTime: user?.toTime,
+                  isGrantedForPreciseLocation:
+                      user?.isGrantedForPreciseLocation,
+                  nickName: user?.nickName,
+                  phoneNumber: user?.phoneNumber,
+                  profileImagePath: user?.profileImagePath,
+                ),
+              );
             },
           ),
         ],
@@ -551,41 +952,51 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
       child: Card(
         margin: EdgeInsets.zero,
         elevation: 0,
-        shadowColor: Colors.white.withOpacity(0.5),
+        shadowColor: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.5),
         shape: SmoothRectangleBorder(
             side: BorderSide(
               width: index == 0 ? 1 : 0,
-              color:
-                  index == 0 ? AppColors.containerColor : AppColors.transparent,
+              color: index == 0
+                  ? Theme.of(context).cardColor
+                  : AppColors.transparent,
             ),
             borderRadius: index != 0
                 ? BorderRadius.circular(20)
                 : BorderRadius.circular(20)),
-        color: index == 0 ? AppColors.white : AppColors.black,
+        color: index == 0
+            ? Theme.of(context).scaffoldBackgroundColor
+            : Theme.of(context).colorScheme.secondary,
         child: Container(
           margin: EdgeInsets.zero,
-          width: 120,
+          // width: 120,
           height: 28,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                icon,
-                color: index == 0 ? AppColors.black : AppColors.white,
-                size: 18,
-              ),
-              SizedBox(
-                width: 8,
-              ),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: index == 0 ? AppColors.black : AppColors.white,
-                  fontWeight: FontWeight.w500,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  icon,
+                  color: index == 0
+                      ? Theme.of(context).colorScheme.secondary
+                      : Theme.of(context).scaffoldBackgroundColor,
+                  size: 18,
                 ),
-              ),
-            ],
+                SizedBox(
+                  width: 8,
+                ),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: index == 0
+                        ? Theme.of(context).colorScheme.secondary
+                        : Theme.of(context).scaffoldBackgroundColor,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -1202,58 +1613,5 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
         );
       },
     );
-  }
-}
-
-class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
-  final TabBar tabBar;
-  final Color backgroundColor;
-
-  _SliverTabBarDelegate(this.tabBar, {this.backgroundColor = Colors.white});
-
-  @override
-  Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Container(
-      color: Colors.white,
-      child: Column(
-        children: [
-          Expanded(
-            child: TabBar(
-              padding: EdgeInsets.zero,
-              controller: tabBar.controller,
-              tabs: tabBar.tabs,
-              indicatorColor: Theme.of(context).colorScheme.secondary,
-              indicatorSize: TabBarIndicatorSize.tab,
-              labelColor: Theme.of(context).colorScheme.secondary,
-              unselectedLabelColor: AppColors.grey,
-              labelPadding: const EdgeInsets.symmetric(vertical: 0),
-              dividerColor: Colors.transparent,
-              overlayColor:
-                  MaterialStateProperty.all(Colors.grey.withOpacity(0.1)),
-            ),
-          ),
-          Transform.translate(
-            offset: Offset(0, 0),
-            child: Container(
-              height: 1, // Height of the bottom grey line
-              color:
-                  Colors.grey.withOpacity(0.1), // Light grey color for the line
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  double get maxExtent => 40;
-
-  @override
-  double get minExtent => 40;
-
-  @override
-  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
-    return true;
   }
 }

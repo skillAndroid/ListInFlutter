@@ -1,0 +1,2 @@
+C:/android/ListInFlutter/android/app/.cxx/RelWithDebInfo/3k413b4y/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/android/ListInFlutter/android/app/.cxx/RelWithDebInfo/3k413b4y/armeabi-v7a/CMakeFiles/rebuild_cache.dir

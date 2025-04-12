@@ -289,5 +289,6 @@
   "emailVerifiedSuccessfully": "{email} muvaffaqiyatli tasdiqlandi",
   "googleSignInFailed": "Google orqali kirish muvaffaqiyatsiz bo'ldi",
   "networkErrorOccurred": "Tarmoq xatosi yuz berdi. Iltimos, ulanishni tekshiring.",
-  "signInCancelled": "Kirish bekor qilindi."
+  "signInCancelled": "Kirish bekor qilindi.",
+  "account": "Xisob"
   }

@@ -249,7 +249,7 @@
   "show_exact_location": "Показать точное местоположение",
   "phone": "Телефон",
   "location_bg": "МЕСТОПОЛОЖЕНИЕ",
-  "edit_profile": "Редактировать профиль",
+  "edit_profile": "Редактировать",
   "an_error_occurred": "Произошла ошибка",
   "error": "Ошибка",
   "no_location": "Местоположение отсутствует",
@@ -269,7 +269,7 @@
   "about_us": "О нас",
   "available_hours": "Доступные часы",
   "member_since": "Член с: ",
-  "share_profile": "Поделиться профилем",
+  "share_profile": "Поделиться",
   "share_location": "Поделиться местоположением",
   "share_phone_number": "Поделиться номером телефона",
   "share_profile_image": "Поделиться фото профиля",
@@ -289,5 +289,6 @@
   "emailVerifiedSuccessfully": "Электронная почта {email} успешно подтверждена",
   "googleSignInFailed": "Не удалось войти через Google",
   "networkErrorOccurred": "Ошибка сети. Пожалуйста, проверьте подключение.",
-  "signInCancelled": "Вход отменен."
+  "signInCancelled": "Вход отменен.",
+  "account": "Аккаунт"
 }

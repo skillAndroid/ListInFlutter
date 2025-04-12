@@ -10,6 +10,7 @@ import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/profile/domain/usecases/user/get_user_data_usecase.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class MainWrapper extends StatefulWidget {
   final StatefulNavigationShell navigationShell;
@@ -126,7 +127,7 @@ class _MainWrapperState extends State<MainWrapper> {
                   _buildProfileItem(textColor, inactiveColor),
                 ],
               ),
-              SizedBox(height: 1),
+              SizedBox(height: 0.5),
             ],
           ),
         ),
@@ -182,10 +183,10 @@ class _MainWrapperState extends State<MainWrapper> {
           children: [
             Icon(
               CupertinoIcons.plus_circled,
-              size: 28,
+              size: 26,
               color: inactiveColor,
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 2),
             Text(
               AppLocalizations.of(context)!.add_post,
               style: TextStyle(
@@ -206,11 +207,15 @@ class _MainWrapperState extends State<MainWrapper> {
     return InkWell(
       onTap: () => _goToBranch(2),
       child: Padding(
-        padding: const EdgeInsets.only(top: 10),
+        padding: const EdgeInsets.only(top: 6),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ClipRRect(
+            SmoothClipRRect(
+              side: BorderSide(
+                width: isSelected ? 1 : 0,
+                color: AppColors.primary,
+              ),
               borderRadius: BorderRadius.circular(15),
               child: SizedBox(
                 height: 24,

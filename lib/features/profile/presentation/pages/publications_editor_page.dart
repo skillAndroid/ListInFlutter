@@ -3,8 +3,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
-import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/theme/provider/theme_provider.dart';
 import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/post/presentation/widgets/page_call_back_button.dart';
@@ -19,7 +19,6 @@ import 'package:list_in/features/profile/presentation/widgets/price_widget.dart'
 import 'package:list_in/features/profile/presentation/widgets/product_condition_page.dart';
 import 'package:list_in/features/profile/presentation/widgets/title_widget.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class PublicationsEditorPage extends StatefulWidget {
   const PublicationsEditorPage({super.key});

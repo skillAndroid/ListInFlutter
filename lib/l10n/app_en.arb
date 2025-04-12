@@ -289,5 +289,6 @@
   "emailVerifiedSuccessfully": "{email} verified successfully",
   "googleSignInFailed": "Failed to sign in with Google",
   "networkErrorOccurred": "Network error occurred. Please check your connection.",
-  "signInCancelled": "Sign-in was cancelled."
+  "signInCancelled": "Sign-in was cancelled.",
+  "account": "Account"
 }
