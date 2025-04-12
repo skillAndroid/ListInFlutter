@@ -21,13 +21,13 @@ class ProductActionsService {
         title: localizations.boost_publication,
         icon: CupertinoIcons.rocket,
         iconColor: AppColors.primary,
-        onPressed: () => _showBoostUnavailableMessage(context),
+        onPressed: () => showBoostUnavailableMessage(context),
       ),
       ActionSheetOption(
         title: localizations.delete_publication,
         icon: CupertinoIcons.delete,
         iconColor: AppColors.error,
-        onPressed: () => _showDeleteConfirmation(context, product.id),
+        onPressed: () => showDeleteConfirmation(context, product.id),
         isDestructive: true,
       ),
     ];
@@ -41,7 +41,7 @@ class ProductActionsService {
   }
 
   // Show delete confirmation dialog
-  static Future<void> _showDeleteConfirmation(
+  static Future<void> showDeleteConfirmation(
       BuildContext context, String productId) async {
     final localizations = AppLocalizations.of(context)!;
     final shouldDelete = await showDialog<bool>(
@@ -84,7 +84,7 @@ class ProductActionsService {
   }
 
   // Show boost unavailable message
-  static void _showBoostUnavailableMessage(BuildContext context) {
+  static void showBoostUnavailableMessage(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
     InfoDialog.show(
       context: context,
