@@ -12,21 +12,20 @@ import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
-import 'package:list_in/config/theme/app_language.dart';
-import 'package:list_in/core/language/language_bloc.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/details/presentation/bloc/details_bloc.dart';
-import 'package:list_in/features/details/presentation/bloc/details_state.dart';
 import 'package:list_in/features/details/presentation/pages/product_images_detailed.dart';
 import 'package:list_in/features/details/presentation/pages/video_details.dart';
 import 'package:list_in/features/details/presentation/widgets/full_screen_map.dart';
+import 'package:list_in/features/details/presentation/widgets/product_char_widget.dart';
+import 'package:list_in/features/details/presentation/widgets/product_description.dart';
+import 'package:list_in/features/details/presentation/widgets/product_price.dart';
+import 'package:list_in/features/details/presentation/widgets/product_title.dart'
+    show ProductTitleWidget;
+import 'package:list_in/features/details/presentation/widgets/products_grid_details_pade.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
-import 'package:list_in/features/explore/presentation/widgets/formaters.dart';
-import 'package:list_in/features/explore/presentation/widgets/product_card/bb/regular_product_card.dart';
-import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
-import 'package:list_in/features/post/presentation/pages/atributes_releted/child_category_page.dart';
 import 'package:list_in/features/profile/domain/usecases/user/get_user_data_usecase.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_bloc.dart';
@@ -592,7 +591,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         const SizedBox(
           height: 3,
         ),
-        _buildTitle(),
+        ProductTitleWidget(
+          product: widget.product,
+        ),
         const SizedBox(
           height: 14,
         ),
@@ -765,7 +766,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildPrice(),
+              ProductPriceWidget(product: widget.product),
             ],
           ),
         ),
@@ -1048,17 +1049,21 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         ),
         if (enAttributes.isNotEmpty ||
             widget.product.attributeValue.numericValues.isNotEmpty) ...[
-          buildCharacteristics(enAttributes),
+          ProductCharacteristicsWidget(product: widget.product),
           SizedBox(
             height: 12,
           ),
         ],
 
-        _buildDescription(),
+        ProductDescriptionWidget(
+          product: widget.product,
+        ),
         SizedBox(
           height: 16,
         ),
-        _buildSimilarProducts(isOwner),
+        ProductsGridWidget(
+          isOwner: isOwner,
+        )
       ],
     );
   }
@@ -1272,173 +1277,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
-  Widget _buildPrice() {
-    final localizations = AppLocalizations.of(context)!;
-    return Text.rich(
-      TextSpan(
-        text: "${formatPrice(widget.product.price.toString())} ", // Main price
-        style: TextStyle(
-          fontSize: 26,
-          color: Theme.of(context).colorScheme.secondary,
-          fontWeight: FontWeight.w800,
-          fontFamily: Constants.Arial,
-          height: 1.2,
-        ),
-        children: [
-          TextSpan(
-            text: localizations.currency, // Currency text
-            style: TextStyle(
-              fontSize: 18, // Smaller font size
-              fontWeight: FontWeight.w400, // Lighter weight
-              color: Theme.of(context).colorScheme.surface,
-              fontFamily: Constants.Arial,
-              // Brighter color
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTitle() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Text(
-        widget.product.title,
-        style: TextStyle(
-          fontSize: 21,
-          fontWeight: FontWeight.w600,
-          color: Theme.of(context).colorScheme.secondary,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDescription() {
-    final localizations = AppLocalizations.of(context)!;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            localizations.description,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-              color: Theme.of(context).colorScheme.secondary,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            widget.product.description,
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.secondary,
-              fontSize: 14,
-              height: 1.5,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget buildCharacteristics(Map<String, List<String>> enAttributes) {
-    // Get the current language code
-    return BlocSelector<LanguageBloc, LanguageState, String>(
-        selector: (state) =>
-            state is LanguageLoaded ? state.languageCode : AppLanguages.english,
-        builder: (context, languageCode) {
-          final localizations = AppLocalizations.of(context)!;
-
-          // Combine all features into a single list
-          final List<MapEntry<String, String>> features = [];
-
-          // Add attributes for the current language
-          final attributes =
-              widget.product.attributeValue.attributes[languageCode] ??
-                  widget.product.attributeValue.attributes['en'] ??
-                  {};
-
-          attributes.forEach((key, values) {
-            if (values.isNotEmpty) {
-              final value = values.length == 1 ? values[0] : values.join(', ');
-              features.add(MapEntry(key, value));
-            }
-          });
-
-          // Add numeric values
-          for (var numericValue
-              in widget.product.attributeValue.numericValues) {
-            if (numericValue.numericValue.isNotEmpty) {
-              // Get localized field name based on language
-              final fieldName = getLocalizedText(
-                numericValue.numericField,
-                numericValue.numericFieldUz,
-                numericValue.numericFieldRu,
-                languageCode,
-              );
-              features.add(MapEntry(fieldName, numericValue.numericValue));
-            }
-          }
-
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  localizations.about_this_item,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                // Show all items
-                ...features.map((feature) => _buildCharacteristicItem(
-                      feature.key,
-                      feature.value,
-                    )),
-              ],
-            ),
-          );
-        });
-  }
-
-  Widget _buildCharacteristicItem(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            flex: 5,
-            child: Text(
-              '$label: ',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.surface,
-                fontSize: 14,
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 6,
-            child: Text(
-              value,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Theme.of(context).colorScheme.secondary,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   void _showPublicationOptions(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
     final options = [
@@ -1536,131 +1374,5 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         SnackBar(content: Text("Exception: $e")),
       );
     }
-  }
-
-  Widget _buildSimilarProducts(bool isOwner) {
-    final localizations = AppLocalizations.of(context)!;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          height: 16,
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Text(
-            isOwner ? localizations.your_post : localizations.user_other_posts,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        buildProductsGrid(isOwner),
-      ],
-    );
-  }
-
-  Widget buildProductsGrid(bool isOwner) {
-    final localizations = AppLocalizations.of(context)!;
-    return BlocBuilder<DetailsBloc, DetailsState>(
-      builder: (context, state) {
-        if (state.status == DetailsStatus.loading &&
-            state.publications.isEmpty) {
-          return Progress();
-        }
-        if (state.status == DetailsStatus.failure &&
-            state.publications.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TextButton(
-                  onPressed: () {
-                    context.read<DetailsBloc>().add(
-                          FetchPublications(
-                            userId: state.profile?.id ?? '',
-                            isInitialFetch: true,
-                          ),
-                        );
-                  },
-                  child: Text(localizations.retry),
-                ),
-                if (state.errorMessage != null) Text(state.errorMessage!),
-              ],
-            ),
-          );
-        }
-        if (state.publications.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const SizedBox(height: 32),
-                Icon(Icons.inventory, size: 72, color: Colors.grey[400]),
-                const SizedBox(height: 16),
-                Text(
-                  localizations.no_publications_available,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          );
-        }
-
-        return Padding(
-          padding: EdgeInsets.only(bottom: 24, left: 0),
-          child: SizedBox(
-            height: 300, // Adjust height based on your product card height
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              physics: const BouncingScrollPhysics(),
-              itemCount:
-                  state.publications.length + (state.isLoadingMore ? 1 : 0),
-              itemBuilder: (context, index) {
-                // Check if we need to load more
-                if (index >= state.publications.length - 4 &&
-                    !state.isLoadingMore &&
-                    !state.hasReachedEnd) {
-                  context.read<DetailsBloc>().add(
-                        FetchPublications(
-                          userId: state.profile?.id ?? '',
-                        ),
-                      );
-                }
-
-                if (index == state.publications.length) {
-                  if (state.isLoadingMore) {
-                    return const Center(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16.0),
-                        child: CircularProgressIndicator(),
-                      ),
-                    );
-                  }
-                  return null;
-                }
-
-                final publication = state.publications[index];
-                return Padding(
-                  padding: EdgeInsets.only(left: index == 0 ? 16 : 4),
-                  child: SizedBox(
-                    width: 180, // Adjust width based on your design
-                    child: ProductCardContainer(
-                      product: publication,
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        );
-      },
-    );
   }
 }
