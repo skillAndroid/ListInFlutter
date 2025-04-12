@@ -6,8 +6,8 @@ import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/assets/app_images.dart';
@@ -20,6 +20,7 @@ import 'package:list_in/features/details/presentation/bloc/details_bloc.dart';
 import 'package:list_in/features/details/presentation/bloc/details_state.dart';
 import 'package:list_in/features/details/presentation/pages/product_images_detailed.dart';
 import 'package:list_in/features/details/presentation/pages/video_details.dart';
+import 'package:list_in/features/details/presentation/widgets/full_screen_map.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/formaters.dart';
 import 'package:list_in/features/explore/presentation/widgets/product_card/bb/regular_product_card.dart';
@@ -38,7 +39,6 @@ import 'package:list_in/global/global_state.dart';
 import 'package:list_in/global/global_status.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../bloc/details_event.dart';
 
@@ -1661,162 +1661,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           ),
         );
       },
-    );
-  }
-}
-
-class FullScreenMap extends StatelessWidget {
-  final double latitude;
-  final double longitude;
-  final String locationName;
-
-  const FullScreenMap({
-    super.key,
-    required this.latitude,
-    required this.longitude,
-    required this.locationName,
-  });
-
-  Future<void> _openInMaps() async {
-    final Uri url = Uri.parse(
-      'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude',
-    );
-
-    try {
-      if (await canLaunchUrl(url)) {
-        await launchUrl(
-          url,
-          mode: LaunchMode.externalApplication,
-        );
-      } else {
-        throw 'Could not launch maps';
-      }
-    } catch (e) {
-      debugPrint('Error launching maps: $e');
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: PreferredSize(
-          preferredSize: Size(double.infinity, 56),
-          child: CustomLocationHeader(
-            locationName: locationName,
-            onBackPressed: () => Navigator.pop(context),
-            onMapsPressed: _openInMaps,
-            elevation: 2,
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-            padding: EdgeInsets.symmetric(horizontal: 4, vertical: 16),
-          )),
-      body: GoogleMap(
-        zoomControlsEnabled: true,
-        mapToolbarEnabled: true,
-        myLocationButtonEnabled: false,
-        compassEnabled: true,
-        initialCameraPosition: CameraPosition(
-          target: LatLng(latitude, longitude),
-          zoom: 18,
-        ),
-        markers: {
-          Marker(
-            markerId: const MarkerId('selectedLocation'),
-            position: LatLng(latitude, longitude),
-            infoWindow: InfoWindow(title: locationName),
-          ),
-        },
-      ),
-    );
-  }
-}
-
-class CustomLocationHeader extends StatelessWidget {
-  final String locationName;
-  final VoidCallback onBackPressed;
-  final VoidCallback onMapsPressed;
-  final double elevation;
-  final Color backgroundColor;
-  final EdgeInsets padding;
-
-  const CustomLocationHeader({
-    super.key,
-    required this.locationName,
-    required this.onBackPressed,
-    required this.onMapsPressed,
-    this.elevation = 1,
-    this.backgroundColor = Colors.white,
-    this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final localizations = AppLocalizations.of(context)!;
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
-      margin: EdgeInsets.zero,
-      elevation: elevation,
-      color: backgroundColor,
-      child: SafeArea(
-        child: Padding(
-          padding: padding,
-          child: Row(
-            children: [
-              // Back Button
-              IconButton(
-                icon: Icon(
-                  Icons.arrow_back_rounded,
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-                onPressed: onBackPressed,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-              ),
-              const SizedBox(width: 8),
-
-              // Location Section
-              Expanded(
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        locationName,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.secondary,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              SizedBox(
-                width: 16,
-              ),
-
-              // Maps Button
-              TextButton(
-                onPressed: onMapsPressed,
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                child: Text(
-                  localizations.map,
-                  style: const TextStyle(
-                    color: Colors.blue,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

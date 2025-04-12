@@ -19,6 +19,7 @@ import 'package:list_in/core/theme/widgets/toggle_button.dart';
 import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/auth/data/sources/auth_local_data_source.dart';
 import 'package:list_in/features/details/presentation/pages/details.dart';
+import 'package:list_in/features/details/presentation/widgets/full_screen_map.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/profile/domain/entity/user/user_profile_entity.dart';
 import 'package:list_in/features/profile/presentation/bloc/user/user_profile_bloc.dart';
