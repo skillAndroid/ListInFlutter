@@ -457,6 +457,9 @@ class OptimizedLikeButton extends StatefulWidget {
   final bool isOwner;
   final bool isLiked;
   final LikeStatus likeStatus;
+  final double size;
+  final double bootom;
+  final double right;
 
   const OptimizedLikeButton({
     super.key,
@@ -465,6 +468,9 @@ class OptimizedLikeButton extends StatefulWidget {
     required this.isOwner,
     required this.isLiked,
     required this.likeStatus,
+    this.size = 36,
+    this.bootom = 8,
+    this.right = 8,
   });
 
   @override
@@ -507,8 +513,8 @@ class _OptimizedLikeButtonState extends State<OptimizedLikeButton>
     final isLoading = widget.likeStatus == LikeStatus.inProgress;
 
     return Positioned(
-      bottom: 8,
-      right: 8,
+      bottom: widget.bootom,
+      right: widget.right,
       child: InkWell(
         onTap: isLoading
             ? null
@@ -548,8 +554,8 @@ class _OptimizedLikeButtonState extends State<OptimizedLikeButton>
           ),
         ],
       ),
-      width: 36,
-      height: 36,
+      width: widget.size,
+      height: widget.size,
       child: Padding(
         padding: const EdgeInsets.all(8),
         child: Image.asset(

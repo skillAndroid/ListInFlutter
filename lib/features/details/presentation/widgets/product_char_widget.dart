@@ -61,7 +61,7 @@ class ProductCharacteristicsWidget extends StatelessWidget {
                 Text(
                   localizations.about_this_item,
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.w700,
                     color: Theme.of(context).colorScheme.secondary,
                   ),

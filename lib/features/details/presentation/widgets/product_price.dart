@@ -19,7 +19,7 @@ class ProductPriceWidget extends StatelessWidget {
       TextSpan(
         text: "${formatPrice(product.price.toString())} ", // Main price
         style: TextStyle(
-          fontSize: 26,
+          fontSize: 24,
           color: Theme.of(context).colorScheme.secondary,
           fontWeight: FontWeight.w800,
           fontFamily: Constants.Arial,

@@ -17,7 +17,7 @@ class ProductTitleWidget extends StatelessWidget {
       child: Text(
         product.title,
         style: TextStyle(
-          fontSize: 21,
+          fontSize: 18,
           fontWeight: FontWeight.w600,
           color: Theme.of(context).colorScheme.secondary,
         ),
