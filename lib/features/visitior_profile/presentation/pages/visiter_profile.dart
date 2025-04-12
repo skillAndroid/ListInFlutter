@@ -1,7 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'dart:ui';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/cupertino.dart';
@@ -119,9 +119,9 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                               color: AppColors.white,
                             ),
                             borderRadius: BorderRadius.circular(imageSize / 2),
-                            child: imagePath != null && imagePath!.isNotEmpty
+                            child: imagePath.isNotEmpty
                                 ? CachedNetworkImage(
-                                    imageUrl: 'https://${imagePath}',
+                                    imageUrl: 'https://$imagePath',
                                     fit: BoxFit.cover,
                                     placeholder: (context, url) => Container(
                                       color: Colors.black26,
@@ -321,7 +321,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                                       userData.rating.toString() == "null"
                                           ? '0'
                                           : userData.rating.toString(),
-                                      'Rating',
+                                      AppLocalizations.of(context)!.rating,
                                     ),
                                     InkWell(
                                       onTap: () {
@@ -341,7 +341,10 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                                               state.getFollowersCount(
                                                   userData.id ?? '');
                                           return _buildStatItem(
-                                              '$followersCount', 'Followers');
+                                            '$followersCount',
+                                            AppLocalizations.of(context)!
+                                                .followers,
+                                          );
                                         },
                                       ),
                                     ),
@@ -363,7 +366,10 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                                               state.getFollowingCount(
                                                   userData.id ?? '');
                                           return _buildStatItem(
-                                              '$followingCount', 'Following');
+                                            '$followingCount',
+                                            AppLocalizations.of(context)!
+                                                .following,
+                                          );
                                         },
                                       ),
                                     ),
@@ -376,7 +382,8 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                           Padding(
                             padding: EdgeInsets.symmetric(horizontal: 2),
                             child: Text(
-                              userData.biography ?? "No bio yet!",
+                              userData.biography ??
+                                  AppLocalizations.of(context)!.no_biography,
                               maxLines: 1,
                               style: TextStyle(
                                 fontSize: 12.5,
@@ -458,8 +465,12 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                                                 children: [
                                                   Text(
                                                     isFollowed == true
-                                                        ? 'Unfollow'
-                                                        : 'Follow',
+                                                        ? AppLocalizations.of(
+                                                                context)!
+                                                            .unfollow
+                                                        : AppLocalizations.of(
+                                                                context)!
+                                                            .follow,
                                                     style: TextStyle(
                                                       color: Theme.of(context)
                                                           .colorScheme
@@ -517,7 +528,8 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                                             size: 20),
                                         const SizedBox(width: 6),
                                         Text(
-                                          'Message', // Fixed typo: "Messege" to "Message"
+                                          AppLocalizations.of(context)!
+                                              .write_to_telegram, // Fixed typo: "Messege" to "Message"
                                           style: TextStyle(
                                             color: Theme.of(context)
                                                 .colorScheme
@@ -561,7 +573,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                                   width: 4,
                                 ),
                                 Text(
-                                  'Publications',
+                                  AppLocalizations.of(context)!.publications,
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 13,
@@ -587,7 +599,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                                   width: 4,
                                 ),
                                 Text(
-                                  'Reviews',
+                                  AppLocalizations.of(context)!.reviews,
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 13,
@@ -613,7 +625,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                                   width: 4,
                                 ),
                                 Text(
-                                  'About',
+                                  AppLocalizations.of(context)!.about,
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 13,
