@@ -35,7 +35,6 @@ import 'package:list_in/global/global_event.dart';
 import 'package:list_in/global/global_state.dart';
 import 'package:list_in/global/global_status.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../bloc/details_event.dart';
 
@@ -891,8 +890,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       // Get seller phone number from the product entity
                       final String phoneNumber =
                           widget.product.seller.phoneNumber;
-
-                      _openTelegram(context, message, phoneNumber);
+                      ProductActionsService.openTelegram(
+                        context,
+                        message,
+                        phoneNumber,
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       shape: SmoothRectangleBorder(
@@ -1073,41 +1075,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         )
       ],
     );
-  }
-
-  void _openTelegram(BuildContext context, String message, String phoneNumber) {
-    // Format phone number by removing any non-digit characters
-    final String formattedPhone = phoneNumber.replaceAll(RegExp(r'[^\d+]'), '');
-
-    // Create the Telegram URL with phone number
-    final String encodedMessage = Uri.encodeComponent(message);
-    final String url = "https://t.me/$formattedPhone?text=$encodedMessage";
-
-    try {
-      launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-    } catch (e) {
-      // Handle error based on language
-      final String languageCode = Localizations.localeOf(context).languageCode;
-      String errorMessage;
-      switch (languageCode) {
-        case 'uz':
-          errorMessage = "Telegram ilovasini ochib bo'lmadi";
-          break;
-        case 'en':
-          errorMessage = "Could not open Telegram";
-          break;
-        case 'ru':
-        default:
-          errorMessage = "Не удалось открыть Telegram";
-          break;
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content:
-              Text(errorMessage, style: TextStyle(fontFamily: Constants.Arial)),
-        ),
-      );
-    }
   }
 
   void showLocationPrivacySheet(BuildContext context) {

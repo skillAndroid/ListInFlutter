@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_event.dart';
@@ -113,6 +114,42 @@ class ProductActionsService {
       debugPrint("🤙Cannot launch URL: $uriString");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Exception: $e")),
+      );
+    }
+  }
+
+  static Future<void> openTelegram(
+      BuildContext context, String message, String phoneNumber) async {
+    // Format phone number by removing any non-digit characters
+    final String formattedPhone = phoneNumber.replaceAll(RegExp(r'[^\d+]'), '');
+
+    // Create the Telegram URL with phone number
+    final String encodedMessage = Uri.encodeComponent(message);
+    final String url = "https://t.me/$formattedPhone?text=$encodedMessage";
+
+    try {
+      launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+    } catch (e) {
+      // Handle error based on language
+      final String languageCode = Localizations.localeOf(context).languageCode;
+      String errorMessage;
+      switch (languageCode) {
+        case 'uz':
+          errorMessage = "Telegram ilovasini ochib bo'lmadi";
+          break;
+        case 'en':
+          errorMessage = "Could not open Telegram";
+          break;
+        case 'ru':
+        default:
+          errorMessage = "Не удалось открыть Telegram";
+          break;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content:
+              Text(errorMessage, style: TextStyle(fontFamily: Constants.Arial)),
+        ),
       );
     }
   }
