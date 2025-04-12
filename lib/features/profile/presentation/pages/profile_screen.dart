@@ -704,6 +704,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
+                                  fontFamily: Constants.Arial,
                                 ),
                               ),
                               SizedBox(
@@ -728,6 +729,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
+                                  fontFamily: Constants.Arial,
                                 ),
                               ),
                               SizedBox(
@@ -753,6 +755,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
+                                  fontFamily: Constants.Arial,
                                 ),
                               ),
                               SizedBox(
