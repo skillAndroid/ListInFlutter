@@ -9,6 +9,8 @@ import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/retry.dart';
+import 'package:light_compressor/light_compressor.dart';
+import 'package:list_in/features/video/service/video_compresion_service.dart';
 import 'package:path_provider/path_provider.dart' as path_provider;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -115,7 +117,7 @@ Future<void> init() async {
   sl.registerLazySingleton<SharedPrefsService>(
     () => SharedPrefsService(sharedPreferences),
   );
-
+  _registerServices();
   // HTTP Clients
   _registerHttpClients();
 
@@ -254,6 +256,12 @@ void _registerHttpClients() {
       },
     );
   });
+}
+
+void _registerServices() {
+  sl.registerLazySingleton<VideoCompressionService>(
+    () => VideoCompressionService(),
+  );
 }
 
 //======================================================================
@@ -490,7 +498,11 @@ void _registerPostFeature() {
   sl.registerLazySingleton(() => GetGategoriesUsecase(sl()));
   sl.registerLazySingleton(() => GetLocationsUsecase(sl()));
   sl.registerLazySingleton(() => UploadImagesUseCase(sl()));
-  sl.registerLazySingleton(() => UploadVideoUseCase(sl()));
+  sl.registerLazySingleton(() => UploadVideoUseCase(
+        sl(),
+        sl(),
+        compressionQuality: VideoQuality.medium,
+      ));
   sl.registerLazySingleton(() => CreatePostUseCase(sl()));
 
   // Repository

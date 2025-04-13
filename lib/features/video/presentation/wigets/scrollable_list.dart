@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
@@ -116,7 +117,6 @@ class _VideoCarouselState extends State<VideoCarousel> {
 
       if (initialized) {
         setState(() {});
-
         try {
           await _videoController?.setLooping(false);
           await _videoController?.setVolume(0);
@@ -280,17 +280,17 @@ class _VideoCarouselState extends State<VideoCarousel> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(
+                        Icon(
                           CupertinoIcons.play_circle_fill,
                           size: 32,
-                          color: AppColors.black,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                         const SizedBox(height: 8),
                         Text(
                           AppLocalizations.of(context)!.see_all_videos,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: AppColors.black,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.secondary,
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
                           ),

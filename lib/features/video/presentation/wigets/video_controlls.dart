@@ -230,7 +230,7 @@ class _CustomVideoProgressIndicatorState
                       width: 12,
                       height: 12,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Theme.of(context).scaffoldBackgroundColor,
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
