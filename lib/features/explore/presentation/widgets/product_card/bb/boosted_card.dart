@@ -303,7 +303,7 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
 
   Widget _buildMediaCarousel() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 2),
+      padding: EdgeInsets.symmetric(horizontal: 1.2),
       child: AspectRatio(
         aspectRatio: 9 / 14.5,
         child: ClipRRect(

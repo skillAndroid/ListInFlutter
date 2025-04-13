@@ -409,7 +409,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
       padding: const EdgeInsets.symmetric(horizontal: 4),
       sliver: PagedSliverMasonryGrid.count(
         crossAxisCount: 2,
-        mainAxisSpacing: 1,
+        mainAxisSpacing: 0,
         crossAxisSpacing: 0,
         pagingController: _pagingState.pagingController,
         builderDelegate: PagedChildBuilderDelegate<GetPublicationEntity>(
