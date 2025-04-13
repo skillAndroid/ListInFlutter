@@ -780,7 +780,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
         }
 
         return SliverPadding(
-          padding: EdgeInsets.only(bottom: 16, left: 6, right: 6, top: 12),
+          padding: EdgeInsets.only(bottom: 16, left: 4, right: 4, top: 12),
           sliver: SliverGrid(
             delegate: SliverChildBuilderDelegate(
               (context, index) {
@@ -817,7 +817,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
               crossAxisCount: 2,
               crossAxisSpacing: 0,
               mainAxisSpacing: 0,
-              childAspectRatio: 0.6,
+              childAspectRatio: 0.75,
             ),
           ),
         );

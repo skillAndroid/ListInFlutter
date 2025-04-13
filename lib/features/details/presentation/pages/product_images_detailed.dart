@@ -2,10 +2,7 @@
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/utils/const.dart';
-import 'package:list_in/features/details/presentation/pages/video_details.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:photo_view/photo_view.dart';
 
@@ -32,9 +29,7 @@ class _ProductImagesDetailedState extends State<ProductImagesDetailed> {
   late int _currentIndex;
   final List<TransformationController> _transformationControllers = [];
 
-  bool get hasVideo => widget.videoUrl != null;
-  int get totalItems =>
-      hasVideo ? widget.images.length + 1 : widget.images.length;
+  int get totalItems => widget.images.length;
 
   @override
   void initState() {
@@ -95,67 +90,12 @@ class _ProductImagesDetailedState extends State<ProductImagesDetailed> {
             },
             itemCount: totalItems,
             itemBuilder: (context, index) {
-              if (hasVideo && index == 0) {
-                return _buildVideoThumbnail();
-              }
-              final imageIndex = hasVideo ? index - 1 : index;
+              final imageIndex = index;
               return _buildImageViewer(imageIndex);
             },
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildVideoThumbnail() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return Container(
-          width: constraints.maxWidth,
-          height: constraints.maxHeight,
-          color: Theme.of(context).scaffoldBackgroundColor,
-          child: GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => VideoPlayerScreen(
-                    videoUrl: widget.videoUrl!,
-                    thumbnailUrl: 'https://${widget.images[0].url}',
-                  ),
-                ),
-              );
-            },
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                CachedNetworkImage(
-                  imageUrl: 'https://${widget.images[0].url}',
-                  fit: BoxFit.contain,
-                  filterQuality: FilterQuality.high,
-                ),
-                Center(
-                  child: Container(
-                    width: 60,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .scaffoldBackgroundColor
-                          .withOpacity(0.7),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.play_arrow_rounded,
-                      color: Theme.of(context).colorScheme.secondary,
-                      size: 40,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
     );
   }
 

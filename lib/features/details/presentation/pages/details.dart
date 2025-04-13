@@ -1,6 +1,8 @@
 // Create a ProductDetailsScreen
 // ignore_for_file: deprecated_member_use
 
+import 'dart:math' as math;
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -34,6 +36,7 @@ import 'package:list_in/global/global_event.dart';
 import 'package:list_in/global/global_state.dart';
 import 'package:list_in/global/global_status.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
+import 'package:video_player/video_player.dart';
 
 import '../bloc/details_event.dart';
 
@@ -54,15 +57,40 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   final ScrollController _thumbnailScrollController = ScrollController();
   int _currentPage = 0;
   bool isMore = false;
-
+  VideoPlayerController? _videoPlayerController;
+  bool _isVideoInitialized = false;
+  final _videoVisibilityThreshold = 0.6;
+  final _videoVisibilityNotifier = ValueNotifier<bool>(false);
+  bool _initializationInProgress = false;
+// Add this GlobalKey to track the video position
+  final GlobalKey _videoKey = GlobalKey();
   @override
   void initState() {
     super.initState();
+    _initializeVideo();
+    // Fixed the syntax error here - was using pageController instead of _pageController
+    _pageController.addListener(_handleVideoVisibility);
+    Future.delayed(Duration(milliseconds: 500), () {
+      if (mounted) {
+        setState(() {
+          _initializationInProgress = false;
+        });
+      }
+    });
+// Add scroll listener to the parent SingleChildScrollView
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Find the ancestor ScrollController
+      ScrollController? ancestorScrollController =
+          PrimaryScrollController.of(context);
+
+      ancestorScrollController.addListener(() {
+        _checkVideoVisibilityOnScroll();
+      });
+    });
     final globalBloc = context.read<GlobalBloc>();
     final currentUserId = globalBloc.getUserId(); // Get current user ID
     final isOwner =
         currentUserId == widget.product.seller.id; // Check if user is owner
-
     if (!isOwner) {
       context.read<DetailsBloc>().add(
             FetchPublications(
@@ -71,7 +99,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             ),
           );
     }
-
     if (!isOwner) {
       final isViewed = globalBloc.state.isPublicationViewed(widget.product.id);
       if (!isViewed) {
@@ -87,10 +114,146 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Check if we should start playback (when screen becomes visible again)
+    if (_isVideoInitialized &&
+        _currentPage == 0 &&
+        _videoPlayerController != null &&
+        !_videoPlayerController!.value.isPlaying) {
+      _videoPlayerController!.play();
+      setState(() {}); // Update UI to hide play button
+    }
+  }
+
+  @override
   void dispose() {
+    _videoPlayerController?.dispose();
+    // Fixed the syntax error here - was using pageController instead of _pageController
+    _pageController.removeListener(_handleVideoVisibility);
+    _videoVisibilityNotifier.dispose();
+
+    ScrollController? ancestorScrollController =
+        PrimaryScrollController.of(context);
+    ancestorScrollController.removeListener(_checkVideoVisibilityOnScroll);
     _pageController.dispose();
     _thumbnailScrollController.dispose();
     super.dispose();
+  }
+
+  // Enhanced visibility detection on vertical scroll
+  void _checkVideoVisibilityOnScroll() {
+    if (!mounted || _currentPage != 0 || !_isVideoInitialized) return;
+
+    // Get the RenderObject of the video container
+    final RenderObject? renderObject =
+        _videoKey.currentContext?.findRenderObject();
+    if (renderObject == null) return;
+
+    // Calculate if the video is sufficiently visible
+    final RenderBox renderBox = renderObject as RenderBox;
+    final size = renderBox.size;
+    final position = renderBox.localToGlobal(Offset.zero);
+
+    final screenHeight = MediaQuery.of(context).size.height;
+    final videoHeight = size.height;
+
+    // Calculate how much of the video is on screen
+    final visibleTop = math.max(0.0, position.dy);
+    final visibleBottom = math.min(screenHeight, position.dy + videoHeight);
+    final visibleHeight = math.max(0.0, visibleBottom - visibleTop);
+
+    // Calculate visibility percentage
+    final visibilityPercentage = visibleHeight / videoHeight;
+
+    // Update visibility and control video
+    final isVisible = visibilityPercentage >= _videoVisibilityThreshold;
+    _videoVisibilityNotifier.value = isVisible;
+
+    if (isVisible) {
+      if (!_videoPlayerController!.value.isPlaying) {
+        _videoPlayerController!.play();
+        setState(() {});
+      }
+    } else {
+      if (_videoPlayerController!.value.isPlaying) {
+        _videoPlayerController!.pause();
+        setState(() {});
+      }
+    }
+  }
+
+// Also modify your _handleVideoVisibility method to avoid too early checks
+  void _handleVideoVisibility() {
+    // Don't check visibility until the video is fully rendered
+    if (_videoPlayerController == null || !_isVideoInitialized || !mounted) {
+      return;
+    }
+
+    final hasVideo = widget.product.videoUrl != null;
+    if (!hasVideo) return;
+
+    // Don't perform visibility checks too frequently during initialization
+    if (_initializationInProgress) return;
+
+    // Calculate current page as a double (including partial scrolls)
+    final currentPageValue = _pageController.page ?? 0;
+
+    // If video is on first page (index 0), check visibility
+    if (currentPageValue <= 0.4) {
+      // More than 60% visible (1.0 - currentPageValue > 0.6)
+      if ((1.0 - currentPageValue) >= _videoVisibilityThreshold) {
+        if (!_videoPlayerController!.value.isPlaying) {
+          _videoPlayerController!.play();
+          setState(() {}); // Update UI to hide play button
+        }
+      } else {
+        if (_videoPlayerController!.value.isPlaying) {
+          _videoPlayerController!.pause();
+          setState(() {}); // Update UI to show play button
+        }
+      }
+    } else {
+      // Not on first page, pause video
+      if (_videoPlayerController!.value.isPlaying) {
+        _videoPlayerController!.pause();
+        setState(() {}); // Update UI to show play button
+      }
+    }
+  }
+
+  void _pauseVideoForNavigation() {
+    if (_videoPlayerController != null &&
+        _isVideoInitialized &&
+        _videoPlayerController!.value.isPlaying) {
+      _videoPlayerController!.pause();
+    }
+  }
+
+// Update the _initializeVideo method with a delayed visibility check
+  void _initializeVideo() {
+    final hasVideo = widget.product.videoUrl != null;
+    if (hasVideo) {
+      _videoPlayerController =
+          VideoPlayerController.network('https://${widget.product.videoUrl!}')
+            ..initialize().then((_) {
+              setState(() {
+                _isVideoInitialized = true;
+              });
+
+              if (_currentPage == 0) {
+                _videoPlayerController!.play();
+                setState(() {});
+
+                Future.delayed(Duration(milliseconds: 200), () {
+                  if (mounted) {
+                    _handleVideoVisibility();
+                  }
+                });
+              }
+            });
+    }
   }
 
   @override
@@ -139,9 +302,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           child: Stack(
             children: [
               Container(
-                color: Theme.of(context).cardColor.withOpacity(0.0),
+                color: Theme.of(context).cardColor,
                 child: AspectRatio(
-                  aspectRatio: 4 / 5.5,
+                  aspectRatio: 4 / 6,
                   child: PageView.builder(
                     controller: _pageController,
                     onPageChanged: (index) {
@@ -168,58 +331,90 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     },
                     itemCount: totalItems,
                     itemBuilder: (context, index) {
-                      // Show video thumbnail as first item if video exists
                       if (hasVideo && index == 0) {
                         return GestureDetector(
                           onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => VideoPlayerScreen(
-                                  videoUrl: widget.product.videoUrl!,
-                                  thumbnailUrl:
-                                      'https://${widget.product.productImages[0].url}',
+                            // Toggle play/pause when user taps the video
+                            if (_isVideoInitialized) {
+                              if (_videoPlayerController!.value.isPlaying) {
+                                _videoPlayerController!.pause();
+                              } else {
+                                _videoPlayerController!.play();
+                              }
+                              // Force UI update to show/hide play button
+                              setState(() {});
+                            } else {
+                              // If not initialized, navigate to full screen player
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => VideoPlayerScreen(
+                                    videoUrl: widget.product.videoUrl!,
+                                    thumbnailUrl:
+                                        'https://${widget.product.productImages[0].url}',
+                                  ),
                                 ),
-                              ),
-                            );
+                              );
+                            }
                           },
                           child: Padding(
                             padding: const EdgeInsets.only(
-                              left: 4,
-                              right: 4,
+                              left: 0,
+                              right: 0,
                             ),
-                            child: Stack(
-                              fit: StackFit.expand,
-                              children: [
-                                SmoothClipRRect(
-                                  smoothness: 0.8,
-                                  borderRadius: BorderRadius.circular(24),
-                                  child: CachedNetworkImage(
-                                    imageUrl:
-                                        'https://${widget.product.productImages[0].url}',
-                                    fit: BoxFit.cover,
-                                    filterQuality: FilterQuality.high,
-                                  ),
-                                ),
-                                Center(
-                                  child: Container(
-                                    width: 60,
-                                    height: 60,
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSecondary
-                                          .withOpacity(0.7),
-                                      shape: BoxShape.circle,
+                            child: SmoothClipRRect(
+                              smoothness: 0.8,
+                              borderRadius: BorderRadius.circular(0),
+                              child: Stack(
+                                key: _videoKey,
+                                fit: StackFit.expand,
+                                children: [
+                                  // Video container
+                                  if (_isVideoInitialized)
+                                    FittedBox(
+                                      child: SizedBox(
+                                        width: _videoPlayerController!
+                                            .value.size.width,
+                                        height: _videoPlayerController!
+                                            .value.size.height,
+                                        child: VideoPlayer(
+                                            _videoPlayerController!),
+                                      ),
+                                    )
+                                  else
+                                    // Loading indicator
+                                    Center(
+                                      child: CircularProgressIndicator(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                      ),
                                     ),
-                                    child: Icon(
-                                      Icons.play_arrow_rounded,
-                                      color: Theme.of(context).iconTheme.color,
-                                      size: 40,
+
+                                  // Play button overlay - ONLY show when video is paused and NOT playing
+                                  if (_isVideoInitialized &&
+                                      !_videoPlayerController!.value.isPlaying)
+                                    Center(
+                                      child: Container(
+                                        width: 60,
+                                        height: 60,
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSecondary
+                                              .withOpacity(0.7),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Icon(
+                                          Icons.play_arrow_rounded,
+                                          color:
+                                              Theme.of(context).iconTheme.color,
+                                          size: 40,
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         );
@@ -234,7 +429,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                               MaterialPageRoute(
                                 builder: (context) => ProductImagesDetailed(
                                   images: widget.product.productImages,
-                                  initialIndex: index,
+                                  initialIndex: imageIndex,
                                   heroTag: widget.product.id,
                                   videoUrl: widget.product.videoUrl,
                                 ),
@@ -242,16 +437,16 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                         },
                         child: Padding(
                           padding: EdgeInsets.only(
-                            right: 4,
-                            left: 4,
+                            right: 0,
+                            left: 0,
                           ),
                           child: SmoothClipRRect(
                             smoothness: 0.8,
-                            borderRadius: BorderRadius.circular(24),
+                            borderRadius: BorderRadius.circular(0),
                             child: CachedNetworkImage(
                               imageUrl:
                                   'https://${widget.product.productImages[imageIndex].url}',
-                              fit: BoxFit.cover,
+                              fit: BoxFit.contain,
                               filterQuality: FilterQuality.high,
                             ),
                           ),
@@ -290,7 +485,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 ),
               ),
 
-              // Progress Indicator - bottom center
+              // Progress indicator at bottom
               Positioned(
                 bottom: 16,
                 left: 0,
@@ -299,44 +494,55 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   padding: EdgeInsets.symmetric(horizontal: 16),
                   child: Column(
                     children: [
-                      // Image counter text
-                      Text(
-                        '${_currentPage + 1} / $totalItems',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          shadows: [
-                            Shadow(
-                              offset: Offset(0, 1),
-                              blurRadius: 3.0,
-                              color: Colors.black.withOpacity(0.5),
-                            ),
-                          ],
+                      // Image counter text with fade transition
+                      AnimatedOpacity(
+                        opacity: 1.0,
+                        duration: Duration(milliseconds: 200),
+                        child: Text(
+                          '${_currentPage + 1} / $totalItems',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
+                            shadows: [
+                              Shadow(
+                                offset: Offset(0, 1),
+                                blurRadius: 3.0,
+                                color: Colors.black.withOpacity(0.5),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                       SizedBox(height: 8),
-                      // Progress indicators
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: List.generate(
-                          totalItems,
-                          (index) => Container(
-                            width: _currentPage == index ? 24.0 : 8.0,
-                            height: 8.0,
-                            margin: EdgeInsets.symmetric(horizontal: 2.0),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(4),
-                              color: _currentPage == index
-                                  ? AppColors.primaryLight2
-                                  : Colors.white.withOpacity(0.85),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.3),
-                                  spreadRadius: 0,
-                                  blurRadius: 2,
-                                  offset: Offset(0, 1),
-                                ),
-                              ],
+                      // Progress indicators with animated transitions
+                      SizedBox(
+                        height: 8.0,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(
+                            totalItems,
+                            (index) => AnimatedContainer(
+                              duration: Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                              width: _currentPage == index ? 24.0 : 8.0,
+                              height: 8.0,
+                              margin: EdgeInsets.symmetric(horizontal: 2.0),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(4),
+                                color: _currentPage == index
+                                    ? AppColors.black
+                                    : Colors.white.withOpacity(0.6),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.2),
+                                    spreadRadius: 0,
+                                    blurRadius: 2,
+                                    offset: Offset(0, 1),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -345,8 +551,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   ),
                 ),
               ),
-
-              // New OptimizedLikeButton implementation
+              // Like button
               BlocBuilder<GlobalBloc, GlobalState>(
                 builder: (context, state) {
                   final isLiked = state.isPublicationLiked(widget.product.id);
@@ -390,6 +595,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               child: InkWell(
                   onTap: () {
                     if (!isOwner) {
+                      _pauseVideoForNavigation();
                       context.push(Routes.anotherUserProfile, extra: {
                         'userId': widget.product.seller.id,
                       });
@@ -415,6 +621,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               child: InkWell(
                 onTap: () {
                   if (!isOwner) {
+                    _pauseVideoForNavigation();
                     context.push(Routes.anotherUserProfile, extra: {
                       'userId': widget.product.seller.id,
                     });
@@ -557,6 +764,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         InkWell(
           onTap: () {
             if (widget.product.isGrantedForPreciseLocation) {
+              _pauseVideoForNavigation();
               Navigator.of(context).push(
                 CupertinoModalPopupRoute(
                   builder: (context) {
@@ -641,6 +849,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   flex: 3,
                   child: ElevatedButton(
                     onPressed: () {
+                      _pauseVideoForNavigation();
                       final String languageCode =
                           Localizations.localeOf(context).languageCode;
                       String message;
@@ -697,6 +906,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   flex: 3,
                   child: ElevatedButton(
                     onPressed: () {
+                      _pauseVideoForNavigation();
                       ProductActionsService.makeCall(
                         context,
                         widget.product.seller.phoneNumber,
@@ -740,6 +950,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   flex: 3,
                   child: ElevatedButton(
                     onPressed: () {
+                      _pauseVideoForNavigation();
                       context
                           .read<PublicationUpdateBloc>()
                           .add(InitializePublication(widget.product));
@@ -776,6 +987,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   flex: 3,
                   child: ElevatedButton(
                     onPressed: () {
+                      _pauseVideoForNavigation();
                       ProductActionsService.showDeleteConfirmation(
                           context, widget.product.id);
                     },
@@ -973,6 +1185,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 Padding(
                   padding: EdgeInsets.only(top: 16, bottom: 8),
                   child: Text(
+                    textAlign: TextAlign.center,
                     localizations.location_privacy_enabled,
                     style: TextStyle(
                       fontSize: 20,
