@@ -72,15 +72,15 @@ class VideoCompressionService {
       // Perform compression using the VideoQuality level from the package
       final Result response = await _lightCompressor.compressVideo(
         path: videoFile.path,
-        videoQuality:
-            VideoQuality.low, // Use the provided quality level from the package
+        videoQuality: VideoQuality.low,
+        // Use the provided quality level from the package
         isMinBitrateCheckEnabled: false, // Allow compression for all videos
         video: Video(
           videoName: videoName,
-          keepOriginalResolution: false, // Keep original resolution
+          keepOriginalResolution: true, // Keep original resolution
         ),
         android: AndroidConfig(
-          isSharedStorage: false, // Use app-specific storage
+          isSharedStorage: true, // Use app-specific storage
           saveAt: SaveAt.Movies,
         ),
         ios: IOSConfig(
