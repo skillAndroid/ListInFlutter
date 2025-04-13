@@ -1,7 +1,8 @@
+// ignore_for_file: avoid_print, depend_on_referenced_packages
+
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:light_compressor/light_compressor.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:dartz/dartz.dart';
 import 'package:list_in/core/error/failure.dart';
@@ -63,21 +64,20 @@ class VideoCompressionService {
           '😌😌😌Starting compression with quality: ${quality.toString().split('.').last}...');
 
       // Get temporary directory to save compressed video
-      final Directory tempDir = await getTemporaryDirectory();
 
       // Extract file name from original path
       final String videoName =
-          path.basenameWithoutExtension(videoFile.path) + '_compressed.mp4';
+          '${path.basenameWithoutExtension(videoFile.path)}_compressed.mp4';
 
       // Perform compression using the VideoQuality level from the package
       final Result response = await _lightCompressor.compressVideo(
         path: videoFile.path,
         videoQuality:
-            quality, // Use the provided quality level from the package
+            VideoQuality.low, // Use the provided quality level from the package
         isMinBitrateCheckEnabled: false, // Allow compression for all videos
         video: Video(
           videoName: videoName,
-          keepOriginalResolution: true, // Keep original resolution
+          keepOriginalResolution: false, // Keep original resolution
         ),
         android: AndroidConfig(
           isSharedStorage: false, // Use app-specific storage

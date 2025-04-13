@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:dartz/dartz.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:light_compressor/light_compressor.dart';
@@ -10,23 +12,28 @@ class UploadVideoUseCase implements UseCase2<String, XFile> {
   final PostRepository repository;
   final VideoCompressionService compressionService;
   final VideoQuality compressionQuality;
-
   UploadVideoUseCase(this.repository, this.compressionService,
       {this.compressionQuality =
           VideoQuality.medium} // Default to medium quality
       );
-
   @override
   Future<Either<Failure, String>> call({XFile? params}) async {
     if (params == null) {
       return Left(ServerFailure());
     }
-
     print('😌😌😌Starting video compression...');
 
-    // Compress the video before uploading using the package's quality levels
-    final compressionResult = await compressionService.compressVideo(params,
-        quality: compressionQuality);
+    // Get original video codec information before compression
+    final originalMediaInfo =
+        await compressionService.getMediaInformation(params.path);
+    final originalCodec = originalMediaInfo?.mediaInfo.videoFormat ?? 'Unknown';
+    print('😌😌😌Original video codec: $originalCodec');
+
+    // Compress the video
+    final compressionResult = await compressionService.compressVideo(
+      params,
+      quality: VideoQuality.very_low,
+    );
 
     return compressionResult.fold(
       (failure) {
@@ -40,14 +47,19 @@ class UploadVideoUseCase implements UseCase2<String, XFile> {
         print('😌😌😌Compressed size: ${compResult.compressedSizeFormatted}');
         print('😌😌😌Space saved: ${compResult.compressionRatioFormatted}');
 
+        // Get compressed video codec information
+        final compressedMediaInfo =
+            await compressionService.getMediaInformation(compResult.path);
+        final compressedCodec =
+            compressedMediaInfo?.mediaInfo.videoFormat ?? 'Unknown';
+        print('😌😌😌Compressed video codec: $compressedCodec');
+
         // Create a new XFile from the compressed video path
         final compressedVideo = XFile(compResult.path);
-
         print('😌😌😌Uploading compressed video...');
 
         // Upload the compressed video
         final uploadResult = await repository.uploadVideo(compressedVideo);
-
         return uploadResult.fold(
           (failure) {
             print('😌😌😌Upload failed');
