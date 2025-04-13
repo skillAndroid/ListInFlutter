@@ -1,4 +1,3 @@
-
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/cupertino.dart';
@@ -6,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 class ControlsOverlay extends StatefulWidget {
-  const ControlsOverlay({super.key, 
+  const ControlsOverlay({
+    super.key,
     required this.controller,
   });
 
@@ -234,7 +234,10 @@ class _CustomVideoProgressIndicatorState
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.3),
+                            color: Theme.of(context)
+                                .colorScheme
+                                .secondary
+                                .withOpacity(0.3),
                             blurRadius: 4,
                             offset: const Offset(0, 1),
                           ),

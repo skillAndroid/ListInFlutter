@@ -78,27 +78,34 @@ class _ListInShortsState extends State<ListInShorts>
     });
   }
 
+// Main method for loading current video and preloading next videos
   void _loadCurrentAndPreloadVideos() {
-    // Focus on current video first - handle it completely before moving to others
-    _initializeVideo(_currentIndex, autoPlay: true).then((_) {
-      // Only after current video is loaded, start preloading others
-      for (int i = 1; i <= _forwardPreloadCount; i++) {
-        final indexToPreload = _currentIndex + i;
-        if (indexToPreload < _videos.length) {
-          _initializeVideo(indexToPreload, autoPlay: false);
-        }
-      }
+    debugPrint('🎬 Loading current video: $_currentIndex');
 
-      final indexBehind = _currentIndex - 1;
-      if (indexBehind >= 0) {
-        if (!_videoInitialized.containsKey(indexBehind) &&
-            !_videoInitializing.containsKey(indexBehind)) {
-          _initializeVideo(indexBehind, autoPlay: false);
-        }
-      }
+    // First, load the current video
+    _initializeVideo(_currentIndex, autoPlay: true);
 
-      _cleanupOldVideos();
-    });
+    // Then preload forward videos
+    for (int i = 1; i <= _forwardPreloadCount; i++) {
+      final indexToPreload = _currentIndex + i;
+      if (indexToPreload < _videos.length) {
+        debugPrint('🔄 Preloading forward video: $indexToPreload');
+        _initializeVideo(indexToPreload, autoPlay: false);
+      }
+    }
+
+    // Keep one video behind if available
+    final indexBehind = _currentIndex - 1;
+    if (indexBehind >= 0) {
+      if (!_videoInitialized.containsKey(indexBehind) &&
+          !_videoInitializing.containsKey(indexBehind)) {
+        debugPrint('🔄 Loading previous video: $indexBehind');
+        _initializeVideo(indexBehind, autoPlay: false);
+      }
+    }
+
+    // Clean up videos that are no longer needed
+    _cleanupOldVideos();
   }
 
 // Clean up videos that are outside the keep range
@@ -147,71 +154,76 @@ class _ListInShortsState extends State<ListInShorts>
     }
   }
 
+// Initialize a single video
   Future<void> _initializeVideo(int index, {required bool autoPlay}) async {
     if (index < 0 || index >= _videos.length) return;
 
     // Skip if already initialized or initializing
     if (_videoInitializing[index] == true || _videoInitialized[index] == true) {
+      // If it's the current video and should be playing, ensure it's playing
       if (autoPlay && index == _currentIndex && _players.containsKey(index)) {
         _players[index]!.play();
       }
       return;
     }
 
+    // Mark as initializing
     _videoInitializing[index] = true;
+
     final videoUrl = 'https://${_videos[index].videoUrl}';
+    debugPrint('⬇️ Initializing video $index: $videoUrl');
 
     try {
-      // Create player with larger buffer
-      final player = Player(
-        configuration: PlayerConfiguration(
-          title: 'Video $index',
-          bufferSize: 32 * 1024 * 1024, // 64MB buffer
-          async: true, // Ensure async processing
-        ),
-      );
-
+      // Create a new player
+      final player = Player();
       _players[index] = player;
+
+      // Create controller
       final controller = VideoController(player);
       _controllers[index] = controller;
 
-      // IMPORTANT: Open media with play set to FALSE initially
-      await player.open(Media(videoUrl), play: false);
+      // Open media
+      await player.open(Media(videoUrl), play: autoPlay);
 
-      // Set up the player for looping BEFORE playing
+      // Configure looping
       player.setPlaylistMode(PlaylistMode.single);
 
-      // Mark as initialized BEFORE playing
+      // Mark as initialized
       _videoInitializing[index] = false;
       _videoInitialized[index] = true;
 
-      if (mounted) setState(() {});
-
-      // CRITICAL: Add delay to allow initial buffering before playback
-      if (autoPlay && index == _currentIndex) {
-        // Wait for buffering to be sufficient before playing
-        await Future.delayed(const Duration(milliseconds: 300));
-        if (!_isDisposed && mounted && index == _currentIndex) {
-          player.play();
-        }
-      }
-
       debugPrint('✅ Successfully loaded video $index');
+
+      if (mounted) setState(() {});
     } catch (e) {
       debugPrint('❌ Failed to load video $index: $e');
       _videoInitializing[index] = false;
 
-      // Clean up any resources on error
-      if (_players.containsKey(index)) {
-        _players[index]!.dispose();
-        _players.remove(index);
-      }
+      if (index == _currentIndex) {
+        // For current video, try one more time with simpler options
+        try {
+          final player = Player(
+            configuration: PlayerConfiguration(
+              title: 'Video $index',
+              ready: () {
+                debugPrint('Player ready for index $index');
+              },
+            ),
+          );
 
-      if (_controllers.containsKey(index)) {
-        _controllers.remove(index);
-      }
+          _players[index] = player;
+          _controllers[index] = VideoController(player);
 
-      if (mounted) setState(() {});
+          await player.open(Media(videoUrl), play: autoPlay);
+          player.setPlaylistMode(PlaylistMode.single);
+
+          _videoInitialized[index] = true;
+
+          if (mounted) setState(() {});
+        } catch (retryError) {
+          debugPrint('❌ Retry also failed for video $index: $retryError');
+        }
+      }
     }
   }
 
@@ -252,25 +264,18 @@ class _ListInShortsState extends State<ListInShorts>
       _currentIndex = newIndex;
     });
 
-    // Handle the new video - give it time to buffer if needed
+    // Ensure current video is loaded and playing
     if (_videoInitialized[newIndex] == true && _players.containsKey(newIndex)) {
-      // Add a short delay even for already loaded videos
-      Future.delayed(const Duration(milliseconds: 50), () {
-        if (!_isDisposed && _currentIndex == newIndex) {
-          _players[newIndex]!.play();
-        }
-      });
+      _players[newIndex]!.play();
     } else {
       _initializeVideo(newIndex, autoPlay: true);
     }
 
-    // Load other videos with a slight delay to prioritize current video
-    Future.delayed(const Duration(milliseconds: 100), () {
-      if (!_isDisposed) {
-        _loadCurrentAndPreloadVideos();
-        _checkAndLoadMoreVideos();
-      }
-    });
+    // Load/preload videos based on new position
+    _loadCurrentAndPreloadVideos();
+
+    // Check if we need to load more videos from backend
+    _checkAndLoadMoreVideos();
   }
 
   @override
