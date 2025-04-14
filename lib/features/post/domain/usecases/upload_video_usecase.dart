@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:dartz/dartz.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:light_compressor/light_compressor.dart';
@@ -15,15 +17,14 @@ class UploadVideoUseCase implements UseCase2<String, XFile> {
       {this.compressionQuality =
           VideoQuality.medium} // Default to medium quality
       );
-
-  @override
   Future<Either<Failure, String>> call({XFile? params}) async {
     if (params == null) {
       return Left(ServerFailure());
     }
 
-    print('😌😌😌Starting video compression...');
-    // Compress the video before uploading using the package's quality levels
+    print('😌😌😌Starting video processing...');
+
+    // Compress the video first
     final compressionResult = await compressionService.compressVideo(
       params,
       quality: VideoQuality.low,
@@ -41,25 +42,31 @@ class UploadVideoUseCase implements UseCase2<String, XFile> {
         print('😌😌😌Compressed size: ${compResult.compressedSizeFormatted}');
         print('😌😌😌Space saved: ${compResult.compressionRatioFormatted}');
 
-        // Optimize video for fast start
-        final optimizationResult =
-            await compressionService.optimizeVideoForFastStart(compResult.path);
+        // Create a new XFile from the compressed video path
+        final compressedVideo = XFile(compResult.path);
 
-        return optimizationResult.fold(
-          (failure) {
-            print(
-                '😌😌😌Fast start optimization failed, proceeding with compressed video');
-            // Create a new XFile from the compressed video path (without optimization)
-            final compressedVideo = XFile(compResult.path);
-            return uploadVideo(compressedVideo);
-          },
-          (optimizedPath) async {
-            print('😌😌😌Fast start optimization successful');
-            // Create a new XFile from the optimized video path
-            final optimizedVideo = XFile(optimizedPath);
-            return uploadVideo(optimizedVideo);
-          },
-        );
+        // Try to optimize for fast start
+        try {
+          final optimizationResult = await compressionService
+              .optimizeVideoForFastStart(compResult.path);
+
+          return optimizationResult.fold(
+            (failure) {
+              print(
+                  '😌😌😌Fast start optimization failed, uploading compressed video');
+              return uploadVideo(compressedVideo);
+            },
+            (optimizedPath) {
+              print('😌😌😌Fast start optimization successful');
+              final optimizedVideo = XFile(optimizedPath);
+              return uploadVideo(optimizedVideo);
+            },
+          );
+        } catch (e) {
+          print(
+              '😌😌😌Fast start optimization error: $e, uploading compressed video');
+          return uploadVideo(compressedVideo);
+        }
       },
     );
   }

@@ -82,7 +82,7 @@ class VideoCompressionService {
           keepOriginalResolution: true, // Keep original resolution
         ),
         android: AndroidConfig(
-          isSharedStorage: true, // Use app-specific storage
+          isSharedStorage: false, // Use app-specific storage
           saveAt: SaveAt.Movies,
         ),
         ios: IOSConfig(
