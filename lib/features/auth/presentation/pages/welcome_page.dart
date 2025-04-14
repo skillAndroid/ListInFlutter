@@ -225,6 +225,11 @@ class _WelcomePageState extends State<WelcomePage> {
             width: double.infinity,
             child: _buildGoogleSignInButton(context),
           ),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: double.infinity,
+            child: _buildEmailSignInButton(context),
+          ),
 
           const SizedBox(height: 32),
         ],
@@ -270,6 +275,53 @@ class _WelcomePageState extends State<WelcomePage> {
             const SizedBox(width: 18),
             Text(
               localizations.continueWithGoogle,
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w700,
+                fontFamily: Constants.Arial,
+                color: Theme.of(context).colorScheme.secondary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+// Google Sign In button with official Google styling
+  Widget _buildEmailSignInButton(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+
+    // For mobile, use your existing button
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).colorScheme.secondary,
+        elevation: 1,
+        shape: SmoothRectangleBorder(
+            smoothness: 0.8,
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(color: Theme.of(context).cardColor)),
+        padding: const EdgeInsets.symmetric(vertical: 18),
+      ),
+      onPressed: () => context.push(Routes.login),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Use the official Google "G" logo as an asset
+            SizedBox(
+                width: 21,
+                height: 21,
+                child: Icon(
+                  Ionicons.mail,
+                  color: CupertinoColors.activeBlue, // Google blue
+                  size: 21,
+                )),
+            const SizedBox(width: 18),
+            Text(
+              localizations.logIn,
               style: TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w700,
