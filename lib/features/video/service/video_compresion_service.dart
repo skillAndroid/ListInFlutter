@@ -146,7 +146,7 @@ class VideoCompressionService {
           path.join(directory, '${filename}_faststart.mp4');
 
       print('😌😌😌Optimizing video for fast start...');
-
+//
       // Execute FFmpeg command to move moov atom to the beginning
       final session = await FFmpegKit.execute(
           '-i "$videoPath" -movflags faststart -c copy "$outputPath"');
