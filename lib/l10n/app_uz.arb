@@ -290,5 +290,7 @@
   "googleSignInFailed": "Google orqali kirish muvaffaqiyatsiz bo'ldi",
   "networkErrorOccurred": "Tarmoq xatosi yuz berdi. Iltimos, ulanishni tekshiring.",
   "signInCancelled": "Kirish bekor qilindi.",
-  "account": "Xisob"
+  "account": "Xisob",
+  "accessExplanation": "Hozircha faqat dasturchilarga va maxsus mehmonlarga. Foydalanuvchilar uchun yaqin orada tashkil etiladi.",
+  "helloDeveloper": "Salom Dasturchi"
   }

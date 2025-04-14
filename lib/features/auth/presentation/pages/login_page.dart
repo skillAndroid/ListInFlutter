@@ -93,7 +93,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const SizedBox(height: 40),
                     Text(
-                      localizations.welcomeBack,
+                      localizations.helloDeveloper,
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.w700,
@@ -105,7 +105,7 @@ class _LoginPageState extends State<LoginPage> {
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 2.5),
                       child: Text(
-                        localizations.welcomeMessage,
+                        localizations.accessExplanation,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w400,
@@ -183,82 +183,82 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                             ),
                     ),
-                    const SizedBox(height: 24),
-                    Center(
-                      child: GestureDetector(
-                        onTap: () {},
-                        child: Text(
-                          localizations.forgotPassword,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.secondary,
-                            fontSize: 16,
-                            fontFamily: Constants.Arial,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 2),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              height: 1,
-                              color: AppColors.lightText.withOpacity(0.75),
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 16),
-                            child: Text(
-                              localizations.or,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: AppColors.grey,
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Container(
-                              height: 1,
-                              color: AppColors.lightText.withOpacity(0.75),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 22),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              shape: SmoothRectangleBorder(
-                                  smoothness: 0.8,
-                                  borderRadius: BorderRadius.circular(16)),
-                              padding: const EdgeInsets.symmetric(vertical: 18),
-                              foregroundColor:
-                                  Theme.of(context).scaffoldBackgroundColor,
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.secondary,
-                            ),
-                            onPressed: () =>
-                                context.pushReplacement(Routes.signup),
-                            child: Center(
-                              child: Text(
-                                localizations.createAccount,
-                                style: const TextStyle(
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.w700,
-                                  fontFamily: Constants.Arial,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                    // const SizedBox(height: 24),
+                    // Center(
+                    //   child: GestureDetector(
+                    //     onTap: () {},
+                    //     child: Text(
+                    //       localizations.forgotPassword,
+                    //       style: TextStyle(
+                    //         color: Theme.of(context).colorScheme.secondary,
+                    //         fontSize: 16,
+                    //         fontFamily: Constants.Arial,
+                    //         fontWeight: FontWeight.bold,
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
+                    // const SizedBox(height: 20),
+                    // Padding(
+                    //   padding: const EdgeInsets.symmetric(horizontal: 2),
+                    //   child: Row(
+                    //     children: [
+                    //       Expanded(
+                    //         child: Container(
+                    //           height: 1,
+                    //           color: AppColors.lightText.withOpacity(0.75),
+                    //         ),
+                    //       ),
+                    //       Padding(
+                    //         padding: EdgeInsets.symmetric(horizontal: 16),
+                    //         child: Text(
+                    //           localizations.or,
+                    //           style: const TextStyle(
+                    //             fontSize: 14,
+                    //             color: AppColors.grey,
+                    //           ),
+                    //         ),
+                    //       ),
+                    //       Expanded(
+                    //         child: Container(
+                    //           height: 1,
+                    //           color: AppColors.lightText.withOpacity(0.75),
+                    //         ),
+                    //       ),
+                    //     ],
+                    //   ),
+                    // ),
+                    // const SizedBox(height: 22),
+                    // Row(
+                    //   children: [
+                    //     Expanded(
+                    //       child: ElevatedButton(
+                    //         style: ElevatedButton.styleFrom(
+                    //           shape: SmoothRectangleBorder(
+                    //               smoothness: 0.8,
+                    //               borderRadius: BorderRadius.circular(16)),
+                    //           padding: const EdgeInsets.symmetric(vertical: 18),
+                    //           foregroundColor:
+                    //               Theme.of(context).scaffoldBackgroundColor,
+                    //           backgroundColor:
+                    //               Theme.of(context).colorScheme.secondary,
+                    //         ),
+                    //         onPressed: () =>
+                    //             context.pushReplacement(Routes.signup),
+                    //         child: Center(
+                    //           child: Text(
+                    //             localizations.createAccount,
+                    //             style: const TextStyle(
+                    //               fontSize: 17,
+                    //               fontWeight: FontWeight.w700,
+                    //               fontFamily: Constants.Arial,
+                    //             ),
+                    //           ),
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ],
+                    // ),
                   ],
                 ),
               ),

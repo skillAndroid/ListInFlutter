@@ -290,5 +290,7 @@
   "googleSignInFailed": "Failed to sign in with Google",
   "networkErrorOccurred": "Network error occurred. Please check your connection.",
   "signInCancelled": "Sign-in was cancelled.",
-  "account": "Account"
+  "account": "Account",
+  "accessExplanation": "Currently for developers and special guests only. User access coming soon.",
+  "helloDeveloper": "Hello Developer"
 }
