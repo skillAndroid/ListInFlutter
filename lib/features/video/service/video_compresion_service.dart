@@ -1,6 +1,8 @@
 // ignore_for_file: avoid_print, depend_on_referenced_packages
 
 import 'dart:io';
+import 'package:ffmpeg_kit_flutter_min/ffmpeg_kit.dart';
+import 'package:ffmpeg_kit_flutter_min/return_code.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:light_compressor/light_compressor.dart';
 import 'package:path/path.dart' as path;
@@ -129,6 +131,42 @@ class VideoCompressionService {
   void cancelCompression() {
     _lightCompressor.cancelCompression();
     print('😌😌😌Compression cancelled');
+  }
+
+// Add this method to your VideoCompressionService class
+  Future<Either<Failure, String>> optimizeVideoForFastStart(
+      String videoPath) async {
+    try {
+      // Create a new output path for the optimized video
+      final String directory = path.dirname(videoPath);
+      final String filename = path.basenameWithoutExtension(videoPath);
+      final String outputPath =
+          path.join(directory, '${filename}_faststart.mp4');
+
+      print('😌😌😌Optimizing video for fast start...');
+
+      // Execute FFmpeg command to move moov atom to the beginning
+      final session = await FFmpegKit.execute(
+          '-i "$videoPath" -movflags faststart -c copy "$outputPath"');
+
+      final returnCode = await session.getReturnCode();
+
+      if (ReturnCode.isSuccess(returnCode)) {
+        print('😌😌😌Fast start optimization completed successfully');
+
+        // Delete the original compressed file to save space (optional)
+        await File(videoPath).delete();
+
+        return Right(outputPath);
+      } else {
+        print(
+            '😌😌😌Fast start optimization failed with return code: $returnCode');
+        return Left(ServerFailure());
+      }
+    } catch (e) {
+      print('😌😌😌Error during fast start optimization: $e');
+      return Left(ServerFailure());
+    }
   }
 
   String _formatFileSize(int sizeInBytes) {
