@@ -53,8 +53,10 @@ class VideoCompressionService {
 
   /// Compresses a video file using the standard VideoQuality level from the package
   /// Returns Either a Failure or a CompressionResult with file sizes
-  Future<Either<Failure, CompressionResult>> compressVideo(XFile videoFile,
-      {VideoQuality quality = VideoQuality.medium}) async {
+  Future<Either<Failure, CompressionResult>> compressVideo(
+    XFile videoFile, {
+    VideoQuality quality = VideoQuality.low,
+  }) async {
     try {
       // Get original file size
       final File originalFile = File(videoFile.path);
@@ -79,7 +81,7 @@ class VideoCompressionService {
         isMinBitrateCheckEnabled: false, // Allow compression for all videos
         video: Video(
           videoName: videoName,
-          keepOriginalResolution: true, // Keep original resolution
+          keepOriginalResolution: true,
         ),
         android: AndroidConfig(
           isSharedStorage: false, // Use app-specific storage

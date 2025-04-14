@@ -501,7 +501,7 @@ void _registerPostFeature() {
   sl.registerLazySingleton(() => UploadVideoUseCase(
         sl(),
         sl(),
-        compressionQuality: VideoQuality.medium,
+        compressionQuality: VideoQuality.low,
       ));
   sl.registerLazySingleton(() => CreatePostUseCase(sl()));
 
