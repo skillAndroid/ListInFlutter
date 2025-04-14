@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
@@ -17,7 +18,6 @@ import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/core/theme/widgets/toggle_button.dart';
 import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/auth/data/sources/auth_local_data_source.dart';
-import 'package:list_in/features/details/presentation/pages/details.dart';
 import 'package:list_in/features/details/presentation/widgets/full_screen_map.dart';
 import 'package:list_in/features/explore/presentation/widgets/product_card/bb/regular_product_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
@@ -38,8 +38,6 @@ import 'package:list_in/global/likeds/liked_publications_state.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-import 'dart:ui';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -1052,13 +1050,16 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                     padding:
                         const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
                     decoration: BoxDecoration(
-                      color: Colors.grey.withOpacity(0.1),
+                      color: Theme.of(context).cardColor,
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
                       Icons.inventory_2_outlined,
                       size: 48,
-                      color: Colors.grey[600],
+                      color: Theme.of(context)
+                          .colorScheme
+                          .secondary
+                          .withOpacity(0.75),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -1066,20 +1067,14 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                     'No $selectedProductFilter products',
                     style: TextStyle(
                       fontSize: 16,
-                      color: Colors.grey[600],
+                      color: Theme.of(context)
+                          .colorScheme
+                          .secondary
+                          .withOpacity(0.75),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                   const SizedBox(height: 24),
-                  FilledButton.icon(
-                    onPressed: () {
-                      context
-                          .read<UserPublicationsBloc>()
-                          .add(RefreshUserPublications());
-                    },
-                    icon: const Icon(Icons.refresh_rounded),
-                    label: const Text('Refresh'),
-                  ),
                 ],
               ),
             ),

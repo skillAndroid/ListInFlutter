@@ -23,29 +23,42 @@ class CatalogLocalDataSourceImpl implements CatalogLocalDataSource {
     required this.locationBox,
     required this.metaBox,
   });
-
-  // Initialize and check for schema changes
   Future<void> initialize() async {
-    const currentCategoryVersion = 3; // Increment when model changes
-    const currentLocationVersion = 1;
+    try {
+      const currentCategoryVersion = 3;
+      const currentLocationVersion = 1;
 
-    final storedCategoryVersion =
-        metaBox.get('category_schema_version', defaultValue: 0);
-    final storedLocationVersion =
-        metaBox.get('location_schema_version', defaultValue: 0);
+      final storedCategoryVersion =
+          metaBox.get('category_schema_version', defaultValue: 0);
+      final storedLocationVersion =
+          metaBox.get('location_schema_version', defaultValue: 0);
 
-    // Handle category schema changes
-    if (storedCategoryVersion < currentCategoryVersion) {
-      debugPrint("Schema version changed for categories, clearing old data");
-      await categoryBox.clear();
-      await metaBox.put('category_schema_version', currentCategoryVersion);
-    }
+      // Handle category schema changes
+      if (storedCategoryVersion < currentCategoryVersion) {
+        debugPrint("Schema version changed for categories, clearing old data");
+        try {
+          await categoryBox.clear();
+          await metaBox.put('category_schema_version', currentCategoryVersion);
+        } catch (e) {
+          debugPrint("Error during category schema migration: $e");
+          // Consider a more robust recovery strategy here
+        }
+      }
 
-    // Handle location schema changes
-    if (storedLocationVersion < currentLocationVersion) {
-      debugPrint("Schema version changed for locations, clearing old data");
-      await locationBox.clear();
-      await metaBox.put('location_schema_version', currentLocationVersion);
+      // Handle location schema changes
+      if (storedLocationVersion < currentLocationVersion) {
+        debugPrint("Schema version changed for locations, clearing old data");
+        try {
+          await locationBox.clear();
+          await metaBox.put('location_schema_version', currentLocationVersion);
+        } catch (e) {
+          debugPrint("Error during location schema migration: $e");
+          // Consider a more robust recovery strategy here
+        }
+      }
+    } catch (e) {
+      debugPrint("Critical error during initialization: $e");
+      // Fallback implementation
     }
   }
 

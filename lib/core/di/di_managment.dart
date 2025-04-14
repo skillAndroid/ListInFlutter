@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:dio_smart_retry/dio_smart_retry.dart';
+import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
@@ -159,27 +160,37 @@ Future<void> init() async {
 // HIVE INITIALIZATION
 //======================================================================
 Future<void> _initializeHive() async {
-  // Initialize Hive based on platform
-  if (kIsWeb) {
-    // For web platform
-    await Hive.initFlutter();
-  } else {
-    try {
-      final appDocumentDirectory =
-          await path_provider.getApplicationDocumentsDirectory();
-      Hive.init(appDocumentDirectory.path);
-    } catch (e) {
-      // Fallback for platforms where getApplicationDocumentsDirectory might fail
-      if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-        Hive.init('./hive_data'); // Simple path for desktop
-      } else {
-        // Re-throw for other platforms where this shouldn't happen
-        rethrow;
+  try {
+    if (kIsWeb) {
+      // For web platform
+      await Hive.initFlutter();
+    } else {
+      try {
+        final appDocumentDirectory =
+            await path_provider.getApplicationDocumentsDirectory();
+        Hive.init(appDocumentDirectory.path);
+      } catch (e) {
+        // Fallback for platforms where getApplicationDocumentsDirectory might fail
+        if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+          Hive.init('./hive_data'); // Simple path for desktop
+        } else {
+          // Re-throw for other platforms where this shouldn't happen
+          rethrow;
+        }
       }
     }
-  }
 
-  // Register Hive adapters
+    // Register adapters
+    _registerHiveAdapters();
+
+    // Open boxes with error handling
+    await _openHiveBoxesSafely();
+  } catch (e, stackTrace) {
+    debugPrint('Failed to initialize Hive: $e\n$stackTrace');
+  }
+}
+
+void _registerHiveAdapters() {
   Hive.registerAdapter(CategoryModelAdapter());
   Hive.registerAdapter(ChildCategoryModelAdapter());
   Hive.registerAdapter(AttributeModelAdapter());
@@ -189,19 +200,46 @@ Future<void> _initializeHive() async {
   Hive.registerAdapter(CountryAdapter());
   Hive.registerAdapter(StateAdapter());
   Hive.registerAdapter(CountyAdapter());
+}
 
-  // Open Hive boxes
-  final metaBox = await Hive.openBox('meta');
-  final catalogBox = await Hive.openBox<CategoryModel>('catalogs');
-  final locationBox = await Hive.openBox<Country>('locations');
+Future<void> _openHiveBoxesSafely() async {
+  Box? metaBox;
+  Box<CategoryModel>? catalogBox;
+  Box<Country>? locationBox;
 
-  // Initialize catalog local data source
-  final catalogLocalDataSource = CatalogLocalDataSourceImpl(
-      categoryBox: catalogBox, locationBox: locationBox, metaBox: metaBox);
+  try {
+    // Try to open meta box first - it's critical
+    metaBox = await Hive.openBox('meta');
 
-  await catalogLocalDataSource.initialize();
-  sl.registerLazySingleton<CatalogLocalDataSource>(
-      () => catalogLocalDataSource);
+    // Try to open catalog box
+    try {
+      catalogBox = await Hive.openBox<CategoryModel>('catalogs');
+    } catch (e) {
+      debugPrint('Failed to open catalog box: $e');
+      // Delete and recreate catalog box if corrupted
+      await Hive.deleteBoxFromDisk('catalogs');
+      catalogBox = await Hive.openBox<CategoryModel>('catalogs');
+    }
+
+    // Try to open location box
+    try {
+      locationBox = await Hive.openBox<Country>('locations');
+    } catch (e) {
+      debugPrint('Failed to open location box: $e');
+      // Delete and recreate location box if corrupted
+      await Hive.deleteBoxFromDisk('locations');
+      locationBox = await Hive.openBox<Country>('locations');
+    }
+
+    // Initialize catalog local data source
+    final catalogLocalDataSource = CatalogLocalDataSourceImpl(
+        categoryBox: catalogBox, locationBox: locationBox, metaBox: metaBox);
+    await catalogLocalDataSource.initialize();
+    sl.registerLazySingleton<CatalogLocalDataSource>(
+        () => catalogLocalDataSource);
+  } catch (e, stackTrace) {
+    debugPrint('Critical error in Hive initialization: $e\n$stackTrace');
+  }
 }
 
 //======================================================================
