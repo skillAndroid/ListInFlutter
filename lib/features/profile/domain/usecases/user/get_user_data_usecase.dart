@@ -14,6 +14,8 @@ class GetUserDataUseCase extends UseCase2<UserDataEntity, NoParams> {
 
   @override
   Future<Either<Failure, UserDataEntity>> call({NoParams? params}) async {
+    final token = await authLocalDataSource.getLastAuthToken();
+    AppSession.accessToken = token?.accessToken;
     debugPrint('🎯 GetUserDataUseCase called');
     final result = await repository.getUserData();
     result.fold(
@@ -28,7 +30,7 @@ class GetUserDataUseCase extends UseCase2<UserDataEntity, NoParams> {
               .cacheProfileImagePath(userData.profileImagePath!);
           AppSession.profileImagePath = userData.profileImagePath;
           AppSession.profileImageUrl = "https://${userData.profileImagePath}";
-        } else {         
+        } else {
           await authLocalDataSource.cacheProfileImagePath('');
           AppSession.profileImagePath = null;
           AppSession.profileImageUrl = null;
@@ -44,6 +46,7 @@ class GetUserDataUseCase extends UseCase2<UserDataEntity, NoParams> {
 }
 
 class AppSession {
+  static String? accessToken;
   static String? currentUserId;
   static String? profileImagePath;
   static String? profileImageUrl;

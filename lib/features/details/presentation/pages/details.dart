@@ -5,6 +5,7 @@ import 'dart:math' as math;
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -37,6 +38,7 @@ import 'package:list_in/global/global_state.dart';
 import 'package:list_in/global/global_status.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:video_player/video_player.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
 
 import '../bloc/details_event.dart';
 
@@ -57,6 +59,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   final ScrollController _thumbnailScrollController = ScrollController();
   int _currentPage = 0;
   bool isMore = false;
+  Uint8List? _videoThumbnail;
+  bool _isThumbnailLoading = false;
   VideoPlayerController? _videoPlayerController;
   bool _isVideoInitialized = false;
   final _videoVisibilityThreshold = 0.6;
@@ -231,36 +235,69 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     }
   }
 
-// Update the _initializeVideo method with a delayed visibility check
+// Updated _initializeVideo method with thumbnail generation
   void _initializeVideo() {
     final hasVideo = widget.product.videoUrl != null;
     if (hasVideo) {
+      setState(() => _isThumbnailLoading = true);
+
+      // First try to generate the thumbnail
+      _generateThumbnail('https://${widget.product.videoUrl!}')
+          .then((thumbnail) {
+        if (mounted) {
+          setState(() {
+            _videoThumbnail = thumbnail;
+            _isThumbnailLoading = false;
+          });
+        }
+      });
+
+      // Initialize the video player
       _videoPlayerController =
           VideoPlayerController.network('https://${widget.product.videoUrl!}')
             ..initialize().then((_) {
-              setState(() {
-                _isVideoInitialized = true;
-              });
-
-              if (_currentPage == 0) {
-                _videoPlayerController!.play();
-                setState(() {});
-
-                Future.delayed(Duration(milliseconds: 200), () {
-                  if (mounted) {
-                    _handleVideoVisibility();
-                  }
+              if (mounted) {
+                setState(() {
+                  _isVideoInitialized = true;
                 });
+
+                if (_currentPage == 0) {
+                  _videoPlayerController!.play();
+                  setState(() {});
+                  Future.delayed(Duration(milliseconds: 200), () {
+                    if (mounted) {
+                      _handleVideoVisibility();
+                    }
+                  });
+                }
               }
             });
     }
   }
 
+  Future<Uint8List?> _generateThumbnail(String videoUrl) async {
+    try {
+      final thumbnail = await VideoThumbnail.thumbnailData(
+        video: videoUrl,
+        imageFormat: ImageFormat.JPEG,
+        maxWidth: 512,
+        quality: 75,
+        timeMs: 0,
+      );
+
+      return thumbnail;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error generating thumbnail: $e');
+      }
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final currentUserId = AppSession.currentUserId; // Get current user ID
-    final isOwner =
-        currentUserId == widget.product.seller.id; // Check if user is owner
+    final currentUserId = AppSession.currentUserId;
+    final isOwner = currentUserId == widget.product.seller.id;
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -369,8 +406,15 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                 key: _videoKey,
                                 fit: StackFit.expand,
                                 children: [
+                                  if (!_isVideoInitialized &&
+                                      _videoThumbnail != null)
+                                    Image.memory(
+                                      _videoThumbnail!,
+                                      fit: BoxFit.cover,
+                                    )
+                                  // Show video player when initialized
                                   // Video container
-                                  if (_isVideoInitialized)
+                                  else if (_isVideoInitialized)
                                     FittedBox(
                                       child: SizedBox(
                                         width: _videoPlayerController!
@@ -381,8 +425,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                             _videoPlayerController!),
                                       ),
                                     )
-                                  else
-                                    // Loading indicator
+                                  else if (_isThumbnailLoading)
                                     Center(
                                       child: CircularProgressIndicator(
                                         color: Theme.of(context)
