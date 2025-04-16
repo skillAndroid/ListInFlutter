@@ -46,7 +46,6 @@ class _ListInShortsState extends State<ListInShorts>
   late HomeTreeCubit _homeTreeCubit;
   List<GetPublicationEntity> _videos = [];
 
-  // Current video state tracking
   int _currentIndex = 0;
   bool _isLoading = false;
   bool _isDisposed = false;
@@ -384,18 +383,6 @@ class _ListInShortsState extends State<ListInShorts>
         ),
       ),
     );
-  }
-
-  Future<Uint8List?> _getThumbnailFromVideo(int index) async {
-    if (_controllers.containsKey(index)) {
-      try {
-        // MediaKit's screenshot capability
-        return await _players[index]!.screenshot();
-      } catch (e) {
-        debugPrint('⚠️ Error getting thumbnail: $e');
-      }
-    }
-    return null;
   }
 
   Widget _buildVideoInfo(int index) {
@@ -800,32 +787,6 @@ class _ListInShortsState extends State<ListInShorts>
     return Stack(
       fit: StackFit.expand,
       children: [
-        // Try to get a thumbnail from the video first if available
-        FutureBuilder<Uint8List?>(
-          future: _getThumbnailFromVideo(index),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.done &&
-                snapshot.data != null) {
-              // Use screenshot from video if available
-              return Image.memory(
-                snapshot.data!,
-                fit: BoxFit.cover,
-              );
-            } else {
-              // Fallback to product image
-              return CachedNetworkImage(
-                imageUrl: "https://${_videos[index].productImages[0].url}",
-                width: double.infinity,
-                height: double.infinity,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => Container(color: Colors.black),
-                errorWidget: (context, url, error) =>
-                    Container(color: Colors.black54),
-              );
-            }
-          },
-        ),
-
         // Dim overlay to make loading indicator more visible
         Container(color: Colors.black.withOpacity(0.3)),
 

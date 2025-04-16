@@ -101,8 +101,6 @@ class VideoCacheManager {
     return _progressControllers[url]!.stream;
   }
 
-  /// Cache a video from a URL
-  /// Returns a VideoPlayerController that can play the video while it's being cached
   Future<VideoPlayerController> cacheVideo(String url) async {
     await initialize();
 
@@ -245,12 +243,9 @@ class VideoCacheManager {
   }
 
   /// Clean up old cached videos that haven't been accessed recently
-  Future<void> cleanupCache({int maxCacheSizeBytes = 512 * 1024 * 1024}) async {
-    // Implementation for cache cleanup based on LRU or other strategy
-    // This would remove older videos when cache size exceeds maxCacheSizeBytes
-  }
+  Future<void> cleanupCache(
+      {int maxCacheSizeBytes = 512 * 1024 * 1024}) async {}
 
-  /// Clear all cached videos
   Future<void> clearCache() async {
     try {
       final dir = _cacheDir;
