@@ -6,6 +6,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/cashe_manager/video_cashe/video_cashe_manager.dart';
+import 'package:list_in/core/di/di_managment.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:video_player/video_player.dart';
 
@@ -336,7 +338,7 @@ class SimpleVideoPlayerWidget extends StatefulWidget {
 }
 
 class _SimpleVideoPlayerWidgetState extends State<SimpleVideoPlayerWidget> {
-  VideoPlayerController? _controller;
+  late CachedVideoPlayerController _controller;
   bool _isInitialized = false;
 
   @override
@@ -346,19 +348,19 @@ class _SimpleVideoPlayerWidgetState extends State<SimpleVideoPlayerWidget> {
   }
 
   Future<void> _initializeVideo() async {
-    _controller = VideoPlayerController.network(
-      widget.videoUrl,
-    );
-
+    // Use the cached video player controller
+    _controller = widget.videoUrl.cachedVideoPlayerController;
     try {
-      _controller?.setVolume(0.0);
-      await _controller?.initialize();
+      await _controller.initialize();
+      if (_controller.controller != null) {
+        await _controller.setVolume(0.0);
+      }
 
       if (mounted) {
         setState(() {
           _isInitialized = true;
         });
-        _controller?.play();
+        _controller.play();
       }
     } catch (e) {
       debugPrint('Error initializing video: $e');
@@ -368,25 +370,24 @@ class _SimpleVideoPlayerWidgetState extends State<SimpleVideoPlayerWidget> {
   @override
   void didUpdateWidget(SimpleVideoPlayerWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-
     if (widget.videoUrl != oldWidget.videoUrl) {
       setState(() {
         _isInitialized = false;
       });
-      _controller?.dispose();
+      _controller.dispose();
       _initializeVideo();
     }
   }
 
   @override
   void dispose() {
-    _controller?.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!_isInitialized) {
+    if (!_isInitialized || _controller.controller == null) {
       return Stack(
         children: [
           SizedBox.expand(
@@ -415,19 +416,99 @@ class _SimpleVideoPlayerWidgetState extends State<SimpleVideoPlayerWidget> {
               ),
             ),
           ),
+
+          // Show download progress indicator when caching
+          Positioned(
+            bottom: 8,
+            right: 8,
+            child: StreamBuilder<double>(
+              stream:
+                  sl<VideoCacheManager>().getDownloadProgress(widget.videoUrl),
+              builder: (context, snapshot) {
+                final progress = snapshot.data ?? 0.0;
+                // Only show if not fully downloaded and actually downloading
+                if (progress < 1.0 && progress > 0.0) {
+                  return Container(
+                    height: 32,
+                    width: 32,
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.6),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        CircularProgressIndicator(
+                          value: progress,
+                          strokeWidth: 2,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                          backgroundColor: Colors.white24,
+                        ),
+                        Text(
+                          '${(progress * 100).toInt()}%',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 8,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                return SizedBox.shrink();
+              },
+            ),
+          ),
         ],
       );
     }
 
-    return SizedBox.expand(
-      child: FittedBox(
-        fit: BoxFit.cover,
-        child: SizedBox(
-          width: _controller?.value.size.width ?? 0,
-          height: _controller?.value.size.height ?? 0,
-          child: VideoPlayer(_controller!),
+    return Stack(
+      children: [
+        SizedBox.expand(
+          child: FittedBox(
+            fit: BoxFit.cover,
+            child: SizedBox(
+              width: _controller.controller!.value.size.width,
+              height: _controller.controller!.value.size.height,
+              child: VideoPlayer(_controller.controller!),
+            ),
+          ),
         ),
-      ),
+
+        // Show download progress indicator in corner when playing
+        Positioned(
+          bottom: 8,
+          right: 8,
+          child: StreamBuilder<double>(
+            stream:
+                sl<VideoCacheManager>().getDownloadProgress(widget.videoUrl),
+            builder: (context, snapshot) {
+              final progress = snapshot.data ?? 0.0;
+              // Only show if not fully downloaded and actually downloading
+              if (progress < 1.0 && progress > 0.0) {
+                return Container(
+                  height: 24,
+                  width: 24,
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.6),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: CircularProgressIndicator(
+                    value: progress,
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    backgroundColor: Colors.white24,
+                  ),
+                );
+              }
+              return SizedBox.shrink();
+            },
+          ),
+        ),
+      ],
     );
   }
 }

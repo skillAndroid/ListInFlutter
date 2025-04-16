@@ -5,13 +5,14 @@ import 'dart:math' as math;
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/cashe_manager/video_cashe/video_cashe_manager.dart';
+import 'package:list_in/core/di/di_managment.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/details/presentation/bloc/details_bloc.dart';
@@ -38,7 +39,6 @@ import 'package:list_in/global/global_state.dart';
 import 'package:list_in/global/global_status.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:video_player/video_player.dart';
-import 'package:video_thumbnail/video_thumbnail.dart';
 
 import '../bloc/details_event.dart';
 
@@ -59,9 +59,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   final ScrollController _thumbnailScrollController = ScrollController();
   int _currentPage = 0;
   bool isMore = false;
-  Uint8List? _videoThumbnail;
-  bool _isThumbnailLoading = false;
-  VideoPlayerController? _videoPlayerController;
+  CachedVideoPlayerController? _videoPlayerController;
   bool _isVideoInitialized = false;
   final _videoVisibilityThreshold = 0.6;
   final _videoVisibilityNotifier = ValueNotifier<bool>(false);
@@ -74,14 +72,14 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     _initializeVideo();
     // Fixed the syntax error here - was using pageController instead of _pageController
     _pageController.addListener(_handleVideoVisibility);
-    Future.delayed(Duration(milliseconds: 500), () {
+    Future.delayed(Duration(milliseconds: 100), () {
       if (mounted) {
         setState(() {
           _initializationInProgress = false;
         });
       }
     });
-// Add scroll listener to the parent SingleChildScrollView
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Find the ancestor ScrollController
       ScrollController? ancestorScrollController =
@@ -125,7 +123,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     if (_isVideoInitialized &&
         _currentPage == 0 &&
         _videoPlayerController != null &&
-        !_videoPlayerController!.value.isPlaying) {
+        !_videoPlayerController!.value!.isPlaying) {
       _videoPlayerController!.play();
       setState(() {}); // Update UI to hide play button
     }
@@ -159,7 +157,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     final RenderBox renderBox = renderObject as RenderBox;
     final size = renderBox.size;
     final position = renderBox.localToGlobal(Offset.zero);
-
     final screenHeight = MediaQuery.of(context).size.height;
     final videoHeight = size.height;
 
@@ -176,12 +173,12 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     _videoVisibilityNotifier.value = isVisible;
 
     if (isVisible) {
-      if (!_videoPlayerController!.value.isPlaying) {
+      if (!_videoPlayerController!.value!.isPlaying) {
         _videoPlayerController!.play();
         setState(() {});
       }
     } else {
-      if (_videoPlayerController!.value.isPlaying) {
+      if (_videoPlayerController!.value!.isPlaying) {
         _videoPlayerController!.pause();
         setState(() {});
       }
@@ -208,19 +205,19 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     if (currentPageValue <= 0.4) {
       // More than 60% visible (1.0 - currentPageValue > 0.6)
       if ((1.0 - currentPageValue) >= _videoVisibilityThreshold) {
-        if (!_videoPlayerController!.value.isPlaying) {
+        if (!_videoPlayerController!.value!.isPlaying) {
           _videoPlayerController!.play();
           setState(() {}); // Update UI to hide play button
         }
       } else {
-        if (_videoPlayerController!.value.isPlaying) {
+        if (_videoPlayerController!.value!.isPlaying) {
           _videoPlayerController!.pause();
           setState(() {}); // Update UI to show play button
         }
       }
     } else {
       // Not on first page, pause video
-      if (_videoPlayerController!.value.isPlaying) {
+      if (_videoPlayerController!.value!.isPlaying) {
         _videoPlayerController!.pause();
         setState(() {}); // Update UI to show play button
       }
@@ -230,67 +227,35 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   void _pauseVideoForNavigation() {
     if (_videoPlayerController != null &&
         _isVideoInitialized &&
-        _videoPlayerController!.value.isPlaying) {
+        _videoPlayerController!.value!.isPlaying) {
       _videoPlayerController!.pause();
     }
   }
 
-// Updated _initializeVideo method with thumbnail generation
   void _initializeVideo() {
     final hasVideo = widget.product.videoUrl != null;
     if (hasVideo) {
-      setState(() => _isThumbnailLoading = true);
-
-      // First try to generate the thumbnail
-      _generateThumbnail('https://${widget.product.videoUrl!}')
-          .then((thumbnail) {
+      // Initialize the cached video player
+      final fullUrl = 'https://${widget.product.videoUrl!}';
+      _videoPlayerController = fullUrl.cachedVideoPlayerController;
+      _videoPlayerController!.initialize().then((_) {
         if (mounted) {
           setState(() {
-            _videoThumbnail = thumbnail;
-            _isThumbnailLoading = false;
+            _isVideoInitialized = true;
           });
-        }
-      });
 
-      // Initialize the video player
-      _videoPlayerController =
-          VideoPlayerController.network('https://${widget.product.videoUrl!}')
-            ..initialize().then((_) {
+          if (_currentPage == 0) {
+            _videoPlayerController!.play();
+            setState(() {});
+
+            Future.delayed(Duration(milliseconds: 50), () {
               if (mounted) {
-                setState(() {
-                  _isVideoInitialized = true;
-                });
-
-                if (_currentPage == 0) {
-                  _videoPlayerController!.play();
-                  setState(() {});
-                  Future.delayed(Duration(milliseconds: 200), () {
-                    if (mounted) {
-                      _handleVideoVisibility();
-                    }
-                  });
-                }
+                _handleVideoVisibility();
               }
             });
-    }
-  }
-
-  Future<Uint8List?> _generateThumbnail(String videoUrl) async {
-    try {
-      final thumbnail = await VideoThumbnail.thumbnailData(
-        video: videoUrl,
-        imageFormat: ImageFormat.JPEG,
-        maxWidth: 512,
-        quality: 75,
-        timeMs: 0,
-      );
-
-      return thumbnail;
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error generating thumbnail: $e');
-      }
-      return null;
+          }
+        }
+      });
     }
   }
 
@@ -373,7 +338,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                           onTap: () {
                             // Toggle play/pause when user taps the video
                             if (_isVideoInitialized) {
-                              if (_videoPlayerController!.value.isPlaying) {
+                              if (_videoPlayerController!.value?.isPlaying ??
+                                  false) {
                                 _videoPlayerController!.pause();
                               } else {
                                 _videoPlayerController!.play();
@@ -406,26 +372,31 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                 key: _videoKey,
                                 fit: StackFit.expand,
                                 children: [
-                                  if (!_isVideoInitialized &&
-                                      _videoThumbnail != null)
-                                    Image.memory(
-                                      _videoThumbnail!,
-                                      fit: BoxFit.cover,
-                                    )
-                                  // Show video player when initialized
-                                  // Video container
-                                  else if (_isVideoInitialized)
+                                  if (_isVideoInitialized &&
+                                      _videoPlayerController != null)
+                                    // Use the cached video player controller's internal controller
                                     FittedBox(
+                                      fit: BoxFit.contain,
                                       child: SizedBox(
                                         width: _videoPlayerController!
-                                            .value.size.width,
+                                                .controller?.value.size.width ??
+                                            0,
                                         height: _videoPlayerController!
-                                            .value.size.height,
-                                        child: VideoPlayer(
-                                            _videoPlayerController!),
+                                                .controller
+                                                ?.value
+                                                .size
+                                                .height ??
+                                            0,
+                                        child: _videoPlayerController!
+                                                    .controller !=
+                                                null
+                                            ? VideoPlayer(
+                                                _videoPlayerController!
+                                                    .controller!)
+                                            : Container(),
                                       ),
                                     )
-                                  else if (_isThumbnailLoading)
+                                  else
                                     Center(
                                       child: CircularProgressIndicator(
                                         color: Theme.of(context)
@@ -436,7 +407,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
                                   // Play button overlay - ONLY show when video is paused and NOT playing
                                   if (_isVideoInitialized &&
-                                      !_videoPlayerController!.value.isPlaying)
+                                      !(_videoPlayerController!
+                                              .value?.isPlaying ??
+                                          false))
                                     Center(
                                       child: Container(
                                         width: 60,
@@ -454,6 +427,63 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                               Theme.of(context).iconTheme.color,
                                           size: 40,
                                         ),
+                                      ),
+                                    ),
+
+                                  // Download progress indicator - show only when video is being cached
+                                  if (_isVideoInitialized && hasVideo)
+                                    Positioned(
+                                      bottom: 16,
+                                      right: 16,
+                                      child: StreamBuilder<double>(
+                                        stream: sl<VideoCacheManager>()
+                                            .getDownloadProgress(
+                                                'https://${widget.product.videoUrl!}'),
+                                        builder: (context, snapshot) {
+                                          final progress = snapshot.data ?? 0.0;
+                                          // Only show if not fully downloaded
+                                          if (progress < 1.0 &&
+                                              progress > 0.0) {
+                                            return Container(
+                                              width: 40,
+                                              height: 40,
+                                              decoration: BoxDecoration(
+                                                color: Colors.black
+                                                    .withOpacity(0.5),
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: Stack(
+                                                alignment: Alignment.center,
+                                                children: [
+                                                  CircularProgressIndicator(
+                                                    value: progress,
+                                                    strokeWidth: 3,
+                                                    valueColor:
+                                                        AlwaysStoppedAnimation<
+                                                            Color>(
+                                                      Theme.of(context)
+                                                          .colorScheme
+                                                          .primary,
+                                                    ),
+                                                    backgroundColor: Colors
+                                                        .white
+                                                        .withOpacity(0.3),
+                                                  ),
+                                                  Text(
+                                                    '${(progress * 100).toInt()}%',
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 10,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          }
+                                          return SizedBox.shrink();
+                                        },
                                       ),
                                     ),
                                 ],

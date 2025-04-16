@@ -634,7 +634,8 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                             color: Theme.of(context).colorScheme.secondary,
                           ),
                           onPressed: () {
-                            _showChatNotAvailableMessage(context);
+                            context.push(Routes.chats);
+                            // _showChatNotAvailableMessage(context);
                           },
                         ),
                         Positioned(

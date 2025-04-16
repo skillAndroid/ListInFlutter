@@ -9,6 +9,9 @@ import 'package:list_in/features/auth/presentation/pages/register_details_page.d
 import 'package:list_in/features/auth/presentation/pages/signup_page.dart';
 import 'package:list_in/features/auth/presentation/pages/verification_page.dart';
 import 'package:list_in/features/auth/presentation/pages/welcome_page.dart';
+import 'package:list_in/features/chats/presentation/bloc/chat_bloc.dart';
+import 'package:list_in/features/chats/presentation/pages/chat_room.dart';
+import 'package:list_in/features/chats/presentation/pages/chat_rooms_screen.dart';
 import 'package:list_in/features/details/presentation/bloc/details_bloc.dart';
 import 'package:list_in/features/details/presentation/pages/details.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
@@ -114,7 +117,27 @@ class AppRouter {
           );
         },
       ),
-      // Auth routes
+      GoRoute(
+        path: Routes.chats,
+        builder: (context, state) => BlocProvider(
+          create: (context) => sl<ChatBloc>(),
+          child: const ChatRoomsScreen(),
+        ),
+      ),
+      GoRoute(
+        path: Routes.room,
+        builder: (context, state) {
+          final roomId = state.pathParameters['roomId']!;
+          final roomName = state.uri.queryParameters['roomName'] ?? 'Chat Room';
+          return BlocProvider(
+            create: (context) => sl<ChatBloc>(),
+            child: ChatRoomScreen(
+              roomId: roomId,
+              roomName: roomName,
+            ),
+          );
+        },
+      ),
       GoRoute(
         path: Routes.welcome,
         builder: (context, state) => const WelcomePage(),
@@ -139,7 +162,6 @@ class AppRouter {
         path: Routes.post,
         builder: (context, state) => const PostScreen(),
       ),
-
       GoRoute(
         path: Routes.publicationsEdit,
         builder: (context, state) {
@@ -148,7 +170,6 @@ class AppRouter {
           );
         },
       ),
-
       GoRoute(
         path: Routes.productDetails,
         builder: (context, state) {
@@ -162,7 +183,6 @@ class AppRouter {
           );
         },
       ),
-
       GoRoute(
         path: Routes.anotherUserProfile,
         builder: (context, state) {
@@ -173,7 +193,6 @@ class AppRouter {
           );
         },
       ),
-
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
             MainWrapper(navigationShell: navigationShell),

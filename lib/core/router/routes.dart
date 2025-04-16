@@ -28,6 +28,10 @@ class Routes {
   static const filterSecondaryResult = '/filterSecondaryResult';
 
   static const socialConnections = '/connections';
+
+  // chat
+  static const chats = '/chat';
+  static const room = '/chat/:roomId';
 }
 
 class RoutesByName {

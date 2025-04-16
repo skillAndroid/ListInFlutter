@@ -1,20 +1,19 @@
 // ignore_for_file: deprecated_member_use
 
 import 'dart:async';
+import 'dart:io' show Platform;
 
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:dio_smart_retry/dio_smart_retry.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/retry.dart';
 import 'package:light_compressor/light_compressor.dart';
-import 'package:list_in/features/video/service/video_compresion_service.dart';
-import 'package:path_provider/path_provider.dart' as path_provider;
-import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:list_in/core/cashe_manager/video_cashe/video_cashe_manager.dart';
 import 'package:list_in/core/language/language_bloc.dart';
 import 'package:list_in/core/language/language_rep.dart';
 import 'package:list_in/core/local_data/shared_preferences.dart';
@@ -32,6 +31,10 @@ import 'package:list_in/features/auth/domain/usecases/register_user_data.dart';
 import 'package:list_in/features/auth/domain/usecases/signup_usecase.dart';
 import 'package:list_in/features/auth/domain/usecases/verify_email_signup.dart';
 import 'package:list_in/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:list_in/features/chats/data/repository/chat_rep_impl.dart';
+import 'package:list_in/features/chats/data/service/web_socet_sevice_impl.dart';
+import 'package:list_in/features/chats/domain/repository/chat_rep.dart';
+import 'package:list_in/features/chats/presentation/bloc/chat_bloc.dart';
 import 'package:list_in/features/details/presentation/bloc/details_bloc.dart';
 import 'package:list_in/features/explore/data/repository/get_publications_rep_impl.dart';
 import 'package:list_in/features/explore/data/source/get_publications_remoute.dart';
@@ -87,6 +90,7 @@ import 'package:list_in/features/profile/domain/usecases/user/update_user_profil
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/user_publications_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/user/user_profile_bloc.dart';
+import 'package:list_in/features/video/service/video_compresion_service.dart';
 import 'package:list_in/features/visitior_profile/data/repository/another_user_profile_rep_impl.dart';
 import 'package:list_in/features/visitior_profile/data/source/another_user_profile_remoute.dart';
 import 'package:list_in/features/visitior_profile/domain/repository/another_user_profile_repository.dart';
@@ -98,20 +102,12 @@ import 'package:list_in/features/visitior_profile/domain/usecase/view_publicatio
 import 'package:list_in/features/visitior_profile/presentation/bloc/another_user_profile_bloc.dart';
 import 'package:list_in/global/global_bloc.dart';
 import 'package:list_in/global/likeds/liked_publications_bloc.dart';
-
-import 'dart:io' show Platform;
-
-import 'package:flutter/foundation.dart' show kIsWeb;
-
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:path_provider/path_provider.dart' as path_provider;
+import 'package:shared_preferences/shared_preferences.dart';
 
 final sl = GetIt.instance;
 
 Future<void> init() async {
-  //======================================================================
-  // CORE DEPENDENCIES
-  //======================================================================
-
   // SharedPreferences
   final sharedPreferences = await SharedPreferences.getInstance();
   sl.registerLazySingleton<SharedPreferences>(() => sharedPreferences);
@@ -119,6 +115,7 @@ Future<void> init() async {
     () => SharedPrefsService(sharedPreferences),
   );
   _registerServices();
+  _registerChatFeature();
   // HTTP Clients
   _registerHttpClients();
 
@@ -129,6 +126,7 @@ Future<void> init() async {
   // HIVE INITIALIZATION
   //======================================================================
   await _initializeHive();
+  sl.registerLazySingleton<VideoCacheManager>(() => VideoCacheManager());
 
   //======================================================================
   // FEATURE REGISTRATIONS
@@ -188,6 +186,21 @@ Future<void> _initializeHive() async {
   } catch (e, stackTrace) {
     debugPrint('Failed to initialize Hive: $e\n$stackTrace');
   }
+}
+
+void _registerChatFeature() {
+  sl.registerLazySingleton<WebSocketService>(() => WebSocketServiceImpl(
+        baseUrl: 'ws://listin.uz/chat',
+      ));
+
+  // Register ChatRepository
+  sl.registerLazySingleton<ChatRepository>(() => ChatRepositoryImpl(
+        webSocketService: sl<WebSocketService>(),
+      ));
+
+  // Register ChatBloc
+  sl.registerFactory<ChatBloc>(
+      () => ChatBloc(chatRepository: sl<ChatRepository>()));
 }
 
 void _registerHiveAdapters() {
