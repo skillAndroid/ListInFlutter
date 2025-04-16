@@ -522,6 +522,9 @@ class _SearchResultPageState extends State<SearchResultPage> {
                                 'isFree': state.isFree,
                                 'condition': state.condition,
                                 'sellerType': state.sellerType,
+                                'country': state.selectedCountry,
+                                'state': state.selectedState,
+                                'county': state.selectedCounty,
                               },
                             },
                           );
