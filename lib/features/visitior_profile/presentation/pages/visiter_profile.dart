@@ -26,6 +26,7 @@ import 'package:list_in/global/global_event.dart';
 import 'package:list_in/global/global_state.dart';
 import 'package:list_in/global/global_status.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class VisitorProfileScreen extends StatefulWidget {
   final String userId;
@@ -497,7 +498,11 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                           Expanded(
                             flex: 20,
                             child: InkWell(
-                              onTap: () {},
+                              onTap: () {
+                                final String phoneNumber =
+                                    userData.phoneNumber.toString();
+                                _openTelegram(context, phoneNumber);
+                              },
                               child: SmoothClipRRect(
                                 side: BorderSide(
                                   width: 1,
@@ -521,15 +526,16 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
-                                        Icon(EvaIcons.messageSquare,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .secondary,
-                                            size: 20),
+                                        Icon(
+                                          EvaIcons.messageSquare,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .secondary,
+                                          size: 20,
+                                        ),
                                         const SizedBox(width: 6),
                                         Text(
-                                          AppLocalizations.of(context)!
-                                              .write_to_telegram, // Fixed typo: "Messege" to "Message"
+                                          AppLocalizations.of(context)!.write,
                                           style: TextStyle(
                                             color: Theme.of(context)
                                                 .colorScheme
@@ -720,6 +726,56 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
         ),
       ],
     );
+  }
+
+  void _openTelegram(BuildContext context, String phoneNumber) {
+    // Format phone number by removing any non-digit characters
+    final String formattedPhone = phoneNumber.replaceAll(RegExp(r'[^\d+]'), '');
+
+    // Create simple greeting message based on language
+    final String languageCode = Localizations.localeOf(context).languageCode;
+    String message;
+    switch (languageCode) {
+      case 'uz':
+        message = "Salom! Qandaysiz?";
+        break;
+      case 'en':
+        message = "Hello! How are you?";
+        break;
+      case 'ru':
+      default:
+        message = "Здравствуйте! Как дела?";
+        break;
+    }
+
+    // Create the Telegram URL with phone number and encoded message
+    final String encodedMessage = Uri.encodeComponent(message);
+    final String url = "https://t.me/$formattedPhone?text=$encodedMessage";
+
+    try {
+      launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+    } catch (e) {
+      // Handle error based on language
+      String errorMessage;
+      switch (languageCode) {
+        case 'uz':
+          errorMessage = "Telegram ilovasini ochib bo'lmadi";
+          break;
+        case 'en':
+          errorMessage = "Could not open Telegram";
+          break;
+        case 'ru':
+        default:
+          errorMessage = "Не удалось открыть Telegram";
+          break;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content:
+              Text(errorMessage, style: TextStyle(fontFamily: Constants.Arial)),
+        ),
+      );
+    }
   }
 
   Widget _buildProductsGrid() {

@@ -292,5 +292,6 @@
   "signInCancelled": "Sign-in was cancelled.",
   "account": "Account",
   "accessExplanation": "Currently for developers and special guests only. User access coming soon.",
-  "helloDeveloper": "Hello Developer"
+  "helloDeveloper": "Hello Developer",
+  "write": "Write"
 }

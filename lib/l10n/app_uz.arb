@@ -292,5 +292,6 @@
   "signInCancelled": "Kirish bekor qilindi.",
   "account": "Xisob",
   "accessExplanation": "Hozircha faqat dasturchilarga va maxsus mehmonlarga. Foydalanuvchilar uchun yaqin orada tashkil etiladi.",
-  "helloDeveloper": "Salom Dasturchi"
+  "helloDeveloper": "Salom Dasturchi",
+  "write": "Yozish"
   }
