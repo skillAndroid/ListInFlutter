@@ -13,7 +13,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/retry.dart';
 import 'package:light_compressor/light_compressor.dart';
-import 'package:list_in/core/cashe_manager/video_cashe/video_cashe_manager.dart';
 import 'package:list_in/core/language/language_bloc.dart';
 import 'package:list_in/core/language/language_rep.dart';
 import 'package:list_in/core/local_data/shared_preferences.dart';
@@ -126,7 +125,6 @@ Future<void> init() async {
   // HIVE INITIALIZATION
   //======================================================================
   await _initializeHive();
-  sl.registerLazySingleton<VideoCacheManager>(() => VideoCacheManager());
 
   //======================================================================
   // FEATURE REGISTRATIONS
