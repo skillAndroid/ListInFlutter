@@ -400,438 +400,460 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
               const SizedBox(width: 12),
             ],
           ),
-          body: NestedScrollView(
-            controller: _scrollController,
-            physics: BouncingScrollPhysics(),
-            headerSliverBuilder: (context, innerBoxIsScrolled) {
-              return [
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                      left: 16.0,
-                      right: 24,
-                      top: 12,
-                      bottom: 12,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // First row: Image, Name and Role
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            // Profile image
-                            SizedBox(
-                              width: 82,
-                              height: 82,
-                              child: Stack(
-                                children: [
-                                  GestureDetector(
-                                    onTap: () => _showProfileImageViewer(
-                                      UserProfileEntity(
-                                        isBusinessAccount: userData.role !=
-                                            "INDIVIDUAL_SELLER",
-                                        locationName: userData.locationName,
-                                        longitude: userData.longitude,
-                                        latitude: userData.latitude,
-                                        fromTime: userData.fromTime,
-                                        toTime: userData.toTime,
-                                        isGrantedForPreciseLocation: userData
-                                            .isGrantedForPreciseLocation,
-                                        nickName: userData.nickName,
-                                        phoneNumber: userData.phoneNumber,
-                                        profileImagePath:
-                                            userData.profileImagePath,
-                                        country: userData.country?.valueRu,
-                                        state: userData.state?.valueRu,
-                                        county: userData.county?.valueRu,
+          body: RefreshIndicator(
+            color: Colors.blue,
+            backgroundColor: Theme.of(context).cardColor,
+            elevation: 1,
+            strokeWidth: 3,
+            displacement: 40,
+            edgeOffset: 10,
+            triggerMode: RefreshIndicatorTriggerMode.anywhere,
+            onRefresh: () {
+              context.read<UserProfileBloc>().add(GetUserData());
+              context.read<UserPublicationsBloc>().add(FetchUserPublications());
+              context
+                  .read<LikedPublicationsBloc>()
+                  .add(FetchLikedPublications());
+              return Future<
+                  void>.value(); // This is the correct way to return a completed Future
+            },
+            child: NestedScrollView(
+              controller: _scrollController,
+              physics: BouncingScrollPhysics(),
+              headerSliverBuilder: (context, innerBoxIsScrolled) {
+                return [
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                        left: 16.0,
+                        right: 24,
+                        top: 12,
+                        bottom: 12,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // First row: Image, Name and Role
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              // Profile image
+                              SizedBox(
+                                width: 82,
+                                height: 82,
+                                child: Stack(
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () => _showProfileImageViewer(
+                                        UserProfileEntity(
+                                          isBusinessAccount: userData.role !=
+                                              "INDIVIDUAL_SELLER",
+                                          locationName: userData.locationName,
+                                          longitude: userData.longitude,
+                                          latitude: userData.latitude,
+                                          fromTime: userData.fromTime,
+                                          toTime: userData.toTime,
+                                          isGrantedForPreciseLocation: userData
+                                              .isGrantedForPreciseLocation,
+                                          nickName: userData.nickName,
+                                          phoneNumber: userData.phoneNumber,
+                                          profileImagePath:
+                                              userData.profileImagePath,
+                                          country: userData.country?.valueRu,
+                                          state: userData.state?.valueRu,
+                                          county: userData.county?.valueRu,
+                                        ),
                                       ),
-                                    ),
-                                    child: SmoothClipRRect(
-                                      smoothness: 0.8,
-                                      side: BorderSide(
-                                        width: 2,
-                                        color: Theme.of(context).cardColor,
-                                      ),
-                                      borderRadius: BorderRadius.circular(100),
-                                      child: _isUploadingImage
-                                          ? Container(
-                                              color: Theme.of(context)
-                                                  .cardColor
-                                                  .withOpacity(0.2),
-                                              child: Center(
-                                                child:
-                                                    CircularProgressIndicator(
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .primary,
-                                                  strokeWidth: 2,
-                                                ),
-                                              ),
-                                            )
-                                          : (userData.profileImagePath !=
-                                                      null &&
-                                                  userData.profileImagePath!
-                                                      .isNotEmpty
-                                              ? CachedNetworkImage(
-                                                  width: double.infinity,
-                                                  height: double.infinity,
-                                                  imageUrl:
-                                                      'https://${userData.profileImagePath}',
-                                                  fit: BoxFit.cover,
-                                                  placeholder: (context, url) =>
-                                                      const Center(
-                                                    child:
-                                                        CircularProgressIndicator(
-                                                      strokeWidth: 2,
-                                                    ),
-                                                  ),
-                                                  errorWidget:
-                                                      (context, url, error) =>
-                                                          Image.asset(
-                                                    AppImages.appLogo,
-                                                    fit: BoxFit.cover,
-                                                  ),
-                                                )
-                                              : Image.asset(
-                                                  AppImages.appLogo,
-                                                  fit: BoxFit.cover,
-                                                )),
-                                    ),
-                                  ),
-                                  Positioned(
-                                    bottom: 0,
-                                    right: 0,
-                                    child: Transform.translate(
-                                      offset: Offset(0, 0),
                                       child: SmoothClipRRect(
+                                        smoothness: 0.8,
                                         side: BorderSide(
-                                          width: 1,
+                                          width: 2,
                                           color: Theme.of(context).cardColor,
                                         ),
                                         borderRadius:
                                             BorderRadius.circular(100),
-                                        child: InkWell(
-                                          onTap: _isUploadingImage
-                                              ? null // Disable when uploading
-                                              : () => _pickAndUpdateImage(
-                                                    UserProfileEntity(
-                                                      isBusinessAccount: userData
-                                                              .role !=
-                                                          "INDIVIDUAL_SELLER",
-                                                      locationName:
-                                                          userData.locationName,
-                                                      longitude:
-                                                          userData.longitude,
-                                                      latitude:
-                                                          userData.latitude,
-                                                      fromTime:
-                                                          userData.fromTime,
-                                                      toTime: userData.toTime,
-                                                      isGrantedForPreciseLocation:
-                                                          userData
-                                                              .isGrantedForPreciseLocation,
-                                                      nickName:
-                                                          userData.nickName,
-                                                      phoneNumber:
-                                                          userData.phoneNumber,
-                                                      profileImagePath: userData
-                                                          .profileImagePath,
-                                                      country: userData
-                                                          .country?.valueRu,
-                                                      state: userData
-                                                          .state?.valueRu,
-                                                      county: userData
-                                                          .county?.valueRu,
-                                                    ),
+                                        child: _isUploadingImage
+                                            ? Container(
+                                                color: Theme.of(context)
+                                                    .cardColor
+                                                    .withOpacity(0.2),
+                                                child: Center(
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .primary,
+                                                    strokeWidth: 2,
                                                   ),
-                                          child: Container(
-                                            width: 24,
-                                            height: 24,
-                                            color: Theme.of(context)
-                                                .scaffoldBackgroundColor,
-                                            child: Center(
-                                              child: _isUploadingImage
-                                                  ? SizedBox(
-                                                      width: 10,
-                                                      height: 10,
+                                                ),
+                                              )
+                                            : (userData.profileImagePath !=
+                                                        null &&
+                                                    userData.profileImagePath!
+                                                        .isNotEmpty
+                                                ? CachedNetworkImage(
+                                                    width: double.infinity,
+                                                    height: double.infinity,
+                                                    imageUrl:
+                                                        'https://${userData.profileImagePath}',
+                                                    fit: BoxFit.cover,
+                                                    placeholder:
+                                                        (context, url) =>
+                                                            const Center(
                                                       child:
                                                           CircularProgressIndicator(
                                                         strokeWidth: 2,
+                                                      ),
+                                                    ),
+                                                    errorWidget:
+                                                        (context, url, error) =>
+                                                            Image.asset(
+                                                      AppImages.appLogo,
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                                  )
+                                                : Image.asset(
+                                                    AppImages.appLogo,
+                                                    fit: BoxFit.cover,
+                                                  )),
+                                      ),
+                                    ),
+                                    Positioned(
+                                      bottom: 0,
+                                      right: 0,
+                                      child: Transform.translate(
+                                        offset: Offset(0, 0),
+                                        child: SmoothClipRRect(
+                                          side: BorderSide(
+                                            width: 1,
+                                            color: Theme.of(context).cardColor,
+                                          ),
+                                          borderRadius:
+                                              BorderRadius.circular(100),
+                                          child: InkWell(
+                                            onTap: _isUploadingImage
+                                                ? null // Disable when uploading
+                                                : () => _pickAndUpdateImage(
+                                                      UserProfileEntity(
+                                                        isBusinessAccount: userData
+                                                                .role !=
+                                                            "INDIVIDUAL_SELLER",
+                                                        locationName: userData
+                                                            .locationName,
+                                                        longitude:
+                                                            userData.longitude,
+                                                        latitude:
+                                                            userData.latitude,
+                                                        fromTime:
+                                                            userData.fromTime,
+                                                        toTime: userData.toTime,
+                                                        isGrantedForPreciseLocation:
+                                                            userData
+                                                                .isGrantedForPreciseLocation,
+                                                        nickName:
+                                                            userData.nickName,
+                                                        phoneNumber: userData
+                                                            .phoneNumber,
+                                                        profileImagePath: userData
+                                                            .profileImagePath,
+                                                        country: userData
+                                                            .country?.valueRu,
+                                                        state: userData
+                                                            .state?.valueRu,
+                                                        county: userData
+                                                            .county?.valueRu,
+                                                      ),
+                                                    ),
+                                            child: Container(
+                                              width: 24,
+                                              height: 24,
+                                              color: Theme.of(context)
+                                                  .scaffoldBackgroundColor,
+                                              child: Center(
+                                                child: _isUploadingImage
+                                                    ? SizedBox(
+                                                        width: 10,
+                                                        height: 10,
+                                                        child:
+                                                            CircularProgressIndicator(
+                                                          strokeWidth: 2,
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .colorScheme
+                                                                  .secondary,
+                                                        ),
+                                                      )
+                                                    : Icon(
+                                                        size: 16,
+                                                        Icons.edit,
                                                         color: Theme.of(context)
                                                             .colorScheme
                                                             .secondary,
                                                       ),
-                                                    )
-                                                  : Icon(
-                                                      size: 16,
-                                                      Icons.edit,
-                                                      color: Theme.of(context)
-                                                          .colorScheme
-                                                          .secondary,
-                                                    ),
+                                              ),
                                             ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  )
-                                ],
+                                    )
+                                  ],
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 36),
-                            Expanded(
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  _buildStatItem(
-                                    userData.rating.toString() == "null"
-                                        ? '0'
-                                        : userData.rating.toInt().toString(),
-                                    AppLocalizations.of(context)!.rating,
-                                  ),
-                                  InkWell(
-                                    onTap: () {
-                                      context.push(
-                                        Routes.socialConnections,
-                                        extra: {
-                                          'userId': userData.id,
-                                          'username': userData.nickName,
-                                          'initialTab': 'followings',
-                                        },
-                                      );
-                                    },
-                                    child: _buildStatItem(
-                                      userData.followers.toString(),
-                                      AppLocalizations.of(context)!.followers,
+                              const SizedBox(width: 36),
+                              Expanded(
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    _buildStatItem(
+                                      userData.rating.toString() == "null"
+                                          ? '0'
+                                          : userData.rating.toInt().toString(),
+                                      AppLocalizations.of(context)!.rating,
                                     ),
-                                  ),
-                                  InkWell(
-                                    onTap: () {
-                                      context.push(
-                                        Routes.socialConnections,
-                                        extra: {
-                                          'userId': userData.id,
-                                          'username': userData.nickName,
-                                          'initialTab': 'followers',
-                                        },
-                                      );
-                                    },
-                                    child: _buildStatItem(
-                                      userData.following.toString(),
-                                      AppLocalizations.of(context)!.following,
+                                    InkWell(
+                                      onTap: () {
+                                        context.push(
+                                          Routes.socialConnections,
+                                          extra: {
+                                            'userId': userData.id,
+                                            'username': userData.nickName,
+                                            'initialTab': 'followings',
+                                          },
+                                        );
+                                      },
+                                      child: _buildStatItem(
+                                        userData.followers.toString(),
+                                        AppLocalizations.of(context)!.followers,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                    InkWell(
+                                      onTap: () {
+                                        context.push(
+                                          Routes.socialConnections,
+                                          extra: {
+                                            'userId': userData.id,
+                                            'username': userData.nickName,
+                                            'initialTab': 'followers',
+                                          },
+                                        );
+                                      },
+                                      child: _buildStatItem(
+                                        userData.following.toString(),
+                                        AppLocalizations.of(context)!.following,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              width: 2,
-                            ),
-                            Text(
-                              userData.nickName ?? 'User',
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                width: 2,
+                              ),
+                              Text(
+                                userData.nickName ?? 'User',
+                                style: TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w600,
+                                  color:
+                                      Theme.of(context).colorScheme.secondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 2),
+                            child: Text(
+                              userData.biography ??
+                                  AppLocalizations.of(context)!.no_biography,
+                              maxLines: 1,
                               style: TextStyle(
-                                fontSize: 17,
-                                fontWeight: FontWeight.w600,
-                                color: Theme.of(context).colorScheme.secondary,
+                                fontSize: 12.5,
+                                overflow: TextOverflow.ellipsis,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurface
+                                    .withOpacity(0.8),
                               ),
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 2),
-                          child: Text(
-                            userData.biography ??
-                                AppLocalizations.of(context)!.no_biography,
-                            maxLines: 1,
-                            style: TextStyle(
-                              fontSize: 12.5,
-                              overflow: TextOverflow.ellipsis,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurface
-                                  .withOpacity(0.8),
-                            ),
                           ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SliverToBoxAdapter(
+                    child: Row(
+                      children: [
+                        _buildContactActions(
+                          userData,
+                          state,
                         ),
                       ],
                     ),
                   ),
-                ),
-                SliverToBoxAdapter(
-                  child: Row(
-                    children: [
-                      _buildContactActions(
-                        userData,
-                        state,
+                  SliverPersistentHeader(
+                    delegate: SliverTabBarDelegate(
+                      TabBar(
+                        controller: _tabController,
+                        tabs: [
+                          Tab(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.inventory_rounded,
+                                  size: 22,
+                                ),
+                                SizedBox(
+                                  width: 4,
+                                ),
+                                Text(
+                                  AppLocalizations.of(context)!.posts,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 13,
+                                    fontFamily: Constants.Arial,
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 4,
+                                ),
+                              ],
+                            ),
+                          ),
+                          Tab(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  CupertinoIcons.heart_circle,
+                                  size: 22,
+                                ),
+                                SizedBox(
+                                  width: 4,
+                                ),
+                                Text(
+                                  AppLocalizations.of(context)!.favorites,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 13,
+                                    fontFamily: Constants.Arial,
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 4,
+                                ),
+                              ],
+                            ),
+                          ),
+                          Tab(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  CupertinoIcons.person,
+                                  size: 22,
+                                ),
+                                SizedBox(
+                                  width: 4,
+                                ),
+                                Text(
+                                  AppLocalizations.of(context)!.account,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 13,
+                                    fontFamily: Constants.Arial,
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 4,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                        labelColor: AppColors.black,
+                        unselectedLabelColor: AppColors.grey,
+                        indicator: const BoxDecoration(
+                          color: AppColors.black,
+                        ),
                       ),
-                    ],
-                  ),
-                ),
-                SliverPersistentHeader(
-                  delegate: SliverTabBarDelegate(
-                    TabBar(
-                      controller: _tabController,
-                      tabs: [
-                        Tab(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.inventory_rounded,
-                                size: 22,
-                              ),
-                              SizedBox(
-                                width: 4,
-                              ),
-                              Text(
-                                AppLocalizations.of(context)!.posts,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  fontFamily: Constants.Arial,
-                                ),
-                              ),
-                              SizedBox(
-                                width: 4,
-                              ),
-                            ],
-                          ),
-                        ),
-                        Tab(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                CupertinoIcons.heart_circle,
-                                size: 22,
-                              ),
-                              SizedBox(
-                                width: 4,
-                              ),
-                              Text(
-                                AppLocalizations.of(context)!.favorites,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  fontFamily: Constants.Arial,
-                                ),
-                              ),
-                              SizedBox(
-                                width: 4,
-                              ),
-                            ],
-                          ),
-                        ),
-                        Tab(
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                CupertinoIcons.person,
-                                size: 22,
-                              ),
-                              SizedBox(
-                                width: 4,
-                              ),
-                              Text(
-                                AppLocalizations.of(context)!.account,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  fontFamily: Constants.Arial,
-                                ),
-                              ),
-                              SizedBox(
-                                width: 4,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                      labelColor: AppColors.black,
-                      unselectedLabelColor: AppColors.grey,
-                      indicator: const BoxDecoration(
-                        color: AppColors.black,
-                      ),
+                      backgroundColor: AppColors.bgColor,
                     ),
-                    backgroundColor: AppColors.bgColor,
+                    pinned: true,
                   ),
-                  pinned: true,
-                ),
-              ];
-            },
-            body: Padding(
-              padding: const EdgeInsets.only(top: 8, right: 8, left: 4),
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  // Products Tab
-                  NotificationListener<ScrollNotification>(
-                    onNotification: (ScrollNotification scrollInfo) {
-                      // Check if we're near the bottom
-                      if (scrollInfo is ScrollEndNotification) {
-                        if (scrollInfo.metrics.pixels >=
-                            scrollInfo.metrics.maxScrollExtent * 0.7) {
-                          final publicationsState =
-                              context.read<UserPublicationsBloc>().state;
-                          if (!publicationsState.hasReachedEnd &&
-                              !publicationsState.isLoading) {
-                            context
-                                .read<UserPublicationsBloc>()
-                                .add(LoadMoreUserPublications());
+                ];
+              },
+              body: Padding(
+                padding: const EdgeInsets.only(top: 8, right: 8, left: 4),
+                child: TabBarView(
+                  controller: _tabController,
+                  children: [
+                    // Products Tab
+                    NotificationListener<ScrollNotification>(
+                      onNotification: (ScrollNotification scrollInfo) {
+                        // Check if we're near the bottom
+                        if (scrollInfo is ScrollEndNotification) {
+                          if (scrollInfo.metrics.pixels >=
+                              scrollInfo.metrics.maxScrollExtent * 0.7) {
+                            final publicationsState =
+                                context.read<UserPublicationsBloc>().state;
+                            if (!publicationsState.hasReachedEnd &&
+                                !publicationsState.isLoading) {
+                              context
+                                  .read<UserPublicationsBloc>()
+                                  .add(LoadMoreUserPublications());
+                            }
                           }
                         }
-                      }
-                      return true;
-                    },
-                    child: CustomScrollView(
-                      slivers: [
-                        //   _buildProductFilters(),
-                        _buildFilteredProductsGrid(),
-                      ],
+                        return true;
+                      },
+                      child: CustomScrollView(
+                        slivers: [
+                          //   _buildProductFilters(),
+                          _buildFilteredProductsGrid(),
+                        ],
+                      ),
                     ),
-                  ),
-                  // Posts Tab
+                    // Posts Tab
 
-                  NotificationListener<ScrollNotification>(
-                    onNotification: (ScrollNotification scrollInfo) {
-                      if (scrollInfo is ScrollEndNotification) {
-                        if (scrollInfo.metrics.pixels >=
-                            scrollInfo.metrics.maxScrollExtent * 0.7) {
-                          final likedPublicationsState =
-                              context.read<LikedPublicationsBloc>().state;
-                          if (!likedPublicationsState.hasReachedEnd &&
-                              !likedPublicationsState.isLoading) {
-                            context
-                                .read<LikedPublicationsBloc>()
-                                .add(LoadMoreLikedPublications());
+                    NotificationListener<ScrollNotification>(
+                      onNotification: (ScrollNotification scrollInfo) {
+                        if (scrollInfo is ScrollEndNotification) {
+                          if (scrollInfo.metrics.pixels >=
+                              scrollInfo.metrics.maxScrollExtent * 0.7) {
+                            final likedPublicationsState =
+                                context.read<LikedPublicationsBloc>().state;
+                            if (!likedPublicationsState.hasReachedEnd &&
+                                !likedPublicationsState.isLoading) {
+                              context
+                                  .read<LikedPublicationsBloc>()
+                                  .add(LoadMoreLikedPublications());
+                            }
                           }
                         }
-                      }
-                      return true;
-                    },
-                    child: CustomScrollView(
-                      slivers: [
-                        _buildLikedPublicationsGrid(),
-                      ],
+                        return true;
+                      },
+                      child: CustomScrollView(
+                        slivers: [
+                          _buildLikedPublicationsGrid(),
+                        ],
+                      ),
                     ),
-                  ),
-                  _buildAccountTab(
-                    state: state,
-                  ),
-                ],
+                    _buildAccountTab(
+                      state: state,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -928,6 +950,9 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                   nickName: user?.nickName,
                   phoneNumber: user?.phoneNumber,
                   profileImagePath: user?.profileImagePath,
+                  country: userData.country?.valueRu,
+                  state: userData.state?.valueRu,
+                  county: userData.county?.valueRu,
                 ),
               );
             },

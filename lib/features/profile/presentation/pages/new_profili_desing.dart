@@ -25,7 +25,6 @@ import 'package:list_in/features/profile/domain/entity/user/user_profile_entity.
 import 'package:list_in/features/profile/presentation/bloc/user/user_profile_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/user/user_profile_event.dart';
 import 'package:list_in/features/profile/presentation/bloc/user/user_profile_state.dart';
-import 'package:list_in/features/profile/presentation/pages/favorites_screen.dart';
 import 'package:list_in/features/profile/presentation/pages/my_publications.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
@@ -53,6 +52,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
     context.read<UserProfileBloc>().add(GetUserData());
   }
 
+//
   void _navigateToEdit(UserProfileEntity userData) {
     context.pushNamed(
       RoutesByName.profileEdit,
@@ -475,15 +475,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: InkWell(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              const FavoritesScreen(),
-                                        ),
-                                      );
-                                    },
+                                    onTap: () {},
                                     child: _buildStatCard(
                                       AppLocalizations.of(context)!.favorites,
                                       '⟶',
