@@ -2613,13 +2613,46 @@ class _PriceRangeSliderState extends State<PriceRangeSlider> {
     super.dispose();
   }
 
-  String _formatPrice(double value) {
-    if (value >= 1000000) {
-      return '\$${(value / 1000000).toStringAsFixed(1)}M';
+  String _formatPrice(double value, String? locale) {
+    // Define suffix maps for Uzbek, English, and Russian
+    Map<String, Map<String, String>> suffixMaps = {
+      'en': {'thousand': 'K', 'million': 'M', 'billion': 'B'},
+      'uz': {'thousand': 'ming', 'million': 'mln', 'billion': 'mlrd'},
+      'ru': {'thousand': 'тыс', 'million': 'млн', 'billion': 'млрд'},
+    };
+
+    // Default to English if locale not specified or not found
+    Map<String, String> suffixes = suffixMaps[locale] ?? suffixMaps['en']!;
+
+    String formatted;
+    if (value >= 1000000000) {
+      double billions = value / 1000000000;
+      formatted = billions.toString();
+      if (formatted.endsWith('.0')) {
+        formatted = formatted.substring(0, formatted.length - 2);
+      }
+      return '$formatted${suffixes['billion']}';
+    } else if (value >= 1000000) {
+      double millions = value / 1000000;
+      formatted = millions.toString();
+      if (formatted.endsWith('.0')) {
+        formatted = formatted.substring(0, formatted.length - 2);
+      }
+      return '$formatted${suffixes['million']}';
     } else if (value >= 1000) {
-      return '\$${(value / 1000).toStringAsFixed(1)}K';
+      double thousands = value / 1000;
+      formatted = thousands.toString();
+      if (formatted.endsWith('.0')) {
+        formatted = formatted.substring(0, formatted.length - 2);
+      }
+      return '$formatted${suffixes['thousand']}';
     }
-    return '\$${value.round()}';
+
+    // For values less than 1000
+    if (value == value.truncateToDouble()) {
+      return '${value.toInt()}';
+    }
+    return value.toString();
   }
 
   @override
@@ -2657,13 +2690,24 @@ class _PriceRangeSliderState extends State<PriceRangeSlider> {
                   ),
                 )
               else
-                Text(
-                  '${_formatPrice(_currentRange.start)} - ${_formatPrice(_currentRange.end)}',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
-                    fontSize: 19,
-                    fontWeight: FontWeight.w500,
-                  ),
+                BlocBuilder<LanguageBloc, LanguageState>(
+                  builder: (context, state) {
+                    String languageCode = 'en'; // Default to English
+
+                    // Check if state is LanguageLoaded and get the language code
+                    if (state is LanguageLoaded) {
+                      languageCode = state.languageCode;
+                    }
+
+                    return Text(
+                      '${_formatPrice(_currentRange.start, languageCode)} - ${_formatPrice(_currentRange.end, languageCode)}',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontSize: 19,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    );
+                  },
                 ),
             ],
           ),
