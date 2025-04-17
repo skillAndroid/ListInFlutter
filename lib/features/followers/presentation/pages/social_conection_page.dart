@@ -19,6 +19,7 @@ import 'package:list_in/global/global_event.dart';
 import 'package:list_in/global/global_state.dart';
 import 'package:list_in/global/global_status.dart';
 
+//
 class SocialConnectionsPage extends StatefulWidget {
   final String userId;
   final String username;
@@ -492,7 +493,7 @@ class UserListTile extends StatelessWidget {
 
                       return Container(
                         margin: const EdgeInsets.only(top: 0),
-                        height: 32,
+                        height: 30,
                         child: ElevatedButton(
                           onPressed: isLoading
                               ? null
@@ -524,15 +525,15 @@ class UserListTile extends StatelessWidget {
                                   SmoothBorderRadius(cornerRadius: 18),
                             ),
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
+                              horizontal: 6,
                             ),
                           ),
                           child: isLoading
                               ? Padding(
                                   padding: const EdgeInsets.all(4),
                                   child: SizedBox(
-                                    width: 20,
-                                    height: 20,
+                                    width: 18,
+                                    height: 18,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
                                       valueColor: AlwaysStoppedAnimation<Color>(
@@ -545,7 +546,7 @@ class UserListTile extends StatelessWidget {
                                   children: [
                                     Icon(
                                       isFollowed ? Icons.remove : Icons.add,
-                                      size: 12.3,
+                                      size: 11.5,
                                       color: Theme.of(context)
                                           .colorScheme
                                           .secondary,
@@ -561,7 +562,7 @@ class UserListTile extends StatelessWidget {
                                         color: Theme.of(context)
                                             .colorScheme
                                             .secondary,
-                                        fontSize: 12.3,
+                                        fontSize: 11.5,
                                       ),
                                     ),
                                   ],

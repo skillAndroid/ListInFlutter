@@ -619,7 +619,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                                           extra: {
                                             'userId': userData.id,
                                             'username': userData.nickName,
-                                            'initialTab': 'followings',
+                                            'initialTab': 'followers',
                                           },
                                         );
                                       },
@@ -635,7 +635,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
                                           extra: {
                                             'userId': userData.id,
                                             'username': userData.nickName,
-                                            'initialTab': 'followers',
+                                            'initialTab': 'followings',
                                           },
                                         );
                                       },

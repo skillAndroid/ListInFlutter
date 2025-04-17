@@ -1,5 +1,7 @@
 // social_user_bloc.dart
 
+// ignore_for_file: avoid_print
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
