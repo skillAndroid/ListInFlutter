@@ -187,18 +187,18 @@ Future<void> _initializeHive() async {
 }
 
 void _registerChatFeature() {
-  sl.registerLazySingleton<WebSocketService>(() => WebSocketServiceImpl(
-        baseUrl: 'ws://listin.uz/chat',
-      ));
+  // sl.registerLazySingleton<WebSocketService>(() => WebSocketServiceImpl(
+  //       baseUrl: 'ws://listin.uz/chat',
+  //     ));
 
-  // Register ChatRepository
-  sl.registerLazySingleton<ChatRepository>(() => ChatRepositoryImpl(
-        webSocketService: sl<WebSocketService>(),
-      ));
+  // // Register ChatRepository
+  // sl.registerLazySingleton<ChatRepository>(() => ChatRepositoryImpl(
+  //       webSocketService: sl<WebSocketService>(),
+  //     ));
 
-  // Register ChatBloc
-  sl.registerFactory<ChatBloc>(
-      () => ChatBloc(chatRepository: sl<ChatRepository>()));
+  // // Register ChatBloc
+  // sl.registerFactory<ChatBloc>(
+  //     () => ChatBloc(chatRepository: sl<ChatRepository>()));
 }
 
 void _registerHiveAdapters() {

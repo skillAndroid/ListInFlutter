@@ -117,27 +117,27 @@ class AppRouter {
           );
         },
       ),
-      GoRoute(
-        path: Routes.chats,
-        builder: (context, state) => BlocProvider(
-          create: (context) => sl<ChatBloc>(),
-          child: const ChatRoomsScreen(),
-        ),
-      ),
-      GoRoute(
-        path: Routes.room,
-        builder: (context, state) {
-          final roomId = state.pathParameters['roomId']!;
-          final roomName = state.uri.queryParameters['roomName'] ?? 'Chat Room';
-          return BlocProvider(
-            create: (context) => sl<ChatBloc>(),
-            child: ChatRoomScreen(
-              roomId: roomId,
-              roomName: roomName,
-            ),
-          );
-        },
-      ),
+      // GoRoute(
+      //   path: Routes.chats,
+      //   builder: (context, state) => BlocProvider(
+      //     create: (context) => sl<ChatBloc>(),
+      //     child: const ChatRoomsScreen(),
+      //   ),
+      // ),
+      // GoRoute(
+      //   path: Routes.room,
+      //   builder: (context, state) {
+      //     final roomId = state.pathParameters['roomId']!;
+      //     final roomName = state.uri.queryParameters['roomName'] ?? 'Chat Room';
+      //     return BlocProvider(
+      //       create: (context) => sl<ChatBloc>(),
+      //       child: ChatRoomScreen(
+      //         roomId: roomId,
+      //         roomName: roomName,
+      //       ),
+      //     );
+      //   },
+      // ),
       GoRoute(
         path: Routes.welcome,
         builder: (context, state) => const WelcomePage(),
