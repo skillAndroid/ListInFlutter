@@ -15,7 +15,7 @@ class Constants {
   // You can add a default avatar path constant
   static const String DEFAULT_AVATAR_IMAGE = 'assets/images/list_in.png';
 
-  static const String Arial = 'Montserrat';
+  static const String Arial = 'Poppins';
 
   static const String CACHED_USER_COUNTRY = 'CACHED_USER_COUNTRY';
   static const String CACHED_USER_STATE = 'CACHED_USER_STATE';

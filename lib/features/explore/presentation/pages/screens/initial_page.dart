@@ -16,6 +16,7 @@ import 'package:list_in/config/theme/app_language.dart';
 import 'package:list_in/core/language/language_bloc.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/core/utils/const.dart';
+import 'package:list_in/features/chats/presentation/pages/chat_rooms_page.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
@@ -29,6 +30,7 @@ import 'package:list_in/features/post/presentation/pages/atributes_releted/child
 import 'package:list_in/features/profile/presentation/bloc/user/user_profile_bloc.dart';
 import 'package:list_in/features/profile/presentation/bloc/user/user_profile_event.dart';
 import 'package:list_in/features/video/presentation/wigets/scrollable_list.dart';
+import 'package:list_in/global/global_bloc.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 class HomePageUIState {
@@ -634,7 +636,15 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                             color: Theme.of(context).colorScheme.secondary,
                           ),
                           onPressed: () {
-                            _showChatNotAvailableMessage(context);
+                            final currentUserId =
+                                context.read<GlobalBloc>().userId!;
+                            Navigator.of(context).push(
+                              CupertinoPageRoute(
+                                builder: (context) =>
+                                    ChatRoomsPage(userId: currentUserId),
+                              ),
+                            );
+                            //_showChatNotAvailableMessage(context);
                           },
                         ),
                         Positioned(

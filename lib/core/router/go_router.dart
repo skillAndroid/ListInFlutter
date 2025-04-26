@@ -9,9 +9,7 @@ import 'package:list_in/features/auth/presentation/pages/register_details_page.d
 import 'package:list_in/features/auth/presentation/pages/signup_page.dart';
 import 'package:list_in/features/auth/presentation/pages/verification_page.dart';
 import 'package:list_in/features/auth/presentation/pages/welcome_page.dart';
-import 'package:list_in/features/chats/presentation/bloc/chat_bloc.dart';
-import 'package:list_in/features/chats/presentation/pages/chat_room.dart';
-import 'package:list_in/features/chats/presentation/pages/chat_rooms_screen.dart';
+import 'package:list_in/features/chats/presentation/pages/chat_rooms_page.dart';
 import 'package:list_in/features/details/presentation/bloc/details_bloc.dart';
 import 'package:list_in/features/details/presentation/pages/details.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
@@ -40,13 +38,11 @@ import 'package:list_in/features/post/domain/usecases/get_catalogs_usecase.dart'
 import 'package:list_in/features/post/domain/usecases/get_locations_usecase.dart';
 import 'package:list_in/features/post/presentation/pages/post_screen.dart';
 import 'package:list_in/features/profile/domain/entity/user/user_profile_entity.dart';
-import 'package:list_in/features/profile/presentation/pages/new_profili_desing.dart';
 import 'package:list_in/features/profile/presentation/pages/profile_editor_page.dart';
 import 'package:list_in/features/profile/presentation/pages/profile_screen.dart';
 import 'package:list_in/features/profile/presentation/pages/publications_editor_page.dart';
 import 'package:list_in/features/undefined_screens_yet/wrapper_screen.dart';
 import 'package:list_in/features/video/presentation/pages/video_feed_screen.dart';
-import 'package:list_in/features/visitior_profile/presentation/pages/new_visitor_profile.dart';
 import 'package:list_in/features/visitior_profile/presentation/pages/visiter_profile.dart';
 import 'package:list_in/global/global_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -119,10 +115,10 @@ class AppRouter {
       ),
       // GoRoute(
       //   path: Routes.chats,
-      //   builder: (context, state) => BlocProvider(
-      //     create: (context) => sl<ChatBloc>(),
-      //     child: const ChatRoomsScreen(),
-      //   ),
+      //   builder: (context, state) {
+      //     final currentUserId = context.read<GlobalBloc>().userId!;
+      //     return ChatRoomsPage(userId: currentUserId);
+      //   },
       // ),
       // GoRoute(
       //   path: Routes.room,

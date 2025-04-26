@@ -146,7 +146,7 @@ class _UserPublicationsScreenState extends State<UserPublicationsScreen> {
             ),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              childAspectRatio: 0.64,
+              childAspectRatio: 0.635,
               crossAxisSpacing: 0,
               mainAxisSpacing: 0,
             ),

@@ -1132,7 +1132,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
             ),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              childAspectRatio: 0.7,
+              childAspectRatio: 0.635,
               crossAxisSpacing: 0,
               mainAxisSpacing: 0,
             ),
@@ -1176,7 +1176,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
             ),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              childAspectRatio: 0.75,
+              childAspectRatio: 0.635,
               crossAxisSpacing: 0,
               mainAxisSpacing: 0,
             ),

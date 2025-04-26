@@ -30,10 +30,15 @@ import 'package:list_in/features/auth/domain/usecases/register_user_data.dart';
 import 'package:list_in/features/auth/domain/usecases/signup_usecase.dart';
 import 'package:list_in/features/auth/domain/usecases/verify_email_signup.dart';
 import 'package:list_in/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:list_in/features/chats/data/repository/chat_rep_impl.dart';
-import 'package:list_in/features/chats/data/service/web_socet_sevice_impl.dart';
-import 'package:list_in/features/chats/domain/repository/chat_rep.dart';
-import 'package:list_in/features/chats/presentation/bloc/chat_bloc.dart';
+import 'package:list_in/features/chats/data/repository/chat_repository_impl.dart';
+import 'package:list_in/features/chats/data/source/chat_remote_datasource.dart';
+import 'package:list_in/features/chats/domain/repository/chat_repository.dart';
+import 'package:list_in/features/chats/domain/usecase/connect_user_usecase.dart';
+import 'package:list_in/features/chats/domain/usecase/disconnect_user_usecase.dart';
+import 'package:list_in/features/chats/domain/usecase/get_chat_history_usecase.dart';
+import 'package:list_in/features/chats/domain/usecase/get_chat_rooms_usecase.dart';
+import 'package:list_in/features/chats/domain/usecase/send_message_usecase.dart';
+import 'package:list_in/features/chats/presentation/blocs/chats/chat_bloc.dart';
 import 'package:list_in/features/details/presentation/bloc/details_bloc.dart';
 import 'package:list_in/features/explore/data/repository/get_publications_rep_impl.dart';
 import 'package:list_in/features/explore/data/source/get_publications_remoute.dart';
@@ -114,7 +119,7 @@ Future<void> init() async {
     () => SharedPrefsService(sharedPreferences),
   );
   _registerServices();
-  _registerChatFeature();
+
   // HTTP Clients
   _registerHttpClients();
 
@@ -150,6 +155,7 @@ Future<void> init() async {
 
   // Global BLoCs
   _registerGlobalBlocs();
+  _registerChatFeature();
 }
 
 //======================================================================
@@ -187,18 +193,47 @@ Future<void> _initializeHive() async {
 }
 
 void _registerChatFeature() {
-  // sl.registerLazySingleton<WebSocketService>(() => WebSocketServiceImpl(
-  //       baseUrl: 'ws://listin.uz/chat',
-  //     ));
+  // Get the current user ID from SharedPrefs or another source
+  final currentUserId = sl<GlobalBloc>().userId;
 
-  // // Register ChatRepository
-  // sl.registerLazySingleton<ChatRepository>(() => ChatRepositoryImpl(
-  //       webSocketService: sl<WebSocketService>(),
-  //     ));
+  registerChatFeature(sl, currentUserId ?? '');
+}
 
-  // // Register ChatBloc
-  // sl.registerFactory<ChatBloc>(
-  //     () => ChatBloc(chatRepository: sl<ChatRepository>()));
+void registerChatFeature(GetIt sl, String currentUserId) {
+  // Data sources
+  sl.registerLazySingleton<ChatRemoteDataSource>(
+    () => ChatRemoteDataSource(
+      dio: sl(),
+      authLocalDataSource: sl(),
+      authService: sl(),
+    ),
+  );
+
+  // Repositories
+  sl.registerLazySingleton<ChatRepository>(
+    () => ChatRepositoryImpl(
+      remoteDataSource: sl(),
+      currentUserId: currentUserId,
+    ),
+  );
+
+  // Use cases
+  sl.registerLazySingleton(() => GetChatRoomsUseCase(sl()));
+  sl.registerLazySingleton(() => GetChatHistoryUseCase(sl()));
+  sl.registerLazySingleton(() => SendMessageUseCase(sl()));
+  sl.registerLazySingleton(() => ConnectUserUseCase(sl()));
+  sl.registerLazySingleton(() => DisconnectUserUseCase(sl()));
+
+  // BLoCs
+  sl.registerFactory(
+    () => ChatBloc(
+      getChatRoomsUseCase: sl(),
+      getChatHistoryUseCase: sl(),
+      sendMessageUseCase: sl(),
+      connectUserUseCase: sl(),
+      disconnectUserUseCase: sl(),
+    ),
+  );
 }
 
 void _registerHiveAdapters() {

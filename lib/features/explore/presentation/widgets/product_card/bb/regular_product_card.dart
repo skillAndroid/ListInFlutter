@@ -77,7 +77,7 @@ class ProductCardViewModel {
 
 // Main product card widget
 class OptimizedProductCard extends StatelessWidget {
-  static const double _imageAspectRatio = 1;
+  static const double _imageAspectRatio = 0.8;
 
   final ProductCardViewModel model;
   final VoidCallback? onTap;
@@ -161,8 +161,9 @@ class ProductImageSection extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.all(0),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
+            child: ClipSmoothRect(
+              radius:
+                  SmoothBorderRadius(cornerRadius: 16, cornerSmoothing: 0.8),
               child: _buildImage(),
             ),
           ),

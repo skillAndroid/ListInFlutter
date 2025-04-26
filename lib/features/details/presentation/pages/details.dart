@@ -14,6 +14,10 @@ import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/core/utils/const.dart';
+import 'package:list_in/features/chats/domain/entity/chat_message.dart';
+import 'package:list_in/features/chats/presentation/blocs/chats/chat_bloc.dart';
+import 'package:list_in/features/chats/presentation/blocs/chats/chat_event.dart';
+import 'package:list_in/features/chats/presentation/pages/chat_detail_page.dart';
 import 'package:list_in/features/details/presentation/bloc/details_bloc.dart';
 import 'package:list_in/features/details/presentation/bloc/details_state.dart';
 import 'package:list_in/features/details/presentation/pages/product_images_detailed.dart';
@@ -276,7 +280,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     child: Column(
                       children: [
                         _buildImageSlider(isOwner),
-                        _buildMainContent(isOwner),
+                        _buildMainContent(isOwner, currentUserId!),
                       ],
                     ),
                   ),
@@ -578,7 +582,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   }
 
 // Modified _buildMainContent to include the vertical grid
-  Widget _buildMainContent(bool isOwner) {
+  Widget _buildMainContent(bool isOwner, String userId) {
     final localizations = AppLocalizations.of(context)!;
     final enAttributes = widget.product.attributeValue.attributes['en'] ?? {};
     return Column(
@@ -908,6 +912,70 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   child: ElevatedButton(
                     onPressed: () {
                       _pauseVideoForNavigation();
+                      // Create initial message and navigate to chat
+                      final message = ChatMessage(
+                        senderId: userId,
+                        recipientId: widget.product.seller.id,
+                        publicationId: widget.product.id,
+                        content: "I'm interested in your listing!",
+                        status: 'SENT',
+                        sentAt: DateTime.now(),
+                        updatedAt: DateTime.now(),
+                      );
+                      context.read<ChatBloc>().add(SendMessageEvent(message));
+                      // Navigate to chat detail
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ChatDetailPage(
+                            userId: userId,
+                            recipientId: widget.product.seller.id,
+                            publicationId: widget.product.id,
+                            publicationTitle: widget.product.title,
+                            recipientName: widget.product.seller.nickName,
+                            publicationImagePath:
+                                'https://${widget.product.productImages[0].url}',
+                            userProfileImage:
+                                'https://${widget.product.seller.profileImagePath}',
+                          ),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      shape: SmoothRectangleBorder(
+                        side: BorderSide(
+                            width: 1,
+                            color: Theme.of(context).cardColor,
+                            strokeAlign: BorderSide.strokeAlignCenter),
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      backgroundColor:
+                          Theme.of(context).scaffoldBackgroundColor,
+                      foregroundColor: Theme.of(context).colorScheme.secondary,
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    child: Text(
+                      'ListIn Chat',
+                      style: const TextStyle(
+                        fontFamily: Constants.Arial,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 2),
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      _pauseVideoForNavigation();
                       ProductActionsService.makeCall(
                         context,
                         widget.product.seller.phoneNumber,
@@ -1091,7 +1159,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               return GridView.builder(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  childAspectRatio: 0.7,
+                  childAspectRatio: 0.635,
                   crossAxisSpacing: 0,
                   mainAxisSpacing: 0,
                 ),

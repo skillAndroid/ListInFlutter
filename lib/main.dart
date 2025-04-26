@@ -10,6 +10,7 @@ import 'package:list_in/core/language/language_bloc.dart';
 import 'package:list_in/core/router/go_router.dart';
 import 'package:list_in/core/theme/provider/theme_provider.dart';
 import 'package:list_in/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:list_in/features/chats/presentation/blocs/chats/chat_bloc.dart';
 import 'package:list_in/features/details/presentation/bloc/details_bloc.dart';
 import 'package:list_in/features/followers/presentation/bloc/social_user_bloc.dart';
 import 'package:list_in/features/map/presentation/bloc/MapBloc.dart';
@@ -44,6 +45,9 @@ void main() async {
           ),
           BlocProvider(
             create: (_) => di.sl<GlobalBloc>(),
+          ),
+          BlocProvider(
+            create: (_) => di.sl<ChatBloc>(),
           ),
           BlocProvider(
             create: (_) => di.sl<AuthBloc>(),

@@ -45,8 +45,11 @@ class ProfileProductCard extends StatelessWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.all(1.5),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
+                child: ClipSmoothRect(
+                  radius: SmoothBorderRadius(
+                    cornerRadius: 16,
+                    cornerSmoothing: 0.8,
+                  ),
                   child: AspectRatio(
                     aspectRatio: 1,
                     child: CachedNetworkImage(

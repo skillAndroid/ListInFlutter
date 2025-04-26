@@ -305,9 +305,9 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 1.2),
       child: AspectRatio(
-        aspectRatio: 9 / 14.5,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
+        aspectRatio: 9 / 16,
+        child: ClipSmoothRect(
+          radius: SmoothBorderRadius(cornerRadius: 16, cornerSmoothing: 0.8),
           child: Stack(
             children: [
               PageView.builder(
@@ -367,12 +367,12 @@ class _UserInfoHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 6, horizontal: 6),
+      padding: EdgeInsets.symmetric(vertical: 4, horizontal: 4),
       child: Row(
         children: [
           // Profile image
           CircleAvatar(
-            radius: 17,
+            radius: 14,
             backgroundColor:
                 Theme.of(context).colorScheme.secondary.withOpacity(0.5),
             child: seller.imageUrl != null
@@ -380,8 +380,8 @@ class _UserInfoHeader extends StatelessWidget {
                     child: CachedNetworkImage(
                       imageUrl: 'https://${seller.imageUrl}',
                       fit: BoxFit.cover,
-                      width: 32, // 2 * radius
-                      height: 32, // 2 * radius
+                      width: 26, // 2 * radius
+                      height: 26, // 2 * radius
                       memCacheWidth:
                           150, // Low resolution for performance (2x for high DPI)
                       httpHeaders: const {
@@ -398,13 +398,13 @@ class _UserInfoHeader extends StatelessWidget {
                   )
                 : const Icon(Icons.person, color: Colors.white, size: 20),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 8),
 
           Text(
             seller.name,
             style: TextStyle(
               fontWeight: FontWeight.w600,
-              fontSize: 13,
+              fontSize: 11.5,
               color: Theme.of(context).colorScheme.secondary,
             ),
           ),
