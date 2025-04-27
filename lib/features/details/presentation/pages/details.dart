@@ -9,6 +9,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
@@ -42,8 +43,37 @@ import 'package:list_in/global/global_state.dart';
 import 'package:list_in/global/global_status.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:video_player/video_player.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 import '../bloc/details_event.dart';
+
+class DetailsPageUIState {
+  final currentlyPlayingId = ValueNotifier<String?>(null);
+
+  final Map<String, ValueNotifier<double>> visibilityNotifiers = {};
+  final Map<String, ValueNotifier<int>> pageNotifiers = {};
+
+  void ensureProductTrackers(String productId) {
+    visibilityNotifiers.putIfAbsent(productId, () => ValueNotifier(0.0));
+    pageNotifiers.putIfAbsent(productId, () => ValueNotifier(0));
+  }
+
+  double getVisibility(String id) => visibilityNotifiers[id]?.value ?? 0.0;
+  int getPage(String id) => pageNotifiers[id]?.value ?? 0;
+  void updateVisibility(String id, double value) {
+    visibilityNotifiers[id]?.value = value;
+  }
+
+  void dispose() {
+    currentlyPlayingId.dispose();
+    for (final notifier in visibilityNotifiers.values) {
+      notifier.dispose();
+    }
+    for (final notifier in pageNotifiers.values) {
+      notifier.dispose();
+    }
+  }
+}
 
 class ProductDetailsScreen extends StatefulWidget {
   final GetPublicationEntity product;
@@ -58,6 +88,7 @@ class ProductDetailsScreen extends StatefulWidget {
 }
 
 class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
+  late final DetailsPageUIState _uiState;
   final PageController _pageController = PageController();
   final ScrollController _thumbnailScrollController = ScrollController();
   int _currentPage = 0;
@@ -72,10 +103,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   @override
   void initState() {
     super.initState();
+    _uiState = DetailsPageUIState();
     _initializeVideo();
     // Fixed the syntax error here - was using pageController instead of _pageController
     _pageController.addListener(_handleVideoVisibility);
-    Future.delayed(Duration(milliseconds: 500), () {
+    Future.delayed(Duration(milliseconds: 100), () {
       if (mounted) {
         setState(() {
           _initializationInProgress = false;
@@ -134,6 +166,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
   @override
   void dispose() {
+    _uiState.dispose();
     _videoPlayerController?.dispose();
     // Fixed the syntax error here - was using pageController instead of _pageController
     _pageController.removeListener(_handleVideoVisibility);
@@ -1155,19 +1188,17 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 );
               }
 
-              // Main grid view - non-scrollable to work with the parent's scrolling
-              return GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 0.635,
-                  crossAxisSpacing: 0,
-                  mainAxisSpacing: 0,
-                ),
+              return MasonryGridView.builder(
                 physics: NeverScrollableScrollPhysics(), // Disable scrolling
                 shrinkWrap:
                     true, // Important for working with parent ScrollView
                 itemCount:
                     state.publications.length + (state.isLoadingMore ? 1 : 0),
+                gridDelegate: SliverSimpleGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                ),
+                mainAxisSpacing: 2.0,
+                crossAxisSpacing: 1.5,
                 itemBuilder: (context, index) {
                   // Check if we need to load more
                   if (index >= state.publications.length - 4 &&
@@ -1189,13 +1220,19 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                         ),
                       );
                     }
-                    return null;
+                    return SizedBox();
                   }
-
+                  // Determine if item should use advertised card based on video URL
+                  final bool isAdvertised =
+                      state.publications[index].videoUrl != null;
                   final publication = state.publications[index];
-                  return ProductCardContainer(
-                    product: publication,
-                  );
+                  return isAdvertised
+                      ? _buildAdvertisedProduct(
+                          publication,
+                        )
+                      : ProductCardContainer(
+                          product: publication,
+                        );
                 },
               );
             },
@@ -1205,6 +1242,55 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         // Bottom padding
         SizedBox(height: 16),
       ],
+    );
+  }
+
+  void _handleVisibilityChanged(String id, double visibilityFraction) {
+    if (_uiState.getVisibility(id) != visibilityFraction) {
+      _uiState.updateVisibility(id, visibilityFraction);
+      _updateMostVisibleVideo();
+    }
+  }
+
+  void _updateMostVisibleVideo() {
+    String? mostVisibleId;
+    double maxVisibility = 0.0;
+
+    _uiState.visibilityNotifiers.forEach((id, notifier) {
+      final visibility = notifier.value;
+      final currentPage = _uiState.getPage(id);
+
+      if (visibility > maxVisibility &&
+          currentPage == 0 &&
+          visibility > _videoVisibilityThreshold) {
+        maxVisibility = visibility;
+        mostVisibleId = id;
+      }
+    });
+
+    if (mostVisibleId != _uiState.currentlyPlayingId.value) {
+      _uiState.currentlyPlayingId.value = mostVisibleId;
+    }
+  }
+
+  Widget _buildAdvertisedProduct(GetPublicationEntity product) {
+    _uiState.ensureProductTrackers(product.id);
+
+    return ValueListenableBuilder<double>(
+      valueListenable: _uiState.visibilityNotifiers[product.id]!,
+      builder: (context, visibility, _) {
+        return VisibilityDetector(
+          key: Key('detector_${product.id}'),
+          onVisibilityChanged: (info) => _handleVisibilityChanged(
+            product.id,
+            info.visibleFraction,
+          ),
+          child: OptimizedAdvertisedCard(
+            product: product,
+            currentlyPlayingId: _uiState.currentlyPlayingId,
+          ),
+        );
+      },
     );
   }
 

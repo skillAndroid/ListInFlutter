@@ -411,8 +411,8 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
       padding: const EdgeInsets.symmetric(horizontal: 4),
       sliver: PagedSliverMasonryGrid.count(
         crossAxisCount: 2,
-        mainAxisSpacing: 0,
-        crossAxisSpacing: 0,
+        mainAxisSpacing: 2.0,
+        crossAxisSpacing: 1.5,
         pagingController: _pagingState.pagingController,
         builderDelegate: PagedChildBuilderDelegate<GetPublicationEntity>(
           firstPageProgressIndicatorBuilder: (_) => const Progress(),
@@ -635,13 +635,14 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                             height: 38,
                             color: Theme.of(context).colorScheme.secondary,
                           ),
-                          onPressed: () {
+                          onPressed: () async {
                             final currentUserId =
-                                context.read<GlobalBloc>().userId!;
+                                context.read<GlobalBloc>().userId;
                             Navigator.of(context).push(
                               CupertinoPageRoute(
-                                builder: (context) =>
-                                    ChatRoomsPage(userId: currentUserId),
+                                builder: (context) => ChatRoomsPage(
+                                  userId: currentUserId ?? '',
+                                ),
                               ),
                             );
                             //_showChatNotAvailableMessage(context);

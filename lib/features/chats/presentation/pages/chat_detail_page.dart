@@ -1,4 +1,4 @@
-// lib/presentation/pages/chat_detail_page.dart
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -34,12 +34,13 @@ class ChatDetailPage extends StatefulWidget {
   });
 
   @override
-  _ChatDetailPageState createState() => _ChatDetailPageState();
+  State<ChatDetailPage> createState() => _ChatDetailPageState();
 }
 
 class _ChatDetailPageState extends State<ChatDetailPage> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  bool _isFirstLoad = true;
 
   @override
   void initState() {
@@ -54,9 +55,29 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
         );
   }
 
+  @override
+  void dispose() {
+    _messageController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
+  }
+
   void _sendMessage() {
     if (_messageController.text.trim().isNotEmpty) {
       final message = ChatMessage(
+        id: DateTime.now()
+            .millisecondsSinceEpoch
+            .toString(), // Generate temporary ID
         senderId: widget.userId,
         recipientId: widget.recipientId,
         publicationId: widget.publicationId,
@@ -69,16 +90,8 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
       context.read<ChatBloc>().add(SendMessageEvent(message));
       _messageController.clear();
 
-      // Scroll to bottom after sending
-      Future.delayed(const Duration(milliseconds: 100), () {
-        if (_scrollController.hasClients) {
-          _scrollController.animateTo(
-            _scrollController.position.maxScrollExtent,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-          );
-        }
-      });
+      // Schedule scroll after UI update
+      Future.delayed(const Duration(milliseconds: 100), _scrollToBottom);
     }
   }
 
@@ -93,9 +106,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
         title: Row(
           children: [
             CircleAvatar(
-              backgroundImage: NetworkImage(
-                widget.userProfileImage,
-              ),
+              backgroundImage: NetworkImage(widget.userProfileImage),
               radius: 16,
             ),
             const SizedBox(width: 8),
@@ -111,7 +122,8 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                     builder: (context, state) {
                       if (state is ChatHistoryLoaded) {
                         final userStatus =
-                            state.userStatuses[widget.recipientId];
+                            state.userStatuses[widget.recipientId] ??
+                                UserStatus.OFFLINE;
                         return Text(
                           userStatus == UserStatus.ONLINE
                               ? 'Online'
@@ -148,8 +160,16 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Image.network(
-                        'http://listin.uz${widget.publicationImagePath}',
+                        widget.publicationImagePath.startsWith('http')
+                            ? widget.publicationImagePath
+                            : 'http://listin.uz${widget.publicationImagePath}',
                         height: 100,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          height: 100,
+                          width: 100,
+                          color: Colors.grey[300],
+                          child: const Icon(Icons.error),
+                        ),
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -170,7 +190,21 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
       body: Column(
         children: [
           Expanded(
-            child: BlocBuilder<ChatBloc, ChatState>(
+            child: BlocConsumer<ChatBloc, ChatState>(
+              listener: (context, state) {
+                if (state is ChatHistoryLoaded && _isFirstLoad) {
+                  _isFirstLoad = false;
+                  // Scroll to bottom on initial load
+                  Future.delayed(
+                      const Duration(milliseconds: 100), _scrollToBottom);
+                }
+
+                if (state is ChatHistoryLoaded && !_isFirstLoad) {
+                  // Scroll to bottom when new messages arrive
+                  Future.delayed(
+                      const Duration(milliseconds: 50), _scrollToBottom);
+                }
+              },
               builder: (context, state) {
                 if (state is ChatLoading) {
                   return const Center(
@@ -182,9 +216,8 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Image.network(
-                                'http://listin.uz${widget.publicationImagePath}',
-                                height: 100,
+                              CachedNetworkImage(
+                                imageUrl: widget.publicationImagePath,
                               ),
                               const SizedBox(height: 16),
                               Text(
@@ -218,7 +251,25 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                         );
                 } else if (state is ChatError) {
                   return Center(
-                    child: Text('Error: ${state.message}'),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text('Error: ${state.message}'),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () {
+                            context.read<ChatBloc>().add(
+                                  LoadChatHistoryEvent(
+                                    publicationId: widget.publicationId,
+                                    senderId: widget.userId,
+                                    recipientId: widget.recipientId,
+                                  ),
+                                );
+                          },
+                          child: const Text('Retry'),
+                        ),
+                      ],
+                    ),
                   );
                 } else {
                   return const Center(
@@ -250,11 +301,11 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                     child: CupertinoTextField(
                       decoration:
                           BoxDecoration(color: AppColors.containerColor),
-                      padding: EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(12),
                       controller: _messageController,
                       minLines: 1,
                       placeholder: "Write something",
-                      style: TextStyle(fontFamily: Constants.Arial),
+                      style: const TextStyle(fontFamily: Constants.Arial),
                       maxLines: 10,
                       textCapitalization: TextCapitalization.sentences,
                       onSubmitted: (_) => _sendMessage(),

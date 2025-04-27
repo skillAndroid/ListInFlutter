@@ -34,7 +34,7 @@ class ChatRoomModel extends ChatRoom {
       publicationTitle: json['publicationTitle'],
       publicationPrice: json['publicationPrice'],
       recipientId: json['recipientId'],
-      recipientImagePath: json['recipientImagePath'],
+      recipientImagePath: json['recipientImagePath'] ?? '',
       recipientNickname: json['recipientNickname'],
       lastMessage: json['lastMessage'] != null
           ? ChatMessageModel.fromJson(json['lastMessage'])

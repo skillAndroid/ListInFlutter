@@ -349,8 +349,8 @@ class _ChildHomeTreePageState extends State<ChildHomeTreePage> {
       padding: const EdgeInsets.symmetric(horizontal: 4),
       sliver: PagedSliverMasonryGrid.count(
         crossAxisCount: 2,
-        mainAxisSpacing: 1,
-        crossAxisSpacing: 0,
+        mainAxisSpacing: 2.0,
+        crossAxisSpacing: 1.5,
         pagingController: _pagingState.pagingController,
         builderDelegate: PagedChildBuilderDelegate<GetPublicationEntity>(
           firstPageProgressIndicatorBuilder: (_) => const Progress(),

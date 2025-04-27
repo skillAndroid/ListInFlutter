@@ -7,6 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:list_in/config/assets/app_icons.dart';
@@ -1132,7 +1133,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
             ),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              childAspectRatio: 0.635,
+              childAspectRatio: 0.6,
               crossAxisSpacing: 0,
               mainAxisSpacing: 0,
             ),
@@ -1152,34 +1153,29 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
       builder: (context, state) {
         return SliverPadding(
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-          sliver: SliverGrid(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                if (index >= state.publications.length) {
-                  if (state.isLoading) {
-                    return const Center(child: Progress());
-                  }
-                  return null;
-                }
+          sliver: SliverMasonryGrid.count(
+            crossAxisCount: 2,
+            mainAxisSpacing: 2,
+            crossAxisSpacing: 2,
+            itemBuilder: (context, index) {
+              if (index >= state.publications.length) {
+                // Always return a widget, not null
+                return state.isLoading
+                    ? const Center(child: Progress())
+                    : const SizedBox.shrink(); // Empty widget instead of null
+              }
 
-                final publication = state.publications[index];
-                return Padding(
-                  padding: const EdgeInsets.all(0),
-                  child: ProductCardContainer(
-                    key: ValueKey(
-                        publication.id), // Add key for better list updates
-                    product: publication,
-                  ),
-                );
-              },
-              childCount: state.publications.length + (state.isLoading ? 1 : 0),
-            ),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 0.635,
-              crossAxisSpacing: 0,
-              mainAxisSpacing: 0,
-            ),
+              final publication = state.publications[index];
+              return Padding(
+                padding: const EdgeInsets.all(0),
+                child: ProductCardContainer(
+                  key: ValueKey(
+                      publication.id), // Add key for better list updates
+                  product: publication,
+                ),
+              );
+            },
+            childCount: state.publications.length + (state.isLoading ? 1 : 0),
           ),
         );
       },

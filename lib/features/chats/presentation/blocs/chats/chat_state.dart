@@ -10,6 +10,8 @@ abstract class ChatState extends Equatable {
 
 class ChatInitial extends ChatState {}
 
+class ChatInitialized extends ChatState {}
+
 class ChatLoading extends ChatState {}
 
 class ChatRoomsLoaded extends ChatState {

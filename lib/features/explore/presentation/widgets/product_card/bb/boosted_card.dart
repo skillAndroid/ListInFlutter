@@ -216,14 +216,14 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // User info section at top
-          _UserInfoHeader(seller: widget.model.seller),
+          //    _UserInfoHeader(seller: widget.model.seller),
 
           // Media carousel
           _buildMediaCarousel(),
 
           // Product info section
           Padding(
-            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+            padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -245,40 +245,25 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
                             color: Theme.of(context).colorScheme.secondary,
                           ),
                         ),
-                        TextSpan(
-                          text: " ${widget.model.description}",
-                          style: TextStyle(
-                            fontSize: 11,
-                            height: 1.2,
-                            fontFamily: Constants.Arial,
-                            fontWeight: FontWeight.w400,
-                            color: Theme.of(context).colorScheme.surface,
-                          ),
-                        ),
                       ],
                     ),
                   ),
                 ),
-                const SizedBox(height: 8),
+                // const SizedBox(height: 4),
 
                 // Price and action buttons
                 Row(
                   children: [
+                    SizedBox(
+                      width: 4,
+                    ),
                     // Price
-                    Container(
-                      decoration: BoxDecoration(
-                        color: AppColors.littleGreen,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
-                      child: Text(
-                        formatPrice(widget.model.price.toString()),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          color: AppColors.black,
-                        ),
+                    Text(
+                      formatPrice(widget.model.price.toString()),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: AppColors.black,
                       ),
                     ),
                     const Spacer(),
@@ -303,11 +288,11 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
 
   Widget _buildMediaCarousel() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 1.2),
+      padding: EdgeInsets.symmetric(horizontal: 1.5),
       child: AspectRatio(
         aspectRatio: 9 / 16,
-        child: ClipSmoothRect(
-          radius: SmoothBorderRadius(cornerRadius: 16, cornerSmoothing: 0.8),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
           child: Stack(
             children: [
               PageView.builder(
@@ -334,7 +319,7 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
                 top: 10,
                 right: 14,
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: Theme.of(context)
                         .scaffoldBackgroundColor
@@ -428,8 +413,8 @@ class _ActionButton extends StatelessWidget {
     final isDisabled = onPressed == null;
 
     return SizedBox(
-      width: 30, // Control the overall width
-      height: 30, // Control the overall height
+      width: 24, // Control the overall width
+      height: 24, // Control the overall height
       child: IconButton(
         onPressed: onPressed,
         padding: EdgeInsets.zero, // Remove padding
@@ -468,7 +453,7 @@ class OptimizedLikeButton extends StatefulWidget {
     required this.isOwner,
     required this.isLiked,
     required this.likeStatus,
-    this.size = 36,
+    this.size = 32,
     this.bootom = 8,
     this.right = 8,
   });
@@ -601,6 +586,7 @@ class _MediaContent extends StatelessWidget {
       key: ValueKey('image_$productId'),
       imageUrl: _getFormattedUrl(imageUrl),
       fit: BoxFit.cover,
+      fadeInDuration: const Duration(milliseconds: 200),
       placeholder: (context, url) => Container(
         color: Theme.of(context).cardColor,
         child: const Progress(),
@@ -609,7 +595,6 @@ class _MediaContent extends StatelessWidget {
         color: Theme.of(context).cardColor,
         child: const Center(child: Icon(Icons.error)),
       ),
-      filterQuality: FilterQuality.low,
     );
   }
 }

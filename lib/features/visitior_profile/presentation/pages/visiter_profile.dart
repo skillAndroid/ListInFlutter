@@ -7,6 +7,7 @@ import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
@@ -837,44 +838,39 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
 
         return SliverPadding(
           padding: EdgeInsets.only(bottom: 16, left: 4, right: 4, top: 12),
-          sliver: SliverGrid(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                // Check if we need to load more
-                if (index >= state.publications.length - 4 &&
-                    !state.isLoadingMore &&
-                    !state.hasReachedEnd) {
-                  context.read<AnotherUserProfileBloc>().add(
-                        FetchPublications(
-                          userId: state.profile?.id ?? '',
-                        ),
-                      );
-                }
+          sliver: SliverMasonryGrid.count(
+            crossAxisCount: 2,
+            mainAxisSpacing: 2,
+            crossAxisSpacing: 2,
+            childCount:
+                state.publications.length + (state.isLoadingMore ? 1 : 0),
+            itemBuilder: (context, index) {
+              // Check if we need to load more
+              if (index >= state.publications.length - 4 &&
+                  !state.isLoadingMore &&
+                  !state.hasReachedEnd) {
+                context.read<AnotherUserProfileBloc>().add(
+                      FetchPublications(
+                        userId: state.profile?.id ?? '',
+                      ),
+                    );
+              }
 
-                if (index == state.publications.length) {
-                  if (state.isLoadingMore) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  return null;
-                }
+              if (index == state.publications.length) {
+                // Always return a widget, not null
+                return state.isLoadingMore
+                    ? const Center(child: CircularProgressIndicator())
+                    : const SizedBox.shrink(); // Empty widget instead of null
+              }
 
-                final publication = state.publications[index];
-                return Padding(
-                  padding: const EdgeInsets.all(0),
-                  child: ProductCardContainer(
-                    product: publication,
-                  ),
-                );
-              },
-              childCount:
-                  state.publications.length + (state.isLoadingMore ? 1 : 0),
-            ),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 0,
-              mainAxisSpacing: 0,
-              childAspectRatio: 0.75,
-            ),
+              final publication = state.publications[index];
+              return Padding(
+                padding: const EdgeInsets.all(0),
+                child: ProductCardContainer(
+                  product: publication,
+                ),
+              );
+            },
           ),
         );
       },

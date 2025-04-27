@@ -7,6 +7,9 @@ abstract class ChatEvent extends Equatable {
   List<Object?> get props => [];
 }
 
+// chat_event.dart (add this new event)
+class WebSocketConnectedEvent extends ChatEvent {}
+
 class InitializeChatEvent extends ChatEvent {
   final String userId;
 

@@ -37,6 +37,8 @@ import 'package:list_in/features/chats/domain/usecase/connect_user_usecase.dart'
 import 'package:list_in/features/chats/domain/usecase/disconnect_user_usecase.dart';
 import 'package:list_in/features/chats/domain/usecase/get_chat_history_usecase.dart';
 import 'package:list_in/features/chats/domain/usecase/get_chat_rooms_usecase.dart';
+import 'package:list_in/features/chats/domain/usecase/get_messages_stream_usecase.dart';
+import 'package:list_in/features/chats/domain/usecase/get_user_status_usecase.dart';
 import 'package:list_in/features/chats/domain/usecase/send_message_usecase.dart';
 import 'package:list_in/features/chats/presentation/blocs/chats/chat_bloc.dart';
 import 'package:list_in/features/details/presentation/bloc/details_bloc.dart';
@@ -223,6 +225,8 @@ void registerChatFeature(GetIt sl, String currentUserId) {
   sl.registerLazySingleton(() => SendMessageUseCase(sl()));
   sl.registerLazySingleton(() => ConnectUserUseCase(sl()));
   sl.registerLazySingleton(() => DisconnectUserUseCase(sl()));
+  sl.registerLazySingleton(() => GetMessageStreamUseCase(sl()));
+  sl.registerLazySingleton(() => GetUserStatusStreamUseCase(sl()));
 
   // BLoCs
   sl.registerFactory(
@@ -232,6 +236,8 @@ void registerChatFeature(GetIt sl, String currentUserId) {
       sendMessageUseCase: sl(),
       connectUserUseCase: sl(),
       disconnectUserUseCase: sl(),
+      getMessageStreamUseCase: sl(),
+      getUserStatusStreamUseCase: sl(),
     ),
   );
 }

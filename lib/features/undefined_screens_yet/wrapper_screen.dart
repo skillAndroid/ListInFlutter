@@ -3,6 +3,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/assets/app_icons.dart';
@@ -78,6 +79,15 @@ class _MainWrapperState extends State<MainWrapper> {
         setState(() {
           _isDarkMode = inVideoFeeds;
         });
+        // Set system navigation bar style
+        SystemChrome.setSystemUIOverlayStyle(
+          SystemUiOverlayStyle(
+            systemNavigationBarColor:
+                _isDarkMode ? AppColors.black : Colors.white,
+            systemNavigationBarIconBrightness:
+                _isDarkMode ? Brightness.light : Brightness.dark,
+          ),
+        );
       });
     }
 
@@ -100,7 +110,7 @@ class _MainWrapperState extends State<MainWrapper> {
         backgroundColor: backgroundColor,
         body: widget.navigationShell,
         bottomNavigationBar: Container(
-          height: 55,
+          height: 50,
           decoration: BoxDecoration(
             color: backgroundColor,
             border: Border(
@@ -147,7 +157,7 @@ class _MainWrapperState extends State<MainWrapper> {
     return InkWell(
       onTap: () => _goToBranch(index),
       child: Padding(
-        padding: const EdgeInsets.only(top: 6),
+        padding: const EdgeInsets.only(top: 5),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -177,7 +187,7 @@ class _MainWrapperState extends State<MainWrapper> {
     return InkWell(
       onTap: () => _goToBranch(1),
       child: Padding(
-        padding: const EdgeInsets.only(top: 6),
+        padding: const EdgeInsets.only(top: 5),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

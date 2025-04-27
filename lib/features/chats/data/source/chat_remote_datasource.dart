@@ -18,6 +18,7 @@ class ChatRemoteDataSource {
   final Dio dio;
   final String baseUrl = 'http://listin.uz';
   StompClient? _stompClient;
+  bool _isConnected = false;
 
   final _messageStreamController =
       StreamController<ChatMessageModel>.broadcast();
@@ -35,77 +36,144 @@ class ChatRemoteDataSource {
   });
 
   Future<void> initializeWebSocket(String userId) async {
+    if (_isConnected) {
+      print('WebSocket already connected');
+      return;
+    }
+
     final authToken = await authLocalDataSource.getLastAuthToken();
     if (authToken == null) {
       throw UnauthorizedException('No auth token found');
     }
+
     final wsUrl = 'ws://listin.uz:80/ws?token=${authToken.accessToken}';
-    _stompClient = StompClient(
-      config: StompConfig(
-        url: wsUrl,
-        beforeConnect: () async {
-          print('Attempting to connect to WebSocket...');
-          print('Using token: ${authToken.accessToken}...');
-        },
-        onWebSocketError: (dynamic error) {
-          print('WebSocket Error: $error');
-        },
-        onStompError: (StompFrame frame) {
-          print('STOMP Error: ${frame.body}');
-        },
-        onConnect: (StompFrame frame) {
-          // Subscribe to private message channel
-          _stompClient!.subscribe(
-            destination: '/user/$userId/queue/messages',
-            callback: (StompFrame frame) {
-              if (frame.body != null) {
-                final message =
-                    ChatMessageModel.fromJson(jsonDecode(frame.body!));
-                _messageStreamController.add(message);
-              }
-            },
-          );
 
-          // Subscribe to user status updates
-          _stompClient!.subscribe(
-            destination: '/user/public',
-            callback: (StompFrame frame) {
-              if (frame.body != null) {
-                final data = jsonDecode(frame.body!);
-                final userStatus = UserConnectionInfo(
-                  nickName: data['nickName'],
-                  email: data['email'],
-                  status: data['status'] == 'ONLINE'
-                      ? UserStatus.ONLINE
-                      : UserStatus.OFFLINE,
-                );
-                _userStatusStreamController.add(userStatus);
-              }
-            },
-          );
-        },
-      ),
-    );
+    try {
+      _stompClient = StompClient(
+        config: StompConfig(
+          url: wsUrl,
+          beforeConnect: () async {
+            print('💋💋Attempting to connect to WebSocket...');
+            print('💋💋Using token: ${authToken.accessToken}...');
+          },
+          onWebSocketError: (dynamic error) {
+            print('💋💋WebSocket Error: $error');
+            _isConnected = false;
+          },
+          onStompError: (StompFrame frame) {
+            print('💋💋STOMP Error: ${frame.body}');
+          },
+          onConnect: (StompFrame frame) {
+            _isConnected = true;
+            print('💋💋Connected to WebSocket');
 
-    _stompClient!.activate();
+            // // Subscribe to global messages
+            // _stompClient!.subscribe(
+            //   destination: '/topic/messages',
+            //   callback: (StompFrame frame) {
+            //     print('💋💋Received message from /topic/messages');
+            //     if (frame.body != null) {
+            //       try {
+            //         final message =
+            //             ChatMessageModel.fromJson(jsonDecode(frame.body!));
+            //         print('Parsed message: ${message.content}');
+            //         _messageStreamController.add(message);
+            //       } catch (e) {
+            //         print('Error parsing message: $e');
+            //       }
+            //     }
+            //   },
+            // );
+
+            // Subscribe to private message channel
+            _stompClient!.subscribe(
+              destination: '/user/$userId/queue/messages',
+              callback: (StompFrame frame) {
+                print('💋💋Received message from /user/$userId/queue/messages');
+                if (frame.body != null) {
+                  try {
+                    final message =
+                        ChatMessageModel.fromJson(jsonDecode(frame.body!));
+                    print('💋💋Parsed private message: ${message.content}');
+                    _messageStreamController.add(message);
+                  } catch (e) {
+                    print('💋💋Error parsing private message: $e');
+                  }
+                }
+              },
+            );
+
+            // Subscribe to user status updates
+            _stompClient!.subscribe(
+              destination: '/topic/user-status',
+              callback: (StompFrame frame) {
+                if (frame.body != null) {
+                  try {
+                    final data = jsonDecode(frame.body!);
+                    final userStatus = UserConnectionInfo(
+                      nickName: data['nickName'],
+                      email: data['email'],
+                      status: data['status'] == 'ONLINE'
+                          ? UserStatus.ONLINE
+                          : UserStatus.OFFLINE,
+                    );
+                    _userStatusStreamController.add(userStatus);
+                  } catch (e) {
+                    print('Error parsing user status: $e');
+                  }
+                }
+              },
+            );
+          },
+          // Add reconnect delay to handle disconnections
+          reconnectDelay: Duration(seconds: 5),
+        ),
+      );
+
+      _stompClient!.activate();
+    } catch (e) {
+      print('Error initializing WebSocket: $e');
+      throw Exception('Failed to initialize WebSocket: $e');
+    }
   }
 
   Future<void> disconnectWebSocket() async {
-    _stompClient?.deactivate();
+    if (_stompClient != null) {
+      _stompClient!.deactivate();
+      _isConnected = false;
+    }
   }
 
   Future<void> connectUser(UserConnectionInfo connectionInfo) async {
-    _stompClient?.send(
-      destination: '/app/user.connectUser',
-      body: jsonEncode(connectionInfo.toJson()),
-    );
+    if (!_isConnected) {
+      print('WebSocket not connected. Cannot send user connection info.');
+      return;
+    }
+
+    try {
+      _stompClient?.send(
+        destination: '/app/user.connectUser',
+        body: jsonEncode(connectionInfo.toJson()),
+      );
+    } catch (e) {
+      print('Error connecting user: $e');
+    }
   }
 
   Future<void> disconnectUser(UserConnectionInfo connectionInfo) async {
-    _stompClient?.send(
-      destination: '/app/user.disconnectUser',
-      body: jsonEncode(connectionInfo.toJson()),
-    );
+    if (!_isConnected) {
+      print('WebSocket not connected. Cannot send user disconnection info.');
+      return;
+    }
+
+    try {
+      _stompClient?.send(
+        destination: '/app/user.disconnectUser',
+        body: jsonEncode(connectionInfo.toJson()),
+      );
+    } catch (e) {
+      print('Error disconnecting user: $e');
+    }
   }
 
   Future<void> sendMessage({
@@ -115,32 +183,46 @@ class ChatRemoteDataSource {
     required String publicationId,
     required String content,
   }) async {
+    if (!_isConnected) {
+      print('WebSocket not connected. Cannot send message.');
+      throw Exception('WebSocket not connected');
+    }
+
     final message = {
-      'id': id,
       'senderId': senderId,
       'recipientId': recipientId,
       'publicationId': publicationId,
       'content': content,
     };
 
-    _stompClient?.send(
-      destination: '/app/chat',
-      body: jsonEncode(message),
-    );
+    try {
+      _stompClient?.send(
+        destination: '/app/chat',
+        body: jsonEncode(message),
+      );
+    } catch (e) {
+      print('Error sending message: $e');
+      throw Exception('Failed to send message: $e');
+    }
   }
 
   Future<List<ChatRoomModel>> getChatRooms(String userId) async {
-    final options = await authService.getAuthOptions();
-    final response = await dio.get(
-      '/chat-rooms/$userId',
-      options: options,
-    );
+    try {
+      final options = await authService.getAuthOptions();
+      final response = await dio.get(
+        '$baseUrl/chat-rooms/$userId',
+        options: options,
+      );
 
-    if (response.statusCode == 200) {
-      final List<dynamic> roomsJson = response.data;
-      return roomsJson.map((json) => ChatRoomModel.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to load chat rooms');
+      if (response.statusCode == 200) {
+        final List<dynamic> roomsJson = response.data;
+        return roomsJson.map((json) => ChatRoomModel.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to load chat rooms: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching chat rooms: $e');
+      throw Exception('Failed to load chat rooms: $e');
     }
   }
 
@@ -149,25 +231,30 @@ class ChatRemoteDataSource {
     String senderId,
     String recipientId,
   ) async {
-    final options = await authService.getAuthOptions();
-    final response = await dio.get(
-      '/messages/$publicationId/$senderId/$recipientId',
-      options: options,
-    );
+    try {
+      final options = await authService.getAuthOptions();
+      final response = await dio.get(
+        '$baseUrl/messages/$publicationId/$senderId/$recipientId',
+        options: options,
+      );
 
-    if (response.statusCode == 200) {
-      final List<dynamic> messagesJson = response.data;
-      return messagesJson
-          .map((json) => ChatMessageModel.fromJson(json))
-          .toList();
-    } else {
-      throw Exception('Failed to load chat history');
+      if (response.statusCode == 200) {
+        final List<dynamic> messagesJson = response.data;
+        return messagesJson
+            .map((json) => ChatMessageModel.fromJson(json))
+            .toList();
+      } else {
+        throw Exception('Failed to load chat history: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching chat history: $e');
+      throw Exception('Failed to load chat history: $e');
     }
   }
 
   void dispose() {
     _messageStreamController.close();
     _userStatusStreamController.close();
-    _stompClient?.deactivate();
+    disconnectWebSocket();
   }
 }

@@ -95,12 +95,12 @@ class OptimizedProductCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: EdgeInsets.all(1.2),
+        margin: EdgeInsets.all(1.5),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ProductImageSection(
-              aspectRatio: _imageAspectRatio,
+              //  aspectRatio: _imageAspectRatio,
               imageUrl: model.images.firstOrNull,
               condition: model.condition,
               likes: model.likes,
@@ -131,7 +131,6 @@ class OptimizedProductCard extends StatelessWidget {
 }
 
 class ProductImageSection extends StatelessWidget {
-  final double aspectRatio;
   final String? imageUrl;
   final String condition;
   final int likes;
@@ -140,9 +139,13 @@ class ProductImageSection extends StatelessWidget {
   final String id;
   final LikeStatus likeStatus;
 
+  // Aspect ratio constraints (width/height)
+  final double minAspectRatio = 1.23; // 1:1 for square (minimum width = height)
+  final double maxAspectRatio =
+      0.7; // 3:4 for tall images (minimum height = 4/3 * width)
+
   const ProductImageSection({
     super.key,
-    required this.aspectRatio,
     required this.imageUrl,
     required this.condition,
     required this.likes,
@@ -154,49 +157,138 @@ class ProductImageSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AspectRatio(
-      aspectRatio: aspectRatio,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(0),
-            child: ClipSmoothRect(
-              radius:
-                  SmoothBorderRadius(cornerRadius: 16, cornerSmoothing: 0.8),
-              child: _buildImage(),
-            ),
-          ),
-          if (!isOwner)
-            Positioned(
-              bottom: 8,
-              right: 8,
-              child: OptimizedLikeButton(
-                productId: id,
-                likes: likes,
-                isOwner: isOwner,
-                isLiked: isLiked,
-                likeStatus: likeStatus,
-              ),
-            ),
-        ],
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: AspectRatioMaintainer(
+        imageUrl: imageUrl,
+        minAspectRatio: minAspectRatio,
+        maxAspectRatio: maxAspectRatio,
+        builder: (context, childSize, child) {
+          return Stack(
+            fit: StackFit.passthrough,
+            children: [
+              child,
+              if (!isOwner)
+                Positioned(
+                  bottom: 8,
+                  right: 8,
+                  child: OptimizedLikeButton(
+                    productId: id,
+                    likes: likes,
+                    isOwner: isOwner,
+                    isLiked: isLiked,
+                    likeStatus: likeStatus,
+                  ),
+                ),
+            ],
+          );
+        },
       ),
     );
   }
+}
 
-  Widget _buildImage() {
-    return imageUrl != null
-        ? CachedNetworkImage(
-            imageUrl: 'https://$imageUrl',
-            fit: BoxFit.cover,
-            width: double.infinity,
-            height: double.infinity,
-            fadeInDuration: const Duration(milliseconds: 300),
-            placeholder: _ImagePlaceholder.new,
-            errorWidget: _ImageError.new,
-            filterQuality: FilterQuality.medium,
-          )
-        : const _DefaultImage();
+// Widget to load the image and maintain aspect ratio within constraints
+class AspectRatioMaintainer extends StatefulWidget {
+  final String? imageUrl;
+  final double minAspectRatio;
+  final double maxAspectRatio;
+  final Widget Function(BuildContext context, Size childSize, Widget child)
+      builder;
+
+  const AspectRatioMaintainer({
+    super.key,
+    required this.imageUrl,
+    required this.minAspectRatio,
+    required this.maxAspectRatio,
+    required this.builder,
+  });
+
+  @override
+  State<AspectRatioMaintainer> createState() => _AspectRatioMaintainerState();
+}
+
+class _AspectRatioMaintainerState extends State<AspectRatioMaintainer> {
+  Size _imageSize = Size.zero;
+  bool _isLoading = true;
+  late final ImageProvider _imageProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.imageUrl != null) {
+      _imageProvider = CachedNetworkImageProvider('https://${widget.imageUrl}');
+      _loadImage();
+    }
+  }
+
+  void _loadImage() {
+    final ImageStream stream = _imageProvider.resolve(ImageConfiguration.empty);
+    final ImageStreamListener listener = ImageStreamListener(
+      (ImageInfo info, bool synchronousCall) {
+        if (mounted) {
+          setState(() {
+            _imageSize = Size(
+              info.image.width.toDouble(),
+              info.image.height.toDouble(),
+            );
+            _isLoading = false;
+          });
+        }
+      },
+      onError: (exception, stackTrace) {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      },
+    );
+
+    stream.addListener(listener);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.imageUrl == null) {
+      return widget.builder(context, Size.zero, const _DefaultImage());
+    }
+
+    if (_isLoading) {
+      return widget.builder(
+        context,
+        Size.zero,
+        _ImagePlaceholder(context, '${widget.imageUrl}'),
+      );
+    }
+
+    // Calculate constrained aspect ratio
+    double aspectRatio = _imageSize.width / _imageSize.height;
+    BoxFit imageFit = BoxFit.contain;
+
+    // Determine if we need to crop the image to fill space
+    if (aspectRatio > widget.minAspectRatio) {
+      aspectRatio = widget.minAspectRatio; // Cap to minimum (1:1)
+      imageFit = BoxFit.cover; // Use cover to crop and fill
+    } else if (aspectRatio < widget.maxAspectRatio) {
+      aspectRatio = widget.maxAspectRatio; // Cap to maximum (3:4)
+      imageFit = BoxFit.cover; // Use cover to crop and fill
+    }
+
+    return AspectRatio(
+      aspectRatio: aspectRatio,
+      child: widget.builder(
+        context,
+        _imageSize,
+        CachedNetworkImage(
+          imageUrl: 'https://${widget.imageUrl}',
+          fit: imageFit, // Now using the appropriate BoxFit
+          fadeInDuration: const Duration(milliseconds: 200),
+          placeholder: _ImagePlaceholder.new,
+          errorWidget: _ImageError.new,
+        ),
+      ),
+    );
   }
 }
 
@@ -340,16 +432,16 @@ class ProductDetailsSection extends StatelessWidget {
             fontFamily: Constants.Arial,
           ),
         ), //
-        Text(
-          location,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.surface,
-            fontSize: 12,
-            fontWeight: FontWeight.w300,
-          ),
-        ),
+        // Text(
+        //   location,
+        //   maxLines: 1,
+        //   overflow: TextOverflow.ellipsis,
+        //   style: TextStyle(
+        //     color: Theme.of(context).colorScheme.surface,
+        //     fontSize: 12,
+        //     fontWeight: FontWeight.w300,
+        //   ),
+        // ),
         const SizedBox(height: 4),
       ],
     );

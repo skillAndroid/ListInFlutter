@@ -137,12 +137,16 @@ class MyApp extends StatelessWidget {
                 debugShowCheckedModeBanner: false,
                 routerConfig: router,
                 builder: (context, child) {
-                  // This is where we control padding for top and bottom system UI
-                  return SafeArea(
-                    // Only apply padding to the bottom, not to the top
-                    top: false,
-                    bottom: true,
-                    child: child ?? const SizedBox(),
+                  return Container(
+                    color: isDarkMode
+                        ? AppTheme.darkTheme.scaffoldBackgroundColor
+                        : AppTheme.lightTheme.scaffoldBackgroundColor,
+                    child: SafeArea(
+                      // Only apply padding to the bottom, not to the top
+                      top: false,
+                      bottom: true,
+                      child: child ?? const SizedBox(),
+                    ),
                   );
                 },
                 localizationsDelegates: const [
