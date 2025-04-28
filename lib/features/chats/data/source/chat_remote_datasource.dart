@@ -16,7 +16,7 @@ class ChatRemoteDataSource {
   final AuthLocalDataSource authLocalDataSource;
   final AuthService authService;
   final Dio dio;
-  final String baseUrl = 'https://812e-195-158-20-242.ngrok-free.app';
+  final String baseUrl = 'http://listin.uz';
   StompClient? _stompClient;
   bool _isConnected = false;
 
@@ -46,8 +46,7 @@ class ChatRemoteDataSource {
       throw UnauthorizedException('No auth token found');
     }
 
-    final wsUrl =
-        'ws://812e-195-158-20-242.ngrok-free.app:80/ws?token=${authToken.accessToken}';
+    final wsUrl = 'ws://listin.uz:80/ws?token=${authToken.accessToken}';
 
     try {
       _stompClient = StompClient(
@@ -248,6 +247,10 @@ class ChatRemoteDataSource {
   ) async {
     try {
       final options = await authService.getAuthOptions();
+      print('loading history!: ');
+      print('🥶🥶publicationId:$publicationId');
+      print('🥶🥶senderId: $senderId');
+      print('🥶🥶recipientId: $recipientId');
       final response = await dio.get(
         '$baseUrl/messages/$publicationId/$senderId/$recipientId',
         options: options,

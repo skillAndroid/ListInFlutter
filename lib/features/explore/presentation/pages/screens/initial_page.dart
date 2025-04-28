@@ -17,6 +17,7 @@ import 'package:list_in/core/language/language_bloc.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/chats/presentation/pages/chat_rooms_page.dart';
+import 'package:list_in/features/chats/presentation/provider/chats/chat_bloc.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
@@ -174,6 +175,11 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
 
   void _fetchInitialData() {
     context.read<UserProfileBloc>().add(GetUserData());
+    context.read<UserProfileBloc>().add(GetUserData());
+    final userId = context.read<GlobalBloc>().userId;
+    if (userId != null) {
+      context.read<ChatProvider>().initializeChat(userId);
+    }
     context.read<HomeTreeCubit>().fetchCatalogs();
     context.read<HomeTreeCubit>().fetchLocations();
   }

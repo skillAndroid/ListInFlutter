@@ -32,6 +32,7 @@ class ChatRepositoryImpl implements ChatRepository {
       print('Repository: WebSocket already initialized for user $userId');
       return;
     }
+
     _initializedUserId = userId;
     _initializing = true;
     _initialConnectionCompleter = Completer<void>();

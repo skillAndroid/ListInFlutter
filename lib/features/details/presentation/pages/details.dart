@@ -15,9 +15,6 @@ import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/core/utils/const.dart';
-import 'package:list_in/features/chats/domain/entity/chat_message.dart';
-import 'package:list_in/features/chats/presentation/blocs/chats/chat_bloc.dart';
-import 'package:list_in/features/chats/presentation/blocs/chats/chat_event.dart';
 import 'package:list_in/features/chats/presentation/pages/chat_detail_page.dart';
 import 'package:list_in/features/details/presentation/bloc/details_bloc.dart';
 import 'package:list_in/features/details/presentation/bloc/details_state.dart';
@@ -33,7 +30,6 @@ import 'package:list_in/features/details/presentation/widgets/production_action_
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/product_card/bb/boosted_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/product_card/bb/product_card_container.dart';
-import 'package:list_in/features/explore/presentation/widgets/product_card/bb/regular_product_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/profile/domain/usecases/user/get_user_data_usecase.dart';
 import 'package:list_in/features/profile/presentation/bloc/publication/publication_update_bloc.dart';
@@ -946,18 +942,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   child: ElevatedButton(
                     onPressed: () {
                       _pauseVideoForNavigation();
-                      // Create initial message and navigate to chat
-                      final message = ChatMessage(
-                        senderId: userId,
-                        recipientId: widget.product.seller.id,
-                        publicationId: widget.product.id,
-                        content: "I'm interested in your listing!",
-                        status: 'SENT',
-                        sentAt: DateTime.now(),
-                        updatedAt: DateTime.now(),
-                      );
-                      context.read<ChatBloc>().add(SendMessageEvent(message));
-                      // Navigate to chat detail
                       Navigator.push(
                         context,
                         MaterialPageRoute(

@@ -22,4 +22,27 @@ class ChatRoom {
     required this.recipientNickname,
     this.lastMessage,
   });
+  ChatRoom copyWith({
+    String? chatRoomId,
+    String? publicationId,
+    String? publicationImagePath,
+    String? publicationTitle,
+    double? publicationPrice,
+    String? recipientId,
+    String? recipientImagePath,
+    String? recipientNickname,
+    ChatMessage? lastMessage,
+  }) {
+    return ChatRoom(
+      chatRoomId: chatRoomId ?? this.chatRoomId,
+      publicationId: publicationId ?? this.publicationId,
+      publicationImagePath: publicationImagePath ?? this.publicationImagePath,
+      publicationTitle: publicationTitle ?? this.publicationTitle,
+      publicationPrice: publicationPrice ?? this.publicationPrice,
+      recipientId: recipientId ?? this.recipientId,
+      recipientImagePath: recipientImagePath ?? this.recipientImagePath,
+      recipientNickname: recipientNickname ?? this.recipientNickname,
+      lastMessage: lastMessage ?? this.lastMessage,
+    );
+  }
 }

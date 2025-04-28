@@ -1,16 +1,19 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/chats/domain/entity/chat_message.dart';
 import 'package:list_in/features/chats/domain/entity/user_status.dart';
-import 'package:list_in/features/chats/presentation/blocs/chats/chat_bloc.dart';
-import 'package:list_in/features/chats/presentation/blocs/chats/chat_event.dart';
-import 'package:list_in/features/chats/presentation/blocs/chats/chat_state.dart';
+import 'package:list_in/features/chats/presentation/provider/chats/chat_bloc.dart';
 import 'package:list_in/features/chats/presentation/widgets/message_bubble.dart';
+import 'package:list_in/features/explore/presentation/widgets/recomendation_widget.dart';
+import 'package:provider/provider.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class ChatDetailPage extends StatefulWidget {
@@ -46,13 +49,11 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   void initState() {
     super.initState();
     // Load chat history when page initializes
-    context.read<ChatBloc>().add(
-          LoadChatHistoryEvent(
-            publicationId: widget.publicationId,
-            senderId: widget.userId,
-            recipientId: widget.recipientId,
-          ),
-        );
+    Provider.of<ChatProvider>(context, listen: false).loadChatHistory(
+      publicationId: widget.publicationId,
+      senderId: widget.userId,
+      recipientId: widget.recipientId,
+    );
   }
 
   @override
@@ -84,11 +85,29 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
         updatedAt: DateTime.now(),
       );
 
-      context.read<ChatBloc>().add(SendMessageEvent(message));
+      Provider.of<ChatProvider>(context, listen: false).sendMessage(message);
       _messageController.clear();
 
       // Schedule scroll after UI update
       Future.delayed(const Duration(milliseconds: 100), _scrollToBottom);
+    }
+  }
+
+  // Helper function to get formatted date string
+  String _getFormattedDate(DateTime date) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = DateTime(now.year, now.month, now.day - 1);
+    final messageDate = DateTime(date.year, date.month, date.day);
+
+    if (messageDate == today) {
+      return 'Today';
+    } else if (messageDate == yesterday) {
+      return 'Yesterday';
+    } else if (now.difference(messageDate).inDays < 7) {
+      return DateFormat('EEEE').format(date); // Day name
+    } else {
+      return DateFormat('MMM d, yyyy').format(date); // Mar 15, 2025
     }
   }
 
@@ -102,9 +121,18 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
         backgroundColor: Theme.of(context).cardColor,
         title: Row(
           children: [
-            CircleAvatar(
-              backgroundImage: NetworkImage(widget.userProfileImage),
-              radius: 16,
+            ClipRRect(
+              borderRadius: BorderRadius.circular(100),
+              child: SizedBox(
+                width: 32,
+                height: 32,
+                child: CachedNetworkImage(
+                  imageUrl: 'https://${widget.userProfileImage}',
+                  fit: BoxFit.cover,
+                  errorWidget: (context, url, error) =>
+                      Image.asset(AppImages.appLogo),
+                ),
+              ),
             ),
             const SizedBox(width: 8),
             Expanded(
@@ -115,27 +143,19 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                     widget.recipientName,
                     style: const TextStyle(fontSize: 16),
                   ),
-                  BlocBuilder<ChatBloc, ChatState>(
-                    builder: (context, state) {
-                      if (state is ChatHistoryLoaded) {
-                        final userStatus =
-                            state.userStatuses[widget.recipientId] ??
-                                UserStatus.OFFLINE;
-                        return Text(
-                          userStatus == UserStatus.ONLINE
-                              ? 'Online'
-                              : 'Offline',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: userStatus == UserStatus.ONLINE
-                                ? Colors.green
-                                : Colors.grey,
-                          ),
-                        );
-                      }
-                      return const Text(
-                        'Loading status...',
-                        style: TextStyle(fontSize: 12),
+                  Consumer<ChatProvider>(
+                    builder: (context, provider, child) {
+                      final userStatus = provider
+                              .historyState.userStatuses[widget.recipientId] ??
+                          UserStatus.OFFLINE;
+                      return Text(
+                        userStatus == UserStatus.ONLINE ? 'Online' : 'Offline',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: userStatus == UserStatus.ONLINE
+                              ? Colors.green
+                              : Colors.grey,
+                        ),
                       );
                     },
                   ),
@@ -187,90 +207,136 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
       body: Column(
         children: [
           Expanded(
-            child: BlocConsumer<ChatBloc, ChatState>(
-              listener: (context, state) {
-                if (state is ChatHistoryLoaded && _isFirstLoad) {
-                  _isFirstLoad = false;
-                  // Scroll to bottom on initial load
-                  Future.delayed(
-                      const Duration(milliseconds: 100), _scrollToBottom);
-                }
+            child: Consumer<ChatProvider>(
+              builder: (context, provider, child) {
+                final state = provider.historyState;
 
-                if (state is ChatHistoryLoaded && !_isFirstLoad) {
-                  // Scroll to bottom when new messages arrive
-                  Future.delayed(
-                      const Duration(milliseconds: 50), _scrollToBottom);
-                }
-              },
-              builder: (context, state) {
-                if (state is ChatLoading) {
+                if (state.isLoading) {
                   return const Center(
                     child: CircularProgressIndicator(),
                   );
-                } else if (state is ChatHistoryLoaded) {
-                  return state.messages.isEmpty
-                      ? Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              CachedNetworkImage(
-                                imageUrl: widget.publicationImagePath,
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                'Interested in ${widget.publicationTitle}?',
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                              const SizedBox(height: 8),
-                              const Text(
-                                'Send a message to start the conversation',
-                                style: TextStyle(color: Colors.grey),
-                              ),
-                            ],
-                          ),
-                        )
-                      : ListView.builder(
-                          controller: _scrollController,
-                          padding: const EdgeInsets.all(8),
-                          itemCount: state.messages.length,
-                          itemBuilder: (context, index) {
-                            final message = state.messages[index];
-                            final isMe = message.senderId == widget.userId;
-
-                            return MessageBubble(
-                              message: message.content,
-                              isMe: isMe,
-                              time:
-                                  DateFormat('hh:mm a').format(message.sentAt),
-                              status: message.status,
-                            );
-                          },
-                        );
-                } else if (state is ChatError) {
+                } else if (state.messages.isEmpty) {
                   return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text('Error: ${state.message}'),
+                        CachedNetworkImage(
+                          imageUrl: widget.publicationImagePath,
+                        ),
                         const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: () {
-                            context.read<ChatBloc>().add(
-                                  LoadChatHistoryEvent(
-                                    publicationId: widget.publicationId,
-                                    senderId: widget.userId,
-                                    recipientId: widget.recipientId,
-                                  ),
-                                );
-                          },
-                          child: const Text('Retry'),
+                        Text(
+                          'Interested in ${widget.publicationTitle}?',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Send a message to start the conversation',
+                          style: TextStyle(color: Colors.grey),
                         ),
                       ],
                     ),
                   );
                 } else {
-                  return const Center(
-                    child: Text('Start a conversation'),
+                  // For first load, scroll to bottom
+                  if (_isFirstLoad && state.messages.isNotEmpty) {
+                    _isFirstLoad = false;
+                    Future.delayed(
+                        const Duration(milliseconds: 100), _scrollToBottom);
+                  }
+
+                  return ListView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 8,
+                      horizontal: 16,
+                    ),
+                    itemCount: state.messages.length,
+                    itemBuilder: (context, index) {
+                      final message = state.messages[index];
+                      final isMe = message.senderId == widget.userId;
+
+                      // Date header logic
+                      bool showDateHeader = false;
+                      String dateHeader = '';
+
+                      if (index == 0) {
+                        // First message always shows date
+                        showDateHeader = true;
+                        dateHeader = _getFormattedDate(message.sentAt);
+                      } else {
+                        // Check if date changed from previous message
+                        final previousMessageDate =
+                            state.messages[index - 1].sentAt;
+                        final messageDate = message.sentAt;
+
+                        if (previousMessageDate.day != messageDate.day ||
+                            previousMessageDate.month != messageDate.month ||
+                            previousMessageDate.year != messageDate.year) {
+                          showDateHeader = true;
+                          dateHeader = _getFormattedDate(messageDate);
+                        }
+                      }
+
+                      // Message grouping logic
+                      bool showAvatar = true;
+                      if (index < state.messages.length - 1) {
+                        final nextMessage = state.messages[index + 1];
+                        // Don't show avatar if next message is from same sender and within 5 minutes
+                        if (nextMessage.senderId == message.senderId &&
+                            nextMessage.sentAt
+                                    .difference(message.sentAt)
+                                    .inMinutes <
+                                5) {
+                          showAvatar = false;
+                        }
+                      }
+
+                      return Column(
+                        children: [
+                          if (showDateHeader)
+                            Container(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              child: Center(
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 6, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    dateHeader,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey[700],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            mainAxisAlignment: isMe
+                                ? MainAxisAlignment.end
+                                : MainAxisAlignment.start,
+                            children: [
+                              Flexible(
+                                child: MessageBubble(
+                                  message: message.content,
+                                  isMe: isMe,
+                                  time: DateFormat('hh:mm a')
+                                      .format(message.sentAt),
+                                  status: message.status,
+                                  showTail:
+                                      showAvatar, // Show tail on the last message in a group
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 2), // Spacing between messages
+                        ],
+                      );
+                    },
                   );
                 }
               },

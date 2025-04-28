@@ -40,7 +40,7 @@ import 'package:list_in/features/chats/domain/usecase/get_chat_rooms_usecase.dar
 import 'package:list_in/features/chats/domain/usecase/get_messages_stream_usecase.dart';
 import 'package:list_in/features/chats/domain/usecase/get_user_status_usecase.dart';
 import 'package:list_in/features/chats/domain/usecase/send_message_usecase.dart';
-import 'package:list_in/features/chats/presentation/blocs/chats/chat_bloc.dart';
+import 'package:list_in/features/chats/presentation/provider/chats/chat_bloc.dart';
 import 'package:list_in/features/details/presentation/bloc/details_bloc.dart';
 import 'package:list_in/features/explore/data/repository/get_publications_rep_impl.dart';
 import 'package:list_in/features/explore/data/source/get_publications_remoute.dart';
@@ -231,7 +231,7 @@ void registerChatFeature(GetIt sl, String currentUserId) {
 
   // BLoCs
   sl.registerFactory(
-    () => ChatBloc(
+    () => ChatProvider(
       getChatRoomsUseCase: sl(),
       getChatHistoryUseCase: sl(),
       sendMessageUseCase: sl(),
@@ -303,7 +303,7 @@ void _registerHttpClients() {
   sl.registerLazySingleton<Dio>(() {
     final dio = Dio();
     dio.options
-      ..baseUrl = 'https://812e-195-158-20-242.ngrok-free.app'
+      ..baseUrl = 'http://listin.uz'
       ..connectTimeout = const Duration(seconds: 5)
       ..receiveTimeout = const Duration(minutes: 3)
       ..sendTimeout = const Duration(minutes: 3);
