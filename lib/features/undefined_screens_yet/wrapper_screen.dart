@@ -113,6 +113,15 @@ class _MainWrapperState extends State<MainWrapper> {
           height: 50,
           decoration: BoxDecoration(
             color: backgroundColor,
+            boxShadow: [
+              BoxShadow(
+                color:
+                    _isDarkMode ? Colors.black54 : Colors.grey.withOpacity(0.1),
+                blurRadius: 2,
+                offset: Offset(0, -1), // Shadow positioned at the top
+                spreadRadius: 0.3,
+              ),
+            ],
             border: Border(
               top: BorderSide(
                 color: borderColor,

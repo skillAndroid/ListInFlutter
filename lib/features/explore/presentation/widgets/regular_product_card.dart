@@ -51,7 +51,7 @@ class ProfileProductCard extends StatelessWidget {
                     cornerSmoothing: 0.8,
                   ),
                   child: AspectRatio(
-                    aspectRatio: 1,
+                    aspectRatio: 0.8,
                     child: CachedNetworkImage(
                       imageUrl: "https://${product.productImages[0].url}",
                       fit: BoxFit.cover,
@@ -65,7 +65,7 @@ class ProfileProductCard extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(10),
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     color: Theme.of(context)
                         .colorScheme
                         .onSecondary
@@ -74,7 +74,7 @@ class ProfileProductCard extends StatelessWidget {
                       children: [
                         Icon(
                           Icons.remove_red_eye_rounded,
-                          size: 14,
+                          size: 13,
                           color: Theme.of(context).colorScheme.secondary,
                         ),
                         SizedBox(width: 4),
@@ -82,7 +82,7 @@ class ProfileProductCard extends StatelessWidget {
                           product.views.toString(),
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.secondary,
-                            fontSize: 12,
+                            fontSize: 11.5,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -104,7 +104,7 @@ class ProfileProductCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.secondary,
-                    fontSize: 13,
+                    fontSize: 12.5,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -112,7 +112,7 @@ class ProfileProductCard extends StatelessWidget {
                   formatPrice(product.price.toString()),
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.secondary,
-                    fontSize: 16,
+                    fontSize: 15,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -122,13 +122,13 @@ class ProfileProductCard extends StatelessWidget {
                     Row(
                       children: [
                         Icon(Icons.favorite_rounded,
-                            size: 16, color: AppColors.myRedBrown),
+                            size: 14, color: AppColors.myRedBrown),
                         SizedBox(width: 4),
                         Text(
                           product.likes.toString(),
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurface,
-                            fontSize: 12,
+                            fontSize: 14,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -155,7 +155,7 @@ class ProfileProductCard extends StatelessWidget {
                             child: Icon(
                               Icons.edit_rounded,
                               color: Theme.of(context).colorScheme.secondary,
-                              size: 16,
+                              size: 15,
                             ),
                           ),
                         ),
@@ -173,7 +173,7 @@ class ProfileProductCard extends StatelessWidget {
                             child: Icon(
                               Ionicons.ellipsis_vertical,
                               color: AppColors.error,
-                              size: 16,
+                              size: 15,
                             ),
                           ),
                         ),

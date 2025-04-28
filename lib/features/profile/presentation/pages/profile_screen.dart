@@ -1110,33 +1110,30 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
         // Content state with grid
         return SliverPadding(
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-          sliver: SliverGrid(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                // Display loading indicator at the end if more content is loading
-                if (index >= state.publications.length) {
-                  if (state.isLoading) {
-                    return const Center(child: Progress());
-                  }
-                  return null;
-                }
+          sliver: SliverMasonryGrid.count(
+            crossAxisCount: 2,
+            mainAxisSpacing: 2,
+            crossAxisSpacing: 2,
+            itemBuilder: (context, index) {
+              if (index >= state.publications.length) {
+                // Always return a widget, not null
+                return state.isLoading
+                    ? const Center(child: Progress())
+                    : const SizedBox.shrink(); // Empty widget instead of null
+              }
 
-                final publication = state.publications[index];
-                return Padding(
-                  padding: const EdgeInsets.all(0),
-                  child: ProfileProductCard(
-                    product: publication,
-                  ),
-                );
-              },
-              childCount: state.publications.length + (state.isLoading ? 1 : 0),
-            ),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 0.6,
-              crossAxisSpacing: 0,
-              mainAxisSpacing: 0,
-            ),
+              final publication = state.publications[index];
+              return Padding(
+                padding: const EdgeInsets.all(0),
+                child: ProfileProductCard(
+                  key: ValueKey(
+                    publication.id,
+                  ), // Add key for better list updates
+                  product: publication,
+                ),
+              );
+            },
+            childCount: state.publications.length + (state.isLoading ? 1 : 0),
           ),
         );
       },
