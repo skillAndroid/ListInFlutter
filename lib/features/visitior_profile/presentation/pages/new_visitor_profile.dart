@@ -7,10 +7,11 @@ import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/utils/const.dart';
-import 'package:list_in/features/explore/presentation/widgets/product_card/bb/regular_product_card.dart';
+import 'package:list_in/features/explore/presentation/widgets/product_card/bb/product_card_container.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/visitior_profile/domain/entity/another_user_profile_entity.dart';
 import 'package:list_in/features/visitior_profile/presentation/bloc/another_user_profile_bloc.dart';
@@ -21,7 +22,6 @@ import 'package:list_in/global/global_event.dart';
 import 'package:list_in/global/global_state.dart';
 import 'package:list_in/global/global_status.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class StoreProfilePage extends StatefulWidget {
   final String userId;

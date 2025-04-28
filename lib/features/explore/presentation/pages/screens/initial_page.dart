@@ -22,7 +22,7 @@ import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/explore/presentation/pages/filter/filter.dart';
 import 'package:list_in/features/explore/presentation/widgets/product_card/bb/boosted_card.dart';
-import 'package:list_in/features/explore/presentation/widgets/product_card/bb/regular_product_card.dart';
+import 'package:list_in/features/explore/presentation/widgets/product_card/bb/product_card_container.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/explore/presentation/widgets/recomendation_widget.dart';
 import 'package:list_in/features/explore/presentation/widgets/top_app_recomendation.dart';

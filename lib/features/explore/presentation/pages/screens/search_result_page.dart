@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:list_in/config/assets/app_icons.dart';
@@ -20,10 +21,9 @@ import 'package:list_in/features/explore/presentation/widgets/filters_widgets/co
 import 'package:list_in/features/explore/presentation/widgets/filters_widgets/price_bottom_sheet.dart';
 import 'package:list_in/features/explore/presentation/widgets/filters_widgets/sellert_type_bottom_sheet.dart';
 import 'package:list_in/features/explore/presentation/widgets/product_card/bb/boosted_card.dart';
-import 'package:list_in/features/explore/presentation/widgets/product_card/bb/regular_product_card.dart';
+import 'package:list_in/features/explore/presentation/widgets/product_card/bb/product_card_container.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:visibility_detector/visibility_detector.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SearchPageUIState {
   final currentlyPlayingId = ValueNotifier<String?>(null);

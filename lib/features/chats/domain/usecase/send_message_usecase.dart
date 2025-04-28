@@ -7,6 +7,8 @@ class SendMessageUseCase {
   SendMessageUseCase(this.repository);
 
   Future<void> execute(ChatMessage message) {
-    return repository.sendMessage(message);
+    return repository.sendMessage(
+      message,
+    );
   }
 }

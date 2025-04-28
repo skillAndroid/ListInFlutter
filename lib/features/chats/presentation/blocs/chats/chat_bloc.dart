@@ -27,7 +27,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
   StreamSubscription<ChatMessage>? _messageSubscription;
   StreamSubscription<UserConnectionInfo>? _userStatusSubscription;
-
+  bool _isSubscribed = false;
   final Map<String, UserStatus> userStatuses = {};
   bool _isInitialized = false;
   bool _isInitializing = false;
@@ -54,36 +54,41 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     on<UserStatusUpdatedEvent>(_onUserStatusUpdated);
   }
   void _subscribeToStreams() {
+    // Only subscribe if we haven't already
+    if (_isSubscribed) {
+      print(
+          '🔧 Already subscribed to streams, skipping duplicate subscription');
+      return;
+    }
+
+    // Cancel any existing subscriptions just to be safe
     _messageSubscription?.cancel();
     _userStatusSubscription?.cancel();
 
-    // Add delay to ensure WebSocket is ready
-    Future.delayed(Duration(milliseconds: 500), () {
-      _messageSubscription = getMessageStreamUseCase.execute().listen(
-        (message) {
-          print('💋💋Message received: ${message.content}');
-          print('💋💋From: ${message.senderId}, To: ${message.recipientId}');
-          print('💋💋Publication ID: ${message.publicationId}');
-          add(MessageReceivedEvent(message));
-        },
-        onError: (error) {
-          print('Message stream error: $error');
-          // Reconnect logic
-          _subscribeToStreams();
-        },
-      );
+    // Subscribe to message stream
+    _messageSubscription = getMessageStreamUseCase.execute().listen(
+      (message) {
+        print(
+            '💋💋 Message received in single subscription: ${message.content}');
+        add(MessageReceivedEvent(message));
+      },
+      onError: (error) {
+        print('Message stream error: $error');
+      },
+    );
 
-      _userStatusSubscription = getUserStatusStreamUseCase.execute().listen(
-        (userStatus) {
-          add(UserStatusUpdatedEvent(userStatus));
-        },
-        onError: (error) {
-          print('User status stream error: $error');
-          // Reconnect logic
-          _subscribeToStreams();
-        },
-      );
-    });
+    // Subscribe to user status stream
+    _userStatusSubscription = getUserStatusStreamUseCase.execute().listen(
+      (userStatus) {
+        add(UserStatusUpdatedEvent(userStatus));
+      },
+      onError: (error) {
+        print('User status stream error: $error');
+      },
+    );
+
+    // Mark as subscribed
+    _isSubscribed = true;
   }
 
   Future<void> _onInitializeChat(
@@ -103,7 +108,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         status: UserStatus.ONLINE,
       ));
 
-      // Then subscribe to streams
+      // Then subscribe to streams - now with duplicate protection
       _subscribeToStreams();
 
       _isInitialized = true;
@@ -111,6 +116,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       emit(ChatInitialized());
     } catch (e) {
       // Error handling
+      _isInitializing = false;
+      emit(ChatError('Failed to initialize chat: $e'));
     }
   }
 
@@ -256,15 +263,25 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     MessageReceivedEvent event,
     Emitter<ChatState> emit,
   ) {
+    print('🔍 Message received in bloc: ${event.message.content}');
+    print('🔍 Current state is ${state.runtimeType}');
+
     if (state is ChatHistoryLoaded) {
       final currentState = state as ChatHistoryLoaded;
+      print('🔍 Current publicationId: ${currentState.recipientId}');
+      print('🔍 Message publicationId: ${event.message.recipientId}');
 
       // Simplified filtering - just check publication ID
-      if (event.message.publicationId == currentState.publicationId) {
+      if (event.message.senderId == currentState.recipientId) {
+        print('🔍 PublicationId matched, adding message');
         final updatedMessages = List<ChatMessage>.from(currentState.messages)
           ..add(event.message);
         emit(currentState.copyWith(messages: updatedMessages));
+      } else {
+        print('🔍 PublicationId did not match, message ignored');
       }
+    } else {
+      print('🔍 Not in ChatHistoryLoaded state, message ignored');
     }
   }
 

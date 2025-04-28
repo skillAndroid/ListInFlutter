@@ -75,9 +75,6 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   void _sendMessage() {
     if (_messageController.text.trim().isNotEmpty) {
       final message = ChatMessage(
-        id: DateTime.now()
-            .millisecondsSinceEpoch
-            .toString(), // Generate temporary ID
         senderId: widget.userId,
         recipientId: widget.recipientId,
         publicationId: widget.publicationId,

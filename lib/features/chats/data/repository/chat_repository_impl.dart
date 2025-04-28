@@ -2,6 +2,7 @@
 
 import 'dart:async';
 
+import 'package:list_in/features/auth/data/sources/auth_local_data_source.dart';
 import 'package:list_in/features/chats/data/source/chat_remote_datasource.dart';
 import 'package:list_in/features/chats/domain/entity/chat_message.dart';
 import 'package:list_in/features/chats/domain/entity/chat_room.dart';
@@ -10,28 +11,28 @@ import 'package:list_in/features/chats/domain/repository/chat_repository.dart';
 
 class ChatRepositoryImpl implements ChatRepository {
   final ChatRemoteDataSource remoteDataSource;
+  final AuthLocalDataSource localDataSource;
   final String currentUserId;
 
   // Connection tracking
   bool _initializing = false;
+  String? _initializedUserId;
   Completer<void>? _initialConnectionCompleter;
 
   ChatRepositoryImpl({
     required this.remoteDataSource,
+    required this.localDataSource,
     required this.currentUserId,
   });
 
   // Improved initialization with better state tracking
   Future<void> initializeWebSocket(String userId) async {
-    // If already initializing, wait for it to complete
-    if (_initializing &&
-        _initialConnectionCompleter != null &&
-        !_initialConnectionCompleter!.isCompleted) {
-      print(
-          'Repository: WebSocket initialization already in progress, waiting...');
-      return _initialConnectionCompleter!.future;
+    // If already initialized for this user, do nothing
+    if (_initializedUserId == userId && !_initializing) {
+      print('Repository: WebSocket already initialized for user $userId');
+      return;
     }
-
+    _initializedUserId = userId;
     _initializing = true;
     _initialConnectionCompleter = Completer<void>();
 
@@ -116,16 +117,16 @@ class ChatRepositoryImpl implements ChatRepository {
   @override
   Future<void> sendMessage(ChatMessage message) async {
     try {
-      // Ensure connection before sending message
       await initializeWebSocket(message.senderId);
+      // final email = await localDataSource.getRetrivedEmail();
       print(
           'Repository: Sending message from ${message.senderId} to ${message.recipientId}: ${message.content}');
       await remoteDataSource.sendMessage(
-        id: message.id,
         senderId: message.senderId,
         recipientId: message.recipientId,
         publicationId: message.publicationId,
         content: message.content,
+        // recipientEmail: email!.email!,
       );
     } catch (e) {
       print('Repository: Error sending message: $e');

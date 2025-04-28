@@ -215,6 +215,7 @@ void registerChatFeature(GetIt sl, String currentUserId) {
   sl.registerLazySingleton<ChatRepository>(
     () => ChatRepositoryImpl(
       remoteDataSource: sl(),
+      localDataSource: sl(),
       currentUserId: currentUserId,
     ),
   );
@@ -302,7 +303,7 @@ void _registerHttpClients() {
   sl.registerLazySingleton<Dio>(() {
     final dio = Dio();
     dio.options
-      ..baseUrl = 'http://listin.uz'
+      ..baseUrl = 'https://812e-195-158-20-242.ngrok-free.app'
       ..connectTimeout = const Duration(seconds: 5)
       ..receiveTimeout = const Duration(minutes: 3)
       ..sendTimeout = const Duration(minutes: 3);

@@ -1,10 +1,8 @@
 // ignore_for_file: deprecated_member_use, invalid_use_of_protected_member, unnecessary_null_comparison, equal_keys_in_map
 
 import 'package:figma_squircle/figma_squircle.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
@@ -28,7 +26,7 @@ import 'package:list_in/features/explore/presentation/widgets/filters_widgets/nu
 import 'package:list_in/features/explore/presentation/widgets/filters_widgets/price_bottom_sheet.dart';
 import 'package:list_in/features/explore/presentation/widgets/filters_widgets/sellert_type_bottom_sheet.dart';
 import 'package:list_in/features/explore/presentation/widgets/product_card/bb/boosted_card.dart';
-import 'package:list_in/features/explore/presentation/widgets/product_card/bb/regular_product_card.dart';
+import 'package:list_in/features/explore/presentation/widgets/product_card/bb/product_card_container.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/post/data/models/category_tree/attribute_model.dart';
 import 'package:list_in/features/post/data/models/category_tree/attribute_value_model.dart';

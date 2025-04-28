@@ -16,7 +16,7 @@ class ChatRemoteDataSource {
   final AuthLocalDataSource authLocalDataSource;
   final AuthService authService;
   final Dio dio;
-  final String baseUrl = 'http://listin.uz';
+  final String baseUrl = 'https://812e-195-158-20-242.ngrok-free.app';
   StompClient? _stompClient;
   bool _isConnected = false;
 
@@ -34,7 +34,7 @@ class ChatRemoteDataSource {
     required this.authLocalDataSource,
     required this.authService,
   });
-
+  final Set<String> _activeSubscriptionDestinations = {};
   Future<void> initializeWebSocket(String userId) async {
     if (_isConnected) {
       print('WebSocket already connected');
@@ -46,7 +46,8 @@ class ChatRemoteDataSource {
       throw UnauthorizedException('No auth token found');
     }
 
-    final wsUrl = 'ws://listin.uz:80/ws?token=${authToken.accessToken}';
+    final wsUrl =
+        'ws://812e-195-158-20-242.ngrok-free.app:80/ws?token=${authToken.accessToken}';
 
     try {
       _stompClient = StompClient(
@@ -63,7 +64,7 @@ class ChatRemoteDataSource {
           onStompError: (StompFrame frame) {
             print('💋💋STOMP Error: ${frame.body}');
           },
-          onConnect: (StompFrame frame) {
+          onConnect: (StompFrame frame) async {
             _isConnected = true;
             print('💋💋Connected to WebSocket');
 
@@ -84,24 +85,21 @@ class ChatRemoteDataSource {
             //     }
             //   },
             // );
-
+            //  final email = await authLocalDataSource.getRetrivedEmail();
             // Subscribe to private message channel
-            _stompClient!.subscribe(
-              destination: '/user/$userId/queue/messages',
-              callback: (StompFrame frame) {
-                print('💋💋Received message from /user/$userId/queue/messages');
-                if (frame.body != null) {
-                  try {
-                    final message =
-                        ChatMessageModel.fromJson(jsonDecode(frame.body!));
-                    print('💋💋Parsed private message: ${message.content}');
-                    _messageStreamController.add(message);
-                  } catch (e) {
-                    print('💋💋Error parsing private message: $e');
-                  }
+            // Subscribe to private message channel, but only once
+            _subscribeToDestination('/user/$userId/queue/messages', (frame) {
+              if (frame.body != null) {
+                try {
+                  final message =
+                      ChatMessageModel.fromJson(jsonDecode(frame.body!));
+                  print('💋💋Parsed private message: ${message.content}');
+                  _messageStreamController.add(message);
+                } catch (e) {
+                  print('💋💋Error parsing private message: $e');
                 }
-              },
-            );
+              }
+            });
 
             // Subscribe to user status updates
             _stompClient!.subscribe(
@@ -135,6 +133,23 @@ class ChatRemoteDataSource {
       print('Error initializing WebSocket: $e');
       throw Exception('Failed to initialize WebSocket: $e');
     }
+  }
+
+  // Helper method to ensure we subscribe only once to each destination
+  void _subscribeToDestination(
+      String destination, Function(StompFrame) callback) {
+    if (_activeSubscriptionDestinations.contains(destination)) {
+      print('Already subscribed to $destination, skipping');
+      return;
+    }
+
+    _stompClient!.subscribe(
+      destination: destination,
+      callback: callback,
+    );
+
+    _activeSubscriptionDestinations.add(destination);
+    print('Subscribed to $destination');
   }
 
   Future<void> disconnectWebSocket() async {
@@ -177,11 +192,11 @@ class ChatRemoteDataSource {
   }
 
   Future<void> sendMessage({
-    String? id,
     required String senderId,
     required String recipientId,
     required String publicationId,
     required String content,
+    //  required String recipientEmail,
   }) async {
     if (!_isConnected) {
       print('WebSocket not connected. Cannot send message.');
@@ -193,8 +208,8 @@ class ChatRemoteDataSource {
       'recipientId': recipientId,
       'publicationId': publicationId,
       'content': content,
+      //  'recipientEmail': recipientEmail,
     };
-
     try {
       _stompClient?.send(
         destination: '/app/chat',

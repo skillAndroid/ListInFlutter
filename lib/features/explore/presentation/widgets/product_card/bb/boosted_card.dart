@@ -1,7 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,7 +11,7 @@ import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/formaters.dart';
-import 'package:list_in/features/explore/presentation/widgets/product_card/bb/regular_product_card.dart';
+import 'package:list_in/features/explore/presentation/widgets/product_card/bb/owner_dialog.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/profile/domain/usecases/user/get_user_data_usecase.dart';
 import 'package:list_in/features/undefined_screens_yet/video_player.dart';
@@ -21,7 +20,6 @@ import 'package:list_in/global/global_event.dart';
 import 'package:list_in/global/global_state.dart';
 import 'package:list_in/global/global_status.dart';
 import 'package:shimmer/shimmer.dart';
-
 import 'package:url_launcher/url_launcher.dart';
 
 @immutable
@@ -260,10 +258,10 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
                     // Price
                     Text(
                       formatPrice(widget.model.price.toString()),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
-                        color: AppColors.black,
+                        color: Theme.of(context).colorScheme.secondary,
                       ),
                     ),
                     const Spacer(),

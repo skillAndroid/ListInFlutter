@@ -20,7 +20,7 @@ import 'package:list_in/core/theme/widgets/toggle_button.dart';
 import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/auth/data/sources/auth_local_data_source.dart';
 import 'package:list_in/features/details/presentation/widgets/full_screen_map.dart';
-import 'package:list_in/features/explore/presentation/widgets/product_card/bb/regular_product_card.dart';
+import 'package:list_in/features/explore/presentation/widgets/product_card/bb/product_card_container.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/explore/presentation/widgets/regular_product_card.dart';
 import 'package:list_in/features/profile/domain/entity/user/user_data_entity.dart';

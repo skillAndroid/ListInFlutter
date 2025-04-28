@@ -32,6 +32,7 @@ import 'package:list_in/features/details/presentation/widgets/product_title.dart
 import 'package:list_in/features/details/presentation/widgets/production_action_service.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/product_card/bb/boosted_card.dart';
+import 'package:list_in/features/explore/presentation/widgets/product_card/bb/product_card_container.dart';
 import 'package:list_in/features/explore/presentation/widgets/product_card/bb/regular_product_card.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:list_in/features/profile/domain/usecases/user/get_user_data_usecase.dart';
