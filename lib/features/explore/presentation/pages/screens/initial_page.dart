@@ -642,15 +642,16 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                             color: Theme.of(context).colorScheme.secondary,
                           ),
                           onPressed: () async {
-                            final currentUserId =
-                                context.read<GlobalBloc>().userId;
-                            Navigator.of(context).push(
-                              CupertinoPageRoute(
-                                builder: (context) => ChatRoomsPage(
-                                  userId: currentUserId ?? '',
-                                ),
-                              ),
-                            );
+                            // final currentUserId =
+                            //     context.read<GlobalBloc>().userId;
+                            // // Navigator.of(context).push(
+                            // //   CupertinoPageRoute(
+                            // //     builder: (context) => ChatRoomsPage(
+                            // //       userId: currentUserId ?? '',
+                            // //     ),
+                            // //   ),
+                            // // );
+                            context.push(Routes.chats);
                             //_showChatNotAvailableMessage(context);
                           },
                         ),
