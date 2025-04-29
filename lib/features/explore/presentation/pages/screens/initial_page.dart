@@ -11,13 +11,11 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:list_in/config/assets/app_icons.dart';
-import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/config/theme/app_language.dart';
 import 'package:list_in/core/language/language_bloc.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/core/utils/const.dart';
-import 'package:list_in/features/chats/presentation/pages/chat_rooms_page.dart';
 import 'package:list_in/features/chats/presentation/provider/chats/chat_bloc.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
@@ -649,7 +647,6 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
     );
   }
 
-  // Add this method to your class
   void _showChatNotAvailableMessage(BuildContext context) {
     showModalBottomSheet(
       context: context,

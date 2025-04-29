@@ -8,6 +8,7 @@ import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/chats/domain/entity/chat_room.dart';
 import 'package:list_in/features/chats/presentation/provider/chats/chat_bloc.dart';
 import 'package:list_in/features/explore/presentation/widgets/formaters.dart';
+import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
@@ -66,7 +67,7 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
                 child: TabBar(
                   dividerColor: AppColors.transparent,
                   controller: _tabController,
-                  labelColor: Colors.black,
+                  labelColor: Theme.of(context).colorScheme.secondary,
                   indicatorPadding: EdgeInsets.zero,
                   labelStyle: TextStyle(
                     fontFamily: 'Montserrat',
@@ -76,8 +77,8 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
                   tabAlignment: TabAlignment.center,
                   indicatorWeight: 0.1,
                   isScrollable: true,
-                  unselectedLabelColor: Colors.black,
-                  indicatorColor: Colors.black,
+                  unselectedLabelColor: Theme.of(context).colorScheme.secondary,
+                  indicatorColor: Theme.of(context).colorScheme.secondary,
                   indicatorSize: TabBarIndicatorSize.label,
                   labelPadding: const EdgeInsets.symmetric(horizontal: 10),
                   tabs: const [
@@ -94,9 +95,7 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
             final state = chatProvider.roomsState;
 
             if (state.isLoading) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
+              return const Progress();
             } else if (state.chatRooms.isEmpty) {
               return const Center(
                 child: Column(
@@ -154,6 +153,7 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
     }
 
     return RefreshIndicator(
+      backgroundColor: Theme.of(context).cardColor,
       onRefresh: () async {
         chatProvider.loadChatRooms(widget.userId);
         return Future.delayed(const Duration(milliseconds: 1000));
@@ -214,8 +214,10 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
                             top: -8,
                             child: Container(
                               decoration: BoxDecoration(
-                                border:
-                                    Border.all(color: Colors.white, width: 2),
+                                border: Border.all(
+                                    color: Theme.of(context)
+                                        .scaffoldBackgroundColor,
+                                    width: 2),
                                 borderRadius: BorderRadius.circular(15),
                               ),
                               child: CircleAvatar(
@@ -254,9 +256,9 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
                           // Price
                           Text(
                             formatPrice(chatRoom.publicationPrice.toString()),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: AppColors.black,
+                              color: Theme.of(context).colorScheme.secondary,
                               fontSize: 15,
                             ),
                           ),
@@ -283,7 +285,9 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
                                               TextSpan(
                                                 text: 'You: ',
                                                 style: TextStyle(
-                                                    color: Colors.black,
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .secondary,
                                                     fontSize: 12,
                                                     fontWeight: FontWeight.w500,
                                                     fontFamily:
