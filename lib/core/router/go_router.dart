@@ -9,6 +9,7 @@ import 'package:list_in/features/auth/presentation/pages/register_details_page.d
 import 'package:list_in/features/auth/presentation/pages/signup_page.dart';
 import 'package:list_in/features/auth/presentation/pages/verification_page.dart';
 import 'package:list_in/features/auth/presentation/pages/welcome_page.dart';
+import 'package:list_in/features/chats/presentation/pages/chat_detail_page.dart';
 import 'package:list_in/features/chats/presentation/pages/chat_rooms_page.dart';
 import 'package:list_in/features/details/presentation/bloc/details_bloc.dart';
 import 'package:list_in/features/details/presentation/pages/details.dart';
@@ -78,6 +79,9 @@ class AppRouter {
   static final _shellNavigatorProfile =
       GlobalKey<NavigatorState>(debugLabel: "shellProfile");
 
+  static final _shellNavigatorChats =
+      GlobalKey<NavigatorState>(debugLabel: "shellChats");
+
   late final router = GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: Routes.home,
@@ -114,10 +118,27 @@ class AppRouter {
         },
       ),
       GoRoute(
-        path: Routes.chats,
+        path: Routes.room, // This will be /chats/room in the full path
+        name: RoutesByName.room,
         builder: (context, state) {
-          final currentUserId = context.read<GlobalBloc>().userId!;
-          return ChatRoomsPage(userId: currentUserId);
+          final extraData = state.extra as Map<String, dynamic>;
+          final userId = extraData['userId'] as String?;
+          final publicationId = extraData['publicationId'] as String?;
+          final recipientId = extraData['recipientId'] as String?;
+          final publicationTitle = extraData['publicationTitle'] as String?;
+          final recipientName = extraData['recipientName'] as String?;
+          final publicationImagePath =
+              extraData['publicationImagePath'] as String?;
+          final userProfileImage = extraData['userProfileImage'] as String?;
+          return ChatDetailPage(
+            userId: userId ?? '',
+            publicationId: publicationId!,
+            recipientId: recipientId!,
+            publicationTitle: publicationTitle!,
+            recipientName: recipientName!,
+            publicationImagePath: publicationImagePath!,
+            userProfileImage: userProfileImage!,
+          );
         },
       ),
       GoRoute(
@@ -662,6 +683,22 @@ class AppRouter {
             ],
           ),
           StatefulShellBranch(
+            navigatorKey: _shellNavigatorChats,
+            routes: [
+              GoRoute(
+                path: Routes.chats,
+                name: RoutesByName.chats,
+                builder: (context, state) {
+                  final currentUserId = context.read<GlobalBloc>().userId!;
+                  return ChatRoomsPage(userId: currentUserId);
+                },
+                // routes: [
+
+                // ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
             navigatorKey: _shellNavigatorProfile,
             routes: [
               GoRoute(
@@ -690,7 +727,7 @@ class AppRouter {
                 ],
               ),
             ],
-          )
+          ),
         ],
       ),
     ],

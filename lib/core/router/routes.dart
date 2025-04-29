@@ -49,7 +49,8 @@ class RoutesByName {
   static const subcategories = 'subcategories';
   static const attributes = 'details';
   static const productDetails = 'product/:id';
-
+  static const chats = 'chat';
+  static const room = 'chat/:roomId';
   static const myPosts = 'my_posts';
   static const anotherUserProfile = 'a_u_profile';
 

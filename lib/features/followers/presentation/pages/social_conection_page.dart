@@ -217,61 +217,68 @@ class _SocialConnectionsPageState extends State<SocialConnectionsPage>
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
+        toolbarHeight: 0, // No space for title
         elevation: 0,
-        backgroundColor: Theme.of(context).cardColor,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded),
-          color: Theme.of(context).iconTheme.color,
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          widget.username,
-          style: const TextStyle(
-            fontSize: 20.0,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: Theme.of(context).colorScheme.secondary,
-          unselectedLabelColor: Colors.grey,
-          indicatorPadding: EdgeInsets.zero,
-          indicatorColor: Theme.of(context).colorScheme.secondary,
-          indicatorWeight: 0.1,
-          dividerColor: AppColors.transparent,
-          isScrollable: true,
-          labelPadding: const EdgeInsets.symmetric(horizontal: 20),
-          indicatorSize: TabBarIndicatorSize.label,
-          tabAlignment: TabAlignment.start,
-          labelStyle: const TextStyle(
-            fontFamily: Constants.Arial,
-            fontWeight: FontWeight.bold,
-          ),
-          unselectedLabelStyle: const TextStyle(
-            fontFamily: Constants.Arial,
-            fontWeight: FontWeight.w500,
-          ),
-          tabs: [
-            Tab(
-              text: AppLocalizations.of(context)!.followers,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(56),
+          child: Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Row(
+              children: [
+                // Back button aligned with tabs
+                IconButton(
+                  icon: const Icon(Icons.arrow_back_rounded),
+                  color: Theme.of(context).iconTheme.color,
+                  onPressed: () => Navigator.pop(context),
+                ),
+                // Tabs in center
+                Expanded(
+                  child: TabBar(
+                    controller: _tabController,
+                    dividerColor: AppColors.transparent,
+                    labelColor: Colors.black,
+                    indicatorPadding: EdgeInsets.zero,
+                    labelStyle: const TextStyle(
+                      fontFamily: 'Montserrat',
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                    ),
+                    tabAlignment: TabAlignment.center,
+                    indicatorWeight: 0.1,
+                    indicatorColor: Colors.black,
+                    indicatorSize: TabBarIndicatorSize.label,
+                    isScrollable: true,
+                    unselectedLabelColor: Colors.black,
+                    labelPadding: const EdgeInsets.symmetric(horizontal: 10),
+                    tabs: [
+                      Tab(
+                        text: AppLocalizations.of(context)!.followers,
+                      ),
+                      Tab(
+                        text: AppLocalizations.of(context)!.following,
+                      ),
+                    ],
+                  ),
+                ),
+                // Empty space to balance the back button
+                const SizedBox(width: 48),
+              ],
             ),
-            Tab(
-              text: AppLocalizations.of(context)!.following,
-            ),
-          ],
-          onTap: (index) {
-            // When tab is tapped directly, already handled by tab controller listener
-          },
+          ),
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          // Followers Tab
-          _buildFollowersTab(context),
-          // Followings Tab
-          _buildFollowingsTab(context),
-        ],
+      body: Padding(
+        padding: EdgeInsets.only(top: 16),
+        child: TabBarView(
+          controller: _tabController,
+          children: [
+            // Followers Tab
+            _buildFollowersTab(context),
+            // Followings Tab
+            _buildFollowingsTab(context),
+          ],
+        ),
       ),
     );
   }
@@ -445,7 +452,7 @@ class UserListTile extends StatelessWidget {
             });
           },
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
             child: Row(
               children: [
                 Hero(
@@ -453,8 +460,8 @@ class UserListTile extends StatelessWidget {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(100),
                     child: SizedBox(
-                      width: 36,
-                      height: 36,
+                      width: 60,
+                      height: 60,
                       child: CachedNetworkImage(
                         imageUrl: 'https://${user.profileImagePath}',
                         fit: BoxFit.cover,
@@ -472,9 +479,10 @@ class UserListTile extends StatelessWidget {
                     children: [
                       Text(
                         user.nickName,
-                        style: const TextStyle(
-                          fontSize: 15.0,
+                        style: TextStyle(
+                          fontSize: 16,
                           fontWeight: FontWeight.w600,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -493,7 +501,7 @@ class UserListTile extends StatelessWidget {
 
                       return Container(
                         margin: const EdgeInsets.only(top: 0),
-                        height: 30,
+                        height: 36,
                         child: ElevatedButton(
                           onPressed: isLoading
                               ? null
@@ -511,18 +519,13 @@ class UserListTile extends StatelessWidget {
                                   }
                                 },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                Theme.of(context).scaffoldBackgroundColor,
+                            backgroundColor: Theme.of(context).cardColor,
                             foregroundColor:
                                 Theme.of(context).scaffoldBackgroundColor,
                             elevation: 0,
                             shape: SmoothRectangleBorder(
-                              side: BorderSide(
-                                width: 1,
-                                color: Theme.of(context).colorScheme.secondary,
-                              ),
                               borderRadius:
-                                  SmoothBorderRadius(cornerRadius: 18),
+                                  SmoothBorderRadius(cornerRadius: 12),
                             ),
                             padding: const EdgeInsets.symmetric(
                               horizontal: 6,
@@ -544,14 +547,6 @@ class UserListTile extends StatelessWidget {
                                 )
                               : Row(
                                   children: [
-                                    Icon(
-                                      isFollowed ? Icons.remove : Icons.add,
-                                      size: 11.5,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .secondary,
-                                    ),
-                                    const SizedBox(width: 3),
                                     Text(
                                       isFollowed
                                           ? localizations.unfollow
@@ -562,7 +557,7 @@ class UserListTile extends StatelessWidget {
                                         color: Theme.of(context)
                                             .colorScheme
                                             .secondary,
-                                        fontSize: 11.5,
+                                        fontSize: 12,
                                       ),
                                     ),
                                   ],

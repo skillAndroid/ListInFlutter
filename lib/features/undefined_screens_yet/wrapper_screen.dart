@@ -6,11 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ionicons/ionicons.dart';
-import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/profile/domain/usecases/user/get_user_data_usecase.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class MainWrapper extends StatefulWidget {
@@ -29,11 +27,14 @@ class _MainWrapperState extends State<MainWrapper> {
 
   void _goToBranch(int index) {
     if (index == 1) {
+      // Special handling for post button - push route instead of changing branch
       if (widget.navigationShell.currentIndex == 0 ||
-          widget.navigationShell.currentIndex == 2) {
+          widget.navigationShell.currentIndex == 2 ||
+          widget.navigationShell.currentIndex == 3) {
         context.push(Routes.post);
       }
     } else {
+      // For home, chats, and profile - navigate to the correct branch
       setState(() {
         _selectedIndex = index;
       });
@@ -46,7 +47,7 @@ class _MainWrapperState extends State<MainWrapper> {
 
   Future<bool> _onWillPop() async {
     if (_selectedIndex != 0) {
-      // If user is not on home, go back to home instead of exiting
+      // If user is not on home (including chats or profile), go back to home instead of exiting
       setState(() {
         _selectedIndex = 0;
       });
@@ -58,6 +59,7 @@ class _MainWrapperState extends State<MainWrapper> {
 
   @override
   Widget build(BuildContext context) {
+    // Sync _selectedIndex with navigationShell.currentIndex to handle navigation via other means
     if (_selectedIndex != widget.navigationShell.currentIndex &&
         widget.navigationShell.currentIndex != 1) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -98,11 +100,6 @@ class _MainWrapperState extends State<MainWrapper> {
     final borderColor = _isDarkMode
         ? Colors.grey[800] ?? AppColors.containerColor
         : Theme.of(context).colorScheme.onSecondary;
-    final textColor =
-        _isDarkMode ? AppColors.white : Theme.of(context).colorScheme.secondary;
-    final inactiveColor = _isDarkMode
-        ? Colors.grey[600] ?? CupertinoColors.inactiveGray
-        : CupertinoColors.inactiveGray;
 
     return WillPopScope(
       onWillPop: _onWillPop,
@@ -110,7 +107,7 @@ class _MainWrapperState extends State<MainWrapper> {
         backgroundColor: backgroundColor,
         body: widget.navigationShell,
         bottomNavigationBar: Container(
-          height: 50,
+          height: 47,
           decoration: BoxDecoration(
             color: backgroundColor,
             boxShadow: [
@@ -129,24 +126,21 @@ class _MainWrapperState extends State<MainWrapper> {
               ),
             ),
           ),
-          child: Column(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildNavItem(
-                    0,
-                    AppLocalizations.of(context)!.search,
-                    AppIcons.bg_icon,
-                    textColor,
-                    inactiveColor,
-                  ),
-                  _buildAddPostButton(textColor, inactiveColor),
-                  _buildProfileItem(textColor, inactiveColor),
-                ],
+              _buildNavItem(
+                0,
+                Ionicons.home_outline,
+                Ionicons.home,
               ),
-              SizedBox(height: 0.5),
+              _buildAddPostButton(),
+              _buildNavItem(
+                2,
+                Ionicons.chatbubble_ellipses_outline,
+                Ionicons.chatbubble_ellipses,
+              ),
+              _buildProfileNavItem(),
             ],
           ),
         ),
@@ -154,125 +148,79 @@ class _MainWrapperState extends State<MainWrapper> {
     );
   }
 
-  // Updated to pass colors
-  Widget _buildNavItem(
-    int index,
-    String label,
-    String iconAsset,
-    Color activeColor,
-    Color inactiveColor,
-  ) {
+  Widget _buildNavItem(int index, IconData icon, IconData selectedIcon) {
     bool isSelected = _selectedIndex == index;
-    return InkWell(
-      onTap: () => _goToBranch(index),
-      child: Padding(
-        padding: const EdgeInsets.only(top: 5),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Image.asset(
-              iconAsset,
-              height: 24,
-              width: 24,
-              color: isSelected ? Colors.green : inactiveColor,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: 12.5,
-                color: isSelected ? activeColor : inactiveColor,
-              ),
-            ),
-          ],
-        ),
+    return IconButton(
+      onPressed: () => _goToBranch(index),
+      icon: Icon(
+        isSelected ? selectedIcon : icon,
+        size: index == 2 ? 26 : 24,
+        color: _isDarkMode
+            ? AppColors.white
+            : Theme.of(context).colorScheme.secondary,
       ),
+      padding: EdgeInsets.zero,
     );
   }
 
-  // Updated to pass colors
-  Widget _buildAddPostButton(Color activeColor, Color inactiveColor) {
-    return InkWell(
-      onTap: () => _goToBranch(1),
-      child: Padding(
-        padding: const EdgeInsets.only(top: 5),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              CupertinoIcons.plus_circled,
-              size: 26,
-              color: inactiveColor,
-            ),
-            const SizedBox(height: 2),
-            Text(
-              AppLocalizations.of(context)!.add_post,
-              style: TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: 12.5,
-                color: _selectedIndex == 1 ? activeColor : inactiveColor,
-              ),
-            ),
-          ],
-        ),
-      ),
+  Widget _buildAddPostButton() {
+    return IconButton(
+      onPressed: () => _goToBranch(1),
+      icon: Icon(CupertinoIcons.plus,
+          size: 30,
+          color: _isDarkMode
+              ? AppColors.white
+              : Theme.of(context).colorScheme.secondary),
+      padding: EdgeInsets.zero,
     );
   }
 
-  // Updated to pass colors
-  Widget _buildProfileItem(Color activeColor, Color inactiveColor) {
-    bool isSelected = _selectedIndex == 2;
-    return InkWell(
-      onTap: () => _goToBranch(2),
-      child: Padding(
-        padding: const EdgeInsets.only(top: 6),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SmoothClipRRect(
-              side: BorderSide(
-                width: isSelected ? 1 : 0,
-                color: AppColors.primary,
-              ),
+  Widget _buildProfileNavItem() {
+    bool isSelected = _selectedIndex == 3;
+    return IconButton(
+      onPressed: () =>
+          _goToBranch(3), // This will navigate to profile branch (index 3)
+      icon: AppSession.profileImagePath != null &&
+              AppSession.profileImagePath!.isNotEmpty
+          ? SmoothClipRRect(
               borderRadius: BorderRadius.circular(15),
+              side: BorderSide(
+                width: isSelected ? 1.5 : 0,
+                color: isSelected
+                    ? _isDarkMode
+                        ? AppColors.white
+                        : Theme.of(context).colorScheme.secondary
+                    : AppColors.transparent,
+              ),
               child: SizedBox(
-                height: 24,
-                width: 24,
-                child: AppSession.profileImagePath != null &&
-                        AppSession.profileImagePath!.isNotEmpty
-                    ? CachedNetworkImage(
-                        imageUrl: "https://${AppSession.profileImagePath}",
-                        placeholder: (context, url) => Container(
-                          color:
-                              _isDarkMode ? Colors.grey[800] : Colors.grey[300],
-                        ),
-                        errorWidget: (context, url, error) => Icon(
-                          CupertinoIcons.person_fill,
-                          size: 23,
-                          color: isSelected ? activeColor : inactiveColor,
-                        ),
-                        fit: BoxFit.cover,
-                      )
-                    : Icon(
-                        Ionicons.person_circle,
-                        size: 24,
-                        color: isSelected ? activeColor : inactiveColor,
-                      ),
+                height: 24.5,
+                width: 24.5,
+                child: CachedNetworkImage(
+                  imageUrl: "https://${AppSession.profileImagePath}",
+                  placeholder: (context, url) => Container(
+                    color: _isDarkMode ? Colors.grey[800] : Colors.grey[300],
+                  ),
+                  errorWidget: (context, url, error) => Icon(
+                    isSelected
+                        ? CupertinoIcons.person_fill
+                        : CupertinoIcons.person,
+                    size: 26,
+                    color: isSelected
+                        ? Theme.of(context).colorScheme.secondary
+                        : CupertinoColors.inactiveGray,
+                  ),
+                  fit: BoxFit.cover,
+                ),
               ),
+            )
+          : Icon(
+              isSelected ? CupertinoIcons.person_fill : CupertinoIcons.person,
+              size: 26,
+              color: isSelected
+                  ? Theme.of(context).colorScheme.secondary
+                  : CupertinoColors.inactiveGray,
             ),
-            const SizedBox(height: 4),
-            Text(
-              AppLocalizations.of(context)!.profile,
-              style: TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: 12.5,
-                color: isSelected ? activeColor : inactiveColor,
-              ),
-            ),
-          ],
-        ),
-      ),
+      padding: EdgeInsets.zero,
     );
   }
 }
