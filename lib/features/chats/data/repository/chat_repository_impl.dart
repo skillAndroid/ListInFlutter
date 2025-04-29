@@ -3,7 +3,6 @@
 import 'dart:async';
 
 import 'package:list_in/features/auth/data/sources/auth_local_data_source.dart';
-import 'package:list_in/features/chats/data/model/chat_room_model.dart';
 import 'package:list_in/features/chats/data/source/chat_local_datasourse.dart';
 import 'package:list_in/features/chats/data/source/chat_remote_datasource.dart';
 import 'package:list_in/features/chats/domain/entity/chat_message.dart';
@@ -85,97 +84,10 @@ class ChatRepositoryImpl implements ChatRepository {
 
       // First try to get from remote
       try {
-        final List<ChatRoomModel> remoteRooms =
-            await remoteDataSource.getChatRooms(userId);
-
-        // Get existing local rooms to compare last messages
-        final List<ChatRoomModel> localRooms =
-            await localDataSource.getChatRooms(userId);
-
-        // Create a map of local rooms by chatRoomId for easy lookup
-        final Map<String, ChatRoomModel> localRoomsMap = {
-          for (var room in localRooms) room.chatRoomId: room
-        };
-
-        // Calculate unread counts for each room
-        final List<ChatRoomModel> roomsWithUnreadCounts = [];
-
-        for (var remoteRoom in remoteRooms) {
-          int unreadCount = 0;
-
-          // Compare with local room if exists
-          if (localRoomsMap.containsKey(remoteRoom.chatRoomId)) {
-            final localRoom = localRoomsMap[remoteRoom.chatRoomId]!;
-
-            // If remote has a newer message than local, calculate unread count
-            if (remoteRoom.lastMessage != null &&
-                (localRoom.lastMessage == null ||
-                    remoteRoom.lastMessage!.sentAt
-                        .isAfter(localRoom.lastMessage!.sentAt))) {
-              // Get last read message ID
-              final lastReadMessageId =
-                  await localDataSource.getLastReadMessageId(
-                remoteRoom.publicationId,
-                userId,
-                remoteRoom.recipientId,
-              );
-
-              if (lastReadMessageId != null) {
-                // Get chat history to count unread messages
-                final messages = await getLocalChatHistory(
-                  remoteRoom.publicationId,
-                  userId,
-                  remoteRoom.recipientId,
-                );
-
-                // Find index of last read message
-                int lastReadIndex =
-                    messages.indexWhere((msg) => msg.id == lastReadMessageId);
-
-                // Count messages after last read
-                if (lastReadIndex >= 0) {
-                  unreadCount = messages.length - lastReadIndex - 1;
-                } else {
-                  // If lastReadMessageId not found, all messages are unread
-                  unreadCount = messages.length;
-                }
-              } else {
-                // If no last read message ID, count all messages as unread
-                unreadCount = await localDataSource.getUnreadCount(
-                  remoteRoom.publicationId,
-                  userId,
-                  remoteRoom.recipientId,
-                );
-              }
-            }
-          } else {
-            // New room, count all messages as unread
-            if (remoteRoom.lastMessage != null) {
-              unreadCount = 1; // At least the last message is unread
-            }
-          }
-
-          // Create a new room with the calculated unread count
-          final roomWithUnreadCount = ChatRoomModel(
-            chatRoomId: remoteRoom.chatRoomId,
-            publicationId: remoteRoom.publicationId,
-            publicationImagePath: remoteRoom.publicationImagePath,
-            publicationTitle: remoteRoom.publicationTitle,
-            publicationPrice: remoteRoom.publicationPrice,
-            recipientId: remoteRoom.recipientId,
-            recipientImagePath: remoteRoom.recipientImagePath,
-            recipientNickname: remoteRoom.recipientNickname,
-            lastMessage: remoteRoom.lastMessage?.toModel(),
-            unreadCount: unreadCount,
-          );
-
-          roomsWithUnreadCounts.add(roomWithUnreadCount);
-        }
-
+        final remoteRooms = await remoteDataSource.getChatRooms(userId);
         // Save to local storage
-        await localDataSource.saveChatRooms(userId, roomsWithUnreadCounts);
-
-        return roomsWithUnreadCounts;
+        await localDataSource.saveChatRooms(userId, remoteRooms);
+        return remoteRooms;
       } catch (e) {
         print(
             'Failed to get chat rooms from remote, falling back to local: $e');
@@ -200,58 +112,13 @@ class ChatRepositoryImpl implements ChatRepository {
       print(
           'Repository: Getting chat history for pub $publicationId, sender $senderId, recipient $recipientId');
 
-      // Try to get from remote
+      // First try to get from remote
       try {
         final remoteMessages = await remoteDataSource.getChatHistory(
           publicationId,
           senderId,
           recipientId,
         );
-
-        // Compare with local messages to determine which are new
-        final localMessages = await localDataSource.getChatMessages(
-          publicationId,
-          senderId,
-          recipientId,
-        );
-
-        // If we have new messages (more messages than local)
-        if (remoteMessages.length > localMessages.length) {
-          final int newMessageCount =
-              remoteMessages.length - localMessages.length;
-          print('Found $newMessageCount new messages from remote');
-
-          // Increment unread count if necessary
-          // Only consider messages addressed to the current user as unread
-          int unreadCount = 0;
-          for (int i = remoteMessages.length - newMessageCount;
-              i < remoteMessages.length;
-              i++) {
-            if (remoteMessages[i].recipientId == senderId) {
-              unreadCount++;
-            }
-          }
-
-          if (unreadCount > 0) {
-            print('Updating unread count for $unreadCount new messages');
-            // Update the unread count
-            await localDataSource.resetUnreadCount(
-              publicationId,
-              senderId,
-              recipientId,
-            );
-
-            // Then set it to the actual count
-            for (int i = 0; i < unreadCount; i++) {
-              await localDataSource.incrementUnreadCount(
-                publicationId,
-                senderId,
-                recipientId,
-              );
-            }
-          }
-        }
-
         // Save to local storage
         await localDataSource.saveChatMessages(
           publicationId,
@@ -259,11 +126,11 @@ class ChatRepositoryImpl implements ChatRepository {
           recipientId,
           remoteMessages,
         );
-
         return remoteMessages;
       } catch (e) {
-        print('Failed to get chat history from remote: $e');
-        // Don't throw here - we want to return local data seamlessly
+        print(
+            'Failed to get chat history from remote, falling back to local: $e');
+        // If remote fails, return local data
         return await localDataSource.getChatMessages(
           publicationId,
           senderId,
@@ -272,18 +139,8 @@ class ChatRepositoryImpl implements ChatRepository {
       }
     } catch (e) {
       print('Repository: Error getting chat history: $e');
-      // Still try to return local data as a last resort
-      try {
-        return await localDataSource.getChatMessages(
-          publicationId,
-          senderId,
-          recipientId,
-        );
-      } catch (localError) {
-        print(
-            'Repository: Error getting local chat history after remote failure: $localError');
-        return [];
-      }
+      // If both fail, return empty list
+      return [];
     }
   }
 
@@ -324,16 +181,6 @@ class ChatRepositoryImpl implements ChatRepository {
 
       await localDataSource.saveChatMessage(message.toModel());
 
-      // If this message has an ID, set it as last read for sender immediately
-      if (message.id != null && message.id!.isNotEmpty) {
-        await localDataSource.saveLastReadMessageId(
-          message.publicationId,
-          message.senderId,
-          message.recipientId,
-          message.id!,
-        );
-      }
-
       await remoteDataSource.sendMessage(
         senderId: message.senderId,
         recipientId: message.recipientId,
@@ -348,166 +195,48 @@ class ChatRepositoryImpl implements ChatRepository {
 
   @override
   Stream<ChatMessage> get messageStream {
-    // Process incoming messages to track unread status
-    return remoteDataSource.messageStream.map((message) {
-      // If the message is addressed to the current user, increment unread count
-      if (message.recipientId == currentUserId) {
-        // Don't await this operation as we don't want to block the stream
-        localDataSource.incrementUnreadCount(
-          message.publicationId,
-          currentUserId,
-          message.senderId,
-        );
-      }
-      return message;
-    });
+    // Combine both remote and local message streams if needed
+    return remoteDataSource.messageStream;
   }
 
   @override
   Stream<UserConnectionInfo> get userStatusStream {
+    // Combine both remote and local status streams if needed
     return remoteDataSource.userStatusStream;
   }
 
-  @override
-  Future<bool> clearLocalChatData(String userId) async {
+  Future<void> clearLocalData() async {
     try {
-      return await localDataSource.clearUserChatData(userId);
+      await localDataSource.clearUserChatData(currentUserId);
+      print('Cleared all local chat data for user $currentUserId');
     } catch (e) {
       print('Error clearing local chat data: $e');
-      return false;
     }
+  }
+
+  @override
+  Future<bool> clearLocalChatData(String userId) {
+    throw UnimplementedError();
   }
 
   @override
   Future<List<ChatMessage>> getLocalChatHistory(
-      String publicationId, String senderId, String recipientId) async {
-    try {
-      print(
-          'Getting local chat history for publication: $publicationId, sender: $senderId, recipient: $recipientId');
-      final messages = await localDataSource.getChatMessages(
-        publicationId,
-        senderId,
-        recipientId,
-      );
-      print('Retrieved ${messages.length} messages from local storage');
-      return messages;
-    } catch (e) {
-      print('Error getting local chat history: $e');
-      return [];
-    }
+      String publicationId, String senderId, String recipientId) {
+    throw UnimplementedError();
   }
 
   @override
-  Future<List<ChatRoom>> getLocalChatRooms(String userId) async {
-    try {
-      return await localDataSource.getChatRooms(userId);
-    } catch (e) {
-      print('Error getting local chat rooms: $e');
-      return [];
-    }
+  Future<List<ChatRoom>> getLocalChatRooms(String userId) {
+    throw UnimplementedError();
   }
 
   @override
-  Future<bool> saveChatMessageLocally(ChatMessage message) async {
-    try {
-      return await localDataSource.saveChatMessage(message.toModel());
-    } catch (e) {
-      print('Error saving chat message locally: $e');
-      return false;
-    }
+  Future<bool> saveChatMessageLocally(ChatMessage message) {
+    throw UnimplementedError();
   }
 
   @override
-  Future<bool> saveChatRoomsLocally(
-      String userId, List<ChatRoom> chatRooms) async {
-    try {
-      // Convert ChatRoom to ChatRoomModel
-      final List<ChatRoomModel> roomModels = chatRooms.map((room) {
-        if (room is ChatRoomModel) {
-          return room;
-        } else {
-          return ChatRoomModel(
-            chatRoomId: room.chatRoomId,
-            publicationId: room.publicationId,
-            publicationImagePath: room.publicationImagePath,
-            publicationTitle: room.publicationTitle,
-            publicationPrice: room.publicationPrice,
-            recipientId: room.recipientId,
-            recipientImagePath: room.recipientImagePath,
-            recipientNickname: room.recipientNickname,
-            lastMessage: room.lastMessage?.toModel(),
-            unreadCount: room.unreadCount,
-          );
-        }
-      }).toList();
-
-      return await localDataSource.saveChatRooms(userId, roomModels);
-    } catch (e) {
-      print('Error saving chat rooms locally: $e');
-      return false;
-    }
-  }
-
-  // Methods for unread messages
-
-  @override
-  Future<String?> getLastReadMessageId(
-      String publicationId, String userId, String recipientId) async {
-    try {
-      return await localDataSource.getLastReadMessageId(
-        publicationId,
-        userId,
-        recipientId,
-      );
-    } catch (e) {
-      print('Error getting last read message ID: $e');
-      return null;
-    }
-  }
-
-  @override
-  Future<bool> saveLastReadMessageId(String publicationId, String userId,
-      String recipientId, String messageId) async {
-    try {
-      return await localDataSource.saveLastReadMessageId(
-        publicationId,
-        userId,
-        recipientId,
-        messageId,
-      );
-    } catch (e) {
-      print('Error saving last read message ID: $e');
-      return false;
-    }
-  }
-
-  @override
-  Future<int> getUnreadCount(
-      String publicationId, String userId, String recipientId) async {
-    try {
-      return await localDataSource.getUnreadCount(
-        publicationId,
-        userId,
-        recipientId,
-      );
-    } catch (e) {
-      print('Error getting unread count: $e');
-      return 0;
-    }
-  }
-
-  @override
-  Future<bool> resetUnreadCount(
-      String publicationId, String userId, String recipientId) async {
-    try {
-      return await localDataSource.resetUnreadCount(
-        publicationId,
-        userId,
-        recipientId,
-      );
-    } catch (e) {
-      print('Error resetting unread count: $e');
-      return false;
-    }
+  Future<bool> saveChatRoomsLocally(String userId, List<ChatRoom> chatRooms) {
+    throw UnimplementedError();
   }
 }

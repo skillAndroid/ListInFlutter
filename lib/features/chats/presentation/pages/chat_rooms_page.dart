@@ -1,5 +1,3 @@
-// ignore_for_file: avoid_print
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -165,9 +163,6 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
         padding: const EdgeInsets.symmetric(vertical: 8),
         itemBuilder: (context, index) {
           final chatRoom = rooms[index];
-          // Access unread count directly from the chat room
-          final unreadCount = chatRoom.unreadCount;
-
           return Card(
             color: AppColors.transparent,
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
@@ -237,43 +232,6 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
                               ),
                             ),
                           ),
-
-                          // Unread count indicator
-                          if (unreadCount > 0)
-                            Positioned(
-                              right: -12,
-                              bottom: -4,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: Colors.red,
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(
-                                    color: Theme.of(context)
-                                        .scaffoldBackgroundColor,
-                                    width: 1.5,
-                                  ),
-                                ),
-                                constraints: const BoxConstraints(
-                                  minWidth: 20,
-                                  minHeight: 20,
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    unreadCount > 99
-                                        ? '99+'
-                                        : unreadCount.toString(),
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              ),
-                            ),
                         ],
                       ),
                     ),
@@ -284,40 +242,15 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           const SizedBox(height: 12),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  chatRoom.publicationTitle,
-                                  style: TextStyle(
-                                    fontWeight: unreadCount > 0
-                                        ? FontWeight.bold
-                                        : FontWeight.w500,
-                                    fontSize: 14,
-                                    color:
-                                        Theme.of(context).colorScheme.secondary,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              if (chatRoom.lastMessage != null)
-                                Text(
-                                  DateFormat('hh:mm a')
-                                      .format(chatRoom.lastMessage!.sentAt),
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: unreadCount > 0
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
-                                    color: unreadCount > 0
-                                        ? Theme.of(context)
-                                            .colorScheme
-                                            .secondary
-                                        : Colors.grey[500],
-                                  ),
-                                ),
-                            ],
+                          Text(
+                            chatRoom.publicationTitle,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 14,
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 2),
                           // Price
@@ -334,74 +267,66 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
                           Row(
                             children: [
                               Expanded(
-                                child: RichText(
-                                  text: TextSpan(
-                                    children: chatRoom.lastMessage == null
-                                        ? [
-                                            TextSpan(
-                                              text: 'No messages yet',
-                                              style: TextStyle(
-                                                color: Colors.grey[600],
-                                                fontSize: 14,
-                                              ),
+                                  child: RichText(
+                                text: TextSpan(
+                                  children: chatRoom.lastMessage == null
+                                      ? [
+                                          TextSpan(
+                                            text: 'No messages yet',
+                                            style: TextStyle(
+                                              color: Colors.grey[600],
+                                              fontSize: 14,
                                             ),
-                                          ]
-                                        : chatRoom.lastMessage!.senderId ==
-                                                widget.userId
-                                            ? [
-                                                TextSpan(
-                                                  text: 'You: ',
-                                                  style: TextStyle(
+                                          ),
+                                        ]
+                                      : chatRoom.lastMessage!.senderId ==
+                                              widget.userId
+                                          ? [
+                                              TextSpan(
+                                                text: 'You: ',
+                                                style: TextStyle(
                                                     color: Theme.of(context)
                                                         .colorScheme
                                                         .secondary,
                                                     fontSize: 12,
-                                                    fontWeight: unreadCount > 0
-                                                        ? FontWeight.bold
-                                                        : FontWeight.w500,
-                                                    fontFamily: Constants.Arial,
-                                                  ),
+                                                    fontWeight: FontWeight.w500,
+                                                    fontFamily:
+                                                        Constants.Arial),
+                                              ),
+                                              TextSpan(
+                                                text: chatRoom
+                                                    .lastMessage!.content,
+                                                style: TextStyle(
+                                                  color: Colors.grey[600],
+                                                  fontSize: 12,
+                                                  fontFamily: Constants.Arial,
                                                 ),
-                                                TextSpan(
-                                                  text: chatRoom
-                                                      .lastMessage!.content,
-                                                  style: TextStyle(
-                                                    color: unreadCount > 0
-                                                        ? Theme.of(context)
-                                                            .colorScheme
-                                                            .secondary
-                                                        : Colors.grey[600],
-                                                    fontSize: 12,
-                                                    fontWeight: unreadCount > 0
-                                                        ? FontWeight.bold
-                                                        : FontWeight.normal,
-                                                    fontFamily: Constants.Arial,
-                                                  ),
+                                              ),
+                                            ]
+                                          : [
+                                              TextSpan(
+                                                text: chatRoom
+                                                    .lastMessage!.content,
+                                                style: TextStyle(
+                                                  color: Colors.grey[600],
+                                                  fontSize: 12,
+                                                  fontFamily: Constants.Arial,
                                                 ),
-                                              ]
-                                            : [
-                                                TextSpan(
-                                                  text: chatRoom
-                                                      .lastMessage!.content,
-                                                  style: TextStyle(
-                                                    color: unreadCount > 0
-                                                        ? Theme.of(context)
-                                                            .colorScheme
-                                                            .secondary
-                                                        : Colors.grey[600],
-                                                    fontSize: 12,
-                                                    fontWeight: unreadCount > 0
-                                                        ? FontWeight.bold
-                                                        : FontWeight.normal,
-                                                    fontFamily: Constants.Arial,
-                                                  ),
-                                                ),
-                                              ],
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ],
                                 ),
-                              ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              )),
+                              if (chatRoom.lastMessage != null)
+                                Text(
+                                  DateFormat('hh:mm a')
+                                      .format(chatRoom.lastMessage!.sentAt),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey[500],
+                                  ),
+                                ),
                             ],
                           ),
                         ],

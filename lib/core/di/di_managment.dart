@@ -40,15 +40,6 @@ import 'package:list_in/features/chats/domain/usecase/get_chat_history_usecase.d
 import 'package:list_in/features/chats/domain/usecase/get_chat_rooms_usecase.dart';
 import 'package:list_in/features/chats/domain/usecase/get_messages_stream_usecase.dart';
 import 'package:list_in/features/chats/domain/usecase/get_user_status_usecase.dart';
-import 'package:list_in/features/chats/domain/usecase/local/clear_local_chat_data_usecase.dart';
-import 'package:list_in/features/chats/domain/usecase/local/get_last_read_message_id_usecase.dart';
-import 'package:list_in/features/chats/domain/usecase/local/get_local_chat_history_usecase.dart';
-import 'package:list_in/features/chats/domain/usecase/local/get_local_chat_rooms_usecase.dart';
-import 'package:list_in/features/chats/domain/usecase/local/get_unread_count_usecase.dart';
-import 'package:list_in/features/chats/domain/usecase/local/reset_unread_count_usecase.dart';
-import 'package:list_in/features/chats/domain/usecase/local/save_chat_message_locally_usecase.dart';
-import 'package:list_in/features/chats/domain/usecase/local/save_chat_rooms_locally_usecase.dart';
-import 'package:list_in/features/chats/domain/usecase/local/save_last_read_message_id_usecase.dart';
 import 'package:list_in/features/chats/domain/usecase/send_message_usecase.dart';
 import 'package:list_in/features/chats/presentation/provider/chats/chat_bloc.dart';
 import 'package:list_in/features/details/presentation/bloc/details_bloc.dart';
@@ -238,50 +229,24 @@ void registerChatFeature(GetIt sl, String currentUserId) {
   );
 
   // Use cases
-  sl.registerLazySingleton(() => GetChatRoomsUseCase(sl<ChatRepository>()));
-  sl.registerLazySingleton(() => GetChatHistoryUseCase(sl<ChatRepository>()));
-  sl.registerLazySingleton(() => SendMessageUseCase(sl<ChatRepository>()));
-  sl.registerLazySingleton(() => ConnectUserUseCase(sl<ChatRepository>()));
-  sl.registerLazySingleton(() => DisconnectUserUseCase(sl<ChatRepository>()));
-  sl.registerLazySingleton(() => GetMessageStreamUseCase(sl<ChatRepository>()));
-  sl.registerLazySingleton(
-      () => GetUserStatusStreamUseCase(sl<ChatRepository>()));
-
-  // Local data use cases
-  sl.registerLazySingleton(
-      () => GetLocalChatRoomsUseCase(sl<ChatRepository>()));
-  sl.registerLazySingleton(
-      () => GetLocalChatHistoryUseCase(sl<ChatRepository>()));
-  sl.registerLazySingleton(
-      () => SaveChatMessageLocallyUseCase(sl<ChatRepository>()));
-  sl.registerLazySingleton(
-      () => SaveChatRoomsLocallyUseCase(sl<ChatRepository>()));
-  sl.registerLazySingleton(
-      () => ClearLocalChatDataUseCase(sl<ChatRepository>()));
-
-  // Unread messages use cases
-  sl.registerLazySingleton(
-      () => GetLastReadMessageIdUseCase(sl<ChatRepository>()));
-  sl.registerLazySingleton(
-      () => SaveLastReadMessageIdUseCase(sl<ChatRepository>()));
-  sl.registerLazySingleton(() => GetUnreadCountUseCase(sl<ChatRepository>()));
-  sl.registerLazySingleton(() => ResetUnreadCountUseCase(sl<ChatRepository>()));
+  sl.registerLazySingleton(() => GetChatRoomsUseCase(sl()));
+  sl.registerLazySingleton(() => GetChatHistoryUseCase(sl()));
+  sl.registerLazySingleton(() => SendMessageUseCase(sl()));
+  sl.registerLazySingleton(() => ConnectUserUseCase(sl()));
+  sl.registerLazySingleton(() => DisconnectUserUseCase(sl()));
+  sl.registerLazySingleton(() => GetMessageStreamUseCase(sl()));
+  sl.registerLazySingleton(() => GetUserStatusStreamUseCase(sl()));
 
   // BLoCs
   sl.registerFactory(
     () => ChatProvider(
-      getChatRoomsUseCase: sl<GetChatRoomsUseCase>(),
-      getChatHistoryUseCase: sl<GetChatHistoryUseCase>(),
-      sendMessageUseCase: sl<SendMessageUseCase>(),
-      connectUserUseCase: sl<ConnectUserUseCase>(),
-      disconnectUserUseCase: sl<DisconnectUserUseCase>(),
-      getMessageStreamUseCase: sl<GetMessageStreamUseCase>(),
-      getUserStatusStreamUseCase: sl<GetUserStatusStreamUseCase>(),
-      getLastReadMessageIdUseCase: sl<GetLastReadMessageIdUseCase>(),
-      saveLastReadMessageIdUseCase: sl<SaveLastReadMessageIdUseCase>(),
-      getUnreadCountUseCase: sl<GetUnreadCountUseCase>(),
-      resetUnreadCountUseCase: sl<ResetUnreadCountUseCase>(),
-      getLocalChatHistoryUseCase: sl<GetLocalChatHistoryUseCase>(),
+      getChatRoomsUseCase: sl(),
+      getChatHistoryUseCase: sl(),
+      sendMessageUseCase: sl(),
+      connectUserUseCase: sl(),
+      disconnectUserUseCase: sl(),
+      getMessageStreamUseCase: sl(),
+      getUserStatusStreamUseCase: sl(),
     ),
   );
 }
