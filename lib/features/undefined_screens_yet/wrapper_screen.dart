@@ -154,7 +154,7 @@ class _MainWrapperState extends State<MainWrapper> {
       onPressed: () => _goToBranch(index),
       icon: Icon(
         isSelected ? selectedIcon : icon,
-        size: index == 2 ? 26 : 24,
+        size: index == 2 ? 28 : 26,
         color: _isDarkMode
             ? AppColors.white
             : Theme.of(context).colorScheme.secondary,
@@ -167,7 +167,7 @@ class _MainWrapperState extends State<MainWrapper> {
     return IconButton(
       onPressed: () => _goToBranch(1),
       icon: Icon(CupertinoIcons.plus,
-          size: 30,
+          size: 32,
           color: _isDarkMode
               ? AppColors.white
               : Theme.of(context).colorScheme.secondary),
@@ -193,8 +193,8 @@ class _MainWrapperState extends State<MainWrapper> {
                     : AppColors.transparent,
               ),
               child: SizedBox(
-                height: 24.5,
-                width: 24.5,
+                height: 26.5,
+                width: 26.5,
                 child: CachedNetworkImage(
                   imageUrl: "https://${AppSession.profileImagePath}",
                   placeholder: (context, url) => Container(
@@ -204,7 +204,7 @@ class _MainWrapperState extends State<MainWrapper> {
                     isSelected
                         ? CupertinoIcons.person_fill
                         : CupertinoIcons.person,
-                    size: 26,
+                    size: 28,
                     color: isSelected
                         ? Theme.of(context).colorScheme.secondary
                         : CupertinoColors.inactiveGray,
@@ -215,7 +215,7 @@ class _MainWrapperState extends State<MainWrapper> {
             )
           : Icon(
               isSelected ? CupertinoIcons.person_fill : CupertinoIcons.person,
-              size: 26,
+              size: 28,
               color: isSelected
                   ? Theme.of(context).colorScheme.secondary
                   : CupertinoColors.inactiveGray,

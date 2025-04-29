@@ -11,6 +11,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:list_in/config/assets/app_icons.dart';
+import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/config/theme/app_language.dart';
 import 'package:list_in/core/language/language_bloc.dart';
@@ -629,54 +630,14 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 4),
+                  const SizedBox(width: 6),
                   Transform.translate(
                     offset: Offset(0, 3),
-                    child: Stack(
-                      children: [
-                        IconButton(
-                          icon: Image.asset(
-                            AppIcons.chatIc,
-                            width: 38,
-                            height: 38,
-                            color: Theme.of(context).colorScheme.secondary,
-                          ),
-                          onPressed: () async {
-                            // final currentUserId =
-                            //     context.read<GlobalBloc>().userId;
-                            // // Navigator.of(context).push(
-                            // //   CupertinoPageRoute(
-                            // //     builder: (context) => ChatRoomsPage(
-                            // //       userId: currentUserId ?? '',
-                            // //     ),
-                            // //   ),
-                            // // );
-                            context.push(Routes.chats);
-                            //_showChatNotAvailableMessage(context);
-                          },
-                        ),
-                        Positioned(
-                          right: 8,
-                          bottom: 12,
-                          child: Container(
-                            width: 14,
-                            height: 14,
-                            decoration: BoxDecoration(
-                              color: AppColors.error,
-                              borderRadius: BorderRadius.circular(32),
-                            ),
-                            child: Center(
-                              child: const Text(
-                                "x",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 11,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+                    child: IconButton(
+                      icon: Icon(CupertinoIcons.hammer),
+                      onPressed: () async {
+                        _showChatNotAvailableMessage(context);
+                      },
                     ),
                   ),
                 ],
