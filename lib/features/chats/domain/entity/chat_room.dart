@@ -10,7 +10,6 @@ class ChatRoom {
   final String recipientImagePath;
   final String recipientNickname;
   final ChatMessage? lastMessage;
-  final int unreadCount; // Added unread count field
 
   ChatRoom({
     required this.chatRoomId,
@@ -22,9 +21,7 @@ class ChatRoom {
     required this.recipientImagePath,
     required this.recipientNickname,
     this.lastMessage,
-    this.unreadCount = 0, // Default to 0
   });
-
   ChatRoom copyWith({
     String? chatRoomId,
     String? publicationId,
@@ -35,7 +32,6 @@ class ChatRoom {
     String? recipientImagePath,
     String? recipientNickname,
     ChatMessage? lastMessage,
-    int? unreadCount,
   }) {
     return ChatRoom(
       chatRoomId: chatRoomId ?? this.chatRoomId,
@@ -47,7 +43,6 @@ class ChatRoom {
       recipientImagePath: recipientImagePath ?? this.recipientImagePath,
       recipientNickname: recipientNickname ?? this.recipientNickname,
       lastMessage: lastMessage ?? this.lastMessage,
-      unreadCount: unreadCount ?? this.unreadCount,
     );
   }
 }

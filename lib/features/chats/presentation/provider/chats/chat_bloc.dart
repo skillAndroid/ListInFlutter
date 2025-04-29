@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -145,6 +147,7 @@ class ChatProvider extends ChangeNotifier {
     // Subscribe to message stream
     _messageSubscription = getMessageStreamUseCase.execute().listen(
       (message) {
+        print("here is the in the provider this message : ${message.content} ");
         _handleIncomingMessage(message);
       },
       onError: (error) {
@@ -275,8 +278,7 @@ class ChatProvider extends ChangeNotifier {
   // Handle incoming messages from WebSocket
   void _handleIncomingMessage(ChatMessage message) {
     // Update chat history if we're in the relevant chat
-    if (_historyState.publicationId == message.publicationId &&
-        _historyState.recipientId == message.senderId) {
+    if (_historyState.recipientId == message.senderId) {
       final updatedMessages = List<ChatMessage>.from(_historyState.messages)
         ..add(message);
       _historyState = _historyState.copyWith(messages: updatedMessages);
