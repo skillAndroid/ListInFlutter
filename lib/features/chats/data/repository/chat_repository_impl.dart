@@ -3,7 +3,6 @@
 import 'dart:async';
 
 import 'package:list_in/features/auth/data/sources/auth_local_data_source.dart';
-import 'package:list_in/features/chats/data/source/chat_local_datasourse.dart';
 import 'package:list_in/features/chats/data/source/chat_remote_datasource.dart';
 import 'package:list_in/features/chats/domain/entity/chat_message.dart';
 import 'package:list_in/features/chats/domain/entity/chat_room.dart';
@@ -12,7 +11,6 @@ import 'package:list_in/features/chats/domain/repository/chat_repository.dart';
 
 class ChatRepositoryImpl implements ChatRepository {
   final ChatRemoteDataSource remoteDataSource;
-  final ChatLocalDataSource localDataSource;
   final AuthLocalDataSource authLocalDataSource;
   final String currentUserId;
   bool _initializing = false;
@@ -22,7 +20,6 @@ class ChatRepositoryImpl implements ChatRepository {
 
   ChatRepositoryImpl({
     required this.remoteDataSource,
-    required this.localDataSource,
     required this.authLocalDataSource,
     required this.currentUserId,
   });
@@ -82,18 +79,8 @@ class ChatRepositoryImpl implements ChatRepository {
       await initializeWebSocket(userId);
       print('Repository: Getting chat rooms for user $userId');
 
-      // First try to get from remote
-      try {
-        final remoteRooms = await remoteDataSource.getChatRooms(userId);
-        // Save to local storage
-        await localDataSource.saveChatRooms(userId, remoteRooms);
-        return remoteRooms;
-      } catch (e) {
-        print(
-            'Failed to get chat rooms from remote, falling back to local: $e');
-        // If remote fails, return local data
-        return await localDataSource.getChatRooms(userId);
-      }
+      final remoteRooms = await remoteDataSource.getChatRooms(userId);
+      return remoteRooms;
     } catch (e) {
       print('Repository: Error getting chat rooms: $e');
       // If both fail, return empty list
@@ -112,31 +99,13 @@ class ChatRepositoryImpl implements ChatRepository {
       print(
           'Repository: Getting chat history for pub $publicationId, sender $senderId, recipient $recipientId');
 
-      // First try to get from remote
-      try {
-        final remoteMessages = await remoteDataSource.getChatHistory(
-          publicationId,
-          senderId,
-          recipientId,
-        );
-        // Save to local storage
-        await localDataSource.saveChatMessages(
-          publicationId,
-          senderId,
-          recipientId,
-          remoteMessages,
-        );
-        return remoteMessages;
-      } catch (e) {
-        print(
-            'Failed to get chat history from remote, falling back to local: $e');
-        // If remote fails, return local data
-        return await localDataSource.getChatMessages(
-          publicationId,
-          senderId,
-          recipientId,
-        );
-      }
+      final remoteMessages = await remoteDataSource.getChatHistory(
+        publicationId,
+        senderId,
+        recipientId,
+      );
+
+      return remoteMessages;
     } catch (e) {
       print('Repository: Error getting chat history: $e');
       // If both fail, return empty list
@@ -150,9 +119,6 @@ class ChatRepositoryImpl implements ChatRepository {
       await initializeWebSocket(connectionInfo.email);
       print('Repository: Connecting user ${connectionInfo.email}');
       await remoteDataSource.connectUser(connectionInfo);
-      // Save user status locally
-      await localDataSource.saveUserStatus(
-          connectionInfo.email, connectionInfo.status);
     } catch (e) {
       print('Repository: Error connecting user: $e');
       throw e;
@@ -164,9 +130,6 @@ class ChatRepositoryImpl implements ChatRepository {
     try {
       print('Repository: Disconnecting user ${connectionInfo.email}');
       await remoteDataSource.disconnectUser(connectionInfo);
-      // Save user status locally
-      await localDataSource.saveUserStatus(
-          connectionInfo.email, UserStatus.OFFLINE);
     } catch (e) {
       print('Repository: Error disconnecting user: $e');
     }
@@ -178,8 +141,6 @@ class ChatRepositoryImpl implements ChatRepository {
       await initializeWebSocket(message.senderId);
       print(
           'Repository: Sending message from ${message.senderId} to ${message.recipientId}: ${message.content}');
-
-      await localDataSource.saveChatMessage(message.toModel());
 
       await remoteDataSource.sendMessage(
         senderId: message.senderId,
@@ -203,15 +164,6 @@ class ChatRepositoryImpl implements ChatRepository {
   Stream<UserConnectionInfo> get userStatusStream {
     // Combine both remote and local status streams if needed
     return remoteDataSource.userStatusStream;
-  }
-
-  Future<void> clearLocalData() async {
-    try {
-      await localDataSource.clearUserChatData(currentUserId);
-      print('Cleared all local chat data for user $currentUserId');
-    } catch (e) {
-      print('Error clearing local chat data: $e');
-    }
   }
 
   @override

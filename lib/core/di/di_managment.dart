@@ -31,7 +31,6 @@ import 'package:list_in/features/auth/domain/usecases/signup_usecase.dart';
 import 'package:list_in/features/auth/domain/usecases/verify_email_signup.dart';
 import 'package:list_in/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:list_in/features/chats/data/repository/chat_repository_impl.dart';
-import 'package:list_in/features/chats/data/source/chat_local_datasourse.dart';
 import 'package:list_in/features/chats/data/source/chat_remote_datasource.dart';
 import 'package:list_in/features/chats/domain/repository/chat_repository.dart';
 import 'package:list_in/features/chats/domain/usecase/connect_user_usecase.dart';
@@ -212,18 +211,11 @@ void registerChatFeature(GetIt sl, String currentUserId) {
     ),
   );
 
-  sl.registerLazySingleton<ChatLocalDataSource>(
-    () => ChatLocalDataSource(
-      sharedPreferences: sl(),
-    ),
-  );
-
   // Repositories
   sl.registerLazySingleton<ChatRepository>(
     () => ChatRepositoryImpl(
       remoteDataSource: sl(),
       authLocalDataSource: sl(),
-      localDataSource: sl(),
       currentUserId: currentUserId,
     ),
   );
