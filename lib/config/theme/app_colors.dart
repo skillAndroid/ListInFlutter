@@ -16,7 +16,7 @@ class AppColors {
   static const littleGreen = Color(0xFFA8F6D4);
   static const littleGreen2 = Color.fromARGB(255, 220, 241, 231);
   static const lightText = Color.fromARGB(255, 177, 182, 187);
-  static const containerColor = Color.fromARGB(255, 233, 233, 233);
+  static const containerColor = Color.fromARGB(255, 237, 237, 237);
   static const containerColorDark = Color.fromARGB(255, 24, 24, 24);
   static const containerColorDark2 = Color.fromARGB(255, 44, 44, 44);
   static const containerColor2 = Color.fromARGB(253, 247, 247, 247);
