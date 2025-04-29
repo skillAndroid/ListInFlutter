@@ -29,14 +29,20 @@ class ChatRemoteDataSource {
   Stream<UserConnectionInfo> get userStatusStream =>
       _userStatusStreamController.stream;
 
+  // Retry configuration
+  static const int maxRetryAttempts = 3;
+  static const Duration initialRetryDelay = Duration(seconds: 2);
+
   ChatRemoteDataSource({
     required this.dio,
     required this.authLocalDataSource,
     required this.authService,
   });
+
   final Set<String> _activeSubscriptionDestinations = {};
+
   Future<void> initializeWebSocket(String userId) async {
-    if (_isConnected) {
+    if (_isConnected && _stompClient != null) {
       print('WebSocket already connected');
       return;
     }
@@ -48,62 +54,43 @@ class ChatRemoteDataSource {
 
     final wsUrl = 'ws://listin.uz:80/ws?token=${authToken.accessToken}';
 
-    try {
-      _stompClient = StompClient(
-        config: StompConfig(
-          url: wsUrl,
-          beforeConnect: () async {
-            print('💋💋Attempting to connect to WebSocket...');
-            print('💋💋Using token: ${authToken.accessToken}...');
-          },
-          onWebSocketError: (dynamic error) {
-            print('💋💋WebSocket Error: $error');
-            _isConnected = false;
-          },
-          onStompError: (StompFrame frame) {
-            print('💋💋STOMP Error: ${frame.body}');
-          },
-          onConnect: (StompFrame frame) async {
-            _isConnected = true;
-            print('💋💋Connected to WebSocket');
+    int retryCount = 0;
+    Duration delay = initialRetryDelay;
 
-            // // Subscribe to global messages
-            // _stompClient!.subscribe(
-            //   destination: '/topic/messages',
-            //   callback: (StompFrame frame) {
-            //     print('💋💋Received message from /topic/messages');
-            //     if (frame.body != null) {
-            //       try {
-            //         final message =
-            //             ChatMessageModel.fromJson(jsonDecode(frame.body!));
-            //         print('Parsed message: ${message.content}');
-            //         _messageStreamController.add(message);
-            //       } catch (e) {
-            //         print('Error parsing message: $e');
-            //       }
-            //     }
-            //   },
-            // );
-            //  final email = await authLocalDataSource.getRetrivedEmail();
-            // Subscribe to private message channel
-            // Subscribe to private message channel, but only once
-            _subscribeToDestination('/user/$userId/queue/messages', (frame) {
-              if (frame.body != null) {
-                try {
-                  final message =
-                      ChatMessageModel.fromJson(jsonDecode(frame.body!));
-                  print('💋💋Parsed private message: ${message.content}');
-                  _messageStreamController.add(message);
-                } catch (e) {
-                  print('💋💋Error parsing private message: $e');
+    while (retryCount < maxRetryAttempts) {
+      try {
+        _stompClient = StompClient(
+          config: StompConfig(
+            url: wsUrl,
+            beforeConnect: () async {
+              print(
+                  'Attempting to connect to WebSocket (Attempt ${retryCount + 1})...');
+              print('Using token: ${authToken.accessToken.substring(0, 5)}...');
+            },
+            onWebSocketError: (dynamic error) {
+              print('WebSocket Error: $error');
+              _isConnected = false;
+            },
+            onStompError: (StompFrame frame) {
+              print('STOMP Error: ${frame.body}');
+            },
+            onConnect: (StompFrame frame) async {
+              _isConnected = true;
+              print('Connected to WebSocket');
+
+              _subscribeToDestination('/user/$userId/queue/messages', (frame) {
+                if (frame.body != null) {
+                  try {
+                    final message =
+                        ChatMessageModel.fromJson(jsonDecode(frame.body!));
+                    print('Parsed private message: ${message.content}');
+                    _messageStreamController.add(message);
+                  } catch (e) {
+                    print('Error parsing private message: $e');
+                  }
                 }
-              }
-            });
-
-            // Subscribe to user status updates
-            _stompClient!.subscribe(
-              destination: '/topic/user-status',
-              callback: (StompFrame frame) {
+              });
+              _subscribeToDestination('/topic/user-status', (StompFrame frame) {
                 if (frame.body != null) {
                   try {
                     final data = jsonDecode(frame.body!);
@@ -119,26 +106,38 @@ class ChatRemoteDataSource {
                     print('Error parsing user status: $e');
                   }
                 }
-              },
-            );
-          },
-          // Add reconnect delay to handle disconnections
-          reconnectDelay: Duration(seconds: 5),
-        ),
-      );
+              });
+            },
+            reconnectDelay: Duration(seconds: 5),
+          ),
+        );
 
-      _stompClient!.activate();
-    } catch (e) {
-      print('Error initializing WebSocket: $e');
-      throw Exception('Failed to initialize WebSocket: $e');
+        _stompClient!.activate();
+        break;
+      } catch (e) {
+        print('Error initializing WebSocket (Attempt ${retryCount + 1}): $e');
+
+        retryCount++;
+        if (retryCount >= maxRetryAttempts) {
+          print('Max retry attempts reached. Failed to connect.');
+          throw Exception(
+              'Failed to initialize WebSocket after $maxRetryAttempts attempts: $e');
+        }
+        await Future.delayed(delay);
+        delay *= 2;
+      }
     }
   }
 
-  // Helper method to ensure we subscribe only once to each destination
   void _subscribeToDestination(
       String destination, Function(StompFrame) callback) {
     if (_activeSubscriptionDestinations.contains(destination)) {
       print('Already subscribed to $destination, skipping');
+      return;
+    }
+
+    if (_stompClient == null || !_isConnected) {
+      print('Cannot subscribe to $destination: client not connected');
       return;
     }
 
@@ -153,15 +152,17 @@ class ChatRemoteDataSource {
 
   Future<void> disconnectWebSocket() async {
     if (_stompClient != null) {
+      _activeSubscriptionDestinations.clear();
       _stompClient!.deactivate();
       _isConnected = false;
+      print('WebSocket disconnected');
     }
   }
 
   Future<void> connectUser(UserConnectionInfo connectionInfo) async {
-    if (!_isConnected) {
+    if (!_isConnected || _stompClient == null) {
       print('WebSocket not connected. Cannot send user connection info.');
-      return;
+      throw Exception('WebSocket not connected');
     }
 
     try {
@@ -169,13 +170,15 @@ class ChatRemoteDataSource {
         destination: '/app/user.connectUser',
         body: jsonEncode(connectionInfo.toJson()),
       );
+      print('User connection info sent for ${connectionInfo.email}');
     } catch (e) {
       print('Error connecting user: $e');
+      throw Exception('Failed to connect user: $e');
     }
   }
 
   Future<void> disconnectUser(UserConnectionInfo connectionInfo) async {
-    if (!_isConnected) {
+    if (!_isConnected || _stompClient == null) {
       print('WebSocket not connected. Cannot send user disconnection info.');
       return;
     }
@@ -185,6 +188,7 @@ class ChatRemoteDataSource {
         destination: '/app/user.disconnectUser',
         body: jsonEncode(connectionInfo.toJson()),
       );
+      print('User disconnection info sent for ${connectionInfo.email}');
     } catch (e) {
       print('Error disconnecting user: $e');
     }
@@ -195,9 +199,8 @@ class ChatRemoteDataSource {
     required String recipientId,
     required String publicationId,
     required String content,
-    //  required String recipientEmail,
   }) async {
-    if (!_isConnected) {
+    if (!_isConnected || _stompClient == null) {
       print('WebSocket not connected. Cannot send message.');
       throw Exception('WebSocket not connected');
     }
@@ -207,13 +210,14 @@ class ChatRemoteDataSource {
       'recipientId': recipientId,
       'publicationId': publicationId,
       'content': content,
-      //  'recipientEmail': recipientEmail,
     };
+
     try {
       _stompClient?.send(
         destination: '/app/chat',
         body: jsonEncode(message),
       );
+      print('Message sent to recipient $recipientId: $content');
     } catch (e) {
       print('Error sending message: $e');
       throw Exception('Failed to send message: $e');
@@ -230,7 +234,10 @@ class ChatRemoteDataSource {
 
       if (response.statusCode == 200) {
         final List<dynamic> roomsJson = response.data;
-        return roomsJson.map((json) => ChatRoomModel.fromJson(json)).toList();
+        final rooms =
+            roomsJson.map((json) => ChatRoomModel.fromJson(json)).toList();
+        print('Retrieved ${rooms.length} chat rooms for user $userId');
+        return rooms;
       } else {
         throw Exception('Failed to load chat rooms: ${response.statusCode}');
       }
@@ -247,10 +254,11 @@ class ChatRemoteDataSource {
   ) async {
     try {
       final options = await authService.getAuthOptions();
-      print('loading history!: ');
-      print('🥶🥶publicationId:$publicationId');
-      print('🥶🥶senderId: $senderId');
-      print('🥶🥶recipientId: $recipientId');
+      print('Loading chat history:');
+      print('publicationId: $publicationId');
+      print('senderId: $senderId');
+      print('recipientId: $recipientId');
+
       final response = await dio.get(
         '$baseUrl/messages/$publicationId/$senderId/$recipientId',
         options: options,
@@ -258,9 +266,11 @@ class ChatRemoteDataSource {
 
       if (response.statusCode == 200) {
         final List<dynamic> messagesJson = response.data;
-        return messagesJson
+        final messages = messagesJson
             .map((json) => ChatMessageModel.fromJson(json))
             .toList();
+        print('Retrieved ${messages.length} messages for conversation');
+        return messages;
       } else {
         throw Exception('Failed to load chat history: ${response.statusCode}');
       }
@@ -268,6 +278,10 @@ class ChatRemoteDataSource {
       print('Error fetching chat history: $e');
       throw Exception('Failed to load chat history: $e');
     }
+  }
+
+  bool isConnected() {
+    return _isConnected && _stompClient != null;
   }
 
   void dispose() {

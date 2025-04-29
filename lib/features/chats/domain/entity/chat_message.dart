@@ -1,3 +1,5 @@
+import 'package:list_in/features/chats/data/model/chat_message_model.dart';
+
 class ChatMessage {
   final String? id;
   final String senderId;
@@ -18,4 +20,16 @@ class ChatMessage {
     required this.sentAt,
     required this.updatedAt,
   });
+  ChatMessageModel toModel() {
+    return ChatMessageModel(
+      id: id ?? '',
+      senderId: senderId,
+      recipientId: recipientId,
+      publicationId: publicationId,
+      content: content,
+      status: status,
+      sentAt: sentAt,
+      updatedAt: updatedAt,
+    );
+  }
 }
