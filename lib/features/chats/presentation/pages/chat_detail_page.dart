@@ -3,7 +3,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
@@ -12,7 +11,6 @@ import 'package:list_in/features/chats/domain/entity/chat_message.dart';
 import 'package:list_in/features/chats/domain/entity/user_status.dart';
 import 'package:list_in/features/chats/presentation/provider/chats/chat_bloc.dart';
 import 'package:list_in/features/chats/presentation/widgets/message_bubble.dart';
-import 'package:list_in/features/explore/presentation/widgets/recomendation_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
@@ -44,25 +42,67 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   bool _isFirstLoad = true;
+  bool _userScrolledUp = false; // Track if user has manually scrolled up
+  double _previousMaxScrollExtent = 0; // Track previous scroll position
+  double _keyboardHeight = 0; // Track keyboard height
+  late FocusNode _focusNode;
 
   @override
   void initState() {
     super.initState();
+    _focusNode = FocusNode();
+
+    // Add a listener to detect when user has manually scrolled up
+    _scrollController.addListener(_scrollListener);
+
     // Load chat history when page initializes
     Provider.of<ChatProvider>(context, listen: false).loadChatHistory(
       publicationId: widget.publicationId,
       senderId: widget.userId,
       recipientId: widget.recipientId,
     );
+
+    // Add listener to keyboard visibility
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // This ensures we respond properly to keyboard appearing
+      Provider.of<ChatProvider>(context, listen: false).addListener(() {
+        // Only auto-scroll if new messages arrived and user is at bottom
+        if (!_userScrolledUp) {
+          _scrollToBottomWithoutAnimation();
+        }
+      });
+
+      // Monitor keyboard appearance
+      _focusNode.addListener(_onFocusChange);
+    });
   }
 
-  @override
-  void dispose() {
-    _messageController.dispose();
-    _scrollController.dispose();
-    super.dispose();
+  void _onFocusChange() {
+    if (_focusNode.hasFocus) {
+      // Keyboard is appearing - schedule a scroll after keyboard appears
+      Future.delayed(const Duration(milliseconds: 300), () {
+        if (!_userScrolledUp) {
+          _scrollToBottom();
+        }
+      });
+    }
   }
 
+  void _scrollListener() {
+    if (_scrollController.hasClients) {
+      // Save previous scroll extent for comparison
+      _previousMaxScrollExtent = _scrollController.position.maxScrollExtent;
+
+      // Check if user has scrolled up
+      final isAtBottom = _scrollController.offset >=
+          _scrollController.position.maxScrollExtent - 50;
+      setState(() {
+        _userScrolledUp = !isAtBottom;
+      });
+    }
+  }
+
+  // Improved scroll function with animation
   void _scrollToBottom() {
     if (_scrollController.hasClients) {
       _scrollController.animateTo(
@@ -70,6 +110,36 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOut,
       );
+    }
+  }
+
+  // Non-animated scroll function (for keyboard appearance)
+  void _scrollToBottomWithoutAnimation() {
+    if (_scrollController.hasClients) {
+      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+    }
+  }
+
+  @override
+  void dispose() {
+    _messageController.dispose();
+    _scrollController.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  // Method to keep scroll position stable when text field expands
+  void _maintainScrollPosition() {
+    if (_scrollController.hasClients) {
+      final currentPosition = _scrollController.offset;
+      final diff =
+          _scrollController.position.maxScrollExtent - _previousMaxScrollExtent;
+
+      if (diff > 0 && !_userScrolledUp) {
+        // If content grew and user is at bottom, scroll to new bottom
+        _scrollController.jumpTo(currentPosition + diff);
+      }
+      _previousMaxScrollExtent = _scrollController.position.maxScrollExtent;
     }
   }
 
@@ -88,7 +158,12 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
       Provider.of<ChatProvider>(context, listen: false).sendMessage(message);
       _messageController.clear();
 
-      // Schedule scroll after UI update
+      // Reset user scrolled state when sending a message
+      setState(() {
+        _userScrolledUp = false;
+      });
+
+      // Scroll to bottom after message is sent - with a slight delay to ensure UI updated
       Future.delayed(const Duration(milliseconds: 100), _scrollToBottom);
     }
   }
@@ -111,9 +186,83 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     }
   }
 
+  // Modified build method for message input
+  Widget _buildMessageInput() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+      ),
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(
+              CupertinoIcons.paperclip,
+              size: 22,
+            ),
+            onPressed: () {
+              // Would implement attachment functionality
+            },
+          ),
+          Expanded(
+            child: SmoothClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: CupertinoTextField(
+                decoration: BoxDecoration(color: AppColors.containerColor),
+                padding: const EdgeInsets.all(12),
+                controller: _messageController,
+                focusNode: _focusNode,
+                minLines: 1,
+                placeholder: "Write something",
+                style: const TextStyle(fontFamily: Constants.Arial),
+                maxLines: 10,
+                textCapitalization: TextCapitalization.sentences,
+                onChanged: (text) {
+                  // Maintain scroll position when text field expands
+                  if (text.contains('\n')) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      _maintainScrollPosition();
+                    });
+                  }
+                },
+                onSubmitted: (_) => _sendMessage(),
+              ),
+            ),
+          ),
+          IconButton(
+            icon: const Icon(
+              Icons.telegram,
+              size: 28,
+            ),
+            color: Theme.of(context).colorScheme.secondary,
+            onPressed: _sendMessage,
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Calculate available height with MediaQuery to adjust for keyboard
+    final viewInsets = MediaQuery.of(context).viewInsets;
+    final keyboardHeight = viewInsets.bottom;
+
+    // Detect keyboard height changes
+    if (_keyboardHeight != keyboardHeight) {
+      _keyboardHeight = keyboardHeight;
+      // If keyboard appears and user isn't scrolled up, scroll to bottom
+      if (keyboardHeight > 0 && !_userScrolledUp) {
+        // Use a slight delay to ensure the layout is updated first
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _scrollToBottom();
+        });
+      }
+    }
+
     return Scaffold(
+      // Use resizeToAvoidBottomInset to properly resize when keyboard appears
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         shadowColor: AppColors.transparent,
         scrolledUnderElevation: 0,
@@ -232,190 +381,196 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
         ),
         toolbarHeight: 65, // Adjust this as needed
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: Consumer<ChatProvider>(
-              builder: (context, provider, child) {
-                final state = provider.historyState;
+      body: SafeArea(
+        // Use SafeArea to handle notches and system UI properly
+        // Set bottom to false to allow content to extend under keyboard
+        bottom: false,
+        child: Column(
+          children: [
+            Expanded(
+              child: Consumer<ChatProvider>(
+                builder: (context, provider, child) {
+                  final state = provider.historyState;
 
-                if (state.isLoading) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                } else if (state.messages.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        CachedNetworkImage(
-                          imageUrl: widget.publicationImagePath,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Interested in ${widget.publicationTitle}?',
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Send a message to start the conversation',
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                      ],
-                    ),
-                  );
-                } else {
-                  // For first load, scroll to bottom
-                  if (_isFirstLoad && state.messages.isNotEmpty) {
-                    _isFirstLoad = false;
-                    Future.delayed(
-                        const Duration(milliseconds: 100), _scrollToBottom);
-                  }
-
-                  return ListView.builder(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 8,
-                      horizontal: 16,
-                    ),
-                    itemCount: state.messages.length,
-                    itemBuilder: (context, index) {
-                      final message = state.messages[index];
-                      final isMe = message.senderId == widget.userId;
-
-                      // Date header logic
-                      bool showDateHeader = false;
-                      String dateHeader = '';
-
-                      if (index == 0) {
-                        // First message always shows date
-                        showDateHeader = true;
-                        dateHeader = _getFormattedDate(message.sentAt);
-                      } else {
-                        // Check if date changed from previous message
-                        final previousMessageDate =
-                            state.messages[index - 1].sentAt;
-                        final messageDate = message.sentAt;
-
-                        if (previousMessageDate.day != messageDate.day ||
-                            previousMessageDate.month != messageDate.month ||
-                            previousMessageDate.year != messageDate.year) {
-                          showDateHeader = true;
-                          dateHeader = _getFormattedDate(messageDate);
-                        }
-                      }
-
-                      // Message grouping logic
-                      bool showAvatar = true;
-                      if (index < state.messages.length - 1) {
-                        final nextMessage = state.messages[index + 1];
-                        // Don't show avatar if next message is from same sender and within 5 minutes
-                        if (nextMessage.senderId == message.senderId &&
-                            nextMessage.sentAt
-                                    .difference(message.sentAt)
-                                    .inMinutes <
-                                5) {
-                          showAvatar = false;
-                        }
-                      }
-
-                      return Column(
+                  if (state.isLoading) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else if (state.messages.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          if (showDateHeader)
-                            Container(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              child: Center(
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 6, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey.withOpacity(0.2),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Text(
-                                    dateHeader,
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey[700],
+                          CachedNetworkImage(
+                            imageUrl: widget.publicationImagePath,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Interested in ${widget.publicationTitle}?',
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            'Send a message to start the conversation',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        ],
+                      ),
+                    );
+                  } else {
+                    if (_isFirstLoad && state.messages.isNotEmpty) {
+                      _isFirstLoad = false;
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        _scrollToBottom();
+                      });
+                    }
+
+                    return NotificationListener<ScrollNotification>(
+                      onNotification: (notification) {
+                        if (notification is ScrollEndNotification) {
+                          // Update user scroll state when scrolling ends
+                          if (_scrollController.hasClients) {
+                            final isAtBottom = _scrollController.offset >=
+                                _scrollController.position.maxScrollExtent - 50;
+                            setState(() {
+                              _userScrolledUp = !isAtBottom;
+                            });
+                          }
+                        }
+                        return false;
+                      },
+                      child: KeyboardDismissOnTap(
+                        child: ListView.builder(
+                          controller: _scrollController,
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 8,
+                            horizontal: 16,
+                          ),
+                          // Add physics to improve scrolling behavior
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          itemCount: state.messages.length,
+                          itemBuilder: (context, index) {
+                            final message = state.messages[index];
+                            final isMe = message.senderId == widget.userId;
+
+                            // Date header logic
+                            bool showDateHeader = false;
+                            String dateHeader = '';
+
+                            if (index == 0) {
+                              // First message always shows date
+                              showDateHeader = true;
+                              dateHeader = _getFormattedDate(message.sentAt);
+                            } else {
+                              // Check if date changed from previous message
+                              final previousMessageDate =
+                                  state.messages[index - 1].sentAt;
+                              final messageDate = message.sentAt;
+
+                              if (previousMessageDate.day != messageDate.day ||
+                                  previousMessageDate.month !=
+                                      messageDate.month ||
+                                  previousMessageDate.year !=
+                                      messageDate.year) {
+                                showDateHeader = true;
+                                dateHeader = _getFormattedDate(messageDate);
+                              }
+                            }
+
+                            // Message grouping logic
+                            bool showAvatar = true;
+                            if (index < state.messages.length - 1) {
+                              final nextMessage = state.messages[index + 1];
+                              // Don't show avatar if next message is from same sender and within 5 minutes
+                              if (nextMessage.senderId == message.senderId &&
+                                  nextMessage.sentAt
+                                          .difference(message.sentAt)
+                                          .inMinutes <
+                                      5) {
+                                showAvatar = false;
+                              }
+                            }
+
+                            return Column(
+                              children: [
+                                if (showDateHeader)
+                                  Container(
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 8),
+                                    child: Center(
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 6, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey.withOpacity(0.2),
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                        child: Text(
+                                          dateHeader,
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey[700],
+                                          ),
+                                        ),
+                                      ),
                                     ),
                                   ),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  mainAxisAlignment: isMe
+                                      ? MainAxisAlignment.end
+                                      : MainAxisAlignment.start,
+                                  children: [
+                                    Flexible(
+                                      child: MessageBubble(
+                                        message: message.content,
+                                        isMe: isMe,
+                                        time: DateFormat('hh:mm a')
+                                            .format(message.sentAt),
+                                        status: message.status,
+                                        showTail:
+                                            showAvatar, // Show tail on the last message in a group
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            ),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            mainAxisAlignment: isMe
-                                ? MainAxisAlignment.end
-                                : MainAxisAlignment.start,
-                            children: [
-                              Flexible(
-                                child: MessageBubble(
-                                  message: message.content,
-                                  isMe: isMe,
-                                  time: DateFormat('hh:mm a')
-                                      .format(message.sentAt),
-                                  status: message.status,
-                                  showTail:
-                                      showAvatar, // Show tail on the last message in a group
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 2), // Spacing between messages
-                        ],
-                      );
-                    },
-                  );
-                }
-              },
+                                const SizedBox(
+                                    height: 2), // Spacing between messages
+                              ],
+                            );
+                          },
+                        ),
+                      ),
+                    );
+                  }
+                },
+              ),
             ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-            ),
-            child: Row(
-              children: [
-                IconButton(
-                  icon: const Icon(
-                    CupertinoIcons.paperclip,
-                    size: 22,
-                  ),
-                  onPressed: () {
-                    // Would implement attachment functionality
-                  },
-                ),
-                Expanded(
-                  child: SmoothClipRRect(
-                    borderRadius: BorderRadius.circular(24),
-                    child: CupertinoTextField(
-                      decoration:
-                          BoxDecoration(color: AppColors.containerColor),
-                      padding: const EdgeInsets.all(12),
-                      controller: _messageController,
-                      minLines: 1,
-                      placeholder: "Write something",
-                      style: const TextStyle(fontFamily: Constants.Arial),
-                      maxLines: 10,
-                      textCapitalization: TextCapitalization.sentences,
-                      onSubmitted: (_) => _sendMessage(),
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(
-                    Icons.telegram,
-                    size: 28,
-                  ),
-                  color: Theme.of(context).colorScheme.secondary,
-                  onPressed: _sendMessage,
-                ),
-              ],
-            ),
-          ),
-        ],
+            // The _buildMessageInput method is now properly positioned
+            // and will adjust with the keyboard
+            _buildMessageInput(),
+          ],
+        ),
       ),
+    );
+  }
+}
+
+// Helper widget to dismiss keyboard when tapping on the chat list
+class KeyboardDismissOnTap extends StatelessWidget {
+  final Widget child;
+
+  const KeyboardDismissOnTap({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
+      behavior: HitTestBehavior.translucent,
+      child: child,
     );
   }
 }
