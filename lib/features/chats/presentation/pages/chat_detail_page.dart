@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/language/language_bloc.dart';
 import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/chats/domain/entity/chat_message.dart';
 import 'package:list_in/features/chats/domain/entity/user_status.dart';
@@ -13,6 +14,7 @@ import 'package:list_in/features/chats/presentation/provider/chats/chat_bloc.dar
 import 'package:list_in/features/chats/presentation/widgets/message_bubble.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ChatDetailPage extends StatefulWidget {
   final String userId;
@@ -42,9 +44,9 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   bool _isFirstLoad = true;
-  bool _userScrolledUp = false; // Track if user has manually scrolled up
-  double _previousMaxScrollExtent = 0; // Track previous scroll position
-  double _keyboardHeight = 0; // Track keyboard height
+  bool _userScrolledUp = false;
+  double _previousMaxScrollExtent = 0;
+  double _keyboardHeight = 0;
   late FocusNode _focusNode;
 
   @override
@@ -64,15 +66,11 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
 
     // Add listener to keyboard visibility
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // This ensures we respond properly to keyboard appearing
       Provider.of<ChatProvider>(context, listen: false).addListener(() {
-        // Only auto-scroll if new messages arrived and user is at bottom
         if (!_userScrolledUp) {
           _scrollToBottomWithoutAnimation();
         }
       });
-
-      // Monitor keyboard appearance
       _focusNode.addListener(_onFocusChange);
     });
   }
@@ -80,7 +78,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   void _onFocusChange() {
     if (_focusNode.hasFocus) {
       // Keyboard is appearing - schedule a scroll after keyboard appears
-      Future.delayed(const Duration(milliseconds: 300), () {
+      Future.delayed(const Duration(milliseconds: 200), () {
         if (!_userScrolledUp) {
           _scrollToBottom();
         }
@@ -107,7 +105,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     if (_scrollController.hasClients) {
       _scrollController.animateTo(
         _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 200),
         curve: Curves.easeOut,
       );
     }
@@ -162,36 +160,117 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
       setState(() {
         _userScrolledUp = false;
       });
-
-      // Scroll to bottom after message is sent - with a slight delay to ensure UI updated
       Future.delayed(const Duration(milliseconds: 100), _scrollToBottom);
     }
   }
 
-  // Helper function to get formatted date string
-  String _getFormattedDate(DateTime date) {
+  // Helper function to get formatted date string with multilingual support
+  String getFormattedDate(BuildContext context, DateTime date) {
+    final AppLocalizations? locale = AppLocalizations.of(context);
+    if (locale == null) return ""; // Safety check
+
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final yesterday = DateTime(now.year, now.month, now.day - 1);
     final messageDate = DateTime(date.year, date.month, date.day);
 
+    // Get current language from BLoC
+    final languageState = context.watch<LanguageBloc>().state;
+    String languageCode = 'en'; // Default to English
+
+    if (languageState is LanguageLoaded) {
+      languageCode = languageState.languageCode;
+    }
+
     if (messageDate == today) {
-      return 'Today';
+      return locale.today; // "Today" in current language
     } else if (messageDate == yesterday) {
-      return 'Yesterday';
+      return locale.yesterday; // "Yesterday" in current language
     } else if (now.difference(messageDate).inDays < 7) {
-      return DateFormat('EEEE').format(date); // Day name
+      // Day name based on language
+      switch (languageCode) {
+        case 'uz':
+          // Uzbek weekday names
+          final weekdays = [
+            locale.sunday, // "Yakshanba"
+            locale.monday, // "Dushanba"
+            locale.tuesday, // "Seshanba"
+            locale.wednesday, // "Chorshanba"
+            locale.thursday, // "Payshanba"
+            locale.friday, // "Juma"
+            locale.saturday, // "Shanba"
+          ];
+          return weekdays[date.weekday % 7]; // weekday is 1-7, array is 0-6
+
+        case 'ru':
+          // Russian weekday names
+          final weekdays = [
+            locale.sunday, // "Воскресенье"
+            locale.monday, // "Понедельник"
+            locale.tuesday, // "Вторник"
+            locale.wednesday, // "Среда"
+            locale.thursday, // "Четверг"
+            locale.friday, // "Пятница"
+            locale.saturday, // "Суббота"
+          ];
+          return weekdays[date.weekday % 7];
+
+        default:
+          // English or any other language using DateFormat
+          // This will use the system locale, but we can override it
+          return DateFormat('EEEE', languageCode).format(date);
+      }
     } else {
-      return DateFormat('MMM d, yyyy').format(date); // Mar 15, 2025
+      // Format the date according to language convention
+      switch (languageCode) {
+        case 'uz':
+          // Uzbek date format: 15 Mart, 2025
+          return DateFormat('d MMM, yyyy', 'uz').format(date);
+
+        case 'ru':
+          // Russian date format: 15 марта, 2025
+          return DateFormat('d MMMM, yyyy', 'ru').format(date);
+
+        default:
+          // English date format: Mar 15, 2025
+          return DateFormat('MMM d, yyyy', 'en').format(date);
+      }
+    }
+  }
+
+  // Format time string based on locale
+  String getFormattedTime(BuildContext context, DateTime date) {
+    final languageState = context.watch<LanguageBloc>().state;
+    String languageCode = 'en'; // Default to English
+
+    if (languageState is LanguageLoaded) {
+      languageCode = languageState.languageCode;
+    }
+
+    // Format time according to language conventions
+    switch (languageCode) {
+      case 'ru':
+        // Russian time format (24-hour)
+        return DateFormat('HH:mm').format(date);
+
+      case 'uz':
+        // Uzbek time format (can be adjusted as needed)
+        return DateFormat('HH:mm').format(date);
+
+      default:
+        // English (12-hour with AM/PM)
+        return DateFormat('h:mm a').format(date);
     }
   }
 
   // Modified build method for message input
   Widget _buildMessageInput() {
+    final AppLocalizations locale = AppLocalizations.of(context)!;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: Theme.of(context).scaffoldBackgroundColor,
       ),
       child: Row(
         children: [
@@ -208,12 +287,14 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
             child: SmoothClipRRect(
               borderRadius: BorderRadius.circular(24),
               child: CupertinoTextField(
-                decoration: BoxDecoration(color: AppColors.containerColor),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardColor,
+                ),
                 padding: const EdgeInsets.all(12),
                 controller: _messageController,
                 focusNode: _focusNode,
                 minLines: 1,
-                placeholder: "Write something",
+                placeholder: locale.writeMessage,
                 style: const TextStyle(fontFamily: Constants.Arial),
                 maxLines: 10,
                 textCapitalization: TextCapitalization.sentences,
@@ -244,6 +325,8 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final AppLocalizations locale = AppLocalizations.of(context)!;
+
     // Calculate available height with MediaQuery to adjust for keyboard
     final viewInsets = MediaQuery.of(context).viewInsets;
     final keyboardHeight = viewInsets.bottom;
@@ -274,7 +357,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
           margin: EdgeInsets.zero,
           elevation: 2, // Shadow for the card
           color: Theme.of(context).scaffoldBackgroundColor,
-          shape: RoundedRectangleBorder(
+          shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.zero,
           ),
           child: Padding(
@@ -321,8 +404,8 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                                   UserStatus.OFFLINE;
                               return Text(
                                 userStatus == UserStatus.ONLINE
-                                    ? 'Online'
-                                    : 'Offline',
+                                    ? locale.online
+                                    : locale.offline,
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: userStatus == UserStatus.ONLINE
@@ -406,13 +489,13 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'Interested in ${widget.publicationTitle}?',
+                            locale.interestedIn(widget.publicationTitle),
                             style: const TextStyle(fontSize: 16),
                           ),
                           const SizedBox(height: 8),
-                          const Text(
-                            'Send a message to start the conversation',
-                            style: TextStyle(color: Colors.grey),
+                          Text(
+                            locale.sendMessageToStart,
+                            style: const TextStyle(color: Colors.grey),
                           ),
                         ],
                       ),
@@ -460,7 +543,8 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                             if (index == 0) {
                               // First message always shows date
                               showDateHeader = true;
-                              dateHeader = _getFormattedDate(message.sentAt);
+                              dateHeader =
+                                  getFormattedDate(context, message.sentAt);
                             } else {
                               // Check if date changed from previous message
                               final previousMessageDate =
@@ -473,7 +557,8 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                                   previousMessageDate.year !=
                                       messageDate.year) {
                                 showDateHeader = true;
-                                dateHeader = _getFormattedDate(messageDate);
+                                dateHeader =
+                                    getFormattedDate(context, messageDate);
                               }
                             }
 
@@ -526,17 +611,15 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                                       child: MessageBubble(
                                         message: message.content,
                                         isMe: isMe,
-                                        time: DateFormat('hh:mm a')
-                                            .format(message.sentAt),
+                                        time: getFormattedTime(
+                                            context, message.sentAt),
                                         status: message.status,
-                                        showTail:
-                                            showAvatar, // Show tail on the last message in a group
+                                        showTail: showAvatar,
                                       ),
                                     ),
                                   ],
                                 ),
-                                const SizedBox(
-                                    height: 2), // Spacing between messages
+                                const SizedBox(height: 2),
                               ],
                             );
                           },
@@ -547,8 +630,6 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                 },
               ),
             ),
-            // The _buildMessageInput method is now properly positioned
-            // and will adjust with the keyboard
             _buildMessageInput(),
           ],
         ),

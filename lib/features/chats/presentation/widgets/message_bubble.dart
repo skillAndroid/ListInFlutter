@@ -1,5 +1,4 @@
 // ignore_for_file: deprecated_member_use, use_super_parameters
-
 import 'package:flutter/material.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 
@@ -21,6 +20,18 @@ class MessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Get localized status text if applicable
+    if (isMe) {
+      switch (status) {
+        case 'SENT':
+          break;
+        case 'DELIVERED':
+          break;
+        case 'READ':
+          break;
+      }
+    }
+
     return Container(
       margin: EdgeInsets.only(
         top: 2,
@@ -36,9 +47,8 @@ class MessageBubble extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
             decoration: BoxDecoration(
-              color: isMe
-                  ? AppColors.primaryLight2 // WhatsApp green for own messages
-                  : Colors.white,
+              color:
+                  isMe ? AppColors.primaryLight2 : Theme.of(context).cardColor,
               borderRadius: BorderRadius.only(
                 topLeft: const Radius.circular(20),
                 topRight: const Radius.circular(20),
@@ -49,21 +59,18 @@ class MessageBubble extends StatelessWidget {
                     ? const Radius.circular(20)
                     : const Radius.circular(4),
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.2),
-                  spreadRadius: 1,
-                  blurRadius: 1,
-                  offset: const Offset(0, 1),
-                ),
-              ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
                   message,
-                  style: const TextStyle(fontSize: 14),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: isMe
+                        ? AppColors.black
+                        : Theme.of(context).colorScheme.secondary,
+                  ),
                 ),
                 const SizedBox(height: 1),
                 Row(
@@ -73,7 +80,12 @@ class MessageBubble extends StatelessWidget {
                       time,
                       style: TextStyle(
                         fontSize: 11,
-                        color: Colors.grey[600],
+                        color: isMe
+                            ? AppColors.black.withOpacity(0.7)
+                            : Theme.of(context)
+                                .colorScheme
+                                .secondary
+                                .withOpacity(0.7),
                       ),
                     ),
                     const SizedBox(width: 4),
@@ -81,8 +93,9 @@ class MessageBubble extends StatelessWidget {
                       Icon(
                         status == 'READ' ? Icons.done_all : Icons.done,
                         size: 13,
-                        color:
-                            status == 'READ' ? Colors.blue : Colors.grey[600],
+                        color: status == 'READ'
+                            ? Colors.blue
+                            : AppColors.black.withOpacity(0.7),
                       ),
                   ],
                 ),

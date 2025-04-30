@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:list_in/config/theme/app_colors.dart';
+import 'package:list_in/core/language/language_bloc.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/chats/domain/entity/chat_room.dart';
@@ -11,6 +12,7 @@ import 'package:list_in/features/explore/presentation/widgets/formaters.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ChatRoomsPage extends StatefulWidget {
   final String userId;
@@ -51,8 +53,35 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
     super.dispose();
   }
 
+  // Format time string based on locale
+  String getFormattedTime(BuildContext context, DateTime date) {
+    final languageState = context.watch<LanguageBloc>().state;
+    String languageCode = 'en'; // Default to English
+
+    if (languageState is LanguageLoaded) {
+      languageCode = languageState.languageCode;
+    }
+
+    // Format time according to language conventions
+    switch (languageCode) {
+      case 'ru':
+        // Russian time format (24-hour)
+        return DateFormat('HH:mm').format(date);
+
+      case 'uz':
+        // Uzbek time format (can be adjusted as needed)
+        return DateFormat('HH:mm').format(date);
+
+      default:
+        // English (12-hour with AM/PM)
+        return DateFormat('h:mm a').format(date);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
+
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -69,7 +98,7 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
                   controller: _tabController,
                   labelColor: Theme.of(context).colorScheme.secondary,
                   indicatorPadding: EdgeInsets.zero,
-                  labelStyle: TextStyle(
+                  labelStyle: const TextStyle(
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.w600,
                     fontSize: 16,
@@ -81,9 +110,9 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
                   indicatorColor: Theme.of(context).colorScheme.secondary,
                   indicatorSize: TabBarIndicatorSize.label,
                   labelPadding: const EdgeInsets.symmetric(horizontal: 10),
-                  tabs: const [
-                    Tab(text: 'Chats'),
-                    Tab(text: 'In Box'),
+                  tabs: [
+                    Tab(text: locale.chats),
+                    Tab(text: locale.inbox),
                   ],
                 ),
               ),
@@ -97,27 +126,27 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
             if (state.isLoading) {
               return const Progress();
             } else if (state.chatRooms.isEmpty) {
-              return const Center(
+              return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.chat_bubble_outline,
                       size: 64,
                       color: Colors.grey,
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     Text(
-                      'No messages yet',
-                      style: TextStyle(
+                      locale.noMessagesYet,
+                      style: const TextStyle(
                         fontSize: 18,
                         color: Colors.grey,
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Text(
-                      'Your conversations will appear here',
-                      style: TextStyle(color: Colors.grey),
+                      locale.yourConversationsWillAppearHere,
+                      style: const TextStyle(color: Colors.grey),
                     ),
                   ],
                 ),
@@ -146,9 +175,13 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
   }
 
   Widget _buildChatRoomsList(List<ChatRoom> rooms, ChatProvider chatProvider) {
+    final locale = AppLocalizations.of(context)!;
+
     if (rooms.isEmpty) {
-      return const Center(
-        child: Text('No messages yet'),
+      return Center(
+        child: Text(
+          locale.noMessagesYet,
+        ),
       );
     }
 
@@ -241,16 +274,44 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const SizedBox(height: 12),
-                          Text(
-                            chatRoom.publicationTitle,
-                            style: TextStyle(
-                              fontWeight: FontWeight.w500,
-                              fontSize: 14,
-                              color: Theme.of(context).colorScheme.secondary,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      chatRoom.publicationTitle,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 14,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondary,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              // Moved time to top right
+                              if (chatRoom.lastMessage != null)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 12.0),
+                                  child: Text(
+                                    getFormattedTime(
+                                        context, chatRoom.lastMessage!.sentAt),
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey[500],
+                                    ),
+                                  ),
+                                ),
+                            ],
                           ),
                           const SizedBox(height: 2),
                           // Price
@@ -264,70 +325,53 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
                           ),
                           const SizedBox(height: 2),
                           // Last message with sender indication
-                          Row(
-                            children: [
-                              Expanded(
-                                  child: RichText(
-                                text: TextSpan(
-                                  children: chatRoom.lastMessage == null
+                          RichText(
+                            text: TextSpan(
+                              children: chatRoom.lastMessage == null
+                                  ? [
+                                      TextSpan(
+                                        text: locale.noMessagesYet,
+                                        style: TextStyle(
+                                          color: Colors.grey[600],
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ]
+                                  : chatRoom.lastMessage!.senderId ==
+                                          widget.userId
                                       ? [
                                           TextSpan(
-                                            text: 'No messages yet',
+                                            text: '${locale.you}: ',
+                                            style: TextStyle(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .secondary,
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w500,
+                                                fontFamily: Constants.Arial),
+                                          ),
+                                          TextSpan(
+                                            text: chatRoom.lastMessage!.content,
                                             style: TextStyle(
                                               color: Colors.grey[600],
-                                              fontSize: 14,
+                                              fontSize: 12,
+                                              fontFamily: Constants.Arial,
                                             ),
                                           ),
                                         ]
-                                      : chatRoom.lastMessage!.senderId ==
-                                              widget.userId
-                                          ? [
-                                              TextSpan(
-                                                text: 'You: ',
-                                                style: TextStyle(
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .secondary,
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.w500,
-                                                    fontFamily:
-                                                        Constants.Arial),
-                                              ),
-                                              TextSpan(
-                                                text: chatRoom
-                                                    .lastMessage!.content,
-                                                style: TextStyle(
-                                                  color: Colors.grey[600],
-                                                  fontSize: 12,
-                                                  fontFamily: Constants.Arial,
-                                                ),
-                                              ),
-                                            ]
-                                          : [
-                                              TextSpan(
-                                                text: chatRoom
-                                                    .lastMessage!.content,
-                                                style: TextStyle(
-                                                  color: Colors.grey[600],
-                                                  fontSize: 12,
-                                                  fontFamily: Constants.Arial,
-                                                ),
-                                              ),
-                                            ],
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              )),
-                              if (chatRoom.lastMessage != null)
-                                Text(
-                                  DateFormat('hh:mm a')
-                                      .format(chatRoom.lastMessage!.sentAt),
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey[500],
-                                  ),
-                                ),
-                            ],
+                                      : [
+                                          TextSpan(
+                                            text: chatRoom.lastMessage!.content,
+                                            style: TextStyle(
+                                              color: Colors.grey[600],
+                                              fontSize: 12,
+                                              fontFamily: Constants.Arial,
+                                            ),
+                                          ),
+                                        ],
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ),

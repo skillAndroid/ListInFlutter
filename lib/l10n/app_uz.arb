@@ -293,5 +293,34 @@
   "account": "Xisob",
   "accessExplanation": "Hozircha faqat dasturchilarga va maxsus mehmonlarga. Foydalanuvchilar uchun yaqin orada tashkil etiladi.",
   "helloDeveloper": "Salom Dasturchi",
-  "write": "Yozish"
+  "write": "Yozish",
+  "today": "Bugun",
+  "yesterday": "Kecha",
+  "monday": "Dushanba",
+  "tuesday": "Seshanba",
+  "wednesday": "Chorshanba",
+  "thursday": "Payshanba",
+  "friday": "Juma",
+  "saturday": "Shanba",
+  "sunday": "Yakshanba",
+  "online": "Onlayn",
+  "offline": "Oflayn",
+  "writeMessage": "Biror narsa yozing",
+  "interestedIn": "{title} bilan qiziqyapsizmi?",
+  "@interestedIn": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "sendMessageToStart": "Suhbatni boshlash uchun xabar yuboring",
+  "sent": "Yuborildi",
+  "delivered": "Yetkazildi",
+  "read": "O'qildi",
+  "chats": "Chatlar",
+  "inbox": "Xabarlar",
+  "you": "Siz",
+  "noMessagesYet": "Hali xabarlar yo'q",
+  "yourConversationsWillAppearHere": "Suhbatlaringiz shu yerda ko'rinadi"
   }

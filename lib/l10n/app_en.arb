@@ -293,5 +293,35 @@
   "account": "Account",
   "accessExplanation": "Currently for developers and special guests only. User access coming soon.",
   "helloDeveloper": "Hello Developer",
-  "write": "Write"
+  "write": "Write",
+  "today": "Today",
+  "yesterday": "Yesterday",
+  "monday": "Monday",
+  "tuesday": "Tuesday",
+  "wednesday": "Wednesday",
+  "thursday": "Thursday",
+  "friday": "Friday",
+  "saturday": "Saturday",
+  "sunday": "Sunday",
+  "online": "Online",
+  "offline": "Offline",
+  "writeMessage": "Write something",
+  "interestedIn": "Interested in {title}?",
+  "@interestedIn": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "sendMessageToStart": "Send a message to start the conversation",
+  
+  "sent": "Sent",
+  "delivered": "Delivered",
+  "read": "Read",
+  "chats": "Chats",
+  "inbox": "Inbox",
+  "you": "You",
+  "noMessagesYet": "No messages yet",
+  "yourConversationsWillAppearHere": "Your conversations will appear here"
 }

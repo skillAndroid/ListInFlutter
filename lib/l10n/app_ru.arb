@@ -293,5 +293,35 @@
   "account": "Аккаунт",
   "accessExplanation": "В настоящее время только для разработчиков и особых гостей. Доступ для пользователей скоро.",
   "helloDeveloper": "Привет Разработчик",
-  "write": "Написать"
+  "write": "Написать",
+  "today": "Сегодня",
+  "yesterday": "Вчера",
+  "monday": "Понедельник",
+  "tuesday": "Вторник",
+  "wednesday": "Среда",
+  "thursday": "Четверг",
+  "friday": "Пятница",
+  "saturday": "Суббота",
+  "sunday": "Воскресенье",
+  "online": "В сети",
+  "offline": "Не в сети",
+  "writeMessage": "Напишите что-нибудь",
+  "interestedIn": "Интересует {title}?",
+  "@interestedIn": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "sendMessageToStart": "Отправьте сообщение, чтобы начать разговор",
+  
+  "sent": "Отправлено",
+  "delivered": "Доставлено",
+  "read": "Прочитано",
+  "chats": "Чаты",
+  "inbox": "Входящие",
+  "you": "Вы",
+  "noMessagesYet": "Сообщений пока нет",
+  "yourConversationsWillAppearHere": "Ваши разговоры будут отображаться здесь"
 }
