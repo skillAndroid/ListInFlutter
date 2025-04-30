@@ -41,4 +41,10 @@ abstract class ChatRepository {
   Future<bool> saveChatMessageLocally(ChatMessage message);
   Future<bool> saveChatRoomsLocally(String userId, List<ChatRoom> chatRooms);
   Future<bool> clearLocalChatData(String userId);
+  // Add new method to send message viewed status
+  Future<void> sendMessageViewedStatus(
+      String senderId, List<String> messageIds);
+
+  // Add new stream for message status updates
+  Stream<List<String>> get messageStatusStream;
 }

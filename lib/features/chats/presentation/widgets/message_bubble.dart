@@ -20,15 +20,33 @@ class MessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Get localized status text if applicable
+    // Convert status to uppercase for consistent comparison
+    final upperStatus = status.toUpperCase();
+
+    // Determine icon to show based on message status
+    Icon? statusIcon;
     if (isMe) {
-      switch (status) {
-        case 'SENT':
-          break;
-        case 'DELIVERED':
-          break;
-        case 'READ':
-          break;
+      if (upperStatus == 'VIEWED' || upperStatus == 'READ') {
+        // Message has been read/viewed
+        statusIcon = Icon(
+          Icons.done_all,
+          size: 13,
+          color: Colors.blue,
+        );
+      } else if (upperStatus == 'DELIVERED') {
+        // Message has been delivered but not read
+        statusIcon = Icon(
+          Icons.done_all,
+          size: 13,
+          color: AppColors.black.withOpacity(0.7),
+        );
+      } else {
+        // Message has been sent but not delivered
+        statusIcon = Icon(
+          Icons.done,
+          size: 13,
+          color: AppColors.black.withOpacity(0.7),
+        );
       }
     }
 
@@ -88,15 +106,8 @@ class MessageBubble extends StatelessWidget {
                                 .withOpacity(0.7),
                       ),
                     ),
-                    const SizedBox(width: 4),
-                    if (isMe)
-                      Icon(
-                        status == 'READ' ? Icons.done_all : Icons.done,
-                        size: 13,
-                        color: status == 'READ'
-                            ? Colors.blue
-                            : AppColors.black.withOpacity(0.7),
-                      ),
+                    if (isMe) const SizedBox(width: 4),
+                    if (isMe && statusIcon != null) statusIcon,
                   ],
                 ),
               ],

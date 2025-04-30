@@ -161,6 +161,29 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
+  Stream<List<String>> get messageStatusStream {
+    return remoteDataSource.messageStatusStream;
+  }
+
+  @override
+  Future<void> sendMessageViewedStatus(
+      String senderId, List<String> messageIds) async {
+    try {
+      await initializeWebSocket(senderId);
+      print(
+          'Repository: Sending message viewed status for ${messageIds.length} messages');
+
+      await remoteDataSource.sendMessageViewedStatus(
+        senderId: senderId,
+        messageIds: messageIds,
+      );
+    } catch (e) {
+      print('Repository: Error sending message viewed status: $e');
+      throw e;
+    }
+  }
+
+  @override
   Stream<UserConnectionInfo> get userStatusStream {
     // Combine both remote and local status streams if needed
     return remoteDataSource.userStatusStream;

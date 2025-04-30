@@ -28,7 +28,7 @@ class ChatMessageModel extends ChatMessage {
       id: json['id'],
       senderId: json['senderId'],
       recipientId: json['recipientId'],
-      publicationId: json['publicationId'] ?? '',
+      publicationId: json['publicationId'],
       content: json['content'],
       status: json['status'],
       sentAt: DateTime.parse(json['sentAt']),

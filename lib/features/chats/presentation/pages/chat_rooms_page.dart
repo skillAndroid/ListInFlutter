@@ -174,6 +174,8 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
     );
   }
 
+  // Update the _buildChatRoomsList method in ChatRoomsPage to display unread messages count
+
   Widget _buildChatRoomsList(List<ChatRoom> rooms, ChatProvider chatProvider) {
     final locale = AppLocalizations.of(context)!;
 
@@ -285,7 +287,9 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
                                     Text(
                                       chatRoom.publicationTitle,
                                       style: TextStyle(
-                                        fontWeight: FontWeight.w500,
+                                        fontWeight: chatRoom.unreadMessages > 0
+                                            ? FontWeight.bold
+                                            : FontWeight.w500,
                                         fontSize: 14,
                                         color: Theme.of(context)
                                             .colorScheme
@@ -297,18 +301,48 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
                                   ],
                                 ),
                               ),
-                              // Moved time to top right
+                              // Moved time to top right with unread count
                               if (chatRoom.lastMessage != null)
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 12.0),
-                                  child: Text(
-                                    getFormattedTime(
-                                        context, chatRoom.lastMessage!.sentAt),
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey[500],
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    // Time
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 12.0),
+                                      child: Text(
+                                        getFormattedTime(context,
+                                            chatRoom.lastMessage!.sentAt),
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey[500],
+                                        ),
+                                      ),
                                     ),
-                                  ),
+                                    // Unread count badge
+                                    if (chatRoom.unreadMessages > 0)
+                                      Container(
+                                        margin: const EdgeInsets.only(
+                                            left: 6, top: 12),
+                                        padding: const EdgeInsets.all(6),
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .secondary,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Text(
+                                          chatRoom.unreadMessages > 9
+                                              ? '9+'
+                                              : chatRoom.unreadMessages
+                                                  .toString(),
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
                                 ),
                             ],
                           ),
@@ -357,13 +391,52 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
                                               fontFamily: Constants.Arial,
                                             ),
                                           ),
+                                          // Add message status indicator
+                                          if (chatRoom.lastMessage!.status ==
+                                              'VIEWED')
+                                            const TextSpan(
+                                              text: ' ✓✓',
+                                              style: TextStyle(
+                                                color: Colors.blue,
+                                                fontSize: 12,
+                                                fontFamily: Constants.Arial,
+                                              ),
+                                            )
+                                          else if (chatRoom
+                                                  .lastMessage!.status ==
+                                              'DELIVERED')
+                                            const TextSpan(
+                                              text: ' ✓✓',
+                                              style: TextStyle(
+                                                color: Colors.grey,
+                                                fontSize: 12,
+                                                fontFamily: Constants.Arial,
+                                              ),
+                                            )
+                                          else
+                                            const TextSpan(
+                                              text: ' ✓',
+                                              style: TextStyle(
+                                                color: Colors.grey,
+                                                fontSize: 12,
+                                                fontFamily: Constants.Arial,
+                                              ),
+                                            ),
                                         ]
                                       : [
                                           TextSpan(
                                             text: chatRoom.lastMessage!.content,
                                             style: TextStyle(
-                                              color: Colors.grey[600],
+                                              color: chatRoom.unreadMessages > 0
+                                                  ? Theme.of(context)
+                                                      .colorScheme
+                                                      .secondary
+                                                  : Colors.grey[600],
                                               fontSize: 12,
+                                              fontWeight:
+                                                  chatRoom.unreadMessages > 0
+                                                      ? FontWeight.bold
+                                                      : FontWeight.normal,
                                               fontFamily: Constants.Arial,
                                             ),
                                           ),

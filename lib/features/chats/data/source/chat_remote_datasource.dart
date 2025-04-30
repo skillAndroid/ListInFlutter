@@ -16,16 +16,21 @@ class ChatRemoteDataSource {
   final AuthLocalDataSource authLocalDataSource;
   final AuthService authService;
   final Dio dio;
-  final String baseUrl = 'http://listin.uz';
+  final String baseUrl = 'https://6807-89-236-227-16.ngrok-free.app';
   StompClient? _stompClient;
   bool _isConnected = false;
 
   final _messageStreamController =
       StreamController<ChatMessageModel>.broadcast();
+
+  final _messageStatusStreamController =
+      StreamController<List<String>>.broadcast();
   final _userStatusStreamController =
       StreamController<UserConnectionInfo>.broadcast();
 
   Stream<ChatMessageModel> get messageStream => _messageStreamController.stream;
+  Stream<List<String>> get messageStatusStream =>
+      _messageStatusStreamController.stream;
   Stream<UserConnectionInfo> get userStatusStream =>
       _userStatusStreamController.stream;
 
@@ -52,7 +57,8 @@ class ChatRemoteDataSource {
       throw UnauthorizedException('No auth token found');
     }
 
-    final wsUrl = 'ws://listin.uz:80/ws?token=${authToken.accessToken}';
+    final wsUrl =
+        'ws://6807-89-236-227-16.ngrok-free.app:80/ws?token=${authToken.accessToken}';
 
     int retryCount = 0;
     Duration delay = initialRetryDelay;
@@ -90,6 +96,22 @@ class ChatRemoteDataSource {
                   }
                 }
               });
+
+              _subscribeToDestination('/user/$userId/queue/messages/status',
+                  (frame) {
+                if (frame.body != null) {
+                  try {
+                    final List<dynamic> data = jsonDecode(frame.body!);
+                    final List<String> viewedMessageIds = data.cast<String>();
+                    print(
+                        'Received viewed status for messages: $viewedMessageIds');
+                    _messageStatusStreamController.add(viewedMessageIds);
+                  } catch (e) {
+                    print('Error parsing message status update: $e');
+                  }
+                }
+              });
+
               _subscribeToDestination('/topic/user-status', (StompFrame frame) {
                 if (frame.body != null) {
                   try {
@@ -224,6 +246,32 @@ class ChatRemoteDataSource {
     }
   }
 
+  Future<void> sendMessageViewedStatus({
+    required String senderId,
+    required List<String> messageIds,
+  }) async {
+    if (!_isConnected || _stompClient == null) {
+      print('WebSocket not connected. Cannot send message viewed status.');
+      throw Exception('WebSocket not connected');
+    }
+
+    final viewData = {
+      'senderId': senderId,
+      'messageIds': messageIds,
+    };
+
+    try {
+      _stompClient?.send(
+        destination: '/app/chat/view',
+        body: jsonEncode(viewData),
+      );
+      print('Message viewed status sent for ${messageIds.length} messages');
+    } catch (e) {
+      print('Error sending message viewed status: $e');
+      throw Exception('Failed to send message viewed status: $e');
+    }
+  }
+
   Future<List<ChatRoomModel>> getChatRooms(String userId) async {
     try {
       final options = await authService.getAuthOptions();
@@ -287,6 +335,7 @@ class ChatRemoteDataSource {
   void dispose() {
     _messageStreamController.close();
     _userStatusStreamController.close();
+    _messageStatusStreamController.close();
     disconnectWebSocket();
   }
 }

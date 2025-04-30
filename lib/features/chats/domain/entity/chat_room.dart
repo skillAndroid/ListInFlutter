@@ -10,6 +10,7 @@ class ChatRoom {
   final String recipientImagePath;
   final String recipientNickname;
   final ChatMessage? lastMessage;
+  final int unreadMessages;
 
   ChatRoom({
     required this.chatRoomId,
@@ -20,6 +21,7 @@ class ChatRoom {
     required this.recipientId,
     required this.recipientImagePath,
     required this.recipientNickname,
+    required this.unreadMessages,
     this.lastMessage,
   });
   ChatRoom copyWith({
@@ -31,6 +33,7 @@ class ChatRoom {
     String? recipientId,
     String? recipientImagePath,
     String? recipientNickname,
+    int? unreadMessages,
     ChatMessage? lastMessage,
   }) {
     return ChatRoom(
@@ -42,6 +45,7 @@ class ChatRoom {
       recipientId: recipientId ?? this.recipientId,
       recipientImagePath: recipientImagePath ?? this.recipientImagePath,
       recipientNickname: recipientNickname ?? this.recipientNickname,
+      unreadMessages: unreadMessages ?? this.unreadMessages,
       lastMessage: lastMessage ?? this.lastMessage,
     );
   }

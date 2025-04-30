@@ -48,7 +48,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   double _previousMaxScrollExtent = 0;
   double _keyboardHeight = 0;
   late FocusNode _focusNode;
-
+  final Set<String> _processedMessageIds = {};
   @override
   void initState() {
     super.initState();
@@ -503,6 +503,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                       _isFirstLoad = false;
                       WidgetsBinding.instance.addPostFrameCallback((_) {
                         _scrollToBottom();
+                        _markUnreadMessagesAsViewed(provider, state.messages);
                       });
                     }
 
@@ -534,6 +535,17 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                             final message = state.messages[index];
                             final isMe = message.senderId == widget.userId;
 
+                            // Process any unread received messages
+                            if (!isMe &&
+                                message.id != null &&
+                                message.status != 'VIEWED' &&
+                                !_processedMessageIds.contains(message.id)) {
+                              _processedMessageIds.add(message.id!);
+                              // Schedule marking as viewed (outside of build method)
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                _markMessageAsViewed(provider, message);
+                              });
+                            }
                             // Date header logic
                             bool showDateHeader = false;
                             String dateHeader = '';
@@ -633,6 +645,47 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
         ),
       ),
     );
+  }
+
+  // Add a new method to mark unread messages as viewed
+  void _markUnreadMessagesAsViewed(
+      ChatProvider provider, List<ChatMessage> messages) {
+    // Collect all unread messages not sent by the current user
+    final unreadMessages = messages
+        .where((msg) =>
+            msg.id != null &&
+            msg.senderId != widget.userId &&
+            msg.status != 'VIEWED' &&
+            !_processedMessageIds.contains(msg.id))
+        .toList();
+
+    if (unreadMessages.isEmpty) return;
+
+    // Mark messages as processed in our local tracking
+    for (final message in unreadMessages) {
+      if (message.id != null) {
+        _processedMessageIds.add(message.id!);
+      }
+    }
+
+    // Collect message IDs for the viewed status update
+    final messageIds = unreadMessages
+        .where((msg) => msg.id != null)
+        .map((msg) => msg.id!)
+        .toList();
+
+    if (messageIds.isNotEmpty) {
+      // Send the viewed status to the provider
+      provider.sendMessageViewedStatus(widget.recipientId, messageIds);
+    }
+  }
+
+  // Method to mark a single message as viewed
+  void _markMessageAsViewed(ChatProvider provider, ChatMessage message) {
+    if (message.id == null || message.senderId == widget.userId) return;
+
+    // Send the viewed status for this message
+    provider.sendMessageViewedStatus(widget.recipientId, [message.id!]);
   }
 
   // New method to build a publication banner/card

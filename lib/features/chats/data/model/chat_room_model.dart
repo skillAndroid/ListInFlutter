@@ -13,6 +13,7 @@ class ChatRoomModel extends ChatRoom {
     required String recipientId,
     required String recipientImagePath,
     required String recipientNickname,
+    required int unreadMessages,
     ChatMessageModel? lastMessage,
   }) : super(
           chatRoomId: chatRoomId,
@@ -23,6 +24,7 @@ class ChatRoomModel extends ChatRoom {
           recipientId: recipientId,
           recipientImagePath: recipientImagePath,
           recipientNickname: recipientNickname,
+          unreadMessages: unreadMessages,
           lastMessage: lastMessage,
         );
 
@@ -36,6 +38,7 @@ class ChatRoomModel extends ChatRoom {
       recipientId: json['recipientId'],
       recipientImagePath: json['recipientImagePath'] ?? '',
       recipientNickname: json['recipientNickname'],
+      unreadMessages: json['unreadMessages'],
       lastMessage: json['lastMessage'] != null
           ? ChatMessageModel.fromJson(json['lastMessage'])
           : null,
