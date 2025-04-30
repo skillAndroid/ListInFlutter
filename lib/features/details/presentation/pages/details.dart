@@ -332,7 +332,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Main image container - takes most of the width
         Expanded(
           child: Stack(
             children: [
@@ -345,7 +344,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     onPageChanged: (index) {
                       setState(() => _currentPage = index);
                       if (_thumbnailScrollController.hasClients) {
-                        final thumbnailHeight = 80.0 + 8.0; // height + padding
+                        final thumbnailHeight = 80.0 + 8.0;
                         final screenHeight = MediaQuery.of(context).size.height;
                         final offset = index * thumbnailHeight -
                             (screenHeight / 4) +

@@ -224,7 +224,6 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Modified Stack for publication image with user avatar
                     Container(
                       // Adding padding to make space for the avatar overflow
                       margin: const EdgeInsets.only(right: 10, top: 10),

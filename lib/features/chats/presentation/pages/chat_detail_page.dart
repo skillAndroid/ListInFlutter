@@ -344,7 +344,6 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     }
 
     return Scaffold(
-      // Use resizeToAvoidBottomInset to properly resize when keyboard appears
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
         shadowColor: AppColors.transparent,
@@ -353,9 +352,9 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
         automaticallyImplyLeading: false,
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         flexibleSpace: Card(
-          shadowColor: Theme.of(context).cardColor.withOpacity(0.3),
+          shadowColor: Theme.of(context).cardColor.withOpacity(0.2),
           margin: EdgeInsets.zero,
-          elevation: 2, // Shadow for the card
+          elevation: 1, // Shadow for the card
           color: Theme.of(context).scaffoldBackgroundColor,
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.zero,
@@ -419,7 +418,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.info_outline),
+                      icon: const Icon(Icons.more_vert),
                       onPressed: () {
                         // Show publication details
                         showModalBottomSheet(
@@ -465,11 +464,10 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
         toolbarHeight: 65, // Adjust this as needed
       ),
       body: SafeArea(
-        // Use SafeArea to handle notches and system UI properly
-        // Set bottom to false to allow content to extend under keyboard
         bottom: false,
         child: Column(
           children: [
+            _buildPublicationBanner(),
             Expanded(
               child: Consumer<ChatProvider>(
                 builder: (context, provider, child) {
@@ -633,6 +631,145 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
             _buildMessageInput(),
           ],
         ),
+      ),
+    );
+  }
+
+  // New method to build a publication banner/card
+  Widget _buildPublicationBanner() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        border: Border(
+          bottom: BorderSide(
+            color: Colors.grey.withOpacity(0.2),
+            width: 1,
+          ),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 2,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Row(
+        children: [
+          // Publication image
+          SmoothClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: SizedBox(
+              width: 50,
+              height: 50,
+              child: CachedNetworkImage(
+                imageUrl: widget.publicationImagePath.startsWith('http')
+                    ? widget.publicationImagePath
+                    : 'https://${widget.publicationImagePath}',
+                fit: BoxFit.cover,
+                errorWidget: (context, error, stackTrace) => Container(
+                  color: Colors.grey[300],
+                  child: const Icon(Icons.image_not_supported, size: 20),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+
+          // Publication details
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Title
+                Text(
+                  widget.publicationTitle,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+
+                // Normally we'd have price here, add it from ChatRoom if available
+                // For now, placeholder text
+                Text(
+                  "View Details",
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // View details button
+          IconButton(
+            icon: const Icon(Icons.chevron_right_rounded),
+            onPressed: () {
+              // Show publication details (using the existing modal)
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                builder: (context) => Container(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        height: 180,
+                        child: SmoothClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: CachedNetworkImage(
+                            imageUrl:
+                                widget.publicationImagePath.startsWith('http')
+                                    ? widget.publicationImagePath
+                                    : 'https://${widget.publicationImagePath}',
+                            fit: BoxFit.cover,
+                            errorWidget: (context, error, stackTrace) =>
+                                Container(
+                              color: Colors.grey[300],
+                              child: const Icon(Icons.error),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        widget.publicationTitle,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 24),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              Theme.of(context).colorScheme.secondary,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          minimumSize: const Size(double.infinity, 48),
+                        ),
+                        child: Text("View details"),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }
