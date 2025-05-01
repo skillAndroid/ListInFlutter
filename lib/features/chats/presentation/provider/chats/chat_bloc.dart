@@ -286,7 +286,7 @@ class ChatProvider extends ChangeNotifier {
       );
 
       notifyListeners();
-      _markUnreadMessagesAsViewed(messages);
+      // _markUnreadMessagesAsViewed(messages);
     } catch (e) {
       print('Failed to load chat history: $e');
       _historyState = _historyState.copyWith(
@@ -377,7 +377,7 @@ class ChatProvider extends ChangeNotifier {
   // Process message viewed status updates
   void _handleMessageViewedStatus(List<String> viewedMessageIds) {
     if (viewedMessageIds.isEmpty) return;
-
+    print('👁️ Messages viewed: $viewedMessageIds');
     // Update messages in current chat history
     if (_historyState.messages.isNotEmpty) {
       final updatedMessages = _historyState.messages.map((message) {
@@ -395,7 +395,12 @@ class ChatProvider extends ChangeNotifier {
       if (room.lastMessage != null &&
           viewedMessageIds.contains(room.lastMessage!.id)) {
         final updatedLastMessage = room.lastMessage!.copyWith(status: 'VIEWED');
-        return room.copyWith(lastMessage: updatedLastMessage);
+        return room.copyWith(
+          lastMessage: updatedLastMessage,
+          // Also reset unread count for this room if appropriate
+          unreadMessages:
+              room.recipientId == _currentUserId ? 0 : room.unreadMessages,
+        );
       }
       return room;
     }).toList();
@@ -463,26 +468,6 @@ class ChatProvider extends ChangeNotifier {
                 message.senderId == _currentUserId) ||
             (room.recipientId == message.senderId &&
                 message.recipientId == _currentUserId));
-  }
-
-  void _markUnreadMessagesAsViewed(List<ChatMessage> messages) async {
-    if (_currentUserId == null) return;
-    final unviewedMessages = messages
-        .where((msg) =>
-            msg.senderId != _currentUserId &&
-            msg.status != 'VIEWED' &&
-            !_messageViewedProcessingQueue.contains(msg.id))
-        .toList();
-
-    if (unviewedMessages.isEmpty) return;
-
-    final messageIds = unviewedMessages.map((msg) => msg.id).toList();
-
-    if (messageIds.isEmpty) return;
-
-    messageIds.forEach(_messageViewedProcessingQueue.add);
-
-    await sendMessageViewedStatus(_currentChatRecipientId!, messageIds);
   }
 
   Future<void> sendMessageViewedStatus(

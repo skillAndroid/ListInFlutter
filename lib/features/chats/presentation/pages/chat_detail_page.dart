@@ -64,11 +64,16 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     _focusNode.addListener(_onFocusChange);
 
     // Load chat history
-    Provider.of<ChatProvider>(context, listen: false).loadChatHistory(
-      publicationId: widget.publicationId,
-      senderId: widget.userId,
-      recipientId: widget.recipientId,
-    );
+    context.read<ChatProvider>().loadChatHistory(
+          publicationId: widget.publicationId,
+          senderId: widget.userId,
+          recipientId: widget.recipientId,
+        );
+
+    // Add this: Mark messages as viewed when page becomes active
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _markUnreadMessagesAsViewed();
+    });
   }
 
   void _scrollListener() {
@@ -81,7 +86,6 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
         _userScrolledUp = !isAtBottom;
       });
 
-      // If at bottom, mark messages as viewed
       if (isAtBottom) {
         _markUnreadMessagesAsViewed();
       }
@@ -99,8 +103,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
 
   // Mark any unread messages as viewed
   void _markUnreadMessagesAsViewed() {
-    final chatProvider = Provider.of<ChatProvider>(context, listen: false);
-    final messages = chatProvider.historyState.messages;
+    final messages = context.read<ChatProvider>().historyState.messages;
 
     // Find messages from the other user that aren't viewed yet
     final unreadMessages = messages
@@ -119,7 +122,17 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     messageIds.forEach(_viewedMessageIds.add);
 
     // Send viewed status to server
-    chatProvider.sendMessageViewedStatus(widget.recipientId, messageIds);
+    context
+        .read<ChatProvider>()
+        .sendMessageViewedStatus(widget.recipientId, messageIds);
+    // Also trigger this when the view becomes active
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context
+            .read<ChatProvider>()
+            .sendMessageViewedStatus(widget.recipientId, messageIds);
+      }
+    });
   }
 
   // Scroll to bottom of messages
