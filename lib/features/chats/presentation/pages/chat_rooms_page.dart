@@ -29,6 +29,7 @@ class ChatRoomsPage extends StatefulWidget {
 class _ChatRoomsPageState extends State<ChatRoomsPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  bool _isInitialized = false;
 
   @override
   void initState() {
@@ -37,14 +38,23 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
     // Initialize tab controller
     _tabController = TabController(length: 2, vsync: this);
 
-    // Initialize the chat system
+    // Initialize chat system - do this after the widget is fully built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeChat();
+    });
+  }
+
+  Future<void> _initializeChat() async {
+    if (_isInitialized) return;
+    _isInitialized = true;
+
     final chatProvider = Provider.of<ChatProvider>(context, listen: false);
-    chatProvider.initializeChat(widget.userId);
+
+    // Connect to chat system
+    await chatProvider.initializeChat(widget.userId);
 
     // Load chat rooms
-    if (chatProvider.roomsState.chatRooms.isEmpty) {
-      chatProvider.loadChatRooms(widget.userId);
-    }
+    await chatProvider.loadChatRooms(widget.userId);
   }
 
   @override
@@ -126,45 +136,22 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
             if (state.isLoading) {
               return const Progress();
             } else if (state.chatRooms.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.chat_bubble_outline,
-                      size: 64,
-                      color: Colors.grey,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      locale.noMessagesYet,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      locale.yourConversationsWillAppearHere,
-                      style: const TextStyle(color: Colors.grey),
-                    ),
-                  ],
-                ),
-              );
+              return _buildEmptyState(locale);
             } else {
-              // Separate chat rooms into two lists
-              final toYouRooms = state.chatRooms
+              // Separate chat rooms into two lists - all chats and only inbox
+              // Inbox = messages sent to the user (where user is recipient)
+              final inboxRooms = state.chatRooms
                   .where((room) => room.recipientId == widget.userId)
                   .toList();
 
               return TabBarView(
                 controller: _tabController,
                 children: [
-                  // "To You" tab
+                  // "All Chats" tab
                   _buildChatRoomsList(state.chatRooms, chatProvider),
 
-                  // "Your Messages" tab
-                  _buildChatRoomsList(toYouRooms, chatProvider),
+                  // "Inbox" tab (messages to the user)
+                  _buildChatRoomsList(inboxRooms, chatProvider),
                 ],
               );
             }
@@ -174,8 +161,36 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
     );
   }
 
-  // Update the _buildChatRoomsList method in ChatRoomsPage to display unread messages count
+  // Empty state when no messages
+  Widget _buildEmptyState(AppLocalizations locale) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(
+            Icons.chat_bubble_outline,
+            size: 64,
+            color: Colors.grey,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            locale.noMessagesYet,
+            style: const TextStyle(
+              fontSize: 18,
+              color: Colors.grey,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            locale.yourConversationsWillAppearHere,
+            style: const TextStyle(color: Colors.grey),
+          ),
+        ],
+      ),
+    );
+  }
 
+  // Build the list of chat rooms
   Widget _buildChatRoomsList(List<ChatRoom> rooms, ChatProvider chatProvider) {
     final locale = AppLocalizations.of(context)!;
 
@@ -190,271 +205,327 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
     return RefreshIndicator(
       backgroundColor: Theme.of(context).cardColor,
       onRefresh: () async {
-        chatProvider.loadChatRooms(widget.userId);
-        return Future.delayed(const Duration(milliseconds: 1000));
+        await chatProvider.loadChatRooms(widget.userId);
+        return;
       },
       child: ListView.builder(
         itemCount: rooms.length,
         padding: const EdgeInsets.symmetric(vertical: 8),
         itemBuilder: (context, index) {
           final chatRoom = rooms[index];
-          return Card(
-            color: AppColors.transparent,
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
-            elevation: 0,
-            shape: SmoothRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(12),
-              onTap: () {
-                context.push(
-                  Routes.room,
-                  extra: {
-                    'userId': widget.userId,
-                    'publicationId': chatRoom.publicationId,
-                    'recipientId': chatRoom.recipientId,
-                    'publicationTitle': chatRoom.publicationTitle,
-                    'recipientName': chatRoom.recipientNickname,
-                    'publicationImagePath': chatRoom.publicationImagePath,
-                    'userProfileImage': chatRoom.recipientImagePath,
-                  },
-                );
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      // Adding padding to make space for the avatar overflow
-                      margin: const EdgeInsets.only(right: 10, top: 10),
-                      child: Stack(
-                        clipBehavior: Clip.none, // Allow overflow
-                        children: [
-                          SmoothClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: CachedNetworkImage(
-                              imageUrl:
-                                  "https://${chatRoom.publicationImagePath}",
-                              width: 50,
-                              height: 60,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          // User avatar positioned with positive offset
-                          Positioned(
-                            right: -8,
-                            top: -8,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                    color: Theme.of(context)
-                                        .scaffoldBackgroundColor,
-                                    width: 2),
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                              child: CircleAvatar(
-                                radius: 12,
-                                backgroundImage: NetworkImage(
-                                  "https://${chatRoom.recipientImagePath}",
-                                ),
-                                onBackgroundImageError:
-                                    (exception, stackTrace) {
-                                  // Handle image loading errors
-                                },
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 8), // Reduced width
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const SizedBox(height: 12),
-                                    Text(
-                                      chatRoom.publicationTitle,
-                                      style: TextStyle(
-                                        fontWeight: chatRoom.unreadMessages > 0
-                                            ? FontWeight.bold
-                                            : FontWeight.w500,
-                                        fontSize: 14,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .secondary,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              // Moved time to top right with unread count
-                              if (chatRoom.lastMessage != null)
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    // Time
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 12.0),
-                                      child: Text(
-                                        getFormattedTime(context,
-                                            chatRoom.lastMessage!.sentAt),
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.grey[500],
-                                        ),
-                                      ),
-                                    ),
-                                    // Unread count badge
-                                    if (chatRoom.unreadMessages > 0)
-                                      Container(
-                                        margin: const EdgeInsets.only(
-                                            left: 6, top: 12),
-                                        padding: const EdgeInsets.all(6),
-                                        decoration: BoxDecoration(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .secondary,
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: Text(
-                                          chatRoom.unreadMessages > 9
-                                              ? '9+'
-                                              : chatRoom.unreadMessages
-                                                  .toString(),
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                            ],
-                          ),
-                          const SizedBox(height: 2),
-                          // Price
-                          Text(
-                            formatPrice(chatRoom.publicationPrice.toString()),
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.secondary,
-                              fontSize: 15,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          // Last message with sender indication
-                          RichText(
-                            text: TextSpan(
-                              children: chatRoom.lastMessage == null
-                                  ? [
-                                      TextSpan(
-                                        text: locale.noMessagesYet,
-                                        style: TextStyle(
-                                          color: Colors.grey[600],
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    ]
-                                  : chatRoom.lastMessage!.senderId ==
-                                          widget.userId
-                                      ? [
-                                          TextSpan(
-                                            text: '${locale.you}: ',
-                                            style: TextStyle(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .secondary,
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w500,
-                                                fontFamily: Constants.Arial),
-                                          ),
-                                          TextSpan(
-                                            text: chatRoom.lastMessage!.content,
-                                            style: TextStyle(
-                                              color: Colors.grey[600],
-                                              fontSize: 12,
-                                              fontFamily: Constants.Arial,
-                                            ),
-                                          ),
-                                          // Add message status indicator
-                                          if (chatRoom.lastMessage!.status ==
-                                              'VIEWED')
-                                            const TextSpan(
-                                              text: ' ✓✓',
-                                              style: TextStyle(
-                                                color: Colors.blue,
-                                                fontSize: 12,
-                                                fontFamily: Constants.Arial,
-                                              ),
-                                            )
-                                          else if (chatRoom
-                                                  .lastMessage!.status ==
-                                              'DELIVERED')
-                                            const TextSpan(
-                                              text: ' ✓✓',
-                                              style: TextStyle(
-                                                color: Colors.grey,
-                                                fontSize: 12,
-                                                fontFamily: Constants.Arial,
-                                              ),
-                                            )
-                                          else
-                                            const TextSpan(
-                                              text: ' ✓',
-                                              style: TextStyle(
-                                                color: Colors.grey,
-                                                fontSize: 12,
-                                                fontFamily: Constants.Arial,
-                                              ),
-                                            ),
-                                        ]
-                                      : [
-                                          TextSpan(
-                                            text: chatRoom.lastMessage!.content,
-                                            style: TextStyle(
-                                              color: chatRoom.unreadMessages > 0
-                                                  ? Theme.of(context)
-                                                      .colorScheme
-                                                      .secondary
-                                                  : Colors.grey[600],
-                                              fontSize: 12,
-                                              fontWeight:
-                                                  chatRoom.unreadMessages > 0
-                                                      ? FontWeight.bold
-                                                      : FontWeight.normal,
-                                              fontFamily: Constants.Arial,
-                                            ),
-                                          ),
-                                        ],
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
+          return _buildChatRoomItem(chatRoom, locale);
         },
       ),
     );
+  }
+
+  // Build an individual chat room item
+  Widget _buildChatRoomItem(ChatRoom chatRoom, AppLocalizations locale) {
+    return Card(
+      color: AppColors.transparent,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+      elevation: 0,
+      shape: SmoothRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () {
+          // Navigate to chat detail page
+          context.push(
+            Routes.room,
+            extra: {
+              'userId': widget.userId,
+              'publicationId': chatRoom.publicationId,
+              'recipientId': chatRoom.recipientId,
+              'publicationTitle': chatRoom.publicationTitle,
+              'recipientName': chatRoom.recipientNickname,
+              'publicationImagePath': chatRoom.publicationImagePath,
+              'userProfileImage': chatRoom.recipientImagePath,
+            },
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Publication image with user avatar
+              _buildChatRoomAvatar(chatRoom),
+
+              const SizedBox(width: 8),
+
+              // Chat details
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Top row: publication title and time/unread indicator
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Publication title
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: 12),
+                              Text(
+                                chatRoom.publicationTitle,
+                                style: TextStyle(
+                                  fontWeight: chatRoom.unreadMessages > 0
+                                      ? FontWeight.bold
+                                      : FontWeight.w500,
+                                  fontSize: 14,
+                                  color:
+                                      Theme.of(context).colorScheme.secondary,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // Time and unread count
+                        if (chatRoom.lastMessage != null)
+                          _buildTimeAndUnreadCount(chatRoom, locale),
+                      ],
+                    ),
+
+                    const SizedBox(height: 2),
+
+                    // Publication price
+                    Text(
+                      formatPrice(chatRoom.publicationPrice.toString()),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.secondary,
+                        fontSize: 15,
+                      ),
+                    ),
+
+                    const SizedBox(height: 2),
+
+                    // Last message with sender indication and status
+                    _buildLastMessageIndicator(chatRoom, locale),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Build publication image with user avatar overlay
+  Widget _buildChatRoomAvatar(ChatRoom chatRoom) {
+    return Container(
+      margin: const EdgeInsets.only(right: 10, top: 10),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          // Publication image
+          SmoothClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: CachedNetworkImage(
+              imageUrl: "https://${chatRoom.publicationImagePath}",
+              width: 50,
+              height: 60,
+              fit: BoxFit.cover,
+              errorWidget: (context, url, error) => Container(
+                width: 50,
+                height: 60,
+                color: Colors.grey[300],
+                child: const Icon(Icons.image_not_supported, size: 20),
+              ),
+            ),
+          ),
+
+          // User avatar overlay
+          Positioned(
+            right: -8,
+            top: -8,
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  width: 2,
+                ),
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: CircleAvatar(
+                radius: 12,
+                backgroundImage: NetworkImage(
+                  "https://${chatRoom.recipientImagePath}",
+                ),
+                onBackgroundImageError: (exception, stackTrace) {
+                  // Handle image loading error
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Build time and unread count indicator
+  Widget _buildTimeAndUnreadCount(ChatRoom chatRoom, AppLocalizations locale) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Time
+        Padding(
+          padding: const EdgeInsets.only(top: 12.0),
+          child: Text(
+            getFormattedTime(context, chatRoom.lastMessage!.sentAt),
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey[500],
+            ),
+          ),
+        ),
+
+        // Unread count badge
+        if (chatRoom.unreadMessages > 0)
+          Container(
+            margin: const EdgeInsets.only(left: 6, top: 12),
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.secondary,
+              shape: BoxShape.circle,
+            ),
+            child: Text(
+              chatRoom.unreadMessages > 9
+                  ? '9+'
+                  : chatRoom.unreadMessages.toString(),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  // Build last message preview with status indicators
+  Widget _buildLastMessageIndicator(
+      ChatRoom chatRoom, AppLocalizations locale) {
+    if (chatRoom.lastMessage == null) {
+      return Text(
+        locale.noMessagesYet,
+        style: TextStyle(
+          color: Colors.grey[600],
+          fontSize: 14,
+        ),
+      );
+    }
+
+    // Message sent by current user
+    if (chatRoom.lastMessage!.senderId == widget.userId) {
+      return RichText(
+        text: TextSpan(
+          children: [
+            TextSpan(
+              text: '${locale.you}: ',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.secondary,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                fontFamily: Constants.Arial,
+              ),
+            ),
+            TextSpan(
+              text: chatRoom.lastMessage!.content,
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontSize: 12,
+                fontFamily: Constants.Arial,
+              ),
+            ),
+            // Status indicators
+            _getMessageStatusIndicator(chatRoom.lastMessage!.status),
+          ],
+        ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      );
+    }
+    // Message received from other user
+    else {
+      return Text(
+        chatRoom.lastMessage!.content,
+        style: TextStyle(
+          color: chatRoom.unreadMessages > 0
+              ? Theme.of(context).colorScheme.secondary
+              : Colors.grey[600],
+          fontSize: 12,
+          fontWeight:
+              chatRoom.unreadMessages > 0 ? FontWeight.bold : FontWeight.normal,
+          fontFamily: Constants.Arial,
+        ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      );
+    }
+  }
+
+  // Get the appropriate message status indicator
+  TextSpan _getMessageStatusIndicator(String status) {
+    switch (status) {
+      case 'VIEWED':
+        return const TextSpan(
+          text: ' ✓✓',
+          style: TextStyle(
+            color: Colors.blue,
+            fontSize: 12,
+            fontFamily: Constants.Arial,
+          ),
+        );
+      case 'DELIVERED':
+        return const TextSpan(
+          text: ' ✓✓',
+          style: TextStyle(
+            color: Colors.grey,
+            fontSize: 12,
+            fontFamily: Constants.Arial,
+          ),
+        );
+      case 'SENT':
+        return const TextSpan(
+          text: ' ✓',
+          style: TextStyle(
+            color: Colors.grey,
+            fontSize: 12,
+            fontFamily: Constants.Arial,
+          ),
+        );
+      case 'SENDING':
+        return const TextSpan(
+          text: ' ⌛',
+          style: TextStyle(
+            color: Colors.grey,
+            fontSize: 12,
+            fontFamily: Constants.Arial,
+          ),
+        );
+      case 'ERROR':
+        return const TextSpan(
+          text: ' ⚠️',
+          style: TextStyle(
+            color: Colors.red,
+            fontSize: 12,
+            fontFamily: Constants.Arial,
+          ),
+        );
+      default:
+        return const TextSpan(text: '');
+    }
   }
 }

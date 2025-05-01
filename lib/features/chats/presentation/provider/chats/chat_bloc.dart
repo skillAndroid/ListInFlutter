@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print
 
 import 'dart:async';
+import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:list_in/features/chats/domain/entity/chat_message.dart';
@@ -17,12 +18,13 @@ import 'package:list_in/features/chats/domain/usecase/message_delivered_usecase.
 import 'package:list_in/features/chats/domain/usecase/send_message_usecase.dart';
 import 'package:list_in/features/chats/domain/usecase/send_message_viewed_usecase.dart';
 
+/// State for chat rooms list
 class ChatRoomsState {
   final bool isLoading;
   final List<ChatRoom> chatRooms;
   final String? errorMessage;
 
-  ChatRoomsState({
+  const ChatRoomsState({
     this.isLoading = false,
     this.chatRooms = const [],
     this.errorMessage,
@@ -41,6 +43,7 @@ class ChatRoomsState {
   }
 }
 
+/// State for chat history/conversation
 class ChatHistoryState {
   final bool isLoading;
   final String publicationId;
@@ -49,7 +52,7 @@ class ChatHistoryState {
   final Map<String, UserStatus> userStatuses;
   final String? errorMessage;
 
-  ChatHistoryState({
+  const ChatHistoryState({
     this.isLoading = false,
     this.publicationId = '',
     this.recipientId = '',
@@ -88,28 +91,31 @@ class ChatProvider extends ChangeNotifier {
   final GetUserStatusStreamUseCase getUserStatusStreamUseCase;
   final SendMessageViewedStatusUseCase sendMessageViewedStatusUseCase;
   final GetMessageStatusStreamUseCase getMessageStatusStreamUseCase;
-
-  // States
-  ChatRoomsState _roomsState = ChatRoomsState();
-  ChatHistoryState _historyState = ChatHistoryState();
   final GetMessageDeliveredStreamUseCase getMessageDeliveredStreamUseCase;
 
-  // Add a subscription for delivered messages
-  StreamSubscription<ChatMessage>? _messageDeliveredSubscription;
+  // States
+  ChatRoomsState _roomsState = const ChatRoomsState();
+  ChatHistoryState _historyState = const ChatHistoryState();
+
   // Getters
   ChatRoomsState get roomsState => _roomsState;
   ChatHistoryState get historyState => _historyState;
 
   // Stream subscriptions
   StreamSubscription<ChatMessage>? _messageSubscription;
+  StreamSubscription<ChatMessage>? _messageDeliveredSubscription;
   StreamSubscription<UserConnectionInfo>? _userStatusSubscription;
   StreamSubscription<List<String>>? _messageStatusSubscription;
-  final Set<String> _processingViewedMessages = {};
 
+  // Tracking
   bool _isInitialized = false;
-  bool _isSubscribed = false;
-  final Map<String, UserStatus> _userStatuses = {};
   String? _currentUserId;
+  String? _currentChatRecipientId;
+  String? _currentPublicationId;
+
+  // Keep track of message statuses to avoid duplicate processing
+  final Set<String> _messageViewedProcessingQueue = HashSet<String>();
+  final Map<String, UserStatus> _userStatuses = {};
 
   // Constructor
   ChatProvider({
@@ -125,319 +131,105 @@ class ChatProvider extends ChangeNotifier {
     required this.getMessageDeliveredStreamUseCase,
   });
 
-  // Initialize chat system
+  // Initialize chat system with current user ID
   Future<void> initializeChat(String userId) async {
-    if (_isInitialized) return;
+    if (_isInitialized && _currentUserId == userId) {
+      print('Chat already initialized for user $userId');
+      return;
+    }
 
     _currentUserId = userId;
 
     try {
-      // Connect to WebSocket
+      // Connect user as online
       await connectUserUseCase.execute(UserConnectionInfo(
         email: userId,
         nickName: '',
         status: UserStatus.ONLINE,
       ));
 
-      // Subscribe to message and status streams
-      _subscribeToStreams();
+      // Initialize message subscriptions
+      _subscribeToMessageStreams();
 
       _isInitialized = true;
+      print('Chat initialized for user $userId');
     } catch (e) {
       print('Failed to initialize chat: $e');
+      // We don't rethrow to prevent UI crashes, but we set the error in state if needed
     }
   }
 
-  void _subscribeToStreams() {
-    if (_isSubscribed) return;
+  // Subscribe to all message-related streams
+  void _subscribeToMessageStreams() {
+    // Cancel any existing subscriptions first
+    _unsubscribeFromStreams();
 
-    // Cancel existing subscriptions
-    _messageSubscription?.cancel();
-    _userStatusSubscription?.cancel();
-    _messageStatusSubscription?.cancel();
-    _messageDeliveredSubscription?.cancel();
-
-    // Subscribe to message stream
+    // 1. Subscribe to incoming messages
     _messageSubscription = getMessageStreamUseCase.execute().listen(
       (message) {
-        print("Provider received message: ${message.content}");
+        print('📩 Received message: ${message.id} - ${message.content}');
         _handleIncomingMessage(message);
       },
       onError: (error) {
-        print('Message stream error: $error');
+        print('❌ Message stream error: $error');
       },
     );
 
-    // Subscribe to user status stream
-    _userStatusSubscription = getUserStatusStreamUseCase.execute().listen(
-      (userStatus) {
-        _handleUserStatusUpdate(userStatus);
-      },
-      onError: (error) {
-        print('User status stream error: $error');
-      },
-    );
+    // 2. Subscribe to message delivery confirmations
     _messageDeliveredSubscription =
         getMessageDeliveredStreamUseCase.execute().listen(
       (deliveredMessage) {
-        _handleDeliveredMessage(deliveredMessage);
+        print('🚚 Message delivered: ${deliveredMessage.id}');
+        _handleMessageDeliveryStatus(deliveredMessage);
       },
       onError: (error) {
-        print('Message delivered stream error: $error');
+        print('❌ Message delivery stream error: $error');
       },
     );
-    // Subscribe to message status stream
+
+    // 3. Subscribe to message read status updates
     _messageStatusSubscription = getMessageStatusStreamUseCase.execute().listen(
       (viewedMessageIds) {
-        _handleMessageStatusUpdate(viewedMessageIds);
+        print('👁️ Messages viewed: $viewedMessageIds');
+        _handleMessageViewedStatus(viewedMessageIds);
       },
       onError: (error) {
-        print('Message status stream error: $error');
+        print('❌ Message status stream error: $error');
       },
     );
 
-    _isSubscribed = true;
+    // 4. Subscribe to user status updates
+    _userStatusSubscription = getUserStatusStreamUseCase.execute().listen(
+      (userStatus) {
+        print(
+            '👤 User status update: ${userStatus.email} is ${userStatus.status}');
+        _handleUserStatusUpdate(userStatus);
+      },
+      onError: (error) {
+        print('❌ User status stream error: $error');
+      },
+    );
   }
 
-  void _handleDeliveredMessage(ChatMessage deliveredMessage) {
-    print('🚚 Processing delivered message: ${deliveredMessage.id}');
-    print('🚚 Message content: ${deliveredMessage.content}');
-    print('🚚 Message status: ${deliveredMessage.status}');
+  // Clean up subscriptions
+  void _unsubscribeFromStreams() {
+    _messageSubscription?.cancel();
+    _messageDeliveredSubscription?.cancel();
+    _messageStatusSubscription?.cancel();
+    _userStatusSubscription?.cancel();
 
-    // We need to update the message in both chat history and chat rooms
-    bool chatHistoryUpdated = false;
-    bool chatRoomsUpdated = false;
-    print('🔍 Current messages in history:');
-
-    // Update in chat history
-    if (_historyState.messages.isNotEmpty) {
-      for (var message in _historyState.messages) {
-        print(
-            '  - ID: ${message.id}, Content: ${message.content}, Status: ${message.status}');
-      }
-      final updatedMessages = _historyState.messages.map((message) {
-        // Match by ID if available, otherwise try content matching
-        if (message.id == deliveredMessage.id) {
-          print('✅ Updating message status to DELIVERED: ${message.content}');
-          chatHistoryUpdated = true;
-
-          // Return the delivered message but keep our local ID if needed
-          return ChatMessage(
-            id: message.id,
-            senderId: deliveredMessage.senderId,
-            recipientId: deliveredMessage.recipientId,
-            publicationId: deliveredMessage.publicationId,
-            content: deliveredMessage.content,
-            status: 'DELIVERED', // Update status to DELIVERED
-            sentAt: deliveredMessage.sentAt,
-            updatedAt: DateTime.now(),
-          );
-        }
-        return message;
-      }).toList();
-
-      if (chatHistoryUpdated) {
-        _historyState = _historyState.copyWith(messages: updatedMessages);
-      }
-    }
-
-    // Update in chat rooms
-    final updatedRooms = _roomsState.chatRooms.map((room) {
-      if (room.lastMessage != null) {
-        // Check if this is the last message in the room
-        if ((room.lastMessage!.id == deliveredMessage.id) ||
-            (room.lastMessage!.content == deliveredMessage.content &&
-                room.lastMessage!.senderId == deliveredMessage.senderId &&
-                room.lastMessage!.recipientId ==
-                    deliveredMessage.recipientId)) {
-          print(
-              '✅ Updating last message status in room ${room.chatRoomId} to DELIVERED');
-          chatRoomsUpdated = true;
-
-          // Update the last message
-          final updatedLastMessage = ChatMessage(
-            id: room.lastMessage!.id,
-            senderId: deliveredMessage.senderId,
-            recipientId: deliveredMessage.recipientId,
-            publicationId: deliveredMessage.publicationId,
-            content: deliveredMessage.content,
-            status: 'DELIVERED',
-            sentAt: deliveredMessage.sentAt,
-            updatedAt: DateTime.now(),
-          );
-
-          return room.copyWith(lastMessage: updatedLastMessage);
-        }
-      }
-      return room;
-    }).toList();
-
-    if (chatRoomsUpdated) {
-      _roomsState = _roomsState.copyWith(chatRooms: updatedRooms);
-    }
-
-    // Notify listeners if anything changed
-    if (chatHistoryUpdated || chatRoomsUpdated) {
-      notifyListeners();
-    }
+    _messageSubscription = null;
+    _messageDeliveredSubscription = null;
+    _messageStatusSubscription = null;
+    _userStatusSubscription = null;
   }
 
-  void _handleMessageStatusUpdate(List<String> viewedMessageIds) {
-    if (viewedMessageIds.isEmpty) {
-      print('📊 No message IDs to process');
-      return;
-    }
-
-    print('🔍 Processing viewed status for messages: $viewedMessageIds');
-
-    bool chatHistoryUpdated = false;
-    bool chatRoomsUpdated = false;
-
-    // 🧐 LAYER 1: Checking current chat history
-    print('📱 LAYER 1: Checking chat history messages');
-    print(
-        '📱 Current chat history has ${_historyState.messages.length} messages');
-
-    if (_historyState.messages.isNotEmpty) {
-      // Print summary of current messages
-      print('📱 Current messages statuses:');
-      for (int i = 0; i < _historyState.messages.length; i++) {
-        final msg = _historyState.messages[i];
-        print(
-            '📱 Message ${i + 1}: ID=${msg.id}, Status=${msg.status}, Sender=${msg.senderId}');
-      }
-
-      final updatedMessages = _historyState.messages.map((message) {
-        if (viewedMessageIds.contains(message.id) &&
-            message.status != 'VIEWED') {
-          print('✅ FOUND message to update in history: ${message.id}');
-          print('✅ Current status: ${message.status} -> Updating to: VIEWED');
-
-          // Create a new message with updated status
-          return ChatMessage(
-            id: message.id,
-            senderId: message.senderId,
-            recipientId: message.recipientId,
-            publicationId: message.publicationId,
-            content: message.content,
-            status: 'VIEWED',
-            sentAt: message.sentAt,
-            updatedAt: DateTime.now(),
-          );
-        }
-
-        if (viewedMessageIds.contains(message.id)) {
-          print(
-              '⚠️ Message ${message.id} already has status: ${message.status}');
-        }
-
-        return message;
-      }).toList();
-
-      // Check if any messages were updated
-      for (int i = 0; i < _historyState.messages.length; i++) {
-        if (_historyState.messages[i].status != updatedMessages[i].status) {
-          print(
-              '🔄 Message at index $i was updated: ${_historyState.messages[i].status} -> ${updatedMessages[i].status}');
-          chatHistoryUpdated = true;
-        }
-      }
-
-      if (chatHistoryUpdated) {
-        print('📝 Updating chat history state with new messages');
-        _historyState = _historyState.copyWith(messages: updatedMessages);
-      } else {
-        print('⏩ No changes to chat history');
-      }
-    } else {
-      print('📭 Chat history is empty, nothing to update');
-    }
-
-    // 🧐 LAYER 2: Checking chat rooms
-    print('🏠 LAYER 2: Checking chat rooms');
-    print('🏠 Current chat rooms count: ${_roomsState.chatRooms.length}');
-
-    // First, log the current status of last messages in chat rooms
-    for (final room in _roomsState.chatRooms) {
-      if (room.lastMessage != null) {
-        print(
-            '🏠 Room ${room.chatRoomId}: LastMessageID=${room.lastMessage!.id}, Status=${room.lastMessage!.status}');
-      }
-    }
-
-    // Update last message status in chat rooms
-    final updatedRooms = _roomsState.chatRooms.map((room) {
-      if (room.lastMessage != null &&
-          viewedMessageIds.contains(room.lastMessage!.id) &&
-          room.lastMessage!.status != 'VIEWED') {
-        print('✅ FOUND room to update: ${room.chatRoomId}');
-        print('✅ Last message ID: ${room.lastMessage!.id}');
-        print(
-            '✅ Current status: ${room.lastMessage!.status} -> Updating to: VIEWED');
-
-        // Create a new message with updated status
-        final updatedLastMessage = ChatMessage(
-          id: room.lastMessage!.id,
-          senderId: room.lastMessage!.senderId,
-          recipientId: room.lastMessage!.recipientId,
-          publicationId: room.lastMessage!.publicationId,
-          content: room.lastMessage!.content,
-          status: 'VIEWED',
-          sentAt: room.lastMessage!.sentAt,
-          updatedAt: DateTime.now(),
-        );
-
-        // Create a new room with updated unread count
-        return room.copyWith(
-          lastMessage: updatedLastMessage,
-        );
-      }
-
-      if (room.lastMessage != null &&
-          viewedMessageIds.contains(room.lastMessage!.id)) {
-        print(
-            '⚠️ Room ${room.chatRoomId} last message already has status: ${room.lastMessage!.status}');
-      }
-
-      return room;
-    }).toList();
-
-    // Check if any rooms were updated
-    for (int i = 0; i < _roomsState.chatRooms.length; i++) {
-      final oldStatus = _roomsState.chatRooms[i].lastMessage?.status;
-      final newStatus = updatedRooms[i].lastMessage?.status;
-
-      if (oldStatus != newStatus) {
-        print('🔄 Room at index $i was updated: $oldStatus -> $newStatus');
-        chatRoomsUpdated = true;
-      }
-    }
-
-    if (chatRoomsUpdated) {
-      print('📝 Updating chat rooms state with new rooms');
-      _roomsState = _roomsState.copyWith(chatRooms: updatedRooms);
-    } else {
-      print('⏩ No changes to chat rooms');
-    }
-
-    // 🧐 LAYER 3: Notifying UI
-    if (chatHistoryUpdated || chatRoomsUpdated) {
-      print('🔔 Changes detected, notifying listeners');
-      notifyListeners();
-    } else {
-      print(
-          '⏩ No changes detected, but notifying listeners anyway to ensure UI updates');
-      notifyListeners();
-    }
-
-    // 🧐 LAYER 4: Final verification
-    print('✓ Status update processing complete');
-    print('✓ ChatHistoryUpdated: $chatHistoryUpdated');
-    print('✓ ChatRoomsUpdated: $chatRoomsUpdated');
-  }
-
-  // Load chat rooms
+  // Load chat rooms list
   Future<void> loadChatRooms(String userId) async {
+    if (!_isInitialized) {
+      await initializeChat(userId);
+    }
+
     _roomsState = _roomsState.copyWith(isLoading: true, errorMessage: null);
     notifyListeners();
 
@@ -448,25 +240,30 @@ class ChatProvider extends ChangeNotifier {
         chatRooms: chatRooms,
       );
     } catch (e) {
+      print('Failed to load chat rooms: $e');
       _roomsState = _roomsState.copyWith(
         isLoading: false,
         errorMessage: 'Failed to load chat rooms: $e',
       );
-
-      // Retry logic
-      Future.delayed(const Duration(seconds: 3), () {
-        loadChatRooms(userId);
-      });
     }
 
     notifyListeners();
   }
 
+  // Load chat history for a specific conversation
   Future<void> loadChatHistory({
     required String publicationId,
     required String senderId,
     required String recipientId,
   }) async {
+    if (!_isInitialized) {
+      await initializeChat(senderId);
+    }
+
+    // Set current chat context to track active conversation
+    _currentChatRecipientId = recipientId;
+    _currentPublicationId = publicationId;
+
     _historyState = _historyState.copyWith(
       isLoading: true,
       errorMessage: null,
@@ -482,73 +279,62 @@ class ChatProvider extends ChangeNotifier {
         recipientId,
       );
 
+      // Sort messages by timestamp if needed
+      messages.sort((a, b) => a.sentAt.compareTo(b.sentAt));
+
+      // Update state with messages and current user statuses
       _historyState = _historyState.copyWith(
         isLoading: false,
         messages: messages,
         userStatuses: Map.from(_userStatuses),
       );
 
-      // Automatically mark unviewed messages as viewed when loading chat history
-      final unviewedMessages = messages
-          .where((message) =>
-              message.senderId != _currentUserId && message.status != 'VIEWED')
-          .toList();
+      notifyListeners();
 
-      if (unviewedMessages.isNotEmpty) {
-        // Mark messages as viewed
-        _markMessagesAsViewed(unviewedMessages);
-
-        // Update unread count in the relevant chat room
-        _updateUnreadMessageCount(publicationId, recipientId);
-      }
+      // Mark unread messages as viewed (this happens outside the build cycle)
+      _markUnreadMessagesAsViewed(messages);
     } catch (e) {
+      print('Failed to load chat history: $e');
       _historyState = _historyState.copyWith(
         isLoading: false,
         errorMessage: 'Failed to load chat history: $e',
       );
+      notifyListeners();
+    }
+  }
 
-      // Retry logic
-      Future.delayed(const Duration(seconds: 3), () {
-        loadChatHistory(
-          publicationId: publicationId,
-          senderId: senderId,
-          recipientId: recipientId,
-        );
-      });
+  // Send a new message
+  Future<void> sendMessage(ChatMessage message) async {
+    if (!_isInitialized) {
+      await initializeChat(message.senderId);
     }
 
-    notifyListeners();
-  }
-
-  // Update unread message count for a specific chat room
-  void _updateUnreadMessageCount(String publicationId, String recipientId) {
-    final updatedRooms = _roomsState.chatRooms.map((room) {
-      if (room.publicationId == publicationId &&
-          room.recipientId == recipientId) {
-        return room.copyWith(unreadMessages: 0);
-      }
-      return room;
-    }).toList();
-
-    _roomsState = _roomsState.copyWith(chatRooms: updatedRooms);
-    notifyListeners();
-  }
-
-  // Send a message
-  Future<void> sendMessage(ChatMessage message) async {
     try {
-      // The message already has an ID from the UI layer
-      print('📤 Sending message with ID: ${message.id}');
+      // Optimistically add message to UI with "SENDING" status
+      final optimisticMessage = message.copyWith(status: 'SENDING');
       final updatedMessages = List<ChatMessage>.from(_historyState.messages)
-        ..add(message);
+        ..add(optimisticMessage);
+
       _historyState = _historyState.copyWith(messages: updatedMessages);
 
-      // Update chat room list state with the new last message
-      _updateChatRoomWithLastMessage(message);
+      // Update chat room list with new last message
+      _updateChatRoomWithLastMessage(optimisticMessage);
 
       notifyListeners();
+
+      // Send the message to the server
       await sendMessageUseCase.execute(message);
+
+      // Update message status to "SENT" after successful send
+      final sentMessage = optimisticMessage.copyWith(status: 'SENT');
+      _updateMessageStatus(sentMessage);
     } catch (e) {
+      print('Failed to send message: $e');
+
+      // Update message with error status
+      final errorMessage = message.copyWith(status: 'ERROR');
+      _updateMessageStatus(errorMessage);
+
       _historyState = _historyState.copyWith(
         errorMessage: 'Failed to send message: $e',
       );
@@ -556,46 +342,26 @@ class ChatProvider extends ChangeNotifier {
     }
   }
 
-  // Update a chat room with a new last message
-  void _updateChatRoomWithLastMessage(ChatMessage message) {
-    final updatedRooms = _roomsState.chatRooms.map((room) {
-      if (room.publicationId == message.publicationId &&
-          (room.recipientId == message.recipientId ||
-              room.recipientId == message.senderId)) {
-        return room.copyWith(lastMessage: message);
-      }
-      return room;
-    }).toList();
+  // HANDLE INCOMING EVENTS
 
-    _roomsState = _roomsState.copyWith(chatRooms: updatedRooms);
-  }
-
-  // Update _handleIncomingMessage to increment unread count
+// Process incoming new messages
   void _handleIncomingMessage(ChatMessage message) {
-    // Update chat history if we're in the relevant chat
-    bool inRelevantChat = _historyState.recipientId == message.senderId &&
-        _historyState.publicationId == message.publicationId;
+    // 1. Add message to current chat if we're in the right conversation
+    final bool isInRelevantChat = _isInRelevantChatContext(message);
 
-    if (inRelevantChat) {
+    if (isInRelevantChat) {
       final updatedMessages = List<ChatMessage>.from(_historyState.messages)
         ..add(message);
       _historyState = _historyState.copyWith(messages: updatedMessages);
-
-      // Mark message as viewed since we're in the chat
-      _markMessagesAsViewed([message]);
     }
 
-    // Update chat room list with the new last message
     final updatedRooms = _roomsState.chatRooms.map((room) {
-      if (room.publicationId == message.publicationId &&
-          (room.recipientId == message.recipientId ||
-              room.recipientId == message.senderId)) {
-        // If the message is from someone else and we're not in that chat, increment unread count
+      // Find the relevant room
+      if (_isRelevantChatRoom(room, message)) {
         int newUnreadCount = room.unreadMessages;
-        if (message.senderId != _currentUserId && !inRelevantChat) {
+        if (message.senderId != _currentUserId && !isInRelevantChat) {
           newUnreadCount += 1;
         }
-
         return room.copyWith(
           lastMessage: message,
           unreadMessages: newUnreadCount,
@@ -608,62 +374,48 @@ class ChatProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Add new method to mark messages as viewed
-  Future<void> _markMessagesAsViewed(List<ChatMessage> messages) async {
-    // Filter messages that need to be marked as viewed
-    final messagesToMark = messages.where((message) {
-      return message.senderId != _currentUserId && // Not sent by current user
-          message.status != 'VIEWED' && // Not already viewed
-          !_processingViewedMessages
-              .contains(message.id); // Not already being processed
-    }).toList();
+  // Process delivery status updates
+  void _handleMessageDeliveryStatus(ChatMessage deliveredMessage) {
+    // Only process if this message was sent by current user
+    if (deliveredMessage.senderId != _currentUserId) return;
 
-    if (messagesToMark.isEmpty) return;
+    final updatedMessage = deliveredMessage.copyWith(status: 'DELIVERED');
+    _updateMessageStatus(updatedMessage);
+  }
 
-    // Extract message IDs
-    final messageIds = messagesToMark.map((message) => message.id!).toList();
+  // Process message viewed status updates
+  void _handleMessageViewedStatus(List<String> viewedMessageIds) {
+    if (viewedMessageIds.isEmpty) return;
 
-    // Add to processing set to avoid duplicate requests
-    messageIds.forEach(_processingViewedMessages.add);
-
-    try {
-      // Send viewed status to backend
-      await sendMessageViewedStatusUseCase.execute(
-          messagesToMark.first.senderId, messageIds);
-
-      // Update local message status
+    // Update messages in current chat history
+    if (_historyState.messages.isNotEmpty) {
       final updatedMessages = _historyState.messages.map((message) {
-        if (messageIds.contains(message.id)) {
-          return ChatMessage(
-            id: message.id,
-            senderId: message.senderId,
-            recipientId: message.recipientId,
-            publicationId: message.publicationId,
-            content: message.content,
-            status: 'VIEWED',
-            sentAt: message.sentAt,
-            updatedAt: DateTime.now(),
-          );
+        if (viewedMessageIds.contains(message.id) &&
+            message.status != 'VIEWED') {
+          return message.copyWith(status: 'VIEWED');
         }
         return message;
       }).toList();
 
       _historyState = _historyState.copyWith(messages: updatedMessages);
-      notifyListeners();
-    } catch (e) {
-      print('Failed to mark messages as viewed: $e');
-    } finally {
-      // Remove from processing set regardless of success/failure
-      messageIds.forEach(_processingViewedMessages.remove);
     }
+
+    final updatedRooms = _roomsState.chatRooms.map((room) {
+      if (room.lastMessage != null &&
+          viewedMessageIds.contains(room.lastMessage!.id)) {
+        final updatedLastMessage = room.lastMessage!.copyWith(status: 'VIEWED');
+        return room.copyWith(lastMessage: updatedLastMessage);
+      }
+      return room;
+    }).toList();
+
+    _roomsState = _roomsState.copyWith(chatRooms: updatedRooms);
+    notifyListeners();
   }
 
-  // Handle user status updates
   void _handleUserStatusUpdate(UserConnectionInfo userStatus) {
     _userStatuses[userStatus.email] = userStatus.status;
-
-    // Update chat history state if needed
-    if (_historyState.userStatuses.containsKey(userStatus.email)) {
+    if (_historyState.recipientId == userStatus.email) {
       _historyState = _historyState.copyWith(
         userStatuses: Map.from(_userStatuses),
       );
@@ -671,14 +423,142 @@ class ChatProvider extends ChangeNotifier {
     }
   }
 
-  // Connect a user
+  void _updateMessageStatus(ChatMessage updatedMessage) {
+    // 1. Update in current chat history
+    if (_historyState.messages.isNotEmpty) {
+      final updatedMessages = _historyState.messages.map((message) {
+        if (message.id == updatedMessage.id) {
+          return updatedMessage;
+        }
+        return message;
+      }).toList();
+
+      _historyState = _historyState.copyWith(messages: updatedMessages);
+    }
+
+    // 2. Update in chat rooms list if this is the last message
+    final updatedRooms = _roomsState.chatRooms.map((room) {
+      if (room.lastMessage != null &&
+          room.lastMessage!.id == updatedMessage.id) {
+        return room.copyWith(lastMessage: updatedMessage);
+      }
+      return room;
+    }).toList();
+
+    _roomsState = _roomsState.copyWith(chatRooms: updatedRooms);
+    notifyListeners();
+  }
+
+  // Update chat room list when a new message is sent or received
+  void _updateChatRoomWithLastMessage(ChatMessage message) {
+    final updatedRooms = _roomsState.chatRooms.map((room) {
+      if (_isRelevantChatRoom(room, message)) {
+        return room.copyWith(lastMessage: message);
+      }
+      return room;
+    }).toList();
+
+    _roomsState = _roomsState.copyWith(chatRooms: updatedRooms);
+  }
+
+  // Check if a message belongs to the currently open chat
+  bool _isInRelevantChatContext(ChatMessage message) {
+    return _currentPublicationId == message.publicationId &&
+        (_currentChatRecipientId == message.senderId ||
+            _currentChatRecipientId == message.recipientId);
+  }
+
+  // Check if a message belongs to a specific chat room
+  bool _isRelevantChatRoom(ChatRoom room, ChatMessage message) {
+    return room.publicationId == message.publicationId &&
+        ((room.recipientId == message.recipientId &&
+                message.senderId == _currentUserId) ||
+            (room.recipientId == message.senderId &&
+                message.recipientId == _currentUserId));
+  }
+
+  // Mark messages as viewed when opening a chat
+  void _markUnreadMessagesAsViewed(List<ChatMessage> messages) {
+    if (_currentUserId == null) return;
+
+    // Filter messages that need to be marked as viewed
+    final unviewedMessages = messages
+        .where((msg) =>
+            msg.senderId != _currentUserId &&
+            msg.status != 'VIEWED' &&
+            !_messageViewedProcessingQueue.contains(msg.id))
+        .toList();
+
+    if (unviewedMessages.isEmpty) return;
+
+    // Get message IDs to mark as viewed
+    final messageIds = unviewedMessages.map((msg) => msg.id).toList();
+
+    if (messageIds.isEmpty) return;
+
+    // Add to processing queue to prevent duplicate requests
+    messageIds.forEach(_messageViewedProcessingQueue.add);
+
+    // Send viewed status to backend
+    sendMessageViewedStatus(_currentChatRecipientId!, messageIds);
+  }
+
+  // Mark a single message as viewed
+  void _markMessageAsViewed(ChatMessage message) {
+    if (message.senderId == _currentUserId ||
+        _messageViewedProcessingQueue.contains(message.id)) {
+      return;
+    }
+
+    _messageViewedProcessingQueue.add(message.id);
+    sendMessageViewedStatus(message.senderId, [message.id]);
+  }
+
+  // Mark messages as viewed (can be called from UI)
+  Future<void> sendMessageViewedStatus(
+      String senderId, List<String> messageIds) async {
+    if (messageIds.isEmpty) return;
+
+    try {
+      // Send viewed status to backend
+      await sendMessageViewedStatusUseCase.execute(senderId, messageIds);
+
+      // Update chat rooms to reset unread count for this conversation
+      if (_currentPublicationId != null && _currentChatRecipientId != null) {
+        final updatedRooms = _roomsState.chatRooms.map((room) {
+          if (room.publicationId == _currentPublicationId &&
+              (room.recipientId == _currentChatRecipientId ||
+                  room.recipientId == senderId)) {
+            return room.copyWith(unreadMessages: 0);
+          }
+          return room;
+        }).toList();
+
+        _roomsState = _roomsState.copyWith(chatRooms: updatedRooms);
+        notifyListeners();
+      }
+    } catch (e) {
+      print('Error marking messages as viewed: $e');
+    } finally {
+      // Remove from processing queue regardless of success
+      messageIds.forEach(_messageViewedProcessingQueue.remove);
+    }
+  }
+
+  // Report that we're leaving the current chat
+  void leaveCurrentChat() {
+    _currentChatRecipientId = null;
+    _currentPublicationId = null;
+  }
+
+  // Connect user (set online status)
   Future<void> connectUser(UserConnectionInfo userInfo) async {
     try {
       await connectUserUseCase.execute(userInfo);
       _userStatuses[userInfo.email] = UserStatus.ONLINE;
 
-      // Update UI if in chat history view
-      if (_historyState.recipientId.isNotEmpty) {
+      // Update UI if in relevant chat view
+      if (_historyState.recipientId == userInfo.email) {
         _historyState = _historyState.copyWith(
           userStatuses: Map.from(_userStatuses),
         );
@@ -686,22 +566,17 @@ class ChatProvider extends ChangeNotifier {
       }
     } catch (e) {
       print('Failed to connect user: $e');
-
-      // Retry logic
-      Future.delayed(const Duration(seconds: 3), () {
-        connectUser(userInfo);
-      });
     }
   }
 
-  // Disconnect a user
+  // Disconnect user (set offline status)
   Future<void> disconnectUser(UserConnectionInfo userInfo) async {
     try {
       await disconnectUserUseCase.execute(userInfo);
       _userStatuses[userInfo.email] = UserStatus.OFFLINE;
 
-      // Update UI if in chat history view
-      if (_historyState.recipientId.isNotEmpty) {
+      // Update UI if in relevant chat view
+      if (_historyState.recipientId == userInfo.email) {
         _historyState = _historyState.copyWith(
           userStatuses: Map.from(_userStatuses),
         );
@@ -712,67 +587,35 @@ class ChatProvider extends ChangeNotifier {
     }
   }
 
-  // Clean up resources
+  // Cleanup resources
   @override
   void dispose() {
-    _messageSubscription?.cancel();
-    _userStatusSubscription?.cancel();
-    _messageStatusSubscription?.cancel();
-    _messageDeliveredSubscription?.cancel();
+    _unsubscribeFromStreams();
     super.dispose();
   }
 }
 
-// Add this method to your ChatProvider class
-
-extension MessageStatusManagement on ChatProvider {
-  // Method to send message viewed status
-  Future<void> sendMessageViewedStatus(
-      String senderId, List<String> messageIds) async {
-    if (messageIds.isEmpty) return;
-
-    try {
-      // Use the use case to send the viewed status
-      await sendMessageViewedStatusUseCase.execute(senderId, messageIds);
-
-      // Update the messages in the current chat
-      if (_historyState.messages.isNotEmpty) {
-        final updatedMessages = _historyState.messages.map((message) {
-          if (messageIds.contains(message.id)) {
-            return ChatMessage(
-              id: message.id,
-              senderId: message.senderId,
-              recipientId: message.recipientId,
-              publicationId: message.publicationId,
-              content: message.content,
-              status: 'VIEWED',
-              sentAt: message.sentAt,
-              updatedAt: DateTime.now(),
-            );
-          }
-          return message;
-        }).toList();
-
-        _historyState = _historyState.copyWith(messages: updatedMessages);
-      }
-
-      // Update the chat rooms to reflect the new unread count
-      if (_roomsState.chatRooms.isNotEmpty) {
-        final updatedRooms = _roomsState.chatRooms.map((room) {
-          if (room.recipientId == senderId &&
-              room.publicationId == _historyState.publicationId) {
-            // Reset unread messages for this room
-            return room.copyWith(unreadMessages: 0);
-          }
-          return room;
-        }).toList();
-
-        _roomsState = _roomsState.copyWith(chatRooms: updatedRooms);
-      }
-
-      notifyListeners();
-    } catch (e) {
-      print('Error marking messages as viewed: $e');
-    }
+// Extension for ChatMessage for better immutability
+extension ChatMessageExtension on ChatMessage {
+  ChatMessage copyWith({
+    String? id,
+    String? senderId,
+    String? recipientId,
+    String? publicationId,
+    String? content,
+    String? status,
+    DateTime? sentAt,
+    DateTime? updatedAt,
+  }) {
+    return ChatMessage(
+      id: id ?? this.id,
+      senderId: senderId ?? this.senderId,
+      recipientId: recipientId ?? this.recipientId,
+      publicationId: publicationId ?? this.publicationId,
+      content: content ?? this.content,
+      status: status ?? this.status,
+      sentAt: sentAt ?? this.sentAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
   }
 }
