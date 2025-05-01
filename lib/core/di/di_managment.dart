@@ -312,7 +312,7 @@ void _registerHttpClients() {
   sl.registerLazySingleton<Dio>(() {
     final dio = Dio();
     dio.options
-      ..baseUrl = 'https://4e48-195-158-20-242.ngrok-free.app'
+      ..baseUrl = 'http://listin.uz'
       ..connectTimeout = const Duration(seconds: 5)
       ..receiveTimeout = const Duration(minutes: 3)
       ..sendTimeout = const Duration(minutes: 3);

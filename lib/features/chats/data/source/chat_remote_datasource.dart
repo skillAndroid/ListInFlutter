@@ -16,7 +16,7 @@ class ChatRemoteDataSource {
   final AuthLocalDataSource authLocalDataSource;
   final AuthService authService;
   final Dio dio;
-  final String baseUrl = 'https://4e48-195-158-20-242.ngrok-free.app';
+  final String baseUrl = 'http://listin.uz';
   StompClient? _stompClient;
   bool _isConnected = false;
 
@@ -63,8 +63,7 @@ class ChatRemoteDataSource {
       throw UnauthorizedException('No auth token found');
     }
 
-    final wsUrl =
-        'ws://4e48-195-158-20-242.ngrok-free.app:80/ws?token=${authToken.accessToken}';
+    final wsUrl = 'ws://listin.uz:80/ws?token=${authToken.accessToken}';
 
     int retryCount = 0;
     Duration delay = initialRetryDelay;
