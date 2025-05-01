@@ -15,6 +15,7 @@ import 'package:list_in/features/chats/presentation/widgets/message_bubble.dart'
 import 'package:provider/provider.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:uuid/uuid.dart';
 
 class ChatDetailPage extends StatefulWidget {
   final String userId;
@@ -49,6 +50,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   double _keyboardHeight = 0;
   late FocusNode _focusNode;
   final Set<String> _processedMessageIds = {};
+  final Uuid _uuid = Uuid();
   @override
   void initState() {
     super.initState();
@@ -141,9 +143,15 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     }
   }
 
+  // 3. Update the _sendMessage method to generate UUID at the UI level
   void _sendMessage() {
     if (_messageController.text.trim().isNotEmpty) {
+      // Generate UUID for the message
+      final messageId = _uuid.v4();
+
+      // Create the message with the generated UUID
       final message = ChatMessage(
+        id: messageId, // Include the generated UUID
         senderId: widget.userId,
         recipientId: widget.recipientId,
         publicationId: widget.publicationId,
@@ -153,13 +161,18 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
         updatedAt: DateTime.now(),
       );
 
+      // Send the message with ID through the provider
       Provider.of<ChatProvider>(context, listen: false).sendMessage(message);
+
+      // Clear the input field
       _messageController.clear();
 
       // Reset user scrolled state when sending a message
       setState(() {
         _userScrolledUp = false;
       });
+
+      // Scroll to the bottom after a short delay
       Future.delayed(const Duration(milliseconds: 100), _scrollToBottom);
     }
   }
@@ -622,7 +635,9 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                                         message: message.content,
                                         isMe: isMe,
                                         time: getFormattedTime(
-                                            context, message.sentAt),
+                                          context,
+                                          message.sentAt,
+                                        ),
                                         status: message.status,
                                         showTail: showAvatar,
                                       ),

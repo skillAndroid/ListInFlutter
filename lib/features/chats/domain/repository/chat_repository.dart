@@ -44,7 +44,7 @@ abstract class ChatRepository {
   // Add new method to send message viewed status
   Future<void> sendMessageViewedStatus(
       String senderId, List<String> messageIds);
-
+  Stream<ChatMessage> get messageDeliveredStream;
   // Add new stream for message status updates
   Stream<List<String>> get messageStatusStream;
 }

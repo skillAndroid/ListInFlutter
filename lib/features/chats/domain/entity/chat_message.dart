@@ -1,7 +1,7 @@
 import 'package:list_in/features/chats/data/model/chat_message_model.dart';
 
 class ChatMessage {
-  final String? id;
+  final String id;
   final String senderId;
   final String recipientId;
   final String publicationId;
@@ -11,7 +11,7 @@ class ChatMessage {
   final DateTime updatedAt;
 
   ChatMessage({
-    this.id,
+    required this.id,
     required this.senderId,
     required this.recipientId,
     required this.publicationId,
@@ -22,7 +22,7 @@ class ChatMessage {
   });
   ChatMessageModel toModel() {
     return ChatMessageModel(
-      id: id ?? '',
+      id: id,
       senderId: senderId,
       recipientId: recipientId,
       publicationId: publicationId,

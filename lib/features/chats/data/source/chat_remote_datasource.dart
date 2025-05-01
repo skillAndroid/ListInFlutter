@@ -16,7 +16,7 @@ class ChatRemoteDataSource {
   final AuthLocalDataSource authLocalDataSource;
   final AuthService authService;
   final Dio dio;
-  final String baseUrl = 'https://6807-89-236-227-16.ngrok-free.app';
+  final String baseUrl = 'https://4e48-195-158-20-242.ngrok-free.app';
   StompClient? _stompClient;
   bool _isConnected = false;
 
@@ -28,11 +28,17 @@ class ChatRemoteDataSource {
   final _userStatusStreamController =
       StreamController<UserConnectionInfo>.broadcast();
 
+  final _messageDeliveredStreamController =
+      StreamController<ChatMessageModel>.broadcast();
+
   Stream<ChatMessageModel> get messageStream => _messageStreamController.stream;
   Stream<List<String>> get messageStatusStream =>
       _messageStatusStreamController.stream;
   Stream<UserConnectionInfo> get userStatusStream =>
       _userStatusStreamController.stream;
+
+  Stream<ChatMessageModel> get messageDeliveredStream =>
+      _messageDeliveredStreamController.stream;
 
   // Retry configuration
   static const int maxRetryAttempts = 3;
@@ -58,7 +64,7 @@ class ChatRemoteDataSource {
     }
 
     final wsUrl =
-        'ws://6807-89-236-227-16.ngrok-free.app:80/ws?token=${authToken.accessToken}';
+        'ws://4e48-195-158-20-242.ngrok-free.app:80/ws?token=${authToken.accessToken}';
 
     int retryCount = 0;
     Duration delay = initialRetryDelay;
@@ -97,21 +103,53 @@ class ChatRemoteDataSource {
                 }
               });
 
-              _subscribeToDestination('/user/$userId/queue/messages/status',
+              // Add new subscription for delivered messages
+              _subscribeToDestination('/user/$userId/queue/messages/delivered',
                   (frame) {
                 if (frame.body != null) {
                   try {
-                    final List<dynamic> data = jsonDecode(frame.body!);
-                    final List<String> viewedMessageIds = data.cast<String>();
+                    print('Received delivered message: ${frame.body}');
+                    final message =
+                        ChatMessageModel.fromJson(jsonDecode(frame.body!));
                     print(
-                        'Received viewed status for messages: $viewedMessageIds');
-                    _messageStatusStreamController.add(viewedMessageIds);
+                        'Message marked as delivered: ${message.id} - ${message.content}');
+                    _messageDeliveredStreamController.add(message);
                   } catch (e) {
-                    print('Error parsing message status update: $e');
+                    print('Error parsing delivered message: $e');
+                    print('Raw delivered data: ${frame.body}');
                   }
                 }
               });
 
+              _subscribeToDestination('/user/$userId/queue/messages/status',
+                  (frame) {
+                if (frame.body != null) {
+                  try {
+                    // Parse the JSON into a Map
+                    final Map<String, dynamic> data = jsonDecode(frame.body!);
+
+                    // Extract the messageIds array from the response
+                    if (data.containsKey('messageIds') &&
+                        data['messageIds'] is List) {
+                      final List<dynamic> messageIdsList = data['messageIds'];
+                      final List<String> viewedMessageIds =
+                          messageIdsList.map((id) => id.toString()).toList();
+
+                      print(
+                          'Received viewed status for messages: $viewedMessageIds');
+
+                      // Add the message IDs to the stream
+                      _messageStatusStreamController.add(viewedMessageIds);
+                    } else {
+                      print(
+                          'Message status update missing messageIds field: $data');
+                    }
+                  } catch (e) {
+                    print('Error parsing message status update: $e');
+                    print('Original data: ${frame.body}');
+                  }
+                }
+              });
               _subscribeToDestination('/topic/user-status', (StompFrame frame) {
                 if (frame.body != null) {
                   try {
@@ -217,6 +255,7 @@ class ChatRemoteDataSource {
   }
 
   Future<void> sendMessage({
+    required String messageId,
     required String senderId,
     required String recipientId,
     required String publicationId,
@@ -228,6 +267,7 @@ class ChatRemoteDataSource {
     }
 
     final message = {
+      'id': messageId,
       'senderId': senderId,
       'recipientId': recipientId,
       'publicationId': publicationId,
@@ -336,6 +376,7 @@ class ChatRemoteDataSource {
     _messageStreamController.close();
     _userStatusStreamController.close();
     _messageStatusStreamController.close();
+    _messageDeliveredStreamController.close();
     disconnectWebSocket();
   }
 }

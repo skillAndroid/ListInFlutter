@@ -143,6 +143,7 @@ class ChatRepositoryImpl implements ChatRepository {
           'Repository: Sending message from ${message.senderId} to ${message.recipientId}: ${message.content}');
 
       await remoteDataSource.sendMessage(
+        messageId: message.id,
         senderId: message.senderId,
         recipientId: message.recipientId,
         publicationId: message.publicationId,
@@ -152,6 +153,11 @@ class ChatRepositoryImpl implements ChatRepository {
       print('Repository: Error sending message: $e');
       throw e;
     }
+  }
+
+  @override
+  Stream<ChatMessage> get messageDeliveredStream {
+    return remoteDataSource.messageDeliveredStream;
   }
 
   @override

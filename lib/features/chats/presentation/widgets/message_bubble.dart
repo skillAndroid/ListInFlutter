@@ -1,4 +1,5 @@
 // ignore_for_file: deprecated_member_use, use_super_parameters
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 
@@ -36,14 +37,13 @@ class MessageBubble extends StatelessWidget {
       } else if (upperStatus == 'DELIVERED') {
         // Message has been delivered but not read
         statusIcon = Icon(
-          Icons.done_all,
+          Icons.done,
           size: 13,
           color: AppColors.black.withOpacity(0.7),
         );
       } else {
-        // Message has been sent but not delivered
         statusIcon = Icon(
-          Icons.done,
+          CupertinoIcons.time,
           size: 13,
           color: AppColors.black.withOpacity(0.7),
         );

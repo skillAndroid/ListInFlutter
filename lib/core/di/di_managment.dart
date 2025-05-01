@@ -40,6 +40,7 @@ import 'package:list_in/features/chats/domain/usecase/get_chat_rooms_usecase.dar
 import 'package:list_in/features/chats/domain/usecase/get_message_status_usecase.dart';
 import 'package:list_in/features/chats/domain/usecase/get_messages_stream_usecase.dart';
 import 'package:list_in/features/chats/domain/usecase/get_user_status_usecase.dart';
+import 'package:list_in/features/chats/domain/usecase/message_delivered_usecase.dart';
 import 'package:list_in/features/chats/domain/usecase/send_message_usecase.dart';
 import 'package:list_in/features/chats/domain/usecase/send_message_viewed_usecase.dart';
 import 'package:list_in/features/chats/presentation/provider/chats/chat_bloc.dart';
@@ -232,6 +233,7 @@ void registerChatFeature(GetIt sl, String currentUserId) {
   sl.registerLazySingleton(() => GetUserStatusStreamUseCase(sl()));
   sl.registerLazySingleton(() => SendMessageViewedStatusUseCase(sl()));
   sl.registerLazySingleton(() => GetMessageStatusStreamUseCase(sl()));
+  sl.registerLazySingleton(() => GetMessageDeliveredStreamUseCase(sl()));
 
   // BLoCs
   sl.registerFactory(
@@ -245,6 +247,7 @@ void registerChatFeature(GetIt sl, String currentUserId) {
       getUserStatusStreamUseCase: sl(),
       sendMessageViewedStatusUseCase: sl(),
       getMessageStatusStreamUseCase: sl(),
+      getMessageDeliveredStreamUseCase: sl(),
     ),
   );
 }
@@ -309,7 +312,7 @@ void _registerHttpClients() {
   sl.registerLazySingleton<Dio>(() {
     final dio = Dio();
     dio.options
-      ..baseUrl = 'https://6807-89-236-227-16.ngrok-free.app'
+      ..baseUrl = 'https://4e48-195-158-20-242.ngrok-free.app'
       ..connectTimeout = const Duration(seconds: 5)
       ..receiveTimeout = const Duration(minutes: 3)
       ..sendTimeout = const Duration(minutes: 3);

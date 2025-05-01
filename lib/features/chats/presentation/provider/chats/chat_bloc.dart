@@ -13,6 +13,7 @@ import 'package:list_in/features/chats/domain/usecase/get_chat_rooms_usecase.dar
 import 'package:list_in/features/chats/domain/usecase/get_message_status_usecase.dart';
 import 'package:list_in/features/chats/domain/usecase/get_messages_stream_usecase.dart';
 import 'package:list_in/features/chats/domain/usecase/get_user_status_usecase.dart';
+import 'package:list_in/features/chats/domain/usecase/message_delivered_usecase.dart';
 import 'package:list_in/features/chats/domain/usecase/send_message_usecase.dart';
 import 'package:list_in/features/chats/domain/usecase/send_message_viewed_usecase.dart';
 
@@ -91,7 +92,10 @@ class ChatProvider extends ChangeNotifier {
   // States
   ChatRoomsState _roomsState = ChatRoomsState();
   ChatHistoryState _historyState = ChatHistoryState();
+  final GetMessageDeliveredStreamUseCase getMessageDeliveredStreamUseCase;
 
+  // Add a subscription for delivered messages
+  StreamSubscription<ChatMessage>? _messageDeliveredSubscription;
   // Getters
   ChatRoomsState get roomsState => _roomsState;
   ChatHistoryState get historyState => _historyState;
@@ -118,6 +122,7 @@ class ChatProvider extends ChangeNotifier {
     required this.getUserStatusStreamUseCase,
     required this.sendMessageViewedStatusUseCase,
     required this.getMessageStatusStreamUseCase,
+    required this.getMessageDeliveredStreamUseCase,
   });
 
   // Initialize chat system
@@ -150,6 +155,7 @@ class ChatProvider extends ChangeNotifier {
     _messageSubscription?.cancel();
     _userStatusSubscription?.cancel();
     _messageStatusSubscription?.cancel();
+    _messageDeliveredSubscription?.cancel();
 
     // Subscribe to message stream
     _messageSubscription = getMessageStreamUseCase.execute().listen(
@@ -171,7 +177,15 @@ class ChatProvider extends ChangeNotifier {
         print('User status stream error: $error');
       },
     );
-
+    _messageDeliveredSubscription =
+        getMessageDeliveredStreamUseCase.execute().listen(
+      (deliveredMessage) {
+        _handleDeliveredMessage(deliveredMessage);
+      },
+      onError: (error) {
+        print('Message delivered stream error: $error');
+      },
+    );
     // Subscribe to message status stream
     _messageStatusSubscription = getMessageStatusStreamUseCase.execute().listen(
       (viewedMessageIds) {
@@ -185,17 +199,120 @@ class ChatProvider extends ChangeNotifier {
     _isSubscribed = true;
   }
 
-  // Add new method to handle message status updates
+  void _handleDeliveredMessage(ChatMessage deliveredMessage) {
+    print('🚚 Processing delivered message: ${deliveredMessage.id}');
+    print('🚚 Message content: ${deliveredMessage.content}');
+    print('🚚 Message status: ${deliveredMessage.status}');
+
+    // We need to update the message in both chat history and chat rooms
+    bool chatHistoryUpdated = false;
+    bool chatRoomsUpdated = false;
+    print('🔍 Current messages in history:');
+
+    // Update in chat history
+    if (_historyState.messages.isNotEmpty) {
+      for (var message in _historyState.messages) {
+        print(
+            '  - ID: ${message.id}, Content: ${message.content}, Status: ${message.status}');
+      }
+      final updatedMessages = _historyState.messages.map((message) {
+        // Match by ID if available, otherwise try content matching
+        if (message.id == deliveredMessage.id) {
+          print('✅ Updating message status to DELIVERED: ${message.content}');
+          chatHistoryUpdated = true;
+
+          // Return the delivered message but keep our local ID if needed
+          return ChatMessage(
+            id: message.id,
+            senderId: deliveredMessage.senderId,
+            recipientId: deliveredMessage.recipientId,
+            publicationId: deliveredMessage.publicationId,
+            content: deliveredMessage.content,
+            status: 'DELIVERED', // Update status to DELIVERED
+            sentAt: deliveredMessage.sentAt,
+            updatedAt: DateTime.now(),
+          );
+        }
+        return message;
+      }).toList();
+
+      if (chatHistoryUpdated) {
+        _historyState = _historyState.copyWith(messages: updatedMessages);
+      }
+    }
+
+    // Update in chat rooms
+    final updatedRooms = _roomsState.chatRooms.map((room) {
+      if (room.lastMessage != null) {
+        // Check if this is the last message in the room
+        if ((room.lastMessage!.id == deliveredMessage.id) ||
+            (room.lastMessage!.content == deliveredMessage.content &&
+                room.lastMessage!.senderId == deliveredMessage.senderId &&
+                room.lastMessage!.recipientId ==
+                    deliveredMessage.recipientId)) {
+          print(
+              '✅ Updating last message status in room ${room.chatRoomId} to DELIVERED');
+          chatRoomsUpdated = true;
+
+          // Update the last message
+          final updatedLastMessage = ChatMessage(
+            id: room.lastMessage!.id,
+            senderId: deliveredMessage.senderId,
+            recipientId: deliveredMessage.recipientId,
+            publicationId: deliveredMessage.publicationId,
+            content: deliveredMessage.content,
+            status: 'DELIVERED',
+            sentAt: deliveredMessage.sentAt,
+            updatedAt: DateTime.now(),
+          );
+
+          return room.copyWith(lastMessage: updatedLastMessage);
+        }
+      }
+      return room;
+    }).toList();
+
+    if (chatRoomsUpdated) {
+      _roomsState = _roomsState.copyWith(chatRooms: updatedRooms);
+    }
+
+    // Notify listeners if anything changed
+    if (chatHistoryUpdated || chatRoomsUpdated) {
+      notifyListeners();
+    }
+  }
+
   void _handleMessageStatusUpdate(List<String> viewedMessageIds) {
+    if (viewedMessageIds.isEmpty) {
+      print('📊 No message IDs to process');
+      return;
+    }
+
+    print('🔍 Processing viewed status for messages: $viewedMessageIds');
+
     bool chatHistoryUpdated = false;
     bool chatRoomsUpdated = false;
 
-    // Update messages in current chat history
+    // 🧐 LAYER 1: Checking current chat history
+    print('📱 LAYER 1: Checking chat history messages');
+    print(
+        '📱 Current chat history has ${_historyState.messages.length} messages');
+
     if (_historyState.messages.isNotEmpty) {
+      // Print summary of current messages
+      print('📱 Current messages statuses:');
+      for (int i = 0; i < _historyState.messages.length; i++) {
+        final msg = _historyState.messages[i];
+        print(
+            '📱 Message ${i + 1}: ID=${msg.id}, Status=${msg.status}, Sender=${msg.senderId}');
+      }
+
       final updatedMessages = _historyState.messages.map((message) {
-        if (message.id != null &&
-            viewedMessageIds.contains(message.id) &&
+        if (viewedMessageIds.contains(message.id) &&
             message.status != 'VIEWED') {
+          print('✅ FOUND message to update in history: ${message.id}');
+          print('✅ Current status: ${message.status} -> Updating to: VIEWED');
+
           // Create a new message with updated status
           return ChatMessage(
             id: message.id,
@@ -208,28 +325,56 @@ class ChatProvider extends ChangeNotifier {
             updatedAt: DateTime.now(),
           );
         }
+
+        if (viewedMessageIds.contains(message.id)) {
+          print(
+              '⚠️ Message ${message.id} already has status: ${message.status}');
+        }
+
         return message;
       }).toList();
 
       // Check if any messages were updated
       for (int i = 0; i < _historyState.messages.length; i++) {
         if (_historyState.messages[i].status != updatedMessages[i].status) {
+          print(
+              '🔄 Message at index $i was updated: ${_historyState.messages[i].status} -> ${updatedMessages[i].status}');
           chatHistoryUpdated = true;
-          break;
         }
       }
 
       if (chatHistoryUpdated) {
+        print('📝 Updating chat history state with new messages');
         _historyState = _historyState.copyWith(messages: updatedMessages);
+      } else {
+        print('⏩ No changes to chat history');
+      }
+    } else {
+      print('📭 Chat history is empty, nothing to update');
+    }
+
+    // 🧐 LAYER 2: Checking chat rooms
+    print('🏠 LAYER 2: Checking chat rooms');
+    print('🏠 Current chat rooms count: ${_roomsState.chatRooms.length}');
+
+    // First, log the current status of last messages in chat rooms
+    for (final room in _roomsState.chatRooms) {
+      if (room.lastMessage != null) {
+        print(
+            '🏠 Room ${room.chatRoomId}: LastMessageID=${room.lastMessage!.id}, Status=${room.lastMessage!.status}');
       }
     }
 
     // Update last message status in chat rooms
     final updatedRooms = _roomsState.chatRooms.map((room) {
       if (room.lastMessage != null &&
-          room.lastMessage!.id != null &&
           viewedMessageIds.contains(room.lastMessage!.id) &&
           room.lastMessage!.status != 'VIEWED') {
+        print('✅ FOUND room to update: ${room.chatRoomId}');
+        print('✅ Last message ID: ${room.lastMessage!.id}');
+        print(
+            '✅ Current status: ${room.lastMessage!.status} -> Updating to: VIEWED');
+
         // Create a new message with updated status
         final updatedLastMessage = ChatMessage(
           id: room.lastMessage!.id,
@@ -245,32 +390,50 @@ class ChatProvider extends ChangeNotifier {
         // Create a new room with updated unread count
         return room.copyWith(
           lastMessage: updatedLastMessage,
-          // Update unread count only if the room has unread messages
-          unreadMessages: room.unreadMessages > 0 ? room.unreadMessages - 1 : 0,
         );
       }
+
+      if (room.lastMessage != null &&
+          viewedMessageIds.contains(room.lastMessage!.id)) {
+        print(
+            '⚠️ Room ${room.chatRoomId} last message already has status: ${room.lastMessage!.status}');
+      }
+
       return room;
     }).toList();
 
     // Check if any rooms were updated
     for (int i = 0; i < _roomsState.chatRooms.length; i++) {
-      if (_roomsState.chatRooms[i].unreadMessages !=
-              updatedRooms[i].unreadMessages ||
-          (_roomsState.chatRooms[i].lastMessage?.status !=
-              updatedRooms[i].lastMessage?.status)) {
+      final oldStatus = _roomsState.chatRooms[i].lastMessage?.status;
+      final newStatus = updatedRooms[i].lastMessage?.status;
+
+      if (oldStatus != newStatus) {
+        print('🔄 Room at index $i was updated: $oldStatus -> $newStatus');
         chatRoomsUpdated = true;
-        break;
       }
     }
 
     if (chatRoomsUpdated) {
+      print('📝 Updating chat rooms state with new rooms');
       _roomsState = _roomsState.copyWith(chatRooms: updatedRooms);
+    } else {
+      print('⏩ No changes to chat rooms');
     }
 
-    // Notify listeners if anything changed
+    // 🧐 LAYER 3: Notifying UI
     if (chatHistoryUpdated || chatRoomsUpdated) {
+      print('🔔 Changes detected, notifying listeners');
+      notifyListeners();
+    } else {
+      print(
+          '⏩ No changes detected, but notifying listeners anyway to ensure UI updates');
       notifyListeners();
     }
+
+    // 🧐 LAYER 4: Final verification
+    print('✓ Status update processing complete');
+    print('✓ ChatHistoryUpdated: $chatHistoryUpdated');
+    print('✓ ChatRoomsUpdated: $chatRoomsUpdated');
   }
 
   // Load chat rooms
@@ -374,9 +537,8 @@ class ChatProvider extends ChangeNotifier {
   // Send a message
   Future<void> sendMessage(ChatMessage message) async {
     try {
-      await sendMessageUseCase.execute(message);
-
-      // Update chat history state with the new message
+      // The message already has an ID from the UI layer
+      print('📤 Sending message with ID: ${message.id}');
       final updatedMessages = List<ChatMessage>.from(_historyState.messages)
         ..add(message);
       _historyState = _historyState.copyWith(messages: updatedMessages);
@@ -385,6 +547,7 @@ class ChatProvider extends ChangeNotifier {
       _updateChatRoomWithLastMessage(message);
 
       notifyListeners();
+      await sendMessageUseCase.execute(message);
     } catch (e) {
       _historyState = _historyState.copyWith(
         errorMessage: 'Failed to send message: $e',
@@ -449,8 +612,7 @@ class ChatProvider extends ChangeNotifier {
   Future<void> _markMessagesAsViewed(List<ChatMessage> messages) async {
     // Filter messages that need to be marked as viewed
     final messagesToMark = messages.where((message) {
-      return message.id != null &&
-          message.senderId != _currentUserId && // Not sent by current user
+      return message.senderId != _currentUserId && // Not sent by current user
           message.status != 'VIEWED' && // Not already viewed
           !_processingViewedMessages
               .contains(message.id); // Not already being processed
@@ -471,7 +633,7 @@ class ChatProvider extends ChangeNotifier {
 
       // Update local message status
       final updatedMessages = _historyState.messages.map((message) {
-        if (message.id != null && messageIds.contains(message.id)) {
+        if (messageIds.contains(message.id)) {
           return ChatMessage(
             id: message.id,
             senderId: message.senderId,
@@ -556,6 +718,7 @@ class ChatProvider extends ChangeNotifier {
     _messageSubscription?.cancel();
     _userStatusSubscription?.cancel();
     _messageStatusSubscription?.cancel();
+    _messageDeliveredSubscription?.cancel();
     super.dispose();
   }
 }
@@ -575,7 +738,7 @@ extension MessageStatusManagement on ChatProvider {
       // Update the messages in the current chat
       if (_historyState.messages.isNotEmpty) {
         final updatedMessages = _historyState.messages.map((message) {
-          if (message.id != null && messageIds.contains(message.id)) {
+          if (messageIds.contains(message.id)) {
             return ChatMessage(
               id: message.id,
               senderId: message.senderId,
