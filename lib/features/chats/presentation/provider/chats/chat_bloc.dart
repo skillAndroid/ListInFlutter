@@ -250,7 +250,6 @@ class ChatProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Load chat history for a specific conversation
   Future<void> loadChatHistory({
     required String publicationId,
     required String senderId,
@@ -260,7 +259,6 @@ class ChatProvider extends ChangeNotifier {
       await initializeChat(senderId);
     }
 
-    // Set current chat context to track active conversation
     _currentChatRecipientId = recipientId;
     _currentPublicationId = publicationId;
 
@@ -279,10 +277,8 @@ class ChatProvider extends ChangeNotifier {
         recipientId,
       );
 
-      // Sort messages by timestamp if needed
       messages.sort((a, b) => a.sentAt.compareTo(b.sentAt));
 
-      // Update state with messages and current user statuses
       _historyState = _historyState.copyWith(
         isLoading: false,
         messages: messages,
@@ -290,8 +286,6 @@ class ChatProvider extends ChangeNotifier {
       );
 
       notifyListeners();
-
-      // Mark unread messages as viewed (this happens outside the build cycle)
       _markUnreadMessagesAsViewed(messages);
     } catch (e) {
       print('Failed to load chat history: $e');
@@ -303,21 +297,18 @@ class ChatProvider extends ChangeNotifier {
     }
   }
 
-  // Send a new message
   Future<void> sendMessage(ChatMessage message) async {
     if (!_isInitialized) {
       await initializeChat(message.senderId);
     }
 
     try {
-      // Optimistically add message to UI with "SENDING" status
       final optimisticMessage = message.copyWith(status: 'SENDING');
       final updatedMessages = List<ChatMessage>.from(_historyState.messages)
         ..add(optimisticMessage);
 
       _historyState = _historyState.copyWith(messages: updatedMessages);
 
-      // Update chat room list with new last message
       _updateChatRoomWithLastMessage(optimisticMessage);
 
       notifyListeners();
@@ -449,7 +440,6 @@ class ChatProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Update chat room list when a new message is sent or received
   void _updateChatRoomWithLastMessage(ChatMessage message) {
     final updatedRooms = _roomsState.chatRooms.map((room) {
       if (_isRelevantChatRoom(room, message)) {
@@ -461,14 +451,12 @@ class ChatProvider extends ChangeNotifier {
     _roomsState = _roomsState.copyWith(chatRooms: updatedRooms);
   }
 
-  // Check if a message belongs to the currently open chat
   bool _isInRelevantChatContext(ChatMessage message) {
     return _currentPublicationId == message.publicationId &&
         (_currentChatRecipientId == message.senderId ||
             _currentChatRecipientId == message.recipientId);
   }
 
-  // Check if a message belongs to a specific chat room
   bool _isRelevantChatRoom(ChatRoom room, ChatMessage message) {
     return room.publicationId == message.publicationId &&
         ((room.recipientId == message.recipientId &&
@@ -477,11 +465,8 @@ class ChatProvider extends ChangeNotifier {
                 message.recipientId == _currentUserId));
   }
 
-  // Mark messages as viewed when opening a chat
-  void _markUnreadMessagesAsViewed(List<ChatMessage> messages) {
+  void _markUnreadMessagesAsViewed(List<ChatMessage> messages) async {
     if (_currentUserId == null) return;
-
-    // Filter messages that need to be marked as viewed
     final unviewedMessages = messages
         .where((msg) =>
             msg.senderId != _currentUserId &&
@@ -491,39 +476,21 @@ class ChatProvider extends ChangeNotifier {
 
     if (unviewedMessages.isEmpty) return;
 
-    // Get message IDs to mark as viewed
     final messageIds = unviewedMessages.map((msg) => msg.id).toList();
 
     if (messageIds.isEmpty) return;
 
-    // Add to processing queue to prevent duplicate requests
     messageIds.forEach(_messageViewedProcessingQueue.add);
 
-    // Send viewed status to backend
-    sendMessageViewedStatus(_currentChatRecipientId!, messageIds);
+    await sendMessageViewedStatus(_currentChatRecipientId!, messageIds);
   }
 
-  // Mark a single message as viewed
-  void _markMessageAsViewed(ChatMessage message) {
-    if (message.senderId == _currentUserId ||
-        _messageViewedProcessingQueue.contains(message.id)) {
-      return;
-    }
-
-    _messageViewedProcessingQueue.add(message.id);
-    sendMessageViewedStatus(message.senderId, [message.id]);
-  }
-
-  // Mark messages as viewed (can be called from UI)
   Future<void> sendMessageViewedStatus(
       String senderId, List<String> messageIds) async {
     if (messageIds.isEmpty) return;
-
     try {
-      // Send viewed status to backend
       await sendMessageViewedStatusUseCase.execute(senderId, messageIds);
 
-      // Update chat rooms to reset unread count for this conversation
       if (_currentPublicationId != null && _currentChatRecipientId != null) {
         final updatedRooms = _roomsState.chatRooms.map((room) {
           if (room.publicationId == _currentPublicationId &&
@@ -540,24 +507,20 @@ class ChatProvider extends ChangeNotifier {
     } catch (e) {
       print('Error marking messages as viewed: $e');
     } finally {
-      // Remove from processing queue regardless of success
       messageIds.forEach(_messageViewedProcessingQueue.remove);
     }
   }
 
-  // Report that we're leaving the current chat
   void leaveCurrentChat() {
     _currentChatRecipientId = null;
     _currentPublicationId = null;
   }
 
-  // Connect user (set online status)
   Future<void> connectUser(UserConnectionInfo userInfo) async {
     try {
       await connectUserUseCase.execute(userInfo);
       _userStatuses[userInfo.email] = UserStatus.ONLINE;
 
-      // Update UI if in relevant chat view
       if (_historyState.recipientId == userInfo.email) {
         _historyState = _historyState.copyWith(
           userStatuses: Map.from(_userStatuses),
@@ -569,13 +532,11 @@ class ChatProvider extends ChangeNotifier {
     }
   }
 
-  // Disconnect user (set offline status)
   Future<void> disconnectUser(UserConnectionInfo userInfo) async {
     try {
       await disconnectUserUseCase.execute(userInfo);
       _userStatuses[userInfo.email] = UserStatus.OFFLINE;
 
-      // Update UI if in relevant chat view
       if (_historyState.recipientId == userInfo.email) {
         _historyState = _historyState.copyWith(
           userStatuses: Map.from(_userStatuses),
@@ -587,7 +548,6 @@ class ChatProvider extends ChangeNotifier {
     }
   }
 
-  // Cleanup resources
   @override
   void dispose() {
     _unsubscribeFromStreams();
