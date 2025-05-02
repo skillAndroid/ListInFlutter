@@ -18,7 +18,7 @@ import 'package:list_in/features/chats/domain/usecase/message_delivered_usecase.
 import 'package:list_in/features/chats/domain/usecase/send_message_usecase.dart';
 import 'package:list_in/features/chats/domain/usecase/send_message_viewed_usecase.dart';
 import 'package:list_in/features/chats/presentation/provider/chats/chat_history_state.dart';
-import 'package:list_in/features/chats/presentation/provider/chats/chat_rooms_state';
+import 'package:list_in/features/chats/presentation/provider/chats/chat_rooms_state.dart';
 
 class ChatProvider extends ChangeNotifier {
   final GetChatRoomsUseCase getChatRoomsUseCase;

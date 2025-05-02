@@ -43,7 +43,7 @@ import 'package:list_in/features/chats/domain/usecase/get_user_status_usecase.da
 import 'package:list_in/features/chats/domain/usecase/message_delivered_usecase.dart';
 import 'package:list_in/features/chats/domain/usecase/send_message_usecase.dart';
 import 'package:list_in/features/chats/domain/usecase/send_message_viewed_usecase.dart';
-import 'package:list_in/features/chats/presentation/provider/chats/chat_bloc.dart';
+import 'package:list_in/features/chats/presentation/provider/chats/chat_provider.dart';
 import 'package:list_in/features/details/presentation/bloc/details_bloc.dart';
 import 'package:list_in/features/explore/data/repository/get_publications_rep_impl.dart';
 import 'package:list_in/features/explore/data/source/get_publications_remoute.dart';
