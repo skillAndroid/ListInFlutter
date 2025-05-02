@@ -17,71 +17,10 @@ import 'package:list_in/features/chats/domain/usecase/get_user_status_usecase.da
 import 'package:list_in/features/chats/domain/usecase/message_delivered_usecase.dart';
 import 'package:list_in/features/chats/domain/usecase/send_message_usecase.dart';
 import 'package:list_in/features/chats/domain/usecase/send_message_viewed_usecase.dart';
-
-/// State for chat rooms list
-class ChatRoomsState {
-  final bool isLoading;
-  final List<ChatRoom> chatRooms;
-  final String? errorMessage;
-
-  const ChatRoomsState({
-    this.isLoading = false,
-    this.chatRooms = const [],
-    this.errorMessage,
-  });
-
-  ChatRoomsState copyWith({
-    bool? isLoading,
-    List<ChatRoom>? chatRooms,
-    String? errorMessage,
-  }) {
-    return ChatRoomsState(
-      isLoading: isLoading ?? this.isLoading,
-      chatRooms: chatRooms ?? this.chatRooms,
-      errorMessage: errorMessage,
-    );
-  }
-}
-
-/// State for chat history/conversation
-class ChatHistoryState {
-  final bool isLoading;
-  final String publicationId;
-  final String recipientId;
-  final List<ChatMessage> messages;
-  final Map<String, UserStatus> userStatuses;
-  final String? errorMessage;
-
-  const ChatHistoryState({
-    this.isLoading = false,
-    this.publicationId = '',
-    this.recipientId = '',
-    this.messages = const [],
-    this.userStatuses = const {},
-    this.errorMessage,
-  });
-
-  ChatHistoryState copyWith({
-    bool? isLoading,
-    String? publicationId,
-    String? recipientId,
-    List<ChatMessage>? messages,
-    Map<String, UserStatus>? userStatuses,
-    String? errorMessage,
-  }) {
-    return ChatHistoryState(
-      isLoading: isLoading ?? this.isLoading,
-      publicationId: publicationId ?? this.publicationId,
-      recipientId: recipientId ?? this.recipientId,
-      messages: messages ?? this.messages,
-      userStatuses: userStatuses ?? this.userStatuses,
-      errorMessage: errorMessage,
-    );
-  }
-}
+import 'package:list_in/features/chats/presentation/provider/chats/chat_history_state.dart';
+import 'package:list_in/features/chats/presentation/provider/chats/chat_rooms_state';
 
 class ChatProvider extends ChangeNotifier {
-  // Dependencies
   final GetChatRoomsUseCase getChatRoomsUseCase;
   final GetChatHistoryUseCase getChatHistoryUseCase;
   final SendMessageUseCase sendMessageUseCase;

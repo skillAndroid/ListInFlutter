@@ -10,7 +10,7 @@ import 'package:list_in/core/language/language_bloc.dart';
 import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/chats/domain/entity/chat_message.dart';
 import 'package:list_in/features/chats/domain/entity/user_status.dart';
-import 'package:list_in/features/chats/presentation/provider/chats/chat_bloc.dart';
+import 'package:list_in/features/chats/presentation/provider/chats/chat_provider.dart';
 import 'package:list_in/features/chats/presentation/widgets/message_bubble.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
@@ -94,18 +94,15 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
 
   void _onFocusChange() {
     if (_focusNode.hasFocus && !_userScrolledUp) {
-      // When keyboard appears and we're at bottom, scroll after a delay
       Future.delayed(const Duration(milliseconds: 300), () {
         if (mounted) _scrollToBottom();
       });
     }
   }
 
-  // Mark any unread messages as viewed
   void _markUnreadMessagesAsViewed() {
     final messages = context.read<ChatProvider>().historyState.messages;
 
-    // Find messages from the other user that aren't viewed yet
     final unreadMessages = messages
         .where((msg) =>
             msg.senderId != widget.userId &&
