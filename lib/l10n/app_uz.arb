@@ -322,5 +322,7 @@
   "inbox": "Xabarlar",
   "you": "Siz",
   "noMessagesYet": "Hali xabarlar yo'q",
-  "yourConversationsWillAppearHere": "Suhbatlaringiz shu yerda ko'rinadi"
+  "yourConversationsWillAppearHere": "Suhbatlaringiz shu yerda ko'rinadi",
+  "surpriseComingSoon": "Ajoyib Surpriz Kelmoqda!",
+  "surpriseInDevelopmentMessage": "Qiziqarli yangiliklar kutib turibdi! Yangi imkoniyatlar va yaxshilanishlardan xabardor bo'ling."
   }

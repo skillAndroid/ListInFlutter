@@ -323,5 +323,7 @@
   "inbox": "Входящие",
   "you": "Вы",
   "noMessagesYet": "Сообщений пока нет",
-  "yourConversationsWillAppearHere": "Ваши разговоры будут отображаться здесь"
+  "yourConversationsWillAppearHere": "Ваши разговоры будут отображаться здесь",
+   "surpriseComingSoon": "Скоро Сюрприз!",
+  "surpriseInDevelopmentMessage": "Вас ждет что-то захватывающее! Следите за новыми функциями и улучшениями."
 }

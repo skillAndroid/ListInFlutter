@@ -11,6 +11,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
@@ -873,72 +874,15 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           ),
         ),
 
-        // Action buttons for non-owners
         if (!isOwner) ...[
-          // Padding(
-          //   padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-          //   child: Row(
-          //     children: [
-          //       Expanded(
-          //         flex: 3,
-          //         child: ElevatedButton(
-          //           onPressed: () {
-          //             _pauseVideoForNavigation();
-          //             final String languageCode =
-          //                 Localizations.localeOf(context).languageCode;
-          //             String message;
-
-          //             switch (languageCode) {
-          //               case 'uz':
-          //                 message =
-          //                     "Salom! Men sizning \"${widget.product.title}\" e'loningiz bilan qiziqyapman. Narxi: ${widget.product.price} so'm. Shu mahsulot hali sotuvda bormi?";
-          //                 break;
-          //               case 'en':
-          //                 message =
-          //                     "Hello! I'm interested in your listing \"${widget.product.title}\". Price: ${widget.product.price}. Is this item still available?";
-          //                 break;
-          //               case 'ru':
-          //               default:
-          //                 message =
-          //                     "Здравствуйте! Меня интересует ваше объявление \"${widget.product.title}\". Цена: ${widget.product.price}. Этот товар еще доступен?";
-          //                 break;
-          //             }
-
-          //             final String phoneNumber =
-          //                 widget.product.seller.phoneNumber;
-          //             ProductActionsService.openTelegram(
-          //                 context, message, phoneNumber);
-          //           },
-          //           style: ElevatedButton.styleFrom(
-          //             shape: SmoothRectangleBorder(
-          //               borderRadius: BorderRadius.circular(24),
-          //             ),
-          //             backgroundColor: CupertinoColors.activeGreen,
-          //             foregroundColor:
-          //                 Theme.of(context).colorScheme.onSecondary,
-          //             padding: EdgeInsets.symmetric(vertical: 12),
-          //           ),
-          //           child: Text(
-          //             localizations.write_to_telegram,
-          //             style: TextStyle(
-          //               fontSize: 16,
-          //               color: AppColors.black,
-          //               fontFamily: Constants.Arial,
-          //               fontWeight: FontWeight.bold,
-          //             ),
-          //           ),
-          //         ),
-          //       ),
-          //     ],
-          //   ),
-          // ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 2),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 2),
             child: Row(
               children: [
+                // Primary action - In-app Chat button (now main)
                 Expanded(
                   flex: 3,
-                  child: ElevatedButton(
+                  child: ElevatedButton.icon(
                     onPressed: () {
                       _pauseVideoForNavigation();
                       Navigator.push(
@@ -960,72 +904,182 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     },
                     style: ElevatedButton.styleFrom(
                       shape: SmoothRectangleBorder(
-                        side: BorderSide(
-                            width: 1,
-                            color: Theme.of(context).cardColor,
-                            strokeAlign: BorderSide.strokeAlignCenter),
                         borderRadius: BorderRadius.circular(24),
                       ),
                       backgroundColor: AppColors.primaryLight2,
-                      foregroundColor: Theme.of(context).colorScheme.secondary,
-                      padding: EdgeInsets.symmetric(vertical: 12),
+                      foregroundColor:
+                          Theme.of(context).colorScheme.onSecondary,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
-                    child: Text(
+                    icon: const Icon(
+                      Ionicons.chatbubble_ellipses,
+                      size: 20,
+                      color: AppColors.black,
+                    ),
+                    label: Text(
                       localizations.write,
                       style: const TextStyle(
-                        fontFamily: Constants.Arial,
                         fontSize: 16,
+                        color: AppColors.black,
+                        fontFamily: Constants.Arial,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
                 ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 2),
-            child: Row(
-              children: [
-                Expanded(
-                  flex: 3,
-                  child: ElevatedButton(
-                    onPressed: () {
+                const SizedBox(width: 16),
+                // Modern secondary action - More options with animated popup
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(36),
+                    border: Border.all(
+                      color: Theme.of(context).cardColor,
+                      width: 1,
+                    ),
+                  ),
+                  child: PopupMenuButton<String>(
+                    onSelected: (value) {
                       _pauseVideoForNavigation();
-                      ProductActionsService.makeCall(
-                        context,
-                        widget.product.seller.phoneNumber,
-                      );
+                      switch (value) {
+                        case 'telegram':
+                          final String languageCode =
+                              Localizations.localeOf(context).languageCode;
+                          String message;
+
+                          switch (languageCode) {
+                            case 'uz':
+                              message =
+                                  "Salom! Men sizning \"${widget.product.title}\" e'loningiz bilan qiziqyapman. Narxi: ${widget.product.price} so'm. Shu mahsulot hali sotuvda bormi?";
+                              break;
+                            case 'en':
+                              message =
+                                  "Hello! I'm interested in your listing \"${widget.product.title}\". Price: ${widget.product.price}. Is this item still available?";
+                              break;
+                            case 'ru':
+                            default:
+                              message =
+                                  "Здравствуйте! Меня интересует ваше объявление \"${widget.product.title}\". Цена: ${widget.product.price}. Этот товар еще доступен?";
+                              break;
+                          }
+
+                          final String phoneNumber =
+                              widget.product.seller.phoneNumber;
+                          ProductActionsService.openTelegram(
+                              context, message, phoneNumber);
+                          break;
+                        case 'call':
+                          ProductActionsService.makeCall(
+                            context,
+                            widget.product.seller.phoneNumber,
+                          );
+                          break;
+                      }
                     },
-                    style: ElevatedButton.styleFrom(
-                      shape: SmoothRectangleBorder(
-                        side: BorderSide(
-                            width: 1,
-                            color: Theme.of(context).cardColor,
-                            strokeAlign: BorderSide.strokeAlignCenter),
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      backgroundColor:
-                          Theme.of(context).scaffoldBackgroundColor,
-                      foregroundColor: Theme.of(context).colorScheme.secondary,
-                      padding: EdgeInsets.symmetric(vertical: 12),
+                    position: PopupMenuPosition.under,
+                    offset: const Offset(0, 6),
+                    elevation: 2,
+                    surfaceTintColor: Colors.transparent,
+                    shape: SmoothRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                    child: Text(
-                      localizations.call_now,
-                      style: const TextStyle(
-                        fontFamily: Constants.Arial,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    color: Theme.of(context).cardColor,
+                    icon: const Icon(
+                      Icons.more_horiz,
+                      size: 24,
                     ),
+                    itemBuilder: (BuildContext context) =>
+                        <PopupMenuEntry<String>>[
+                      PopupMenuItem<String>(
+                        value: 'telegram',
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 12),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          curve: Curves.easeOut,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              color: Colors.transparent,
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 40,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12),
+                                    color: const Color(0xFF26A5E4)
+                                        .withOpacity(0.1),
+                                  ),
+                                  child: const Icon(
+                                    Icons.telegram_rounded,
+                                    color: Color(0xFF26A5E4),
+                                    size: 22,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Text(
+                                  localizations.write_to_telegram,
+                                  style: const TextStyle(
+                                    fontFamily: Constants.Arial,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      PopupMenuItem<String>(
+                        value: 'call',
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 12),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          curve: Curves.easeOut,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              color: Colors.transparent,
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 40,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12),
+                                    color: const Color(0xFF4CAF50)
+                                        .withOpacity(0.1),
+                                  ),
+                                  child: const Icon(
+                                    Icons.phone_rounded,
+                                    color: Color(0xFF4CAF50),
+                                    size: 22,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Text(
+                                  localizations.call_now,
+                                  style: const TextStyle(
+                                    fontFamily: Constants.Arial,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
           ),
         ],
-
-        // Action buttons for owners
         if (isOwner) ...[
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),

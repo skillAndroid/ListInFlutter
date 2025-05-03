@@ -323,5 +323,7 @@
   "inbox": "Inbox",
   "you": "You",
   "noMessagesYet": "No messages yet",
-  "yourConversationsWillAppearHere": "Your conversations will appear here"
+  "yourConversationsWillAppearHere": "Your conversations will appear here",
+  "surpriseComingSoon": "Surprise Coming Soon!",
+  "surpriseInDevelopmentMessage": "Something exciting is on the way! Stay tuned for new features and improvements."
 }

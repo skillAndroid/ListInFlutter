@@ -673,15 +673,13 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Image.asset(
-                AppIcons.chatIc,
-                width: 50,
-                height: 50,
-                color: Theme.of(context).colorScheme.secondary,
+              Icon(
+                CupertinoIcons.hammer,
+                size: 50,
               ),
               const SizedBox(height: 8),
               Text(
-                AppLocalizations.of(context)!.chatComingSoon,
+                AppLocalizations.of(context)!.surpriseComingSoon,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -692,7 +690,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
               ),
               const SizedBox(height: 8),
               Text(
-                AppLocalizations.of(context)!.chatInDevelopmentMessage,
+                AppLocalizations.of(context)!.surpriseInDevelopmentMessage,
                 style: TextStyle(
                   fontSize: 15,
                   color: Theme.of(context).colorScheme.secondary,

@@ -4,14 +4,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/profile/domain/usecases/user/get_user_data_usecase.dart';
-import 'package:list_in/global/global_bloc.dart';
-import 'package:list_in/global/global_state.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 
 class MainWrapper extends StatefulWidget {
@@ -85,12 +82,17 @@ class _MainWrapperState extends State<MainWrapper> {
           _isDarkMode = inVideoFeeds;
         });
         // Set system navigation bar style
+        final isDarkTheme = Theme.of(context).brightness == Brightness.dark;
         SystemChrome.setSystemUIOverlayStyle(
           SystemUiOverlayStyle(
-            systemNavigationBarColor:
-                _isDarkMode ? AppColors.black : Colors.white,
-            systemNavigationBarIconBrightness:
-                _isDarkMode ? Brightness.light : Brightness.dark,
+            systemNavigationBarColor: inVideoFeeds
+                ? AppColors.black // Always black for video feeds
+                : (isDarkTheme
+                    ? Colors.black
+                    : Colors.white), // Theme-based for others
+            systemNavigationBarIconBrightness: (inVideoFeeds || isDarkTheme)
+                ? Brightness.light
+                : Brightness.dark,
           ),
         );
       });
@@ -180,68 +182,50 @@ class _MainWrapperState extends State<MainWrapper> {
 
   Widget _buildProfileNavItem() {
     bool isSelected = _selectedIndex == 3;
-
-    return BlocBuilder<GlobalBloc, GlobalState>(
-      buildWhen: (previous, current) {
-        // Trigger rebuild when the state changes
-        context.read<GlobalBloc>().getUserProfileImage();
-        context.read<GlobalBloc>().getUserProfileImage();
-        return true; // Force rebuild on any state change
-      },
-      builder: (context, state) {
-        final image = context.read<GlobalBloc>().getUserProfileImage();
-        debugPrint('🎯 Profile image: $image');
-        debugPrint(
-            '🎯 AppSession.profileImagePath: ${AppSession.profileImagePath}');
-
-        return IconButton(
-          onPressed: () => _goToBranch(3),
-          icon: image != null && image.isNotEmpty
-              ? SmoothClipRRect(
-                  borderRadius: BorderRadius.circular(15),
-                  side: BorderSide(
-                    width: isSelected ? 1.5 : 0,
+    return IconButton(
+      onPressed: () =>
+          _goToBranch(3), // This will navigate to profile branch (index 3)
+      icon: AppSession.profileImagePath != null &&
+              AppSession.profileImagePath!.isNotEmpty
+          ? SmoothClipRRect(
+              borderRadius: BorderRadius.circular(15),
+              side: BorderSide(
+                width: isSelected ? 1.5 : 0,
+                color: isSelected
+                    ? _isDarkMode
+                        ? AppColors.white
+                        : Theme.of(context).colorScheme.secondary
+                    : AppColors.transparent,
+              ),
+              child: SizedBox(
+                height: 26.5,
+                width: 26.5,
+                child: CachedNetworkImage(
+                  imageUrl: "https://${AppSession.profileImagePath}",
+                  placeholder: (context, url) => Container(
+                    color: _isDarkMode ? Colors.grey[800] : Colors.grey[300],
+                  ),
+                  errorWidget: (context, url, error) => Icon(
+                    isSelected
+                        ? CupertinoIcons.person_fill
+                        : CupertinoIcons.person,
+                    size: 28,
                     color: isSelected
-                        ? _isDarkMode
-                            ? AppColors.white
-                            : Theme.of(context).colorScheme.secondary
-                        : AppColors.transparent,
+                        ? Theme.of(context).colorScheme.secondary
+                        : CupertinoColors.inactiveGray,
                   ),
-                  child: SizedBox(
-                    height: 26.5,
-                    width: 26.5,
-                    child: CachedNetworkImage(
-                      imageUrl: "https://$image",
-                      key: ValueKey(image),
-                      placeholder: (context, url) => Container(
-                        color:
-                            _isDarkMode ? Colors.grey[800] : Colors.grey[300],
-                      ),
-                      errorWidget: (context, url, error) => Icon(
-                        isSelected
-                            ? CupertinoIcons.person_fill
-                            : CupertinoIcons.person,
-                        size: 28,
-                        color: isSelected
-                            ? Theme.of(context).colorScheme.secondary
-                            : CupertinoColors.inactiveGray,
-                      ),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                )
-              : Icon(
-                  isSelected
-                      ? CupertinoIcons.person_fill
-                      : CupertinoIcons.person,
-                  size: 28,
-                  color: _isDarkMode
-                      ? AppColors.white
-                      : Theme.of(context).colorScheme.secondary,
+                  fit: BoxFit.cover,
                 ),
-          padding: EdgeInsets.zero,
-        );
-      },
+              ),
+            )
+          : Icon(
+              isSelected ? CupertinoIcons.person_fill : CupertinoIcons.person,
+              size: 28,
+              color: isSelected
+                  ? Theme.of(context).colorScheme.secondary
+                  : CupertinoColors.inactiveGray,
+            ),
+      padding: EdgeInsets.zero,
     );
   }
 }

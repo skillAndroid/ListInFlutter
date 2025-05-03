@@ -2229,11 +2229,12 @@ class AboutTabContent extends StatelessWidget {
         padding: isPartner ? EdgeInsets.all(8) : null,
         child: Row(
           children: [
-            Icon(icon,
-                color: isPartner
-                    ? AppColors.primaryLight2
-                    : AppColors.primaryLight2,
-                size: 22),
+            Icon(
+              icon,
+              color:
+                  isPartner ? AppColors.primaryLight2 : AppColors.primaryLight2,
+              size: 22,
+            ),
             const SizedBox(width: 16),
             Expanded(
               child: Text(

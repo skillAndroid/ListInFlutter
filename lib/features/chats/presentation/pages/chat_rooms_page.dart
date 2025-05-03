@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/language/language_bloc.dart';
 import 'package:list_in/core/router/routes.dart';
@@ -291,7 +292,7 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
       color: AppColors.transparent,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
       elevation: 0,
-      shape: SmoothRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
       child: InkWell(
@@ -354,7 +355,6 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
             ),
           ),
 
-          // User avatar overlay
           Positioned(
             right: -8,
             top: -8,
@@ -368,15 +368,30 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
               ),
               child: CircleAvatar(
                 radius: 12,
-                backgroundImage: NetworkImage(
-                  "https://${chatRoom.recipientImagePath}",
+                backgroundColor: Colors.transparent,
+                child: ClipOval(
+                  child: CachedNetworkImage(
+                    imageUrl: "https://${chatRoom.recipientImagePath}",
+                    width: 24,
+                    height: 24,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Image.asset(
+                      AppImages.appLogo,
+                      width: 24,
+                      height: 24,
+                      fit: BoxFit.cover,
+                    ),
+                    errorWidget: (context, url, error) => Image.asset(
+                      AppImages.appLogo,
+                      width: 24,
+                      height: 24,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
-                onBackgroundImageError: (exception, stackTrace) {
-                  // Handle image loading error
-                },
               ),
             ),
-          ),
+          )
         ],
       ),
     );
@@ -412,8 +427,8 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
               chatRoom.unreadMessages > 9
                   ? '9+'
                   : chatRoom.unreadMessages.toString(),
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: Theme.of(context).scaffoldBackgroundColor,
                 fontSize: 10,
                 fontWeight: FontWeight.bold,
               ),

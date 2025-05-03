@@ -75,6 +75,31 @@ class _ListInShortsState extends State<ListInShorts>
         _loadCurrentAndPreloadVideos();
       }
     });
+
+    _setupNavigationObserver();
+  }
+
+  void _setupNavigationObserver() {
+    // Listen to route changes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final router = GoRouter.of(context);
+      // Listen to navigation events
+      router.routerDelegate.addListener(_onRouteChanged);
+    });
+  }
+
+  void _onRouteChanged() {
+    // Check if current route is still the shorts screen
+    if (!mounted) return;
+
+    final String currentRoute =
+        GoRouter.of(context).routerDelegate.currentConfiguration.toString();
+
+    // Assuming your route path is something like '/shorts' or contains 'shorts'
+    if (!currentRoute.contains('shorts') && !currentRoute.contains('explore')) {
+      // We've navigated away from shorts
+      _players[_currentIndex]!.pause();
+    }
   }
 
 // Main method for loading current video and preloading next videos
@@ -279,6 +304,7 @@ class _ListInShortsState extends State<ListInShorts>
 
   @override
   void dispose() {
+    GoRouter.of(context).routerDelegate.removeListener(_onRouteChanged);
     _isDisposed = true;
     WidgetsBinding.instance.removeObserver(this);
 
