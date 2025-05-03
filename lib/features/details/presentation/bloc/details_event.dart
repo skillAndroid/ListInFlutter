@@ -16,6 +16,7 @@ class FetchPublications extends DetailsEvent {
     this.isInitialFetch = false,
   });
 }
+
 class FollowUser extends DetailsEvent {
   final String userId;
   final bool isFollowing;
@@ -26,4 +27,10 @@ class FollowUser extends DetailsEvent {
     required this.isFollowing,
     required this.context,
   });
+}
+
+// New event for fetching single publication
+class FetchSinglePublication extends DetailsEvent {
+  final String publicationId;
+  FetchSinglePublication({required this.publicationId});
 }

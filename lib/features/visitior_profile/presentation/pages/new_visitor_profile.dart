@@ -2087,8 +2087,8 @@ class AboutTabContent extends StatelessWidget {
                         ),
                       ),
                       backgroundColor: isPartner
-                          ? Colors.green
-                          : CupertinoColors.activeGreen,
+                          ? AppColors.primaryLight2
+                          : AppColors.primaryLight2,
                       foregroundColor:
                           Theme.of(context).scaffoldBackgroundColor,
                       padding: EdgeInsets.symmetric(
@@ -2142,8 +2142,8 @@ class AboutTabContent extends StatelessWidget {
                         side: BorderSide(
                           width: 1,
                           color: isPartner
-                              ? Colors.green
-                              : CupertinoColors.activeGreen,
+                              ? AppColors.primaryLight2
+                              : AppColors.primaryLight2,
                           strokeAlign: BorderSide.strokeAlignCenter,
                         ),
                         borderRadius: SmoothBorderRadius(
@@ -2154,8 +2154,8 @@ class AboutTabContent extends StatelessWidget {
                       backgroundColor:
                           Theme.of(context).scaffoldBackgroundColor,
                       foregroundColor: isPartner
-                          ? Colors.green
-                          : CupertinoColors.activeGreen,
+                          ? AppColors.primaryLight2
+                          : AppColors.primaryLight2,
                       padding: EdgeInsets.symmetric(
                         vertical: 14,
                       ),
@@ -2230,7 +2230,10 @@ class AboutTabContent extends StatelessWidget {
         child: Row(
           children: [
             Icon(icon,
-                color: isPartner ? Colors.green : AppColors.primary, size: 22),
+                color: isPartner
+                    ? AppColors.primaryLight2
+                    : AppColors.primaryLight2,
+                size: 22),
             const SizedBox(width: 16),
             Expanded(
               child: Text(

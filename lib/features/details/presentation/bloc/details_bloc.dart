@@ -1,6 +1,9 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_in/core/error/failure.dart';
+import 'package:list_in/features/details/domain/usecase/get_single_publication_usecase.dart';
 import 'package:list_in/features/details/presentation/bloc/details_event.dart';
 import 'package:list_in/features/details/presentation/bloc/details_state.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
@@ -14,6 +17,7 @@ class DetailsBloc extends Bloc<DetailsEvent, DetailsState> {
   final GetAnotherUserDataUseCase getUserDataUseCase;
   final GetPublicationsByIdUsecase getPublications;
   final FollowUserUseCase followUserUseCase;
+  final GetPublicationUseCase getPublicationUseCase; // New usecase
   final GlobalBloc globalBloc;
   static const int pageSize = 20;
 
@@ -21,13 +25,57 @@ class DetailsBloc extends Bloc<DetailsEvent, DetailsState> {
     required this.getUserDataUseCase,
     required this.getPublications,
     required this.followUserUseCase,
+    required this.getPublicationUseCase, // New dependency
     required this.globalBloc,
   }) : super(DetailsState()) {
     on<GetAnotherUserData>(_onGetUserData);
     on<FetchPublications>(_onFetchPublications);
     on<FollowUser>(_onFollowUser);
+    on<FetchSinglePublication>(_onFetchSinglePublication); // New event handler
   }
 
+  // Helper method to sync single publication like status
+  void _syncLikeStatusForSinglePublication(GetPublicationEntity publication) {
+    final Map<String, bool> publicationLikeStatuses = {
+      publication.id: publication.isLiked,
+    };
+
+    globalBloc.add(SyncLikeStatusesEvent(
+      publicationLikeStatuses: publicationLikeStatuses,
+    ));
+  }
+
+  // New method to handle single publication fetching
+  Future<void> _onFetchSinglePublication(
+    FetchSinglePublication event,
+    Emitter<DetailsState> emit,
+  ) async {
+    emit(state.copyWith(isLoadingSinglePublication: true));
+    print('Bloc Part here is the publication id ${event.publicationId}');
+    final result = await getPublicationUseCase(params: event.publicationId);
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(
+          status: DetailsStatus.failure,
+          errorMessage: _mapFailureToMessage(failure),
+          isLoadingSinglePublication: false,
+        ));
+      },
+      (publication) {
+        // Sync the like status for this single publication
+        _syncLikeStatusForSinglePublication(publication);
+
+        emit(state.copyWith(
+          status: DetailsStatus.success,
+          singlePublication: publication,
+          isLoadingSinglePublication: false,
+        ));
+      },
+    );
+  }
+
+  // Updated _syncLikeStatusesForPublications to work with list
   void _syncLikeStatusesForPublications(
       List<GetPublicationEntity> publications) {
     final Map<String, bool> publicationLikeStatuses = {};
@@ -41,6 +89,7 @@ class DetailsBloc extends Bloc<DetailsEvent, DetailsState> {
     ));
   }
 
+  // Rest of the methods remain the same...
   Future<void> _onFollowUser(
     FollowUser event,
     Emitter<DetailsState> emit,

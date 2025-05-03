@@ -1,21 +1,28 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, avoid_print
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/language/language_bloc.dart';
+import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/core/utils/const.dart';
 import 'package:list_in/features/chats/domain/entity/chat_message.dart';
 import 'package:list_in/features/chats/domain/entity/user_status.dart';
 import 'package:list_in/features/chats/presentation/provider/chats/chat_provider.dart';
 import 'package:list_in/features/chats/presentation/widgets/message_bubble.dart';
+import 'package:list_in/features/details/presentation/bloc/details_bloc.dart';
+import 'package:list_in/features/details/presentation/bloc/details_event.dart';
+import 'package:list_in/features/details/presentation/bloc/details_state.dart';
+import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
 import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:uuid/uuid.dart';
 
 class ChatDetailPage extends StatefulWidget {
@@ -278,64 +285,91 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     );
   }
 
-  // Build publication banner
+// First, let's update the _buildPublicationBanner method
   Widget _buildPublicationBanner() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor.withOpacity(0.6),
-        border: Border(
-          bottom: BorderSide(
-            color: Colors.grey.withOpacity(0.2),
-            width: 1,
+    // Track loading state for this specific publication
+    final bool isLoadingPublication =
+        context.watch<DetailsBloc>().state.isLoadingSinglePublication;
+    final GetPublicationEntity? singlePublication =
+        context.watch<DetailsBloc>().state.singlePublication;
+
+    return GestureDetector(
+      onTap: () {
+        print(' here is the publication id ${widget.publicationId}');
+        if (!isLoadingPublication) {
+          context.read<DetailsBloc>().add(
+                FetchSinglePublication(publicationId: widget.publicationId),
+              );
+        }
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor.withOpacity(0.6),
+          border: Border(
+            bottom: BorderSide(
+              color: Colors.grey.withOpacity(0.2),
+              width: 1,
+            ),
           ),
         ),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      child: Row(
-        children: [
-          // Publication image
-          SmoothClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: SizedBox(
-              width: 40,
-              height: 40,
-              child: CachedNetworkImage(
-                imageUrl: widget.publicationImagePath.startsWith('http')
-                    ? widget.publicationImagePath
-                    : 'https://${widget.publicationImagePath}',
-                fit: BoxFit.cover,
-                errorWidget: (context, error, stackTrace) => Container(
-                  color: Colors.grey[300],
-                  child: const Icon(Icons.image_not_supported, size: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: Row(
+          children: [
+            // Publication image
+            SmoothClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: SizedBox(
+                width: 40,
+                height: 40,
+                child: CachedNetworkImage(
+                  imageUrl: widget.publicationImagePath.startsWith('http')
+                      ? widget.publicationImagePath
+                      : 'https://${widget.publicationImagePath}',
+                  fit: BoxFit.cover,
+                  errorWidget: (context, error, stackTrace) => Container(
+                    color: Colors.grey[300],
+                    child: const Icon(Icons.image_not_supported, size: 20),
+                  ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(width: 12),
+            const SizedBox(width: 12),
 
-          // Publication details
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.publicationTitle,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: Theme.of(context).colorScheme.secondary,
+            // Publication details
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.publicationTitle,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          Icon(
-            Icons.arrow_forward_ios_rounded,
-            size: 20,
-          )
-        ],
+
+            // Loading indicator or arrow icon
+            if (isLoadingPublication)
+              const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                ),
+              )
+            else
+              const Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 20,
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -344,227 +378,251 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   Widget build(BuildContext context) {
     final locale = AppLocalizations.of(context)!;
 
-    return Scaffold(
-      appBar: AppBar(
-        shadowColor: AppColors.transparent,
-        scrolledUnderElevation: 0,
-        elevation: 0,
-        automaticallyImplyLeading: false,
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        title: Row(
-          children: [
-            IconButton(
-              icon: const Icon(Icons.arrow_back_rounded),
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-            const SizedBox(width: 8),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(100),
-              child: SizedBox(
-                width: 32,
-                height: 32,
-                child: CachedNetworkImage(
-                  imageUrl: 'https://${widget.userProfileImage}',
-                  fit: BoxFit.cover,
-                  errorWidget: (context, url, error) =>
-                      Image.asset(AppImages.appLogo),
+    return BlocListener<DetailsBloc, DetailsState>(
+      listener: (context, state) {
+        // Check if we've successfully loaded a single publication
+        if (state.status == DetailsStatus.success &&
+            state.singlePublication != null &&
+            !state.isLoadingSinglePublication) {
+          // Navigate to product details
+          context.push(Routes.productDetails, extra: state.singlePublication);
+        }
+
+        // Handle error state if needed
+        if (state.status == DetailsStatus.failure &&
+            state.errorMessage != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.errorMessage!)),
+          );
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          shadowColor: AppColors.transparent,
+          scrolledUnderElevation: 0,
+          elevation: 0,
+          automaticallyImplyLeading: false,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          title: Row(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.arrow_back_rounded),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+              const SizedBox(width: 8),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(100),
+                child: SizedBox(
+                  width: 32,
+                  height: 32,
+                  child: CachedNetworkImage(
+                    imageUrl: 'https://${widget.userProfileImage}',
+                    fit: BoxFit.cover,
+                    errorWidget: (context, url, error) =>
+                        Image.asset(AppImages.appLogo),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.recipientName,
-                    style: const TextStyle(fontSize: 16),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Consumer<ChatProvider>(
-                    builder: (context, provider, child) {
-                      final userStatus = provider
-                              .historyState.userStatuses[widget.recipientId] ??
-                          UserStatus.OFFLINE;
-                      return Text(
-                        userStatus == UserStatus.ONLINE
-                            ? locale.online
-                            : locale.offline,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: userStatus == UserStatus.ONLINE
-                              ? Colors.green
-                              : Colors.grey,
-                        ),
-                      );
-                    },
-                  ),
-                ],
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.recipientName,
+                      style: const TextStyle(fontSize: 16),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Consumer<ChatProvider>(
+                      builder: (context, provider, child) {
+                        final userStatus = provider.historyState
+                                .userStatuses[widget.recipientId] ??
+                            UserStatus.OFFLINE;
+                        return Text(
+                          userStatus == UserStatus.ONLINE
+                              ? locale.online
+                              : locale.offline,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: userStatus == UserStatus.ONLINE
+                                ? Colors.green
+                                : Colors.grey,
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-      body: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            _buildPublicationBanner(),
-            Expanded(
-              child: Consumer<ChatProvider>(
-                builder: (context, provider, child) {
-                  final state = provider.historyState;
+        body: SafeArea(
+          bottom: false,
+          child: Column(
+            children: [
+              _buildPublicationBanner(),
+              Expanded(
+                child: Consumer<ChatProvider>(
+                  builder: (context, provider, child) {
+                    final state = provider.historyState;
 
-                  if (state.isLoading) {
-                    return const Progress();
-                  } else if (state.messages.isEmpty) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            width: 120,
-                            height: 120,
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: CachedNetworkImage(
-                                imageUrl: widget.publicationImagePath
-                                        .startsWith('http')
-                                    ? widget.publicationImagePath
-                                    : 'https://${widget.publicationImagePath}',
-                                fit: BoxFit.cover,
-                                errorWidget: (context, error, stackTrace) =>
-                                    Container(
-                                  color: Colors.grey[300],
-                                  child: const Icon(Icons.image_not_supported),
+                    if (state.isLoading) {
+                      return const Progress();
+                    } else if (state.messages.isEmpty) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              width: 120,
+                              height: 120,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: CachedNetworkImage(
+                                  imageUrl: widget.publicationImagePath
+                                          .startsWith('http')
+                                      ? widget.publicationImagePath
+                                      : 'https://${widget.publicationImagePath}',
+                                  fit: BoxFit.cover,
+                                  errorWidget: (context, error, stackTrace) =>
+                                      Container(
+                                    color: Colors.grey[300],
+                                    child:
+                                        const Icon(Icons.image_not_supported),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            locale.interestedIn(widget.publicationTitle),
-                            style: const TextStyle(fontSize: 16),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            locale.sendMessageToStart,
-                            style: const TextStyle(color: Colors.grey),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    );
-                  } else {
-                    return ListView.builder(
-                      reverse: true, // This is the key change
-                      controller: _scrollController,
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 8,
-                        horizontal: 16,
-                      ),
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      itemCount: state.messages.length,
-                      itemBuilder: (context, index) {
-                        // For reversed list, index 0 is the newest message
-                        final reversedIndex = state.messages.length - 1 - index;
-                        final message = state.messages[reversedIndex];
-                        final isMe = message.senderId == widget.userId;
+                            const SizedBox(height: 16),
+                            Text(
+                              locale.interestedIn(widget.publicationTitle),
+                              style: const TextStyle(fontSize: 16),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              locale.sendMessageToStart,
+                              style: const TextStyle(color: Colors.grey),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      );
+                    } else {
+                      return ListView.builder(
+                        reverse: true, // This is the key change
+                        controller: _scrollController,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 8,
+                          horizontal: 16,
+                        ),
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        itemCount: state.messages.length,
+                        itemBuilder: (context, index) {
+                          // For reversed list, index 0 is the newest message
+                          final reversedIndex =
+                              state.messages.length - 1 - index;
+                          final message = state.messages[reversedIndex];
+                          final isMe = message.senderId == widget.userId;
 
-                        // Date header logic
-                        bool showDateHeader = false;
-                        String dateHeader = '';
+                          // Date header logic
+                          bool showDateHeader = false;
+                          String dateHeader = '';
 
-                        if (reversedIndex == 0) {
-                          showDateHeader = true;
-                          dateHeader =
-                              getFormattedDate(context, message.sentAt);
-                        } else {
-                          // Check if date changed from the previous message
-                          final prevMessage = state.messages[reversedIndex - 1];
-                          final prevMessageDate = prevMessage.sentAt;
-                          final messageDate = message.sentAt;
-
-                          if (prevMessageDate.day != messageDate.day ||
-                              prevMessageDate.month != messageDate.month ||
-                              prevMessageDate.year != messageDate.year) {
+                          if (reversedIndex == 0) {
                             showDateHeader = true;
-                            dateHeader = getFormattedDate(context, messageDate);
-                          }
-                        }
+                            dateHeader =
+                                getFormattedDate(context, message.sentAt);
+                          } else {
+                            // Check if date changed from the previous message
+                            final prevMessage =
+                                state.messages[reversedIndex - 1];
+                            final prevMessageDate = prevMessage.sentAt;
+                            final messageDate = message.sentAt;
 
-                        // Message grouping logic for bubble tails
-                        bool showTail = true;
-                        final nextMessageIndex = reversedIndex + 1;
-                        if (nextMessageIndex < state.messages.length) {
-                          final nextMessage = state.messages[nextMessageIndex];
-                          // Don't show tail if next message is from same sender and within 5 minutes
-                          if (nextMessage.senderId == message.senderId &&
-                              nextMessage.sentAt
-                                      .difference(message.sentAt)
-                                      .inMinutes <
-                                  5) {
-                            showTail = false;
+                            if (prevMessageDate.day != messageDate.day ||
+                                prevMessageDate.month != messageDate.month ||
+                                prevMessageDate.year != messageDate.year) {
+                              showDateHeader = true;
+                              dateHeader =
+                                  getFormattedDate(context, messageDate);
+                            }
                           }
-                        }
 
-                        return Column(
-                          children: [
-                            if (showDateHeader)
-                              Container(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 8),
-                                child: Center(
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 6, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey.withOpacity(0.2),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Text(
-                                      dateHeader,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey[700],
+                          // Message grouping logic for bubble tails
+                          bool showTail = true;
+                          final nextMessageIndex = reversedIndex + 1;
+                          if (nextMessageIndex < state.messages.length) {
+                            final nextMessage =
+                                state.messages[nextMessageIndex];
+                            // Don't show tail if next message is from same sender and within 5 minutes
+                            if (nextMessage.senderId == message.senderId &&
+                                nextMessage.sentAt
+                                        .difference(message.sentAt)
+                                        .inMinutes <
+                                    5) {
+                              showTail = false;
+                            }
+                          }
+
+                          return Column(
+                            children: [
+                              if (showDateHeader)
+                                Container(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 8),
+                                  child: Center(
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 6, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey.withOpacity(0.2),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Text(
+                                        dateHeader,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey[700],
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              mainAxisAlignment: isMe
-                                  ? MainAxisAlignment.end
-                                  : MainAxisAlignment.start,
-                              children: [
-                                Flexible(
-                                  child: MessageBubble(
-                                    message: message.content,
-                                    isMe: isMe,
-                                    time: getFormattedTime(
-                                        context, message.sentAt),
-                                    status: message.status,
-                                    showTail: showTail,
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                mainAxisAlignment: isMe
+                                    ? MainAxisAlignment.end
+                                    : MainAxisAlignment.start,
+                                children: [
+                                  Flexible(
+                                    child: MessageBubble(
+                                      message: message.content,
+                                      isMe: isMe,
+                                      time: getFormattedTime(
+                                          context, message.sentAt),
+                                      status: message.status,
+                                      showTail: showTail,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 2),
-                          ],
-                        );
-                      },
-                    );
-                  }
-                },
+                                ],
+                              ),
+                              const SizedBox(height: 2),
+                            ],
+                          );
+                        },
+                      );
+                    }
+                  },
+                ),
               ),
-            ),
-            _buildMessageInput(),
-          ],
+              _buildMessageInput(),
+            ],
+          ),
         ),
       ),
     );

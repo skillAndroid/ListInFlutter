@@ -44,6 +44,10 @@ import 'package:list_in/features/chats/domain/usecase/message_delivered_usecase.
 import 'package:list_in/features/chats/domain/usecase/send_message_usecase.dart';
 import 'package:list_in/features/chats/domain/usecase/send_message_viewed_usecase.dart';
 import 'package:list_in/features/chats/presentation/provider/chats/chat_provider.dart';
+import 'package:list_in/features/details/data/repository/get_publication_repository_impl.dart';
+import 'package:list_in/features/details/data/source/remoute_fetch_publication.dart';
+import 'package:list_in/features/details/domain/repository/get_publication_repository.dart';
+import 'package:list_in/features/details/domain/usecase/get_single_publication_usecase.dart';
 import 'package:list_in/features/details/presentation/bloc/details_bloc.dart';
 import 'package:list_in/features/explore/data/repository/get_publications_rep_impl.dart';
 import 'package:list_in/features/explore/data/source/get_publications_remoute.dart';
@@ -161,6 +165,7 @@ Future<void> init() async {
   // Global BLoCs
   _registerGlobalBlocs();
   _registerChatFeature();
+  _initGetPublicationDependencies();
 }
 
 //======================================================================
@@ -195,6 +200,28 @@ Future<void> _initializeHive() async {
   } catch (e, stackTrace) {
     debugPrint('Failed to initialize Hive: $e\n$stackTrace');
   }
+}
+
+Future<void> _initGetPublicationDependencies() async {
+  // Use Cases
+  sl.registerLazySingleton(() => GetPublicationUseCase(
+        repository: sl(),
+      ));
+
+  // Repositories
+  sl.registerLazySingleton<PublicationRepository>(
+    () => PublicationRepositoryImpl(
+      remoteDataSource: sl(),
+    ),
+  );
+
+  // Data Sources
+  sl.registerLazySingleton<RemouteFetchPublication>(
+    () => RemouteFetchPublicationImpl(
+      dio: sl(),
+      authService: sl(),
+    ),
+  );
 }
 
 void _registerChatFeature() {
@@ -487,6 +514,7 @@ void _registerUserProfileFeature() {
       getUserDataUseCase: sl(),
       getPublications: sl(),
       followUserUseCase: sl(),
+      getPublicationUseCase: sl(),
       globalBloc: sl(),
     ),
   );

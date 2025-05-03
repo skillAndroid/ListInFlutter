@@ -875,63 +875,63 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
         // Action buttons for non-owners
         if (!isOwner) ...[
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-            child: Row(
-              children: [
-                Expanded(
-                  flex: 3,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      _pauseVideoForNavigation();
-                      final String languageCode =
-                          Localizations.localeOf(context).languageCode;
-                      String message;
+          // Padding(
+          //   padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+          //   child: Row(
+          //     children: [
+          //       Expanded(
+          //         flex: 3,
+          //         child: ElevatedButton(
+          //           onPressed: () {
+          //             _pauseVideoForNavigation();
+          //             final String languageCode =
+          //                 Localizations.localeOf(context).languageCode;
+          //             String message;
 
-                      switch (languageCode) {
-                        case 'uz':
-                          message =
-                              "Salom! Men sizning \"${widget.product.title}\" e'loningiz bilan qiziqyapman. Narxi: ${widget.product.price} so'm. Shu mahsulot hali sotuvda bormi?";
-                          break;
-                        case 'en':
-                          message =
-                              "Hello! I'm interested in your listing \"${widget.product.title}\". Price: ${widget.product.price}. Is this item still available?";
-                          break;
-                        case 'ru':
-                        default:
-                          message =
-                              "Здравствуйте! Меня интересует ваше объявление \"${widget.product.title}\". Цена: ${widget.product.price}. Этот товар еще доступен?";
-                          break;
-                      }
+          //             switch (languageCode) {
+          //               case 'uz':
+          //                 message =
+          //                     "Salom! Men sizning \"${widget.product.title}\" e'loningiz bilan qiziqyapman. Narxi: ${widget.product.price} so'm. Shu mahsulot hali sotuvda bormi?";
+          //                 break;
+          //               case 'en':
+          //                 message =
+          //                     "Hello! I'm interested in your listing \"${widget.product.title}\". Price: ${widget.product.price}. Is this item still available?";
+          //                 break;
+          //               case 'ru':
+          //               default:
+          //                 message =
+          //                     "Здравствуйте! Меня интересует ваше объявление \"${widget.product.title}\". Цена: ${widget.product.price}. Этот товар еще доступен?";
+          //                 break;
+          //             }
 
-                      final String phoneNumber =
-                          widget.product.seller.phoneNumber;
-                      ProductActionsService.openTelegram(
-                          context, message, phoneNumber);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      shape: SmoothRectangleBorder(
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      backgroundColor: CupertinoColors.activeGreen,
-                      foregroundColor:
-                          Theme.of(context).colorScheme.onSecondary,
-                      padding: EdgeInsets.symmetric(vertical: 12),
-                    ),
-                    child: Text(
-                      localizations.write_to_telegram,
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: AppColors.black,
-                        fontFamily: Constants.Arial,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+          //             final String phoneNumber =
+          //                 widget.product.seller.phoneNumber;
+          //             ProductActionsService.openTelegram(
+          //                 context, message, phoneNumber);
+          //           },
+          //           style: ElevatedButton.styleFrom(
+          //             shape: SmoothRectangleBorder(
+          //               borderRadius: BorderRadius.circular(24),
+          //             ),
+          //             backgroundColor: CupertinoColors.activeGreen,
+          //             foregroundColor:
+          //                 Theme.of(context).colorScheme.onSecondary,
+          //             padding: EdgeInsets.symmetric(vertical: 12),
+          //           ),
+          //           child: Text(
+          //             localizations.write_to_telegram,
+          //             style: TextStyle(
+          //               fontSize: 16,
+          //               color: AppColors.black,
+          //               fontFamily: Constants.Arial,
+          //               fontWeight: FontWeight.bold,
+          //             ),
+          //           ),
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 2),
             child: Row(
@@ -966,13 +966,12 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                             strokeAlign: BorderSide.strokeAlignCenter),
                         borderRadius: BorderRadius.circular(24),
                       ),
-                      backgroundColor:
-                          Theme.of(context).scaffoldBackgroundColor,
+                      backgroundColor: AppColors.primaryLight2,
                       foregroundColor: Theme.of(context).colorScheme.secondary,
                       padding: EdgeInsets.symmetric(vertical: 12),
                     ),
                     child: Text(
-                      'ListIn Chat',
+                      localizations.write,
                       style: const TextStyle(
                         fontFamily: Constants.Arial,
                         fontSize: 16,

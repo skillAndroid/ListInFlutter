@@ -438,7 +438,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                                         maxHeight: 40,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: CupertinoColors.activeGreen,
+                                        color: AppColors.primaryLight2,
                                       ),
                                       child: isLoading
                                           ? Padding(
@@ -529,7 +529,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                                           MainAxisAlignment.center,
                                       children: [
                                         Icon(
-                                          EvaIcons.messageSquare,
+                                          Icons.telegram,
                                           color: Theme.of(context)
                                               .colorScheme
                                               .secondary,
