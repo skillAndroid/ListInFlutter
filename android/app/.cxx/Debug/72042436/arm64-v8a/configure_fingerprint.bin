@@ -2,6 +2,7 @@ C/C++ Structured Logc
 a
 _C:\android\ListInFlutter\android\app\.cxx\Debug\72042436\arm64-v8a\additional_project_files.txtC
 A
+<<<<<<< HEAD
 ?com.android.build.gradle.internal.cxx.io.EncodedFileFingerPrint	êÄ…«é2 ³ÀÞµâ2`
 ^
 \C:\android\ListInFlutter\android\app\.cxx\Debug\72042436\arm64-v8a\android_gradle_build.json	êÄ…«é2˜ ·ÀÞµâ2e
@@ -26,3 +27,29 @@ UC:\android\ListInFlutter\android\app\.cxx\Debug\72042436\arm64-v8a\prefab_confi
 ZC:\android\ListInFlutter\android\app\.cxx\Debug\72042436\arm64-v8a\symbol_folder_index.txt	êÄ…«é2Q ÈÀÞµâ2K
 I
 GC:\flutter\packages\flutter_tools\gradle\src\main\groovy\CMakeLists.txt	êÄ…«é2§ üŸ†“×2
+=======
+?com.android.build.gradle.internal.cxx.io.EncodedFileFingerPrint	ˆÊÍëè2 ³ÀÞµâ2`
+^
+\C:\android\ListInFlutter\android\app\.cxx\Debug\72042436\arm64-v8a\android_gradle_build.json	ˆÊÍëè2˜ ·ÀÞµâ2e
+c
+aC:\android\ListInFlutter\android\app\.cxx\Debug\72042436\arm64-v8a\android_gradle_build_mini.json	ˆÊÍëè2ó ¼ÀÞµâ2R
+P
+NC:\android\ListInFlutter\android\app\.cxx\Debug\72042436\arm64-v8a\build.ninja	ˆÊÍëè2ˆÕ ¯¿Þµâ2V
+T
+RC:\android\ListInFlutter\android\app\.cxx\Debug\72042436\arm64-v8a\build.ninja.txt	ˆÊÍëè2[
+Y
+WC:\android\ListInFlutter\android\app\.cxx\Debug\72042436\arm64-v8a\build_file_index.txt	ˆÊÍëè2G ÊÀÞµâ2\
+Z
+XC:\android\ListInFlutter\android\app\.cxx\Debug\72042436\arm64-v8a\compile_commands.json	ˆÊÍëè2`
+^
+\C:\android\ListInFlutter\android\app\.cxx\Debug\72042436\arm64-v8a\compile_commands.json.bin	ˆÊÍëè2	f
+d
+bC:\android\ListInFlutter\android\app\.cxx\Debug\72042436\arm64-v8a\metadata_generation_command.txt	ˆÊÍëè2
+§ ÆÀÞµâ2Y
+W
+UC:\android\ListInFlutter\android\app\.cxx\Debug\72042436\arm64-v8a\prefab_config.json	ˆÊÍëè2( ÇÀÞµâ2^
+\
+ZC:\android\ListInFlutter\android\app\.cxx\Debug\72042436\arm64-v8a\symbol_folder_index.txt	ˆÊÍëè2Q ÈÀÞµâ2K
+I
+GC:\flutter\packages\flutter_tools\gradle\src\main\groovy\CMakeLists.txt	ˆÊÍëè2§ üŸ†“×2
+>>>>>>> 52b1a0a0554f64b21ac6b2163b670f00bc0a40e2

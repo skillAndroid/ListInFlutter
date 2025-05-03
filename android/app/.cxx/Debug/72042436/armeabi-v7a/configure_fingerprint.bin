@@ -2,6 +2,7 @@ C/C++ Structured Loge
 c
 aC:\android\ListInFlutter\android\app\.cxx\Debug\72042436\armeabi-v7a\additional_project_files.txtC
 A
+<<<<<<< HEAD
 ?com.android.build.gradle.internal.cxx.io.EncodedFileFingerPrint	„Å…«é2 ÎÞµâ2b
 `
 ^C:\android\ListInFlutter\android\app\.cxx\Debug\72042436\armeabi-v7a\android_gradle_build.json	„Å…«é2œ ŸÎÞµâ2g
@@ -26,3 +27,29 @@ WC:\android\ListInFlutter\android\app\.cxx\Debug\72042436\armeabi-v7a\prefab_con
 \C:\android\ListInFlutter\android\app\.cxx\Debug\72042436\armeabi-v7a\symbol_folder_index.txt	„Å…«é2S ¨ÎÞµâ2K
 I
 GC:\flutter\packages\flutter_tools\gradle\src\main\groovy\CMakeLists.txt	„Å…«é2§ üŸ†“×2
+=======
+?com.android.build.gradle.internal.cxx.io.EncodedFileFingerPrint	ÊÍëè2 ÎÞµâ2b
+`
+^C:\android\ListInFlutter\android\app\.cxx\Debug\72042436\armeabi-v7a\android_gradle_build.json	ÊÍëè2œ ŸÎÞµâ2g
+e
+cC:\android\ListInFlutter\android\app\.cxx\Debug\72042436\armeabi-v7a\android_gradle_build_mini.json	ÊÍëè2÷ £ÎÞµâ2T
+R
+PC:\android\ListInFlutter\android\app\.cxx\Debug\72042436\armeabi-v7a\build.ninja	ÊÍëè2’Õ ¢ÍÞµâ2X
+V
+TC:\android\ListInFlutter\android\app\.cxx\Debug\72042436\armeabi-v7a\build.ninja.txt	ÊÍëè2]
+[
+YC:\android\ListInFlutter\android\app\.cxx\Debug\72042436\armeabi-v7a\build_file_index.txt	ÊÍëè2G ©ÎÞµâ2^
+\
+ZC:\android\ListInFlutter\android\app\.cxx\Debug\72042436\armeabi-v7a\compile_commands.json	ÊÍëè2b
+`
+^C:\android\ListInFlutter\android\app\.cxx\Debug\72042436\armeabi-v7a\compile_commands.json.bin	ÊÍëè2	h
+f
+dC:\android\ListInFlutter\android\app\.cxx\Debug\72042436\armeabi-v7a\metadata_generation_command.txt	ÊÍëè2
+± ¦ÎÞµâ2[
+Y
+WC:\android\ListInFlutter\android\app\.cxx\Debug\72042436\armeabi-v7a\prefab_config.json	ÊÍëè2( §ÎÞµâ2`
+^
+\C:\android\ListInFlutter\android\app\.cxx\Debug\72042436\armeabi-v7a\symbol_folder_index.txt	ÊÍëè2S ¨ÎÞµâ2K
+I
+GC:\flutter\packages\flutter_tools\gradle\src\main\groovy\CMakeLists.txt	ÊÍëè2§ üŸ†“×2
+>>>>>>> 52b1a0a0554f64b21ac6b2163b670f00bc0a40e2
