@@ -47,21 +47,12 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   final FocusNode _focusNode = FocusNode();
   final Uuid _uuid = Uuid();
 
-  bool _isFirstLoad = true;
-  bool _userScrolledUp = false;
-
   // Set to track messages that have been marked as viewed
   final Set<String> _viewedMessageIds = {};
 
   @override
   void initState() {
     super.initState();
-
-    // Add scroll listener to detect when user scrolls up
-    _scrollController.addListener(_scrollListener);
-
-    // Focus node listener for keyboard
-    _focusNode.addListener(_onFocusChange);
 
     // Load chat history
     context.read<ChatProvider>().loadChatHistory(
@@ -70,34 +61,20 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
           recipientId: widget.recipientId,
         );
 
-    // Add this: Mark messages as viewed when page becomes active
+    // Mark messages as viewed when page becomes active
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _markUnreadMessagesAsViewed();
     });
   }
 
-  void _scrollListener() {
+  // Scroll to bottom (for reversed list)
+  void _scrollToBottom() {
     if (_scrollController.hasClients) {
-      // Check if user has scrolled up (not at bottom)
-      final isAtBottom = _scrollController.offset >=
-          _scrollController.position.maxScrollExtent - 50;
-
-      setState(() {
-        _userScrolledUp = !isAtBottom;
-      });
-
-      if (isAtBottom) {
-        _markUnreadMessagesAsViewed();
-      }
-    }
-  }
-
-  void _onFocusChange() {
-    if (_focusNode.hasFocus && !_userScrolledUp) {
-      // When keyboard appears and we're at bottom, scroll after a delay
-      Future.delayed(const Duration(milliseconds: 300), () {
-        if (mounted) _scrollToBottom();
-      });
+      _scrollController.animateTo(
+        0.0,
+        duration: const Duration(milliseconds: 100),
+        curve: Curves.easeOut,
+      );
     }
   }
 
@@ -125,25 +102,6 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     context
         .read<ChatProvider>()
         .sendMessageViewedStatus(widget.recipientId, messageIds);
-    // Also trigger this when the view becomes active
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        context
-            .read<ChatProvider>()
-            .sendMessageViewedStatus(widget.recipientId, messageIds);
-      }
-    });
-  }
-
-  // Scroll to bottom of messages
-  void _scrollToBottom() {
-    if (_scrollController.hasClients) {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-    }
   }
 
   // Send a message
@@ -166,19 +124,13 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
       updatedAt: DateTime.now(),
     );
 
-    // Send via provider
     Provider.of<ChatProvider>(context, listen: false).sendMessage(message);
 
-    // Clear the text field
     _messageController.clear();
 
-    // Reset userScrolledUp state when sending a message
-    setState(() {
-      _userScrolledUp = false;
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (mounted) _scrollToBottom();
     });
-
-    // Scroll to bottom after a short delay
-    Future.delayed(const Duration(milliseconds: 100), _scrollToBottom);
   }
 
   // Get formatted date for message headers
@@ -298,7 +250,16 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                 focusNode: _focusNode,
                 minLines: 1,
                 placeholder: locale.writeMessage,
-                style: const TextStyle(fontFamily: Constants.Arial),
+                style: TextStyle(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .secondary, // Text color set to black
+                  fontFamily: Constants.Arial,
+                ),
+                placeholderStyle: TextStyle(
+                  color: Colors.grey[400], // Placeholder color
+                  fontFamily: Constants.Arial,
+                ),
                 maxLines: 5,
                 textCapitalization: TextCapitalization.sentences,
                 onSubmitted: (_) => _sendMessage(),
@@ -322,7 +283,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   Widget _buildPublicationBanner() {
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: Theme.of(context).cardColor.withOpacity(0.7),
         border: Border(
           bottom: BorderSide(
             color: Colors.grey.withOpacity(0.2),
@@ -337,8 +298,8 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
           SmoothClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: SizedBox(
-              width: 50,
-              height: 50,
+              width: 40,
+              height: 40,
               child: CachedNetworkImage(
                 imageUrl: widget.publicationImagePath.startsWith('http')
                     ? widget.publicationImagePath
@@ -371,6 +332,10 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
               ],
             ),
           ),
+          Icon(
+            Icons.arrow_forward_ios_rounded,
+            size: 20,
+          )
         ],
       ),
     );
@@ -498,144 +463,104 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                       ),
                     );
                   } else {
-                    // On first load, scroll to bottom and mark messages as viewed
-                    if (_isFirstLoad) {
-                      _isFirstLoad = false;
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        _scrollToBottom();
-                        _markUnreadMessagesAsViewed();
-                      });
-                    }
+                    return ListView.builder(
+                      reverse: true, // This is the key change
+                      controller: _scrollController,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 16,
+                      ),
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      itemCount: state.messages.length,
+                      itemBuilder: (context, index) {
+                        // For reversed list, index 0 is the newest message
+                        final reversedIndex = state.messages.length - 1 - index;
+                        final message = state.messages[reversedIndex];
+                        final isMe = message.senderId == widget.userId;
 
-                    return Stack(
-                      children: [
-                        GestureDetector(
-                          onTap: () => FocusScope.of(context).unfocus(),
-                          child: ListView.builder(
-                            controller: _scrollController,
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 8,
-                              horizontal: 16,
-                            ),
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            itemCount: state.messages.length,
-                            itemBuilder: (context, index) {
-                              final message = state.messages[index];
-                              final isMe = message.senderId == widget.userId;
+                        // Date header logic
+                        bool showDateHeader = false;
+                        String dateHeader = '';
 
-                              // Date header logic
-                              bool showDateHeader = false;
-                              String dateHeader = '';
+                        if (reversedIndex == 0) {
+                          showDateHeader = true;
+                          dateHeader =
+                              getFormattedDate(context, message.sentAt);
+                        } else {
+                          // Check if date changed from the previous message
+                          final prevMessage = state.messages[reversedIndex - 1];
+                          final prevMessageDate = prevMessage.sentAt;
+                          final messageDate = message.sentAt;
 
-                              if (index == 0) {
-                                showDateHeader = true;
-                                dateHeader =
-                                    getFormattedDate(context, message.sentAt);
-                              } else {
-                                // Check if date changed from previous message
-                                final previousMessageDate =
-                                    state.messages[index - 1].sentAt;
-                                final messageDate = message.sentAt;
+                          if (prevMessageDate.day != messageDate.day ||
+                              prevMessageDate.month != messageDate.month ||
+                              prevMessageDate.year != messageDate.year) {
+                            showDateHeader = true;
+                            dateHeader = getFormattedDate(context, messageDate);
+                          }
+                        }
 
-                                if (previousMessageDate.day !=
-                                        messageDate.day ||
-                                    previousMessageDate.month !=
-                                        messageDate.month ||
-                                    previousMessageDate.year !=
-                                        messageDate.year) {
-                                  showDateHeader = true;
-                                  dateHeader =
-                                      getFormattedDate(context, messageDate);
-                                }
-                              }
+                        // Message grouping logic for bubble tails
+                        bool showTail = true;
+                        final nextMessageIndex = reversedIndex + 1;
+                        if (nextMessageIndex < state.messages.length) {
+                          final nextMessage = state.messages[nextMessageIndex];
+                          // Don't show tail if next message is from same sender and within 5 minutes
+                          if (nextMessage.senderId == message.senderId &&
+                              nextMessage.sentAt
+                                      .difference(message.sentAt)
+                                      .inMinutes <
+                                  5) {
+                            showTail = false;
+                          }
+                        }
 
-                              // Message grouping logic for bubble tails
-                              bool showTail = true;
-                              if (index < state.messages.length - 1) {
-                                final nextMessage = state.messages[index + 1];
-                                // Don't show tail if next message is from same sender and within 5 minutes
-                                if (nextMessage.senderId == message.senderId &&
-                                    nextMessage.sentAt
-                                            .difference(message.sentAt)
-                                            .inMinutes <
-                                        5) {
-                                  showTail = false;
-                                }
-                              }
-
-                              return Column(
-                                children: [
-                                  if (showDateHeader)
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 8),
-                                      child: Center(
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 6, vertical: 4),
-                                          decoration: BoxDecoration(
-                                            color: Colors.grey.withOpacity(0.2),
-                                            borderRadius:
-                                                BorderRadius.circular(12),
-                                          ),
-                                          child: Text(
-                                            dateHeader,
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.grey[700],
-                                            ),
-                                          ),
-                                        ),
+                        return Column(
+                          children: [
+                            if (showDateHeader)
+                              Container(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 8),
+                                child: Center(
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 6, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.withOpacity(0.2),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Text(
+                                      dateHeader,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey[700],
                                       ),
                                     ),
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    mainAxisAlignment: isMe
-                                        ? MainAxisAlignment.end
-                                        : MainAxisAlignment.start,
-                                    children: [
-                                      Flexible(
-                                        child: MessageBubble(
-                                          message: message.content,
-                                          isMe: isMe,
-                                          time: getFormattedTime(
-                                            context,
-                                            message.sentAt,
-                                          ),
-                                          status: message.status,
-                                          showTail: showTail,
-                                        ),
-                                      ),
-                                    ],
                                   ),
-                                  const SizedBox(height: 2),
-                                ],
-                              );
-                            },
-                          ),
-                        ),
-
-                        // Scroll to bottom button
-                        if (_userScrolledUp)
-                          Positioned(
-                            bottom: 16,
-                            right: 16,
-                            child: FloatingActionButton(
-                              mini: true,
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.secondary,
-                              child: const Icon(Icons.keyboard_arrow_down,
-                                  color: Colors.white),
-                              onPressed: () {
-                                setState(() {
-                                  _userScrolledUp = false;
-                                });
-                                _scrollToBottom();
-                                _markUnreadMessagesAsViewed();
-                              },
+                                ),
+                              ),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              mainAxisAlignment: isMe
+                                  ? MainAxisAlignment.end
+                                  : MainAxisAlignment.start,
+                              children: [
+                                Flexible(
+                                  child: MessageBubble(
+                                    message: message.content,
+                                    isMe: isMe,
+                                    time: getFormattedTime(
+                                        context, message.sentAt),
+                                    status: message.status,
+                                    showTail: showTail,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                      ],
+                            const SizedBox(height: 2),
+                          ],
+                        );
+                      },
                     );
                   }
                 },
@@ -650,10 +575,8 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
 
   @override
   void dispose() {
-    _scrollController.removeListener(_scrollListener);
     _scrollController.dispose();
     _messageController.dispose();
-    _focusNode.removeListener(_onFocusChange);
     _focusNode.dispose();
     super.dispose();
   }

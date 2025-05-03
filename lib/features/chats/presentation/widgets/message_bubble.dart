@@ -32,7 +32,7 @@ class MessageBubble extends StatelessWidget {
         statusIcon = Icon(
           Icons.done_all,
           size: 13,
-          color: Colors.blue,
+          color: AppColors.black.withOpacity(0.7),
         );
       } else if (upperStatus == 'DELIVERED') {
         // Message has been delivered but not read
@@ -52,8 +52,8 @@ class MessageBubble extends StatelessWidget {
 
     return Container(
       margin: EdgeInsets.only(
-        top: 2,
-        bottom: 2,
+        top: 0.75,
+        bottom: 0.75,
         left: isMe ? 64 : 0,
         right: isMe ? 0 : 64,
       ),
@@ -63,10 +63,11 @@ class MessageBubble extends StatelessWidget {
             isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+            padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 12),
             decoration: BoxDecoration(
-              color:
-                  isMe ? AppColors.primaryLight2 : Theme.of(context).cardColor,
+              color: isMe
+                  ? AppColors.primaryLight2.withOpacity(0.75)
+                  : Theme.of(context).cardColor,
               borderRadius: BorderRadius.only(
                 topLeft: const Radius.circular(20),
                 topRight: const Radius.circular(20),

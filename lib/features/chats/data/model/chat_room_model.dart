@@ -41,7 +41,15 @@ class ChatRoomModel extends ChatRoom {
       unreadMessages: json['unreadMessages'],
       lastMessage: json['lastMessage'] != null
           ? ChatMessageModel.fromJson(json['lastMessage'])
-          : null,
+          : ChatMessageModel(
+              id: "8989",
+              senderId: '8989',
+              recipientId: '8989',
+              publicationId: "909",
+              content: "content",
+              status: "status",
+              sentAt: DateTime(12),
+              updatedAt: DateTime(89)),
     );
   }
 }

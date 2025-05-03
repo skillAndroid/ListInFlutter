@@ -112,6 +112,9 @@ class ChatRemoteDataSource {
                         ChatMessageModel.fromJson(jsonDecode(frame.body!));
                     print(
                         'Message marked as delivered: ${message.id} - ${message.content}');
+                    print(
+                        'Message marked as delivered: ${message.id} - ${message.id}');
+
                     _messageDeliveredStreamController.add(message);
                   } catch (e) {
                     print('Error parsing delivered message: $e');
@@ -279,6 +282,7 @@ class ChatRemoteDataSource {
         body: jsonEncode(message),
       );
       print('Message sent to recipient $recipientId: $content');
+      print('Message sent to recipient $recipientId: $messageId');
     } catch (e) {
       print('Error sending message: $e');
       throw Exception('Failed to send message: $e');
@@ -305,6 +309,9 @@ class ChatRemoteDataSource {
         body: jsonEncode(viewData),
       );
       print('Message viewed status sent for ${messageIds.length} messages');
+      for (var messageId in messageIds) {
+        print('  - $messageId');
+      }
     } catch (e) {
       print('Error sending message viewed status: $e');
       throw Exception('Failed to send message viewed status: $e');
@@ -324,6 +331,7 @@ class ChatRemoteDataSource {
         final rooms =
             roomsJson.map((json) => ChatRoomModel.fromJson(json)).toList();
         print('Retrieved ${rooms.length} chat rooms for user $userId');
+
         return rooms;
       } else {
         throw Exception('Failed to load chat rooms: ${response.statusCode}');
@@ -357,6 +365,10 @@ class ChatRemoteDataSource {
             .map((json) => ChatMessageModel.fromJson(json))
             .toList();
         print('Retrieved ${messages.length} messages for conversation');
+        for (var message in messages) {
+          print('  - ${message.id}');
+          print('  - ${message.content}');
+        }
         return messages;
       } else {
         throw Exception('Failed to load chat history: ${response.statusCode}');

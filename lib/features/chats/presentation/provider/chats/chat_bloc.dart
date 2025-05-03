@@ -190,7 +190,6 @@ class ChatProvider extends ChangeNotifier {
     // 3. Subscribe to message read status updates
     _messageStatusSubscription = getMessageStatusStreamUseCase.execute().listen(
       (viewedMessageIds) {
-        print('👁️ Messages viewed: $viewedMessageIds');
         _handleMessageViewedStatus(viewedMessageIds);
       },
       onError: (error) {
@@ -313,10 +312,8 @@ class ChatProvider extends ChangeNotifier {
 
       notifyListeners();
 
-      // Send the message to the server
       await sendMessageUseCase.execute(message);
 
-      // Update message status to "SENT" after successful send
       final sentMessage = optimisticMessage.copyWith(status: 'SENT');
       _updateMessageStatus(sentMessage);
     } catch (e) {
