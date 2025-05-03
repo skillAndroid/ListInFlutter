@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:list_in/core/dto/user_data_dto.dart';
 import 'package:list_in/core/error/failure.dart';
-import 'package:list_in/features/auth/domain/entities/auth_tokens.dart';
 import 'package:list_in/features/auth/domain/entities/login.dart';
 import 'package:list_in/features/auth/domain/entities/signup.dart';
 import 'package:list_in/features/auth/domain/entities/user.dart';
@@ -51,7 +51,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     result.fold(
       (failure) => emit(AuthLoginError(message: _mapFailureToMessage(failure))),
-      (authToken) => emit(AuthSuccess(authToken: authToken)),
+      (user) => emit(AuthSuccess(user: user)),
     );
   }
 
@@ -97,7 +97,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           message: _mapFailureToMessage(failure),
           type: AuthErrorType.registration,
         )),
-        (authToken) => emit(RegistrationUserSuccess(authToken: authToken)),
+        (user) => emit(RegistrationUserSuccess(user: user)),
       );
     } catch (e) {
       emit(AuthError(
@@ -168,9 +168,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         }
       },
       // If authentication succeeds
-      (authToken) {
-        // User successfully authenticated
-        emit(AuthSuccess(authToken: authToken));
+      (user) {
+        emit(AuthSuccess(user: user));
       },
     );
   }

@@ -31,6 +31,7 @@ import 'package:list_in/features/profile/presentation/bloc/user/user_profile_blo
 import 'package:list_in/features/profile/presentation/bloc/user/user_profile_event.dart';
 import 'package:list_in/features/video/presentation/wigets/scrollable_list.dart';
 import 'package:list_in/global/global_bloc.dart';
+import 'package:list_in/global/global_event.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 class HomePageUIState {
@@ -147,6 +148,7 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
     super.initState();
     _initializeStates();
     _setupListeners();
+    _fetchGlobalData();
     _fetchInitialData();
     _fetchVideoFeeds();
   }
@@ -172,13 +174,23 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
     });
   }
 
+  void _fetchGlobalData() {
+    // Dispatch events to fetch user id and image
+    context.read<GlobalBloc>().add(FetchUserIdEvent());
+    context.read<GlobalBloc>().add(FetchUserImageEvent());
+  }
+
   void _fetchInitialData() {
     context.read<UserProfileBloc>().add(GetUserData());
-    context.read<UserProfileBloc>().add(GetUserData());
-    final userId = context.read<GlobalBloc>().userId;
-    if (userId != null) {
-      context.read<ChatProvider>().initializeChat(userId);
-    }
+
+    // Move the userId check to be asynchronous
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final userId = context.read<GlobalBloc>().userId;
+      if (userId != null) {
+        context.read<ChatProvider>().initializeChat(userId);
+      }
+    });
+
     context.read<HomeTreeCubit>().fetchCatalogs();
     context.read<HomeTreeCubit>().fetchLocations();
   }

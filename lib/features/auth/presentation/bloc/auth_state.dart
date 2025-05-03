@@ -14,13 +14,13 @@ class AuthLoading extends AuthState {
 }
 
 class AuthSuccess extends AuthState {
-  final AuthToken authToken;
-  const AuthSuccess({required this.authToken});
+  final UserDataDtoEntity user;
+  const AuthSuccess({required this.user});
 }
 
 class RegistrationUserSuccess extends AuthState {
-  final AuthToken authToken;
-  const RegistrationUserSuccess({required this.authToken});
+  final UserDataDtoEntity user;
+  const RegistrationUserSuccess({required this.user});
 }
 
 class SignupSuccess extends AuthState {}

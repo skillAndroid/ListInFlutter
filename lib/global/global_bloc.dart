@@ -33,8 +33,6 @@ class GlobalBloc extends Bloc<GlobalEvent, GlobalState> {
     on<UpdateViewStatusEvent>(_onUpdateViewStatus);
     on<FetchUserIdEvent>(_onFetchUserId);
     on<FetchUserImageEvent>(_onFetchUserImage);
-    add(FetchUserIdEvent());
-    add(FetchUserImageEvent());
   }
 
   Future<void> _onFetchUserId(
@@ -74,8 +72,6 @@ class GlobalBloc extends Bloc<GlobalEvent, GlobalState> {
   String? getUserProfileImage() {
     return profileImagePath;
   }
-  
-  
 
   Future<void> _onUpdateViewStatus(
     UpdateViewStatusEvent event,

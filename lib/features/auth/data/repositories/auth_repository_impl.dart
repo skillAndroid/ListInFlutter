@@ -1,7 +1,8 @@
-// ignore_for_file: unused_catch_clause
+// ignore_for_file: avoid_print
 
 import 'package:dartz/dartz.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:list_in/core/dto/user_data_dto.dart';
 import 'package:list_in/core/error/failure.dart';
 import 'package:list_in/features/auth/data/models/retrived_email_model.dart';
 
@@ -25,54 +26,84 @@ class AuthRepositoryImpl implements AuthRepository {
   });
 
   @override
-  Future<Either<Failure, AuthToken>> login(Login login) async {
+  Future<Either<Failure, UserDataDtoEntity>> login(Login login) async {
     try {
+      print("🚀 Starting login process for: ${login.email}");
+
       final result = await authRemoteDataSource.login(login);
+
       return result.fold(
         (error) {
+          print("❌ Error in login: $error"); // Debug error messages
+
           // Check the error message to determine the correct Failure type
           if (error.contains('Invalid credentials') ||
               error.contains('Invalid email or password')) {
+            print("🔴 Validation Failure");
             return Left(ValidationFailure());
           } else if (error.contains('timeout') ||
               error.contains('Network error')) {
+            print("🔴 Network Failure");
             return Left(NetworkFailure());
           } else if (error.contains('Server')) {
+            print("🔴 Server Failure");
             return Left(ServerFailure());
           }
+          print("🔴 Unexpected Failure");
           return Left(UnexpectedFailure());
         },
-        (authToken) async {
-          await authLocalDataSource.cacheAuthToken(authToken);
-          return Right(authToken);
+        (userData) async {
+          print("✅ Login successful - reaching userData");
+          print("😂 User ID: ${userData.user.id}");
+          print("😂 Profile Image Path: ${userData.user.profileImagePath}");
+
+          try {
+            await authLocalDataSource.cacheAuthToken(userData.tokens);
+            print("✅ Token cached");
+
+            await authLocalDataSource.cacheUserId(userData.user.id);
+            print("✅ User ID cached");
+
+            await authLocalDataSource
+                .cacheProfileImagePath(userData.user.profileImagePath);
+            print("✅ Profile image path cached");
+
+            final entity = userData.toEntity();
+            print("✅ Converted to entity");
+            return Right(entity);
+          } catch (cacheError) {
+            print("❌ Error caching data: $cacheError");
+            return Left(UnexpectedFailure());
+          }
         },
       );
     } catch (e) {
+      print("❌ Unexpected error in login: $e");
       return Left(UnexpectedFailure());
     }
   }
 
   @override
-  Future<Either<Failure, AuthToken>> registerUserData(User user) async {
+  Future<Either<Failure, UserDataDtoEntity>> registerUserData(User user) async {
     try {
       final result = await authRemoteDataSource.registerUserData(user);
       return result.fold(
         (error) {
-          // ignore: avoid_print
           print('Remote login error: $error');
           return Left(ServerFailure());
         },
-        (authToken) async {
-          if (authToken != null) {
-            await authLocalDataSource.cacheAuthToken(authToken);
-            return Right(authToken);
-          } else {
-            return Left(ServerFailure());
-          }
+        (userData) async {
+          print("✅ Login successful - reaching userData");
+          print("😂 User ID: ${userData.user.id}");
+          print("😂 Profile Image Path: ${userData.user.profileImagePath}");
+          await authLocalDataSource.cacheAuthToken(userData.tokens);
+          await authLocalDataSource.cacheUserId(userData.user.id);
+          await authLocalDataSource
+              .cacheProfileImagePath(userData.user.profileImagePath);
+          return Right(userData.toEntity());
         },
       );
     } catch (e) {
-      // ignore: avoid_print
       print('Repository login error: $e');
       return Left(ServerFailure());
     }
@@ -84,7 +115,6 @@ class AuthRepositoryImpl implements AuthRepository {
       final result = await authRemoteDataSource.signup(signup);
       return result.fold(
         (error) {
-          // ignore: avoid_print
           print('Remote signup error: $error');
           return Left(ServerFailure());
         },
@@ -93,14 +123,12 @@ class AuthRepositoryImpl implements AuthRepository {
             await authLocalDataSource.cacheRetrivedEmail(retrivedEmail);
             return Right(retrivedEmail);
           } else {
-            // ignore: avoid_print
             print('Email empty retrived!!!!!!!');
             return Left(ServerFailure());
           }
         },
       );
     } catch (e) {
-      // ignore: avoid_print
       print('Repository signup error: $e');
       return Left(ServerFailure());
     }
@@ -141,7 +169,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, AuthToken>> googleAuth(
+  Future<Either<Failure, UserDataDtoEntity>> googleAuth(
       String idToken, String email) async {
     try {
       final result = await authRemoteDataSource.googleAuth(idToken, email);
@@ -172,18 +200,15 @@ class AuthRepositoryImpl implements AuthRepository {
           }
           return Left(UnexpectedFailure());
         },
-        (authTokenModel) {
-          // Check if tokens are present (this should not be necessary now
-          // since we handle empty tokens in the data source, but keeping as a safeguard)
-          if (authTokenModel.accessToken.isNotEmpty &&
-              authTokenModel.refreshToken.isNotEmpty) {
-            // Cache the auth token
-            authLocalDataSource.cacheAuthToken(authTokenModel);
-            return Right(authTokenModel.toEntity());
-          } else {
-            // No tokens - indicate need for registration
-            return Left(RegistrationNeededFailure());
-          }
+        (userData) async {
+          print("✅ Login successful - reaching userData");
+          print("😂 User ID: ${userData.user.id}");
+          print("😂 Profile Image Path: ${userData.user.profileImagePath}");
+          await authLocalDataSource.cacheAuthToken(userData.tokens);
+          await authLocalDataSource.cacheUserId(userData.user.id);
+          await authLocalDataSource
+              .cacheProfileImagePath(userData.user.profileImagePath);
+          return Right(userData.toEntity());
         },
       );
     } catch (e) {

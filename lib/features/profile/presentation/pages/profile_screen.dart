@@ -1430,7 +1430,7 @@ class _VisitorProfileScreenState extends State<ProfileScreen>
     message += "\n\n⬇️ $appLink ⬇️";
 
     // Final call-to-action with stickers
-    message += "\n\n" + _getLocalizedCallToAction(context);
+    message += "\n\n${_getLocalizedCallToAction(context)}";
 
     // Text-only sharing
     await Share.share(
