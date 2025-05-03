@@ -224,7 +224,9 @@ class ChatProvider extends ChangeNotifier {
       );
 
       notifyListeners();
-      // _markUnreadMessagesAsViewed(messages);
+
+      // Mark unread messages as viewed when history loads
+      _markUnreadMessagesAsViewed(messages);
     } catch (e) {
       print('Failed to load chat history: $e');
       _historyState = _historyState.copyWith(
@@ -233,6 +235,32 @@ class ChatProvider extends ChangeNotifier {
       );
       notifyListeners();
     }
+  }
+
+// Add this helper method to mark unread messages as viewed
+  void _markUnreadMessagesAsViewed(List<ChatMessage> messages) {
+    // Find messages from the other user that aren't viewed yet
+    final unreadMessages = messages
+        .where(
+            (msg) => msg.senderId != _currentUserId && msg.status != 'VIEWED')
+        .toList();
+
+    if (unreadMessages.isEmpty) return;
+
+    // Get IDs of messages to mark as viewed
+    final messageIds = unreadMessages.map((msg) => msg.id).toList();
+
+    // Add to processing queue to avoid duplicates
+    final newMessageIds = messageIds
+        .where((id) => !_messageViewedProcessingQueue.contains(id))
+        .toList();
+
+    if (newMessageIds.isEmpty) return;
+
+    newMessageIds.forEach(_messageViewedProcessingQueue.add);
+
+    // Send viewed status to server
+    sendMessageViewedStatus(_currentUserId!, newMessageIds);
   }
 
   Future<void> sendMessage(ChatMessage message) async {

@@ -63,6 +63,71 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
     super.dispose();
   }
 
+// Modified: Build chat details with SAME UI regardless of unread status
+  Widget _buildChatDetails(ChatRoom chatRoom, AppLocalizations locale) {
+    return Expanded(
+      child: Stack(
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Top row: publication title and time/unread indicator
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Publication title - ALWAYS SAME STYLE
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 12),
+                        Text(
+                          chatRoom.publicationTitle,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500, // Always same weight
+                            fontSize: 14,
+                            color: Theme.of(context).colorScheme.secondary,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 2),
+
+              // Publication price
+              Text(
+                formatPrice(chatRoom.publicationPrice.toString()),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.secondary,
+                  fontSize: 15,
+                ),
+              ),
+
+              const SizedBox(height: 2),
+
+              _buildLastMessageIndicator(chatRoom, locale),
+            ],
+          ),
+          // Time and unread count
+          if (chatRoom.lastMessage != null)
+            Positioned(
+                right: 0,
+                bottom: 0,
+                top: 0,
+                child: _buildTimeAndUnreadCount(chatRoom, locale)),
+        ],
+      ),
+    );
+  }
+
   // Format time string based on locale
   String getFormattedTime(BuildContext context, DateTime date) {
     final languageState = context.watch<LanguageBloc>().state;
@@ -220,6 +285,7 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
   }
 
   // Build an individual chat room item
+  // Modified: Build an individual chat room item
   Widget _buildChatRoomItem(ChatRoom chatRoom, AppLocalizations locale) {
     return Card(
       color: AppColors.transparent,
@@ -255,65 +321,8 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
 
               const SizedBox(width: 8),
 
-              // Chat details
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Top row: publication title and time/unread indicator
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Publication title
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height: 12),
-                              Text(
-                                chatRoom.publicationTitle,
-                                style: TextStyle(
-                                  fontWeight: chatRoom.unreadMessages > 0
-                                      ? FontWeight.bold
-                                      : FontWeight.w500,
-                                  fontSize: 14,
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // Time and unread count
-                        if (chatRoom.lastMessage != null)
-                          _buildTimeAndUnreadCount(chatRoom, locale),
-                      ],
-                    ),
-
-                    const SizedBox(height: 2),
-
-                    // Publication price
-                    Text(
-                      formatPrice(chatRoom.publicationPrice.toString()),
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.secondary,
-                        fontSize: 15,
-                      ),
-                    ),
-
-                    const SizedBox(height: 2),
-
-                    // Last message with sender indication and status
-                    _buildLastMessageIndicator(chatRoom, locale),
-                  ],
-                ),
-              ),
+              // Chat details (now using the new method)
+              _buildChatDetails(chatRoom, locale),
             ],
           ),
         ),
@@ -373,12 +382,12 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
     );
   }
 
-  // Build time and unread count indicator
   Widget _buildTimeAndUnreadCount(ChatRoom chatRoom, AppLocalizations locale) {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Time
+        // Time at top
         Padding(
           padding: const EdgeInsets.only(top: 12.0),
           child: Text(
@@ -390,10 +399,10 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
           ),
         ),
 
-        // Unread count badge
+        // Unread count badge at bottom right
         if (chatRoom.unreadMessages > 0)
           Container(
-            margin: const EdgeInsets.only(left: 6, top: 12),
+            margin: const EdgeInsets.only(top: 4),
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.secondary,
@@ -414,7 +423,7 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
     );
   }
 
-  // Build last message preview with status indicators
+// Build last message preview with status indicators
   Widget _buildLastMessageIndicator(
       ChatRoom chatRoom, AppLocalizations locale) {
     if (chatRoom.lastMessage == null) {
@@ -422,7 +431,7 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
         locale.noMessagesYet,
         style: TextStyle(
           color: Colors.grey[600],
-          fontSize: 14,
+          fontSize: 12,
         ),
       );
     }
@@ -457,17 +466,14 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
         overflow: TextOverflow.ellipsis,
       );
     }
-    // Message received from other user
+    // Message received from other user - SAME UI REGARDLESS OF UNREAD STATUS
     else {
       return Text(
         chatRoom.lastMessage!.content,
         style: TextStyle(
-          color: chatRoom.unreadMessages > 0
-              ? Theme.of(context).colorScheme.secondary
-              : Colors.grey[600],
+          color: Colors.grey[600], // Always same color
           fontSize: 12,
-          fontWeight:
-              chatRoom.unreadMessages > 0 ? FontWeight.bold : FontWeight.normal,
+          fontWeight: FontWeight.normal, // Always same weight
           fontFamily: Constants.Arial,
         ),
         maxLines: 1,
@@ -483,14 +489,14 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
         return const TextSpan(
           text: ' ✓✓',
           style: TextStyle(
-            color: Colors.blue,
+            color: Colors.grey,
             fontSize: 12,
             fontFamily: Constants.Arial,
           ),
         );
       case 'DELIVERED':
         return const TextSpan(
-          text: ' ✓✓',
+          text: ' ✓',
           style: TextStyle(
             color: Colors.grey,
             fontSize: 12,
@@ -499,7 +505,7 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
         );
       case 'SENT':
         return const TextSpan(
-          text: ' ✓',
+          text: ' 🕔',
           style: TextStyle(
             color: Colors.grey,
             fontSize: 12,
