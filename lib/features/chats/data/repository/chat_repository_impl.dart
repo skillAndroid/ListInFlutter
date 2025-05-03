@@ -17,15 +17,36 @@ class ChatRepositoryImpl implements ChatRepository {
   bool _isConnected = false;
   String? _initializedUserId;
   Completer<void>? _initialConnectionCompleter;
+  // Add connection status tracking
+  final _connectionStatusController = StreamController<bool>.broadcast();
+  StreamSubscription<bool>? _remoteConnectionSubscription;
 
+  Stream<bool> get connectionStatusStream => _connectionStatusController.stream;
   ChatRepositoryImpl({
     required this.remoteDataSource,
     required this.authLocalDataSource,
     required this.currentUserId,
-  });
+  }) {
+    // Listen to remote data source connection status
+    _remoteConnectionSubscription =
+        remoteDataSource.connectionStatusStream.listen(
+      (isConnected) {
+        _isConnected = isConnected;
+        if (!_connectionStatusController.isClosed) {
+          _connectionStatusController.add(isConnected);
+        }
+      },
+    );
+  }
 
   @override
   Future<void> initializeWebSocket(String userId) async {
+    // Don't initialize if we're already initializing
+    if (_initializing) {
+      await _initialConnectionCompleter?.future;
+      return;
+    }
+
     if (_initializedUserId == userId && !_initializing && _isConnected) {
       print('Repository: WebSocket already initialized for user $userId');
       return;
@@ -50,9 +71,34 @@ class ChatRepositoryImpl implements ChatRepository {
       if (!_initialConnectionCompleter!.isCompleted) {
         _initialConnectionCompleter!.completeError(e);
       }
-      throw e;
+      rethrow;
     } finally {
       _initializing = false;
+    }
+  }
+
+// Add method to force reconnection
+  Future<void> forceReconnect() async {
+    try {
+      await closeConnection();
+      if (_initializedUserId != null) {
+        await initializeWebSocket(_initializedUserId!);
+      }
+    } catch (e) {
+      print('Repository: Error during force reconnect: $e');
+      rethrow;
+    }
+  }
+
+  // Add connection health check
+  Future<bool> checkConnectionHealth() async {
+    if (!_isConnected) return false;
+
+    try {
+      return await remoteDataSource.checkConnectionHealth();
+    } catch (e) {
+      print('Repository: Connection health check failed: $e');
+      return false;
     }
   }
 
@@ -73,17 +119,30 @@ class ChatRepositoryImpl implements ChatRepository {
     return _isConnected;
   }
 
+  // Enhanced method with connection check
   @override
   Future<List<ChatRoom>> getChatRooms(String userId) async {
     try {
-      await initializeWebSocket(userId);
-      print('Repository: Getting chat rooms for user $userId');
+      // Check if we need to reconnect
+      if (!_isConnected || !remoteDataSource.isWebSocketReady()) {
+        print('Repository: Connection not ready, initializing...');
+        await initializeWebSocket(userId);
+      }
 
+      print('Repository: Getting chat rooms for user $userId');
       final remoteRooms = await remoteDataSource.getChatRooms(userId);
       return remoteRooms;
     } catch (e) {
       print('Repository: Error getting chat rooms: $e');
-      // If both fail, return empty list
+      // If connection fails, try to reconnect once
+      if (e.toString().contains('WebSocket')) {
+        try {
+          await forceReconnect();
+          return await remoteDataSource.getChatRooms(userId);
+        } catch (reconnectError) {
+          print('Repository: Reconnection failed: $reconnectError');
+        }
+      }
       return [];
     }
   }
@@ -135,13 +194,19 @@ class ChatRepositoryImpl implements ChatRepository {
     }
   }
 
+  // Similar enhancements for other methods...
   @override
   Future<void> sendMessage(ChatMessage message) async {
     try {
       await initializeWebSocket(message.senderId);
+
+      // Verify connection before sending
+      if (!_isConnected || !remoteDataSource.isWebSocketReady()) {
+        throw Exception('WebSocket not ready to send message');
+      }
+
       print(
           'Repository: Sending message from ${message.senderId} to ${message.recipientId}: ${message.content}');
-
       await remoteDataSource.sendMessage(
         messageId: message.id,
         senderId: message.senderId,
@@ -151,7 +216,7 @@ class ChatRepositoryImpl implements ChatRepository {
       );
     } catch (e) {
       print('Repository: Error sending message: $e');
-      throw e;
+      rethrow;
     }
   }
 

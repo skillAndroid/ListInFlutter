@@ -19,6 +19,10 @@ class ChatRemoteDataSource {
   final String baseUrl = 'http://listin.uz';
   StompClient? _stompClient;
   bool _isConnected = false;
+  bool _isConnecting = false;
+  Timer? _reconnectionTimer;
+  final _connectionStatusController = StreamController<bool>.broadcast();
+  Stream<bool> get connectionStatusStream => _connectionStatusController.stream;
 
   final _messageStreamController =
       StreamController<ChatMessageModel>.broadcast();
@@ -51,15 +55,36 @@ class ChatRemoteDataSource {
   });
 
   final Set<String> _activeSubscriptionDestinations = {};
+  // Add a method to check if WebSocket is ready
+  bool isWebSocketReady() {
+    return _isConnected && _stompClient != null && !_isConnecting;
+  }
+
+  // Add connection status change notification
+  void _notifyConnectionStatus(bool isConnected) {
+    if (!_connectionStatusController.isClosed) {
+      _connectionStatusController.add(isConnected);
+    }
+  }
 
   Future<void> initializeWebSocket(String userId) async {
     if (_isConnected && _stompClient != null) {
       print('WebSocket already connected');
+      _notifyConnectionStatus(true);
       return;
     }
 
+    if (_isConnecting) {
+      print('WebSocket connection already in progress');
+      return;
+    }
+
+    _isConnecting = true;
+    _notifyConnectionStatus(false);
+
     final authToken = await authLocalDataSource.getLastAuthToken();
     if (authToken == null) {
+      _isConnecting = false;
       throw UnauthorizedException('No auth token found');
     }
 
@@ -68,7 +93,7 @@ class ChatRemoteDataSource {
     int retryCount = 0;
     Duration delay = initialRetryDelay;
 
-    while (retryCount < maxRetryAttempts) {
+    while (retryCount < maxRetryAttempts && !_isConnected) {
       try {
         _stompClient = StompClient(
           config: StompConfig(
@@ -81,106 +106,48 @@ class ChatRemoteDataSource {
             onWebSocketError: (dynamic error) {
               print('WebSocket Error: $error');
               _isConnected = false;
+              _notifyConnectionStatus(false);
             },
             onStompError: (StompFrame frame) {
               print('STOMP Error: ${frame.body}');
+              _isConnected = false;
+              _notifyConnectionStatus(false);
             },
             onConnect: (StompFrame frame) async {
               _isConnected = true;
+              _isConnecting = false;
+              _notifyConnectionStatus(true);
               print('Connected to WebSocket');
 
-              _subscribeToDestination('/user/$userId/queue/messages', (frame) {
-                if (frame.body != null) {
-                  try {
-                    final message =
-                        ChatMessageModel.fromJson(jsonDecode(frame.body!));
-                    print('Parsed private message: ${message.content}');
-                    _messageStreamController.add(message);
-                  } catch (e) {
-                    print('Error parsing private message: $e');
-                  }
-                }
-              });
-
-              // Add new subscription for delivered messages
-              _subscribeToDestination('/user/$userId/queue/messages/delivered',
-                  (frame) {
-                if (frame.body != null) {
-                  try {
-                    print('Received delivered message: ${frame.body}');
-                    final message =
-                        ChatMessageModel.fromJson(jsonDecode(frame.body!));
-                    print(
-                        'Message marked as delivered: ${message.id} - ${message.content}');
-                    print(
-                        'Message marked as delivered: ${message.id} - ${message.id}');
-
-                    _messageDeliveredStreamController.add(message);
-                  } catch (e) {
-                    print('Error parsing delivered message: $e');
-                    print('Raw delivered data: ${frame.body}');
-                  }
-                }
-              });
-
-              _subscribeToDestination('/user/$userId/queue/messages/status',
-                  (frame) {
-                if (frame.body != null) {
-                  try {
-                    // Parse the JSON into a Map
-                    final Map<String, dynamic> data = jsonDecode(frame.body!);
-
-                    // Extract the messageIds array from the response
-                    if (data.containsKey('messageIds') &&
-                        data['messageIds'] is List) {
-                      final List<dynamic> messageIdsList = data['messageIds'];
-                      final List<String> viewedMessageIds =
-                          messageIdsList.map((id) => id.toString()).toList();
-
-                      print(
-                          'Received viewed status for messages: $viewedMessageIds');
-
-                      // Add the message IDs to the stream
-                      _messageStatusStreamController.add(viewedMessageIds);
-                    } else {
-                      print(
-                          'Message status update missing messageIds field: $data');
-                    }
-                  } catch (e) {
-                    print('Error parsing message status update: $e');
-                    print('Original data: ${frame.body}');
-                  }
-                }
-              });
-              _subscribeToDestination('/topic/user-status', (StompFrame frame) {
-                if (frame.body != null) {
-                  try {
-                    final data = jsonDecode(frame.body!);
-                    final userStatus = UserConnectionInfo(
-                      nickName: data['nickName'],
-                      email: data['email'],
-                      status: data['status'] == 'ONLINE'
-                          ? UserStatus.ONLINE
-                          : UserStatus.OFFLINE,
-                    );
-                    _userStatusStreamController.add(userStatus);
-                  } catch (e) {
-                    print('Error parsing user status: $e');
-                  }
-                }
-              });
+              // Re-subscribe to all previous destinations
+              _resubscribeAll(userId);
+            },
+            onDisconnect: (StompFrame? frame) {
+              _isConnected = false;
+              _isConnecting = false;
+              _notifyConnectionStatus(false);
+              print('Disconnected from WebSocket');
             },
             reconnectDelay: Duration(seconds: 5),
           ),
         );
 
         _stompClient!.activate();
-        break;
+
+        // Wait for connection to be established
+        await Future.delayed(Duration(seconds: 2));
+
+        if (_isConnected) {
+          break;
+        }
       } catch (e) {
         print('Error initializing WebSocket (Attempt ${retryCount + 1}): $e');
+        _isConnected = false;
+        _notifyConnectionStatus(false);
 
         retryCount++;
         if (retryCount >= maxRetryAttempts) {
+          _isConnecting = false;
           print('Max retry attempts reached. Failed to connect.');
           throw Exception(
               'Failed to initialize WebSocket after $maxRetryAttempts attempts: $e');
@@ -189,6 +156,84 @@ class ChatRemoteDataSource {
         delay *= 2;
       }
     }
+  }
+
+  // Add method to resubscribe to all destinations
+  void _resubscribeAll(String userId) {
+    // Clear existing subscriptions
+    _activeSubscriptionDestinations.clear();
+    _subscribeToDestination('/user/$userId/queue/messages', (frame) {
+      if (frame.body != null) {
+        try {
+          final message = ChatMessageModel.fromJson(jsonDecode(frame.body!));
+          print('Parsed private message: ${message.content}');
+          _messageStreamController.add(message);
+        } catch (e) {
+          print('Error parsing private message: $e');
+        }
+      }
+    });
+
+    // Add new subscription for delivered messages
+    _subscribeToDestination('/user/$userId/queue/messages/delivered', (frame) {
+      if (frame.body != null) {
+        try {
+          print('Received delivered message: ${frame.body}');
+          final message = ChatMessageModel.fromJson(jsonDecode(frame.body!));
+          print(
+              'Message marked as delivered: ${message.id} - ${message.content}');
+          print('Message marked as delivered: ${message.id} - ${message.id}');
+
+          _messageDeliveredStreamController.add(message);
+        } catch (e) {
+          print('Error parsing delivered message: $e');
+          print('Raw delivered data: ${frame.body}');
+        }
+      }
+    });
+
+    _subscribeToDestination('/user/$userId/queue/messages/status', (frame) {
+      if (frame.body != null) {
+        try {
+          // Parse the JSON into a Map
+          final Map<String, dynamic> data = jsonDecode(frame.body!);
+
+          // Extract the messageIds array from the response
+          if (data.containsKey('messageIds') && data['messageIds'] is List) {
+            final List<dynamic> messageIdsList = data['messageIds'];
+            final List<String> viewedMessageIds =
+                messageIdsList.map((id) => id.toString()).toList();
+
+            print('Received viewed status for messages: $viewedMessageIds');
+
+            // Add the message IDs to the stream
+            _messageStatusStreamController.add(viewedMessageIds);
+          } else {
+            print('Message status update missing messageIds field: $data');
+          }
+        } catch (e) {
+          print('Error parsing message status update: $e');
+          print('Original data: ${frame.body}');
+        }
+      }
+    });
+    _subscribeToDestination('/topic/user-status', (StompFrame frame) {
+      if (frame.body != null) {
+        try {
+          final data = jsonDecode(frame.body!);
+          final userStatus = UserConnectionInfo(
+            nickName: data['nickName'],
+            email: data['email'],
+            status: data['status'] == 'ONLINE'
+                ? UserStatus.ONLINE
+                : UserStatus.OFFLINE,
+          );
+          _userStatusStreamController.add(userStatus);
+        } catch (e) {
+          print('Error parsing user status: $e');
+        }
+      }
+    });
   }
 
   void _subscribeToDestination(
@@ -212,12 +257,30 @@ class ChatRemoteDataSource {
     print('Subscribed to $destination');
   }
 
+  // Enhanced disconnect method
   Future<void> disconnectWebSocket() async {
     if (_stompClient != null) {
       _activeSubscriptionDestinations.clear();
       _stompClient!.deactivate();
       _isConnected = false;
+      _notifyConnectionStatus(false);
       print('WebSocket disconnected');
+    }
+  }
+
+  // Add connection health check
+  Future<bool> checkConnectionHealth() async {
+    if (!_isConnected || _stompClient == null) {
+      return false;
+    }
+
+    try {
+      // Try to send a small test message or check connection state
+      // You might want to add a ping/pong mechanism if your server supports it
+      return true;
+    } catch (e) {
+      print('Connection health check failed: $e');
+      return false;
     }
   }
 
@@ -384,6 +447,8 @@ class ChatRemoteDataSource {
   }
 
   void dispose() {
+    _reconnectionTimer?.cancel();
+    _connectionStatusController.close();
     _messageStreamController.close();
     _userStatusStreamController.close();
     _messageStatusStreamController.close();

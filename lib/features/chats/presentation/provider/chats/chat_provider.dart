@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:list_in/features/chats/domain/entity/chat_message.dart';
 import 'package:list_in/features/chats/domain/entity/chat_room.dart';
@@ -20,7 +21,7 @@ import 'package:list_in/features/chats/domain/usecase/send_message_viewed_usecas
 import 'package:list_in/features/chats/presentation/provider/chats/chat_history_state.dart';
 import 'package:list_in/features/chats/presentation/provider/chats/chat_rooms_state.dart';
 
-class ChatProvider extends ChangeNotifier {
+class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   final GetChatRoomsUseCase getChatRoomsUseCase;
   final GetChatHistoryUseCase getChatHistoryUseCase;
   final SendMessageUseCase sendMessageUseCase;
@@ -56,6 +57,15 @@ class ChatProvider extends ChangeNotifier {
   final Set<String> _messageViewedProcessingQueue = HashSet<String>();
   final Map<String, UserStatus> _userStatuses = {};
 
+  // Auto-reconnection fields
+  late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
+  bool _isReconnecting = false;
+  Timer? _reconnectionTimer;
+
+  // Repository connection monitoring
+  StreamSubscription<bool>? _repositoryConnectionSubscription;
+  bool _repositoryIsConnected = false;
+
   // Constructor
   ChatProvider({
     required this.getChatRoomsUseCase,
@@ -68,11 +78,157 @@ class ChatProvider extends ChangeNotifier {
     required this.sendMessageViewedStatusUseCase,
     required this.getMessageStatusStreamUseCase,
     required this.getMessageDeliveredStreamUseCase,
-  });
+  }) {
+    // Register lifecycle observer
+    WidgetsBinding.instance.addObserver(this);
+
+    // Initialize connectivity listener
+    _initializeConnectivityListener();
+
+    // Monitor repository connection status
+    _initializeRepositoryMonitoring();
+  }
+
+  // Initialize connectivity monitoring
+  void _initializeConnectivityListener() {
+    _connectivitySubscription =
+        Connectivity().onConnectivityChanged.listen((results) {
+      _handleConnectivityChange(results);
+    });
+  }
+
+  // Initialize repository connection monitoring
+  void _initializeRepositoryMonitoring() {
+    // If you have access to repository connection status, uncomment this:
+    // _repositoryConnectionSubscription = getChatRoomsUseCase.repository.connectionStatusStream.listen(
+    //   (isConnected) {
+    //     _repositoryIsConnected = isConnected;
+    //
+    //     if (!isConnected) {
+    //       print('Repository connection lost, attempting reconnection...');
+    //       _handleRepositoryDisconnection();
+    //     } else {
+    //       print('Repository connection restored');
+    //     }
+    //   },
+    // );
+  }
+
+  // Handle connectivity changes
+  void _handleConnectivityChange(List<ConnectivityResult> results) {
+    final hasConnection = results.any((result) =>
+        result == ConnectivityResult.mobile ||
+        result == ConnectivityResult.wifi ||
+        result == ConnectivityResult.ethernet ||
+        result == ConnectivityResult.vpn);
+
+    if (hasConnection && _isInitialized && !_isReconnecting) {
+      print('🌐 Internet connection restored, attempting to reconnect...');
+      _attemptReconnection();
+    }
+  }
+
+  // Handle app lifecycle changes
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    switch (state) {
+      case AppLifecycleState.resumed:
+        print('📱 App resumed from background');
+        if (_isInitialized && !_isReconnecting) {
+          _attemptReconnection();
+        }
+        break;
+      case AppLifecycleState.paused:
+        print('📱 App going to background');
+        // Optionally disconnect or mark user as away
+        if (_currentUserId != null) {
+          connectUserUseCase
+              .execute(UserConnectionInfo(
+                email: _currentUserId!,
+                nickName: '',
+                status: UserStatus.OFFLINE,
+              ))
+              .catchError((e) => print('Error setting away status: $e'));
+        }
+        break;
+      case AppLifecycleState.detached:
+        print('📱 App detached');
+        _cleanupConnections();
+        break;
+      default:
+        break;
+    }
+  }
+
+  // Attempt to reconnect
+  Future<void> _attemptReconnection() async {
+    if (_isReconnecting || _currentUserId == null) return;
+
+    _isReconnecting = true;
+    print('🔄 Attempting to reconnect...');
+
+    try {
+      // 1. Unsubscribe from all streams
+      _unsubscribeFromStreams();
+
+      // 2. Mark the chat as not initialized
+      _isInitialized = false;
+
+      // 3. Wait a short delay for connection to stabilize
+      await Future.delayed(Duration(seconds: 2));
+
+      // 4. Re-initialize chat
+      await initializeChat(_currentUserId!);
+
+      // 5. Reload chat rooms
+      await loadChatRooms(_currentUserId!);
+
+      // 6. If we were in a specific chat, reload its history
+      if (_currentPublicationId != null && _currentChatRecipientId != null) {
+        await loadChatHistory(
+          publicationId: _currentPublicationId!,
+          senderId: _currentUserId!,
+          recipientId: _currentChatRecipientId!,
+        );
+      }
+
+      print('✅ Successfully reconnected');
+    } catch (e) {
+      print('❌ Reconnection failed: $e');
+      _scheduleReconnectionRetry();
+    } finally {
+      _isReconnecting = false;
+    }
+  }
+
+  // Schedule a reconnection retry with exponential backoff
+  void _scheduleReconnectionRetry() {
+    _reconnectionTimer?.cancel();
+
+    // Exponential backoff: start with 5 seconds, max 60 seconds
+    final delay = Duration(seconds: 5);
+
+    print('⏱️ Scheduling reconnection retry in ${delay.inSeconds} seconds');
+
+    _reconnectionTimer = Timer(delay, () {
+      if (_currentUserId != null && !_isReconnecting) {
+        _attemptReconnection();
+      }
+    });
+  }
+
+  // Add method to manually trigger reconnection
+  Future<void> forceReconnect() async {
+    if (_currentUserId != null) {
+      _attemptReconnection();
+    }
+  }
 
   // Initialize chat system with current user ID
   Future<void> initializeChat(String userId) async {
-    if (_isInitialized && _currentUserId == userId) {
+    if (_isInitialized && _currentUserId == userId && !_isReconnecting) {
       print('Chat already initialized for user $userId');
       return;
     }
@@ -92,9 +248,15 @@ class ChatProvider extends ChangeNotifier {
 
       _isInitialized = true;
       print('Chat initialized for user $userId');
+
+      // Clear any scheduled reconnection
+      _reconnectionTimer?.cancel();
     } catch (e) {
       print('Failed to initialize chat: $e');
-      // We don't rethrow to prevent UI crashes, but we set the error in state if needed
+      _isInitialized = false;
+
+      // Try to reconnect after a delay
+      _scheduleReconnectionRetry();
     }
   }
 
@@ -111,6 +273,7 @@ class ChatProvider extends ChangeNotifier {
       },
       onError: (error) {
         print('❌ Message stream error: $error');
+        _scheduleReconnectionRetry();
       },
     );
 
@@ -123,6 +286,7 @@ class ChatProvider extends ChangeNotifier {
       },
       onError: (error) {
         print('❌ Message delivery stream error: $error');
+        _scheduleReconnectionRetry();
       },
     );
 
@@ -133,6 +297,7 @@ class ChatProvider extends ChangeNotifier {
       },
       onError: (error) {
         print('❌ Message status stream error: $error');
+        _scheduleReconnectionRetry();
       },
     );
 
@@ -145,6 +310,7 @@ class ChatProvider extends ChangeNotifier {
       },
       onError: (error) {
         print('❌ User status stream error: $error');
+        _scheduleReconnectionRetry();
       },
     );
   }
@@ -237,7 +403,7 @@ class ChatProvider extends ChangeNotifier {
     }
   }
 
-// Add this helper method to mark unread messages as viewed
+  // Add this helper method to mark unread messages as viewed
   void _markUnreadMessagesAsViewed(List<ChatMessage> messages) {
     // Find messages from the other user that aren't viewed yet
     final unreadMessages = messages
@@ -269,6 +435,9 @@ class ChatProvider extends ChangeNotifier {
     }
 
     try {
+      // Check if history was empty before sending
+      final bool wasHistoryEmpty = _historyState.messages.isEmpty;
+
       final optimisticMessage = message.copyWith(status: 'SENDING');
       final updatedMessages = List<ChatMessage>.from(_historyState.messages)
         ..add(optimisticMessage);
@@ -283,6 +452,11 @@ class ChatProvider extends ChangeNotifier {
 
       final sentMessage = optimisticMessage.copyWith(status: 'SENT');
       _updateMessageStatus(sentMessage);
+
+      // If history was empty before sending, reload rooms when message is delivered
+      if (wasHistoryEmpty) {
+        _waitForDeliveryAndReloadRooms(sentMessage.id, message.senderId);
+      }
     } catch (e) {
       print('Failed to send message: $e');
 
@@ -297,9 +471,32 @@ class ChatProvider extends ChangeNotifier {
     }
   }
 
-  // HANDLE INCOMING EVENTS
+  // Helper method to wait for delivery and reload rooms
+  void _waitForDeliveryAndReloadRooms(String messageId, String userId) {
+    // Store current delivery subscription if needed
+    StreamSubscription<ChatMessage>? deliverySubscription;
 
-// Process incoming new messages
+    deliverySubscription = getMessageDeliveredStreamUseCase.execute().listen(
+      (deliveredMessage) {
+        if (deliveredMessage.id == messageId) {
+          print('📫 Message delivered, reloading rooms...');
+          loadChatRooms(userId);
+          deliverySubscription?.cancel();
+        }
+      },
+      onError: (error) {
+        print('❌ Delivery tracking error: $error');
+        deliverySubscription?.cancel();
+      },
+    );
+
+    // Cancel after 30 seconds if not delivered
+    Future.delayed(Duration(seconds: 30), () {
+      deliverySubscription?.cancel();
+    });
+  }
+
+  // Process incoming new messages
   void _handleIncomingMessage(ChatMessage message) {
     // 1. Add message to current chat if we're in the right conversation
     final bool isInRelevantChat = _isInRelevantChatContext(message);
@@ -497,9 +694,31 @@ class ChatProvider extends ChangeNotifier {
     }
   }
 
+  // Enhanced cleanup method
+  void _cleanupConnections() {
+    if (_currentUserId != null) {
+      // Mark user as offline before cleaning up
+      disconnectUserUseCase
+          .execute(UserConnectionInfo(
+            email: _currentUserId!,
+            nickName: '',
+            status: UserStatus.OFFLINE,
+          ))
+          .catchError((e) => print('Error setting offline status: $e'));
+    }
+
+    _unsubscribeFromStreams();
+    _isInitialized = false;
+  }
+
   @override
   void dispose() {
-    _unsubscribeFromStreams();
+    // Clean up everything
+    _cleanupConnections();
+    _connectivitySubscription.cancel();
+    _reconnectionTimer?.cancel();
+    _repositoryConnectionSubscription?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 }

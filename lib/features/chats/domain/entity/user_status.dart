@@ -6,6 +6,7 @@
 enum UserStatus {
   ONLINE,
   OFFLINE,
+  CONNECTING,
 }
 
 class UserConnectionInfo {
