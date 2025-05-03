@@ -12,6 +12,7 @@ import 'package:list_in/features/chats/domain/entity/chat_message.dart';
 import 'package:list_in/features/chats/domain/entity/user_status.dart';
 import 'package:list_in/features/chats/presentation/provider/chats/chat_provider.dart';
 import 'package:list_in/features/chats/presentation/widgets/message_bubble.dart';
+import 'package:list_in/features/explore/presentation/widgets/progress.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_corner_updated/smooth_corner.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -281,7 +282,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   Widget _buildPublicationBanner() {
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor.withOpacity(0.7),
+        color: Theme.of(context).cardColor.withOpacity(0.6),
         border: Border(
           bottom: BorderSide(
             color: Colors.grey.withOpacity(0.2),
@@ -418,9 +419,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                   final state = provider.historyState;
 
                   if (state.isLoading) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
+                    return const Progress();
                   } else if (state.messages.isEmpty) {
                     return Center(
                       child: Column(
