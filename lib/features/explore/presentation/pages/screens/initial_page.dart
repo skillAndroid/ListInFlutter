@@ -330,7 +330,6 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
         edgeOffset: 10,
         triggerMode: RefreshIndicatorTriggerMode.anywhere,
         onRefresh: () {
-          context.read<HomeTreeCubit>().fetchVideoFeeds(0);
           return Future.sync(() => _pagingState.pagingController.refresh());
         },
         child: CustomScrollView(

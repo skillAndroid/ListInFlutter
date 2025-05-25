@@ -45,10 +45,10 @@ class _MainWrapperState extends State<MainWrapper> {
           branchIndex = 1;
           break;
         case 3: // Chats
-          branchIndex = 2;
+          branchIndex = 3;
           break;
         case 4: // Profile
-          branchIndex = 3;
+          branchIndex = 4;
           break;
         default:
           branchIndex = 0;
