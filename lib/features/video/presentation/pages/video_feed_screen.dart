@@ -25,15 +25,8 @@ import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 
 class ListInShorts extends StatefulWidget {
-  final List<GetPublicationEntity> initialVideos;
-  final int initialPage;
-  final int initialIndex;
-
   const ListInShorts({
     super.key,
-    required this.initialVideos,
-    this.initialPage = 0,
-    this.initialIndex = 0,
   });
 
   @override
@@ -49,8 +42,8 @@ class _ListInShortsState extends State<ListInShorts>
   int _currentIndex = 0;
   bool _isLoading = false;
   bool _isDisposed = false;
-
-  final int _forwardPreloadCount = 2;
+  bool _initialVideosFetched = false; // Add this flag
+  final int _forwardPreloadCount = 1;
   final int _backwardKeepCount = 1;
 
   // MediaKit player and controller management
@@ -64,19 +57,27 @@ class _ListInShortsState extends State<ListInShorts>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
-    _currentIndex = widget.initialIndex;
-    _videos = List.from(widget.initialVideos);
+    _currentIndex = 0;
     _homeTreeCubit = context.read<HomeTreeCubit>();
     _pageController = PageController(initialPage: _currentIndex);
 
-    // Initialize visible videos after the first frame is rendered
+    // Fetch videos first, then initialize players
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!_isDisposed) {
-        _loadCurrentAndPreloadVideos();
+        _fetchInitialVideos();
       }
     });
 
     _setupNavigationObserver();
+  }
+
+  void _fetchInitialVideos() {
+    debugPrint('🎬 Fetching initial videos...');
+    setState(() {
+      _isLoading = true;
+    });
+
+    _homeTreeCubit.fetchVideoFeeds(0);
   }
 
   void _setupNavigationObserver() {
@@ -102,8 +103,13 @@ class _ListInShortsState extends State<ListInShorts>
     }
   }
 
-// Main method for loading current video and preloading next videos
+  // Modified method - only call after videos are fetched
   void _loadCurrentAndPreloadVideos() {
+    if (_videos.isEmpty) {
+      debugPrint('⚠️ No videos available to load');
+      return;
+    }
+
     debugPrint('🎬 Loading current video: $_currentIndex');
 
     // First, load the current video
@@ -712,26 +718,47 @@ class _ListInShortsState extends State<ListInShorts>
         if (state.videoPublicationsRequestState == RequestState.completed) {
           final newVideos = state.videoPublications;
 
-          // Add only new unique videos
-          final uniqueNewVideos = newVideos.where((newVideo) =>
-              !_videos.any((existingVideo) => existingVideo.id == newVideo.id));
-
-          if (uniqueNewVideos.isNotEmpty) {
+          if (!_initialVideosFetched) {
+            // First time loading videos
+            debugPrint('✅ Initial videos fetched: ${newVideos.length}');
             setState(() {
-              _videos.addAll(uniqueNewVideos);
+              _videos = List.from(newVideos);
               _isLoading = false;
+              _initialVideosFetched = true;
             });
 
-            // Initialize new videos if they're within preload range
-            if (_currentIndex + _forwardPreloadCount >=
-                _videos.length - uniqueNewVideos.length) {
+            // Now start loading and playing videos
+            if (_videos.isNotEmpty && !_isDisposed) {
               _loadCurrentAndPreloadVideos();
             }
           } else {
-            setState(() {
-              _isLoading = false;
-            });
+            // Loading more videos (pagination)
+            final uniqueNewVideos = newVideos.where((newVideo) => !_videos
+                .any((existingVideo) => existingVideo.id == newVideo.id));
+
+            if (uniqueNewVideos.isNotEmpty) {
+              setState(() {
+                _videos.addAll(uniqueNewVideos);
+                _isLoading = false;
+              });
+
+              // Initialize new videos if they're within preload range
+              if (_currentIndex + _forwardPreloadCount >=
+                  _videos.length - uniqueNewVideos.length) {
+                _loadCurrentAndPreloadVideos();
+              }
+            } else {
+              setState(() {
+                _isLoading = false;
+              });
+            }
           }
+        } else if (state.videoPublicationsRequestState == RequestState.error) {
+          // Handle error state
+          setState(() {
+            _isLoading = false;
+          });
+          debugPrint('❌ Failed to fetch videos');
         }
       },
       child: SafeArea(
@@ -740,69 +767,123 @@ class _ListInShortsState extends State<ListInShorts>
           backgroundColor: Colors.black,
           extendBodyBehindAppBar: true,
           appBar: AppBar(
+            automaticallyImplyLeading: false,
             backgroundColor: Colors.transparent,
             elevation: 0,
             scrolledUnderElevation: 0,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back_rounded,
-                  color: Colors.white, size: 28),
-              onPressed: () => context.pop(),
-            ),
           ),
-          body: PageView.builder(
-            controller: _pageController,
-            itemCount: _videos.length,
-            onPageChanged: _handlePageChange,
-            scrollDirection: Axis.vertical,
-            physics: const BouncingScrollPhysics(
-              parent: AlwaysScrollableScrollPhysics(),
-              decelerationRate: ScrollDecelerationRate.fast,
-            ),
-            itemBuilder: (context, index) {
-              final bool isVideoInitialized =
-                  _videoInitialized[index] == true &&
-                      _controllers.containsKey(index);
-
-              return Stack(
-                children: [
-                  Center(
-                    child: isVideoInitialized
-                        ? Video(
-                            controller: _controllers[index]!,
-                            fit: BoxFit.contain,
-                            controls: null, // No default controls
-                          )
-                        : _buildPlaceholder(index),
-                  ),
-
-                  // Gradient overlay for better text visibility
-                  Positioned.fill(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.center,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.transparent,
-                            Colors.transparent,
-                            Colors.black.withOpacity(0.005),
-                            Colors.black.withOpacity(0.15),
-                          ],
-                        ),
+          body: _videos.isEmpty && _isLoading
+              ? _buildInitialLoadingScreen()
+              : _videos.isEmpty
+                  ? _buildEmptyState()
+                  : PageView.builder(
+                      controller: _pageController,
+                      itemCount: _videos.length,
+                      onPageChanged: _handlePageChange,
+                      scrollDirection: Axis.vertical,
+                      physics: const BouncingScrollPhysics(
+                        parent: AlwaysScrollableScrollPhysics(),
+                        decelerationRate: ScrollDecelerationRate.fast,
                       ),
+                      itemBuilder: (context, index) {
+                        final bool isVideoInitialized =
+                            _videoInitialized[index] == true &&
+                                _controllers.containsKey(index);
+
+                        return Stack(
+                          children: [
+                            Center(
+                              child: isVideoInitialized
+                                  ? Video(
+                                      controller: _controllers[index]!,
+                                      fit: BoxFit.contain,
+                                      controls: null, // No default controls
+                                    )
+                                  : _buildPlaceholder(index),
+                            ),
+
+                            // Gradient overlay for better text visibility
+                            Positioned.fill(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.center,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      Colors.transparent,
+                                      Colors.transparent,
+                                      Colors.black.withOpacity(0.005),
+                                      Colors.black.withOpacity(0.15),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                            // Play/pause overlay
+                            _buildPlayPauseOverlay(index),
+
+                            // Video info (user, product)
+                            _buildVideoInfo(index),
+                          ],
+                        );
+                      },
                     ),
-                  ),
-
-                  // Play/pause overlay
-                  _buildPlayPauseOverlay(index),
-
-                  // Video info (user, product)
-                  _buildVideoInfo(index),
-                ],
-              );
-            },
-          ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildInitialLoadingScreen() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircularProgressIndicator(
+            strokeWidth: 3,
+            valueColor: AlwaysStoppedAnimation<Color>(AppColors.white),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Loading videos...',
+            style: TextStyle(
+              color: AppColors.white,
+              fontSize: 16,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.video_library_outlined,
+            color: AppColors.white.withOpacity(0.6),
+            size: 64,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'No videos available',
+            style: TextStyle(
+              color: AppColors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Check back later for new content',
+            style: TextStyle(
+              color: AppColors.white.withOpacity(0.7),
+              fontSize: 14,
+            ),
+          ),
+        ],
       ),
     );
   }

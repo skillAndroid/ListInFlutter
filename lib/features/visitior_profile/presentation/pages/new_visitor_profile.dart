@@ -2086,9 +2086,8 @@ class AboutTabContent extends StatelessWidget {
                           cornerSmoothing: 0.7,
                         ),
                       ),
-                      backgroundColor: isPartner
-                          ? AppColors.primaryLight2
-                          : AppColors.primaryLight2,
+                      backgroundColor:
+                          isPartner ? AppColors.primary : AppColors.primary,
                       foregroundColor:
                           Theme.of(context).scaffoldBackgroundColor,
                       padding: EdgeInsets.symmetric(
@@ -2141,9 +2140,8 @@ class AboutTabContent extends StatelessWidget {
                       shape: SmoothRectangleBorder(
                         side: BorderSide(
                           width: 1,
-                          color: isPartner
-                              ? AppColors.primaryLight2
-                              : AppColors.primaryLight2,
+                          color:
+                              isPartner ? AppColors.primary : AppColors.primary,
                           strokeAlign: BorderSide.strokeAlignCenter,
                         ),
                         borderRadius: SmoothBorderRadius(
@@ -2153,9 +2151,8 @@ class AboutTabContent extends StatelessWidget {
                       ),
                       backgroundColor:
                           Theme.of(context).scaffoldBackgroundColor,
-                      foregroundColor: isPartner
-                          ? AppColors.primaryLight2
-                          : AppColors.primaryLight2,
+                      foregroundColor:
+                          isPartner ? AppColors.primary : AppColors.primary,
                       padding: EdgeInsets.symmetric(
                         vertical: 14,
                       ),
@@ -2231,8 +2228,7 @@ class AboutTabContent extends StatelessWidget {
           children: [
             Icon(
               icon,
-              color:
-                  isPartner ? AppColors.primaryLight2 : AppColors.primaryLight2,
+              color: isPartner ? AppColors.primary : AppColors.primary,
               size: 22,
             ),
             const SizedBox(width: 16),

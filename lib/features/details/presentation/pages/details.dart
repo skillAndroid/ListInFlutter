@@ -3,6 +3,7 @@
 
 import 'dart:async';
 import 'dart:math' as math;
+import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
@@ -105,7 +106,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     _initializeVideo();
     // Fixed the syntax error here - was using pageController instead of _pageController
     _pageController.addListener(_handleVideoVisibility);
-    Future.delayed(Duration(milliseconds: 100), () {
+    Future.delayed(Duration(milliseconds: 50), () {
       if (mounted) {
         setState(() {
           _initializationInProgress = false;
@@ -339,7 +340,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               Container(
                 color: Theme.of(context).cardColor,
                 child: AspectRatio(
-                  aspectRatio: 4 / 6,
+                  aspectRatio: 4 / 5.5,
                   child: PageView.builder(
                     controller: _pageController,
                     onPageChanged: (index) {
@@ -404,16 +405,34 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                 key: _videoKey,
                                 fit: StackFit.expand,
                                 children: [
+                                  // Blurred background for video
+                                  if (widget.product.productImages.isNotEmpty)
+                                    ImageFiltered(
+                                      imageFilter: ImageFilter.blur(
+                                        sigmaX: 100,
+                                        sigmaY: 100,
+                                      ),
+                                      child: CachedNetworkImage(
+                                        imageUrl:
+                                            'https://${widget.product.productImages[0].url}',
+                                        fit: BoxFit.cover,
+                                        width: double.infinity,
+                                        height: double.infinity,
+                                      ),
+                                    ),
+
                                   // Video container
                                   if (_isVideoInitialized)
-                                    FittedBox(
-                                      child: SizedBox(
-                                        width: _videoPlayerController!
-                                            .value.size.width,
-                                        height: _videoPlayerController!
-                                            .value.size.height,
-                                        child: VideoPlayer(
-                                            _videoPlayerController!),
+                                    Center(
+                                      child: FittedBox(
+                                        child: SizedBox(
+                                          width: _videoPlayerController!
+                                              .value.size.width,
+                                          height: _videoPlayerController!
+                                              .value.size.height,
+                                          child: VideoPlayer(
+                                              _videoPlayerController!),
+                                        ),
                                       ),
                                     )
                                   else
@@ -478,11 +497,32 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                           child: SmoothClipRRect(
                             smoothness: 0.8,
                             borderRadius: BorderRadius.circular(0),
-                            child: CachedNetworkImage(
-                              imageUrl:
-                                  'https://${widget.product.productImages[imageIndex].url}',
-                              fit: BoxFit.contain,
-                              filterQuality: FilterQuality.high,
+                            child: Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                // Blurred background layer
+                                ImageFiltered(
+                                  imageFilter: ImageFilter.blur(
+                                      sigmaX: 100, sigmaY: 100),
+                                  child: CachedNetworkImage(
+                                    imageUrl:
+                                        'https://${widget.product.productImages[imageIndex].url}',
+                                    fit: BoxFit.cover,
+                                    width: double.infinity,
+                                    height: double.infinity,
+                                  ),
+                                ),
+
+                                // Main image layer (centered and contained)
+                                Center(
+                                  child: CachedNetworkImage(
+                                    imageUrl:
+                                        'https://${widget.product.productImages[imageIndex].url}',
+                                    fit: BoxFit.contain,
+                                    filterQuality: FilterQuality.high,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
@@ -906,7 +946,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       shape: SmoothRectangleBorder(
                         borderRadius: BorderRadius.circular(24),
                       ),
-                      backgroundColor: AppColors.primaryLight2,
+                      backgroundColor: AppColors.primary,
                       foregroundColor:
                           Theme.of(context).colorScheme.onSecondary,
                       padding: const EdgeInsets.symmetric(vertical: 14),

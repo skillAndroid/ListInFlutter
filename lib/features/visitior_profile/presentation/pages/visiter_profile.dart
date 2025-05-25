@@ -3,7 +3,6 @@
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -435,10 +434,10 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                                     child: Container(
                                       alignment: Alignment.center,
                                       constraints: const BoxConstraints(
-                                        maxHeight: 40,
+                                        maxHeight: 42,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: AppColors.primaryLight2,
+                                        color: AppColors.primary,
                                       ),
                                       child: isLoading
                                           ? Padding(
@@ -475,12 +474,10 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                                                                 context)!
                                                             .follow,
                                                     style: TextStyle(
-                                                      color: Theme.of(context)
-                                                          .colorScheme
-                                                          .secondary,
+                                                      color: AppColors.white,
                                                       fontSize: 15,
                                                       fontWeight:
-                                                          FontWeight.w500,
+                                                          FontWeight.w600,
                                                     ),
                                                   ),
                                                 ],
@@ -514,7 +511,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                                 child: Container(
                                   alignment: Alignment.center,
                                   constraints: const BoxConstraints(
-                                    minHeight: 40,
+                                    minHeight: 42,
                                   ),
                                   decoration: BoxDecoration(
                                     color: Theme.of(context)
@@ -543,7 +540,7 @@ class _VisitorProfileScreenState extends State<VisitorProfileScreen>
                                                 .colorScheme
                                                 .secondary,
                                             fontSize: 15,
-                                            fontWeight: FontWeight.w500,
+                                            fontWeight: FontWeight.w600,
                                           ),
                                         ),
                                       ],

@@ -1,19 +1,14 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // static const primary = Color(0xFFFF4F67);
-  static const primary = CupertinoColors.activeGreen;
+  static const primary2 = Color(0xFF0AF0DF);
+  static const primary = Color(0xFFFC4455);
   static const blue = AppColors.darkGray; // Deep green as primary brand color
   static const primaryLight = Color.fromARGB(255, 225, 241, 226);
-  static const primaryLight2 =
-      Color.fromARGB(255, 143, 234, 149); // Light green for secondary elements
   static const primaryDark = Color(0xFF1B5E20); // Dark green for emphasis
-  // static const bgColor = Color.fromARGB(255, 252, 252, 252);// Color(0xFFFFFAFA);
   static const bgColor = Color.fromARGB(255, 254, 254, 254);
   static const secondaryColor = Color(0xFF274646);
-  // static const littleGreen = Color(0xFFCFE9DC);
-  static const littleGreen = Color(0xFFA8F6D4);
+
   static const littleGreen2 = Color.fromARGB(255, 220, 241, 231);
   static const lightText = Color.fromARGB(255, 177, 182, 187);
   static const containerColor = Color.fromARGB(255, 237, 237, 237);

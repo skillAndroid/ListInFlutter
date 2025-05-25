@@ -414,7 +414,6 @@ class _ChatRoomsPageState extends State<ChatRoomsPage>
           ),
         ),
 
-        // Unread count badge at bottom right
         if (chatRoom.unreadMessages > 0)
           Container(
             margin: const EdgeInsets.only(top: 4),

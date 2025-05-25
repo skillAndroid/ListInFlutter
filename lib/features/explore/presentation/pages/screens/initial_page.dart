@@ -150,7 +150,6 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
     _setupListeners();
     _fetchGlobalData();
     _fetchInitialData();
-    _fetchVideoFeeds();
   }
 
   void _initializeStates() {
@@ -193,10 +192,6 @@ class _InitialHomeTreePageState extends State<InitialHomeTreePage> {
 
     context.read<HomeTreeCubit>().fetchCatalogs();
     context.read<HomeTreeCubit>().fetchLocations();
-  }
-
-  void _fetchVideoFeeds() {
-    context.read<HomeTreeCubit>().fetchVideoFeeds(0);
   }
 
   @override

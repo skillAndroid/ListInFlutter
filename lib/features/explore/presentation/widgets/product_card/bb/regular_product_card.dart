@@ -86,7 +86,7 @@ class OptimizedProductCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: EdgeInsets.all(1.2),
+        margin: EdgeInsets.all(2),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -153,7 +153,7 @@ class ProductImageSection extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(0),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(20),
               child: _buildImage(),
             ),
           ),

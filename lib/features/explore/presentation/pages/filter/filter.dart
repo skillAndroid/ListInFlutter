@@ -3,7 +3,6 @@
 import 'dart:async';
 
 import 'package:figma_squircle/figma_squircle.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -1434,7 +1433,7 @@ class _FiltersPageState extends State<FiltersPage>
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? CupertinoColors.activeGreen
+                        ? AppColors.primary
                         : isDarkMode
                             ? Theme.of(context).scaffoldBackgroundColor
                             : AppColors.containerColor,
@@ -1682,12 +1681,11 @@ class _FiltersPageState extends State<FiltersPage>
                   height: 24,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
-                    color: state.bargain
-                        ? CupertinoColors.activeGreen
-                        : Colors.transparent,
+                    color:
+                        state.bargain ? AppColors.primary : Colors.transparent,
                     border: Border.all(
                       color: state.bargain
-                          ? CupertinoColors.activeGreen
+                          ? AppColors.primary
                           : AppColors.lighterGray,
                       width: 2.0,
                     ),
@@ -1737,12 +1735,11 @@ class _FiltersPageState extends State<FiltersPage>
                   height: 24,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
-                    color: state.isFree
-                        ? CupertinoColors.activeGreen
-                        : Colors.transparent,
+                    color:
+                        state.isFree ? AppColors.primary : Colors.transparent,
                     border: Border.all(
                       color: state.isFree
-                          ? CupertinoColors.activeGreen
+                          ? AppColors.primary
                           : AppColors.lighterGray,
                       width: 2,
                     ),
@@ -2441,7 +2438,7 @@ class _FiltersPageState extends State<FiltersPage>
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: isDarkMode
-                                ? CupertinoColors.systemGreen
+                                ? AppColors.primary
                                 : Theme.of(context).colorScheme.secondary,
                             foregroundColor:
                                 Theme.of(context).colorScheme.onSecondary,
@@ -2716,9 +2713,8 @@ class _PriceRangeSliderState extends State<PriceRangeSlider> {
         SliderTheme(
           data: SliderThemeData(
             trackHeight: 5,
-            activeTrackColor: isDisabled
-                ? AppColors.containerColor
-                : CupertinoColors.activeGreen,
+            activeTrackColor:
+                isDisabled ? AppColors.containerColor : AppColors.primary,
             inactiveTrackColor: AppColors.containerColor,
             thumbColor: isDisabled ? AppColors.containerColor : Colors.white,
             overlayColor: Colors.transparent,

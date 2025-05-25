@@ -214,14 +214,14 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // User info section at top
-          //    _UserInfoHeader(seller: widget.model.seller),
+          _UserInfoHeader(seller: widget.model.seller),
 
           // Media carousel
           _buildMediaCarousel(),
 
           // Product info section
           Padding(
-            padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+            padding: EdgeInsets.symmetric(vertical: 6, horizontal: 8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -247,28 +247,36 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
                     ),
                   ),
                 ),
-                // const SizedBox(height: 4),
 
-                // Price and action buttons
                 Row(
                   children: [
                     SizedBox(
-                      width: 4,
+                      width: 2,
                     ),
                     // Price
-                    Text(
-                      formatPrice(widget.model.price.toString()),
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: Theme.of(context).colorScheme.secondary,
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Container(
+                        color: AppColors.primary2.withOpacity(0.5),
+                        child: Padding(
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 2, vertical: 1),
+                          child: Text(
+                            formatPrice(widget.model.price.toString()),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                     const Spacer(),
 
                     // Call button
                     _ActionButton(
-                      color: Colors.green,
+                      color: AppColors.primary,
                       onPressed: !widget.model.isOwner
                           ? () => _makeCall(context)
                           : null,
@@ -286,11 +294,11 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
 
   Widget _buildMediaCarousel() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 1.5),
+      padding: EdgeInsets.symmetric(horizontal: 2),
       child: AspectRatio(
-        aspectRatio: 9 / 16,
+        aspectRatio: 9 / 14.5,
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
           child: Stack(
             children: [
               PageView.builder(
