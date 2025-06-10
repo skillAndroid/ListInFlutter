@@ -340,7 +340,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               Container(
                 color: Theme.of(context).cardColor,
                 child: AspectRatio(
-                  aspectRatio: 4 / 5.5,
+                  aspectRatio: 4 / 5.75,
                   child: PageView.builder(
                     controller: _pageController,
                     onPageChanged: (index) {
@@ -954,13 +954,13 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     icon: const Icon(
                       Ionicons.chatbubble_ellipses,
                       size: 20,
-                      color: AppColors.black,
+                      color: AppColors.white,
                     ),
                     label: Text(
                       localizations.write,
                       style: const TextStyle(
                         fontSize: 16,
-                        color: AppColors.black,
+                        color: AppColors.white,
                         fontFamily: Constants.Arial,
                         fontWeight: FontWeight.bold,
                       ),
@@ -1140,16 +1140,17 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       shape: SmoothRectangleBorder(
                         borderRadius: BorderRadius.circular(24),
                       ),
-                      backgroundColor: CupertinoColors.activeGreen,
+                      backgroundColor: AppColors.primary,
                       foregroundColor:
                           Theme.of(context).colorScheme.onSecondary,
-                      padding: EdgeInsets.symmetric(vertical: 12),
+                      padding: EdgeInsets.symmetric(vertical: 14),
                     ),
                     child: Text(
                       localizations.edit_post,
                       style: const TextStyle(
                         fontSize: 16,
-                        color: AppColors.black,
+                        fontFamily: Constants.Arial,
+                        color: AppColors.white,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -1159,7 +1160,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 2),
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 2),
             child: Row(
               children: [
                 Expanded(
@@ -1181,12 +1182,13 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       backgroundColor:
                           Theme.of(context).scaffoldBackgroundColor,
                       foregroundColor: Theme.of(context).colorScheme.secondary,
-                      padding: EdgeInsets.symmetric(vertical: 12),
+                      padding: EdgeInsets.symmetric(vertical: 14),
                     ),
                     child: Text(
                       localizations.delete,
                       style: const TextStyle(
                         fontSize: 16,
+                        fontFamily: Constants.Arial,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

@@ -228,7 +228,7 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
     return Padding(
       padding: EdgeInsets.all(3),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(1),
         child: AspectRatio(
           aspectRatio: 16 / 11,
           child: Stack(

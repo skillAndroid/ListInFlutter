@@ -183,8 +183,8 @@ class _MainWrapperState extends State<MainWrapper> {
               // Video Feeds - Index 1
               _buildNavItem(
                 1,
-                Icons.slow_motion_video_outlined,
-                Icons.slow_motion_video,
+                Ionicons.videocam_outline,
+                Ionicons.videocam,
               ),
               // Add Post Button - Index 2 (special handling)
               _buildAddPostButton(),

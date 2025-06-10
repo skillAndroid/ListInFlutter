@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -255,7 +256,7 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
                     ),
                     // Price
                     ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(18),
                       child: Container(
                         color: AppColors.primary2.withOpacity(0.5),
                         child: Padding(
@@ -297,8 +298,8 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
       padding: EdgeInsets.symmetric(horizontal: 2),
       child: AspectRatio(
         aspectRatio: 9 / 14.5,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
+        child: ClipSmoothRect(
+          radius: SmoothBorderRadius(cornerRadius: 16, cornerSmoothing: 0.8),
           child: Stack(
             children: [
               PageView.builder(
