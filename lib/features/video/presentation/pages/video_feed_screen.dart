@@ -94,7 +94,7 @@ class _ListInShortsState extends State<ListInShorts>
   bool _isLoading = false;
   bool _isDisposed = false;
   bool _initialVideosFetched = false; // Add this flag
-  final int _forwardPreloadCount = 1;
+  final int _forwardPreloadCount = 2;
   final int _backwardKeepCount = 1;
 
   // MediaKit player and controller management
