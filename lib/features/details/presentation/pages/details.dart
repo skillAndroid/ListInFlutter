@@ -13,6 +13,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/assets/app_images.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
@@ -450,20 +451,19 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                       !_videoPlayerController!.value.isPlaying)
                                     Center(
                                       child: Container(
-                                        width: 60,
-                                        height: 60,
                                         decoration: BoxDecoration(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onSecondary
-                                              .withOpacity(0.7),
+                                          color:
+                                              AppColors.white.withOpacity(0.75),
                                           shape: BoxShape.circle,
                                         ),
-                                        child: Icon(
-                                          Icons.play_arrow_rounded,
-                                          color:
-                                              Theme.of(context).iconTheme.color,
-                                          size: 40,
+                                        padding: const EdgeInsets.all(20),
+                                        child: SizedBox(
+                                          width: 24,
+                                          height: 24,
+                                          child: Image.asset(
+                                            AppIcons.play_icon,
+                                            color: AppColors.black,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -1405,12 +1405,12 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   margin: const EdgeInsets.only(top: 24),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: CupertinoColors.activeGreen.withOpacity(0.1),
+                    color: AppColors.primary.withOpacity(0.1),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
                     Icons.privacy_tip_outlined,
-                    color: CupertinoColors.activeGreen,
+                    color: AppColors.primary,
                     size: 32,
                   ),
                 ),
@@ -1473,7 +1473,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     child: TextButton(
                       onPressed: () => Navigator.pop(context),
                       style: TextButton.styleFrom(
-                        backgroundColor: CupertinoColors.activeGreen,
+                        backgroundColor: AppColors.primary,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: SmoothRectangleBorder(
                           borderRadius: BorderRadius.circular(24),
@@ -1515,7 +1515,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             ),
             child: Icon(
               icon,
-              color: CupertinoColors.activeGreen,
+              color: AppColors.primary,
               size: 24,
             ),
           ),

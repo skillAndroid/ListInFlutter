@@ -4,12 +4,14 @@ import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:figma_squircle/figma_squircle.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:list_in/config/assets/app_icons.dart';
 import 'package:list_in/config/theme/app_colors.dart';
 import 'package:list_in/core/router/routes.dart';
 import 'package:list_in/features/explore/domain/enties/publication_entity.dart';
@@ -23,6 +25,55 @@ import 'package:list_in/global/global_state.dart';
 import 'package:list_in/global/global_status.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
+
+// Updated progress painter class
+class _SmoothProgressPainter extends CustomPainter {
+  final double progress;
+  final Color backgroundColor;
+  final Color progressColor;
+
+  _SmoothProgressPainter({
+    required this.progress,
+    required this.backgroundColor,
+    required this.progressColor,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Draw background line
+    final backgroundPaint = Paint()
+      ..color = backgroundColor
+      ..strokeWidth = size.height
+      ..strokeCap = StrokeCap.butt; // Changed to butt for square ends
+
+    canvas.drawLine(
+      Offset(0, size.height / 2),
+      Offset(size.width, size.height / 2),
+      backgroundPaint,
+    );
+
+    // Draw progress line
+    if (progress > 0) {
+      final progressPaint = Paint()
+        ..color = progressColor
+        ..strokeWidth = size.height
+        ..strokeCap = StrokeCap.butt; // Changed to butt for square ends
+
+      canvas.drawLine(
+        Offset(0, size.height / 2),
+        Offset(size.width * progress.clamp(0.0, 1.0), size.height / 2),
+        progressPaint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _SmoothProgressPainter oldDelegate) {
+    return progress != oldDelegate.progress ||
+        backgroundColor != oldDelegate.backgroundColor ||
+        progressColor != oldDelegate.progressColor;
+  }
+}
 
 class ListInShorts extends StatefulWidget {
   const ListInShorts({
@@ -399,14 +450,17 @@ class _ListInShortsState extends State<ListInShorts>
               child: Center(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: AppColors.black.withOpacity(0.5),
+                    color: AppColors.black.withOpacity(0.75),
                     shape: BoxShape.circle,
                   ),
-                  padding: const EdgeInsets.all(12),
-                  child: Icon(
-                    isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                    color: AppColors.white,
-                    size: 44,
+                  padding: const EdgeInsets.all(20),
+                  child: SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: Image.asset(
+                      isPlaying ? AppIcons.pause_icon : AppIcons.play_icon,
+                      color: AppColors.white,
+                    ),
                   ),
                 ),
               ),
@@ -825,6 +879,13 @@ class _ListInShortsState extends State<ListInShorts>
 
                             // Video info (user, product)
                             _buildVideoInfo(index),
+
+                            // Positioned(
+                            //   left: 0,
+                            //   right: 0,
+                            //   bottom: 0,
+                            //   child: _buildVideoProgressIndicator(index),
+                            // ),
                           ],
                         );
                       },
@@ -905,6 +966,84 @@ class _ListInShortsState extends State<ListInShorts>
           ),
         ),
       ],
+    );
+  }
+
+// Updated progress indicator widget
+  Widget _buildVideoProgressIndicator(int index) {
+    // Show loading indicator for videos that are initializing
+    if (_videoInitializing[index] == true) {
+      return Container(
+        height: 3,
+        margin: const EdgeInsets.symmetric(horizontal: 0),
+        child: LinearProgressIndicator(
+          backgroundColor: Colors.grey[800],
+          valueColor:
+              AlwaysStoppedAnimation<Color>(AppColors.white.withOpacity(0.5)),
+        ),
+      );
+    }
+
+    // Don't show anything if not initialized and not initializing
+    if (!_videoInitialized.containsKey(index) || !_videoInitialized[index]!) {
+      return const SizedBox.shrink();
+    }
+
+    return GestureDetector(
+      onHorizontalDragStart: (details) {
+        _players[index]?.pause();
+      },
+      onHorizontalDragUpdate: (details) {
+        final box = context.findRenderObject() as RenderBox;
+        final x = details.localPosition.dx;
+        final percentage = x / box.size.width;
+        final duration = _players[index]?.state.duration ?? Duration.zero;
+        final newPosition = duration * percentage.clamp(0.0, 1.0);
+        _players[index]?.seek(newPosition);
+      },
+      onHorizontalDragEnd: (details) {
+        _players[index]?.play();
+      },
+      onTapDown: (details) {
+        final box = context.findRenderObject() as RenderBox;
+        final x = details.localPosition.dx;
+        final percentage = x / box.size.width;
+        final duration = _players[index]?.state.duration ?? Duration.zero;
+        final newPosition = duration * percentage.clamp(0.0, 1.0);
+        _players[index]?.seek(newPosition);
+      },
+      child: StreamBuilder<Duration>(
+        stream: _players[index]!.stream.position,
+        builder: (context, positionSnapshot) {
+          final position = positionSnapshot.data ?? Duration.zero;
+
+          return StreamBuilder<Duration>(
+            stream: _players[index]!.stream.duration,
+            builder: (context, durationSnapshot) {
+              final duration = durationSnapshot.data ?? Duration.zero;
+
+              if (duration.inSeconds == 0) {
+                return const SizedBox.shrink();
+              }
+
+              final progress =
+                  position.inMilliseconds / duration.inMilliseconds;
+
+              return Container(
+                height: 3,
+                margin: const EdgeInsets.symmetric(horizontal: 0),
+                child: CustomPaint(
+                  painter: _SmoothProgressPainter(
+                    progress: progress,
+                    backgroundColor: Colors.grey[800]!,
+                    progressColor: Colors.white.withOpacity(0.8),
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }

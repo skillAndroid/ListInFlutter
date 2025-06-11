@@ -155,15 +155,6 @@ class _MainWrapperState extends State<MainWrapper> {
           height: 47,
           decoration: BoxDecoration(
             color: backgroundColor,
-            boxShadow: [
-              BoxShadow(
-                color:
-                    _isDarkMode ? Colors.black54 : Colors.grey.withOpacity(0.1),
-                blurRadius: 2,
-                offset: Offset(0, -1), // Shadow positioned at the top
-                spreadRadius: 0.3,
-              ),
-            ],
             border: Border(
               top: BorderSide(
                 color: borderColor,
@@ -211,7 +202,7 @@ class _MainWrapperState extends State<MainWrapper> {
         isSelected ? selectedIcon : icon,
         size: index == 3 || index == 1 ? 28 : 26,
         color: _isDarkMode
-            ? AppColors.white
+            ? AppColors.white.withOpacity(0.8)
             : Theme.of(context).colorScheme.secondary,
       ),
       padding: EdgeInsets.zero,
@@ -224,7 +215,7 @@ class _MainWrapperState extends State<MainWrapper> {
       icon: Icon(CupertinoIcons.plus,
           size: 32,
           color: _isDarkMode
-              ? AppColors.white
+              ? AppColors.white.withOpacity(0.8)
               : Theme.of(context).colorScheme.secondary),
       padding: EdgeInsets.zero,
     );
@@ -242,7 +233,7 @@ class _MainWrapperState extends State<MainWrapper> {
                 width: isSelected ? 1.5 : 0,
                 color: isSelected
                     ? _isDarkMode
-                        ? AppColors.white
+                        ? AppColors.white.withOpacity(0.8)
                         : Theme.of(context).colorScheme.secondary
                     : AppColors.transparent,
               ),

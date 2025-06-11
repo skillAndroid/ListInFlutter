@@ -29,4 +29,7 @@ class AppIcons {
   static const ideaIc = '${_basePath}idea_ic$_format';
 
   static const bg_icon = '${_basePath}bg_transparent_list_in$_format';
+
+  static const play_icon = '${_basePath}play_ic$_format';
+  static const pause_icon = '${_basePath}pause_ic$_format';
 }
