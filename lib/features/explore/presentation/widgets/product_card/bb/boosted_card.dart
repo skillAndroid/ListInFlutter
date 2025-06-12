@@ -258,7 +258,7 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(18),
                       child: Container(
-                        color: AppColors.primary2.withOpacity(0.5),
+                        color: AppColors.primary2.withOpacity(0.85),
                         child: Padding(
                           padding:
                               EdgeInsets.symmetric(horizontal: 2, vertical: 1),

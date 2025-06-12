@@ -19,6 +19,7 @@ import 'package:list_in/features/explore/presentation/bloc/cubit.dart';
 import 'package:list_in/features/explore/presentation/bloc/state.dart';
 import 'package:list_in/features/explore/presentation/widgets/formaters.dart';
 import 'package:list_in/features/profile/domain/usecases/user/get_user_data_usecase.dart';
+import 'package:list_in/features/video/presentation/pages/detail_page_bottom_sheet.dart';
 import 'package:list_in/global/global_bloc.dart';
 import 'package:list_in/global/global_event.dart';
 import 'package:list_in/global/global_state.dart';
@@ -380,6 +381,17 @@ class _ListInShortsState extends State<ListInShorts>
   }
 
 // You can add this method to show visual feedback when debugging
+  Future<void> showProductDetailsSheet(
+      BuildContext context, GetPublicationEntity product) async {
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return ProductDetailsBottomSheet(product: product);
+      },
+    );
+  }
 
   Future<void> _navigateToNewScreen(GetPublicationEntity product) async {
     // Pause video before navigation

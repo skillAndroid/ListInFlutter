@@ -32,14 +32,14 @@ class MessageBubble extends StatelessWidget {
         statusIcon = Icon(
           Icons.done_all,
           size: 13,
-          color: AppColors.black.withOpacity(0.7),
+          color: AppColors.white.withOpacity(0.7),
         );
       } else if (upperStatus == 'DELIVERED') {
         // Message has been delivered but not read
         statusIcon = Icon(
           Icons.done,
           size: 13,
-          color: AppColors.black.withOpacity(0.7),
+          color: AppColors.white.withOpacity(0.7),
         );
       } else {
         statusIcon = Icon(
@@ -85,7 +85,7 @@ class MessageBubble extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 14,
                     color: isMe
-                        ? AppColors.black
+                        ? AppColors.white
                         : Theme.of(context).colorScheme.secondary,
                   ),
                 ),
@@ -98,7 +98,7 @@ class MessageBubble extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 11,
                         color: isMe
-                            ? AppColors.black.withOpacity(0.7)
+                            ? AppColors.white.withOpacity(0.7)
                             : Theme.of(context)
                                 .colorScheme
                                 .secondary
