@@ -267,7 +267,7 @@ class _OptimizedCardContentState extends State<_OptimizedCardContent> {
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
-                              color: Theme.of(context).colorScheme.secondary,
+                              color: AppColors.black,
                             ),
                           ),
                         ),
